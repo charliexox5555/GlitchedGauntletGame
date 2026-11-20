@@ -41,14 +41,14 @@ return table.freeze({
 		-- The other crouch-walk directions (same stride length), blended by
 		-- where you move like the run set (2026-11-04).
 		CrouchWalkB = id(82235519011694),
-		CrouchWalkL = id(78069980558194),
-		CrouchWalkR = id(84497263575143),
+		CrouchWalkL = id(135096973393141), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 78069980558194)
+		CrouchWalkR = id(72907308049134), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 84497263575143)
 		-- ...and the diagonals (2026-11-13: eight directions, Simulation/Poses
 		-- blends the two either side of the move).
-		CrouchWalkFR = id(140110042704887),
-		CrouchWalkBR = id(129306109767897),
-		CrouchWalkBL = id(95758423303446),
-		CrouchWalkFL = id(91208655342459),
+		CrouchWalkFR = id(137679623333500), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 140110042704887)
+		CrouchWalkBR = id(77348337720648), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 129306109767897)
+		CrouchWalkBL = id(131407720415435), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 95758423303446)
+		CrouchWalkFL = id(100723533854221), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 91208655342459)
 		Slide = id(103527653788997), -- the full-body ground slide hold, with a scrape chatter (tools/anim/tp_clips.py)
 		-- ...with a sidearm or the knife (2026-11-13: their own arms on the fist).
 		SlidePistol = id(123494865248021),
@@ -331,12 +331,12 @@ return table.freeze({
 		-- Hold and use clips (keyed as controls and solved per frame; the old
 		-- Studio set: MakeModAnimations.luau pass 2,
 		-- 2026-11-04: wind-ups, snaps and follow-throughs, ending on the gun hold).
-		ModHold = id(79414521552493),
+		ModHold = id(134481823269919), -- r3 2026-11-21: sways, weighs the item, head follows (was 79414521552493)
 		Throw = id(119484404341094), -- r2 2026-11-21: the wind-up reads (item above and behind the head, free arm pointing at the target) (was 129085261001652) -- o1 2026-11-20 overnight TP pass, splines (was 80403547544782)
 		Place = id(105011555120942), -- r2 2026-11-21: down on the crouch stance, bent over (the kneel buried the knee 0.39) (was 83199924746572) -- o1 2026-11-20 overnight TP pass, splines (was 92359767222451)
-		Heal = id(120933430967429), -- r2 2026-11-21: device out front-right at shoulder height, free arm out to the side, no arms through the chest (was 77351510963020) -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
+		Heal = id(118945426933325), -- r3 2026-11-21: cocked low by the hip, sweeps up and in with a 30-degree chest swing (was 120933430967429) -- r2 2026-11-21: device out front-right at shoulder height, free arm out to the side, no arms through the chest (was 77351510963020) -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
 		Lob = id(123753817056953), -- r2 2026-11-21: free arm reaches out front, the swing goes wide of the hip (was 85103387011074) -- o1 2026-11-20 overnight TP pass, splines (was 86298417428874) -- a held throw's underhand (Molly RMB)
-		Cast = id(78340199527777), -- r2 2026-11-21: leans harder into the shove (was 110417908522750) -- o2 2026-11-20 overnight TP pass, splines, no chest clipping (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
+		Cast = id(78257120931478), -- r3 2026-11-21: drawn low by the left hip, shoves up and out front-left with a 30-degree chest swing (was 78340199527777) -- r2 2026-11-21: leans harder into the shove (was 110417908522750) -- o2 2026-11-20 overnight TP pass, splines, no chest clipping (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
 		-- Dash: the torso leans into the dash (Simulation/Poses, by direction).
 		DashForward = id(93439510581896), -- r2 2026-11-21: on splines, no dead hold, half the hip tilt (the gun stays near level) (was 76094407168365)
 		DashBack = id(120793622302960), -- r2 2026-11-21 (was 75006063877431)

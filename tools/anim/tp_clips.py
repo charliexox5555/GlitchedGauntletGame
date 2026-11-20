@@ -923,7 +923,10 @@ def dir_gait(angle, family, homes_f=None, poles_f=None, poles_s=None, yaw_f=6):
 	# forward-right and back-left, right foot ahead for forward-left and
 	# back-right.
 	lane = side["lane"] * (-1 if dx * dz > 1e-6 else 1)
-	side_homes = {"right": (side["width"], lane), "left": (-side["width"], -lane)}
+	# `ahead`: both lanes moved forward under the body (the crouch: a foot
+	# left behind a low crouch folds its leg into a kneel).
+	ahead = side.get("ahead", 0.0)
+	side_homes = {"right": (side["width"], lane - ahead), "left": (-side["width"], -lane - ahead)}
 	hips = gait_hips(
 		(dx, dz),
 		num["duty"],
@@ -1171,12 +1174,20 @@ held("Crouch", "Action2", CROUCH, LOWER)
 CROUCH_LENGTH = 0.3  # was 0.46: a folded leg can't reach a long stance (its shin lay flat)
 CROUCH_DUTY = 0.55
 CROUCH_POLES = {"right": (0.3, 0.1, -1), "left": (-0.3, 0.1, -1)}
+# (Round 3, 2026-11-21: the side and diagonal shuffles left the back-lane foot
+# so far behind the hips that its leg folded into a kneel at the end of each
+# stance, the knee 0.26-0.38 into the floor. The lanes now sit 0.4 ahead, the
+# side stance is 0.8 wide and 0.06 higher, and the knees point outward, so
+# the swinging knee no longer comes in to the middle. tp_check: knee 0.000 in
+# all six, lock 98.1-99.8% (was 98.5-99.8), shins 0.92-1.24 apart (was
+# 0.93-1.21). Forward and back are unchanged.)
+CROUCH_SIDE_POLES = {"right": (0.6, 0.1, -1), "left": (-0.6, 0.1, -1)}
 CROUCH_FAMILY = {
 	"speed": CROUCH_SPEED,
 	"f": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "lift": 0.3, "bob": 0.04, "lean": -13, "base": -0.98, "twist": 3, "roll": 2.5},
 	"b": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "lift": 0.3, "bob": 0.04, "lean": -13, "base": -0.98, "twist": 3, "roll": 2.5},
 	# Crouched knees reach forward, so the side lanes are wider (shins 0.93 apart at worst).
-	"s": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "close": 0.3, "lift": 0.28, "bob": 0.04, "lean": -13, "base": -0.98, "width": 0.7, "lane": 0.55, "side_lean": 5},
+	"s": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "close": 0.3, "lift": 0.28, "bob": 0.04, "lean": -13, "base": -0.92, "width": 0.8, "lane": 0.55, "ahead": 0.4, "side_lean": 5},
 }
 dir_clips(
 	"CrouchWalk",
@@ -1185,7 +1196,7 @@ dir_clips(
 	names={"F": "CrouchWalk"},
 	homes_f={"right": (0.58, 0.05), "left": (-0.58, -0.05)},
 	poles_f=CROUCH_POLES,
-	poles_s=CROUCH_POLES,
+	poles_s=CROUCH_SIDE_POLES,
 	yaw_f=8,
 )
 
@@ -1801,13 +1812,22 @@ MOD_HOLD = stood(arms(bladed(-4, -8), MOD_HOLD_R, MOD_HOLD_L))
 
 
 def mod_hold(t):
-	b = math.sin(TAU * t / 2.4)
+	# (Round 3, "a touch flat": one slow breath was all it did. Now the
+	# shoulders also sway a little side to side out of step with the breath,
+	# the item hand weighs the item (a small bob twice a breath) and the free
+	# hand drifts with the chest; the head stays on target. Every term repeats
+	# over the loop, so the seam is clean.)
+	ph = TAU * t / 2.4
+	b = math.sin(ph)
+	sway = math.sin(ph + 1.2)
+	weigh = math.sin(2 * ph + 0.6)
 	return solve(
 		stood(
 			arms(
-				bladed(-4 - 1.2 * b, -8),
-				(MOD_HOLD_R[0], MOD_HOLD_R[1] + 0.03 * b, MOD_HOLD_R[2]),
-				(MOD_HOLD_L[0], MOD_HOLD_L[1] + 0.04 * b, MOD_HOLD_L[2] - 0.02 * b),
+				bladed(-4 - 1.5 * b, -8 + 3.0 * sway, 1.2 * sway),
+				(MOD_HOLD_R[0] + 0.03 * sway, MOD_HOLD_R[1] + 0.05 * b + 0.035 * weigh, MOD_HOLD_R[2] - 0.03 * weigh),
+				(MOD_HOLD_L[0] + 0.05 * sway, MOD_HOLD_L[1] + 0.05 * b, MOD_HOLD_L[2] - 0.03 * b),
+				head=(0, -2.0 * sway, 0),
 			)
 		)
 	)
@@ -1878,15 +1898,20 @@ add(
 )
 
 
-# Cast (Firewall): the free hand draws in to the chest, then shoves out
-# straight and holds, trembling, while the wall goes up.
+# Cast (Firewall): the free hand draws back low by the left hip, then shoves
+# up and out to the front-left and holds, trembling, while the wall goes up.
+# (Round 3: from the owner's angle, front-right and close, a straight shove
+# came at the camera and kept about 57% of its travel on screen. Now it rises
+# from the hip to face height (vertical travel keeps about 98%), goes a little
+# left (across the screen), and the chest swings 30 degrees behind it, the
+# left shoulder driving in.)
 def cast_push(tremor):
 	return stood(
 		arms(
-			bladed(-15, 18),  # (Round 2: leans harder into the shove, was -10)
-			(0.95, 0.95, 0.05),
-			(-0.2 + 0.015 * tremor, 0.85 + 0.02 * tremor, -1.85),
-			l_pole=(-0.8, -1, 0.1),
+			bladed(-14, -14),
+			(1.05, 0.95, 0.15),
+			(-0.6 + 0.015 * tremor, 1.2 + 0.02 * tremor, -1.95),
+			l_pole=(-1, -0.8, 0.2),
 		)
 	)
 
@@ -1901,11 +1926,13 @@ add(
 				# (2026-11-20: the free hand drew back 0.3 studs less, it was inside
 				# the chest at 0.08 s; and a key out in front on the way back to the
 				# gun, the right hand cut through the chest at 0.82-0.88 s.)
-				(0.08, stood(arms(bladed(-2, -18), MOD_HOLD_R, (-0.6, 0.75, -0.75), l_pole=(-1, -0.6, 0.2)))),
-				(0.16, cast_push(0), ease_out),
+				# (Round 3: drawn back low and out by the left hip, the left
+				# shoulder back, so the shove travels up and across.)
+				(0.1, stood(arms(bladed(-4, 16), (1.25, 0.95, -0.2), (-0.95, 0.2, 0.05), l_pole=(-1, -0.2, 0.6)))),
+				(0.24, cast_push(0), ease_out),
 				(0.4, cast_push(1)),
 				(0.7, cast_push(-1)),
-				(0.85, stood(arms(bladed(-4, -14), (0.75, 0.9, -1.25), (-0.4, 0.8, -1.9)))),
+				(0.85, stood(arms(bladed(-4, -10), (0.75, 0.9, -1.25), (-0.5, 0.95, -1.9)))),
 			],
 			end=(1.08, STAND_HOLD, ease_in_out),
 		),
@@ -1964,12 +1991,19 @@ add(
 		spline_sequence(
 			[
 				(0.0, MOD_HOLD),
-				(0.07, stood(arms(bladed(4, -12), (0.5, 0.6, -0.35), (-0.6, 0.5, -1.2), r_pole=(1, -0.6, 0.4)))),
+				# (Round 3: from the owner's angle, front-right and close, the
+				# straight thrust came at the camera. Now the device cocks back low
+				# by the right hip, the right shoulder back, and sweeps up and in
+				# to the front at shoulder height as the chest swings 30 degrees
+				# behind it; the free arm swings back the other way. Rising and
+				# across keeps about 76% of the travel on screen, a straight
+				# thrust 57%.)
+				(0.08, stood(arms(bladed(2, -16), (1.1, 0.4, 0.3), (-0.7, 0.55, -1.5), r_pole=(1, -0.3, 0.6)))),
 				# (Round 2: both arms crossed the chest at the thrust and it read as a
-				# block; the device goes out front-right at shoulder height now, the
-				# free arm out to the side.)
-				(0.14, stood(arms(bladed(-15, -2), (0.75, 1.0, -1.95), (-1.25, -0.1, 0.05), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6))), ease_out),
-				(0.32, stood(arms(bladed(-13, -2), (0.78, 0.95, -1.85), (-1.25, -0.05, 0.0), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6)))),
+				# block; the device stays right of the chest's middle, the free arm
+				# out to the side.)
+				(0.18, stood(arms(bladed(-15, 14), (0.5, 1.1, -1.95), (-1.2, -0.05, 0.45), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6))), ease_out),
+				(0.32, stood(arms(bladed(-13, 12), (0.53, 1.05, -1.87), (-1.2, 0.0, 0.4), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6)))),
 				# Both hands come back to the gun out in front (they cut through the
 				# chest at 0.43 s).
 				(0.43, stood(arms(bladed(-9, -10), (0.65, 0.75, -1.6), (-0.75, 0.55, -1.55), r_pole=(1, -0.6, 0.3)))),

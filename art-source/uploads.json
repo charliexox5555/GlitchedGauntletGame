@@ -204,10 +204,10 @@
   "uploaded": "2026-11-20 03:20:54"
  },
  "art-source/animations/GG_Cast.rbxm": {
-  "assetId": 78340199527777,
-  "name": "GG Cast r2b",
+  "assetId": 78257120931478,
+  "name": "GG Cast r3",
   "type": "Animation",
-  "uploaded": "2026-11-20 09:58:05"
+  "uploaded": "2026-11-20 13:47:19"
  },
  "art-source/animations/GG_Crouch.rbxm": {
   "assetId": 79991946157030,
@@ -228,40 +228,40 @@
   "uploaded": "2026-11-13 01:46:00"
  },
  "art-source/animations/GG_CrouchWalkBL.rbxm": {
-  "assetId": 95758423303446,
-  "name": "GG CrouchWalkBL v9",
+  "assetId": 131407720415435,
+  "name": "GG CrouchWalkBL r3",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:46:03"
+  "uploaded": "2026-11-20 13:47:05"
  },
  "art-source/animations/GG_CrouchWalkBR.rbxm": {
-  "assetId": 129306109767897,
-  "name": "GG CrouchWalkBR v9",
+  "assetId": 77348337720648,
+  "name": "GG CrouchWalkBR r3",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:57"
+  "uploaded": "2026-11-20 13:47:02"
  },
  "art-source/animations/GG_CrouchWalkFL.rbxm": {
-  "assetId": 91208655342459,
-  "name": "GG CrouchWalkFL v9",
+  "assetId": 100723533854221,
+  "name": "GG CrouchWalkFL r3",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:46:08"
+  "uploaded": "2026-11-20 13:47:10"
  },
  "art-source/animations/GG_CrouchWalkFR.rbxm": {
-  "assetId": 140110042704887,
-  "name": "GG CrouchWalkFR v9",
+  "assetId": 137679623333500,
+  "name": "GG CrouchWalkFR r3",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:52"
+  "uploaded": "2026-11-20 13:46:54"
  },
  "art-source/animations/GG_CrouchWalkL.rbxm": {
-  "assetId": 78069980558194,
-  "name": "GG CrouchWalkL v9",
+  "assetId": 135096973393141,
+  "name": "GG CrouchWalkL r3",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:46:05"
+  "uploaded": "2026-11-20 13:47:08"
  },
  "art-source/animations/GG_CrouchWalkR.rbxm": {
-  "assetId": 84497263575143,
-  "name": "GG CrouchWalkR v9",
+  "assetId": 72907308049134,
+  "name": "GG CrouchWalkR r3",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:55"
+  "uploaded": "2026-11-20 13:47:00"
  },
  "art-source/animations/GG_DashBack.rbxm": {
   "assetId": 120793622302960,
@@ -312,10 +312,10 @@
   "uploaded": "2026-11-20 09:30:05"
  },
  "art-source/animations/GG_Heal.rbxm": {
-  "assetId": 120933430967429,
-  "name": "GG Heal r2",
+  "assetId": 118945426933325,
+  "name": "GG Heal r3",
   "type": "Animation",
-  "uploaded": "2026-11-20 10:08:03"
+  "uploaded": "2026-11-20 13:47:16"
  },
  "art-source/animations/GG_Idle.rbxm": {
   "assetId": 114709237157503,
@@ -408,10 +408,10 @@
   "uploaded": "2026-11-04 02:57:46"
  },
  "art-source/animations/GG_ModHold.rbxm": {
-  "assetId": 79414521552493,
-  "name": "GG ModHold v5b",
+  "assetId": 134481823269919,
+  "name": "GG ModHold r3",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:29:29"
+  "uploaded": "2026-11-20 13:47:13"
  },
  "art-source/animations/GG_ModLob.rbxm": {
   "assetId": 91952970218420,
