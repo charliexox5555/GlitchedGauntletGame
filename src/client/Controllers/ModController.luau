@@ -704,6 +704,11 @@ local function use(mode: ModTypes.UseMode)
 				-- The gun stays down USE_TIME from the send, as on the server.
 				phaseAt = os.clock()
 				sendUse(slot, mode, target)
+				if moveKind ~= "Place" then
+					local kick = Config.THROW_KICK
+					CameraController.rollKick(kick.roll, kick.rollTime)
+					CameraController.punchFov(kick.fov, kick.fovTime)
+				end
 			end
 		end)
 	else

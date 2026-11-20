@@ -1273,7 +1273,9 @@ return table.freeze({
 			-- Round 3: the forearm upright like the canisters, the orb standing on
 			-- its end (palm-up, it sat half behind the block's top edge).
 			arm = Vector3.new(0.5, -0.85, 0.25),
-			lift = Vector3.new(0, -0.08, 0), -- the orb sits down in the fist (it floated above it),
+			-- The orb sits down in the fist (it floated above it). Round 3: -0.08 -> -0.16,
+			-- its glowing core onto the block's end (blind reviews: it hovered).
+			lift = Vector3.new(0, -0.16, 0),
 		},
 		-- Recon bow (rebuilt 2026-11-16, owner: "should look like a good two
 		-- hand first person draw back"): a right-handed archer. The bow in the
@@ -1325,7 +1327,10 @@ return table.freeze({
 		},
 		-- Roller: the bot on the palm, nose forward (its placed model held small).
 		Roller = {
-			scale = 1.2, -- 1.4 until 2026-11-21: it filled the centre-right of the view
+			-- 1.4 until 2026-11-21 (it filled the centre-right of the view), then 1.2;
+			-- round 3: 0.95, toward RIVALS' "item about 1.5x the block" (at 1.2 it was
+			-- ~3x the block, read weightless on one fist and crowded the crosshair).
+			scale = 0.95,
 			-- 2026-11-21 (frame in play): at (0.5, -0.7, -2) the car's top-left
 			-- wheel sat on the crosshair; lower and further right, clear of it.
 			offset = Vector3.new(0.62, -0.9, -2.05),
@@ -1502,10 +1507,12 @@ return table.freeze({
 					rot = Vector3.new(-28, 12, 18),
 					arm = Vector3.new(0, 0.1, 0.3),
 				},
+				-- Fix round 3: at the release the canister rides the end of the thrusting
+				-- forearm (14° off it; at +35° it tipped back off the end's edge).
 				{
 					t = 0.42,
 					pos = Vector3.new(-0.08, 0.42, -0.9),
-					rot = Vector3.new(35, -6, -8),
+					rot = Vector3.new(-14, -6, 12),
 					arm = Vector3.new(-0.1, 0.3, 0.3),
 				},
 				{

@@ -820,6 +820,10 @@ return table.freeze({
 		-- placed one stood in the world while the held one was still coming down.
 		Place = 0.13,
 	}) :: { [string]: number },
+	-- The view at a throw's release (first person): a small roll toward the
+	-- throwing arm and an FOV punch, so the let-go has weight (blind review,
+	-- round 3). Degrees, seconds. Visual only: the aim doesn't move.
+	THROW_KICK = table.freeze({ roll = -1.2, rollTime = 0.28, fov = 1.5, fovTime = 0.2 }),
 
 	-- Molly in first person: the pin pull starts this long after the raise,
 	-- and the pin leaves the canister this far into it (seconds).
