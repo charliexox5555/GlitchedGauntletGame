@@ -307,7 +307,7 @@ local function sign(name, cf, w, h, text)
 	t.BackgroundTransparency = 1
 	t.Size = UDim2.fromScale(0.92, 0.62)
 	t.Position = UDim2.fromScale(0.04, 0.08)
-	t.Font = Enum.Font.FredokaOne
+	t.FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy) -- Rubik Heavy, the game font
 	t.TextScaled = true
 	t.TextColor3 = Color3.fromRGB(238, 236, 230)
 	t.Text = text
@@ -363,7 +363,7 @@ local function screen(k, W, H, Y)
 	t.BackgroundTransparency = 1
 	t.Size = UDim2.fromScale(0.8, 0.3)
 	t.Position = UDim2.fromScale(0.1, 0.28)
-	t.Font = Enum.Font.FredokaOne
+	t.FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy) -- Rubik Heavy, the game font
 	t.TextScaled = true
 	t.TextColor3 = Color3.fromRGB(240, 236, 228)
 	t.Text = "SEASON 1"
@@ -478,7 +478,7 @@ do -- control console on the east tower plinth, facing the lift
 	local t = Instance.new("TextLabel")
 	t.Size = UDim2.fromScale(1, 1)
 	t.BackgroundColor3 = Color3.fromRGB(18, 20, 18)
-	t.Font = Enum.Font.FredokaOne
+	t.FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy) -- Rubik Heavy, the game font
 	t.TextScaled = true
 	t.TextColor3 = Color3.fromRGB(214, 170, 60)
 	t.Text = "LIFT READY"

@@ -267,6 +267,50 @@ Weak spots:
 
 **Owner to do:** look around, then **save the Lobby place**.
 
+## Owner notes on the dressing (2026-11-20), parked for a later pass
+- **Placeholders to redo:** the signs (the SHOP sign above all), the drains and the hard cases. Redo them when the props and cases are designed properly.
+- **Colours are bland.** The palette needs more life later (the season accent and an owner colour pass).
+- **Wrong font.** The game font is **Rubik** (Heavy / Bold, `rbxassetid://12187365977`, `Config/UiStyle.luau`), not Fredoka One. World signs and screens follow it.
+- Builds must be well thought out. Next: the **duels deck structure first**, then the pads / cages.
+
+## Duels hall structure (2026-11-20)
+Owner: "build the structure of it, and then we'll go into the pads". Built by `tools/studio/lobby_v5/BuildDuels.luau` into `Workspace.LobbyV5.Shell.Duels` (about 600 Parts, 96 rock MeshParts). It replaced the hub's temporary `DuelsStub`. The concept image is `third-party/lobby-v5-concepts/02-duels-deck.png`.
+
+**Layout** (hub-local coordinates, north = -Z; the deck is one step below the hub at y = -1):
+- **Tunnel:** z -50 to -60 from the hub portal, with two ceiling light fixtures.
+- **Bulkhead** (the hall's south wall, at z = -60, 30 high):
+  - Pilasters every 16 studs, each with a sloped foot and head.
+  - Each bay has a battered wainscot, a framed corrugated panel and a cap ledge.
+  - The tunnel mouth has a frame with cut corners (matches the hub portal).
+  - Every bay and pilaster is its own Model.
+- **Deck:** 168 x 36 (x -84..84, z -60..-96).
+  - 12 x 12 diamond-plate panels with 0.1 shadow gaps over a dark under-plate.
+  - Grating panels on a pattern; the entry lane stays solid.
+  - A hazard-striped edge kerb, plus an edge beam, girders and struts under it back to the ledge rock.
+- **Chasm:** z -96..-150, floor at y -90. Rock all round: east / west walls, far wall, the ledge face under the deck, the floor and the ceiling (y ~56-70).
+- **Skylight crack** over the chasm (x -36..36, z -118..-138). The chimney is short (26) so the afternoon sun reaches down.
+- **Gantry:** 10 column lines (x = +/-13, 33, 49, 61, 73) with front and back columns at z -98 / -118, rising from the chasm floor to y 28.6. Runway beams front and back, cross beams with flanges, a deck-level tie, and X-bracing in the chasm.
+- **9 cage bays** between the lines, mirrored from the centre in mode order:
+
+| 1v1 | 1v1 | 2v2 | 3v3 | **4v4** | 3v3 | 2v2 | 1v1 | 1v1 |
+|---|---|---|---|---|---|---|---|---|
+| 10 | 10 | 14 | 18 | **24** | 18 | 14 | 10 | 10 |
+
+  Bay sizes are in studs. Anchors are in `Duels.BayAnchors` (attribute `Mode`). The cages are the next step.
+- **Rails:** `TEMP_EdgeRail` across the bays (remove when the cages go in), and permanent `EndRails`.
+- **Lights:**
+  - A downlight per bay under the front runway.
+  - Lamps on every inner pilaster head.
+  - Hub-style grazing lamps raycast onto the far wall (7) and side walls (4).
+  - Uplights on the gantry onto the rock ceiling, warm fill over the deck, and a warm glow up the far wall from the chasm floor.
+
+**Checks:**
+- The first lighting pass was far too dark (the owner already called the hub too dark). It was fixed with the lamps, uplights and fill above.
+- 12,000 rays from 10 open points (deck, gantry height, chasm floor): every escape goes up through the crack. Gaps at the chasm floor edges were fixed by sinking the bottom rock rows 10 studs and running the floor under the ledge.
+- Coplanar faces: the beam ends and rail ends that sat flush with column and post faces are inset 0.1. The remaining hits are hidden (tops above eye level, bottoms resting on the deck).
+
+**Next (pads pass):** the lift cages in each bay, sized per mode, with an inset floor pad, team edge strips, gates, a beacon, a mode sign and a queue screen. Then hook them to `LobbyQueue` (Step zones) and remove `TEMP_EdgeRail`.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
