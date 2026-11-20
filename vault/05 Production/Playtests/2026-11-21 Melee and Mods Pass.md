@@ -30,7 +30,7 @@ Preview a line with the skin preview, equip the knife slot (3), then:
 4. **Stock knife** (preview `Prism`, then back to `Stock`):
    - [ ] Slash, then switch to the rifle before contact: no streak over the rifle.
 5. **Mods** (F8 dev panel → SetSlot):
-   - [ ] Dash in all four directions and Updraft: the free hand pushes through without a hitch.
+   - [ ] Dash in all four directions and Updraft: the free hand leaves the gun smoothly (it used to jump off in one frame) and pushes through without a hitch.
    - [ ] Heal orb on yourself and thrown: no stop halfway.
    - [ ] Recon bow: draw, hold, release. Does the string snap and ring cleanly, and does the drawing hand follow through and drop?
 
