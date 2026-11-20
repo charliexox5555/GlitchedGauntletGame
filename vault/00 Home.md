@@ -7,7 +7,19 @@
 
 ## 📍 Status
 
-- **Overnight animation pass (2026-11-20, running).** Three lanes are working toward 9-10 grades. Third person: cleanup with the measured checks, then a study of the RIVALS body and an IK-hands prototype behind a toggle. First-person guns: ADS and slide that tilt with the crosshair, the sniper scope's see-through part, Ruin-Blighted gun animations. Melee and Mods: knife, Bat, Fan, Ruined Reaver, bow. Work is committed locally only, so nothing is pushed. [Plan, grades and results](05%20Production/Overnight%202026-11-20%20Animation%20Pass.md)
+- **Overnight animation pass (2026-11-20, done; feel grades provisional until the owner plays).**
+  - **Sniper scope:** the reflective lens no longer shows in ADS (fixed in code, no place save needed).
+  - **Slide and ADS tilt:** the gun, crosshair and scope reticle roll together on the slide, through one curve.
+  - **Gun clips:** move on splines instead of straight lines between keys.
+  - **Marshal:** the hammer pop is fixed.
+  - **Third person:** 16+ clips re-keyed on splines, holds breathe.
+  - **RIVALS body:** study written up.
+  - **IK-hands prototype:** off by default; `Config/TpIk.luau` `ENABLED`, or the Server attribute `TpIk`. Owner to pick.
+  - **Melee:** Reaver re-keyed and reframed (score 9.3), knife 8.7, Fan 8.3. Bat 7.3 waits on the owner's call on how far it points into the screen.
+  - **Mods:** 5.3; every move is on splines and the bow is fixed, but each Mod still needs a look in play.
+  - **Git:** all committed locally, not pushed.
+  
+  [Plan, grades and results](05%20Production/Overnight%202026-11-20%20Animation%20Pass.md) · test lists: [Third person](05%20Production/Playtests/2026-11-21%20Third%20Person%20Pass.md), [First-person guns](05%20Production/Playtests/2026-11-21%20First-Person%20Guns%20Pass.md), [Melee and Mods](05%20Production/Playtests/2026-11-21%20Melee%20and%20Mods%20Pass.md)
 
 - **Lobby UI polish pass (2026-11-20).** UI sounds are back (one shared player, a click on every button, a quiet hover tick on big items, queue / Locker / toggle cues; provisional Roblox-pack sounds until the owner picks from the Kenney reel). Play menu tiles focus instead of shaking, the Locker has an opaque charcoal backdrop and bigger long guns, Settings has a sliding toggle, row highlights and staggered tabs. 9-slice plate set drawn, waiting on approval. [Plan and results](02%20Art/UI%20Polish%20Pass.md)
 
