@@ -85,12 +85,12 @@ return table.freeze({
 		Land = id(97529375997799),
 		-- The slide's way in and out (one-shots; SlideOut ends in the run's right
 		-- footfall, which Simulation/Poses lines up with it).
-		SlideIn = id(132143568389295),
-		SlideOut = id(108310232385404),
-		SlideInPistol = id(79156910221465),
-		SlideOutPistol = id(79155087791028),
-		SlideInKnife = id(81899005096253),
-		SlideOutKnife = id(109072548908167),
+		SlideIn = id(101242607281195), -- o1 2026-11-20 overnight TP pass, splines (was 132143568389295)
+		SlideOut = id(74616650786228), -- o1 2026-11-20 overnight TP pass, splines (was 108310232385404)
+		SlideInPistol = id(104079399198035), -- o1 2026-11-20 overnight TP pass, splines (was 79156910221465)
+		SlideOutPistol = id(105578957053278), -- o1 2026-11-20 overnight TP pass, splines (was 79155087791028)
+		SlideInKnife = id(89987757226261), -- o1 2026-11-20 overnight TP pass, splines (was 81899005096253)
+		SlideOutKnife = id(140321397952166), -- o1 2026-11-20 overnight TP pass, splines (was 109072548908167)
 	}),
 	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
 	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip
@@ -101,16 +101,16 @@ return table.freeze({
 		AdsUp = id(88665317482255),
 		AdsLevel = id(95863412039587),
 		AdsDown = id(139601720262674),
-		Reload = id(102765870602957), -- v7 2026-11-15: a low-ready swap, the face stays clear (v6 112777133763655 stood the rifle up over the head)
-		PistolReload = id(120367219025692), -- sidearms
+		Reload = id(110565531734561), -- o1 2026-11-20 overnight TP pass, splines (was 102765870602957) -- v7 2026-11-15: a low-ready swap, the face stays clear (v6 112777133763655 stood the rifle up over the head)
+		PistolReload = id(99293327658491), -- o1 2026-11-20 overnight TP pass, splines (was 120367219025692) -- sidearms
 		Flinch = id(134800149922990),
-		Death = id(120072987587692), -- going down (DeathFxController, on the falling copy)
+		Death = id(88289196924695), -- o1 2026-11-20 overnight TP pass, splines (was 120072987587692) -- going down (DeathFxController, on the falling copy)
 		Victory = id(71447089078892), -- the match-end winners (MatchEndController): gun up, fist pumps (tools/anim, 2026-11-12)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
-		Draw = id(116807890408322),
+		Draw = id(137689336920879), -- o1 2026-11-20 overnight TP pass, splines (was 116807890408322)
 		KnifeReady = id(84503652869545), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
 		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py; every
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
@@ -119,7 +119,7 @@ return table.freeze({
 		KnifeSlash = id(77623478703999), -- GG_KnifeSlash1: forehand (SwingStep 1)
 		KnifeSlash2 = id(108779916506580), -- GG_KnifeSlash2: backhand (SwingStep 2)
 		KnifeSlash3 = id(126637574050244), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
-		KnifeHeavy = id(103333794439708), -- GG_KnifeHeavy: pull back, coil, thrust
+		KnifeHeavy = id(88566487693718), -- o1 2026-11-20 overnight TP pass, splines (was 103333794439708) -- GG_KnifeHeavy: pull back, coil, thrust
 	}),
 	-- The recoil pose of each hold above, by the hold's name (2026-11-15,
 	-- tools/anim/tp_clips.py Kick* clips, v1): the gun pulled into the
@@ -332,11 +332,11 @@ return table.freeze({
 		-- Studio set: MakeModAnimations.luau pass 2,
 		-- 2026-11-04: wind-ups, snaps and follow-throughs, ending on the gun hold).
 		ModHold = id(79414521552493),
-		Throw = id(80403547544782),
+		Throw = id(129085261001652), -- o1 2026-11-20 overnight TP pass, splines (was 80403547544782)
 		Place = id(92359767222451),
-		Heal = id(99974559870040),
-		Lob = id(86298417428874), -- a held throw's underhand (Molly RMB)
-		Cast = id(91161079508050), -- HeldSteer: the free hand pushes out (Firewall)
+		Heal = id(77351510963020), -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
+		Lob = id(85103387011074), -- o1 2026-11-20 overnight TP pass, splines (was 86298417428874) -- a held throw's underhand (Molly RMB)
+		Cast = id(134329068544989), -- o1 2026-11-20 overnight TP pass, splines (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
 		-- Dash: the torso leans into the dash (Simulation/Poses, by direction).
 		DashForward = id(76094407168365),
 		DashBack = id(75006063877431),
@@ -348,7 +348,7 @@ return table.freeze({
 		-- (looped while UpdraftSlam = "Down") and the knee-and-fist landing
 		-- (once). Uploaded 2026-11-03.
 		UpdraftSlam = id(91174387556328),
-		UpdraftSlamLand = id(131769446021191),
+		UpdraftSlamLand = id(137908275018781), -- o1 2026-11-20 overnight TP pass, splines (was 131769446021191)
 	}),
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
 	SLAM_FADE = 0.08, -- seconds the Crash Down dive pose fades in / out

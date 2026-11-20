@@ -204,10 +204,10 @@
   "uploaded": "2026-11-12 23:53:50"
  },
  "art-source/animations/GG_Cast.rbxm": {
-  "assetId": 91161079508050,
-  "name": "GG Cast v6",
+  "assetId": 134329068544989,
+  "name": "GG Cast o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:53"
+  "uploaded": "2026-11-20 02:52:53"
  },
  "art-source/animations/GG_Crouch.rbxm": {
   "assetId": 79991946157030,
@@ -288,16 +288,16 @@
   "uploaded": "2026-11-12 23:25:29"
  },
  "art-source/animations/GG_Death.rbxm": {
-  "assetId": 120072987587692,
-  "name": "GG Death v6",
+  "assetId": 88289196924695,
+  "name": "GG Death o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:56"
+  "uploaded": "2026-11-20 02:52:59"
  },
  "art-source/animations/GG_Draw.rbxm": {
-  "assetId": 116807890408322,
-  "name": "GG Draw v6",
+  "assetId": 137689336920879,
+  "name": "GG Draw o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:59"
+  "uploaded": "2026-11-20 02:59:27"
  },
  "art-source/animations/GG_Fall.rbxm": {
   "assetId": 91199093837077,
@@ -312,10 +312,10 @@
   "uploaded": "2026-11-12 23:25:41"
  },
  "art-source/animations/GG_Heal.rbxm": {
-  "assetId": 99974559870040,
-  "name": "GG Heal v6",
+  "assetId": 77351510963020,
+  "name": "GG Heal o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:54:02"
+  "uploaded": "2026-11-20 02:52:56"
  },
  "art-source/animations/GG_Idle.rbxm": {
   "assetId": 114709237157503,
@@ -348,10 +348,10 @@
   "uploaded": "2026-11-15 01:10:23"
  },
  "art-source/animations/GG_KnifeHeavy.rbxm": {
-  "assetId": 103333794439708,
-  "name": "GG KnifeHeavy w1",
+  "assetId": 88566487693718,
+  "name": "GG KnifeHeavy o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 15:56:08"
+  "uploaded": "2026-11-20 02:53:22"
  },
  "art-source/animations/GG_KnifeReady.rbxm": {
   "assetId": 84503652869545,
@@ -390,10 +390,10 @@
   "uploaded": "2026-11-13 02:22:35"
  },
  "art-source/animations/GG_Lob.rbxm": {
-  "assetId": 86298417428874,
-  "name": "GG Lob v6",
+  "assetId": 85103387011074,
+  "name": "GG Lob o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:54:05"
+  "uploaded": "2026-11-20 02:52:50"
  },
  "art-source/animations/GG_ModCast.rbxm": {
   "assetId": 93574122239655,
@@ -510,10 +510,10 @@
   "uploaded": "2026-11-15 01:10:44"
  },
  "art-source/animations/GG_PistolReload.rbxm": {
-  "assetId": 120367219025692,
-  "name": "GG PistolReload w2",
+  "assetId": 99293327658491,
+  "name": "GG PistolReload o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:02:07"
+  "uploaded": "2026-11-20 02:59:24"
  },
  "art-source/animations/GG_Place.rbxm": {
   "assetId": 92359767222451,
@@ -522,10 +522,10 @@
   "uploaded": "2026-11-12 23:54:28"
  },
  "art-source/animations/GG_Reload.rbxm": {
-  "assetId": 102765870602957,
-  "name": "GG Reload v7",
+  "assetId": 110565531734561,
+  "name": "GG Reload o1",
   "type": "Animation",
-  "uploaded": "2026-11-15 00:58:01"
+  "uploaded": "2026-11-20 02:59:21"
  },
  "art-source/animations/GG_RunB.rbxm": {
   "assetId": 93806441016839,
@@ -582,22 +582,22 @@
   "uploaded": "2026-11-13 01:06:12"
  },
  "art-source/animations/GG_SlideIn.rbxm": {
-  "assetId": 132143568389295,
-  "name": "GG SlideIn v9",
+  "assetId": 101242607281195,
+  "name": "GG SlideIn o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:46:19"
+  "uploaded": "2026-11-20 02:53:04"
  },
  "art-source/animations/GG_SlideInKnife.rbxm": {
-  "assetId": 81899005096253,
-  "name": "GG SlideInKnife v1",
+  "assetId": 89987757226261,
+  "name": "GG SlideInKnife o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 02:13:55"
+  "uploaded": "2026-11-20 02:53:10"
  },
  "art-source/animations/GG_SlideInPistol.rbxm": {
-  "assetId": 79156910221465,
-  "name": "GG SlideInPistol w2",
+  "assetId": 104079399198035,
+  "name": "GG SlideInPistol o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:02:10"
+  "uploaded": "2026-11-20 02:53:07"
  },
  "art-source/animations/GG_SlideKnife.rbxm": {
   "assetId": 107595824469218,
@@ -606,22 +606,22 @@
   "uploaded": "2026-11-13 02:13:53"
  },
  "art-source/animations/GG_SlideOut.rbxm": {
-  "assetId": 108310232385404,
-  "name": "GG SlideOut v9",
+  "assetId": 74616650786228,
+  "name": "GG SlideOut o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:46:22"
+  "uploaded": "2026-11-20 02:53:13"
  },
  "art-source/animations/GG_SlideOutKnife.rbxm": {
-  "assetId": 109072548908167,
-  "name": "GG SlideOutKnife w1",
+  "assetId": 140321397952166,
+  "name": "GG SlideOutKnife o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 15:56:10"
+  "uploaded": "2026-11-20 02:53:19"
  },
  "art-source/animations/GG_SlideOutPistol.rbxm": {
-  "assetId": 79155087791028,
-  "name": "GG SlideOutPistol w2",
+  "assetId": 105578957053278,
+  "name": "GG SlideOutPistol o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:02:13"
+  "uploaded": "2026-11-20 02:53:16"
  },
  "art-source/animations/GG_SlidePistol.rbxm": {
   "assetId": 123494865248021,
@@ -654,10 +654,10 @@
   "uploaded": "2026-11-13 01:46:11"
  },
  "art-source/animations/GG_Throw.rbxm": {
-  "assetId": 80403547544782,
-  "name": "GG Throw v6",
+  "assetId": 129085261001652,
+  "name": "GG Throw o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:54:48"
+  "uploaded": "2026-11-20 02:52:47"
  },
  "art-source/animations/GG_Updraft.rbxm": {
   "assetId": 122572879619635,
@@ -672,10 +672,10 @@
   "uploaded": "2026-11-12 23:54:51"
  },
  "art-source/animations/GG_UpdraftSlamLand.rbxm": {
-  "assetId": 131769446021191,
-  "name": "GG UpdraftSlamLand v6",
+  "assetId": 137908275018781,
+  "name": "GG UpdraftSlamLand o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:54:54"
+  "uploaded": "2026-11-20 02:53:02"
  },
  "art-source/animations/GG_Victory.rbxm": {
   "assetId": 71447089078892,

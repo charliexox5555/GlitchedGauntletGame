@@ -45,9 +45,13 @@ from tp_rig import (  # noqa: E402
 	HALF,
 	KNEE_TO_SOLE,
 	LOWER,
+	ORDER,
+	WRIST_TO_TIP,
 	UPPER,
 	Clip,
+	axis_angle,
 	bladed,
+	cf,
 	ease_in,
 	ease_in_out,
 	ease_out,
@@ -356,6 +360,213 @@ def ctrl_sequence(track, end=None, solver=solve):
 				u = ease((t - t0) / (t1 - t0)) if t1 > t0 else 1.0
 				return solver(_mix_ctrl(track[i - 1][1], track[i][1], u))
 		return solver(track[-1][1])
+
+	return at
+
+
+def _pchip_slopes(ts, ys):
+	"""Monotone cubic (Fritsch-Carlson) slopes at each key, ends clamped to 0:
+	velocity is continuous through every key, nothing overshoots between two
+	keys, and a repeated key is a true hold."""
+	n = len(ts)
+	h = np.diff(ts)
+	d = np.diff(ys, axis=0) / h[:, None]
+	m = np.zeros_like(ys)
+	for i in range(1, n - 1):
+		for c in range(ys.shape[1]):
+			a, b = d[i - 1, c], d[i, c]
+			if a * b <= 0:
+				m[i, c] = 0.0
+			else:
+				w1, w2 = 2 * h[i] + h[i - 1], h[i] + 2 * h[i - 1]
+				m[i, c] = (w1 + w2) / (w1 / a + w2 / b)
+	return m
+
+
+def _rot_log(r):
+	c = max(-1.0, min(1.0, (np.trace(r) - 1) / 2))
+	ang = math.acos(c)
+	if ang < 1e-9:
+		return np.zeros(3)
+	axis = np.array([r[2, 1] - r[1, 2], r[0, 2] - r[2, 0], r[1, 0] - r[0, 1]]) / (2 * math.sin(ang))
+	return axis * ang
+
+
+def _rot_exp(v):
+	ang = float(np.linalg.norm(v))
+	if ang < 1e-9:
+		return np.eye(3)
+	return axis_angle(v / ang, ang)
+
+
+def _flatten(ctrl, base, path=()):
+	"""(path, kind) and floats for every control value; matrices as a turn
+	from the first key's matrix (`base`), so they spline as rotation vectors."""
+	out = []
+	if isinstance(ctrl, dict):
+		for k in sorted(ctrl):
+			out += _flatten(ctrl[k], base, path + (k,))
+	elif hasattr(ctrl, "shape") and ctrl.shape == (3, 3):
+		b = base.get(path, ctrl)
+		out.append((path, "rot", list(_rot_log(b.T @ ctrl))))
+	elif isinstance(ctrl, tuple) and all(isinstance(x, (int, float)) for x in ctrl):
+		out.append((path, "tuple", [float(x) for x in ctrl]))
+	elif isinstance(ctrl, (int, float)) and not isinstance(ctrl, bool):
+		out.append((path, "num", [float(ctrl)]))
+	else:
+		out.append((path, "const", ctrl))
+	return out
+
+
+def _rebuild(items, base):
+	ctrl = {}
+	for path, kind, value in items:
+		node = ctrl
+		for k in path[:-1]:
+			node = node.setdefault(k, {})
+		if kind == "rot":
+			node[path[-1]] = base[path] @ _rot_exp(np.array(value))
+		elif kind == "tuple":
+			node[path[-1]] = tuple(value)
+		elif kind == "num":
+			node[path[-1]] = value[0]
+		else:
+			node[path[-1]] = value
+	return ctrl
+
+
+def _norm_feet(ctrl):
+	"""Foot specs with every field the rig reads (its defaults filled in), so
+	keys written with and without a pole or a clamp spline as one shape."""
+	out = dict(ctrl)
+	for side, sx in (("right", 1), ("left", -1)):
+		spec = out.get(side + "_foot")
+		if spec is not None:
+			out[side + "_foot"] = {"yaw": 0.0, "pole": (sx * 0.12, 0, -1), "clamp": False, **spec}
+	return out
+
+
+def tip_of(world, side):
+	"""The block end (forearm + hand, to the fingertips) of a solved pose:
+	what an arm's {"tip": ...} target places."""
+	hand = world[side + "Hand"]
+	fore = world[side + "LowerArm"][:3, :3]
+	wrist = (hand @ np.array([0, 0.125, 0, 1.0]))[:3]
+	return tuple(float(x) for x in wrist + fore @ v3(0, -WRIST_TO_TIP, 0))
+
+
+def spline_ctrl(track):
+	"""The controls of a key track on monotone cubics (see spline_sequence),
+	as a function of time; None when the keys don't share one shape."""
+	track = [(key[0], _norm_feet(key[1])) + tuple(key[2:]) for key in track]
+	base = {}
+
+	def find_mats(c, path=()):
+		if isinstance(c, dict):
+			for k in c:
+				find_mats(c[k], path + (k,))
+		elif hasattr(c, "shape") and c.shape == (3, 3):
+			base.setdefault(path, c)
+
+	for key in track:
+		find_mats(key[1])
+	flat = [_flatten(key[1], base) for key in track]
+	shape = [[(p, k, len(v) if k != "const" else 0) for p, k, v in f] for f in flat]
+	if any(s != shape[0] for s in shape):
+		return None
+	ts = np.array([key[0] for key in track], dtype=float)
+	channels = []
+	for j, (path, kind, _) in enumerate(flat[0]):
+		if kind == "const":
+			channels.append(None)
+			continue
+		ys = np.array([f[j][2] for f in flat], dtype=float)
+		channels.append((ys, _pchip_slopes(ts, ys)))
+
+	def ctrl_at(t):
+		t = min(max(t, ts[0]), ts[-1])
+		i = int(np.searchsorted(ts, t, side="right")) - 1
+		i = min(max(i, 0), len(ts) - 2)
+		h = ts[i + 1] - ts[i]
+		s = (t - ts[i]) / h if h > 0 else 1.0
+		h00, h10, h01, h11 = 2 * s**3 - 3 * s**2 + 1, s**3 - 2 * s**2 + s, -2 * s**3 + 3 * s**2, s**3 - s**2
+		items = []
+		for j, (path, kind, value) in enumerate(flat[0]):
+			ch = channels[j]
+			if ch is None:
+				items.append((path, kind, flat[i if s < 0.5 else i + 1][j][2]))
+				continue
+			ys, m = ch
+			v = h00 * ys[i] + h10 * h * m[i] + h01 * ys[i + 1] + h11 * h * m[i + 1]
+			items.append((path, kind, list(v)))
+		return _rebuild(items, base)
+
+	return ctrl_at
+
+
+def spline_sequence(track, end=None, solver=solve):
+	"""ctrl_sequence on splines (owner, memory animation-oomph: "PCHIP
+	splines"). Keys [(time, controls[, ignored ease])]: every control value
+	runs on a monotone cubic through its keys, so the velocity is continuous
+	at every key (a pair of eased segments meets at two different speeds:
+	measured 72 -> 31 studs/s in one 30 Hz key on Throw's release). Timing is
+	set by the key times; a repeated key holds. `end` as in ctrl_sequence.
+	(Controls whose shape changes between keys fall back to ctrl_sequence.)"""
+	ctrl_at = spline_ctrl(track)
+	if ctrl_at is None:
+		return ctrl_sequence(track, end, solver)
+	t_last = track[-1][0]
+
+	def at(t):
+		if end is not None and t > t_last:
+			t0, (t1, pose, ease) = t_last, end
+			u = ease((t - t0) / (t1 - t0)) if t1 > t0 else 1.0
+			return mix(solver(ctrl_at(t_last)), pose, min(u, 1.0))
+		return solver(ctrl_at(t))
+
+	return at
+
+
+def pose_spline(track, hits=()):
+	"""tp_rig.sequence on splines: each joint's turn (a rotation vector from
+	its first key) and offset run on monotone cubics through the solved key
+	poses, so a move flows through a key instead of stopping on it
+	(2026-11-20: the rifle reload stopped dead at 5 of its keys, the pistol
+	reload at 4: the owner's "stiff posed keys"). Keys [(time, pose[, ease])],
+	eases ignored. `hits`: key times that are impacts (a magazine slapped
+	home): the move arrives and leaves at speed there instead of easing."""
+	ts = np.array([key[0] for key in track], dtype=float)
+	parts = [p for p in ORDER if any(p in key[1] for key in track)]
+	base = {p: track[0][1].get(p, np.eye(4))[:3, :3] for p in parts}
+	ys = {}
+	for p in parts:
+		rows = []
+		for key in track:
+			m_ = key[1].get(p, np.eye(4))
+			rows.append(np.concatenate([m_[:3, 3], _rot_log(base[p].T @ m_[:3, :3])]))
+		ys[p] = np.array(rows)
+	slopes = {}
+	for p in parts:
+		m = _pchip_slopes(ts, ys[p])
+		left, right = m.copy(), m.copy()
+		d = np.diff(ys[p], axis=0) / np.diff(ts)[:, None]
+		for i, t in enumerate(ts):
+			if any(abs(t - h) < 1e-6 for h in hits) and 0 < i < len(ts) - 1:
+				left[i], right[i] = 1.5 * d[i - 1], 1.5 * d[i]
+		slopes[p] = (left, right)
+
+	def at(t):
+		t = min(max(t, ts[0]), ts[-1])
+		i = min(max(int(np.searchsorted(ts, t, side="right")) - 1, 0), len(ts) - 2)
+		h = ts[i + 1] - ts[i]
+		u = (t - ts[i]) / h if h > 0 else 1.0
+		h00, h10, h01, h11 = 2 * u**3 - 3 * u**2 + 1, u**3 - 2 * u**2 + u, -2 * u**3 + 3 * u**2, u**3 - u**2
+		out = {}
+		for p in parts:
+			y, (left, right) = ys[p], slopes[p]
+			v = h00 * y[i] + h10 * h * right[i] + h01 * y[i + 1] + h11 * h * left[i + 1]
+			out[p] = cf(tuple(v[:3]), base[p] @ _rot_exp(v[3:]))
+		return out
 
 	return at
 
@@ -997,9 +1208,22 @@ RUN_IN = {**SLIDE_KICK, **gait_ctrl(SPRINT_RUN, 0.4)}  # (its upper body is the 
 SLIDE_IMPACT = {**slide_ctrl(-0.13), "hips": {"pos": (0, -1.95, 0.32), "rot": (35, -14, -7)}}
 SLIDE_SETTLE = slide_ctrl()
 SLIDE_IN_LENGTH = 0.28
+SLIDE_REACH = (0.02, 0.28)  # when the free hand leaves the gun and reaches the floor
 SLIDE_IN_KEYS = [(0.0, RUN_IN), (0.09, SLIDE_KICK, ease_in_out), (0.18, SLIDE_IMPACT, ease_in_out), (SLIDE_IN_LENGTH, SLIDE_SETTLE, ease_in_out)]
+_SPLINED = {}
+
+
 def ctrl_at(track, t):
-	"""The blended controls of a ctrl_sequence track at time t."""
+	"""The controls of a key track at time t: on splines when its keys share
+	one shape (2026-11-20: eased segments stopped dead at every key, so the
+	slide's body halted at the kick and popped at the impact), else blended
+	segment by segment."""
+	key = id(track)
+	if key not in _SPLINED:
+		_SPLINED[key] = (track, spline_ctrl(track))
+	fn = _SPLINED[key][1]
+	if fn is not None:
+		return fn(t)
 	if t <= track[0][0]:
 		return dict(track[0][1])
 	for i in range(1, len(track)):
@@ -1031,7 +1255,9 @@ def hand_to(track, t, t0, t1, to_floor=True, on_point=grip_point, rest_pole=L_PO
 
 def slide_in(t):
 	# The left hand rides the gun through the kick, then goes for the floor.
-	return solve_grounded(hand_to(SLIDE_IN_KEYS, t, 0.06, 0.22))
+	# (2026-11-20: over 0.02-0.28 s, was 0.06-0.22: the hand dived at 55
+	# studs/s, 72 with the knife; now 39 / 53, and it lands as the body settles.)
+	return solve_grounded(hand_to(SLIDE_IN_KEYS, t, SLIDE_REACH[0], SLIDE_REACH[1]))
 
 
 add(Clip("SlideIn", "Action4", upper_fade(slide_in, HOLD_POSE, 0.0, 0.09), ALL, length=SLIDE_IN_LENGTH, loop=False, step=KEY_STEP))
@@ -1119,7 +1345,7 @@ def _slide_kind(kind, spec):
 	hand = {"on_point": spec["on_point"], "rest_pole": spec["rest_pole"]}
 
 	def into(t):
-		return solve_grounded(hand_to(keys_in, t, 0.06, 0.22, **hand))
+		return solve_grounded(hand_to(keys_in, t, SLIDE_REACH[0], SLIDE_REACH[1], **hand))
 
 	def out_of(t):
 		return solve_grounded(hand_to(keys_out, t, 0.02, 0.22, to_floor=False, **hand))
@@ -1187,7 +1413,7 @@ add(
 	Clip(
 		"Reload",
 		"Action4",
-		sequence(
+		pose_spline(
 			[
 				(0.0, HOLD_POSE),
 				# The gun drops to a low ready and cants.
@@ -1204,7 +1430,8 @@ add(
 				# Down through the hold, then settle.
 				(0.91, long_with((0.5, 0.52, -1.02), (-4, 0, 0), {"on_gun": LONG_GRIP}), ease_in_out),
 				(1.0, HOLD_POSE, ease_out),
-			]
+			],
+			hits=(0.56,),
 		),
 		UPPER,
 		length=1.0,
@@ -1237,19 +1464,23 @@ add(
 	Clip(
 		"PistolReload",
 		"Action4",
-		sequence(
+		pose_spline(
 			[
 				(0.0, PISTOL_POSE),
 				(0.13, pistol_with(*PULLED, dict(PISTOL_CUP), chest=bladed(-2, -8), head=LOOK, l_pole=(-1, -0.2, 0.6)), ease_out),
 				# (A belt point a little wider than the rifle's: the left forearm grazed the chest on the way.)
 				(0.3, pistol_with(*PULLED, {"tip": (-1.0, -0.85, -0.6)}, chest=bladed(-2, -2), head=LOOK, l_pole=(-1, -0.2, 0.6))),
+				# (2026-11-20, on splines: the hand comes up OUTSIDE the chest; the
+				# straight joint-space path grazed it at 0.38-0.43 s.)
+				(0.41, pistol_with(*PULLED, {"tip": (-1.15, -0.5, -1.0)}, chest=bladed(-2, -5), head=LOOK, l_pole=(-1, -0.2, 0.6))),
 				(0.5, pistol_with(*PULLED, {"on_gun": (-0.1, -1.15, 0.1), "min_z": 0.0}, chest=bladed(-2, -8), head=LOOK, l_pole=(-1, -0.2, 0.6))),
 				(0.57, pistol_with((0.4, 0.82, -1.4), (32, -16, 26), {"on_gun": (-0.1, -0.85, 0.1), "min_z": 0.0}, head=LOOK), ease_in),
 				(0.72, pistol_with((0.3, 0.72, -1.3), (20, -6, 10), dict(PISTOL_CUP), head=(-6, 0, 0)), ease_out),
 				# Punched back out past the hold, then settle.
 				(0.88, pistol_with((0.7, 1.0, -2.5), (-4, 0, 0), dict(PISTOL_CUP)), ease_in_out),
 				(1.0, PISTOL_POSE, ease_out),
-			]
+			],
+			hits=(0.57,),
 		),
 		UPPER,
 		length=1.0,
@@ -1263,7 +1494,7 @@ add(
 	Clip(
 		"Draw",
 		"Action4",
-		sequence(
+		pose_spline(
 			[
 				(
 					0.0,
@@ -1323,6 +1554,45 @@ def knife_sequence(track):
 				ctrl["right_arm"] = arm
 				return solve(ctrl)
 		return solve(dict(track[-1][1]))
+
+	return at
+
+
+def knife_spline(track):
+	"""knife_sequence on splines (2026-11-20): the controls run on monotone
+	cubics (spline_ctrl) and the fist's and upper arm's turns on cubics of
+	their rotation vectors, so nothing starts, stops or holds dead at a key
+	unless two keys say so. Same key format (eases ignored)."""
+	frames, uppers = [], []
+	for key in track:
+		w = fk(solve(dict(key[1])))
+		frames.append(w["RightHand"][:3, :3])
+		uppers.append(w["RightUpperArm"][:3, :3])
+	ctrl_fn = spline_ctrl(track)
+	ts = np.array([key[0] for key in track], dtype=float)
+
+	def turns(mats):
+		ys = np.array([_rot_log(mats[0].T @ m_) for m_ in mats])
+		return ys, _pchip_slopes(ts, ys)
+
+	fist, upper = turns(frames), turns(uppers)
+
+	def turn_at(mats, ys_m, t):
+		ys, m = ys_m
+		i = min(max(int(np.searchsorted(ts, t, side="right")) - 1, 0), len(ts) - 2)
+		h = ts[i + 1] - ts[i]
+		s_ = (t - ts[i]) / h if h > 0 else 1.0
+		v = (2 * s_**3 - 3 * s_**2 + 1) * ys[i] + (s_**3 - 2 * s_**2 + s_) * h * m[i] + (-2 * s_**3 + 3 * s_**2) * ys[i + 1] + (s_**3 - s_**2) * h * m[i + 1]
+		return mats[0] @ _rot_exp(v)
+
+	def at(t):
+		t = min(max(t, ts[0]), ts[-1])
+		ctrl = ctrl_fn(t)
+		arm = dict(ctrl["right_arm"])
+		arm["blade"] = tuple(turn_at(frames, fist, t) @ v3(0, 0, -1))
+		arm["upper_ref"] = turn_at(uppers, upper, t)
+		ctrl["right_arm"] = arm
+		return solve(ctrl)
 
 	return at
 
@@ -1391,17 +1661,33 @@ swing(
 # forward, the arm driving straight out from the shoulder).
 COIL = knife(kfist((1.25, 0.3, -0.5), (0.6, -0.5, 0.7), (0.1, 0.25, -1)), chest=(-4, -32, 0), left=(-0.35, 0.6, -1.65))
 THRUST = knife(kfist((0.25, 0.5, -2.0), (0.6, -0.6, 0.4), (-0.15, 0.1, -1)), chest=(-14, 28, 0), left=(-0.95, 0.2, -0.5))
-swing(
-	"KnifeHeavy",
-	0.9,
-	[
-		(0.0, READY, linear),
-		(0.22, COIL, ease_out),
-		(0.32, COIL, linear),
-		(0.4, THRUST, ease_in),
-		(0.52, THRUST, linear),
-		(0.9, READY, ease_in_out),
-	],
+# (2026-11-20, on splines; the owner's "stiff posed keys" were all here: the
+# clip jumped to 15 studs/s from rest, the coil held dead still for 0.1 s, the
+# thrust hit 55 studs/s and stopped dead at contact, then held dead again.
+# Now the coil keeps creeping back (anticipation), the thrust brakes into the
+# contact at 0.40 s, carries 0.14 studs past it and settles back.)
+COIL_DEEP = knife(kfist((1.32, 0.28, -0.38), (0.6, -0.5, 0.7), (0.1, 0.25, -1)), chest=(-3, -36, 0), left=(-0.35, 0.62, -1.7))
+THRUST_PAST = knife(kfist((0.2, 0.47, -2.14), (0.6, -0.6, 0.4), (-0.15, 0.08, -1)), chest=(-16, 32, 0), left=(-1.0, 0.18, -0.42))
+add(
+	Clip(
+		"KnifeHeavy",
+		"Action4",
+		knife_spline(
+			[
+				(0.0, READY),
+				(0.2, COIL),
+				(0.31, COIL_DEEP),
+				(0.4, THRUST),
+				(0.45, THRUST_PAST),
+				(0.58, THRUST),
+				(0.9, READY),
+			]
+		),
+		UPPER,
+		length=0.9,
+		loop=False,
+		step=KEY_STEP,
+	)
 )
 
 # Which gun each clip is shown with in the preview.
@@ -1477,22 +1763,27 @@ add(
 	Clip(
 		"Throw",
 		"Action4",
-		ctrl_sequence(
+		spline_sequence(
 			[
 				(0.0, MOD_HOLD),
 				# (Chest turns kept within 22 degrees: the hips belong to the run
 				# under this clip, so a 40-degree chest turn twisted the torso
 				# like a screw. The pointing arm aims past its reach: straight.)
 				(0.12, stood(arms(bladed(4, -20), (1.15, 1.55, 0.6), (-0.15, 1.35, -2.6), r_pole=(1, 0.1, 0.4))), ease_out),
-				(0.18, stood(arms(bladed(6, -22), (1.2, 1.65, 0.8), (-0.1, 1.4, -2.6), r_pole=(1, 0.2, 0.5)))),
-				(0.23, stood(arms(bladed(-16, 16), (0.4, 1.45, -1.75), (-1.1, 0.25, -0.5), r_pole=(1, -0.3, 0.2))), ease_in),
+				# (2026-11-20, on splines: a 60 ms snap (was 50, the owner's ~60 ms),
+				# the pointing arm starts to tuck in as the throw goes, and a longer
+				# way back to the gun; tp_measure peak 1494 -> 1294 studs/s² right,
+				# 1363 -> 1073 left, both velocity-continuous.)
+				(0.17, stood(arms(bladed(6, -22), (1.2, 1.65, 0.8), (-0.35, 1.25, -2.25), r_pole=(1, 0.2, 0.5)))),
+				(0.23, stood(arms(bladed(-16, 16), (0.4, 1.45, -1.75), (-0.85, 0.55, -1.05), r_pole=(1, -0.3, 0.2))), ease_in),
 				(0.36, stood(arms(bladed(-22, 22), (-0.35, -0.15, -1.25), (-1.1, 0.1, 0.1), r_pole=(1, -0.6, 0.3))), ease_out),
 			],
-			end=(0.62, STAND_HOLD, ease_in_out),
+			end=(0.68, STAND_HOLD, ease_in_out),
 		),
 		UPPER,
-		length=0.62,
+		length=0.68,
 		loop=False,
+		step=KEY_STEP,
 	)
 )
 
@@ -1502,7 +1793,7 @@ add(
 	Clip(
 		"Lob",
 		"Action4",
-		ctrl_sequence(
+		spline_sequence(
 			[
 				(0.0, MOD_HOLD),
 				(0.14, stood(arms(bladed(-12, -14), (0.85, -0.45, 0.6), (-0.5, 0.6, -1.4), r_pole=(1, 0, 0.6)))),
@@ -1535,7 +1826,7 @@ add(
 	Clip(
 		"Cast",
 		"Action4",
-		ctrl_sequence(
+		spline_sequence(
 			[
 				(0.0, MOD_HOLD),
 				(0.08, stood(arms(bladed(-2, -18), MOD_HOLD_R, (-0.55, 0.75, -0.45), l_pole=(-1, -0.6, 0.2)))),
@@ -1590,7 +1881,7 @@ add(
 	Clip(
 		"Heal",
 		"Action4",
-		ctrl_sequence(
+		spline_sequence(
 			[
 				(0.0, MOD_HOLD),
 				(0.07, stood(arms(bladed(4, -12), (0.5, 0.6, -0.35), (-0.6, 0.5, -1.2), r_pole=(1, -0.6, 0.4)))),
@@ -1701,18 +1992,29 @@ RISE_HALF = {
 	"gun": {"shoulder": (-6, -15, 0)},
 	"left_arm": {"tip": (-0.7, -0.4, -0.8)},
 }
+def grounded(ctrl):
+	"""Both feet kept on or above the floor by solve_grounded (spline paths
+	between a dive and a kneel swung a shin 0.33 under it, 2026-11-20)."""
+	out = dict(ctrl)
+	for side in ("right_foot", "left_foot"):
+		if side in out:
+			out[side] = {**out[side], "clamp": True}
+	return out
+
+
 add(
 	Clip(
 		"UpdraftSlamLand",
 		"Action4",
-		ctrl_sequence(
+		spline_sequence(
 			[
-				(0.0, DIVE),
-				(0.1, IMPACT, ease_out),
-				(0.34, RISE, ease_in_out),
-				(0.5, RISE_HALF, ease_in_out),
-				(0.62, {**RISE_HALF, **STAND_LEGS, "chest": (-4, 0, 0)}, ease_in_out),
+				(0.0, grounded(DIVE)),
+				(0.11, grounded(IMPACT), ease_out),  # (0.1: the fist met the floor at 946 studs/s², over the 900 pop line)
+				(0.34, grounded(RISE), ease_in_out),
+				(0.5, grounded(RISE_HALF), ease_in_out),
+				(0.62, grounded({**RISE_HALF, **STAND_LEGS, "chest": (-4, 0, 0)}), ease_in_out),
 			],
+			solver=solve_grounded,
 			end=(0.7, STAND_HOLD, ease_out),
 		),
 		ALL,
@@ -1747,7 +2049,7 @@ DEATH_BUCKLE = {
 	"hips": {"pos": (0, -0.75, 0.18), "rot": (-14, 0, 5)},
 	"right_foot": {"pos": (0.6, 0, 0.1), "yaw": -8, "clamp": True},
 	"left_foot": {"pos": (-0.58, 0, -0.12), "yaw": 5, "clamp": True},
-	"chest": (-28, -8, -4),
+	"chest": euler(-28, -8, -4),
 	"head": (-36, 0, 6),
 	"gun": {"shoulder": (-50, 10, 18)},
 	"right_pole": (1, -0.2, 0.4),
@@ -1757,19 +2059,34 @@ DEATH_BUCKLE = {
 DEATH_SLUMP = {
 	**DEATH_BUCKLE,
 	"hips": {"pos": (0, -0.95, 0.24), "rot": (-20, 0, 7)},
-	"chest": (-40, -10, -6),
+	"chest": euler(-40, -10, -6),
 	"head": (-48, 0, 10),
 	# The arms hang lower as the body sinks (review 1: an arm stuck out
 	# sideways at the waist, its target not sinking with the body).
 	"gun": {"shoulder": (-62, 10, 18)},
 	"left_arm": {"tip": (-0.95, -2.2, -0.2)},
 }
-DEATH_START = {**HOLD, **STAND_LEGS}
+# The hold, written the way the buckle is (gun about the shoulder, the free
+# hand by its block end, the buckle's feet): two different ways of placing
+# the arms can't blend, and the switch threw the hands 1.5 studs in a frame
+# (tp_measure, 2026-11-20). HOLD_OFFSET is this hold's gun from the shoulder.
+DEATH_START = {
+	**DEATH_BUCKLE,
+	"hips": {"pos": (0, 0, 0), "rot": (0, 0, 0)},
+	"right_foot": {**DEATH_BUCKLE["right_foot"], "yaw": -8},
+	"left_foot": {**DEATH_BUCKLE["left_foot"], "yaw": 6},
+	"chest": HOLD["chest"],
+	"head": HOLD["head"],
+	"gun": {"shoulder": (0, 0, 0)},
+	"right_pole": HOLD["right_pole"],
+	"left_arm": {"tip": tip_of(fk(HOLD_POSE), "Left")},
+	"left_pole": HOLD["left_pole"],
+}
 add(
 	Clip(
 		"Death",
 		"Action4",
-		ctrl_sequence([(0.0, DEATH_START), (0.28, DEATH_BUCKLE, ease_in), (0.6, DEATH_SLUMP, ease_out)]),
+		spline_sequence([(0.0, DEATH_START), (0.28, DEATH_BUCKLE, ease_in), (0.6, DEATH_SLUMP, ease_out)]),
 		ALL,
 		length=0.6,
 		loop=False,
