@@ -7,7 +7,7 @@
 
 ## 📍 Status
 
-- **Lobby V5 planning (2026-11-20, study only, nothing built).** The owner wants a new concept (no more RIVALS copy) built **Parts first** with MaterialService textures, editable wall bays and Blender only for shells and kit props. RIVALS' lobby measured (696 variant Parts, 283 Textures, 3x mesh reuse vs our 1,373 unique SmoothPlastic meshes). Round 2 concepts (owner: indoor, fun, **no Gauntlet theme**): laser-tag centre, indoor sports dome, warehouse hangout; my pick is laser-tag inside a warehouse. Waiting on the owner's pick. Blender skill pack and map-builder installed at user level. [Plan](02%20Art/Lobby%20V5%20Plan.md)
+- **Lobby V5 planning (2026-11-20, study only, nothing built).** The owner wants a new concept (no more RIVALS copy) built **Parts first** with MaterialService textures, editable wall bays and Blender only for shells and kit props. RIVALS' lobby measured (696 variant Parts, 283 Textures, 3x mesh reuse vs our 1,373 unique SmoothPlastic meshes). Owner (round 3): stay an **underground bunker** (no laser tag, **no Gauntlet theme**), professional with detail, and **customisable per season**. Concept "The Deep": rock cavern facility, freight-lift hub, lift-cage duels deck, shell + season layer (mount points, packs, accent colour). Waiting on the owner's ChatGPT reference images. Blender skill pack and map-builder installed at user level. [Plan](02%20Art/Lobby%20V5%20Plan.md)
 
 - **Overnight animation pass (2026-11-20, done; feel grades provisional until the owner plays).**
   - **Sniper scope:** the reflective lens no longer shows in ADS (fixed in code, no place save needed).

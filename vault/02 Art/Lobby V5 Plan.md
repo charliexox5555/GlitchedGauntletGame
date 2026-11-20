@@ -1,6 +1,6 @@
 # Lobby V5 Plan (2026-11-20): new concept, Parts first
 
-Status: **study and plan only. Nothing built.** Round 2 concepts (indoor, fun, no Gauntlet theme) wait on the owner's pick (§4).
+Status: **study and plan only. Nothing built.** Concept "The Deep" (our own underground bunker, seasonal customisation) chosen in principle; ChatGPT reference images next (§4).
 
 Replaces the direction of [Lobby V4 Plan](Lobby%20V4%20Plan.md) / [Lobby V4 Theme](Lobby%20V4%20Theme.md). V4 stays in `Workspace.LobbyV4Staging` as the live fallback until V5 is approved.
 
@@ -50,82 +50,92 @@ Captures (this session, Studio MCP): RIVALS duels hall, RIVALS pad close-up, RIV
 6. **Built by hand-style placement, not a regenerate script.** Pieces go into the place through the Studio MCP once and then belong to the place. No Build module that wipes and rebuilds the lobby, so the owner's edits are never overwritten. Each finished zone is saved as a backup `.rbxm` in `art-source/lobby/v5/`.
 7. **Checks after every zone:** a Studio script lists overlapping coplanar faces (z-fighting), Parts inside Parts, and floating props (`rbx-map-kit-audit`, `rbx-prop-support-audit`), plus captures from player height.
 
-## 4. Concept options, round 2 (owner 2026-11-20)
-Owner's brief for round 2: **the game is not a Gauntlet any more**, so nothing is themed around a gauntlet, trophy or tournament. The lobby is **indoors** and **fun**. Some of the RIVALS structure stays, but not the repeated four-part bays with nearly the same look. (Round 1's A / B / C are dropped: A was Gauntlet-themed, B was outdoors.)
+## 4. Concept, round 3 (CURRENT, owner 2026-11-20)
+The owner's answer to round 2:
+- **No laser tag.** The underground bunker look is what works ("RIVALS is this underground bunker area, which looks good"), so we stay underground.
+- **Customisable lobby.** Like RIVALS, it should change per update and season.
+- **Professional with detail.** The lobby isn't the most important part of the game, but it should look good.
+- **Images first.** ChatGPT prompts to get reference images.
 
-### What we keep from RIVALS, and what we drop
-**Keep (structure and build craft):**
-- One compact hub you spawn in, facing the duels area, with every room a short walk away (first station under 15 s).
-- Chunky concrete shells with Concrete-02a / Corrugated variants, tinted per piece.
-- Ledges and steps with wedge-cut edges.
-- Inset queue pads with team-colour edge strips and hazard-stripe Textures.
-- One big readable sign over each room's entrance.
-- Detailed ceilings: beams, ducts, light fixtures.
-- Small props reused in clusters (crates, cases, vents).
+### The concept: "The Deep", an underground facility built into a rock cavern
+It's our own bunker, not RIVALS' corridor bunker. What makes it ours:
 
-**Drop:**
-- The long sci-fi hallway with pads down both sides.
-- Rows of identical bays (wall panel + trim + low strip + lamp, repeated).
-- The dark violet bunker, white bar lamps and glowing word plates.
-- Any layout that reads as a RIVALS room.
+| | RIVALS lobby | Ours |
+|---|---|---|
+| Space | long horizontal corridors, closed metal ceilings | a big **natural rock cavern** with concrete structures built into it, so you see rock above and behind the walls |
+| Landmark | queue hallway, centre display | a **central lift shaft**: you spawn as a huge freight lift arrives at the hub floor, with cables and counterweights rising into the dark |
+| Duels area | hallway with pads down both sides | the **deployment deck**: lift cages on the edge of a drop, one per mode |
+| Light | white bar lamps, violet / yellow neon floor lines | **warm work lights** (amber floodlights on rock, white lamps under canopies); colour only in the season accent and mode lights |
+| Surfaces | dark metal panels, sci-fi | **concrete (Concrete-02a, ConcretePanels-02a), corrugated steel, hazard-painted steel, diamond-plate decks, grating, cable trays, pipes**, plus rock |
+| Feel | sci-fi | grounded industrial: a working underground facility, clean and maintained |
 
-The three concepts below all keep that structure. They differ in where you are and what the duels area is.
+**Walkthrough (one compact hub, every room under 15 s away):**
+1. **Hub (spawn).** You arrive on the freight lift in the middle of a round concrete floor (octagonal, angled plates).
+   - Rock walls rise around it, with concrete buildings set into them: the Shop counter, the Locker doors, the Range tunnel.
+   - The duels deck sits straight ahead, a step down, so the first thing you see is where fights start.
+   - Big wall screens on the rock show season art and the top players.
+2. **Duels: the deployment deck.** A wide steel deck along the edge of a dark drop.
+   - Each mode has its own **lift cage**, sized to the mode: 1v1 a narrow cage, 2v2 and 3v3 wider, 4v4 a big double cage.
+   - Each cage floor is an inset pad with team-colour edge strips and hazard stripes (the RIVALS pad craft we keep). A mode sign and a screen with the queued names hang above it.
+   - To queue, you step into the cage. When the match is found, the cage gate slides shut, the warning light spins and the cage drops into the dark (the teleport).
+   - Cages differ in size, so the deck isn't a row of identical bays.
+3. **Shop: the supply depot.** A counter set into a concrete building, with a roll-up shutter, crates behind a mesh fence, and a season display window next to it.
+4. **Locker: the armoury.** Gun racks on pegboard behind mesh panels, and a work bench where your gun turns on a stand.
+5. **Range** (later): a tunnel into the rock with target lanes. The door is built now, closed.
 
-### Concept 1: Laser-tag centre ("the place you go on a Friday night to shoot your friends")
-- **The idea:** an indoor laser-tag and paintball centre. It's a real kind of building, made for exactly what the game is: friends showing up to fight in teams. Bright and playful, not military, not sci-fi.
-- **Spawn hub:** the centre's front hall. There's a raised check-in counter (the **Shop**) and a wall of team photos and best-player boards. A big window wall looks down onto the arena floor, so the first thing you see is where the fights happen.
-- **Duels area: "the airlocks."** Along the arena window sit the entry airlocks, one per mode, each a different size: 1v1 a narrow door, 2v2 wider, 3v3 wider again, 4v4 a big double gate. Each has its own colour light over the door and a screen showing who's queued. Standing inside queues you. When the match is found, the door light turns green, the airlock lights flash and you're sent in.
-  - Different sizes and colours per mode, so it's not a row of identical bays.
-  - Pads are still inset floor plates with edge strips, which is the RIVALS craft we keep.
-- **Locker:** the gear room, with racks of vests and blasters (our guns) on pegboard walls, benches and a mirror wall.
-- **Range:** the arena floor itself, a maze of plywood barricades and painted walls with pop-up targets. You reach it through its own airlock.
-- **Materials:** painted concrete walls (Concrete-02a in team colours), rubber floor tiles, plywood barricades (Wood variants), diamond-plate stairs, corrugated metal ceiling.
-- **Light:** warm house lights in the hall, with colour wash (team blue / orange) on the arena side, so it's bright where people stand and colourful where they fight.
-- **Fun bits:** a balcony over the arena you can run along, a scoreboard showing the server's top players, and arcade-style sign boxes.
-- **Blender:** blasters on racks (we already have guns), vests, a few light fixtures and the scoreboard frame. Everything else is Parts.
-- **Risk:** too much colour light makes it look like a nightclub. Keep the colour to the arena side and the airlocks.
+**Kept from RIVALS (structure and craft):** compact hub, concrete-variant shells, wedge-cut ledges, inset glowing pads, a sign over every entrance, detailed ceilings and canopies, reused prop clusters. **Not kept:** corridor layout, rows of identical bays, violet bunker palette, white bar lamps, word-plate signs.
 
-### Concept 2: Indoor sports dome
-- **The idea:** a big indoor sports complex where shooting duels are the sport.
-- **Look:** high ceilings with steel trusses, daylight through high windows, wood court floors with painted lines, bleachers.
-- **Spawn hub:** the centre court. A big four-sided scoreboard hangs over it (the landmark, built from angled plates) and the bleachers rise around it.
-- **Duels area: "the courts."** Each mode has its own court off the main hall, sized to the mode: a small 1v1 court, a full-size 4v4 court. Each court has two team halves painted on the floor. You queue by standing in a half, and a scoreboard over the court shows the names. A court fills like a pickup game, which is fun to watch from the bleachers.
-- **Shop:** the pro shop and snack bar. **Locker:** a real team locker room with benches and named lockers. **Range:** shooting lanes behind net fences.
-- **Materials:** Wood floor variants, painted concrete block walls, steel trusses (Metal), rubber.
-- **Light:** bright, clean daylight with big hanging fixtures.
-- **Fun bits:** jump pads in the bleachers, a ball you can kick around the centre court.
-- **Blender:** the scoreboard, truss pieces and the bleacher seats. Everything else is Parts.
-- **Risk:** it can feel like a sports game more than a gun game. It needs gun touches: weapon displays, target art, team kit.
+**Blender is only for:** the freight lift and cage pieces (reused for every cage), rock walls (a few big faceted rock pieces, reused and rotated), floodlights, pipes and cable trays, crates. Everything else is Parts.
 
-### Concept 3: Warehouse hangout (skate-park club)
-- **The idea:** an old warehouse turned into a hangout and duel club, run by players for players.
-- **Look:** corrugated metal walls (Corrugated_01a / 02a), concrete floor, wooden ramps and quarter pipes made from angled plates (a perfect fit for our faceted rule), shipping containers turned into rooms, painted murals as decals.
-- **Spawn hub:** the main floor, with a skate bowl made of angled plates in the middle that you can run around while waiting.
-- **Duels area: "the container yard."** A stack of painted shipping containers along one wall, one per mode, each with a roll-up door and a mode sign. Bigger modes get double containers. You queue by standing inside, and the door rolls down as the match starts. A walkway on top lets people watch.
-- **Shop:** a container café-style counter. **Locker:** a container with a gun wall. **Range:** the loading bay with targets on pallets.
-- **Materials:** Corrugated, Concrete, Wood, Diamond Plate; graffiti-style signs and murals as Decals.
-- **Light:** work lamps and sky through roof panels, warm and gritty but clean.
-- **Fun bits:** ramps and rails for movement, a rooftop walkway.
-- **Blender:** containers (one mesh reused many times, with variants), ramps where Parts can't do the shape, and the roll-up doors.
-- **Risk:** can look run-down or cluttered. Keep it painted and tidy, with one colour per container.
+### Customisation per season and update
+The lobby is split into a **permanent shell** and a **season layer**, so a new season changes how the lobby looks without rebuilding it.
 
-### My pick: Concept 1 inside Concept 3's building
-A laser-tag centre built inside a converted warehouse:
-- Corrugated metal and concrete shell, which uses the RIVALS-style variants you added.
-- Laser-tag airlocks as the duels area, sized and coloured per mode.
-- Arena window as the landmark, with a balcony to run on.
+1. **Shell** (`Workspace.Lobby.Shell`): floors, walls, rock, lifts, rooms. Never changes between seasons.
+2. **Mount points in the shell.** Invisible anchor Parts tagged `SeasonMount` with a `Slot` attribute say where season pieces go:
+   - `Banner` (hanging banners on the rock and over the duels deck)
+   - `Centrepiece` (on the freight lift deck: a season statue, a crate pile, a vehicle)
+   - `Screen` (the big wall screens: season art image ids)
+   - `ShopWindow` (the season display next to the Shop)
+   - `FloorDecal` (the hub floor emblem)
+   - `Prop` (free spots for season clutter: snow piles, pumpkins, gift crates)
+3. **Season packs** (`ServerStorage.SeasonPacks.<Season>`): one Model per slot name. The lobby server puts each one on its mount at start.
+4. **Accent colour.** One `AccentColor` per pack recolours every part tagged `SeasonAccent`: mode lights, banner trims, screen frames, some lamp colours. One number changes the mood.
+5. **Driven by `SeasonCatalog.SEASON`** (already in `src/lobby/shared/SeasonCatalog.luau`), so the lobby, the season pass and the shop change together.
+6. **Smaller updates** (new gun, event, sale) only swap a Screen image or ShopWindow model.
 
-It's indoors, fun, made for team shooting, and nothing about it reads as RIVALS or as a Gauntlet. It's almost all Parts; Blender is only for racks, vests, lights and the scoreboard frame.
+This is code plus build work for the build phase: a small `LobbySeason` server module, tags and attributes; no remotes needed.
 
-### ChatGPT image prompts (paste one per concept to get a look image before we build)
-1. *Stylised Roblox game lobby, interior of an indoor laser-tag centre built inside a converted warehouse: corrugated metal walls, painted concrete, rubber floor tiles, a big window wall looking down onto a plywood-barricade arena lit in blue and orange, a row of entry airlock doors of different sizes each with a coloured light and a small screen above, a raised check-in counter, warm house lights. Blocky faceted shapes, angled plates instead of curves, crisp cut edges, clean and bright, no text, no people, wide eye-level shot.*
-2. *Stylised Roblox game lobby, interior of an indoor sports dome: wood court floors with painted team-colour lines, bleachers, steel roof trusses, daylight through high windows, a big four-sided scoreboard hanging over the centre court, smaller side courts of different sizes, each with its own scoreboard. Blocky faceted shapes, crisp cut edges, clean and bright, no text, no people, wide eye-level shot.*
-3. *Stylised Roblox game lobby, interior of a warehouse hangout: corrugated metal walls, concrete floor, faceted wooden skate ramps made of flat angled plates, a stack of painted shipping containers with roll-up doors along one wall with a walkway on top, work lamps, painted murals. Blocky faceted shapes, crisp cut edges, clean, not run-down, no text, no people, wide eye-level shot.*
+### ChatGPT image prompts
+How to use them: paste the **style message** first, then one **shot** per message in the same chat, so all the images share a look. Ask for 16:9.
+
+**Style message (paste first):**
+> I'm making reference images for a Roblox game lobby. Keep this style for every image I ask for: a stylised but detailed 3D game environment, like a polished Roblox front-page game. It's an underground facility built into a natural rock cavern: grey concrete structures with visible board texture, corrugated steel, hazard-striped yellow-black painted steel, diamond-plate decks, steel grating, cable trays and pipes, plus faceted rock walls. Shapes are blocky and faceted: no round curves (curves are made from flat angled plates), with crisp chamfered edges and no soft or pillowy bevels. Lighting is warm amber floodlights on the rock and white lamps under canopies, with small coloured accent lights only. Clean and maintained, not ruined. No text, no logos, no characters. Eye-level camera, wide shot, 16:9.
+
+**Shot 1: the hub.**
+> The spawn hub: a big octagonal concrete floor in the middle of the cavern with a huge industrial freight lift platform at its centre, cables and counterweights rising into the dark above. Concrete buildings set into the rock walls around it: a shop counter with a roll-up shutter on the left, armoury doors on the right, and straight ahead a step down to a steel deck. Two large wall screens mounted on the rock.
+
+**Shot 2: the duels deck.**
+> The duels area: a wide steel deck along the edge of a dark drop in the cavern. Along the edge stand four industrial lift cages of different sizes (a narrow one, two medium ones, one big double cage). Each has a sliding mesh gate, a glowing inset floor pad with a coloured edge strip and hazard stripes, a warning beacon on top, and a hanging sign frame and small screen above it. Floodlights on the rock behind.
+
+**Shot 3: shop and armoury.**
+> Close view of two rooms set into the rock: a supply depot counter with a roll-up shutter, stacked crates behind a mesh fence and a lit display window, and next to it an armoury with gun racks on pegboard behind mesh panels and a work bench with a rifle on a turntable stand.
+
+**Shot 4: the same hub dressed for a winter season.**
+> The same spawn hub as shot 1, decorated for a winter season: snow piles on ledges, frost on the rock, hanging banners in icy blue and white on the rock walls, a big gift-crate stack on the freight lift, blue accent lights replacing the coloured lights, everything else unchanged.
+
+**Optional shot 5: a second take on the hub, for contrast.**
+> The spawn hub again, but as a bigger, taller cavern with a ring of catwalks climbing the lift shaft and more visible rock, darker, with stronger contrast between warm floodlights and shadow.
+
+When the images come back: put them in `third-party/lobby-v5-concepts/`, which is git-ignored (or tell me where they are). I'll run the reference interview on them ([Model Style Interview](Model%20Style%20Interview.md)), then build the material test room in Parts.
+
+### Earlier rounds (dropped)
+- **Round 2** (laser-tag centre, indoor sports dome, warehouse hangout): the owner wants the underground bunker feel instead. Ideas kept: different-size queue rooms per mode, the "walk in to fight" moment.
+- **Round 1** (Gauntlet tournament backstage, outdoor training compound, fight club): the game is no longer Gauntlet-themed, and the lobby must be indoors.
 
 ## 5. Phases
-1. **Concept board (now).** Owner picks concept 1 / 2 / 3 (or a mix) and runs its image prompt. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
+1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
-3. **Material and kit sheet in Studio.** A small test room built in Parts: the chosen variants, 3 wall bays, a floor, a trim, one gate, one pad. Owner signs off the look before any layout.
+3. **Material and kit sheet in Studio** (shell pieces plus one `SeasonMount` of each slot). A small test room built in Parts: the chosen variants, 3 wall bays, a floor, a trim, one gate, one pad. Owner signs off the look before any layout.
 4. **Grey blockout of the layout** in Parts (spawn, duels, shop, locker, range door), walk-time checks, captures.
 5. **Dress zone by zone** (duels first), Blender props only where §3.4 allows, audit after each zone.
 6. **Swap in** for V4 when the owner approves; V4 stays as rollback.
