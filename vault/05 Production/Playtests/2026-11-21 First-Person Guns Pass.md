@@ -19,3 +19,17 @@ Lane FP of the [overnight animation pass](../Overnight%202026-11-20%20Animation%
 - [ ] **Gun clips:** fire, reload (tactical and empty), inspect and draw a few guns (Vandal, Sheriff, Bucky shells, Marshal lever, Odin). Is anything mushier than before? Snaps should still snap.
 - [ ] **Marshal:** the hammer stays back between shots and during reloads; it only falls on the shot.
 - [ ] **Ruin-Blighted guns:** reload and inspect the Vandal and Operator. The conjured mag should never jump while you can see it.
+
+## Round 2 (2026-11-21, after the owner played round 1)
+All first person only (other players and the third-person body keep the stock motion). Local commits, not pushed; no Studio-owned changes, so no place to save.
+
+**What changed**
+1. **Ruin-Blighted Operator bolt:** the Ruin-Blighted guns have no bolt geometry, and the hand used to dive to the empty bolt joint inside the receiver. Now the hand stays on its grip when there's nothing to work (also on the Ruin-Blighted Vandal, Guardian and Spectre charging handles).
+2. **Bat heavy (right-click):** on contact the bat now stands up the middle of the screen with its art toward you and the sweet spot on the crosshair. It used to point straight into the screen, edge-on.
+3. **Fan inspect:** its own "fanning yourself" move. The fan stays low, gives seven relaxed waves from the "wrist" (the fist and fan turn together, the arm barely moves), and the leaf flexes behind each wave. It lasts 4.6 s, and the knife's toss is gone.
+
+**What to test**
+- [ ] **Ruin-Blighted Operator:** fire a few shots and reload. The right arm should never go into the gun. Is it fine that there's no bolt gesture at all, or do you want something there (a mist rack)?
+- [ ] **Bat (PopCircuit) heavy:** right-click a few times. Does the bat read properly on contact now? Is the lean right?
+- [ ] **Fan (Giltfold) inspect:** is it low enough, long enough and smooth? Do the waves read as a wrist flick? Too fast or too big (17° turn, ~2.2 waves a second)?
+- [ ] **Stinger and Outlaw reloads:** the measured check found the rising Stinger mag touching the right forearm and the Outlaw's loading arm meeting the barrels, both hidden behind the gun in frozen frames. Do you see anything odd there at full speed?
