@@ -96,7 +96,12 @@ def seam(clip, times, frames, keep):
 				"interior_velocity_jump": interior,
 			}
 		)
-	code, lines = run("rbx-animation-loop-seam", {"dt": dt, "max_pose_gap": 0.04, "max_velocity_gap": 1.5, "joints": joints}, keep, clip.name)
+	# A pose gap is only small next to the clip's own frame steps: a breathing
+	# hold moves 0.0005 studs a frame, so a fixed 0.04 hid a 0.004 wrap step
+	# (2026-11-20). Limit: three of the clip's largest steps, at most 0.04.
+	step = max(float(np.linalg.norm(np.diff(np.array([pos(f, p) for f in frames]), axis=0), axis=1).max()) for p in ENDS)
+	gap = min(0.04, max(0.0005, 3 * step))
+	code, lines = run("rbx-animation-loop-seam", {"dt": dt, "max_pose_gap": gap, "max_velocity_gap": 1.5, "joints": joints}, keep, clip.name)
 	return code, lines
 
 

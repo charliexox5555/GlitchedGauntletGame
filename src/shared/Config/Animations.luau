@@ -20,16 +20,16 @@ return table.freeze({
 		-- Holding the gun, blended by aim pitch (Action priority). Solved on a
 		-- rig with both hands on the gun (tools/studio/MakeHoldAnimations,
 		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
-		AimUp = id(88870025606922), -- o1 2026-11-20: breathing hold (was 137847543596504) -- looking AIM_PITCH_UP degrees up
-		AimLevel = id(94464701903165), -- o1 2026-11-20: breathing hold (was 133205732621181)
-		AimDown = id(79101581668719), -- o1 2026-11-20: breathing hold (was 86939677186257) -- looking AIM_PITCH_DOWN degrees down (v7 2026-11-15: the gun goes out as it drops, the right forearm was inside the chest; was 111694202793931)
+		AimUp = id(88731037976156), -- o2 2026-11-20: breathing hold (was 137847543596504) -- looking AIM_PITCH_UP degrees up
+		AimLevel = id(105637585256231), -- o2 2026-11-20: breathing hold (was 133205732621181)
+		AimDown = id(118137664448884), -- o2 2026-11-20: breathing hold (was 86939677186257) -- looking AIM_PITCH_DOWN degrees down (v7 2026-11-15: the gun goes out as it drops, the right forearm was inside the chest; was 111694202793931)
 		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
-		PistolAimUp = id(90110821738932), -- o1 2026-11-20: breathing hold (was 95901417628746)
-		PistolAimLevel = id(77979426667126), -- o1 2026-11-20: breathing hold (was 91403700231911)
-		PistolAimDown = id(136745041959856), -- o1 2026-11-20: breathing hold (was 70510113818516)
-		PistolAdsUp = id(103312749068797), -- o1 2026-11-20: breathing hold (was 115421178439718)
-		PistolAdsLevel = id(126204615010452), -- o1 2026-11-20: breathing hold (was 77191013164054)
-		PistolAdsDown = id(118395948212238), -- o1 2026-11-20: breathing hold (was 80580729310516)
+		PistolAimUp = id(104552117240290), -- o2 2026-11-20: breathing hold (was 95901417628746)
+		PistolAimLevel = id(134408200055475), -- o2 2026-11-20: breathing hold (was 91403700231911)
+		PistolAimDown = id(111015808504046), -- o2 2026-11-20: breathing hold (was 70510113818516)
+		PistolAdsUp = id(123908701376846), -- o2 2026-11-20: breathing hold (was 115421178439718)
+		PistolAdsLevel = id(93700559415008), -- o2 2026-11-20: breathing hold (was 77191013164054)
+		PistolAdsDown = id(73233869134802), -- o2 2026-11-20: breathing hold (was 80580729310516)
 		-- Movement (Action2; Slide is Action3 so it wins over everything).
 		-- The run's upper body, in step with SprintRun (a loop the same length):
 		-- a low ready that swings with the stride; sidearms and the knife have their own.
@@ -98,9 +98,9 @@ return table.freeze({
 	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
 	-- hit (HitAt).
 	COMBAT = table.freeze({
-		AdsUp = id(134791744503477), -- o1 2026-11-20: breathing hold (was 88665317482255)
-		AdsLevel = id(120128012932120), -- o1 2026-11-20: breathing hold (was 95863412039587)
-		AdsDown = id(115407361005663), -- o1 2026-11-20: breathing hold (was 139601720262674)
+		AdsUp = id(87449585195829), -- o2 2026-11-20: breathing hold (was 88665317482255)
+		AdsLevel = id(86480588512249), -- o2 2026-11-20: breathing hold (was 95863412039587)
+		AdsDown = id(77870476375092), -- o2 2026-11-20: breathing hold (was 139601720262674)
 		Reload = id(110565531734561), -- o1 2026-11-20 overnight TP pass, splines (was 102765870602957) -- v7 2026-11-15: a low-ready swap, the face stays clear (v6 112777133763655 stood the rifle up over the head)
 		PistolReload = id(99293327658491), -- o1 2026-11-20 overnight TP pass, splines (was 120367219025692) -- sidearms
 		Flinch = id(134800149922990),
@@ -111,7 +111,7 @@ return table.freeze({
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
 		Draw = id(137689336920879), -- o1 2026-11-20 overnight TP pass, splines (was 116807890408322)
-		KnifeReady = id(84503652869545), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
+		KnifeReady = id(84124615647002), -- o2 2026-11-20: breathing hold (was 84503652869545; 2026-11-05: arms cleared of the torso)
 		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py; every
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
 		-- rig). The old single slash was 103765524428295, the old heavy

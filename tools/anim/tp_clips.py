@@ -86,7 +86,7 @@ def held(name, priority, controls, parts=UPPER):
 
 
 BREATH_LENGTH = 2.4  # seconds per breath
-BREATH = (0.7, 0.35, 0.012)  # chest lean (deg), chest yaw sway (deg), gun rise (studs)
+BREATH = (0.7, 0.25, 0.012)  # chest lean (deg), chest yaw sway (deg, twice per breath), gun rise (studs)
 
 
 def breathing(name, priority, controls, parts=UPPER):
@@ -97,7 +97,8 @@ def breathing(name, priority, controls, parts=UPPER):
 	lean, sway, rise = BREATH
 	chest = controls["chest"]
 	chest = chest if hasattr(chest, "shape") else euler(*chest)
-	gun = controls["gun"]
+	gun = controls.get("gun")  # (the knife has none: its fist rides instead)
+	fist = controls.get("right_arm")
 	# The free hand by its block end, riding the gun: its "on_gun" reach
 	# solve flipped under these small moves (a 0.045-stud one-frame tick on
 	# AimUp / AimDown / AdsDown). In play GripController's IK places it anyway.
@@ -107,11 +108,17 @@ def breathing(name, priority, controls, parts=UPPER):
 
 	def at(t):
 		ph = TAU * t / BREATH_LENGTH
-		b, s_ = math.sin(ph), math.sin(ph * 0.5 + 0.6)
+		# (The sway once ran at half the breath's rate, so the loop's end
+		# didn't meet its start: a 0.004-stud step at the wrap in the engine.)
+		b, s_ = math.sin(ph), math.sin(2 * ph + 0.6)
 		dy = rise * math.sin(ph - 0.5)
 		ctrl = dict(controls)
 		ctrl["chest"] = euler(lean * b, sway * s_, 0) @ chest
-		ctrl["gun"] = {**gun, "pos": (gun["pos"][0], gun["pos"][1] + dy, gun["pos"][2])}
+		if gun is not None:
+			ctrl["gun"] = {**gun, "pos": (gun["pos"][0], gun["pos"][1] + dy, gun["pos"][2])}
+		elif fist is not None and "fist" in fist:
+			x, y, z = fist["fist"]
+			ctrl["right_arm"] = {**fist, "fist": (x, y + dy, z)}
 		ctrl["left_arm"] = {"tip": (float(tip0[0]), float(tip0[1] + dy), float(tip0[2]))}
 		return solve(ctrl)
 
@@ -293,7 +300,7 @@ for _name, _pitch in (("Up", 45), ("Level", 0), ("Down", -30)):
 	held("AdsKick" + _name, "Action2", long_hold(_pitch, True, kick=LONG_KICK))
 	held("PistolKick" + _name, "Action2", pistol_hold(_pitch, kick=PISTOL_KICK))
 	held("PistolAdsKick" + _name, "Action2", pistol_hold(_pitch, True, kick=PISTOL_KICK))
-held("KnifeReady", "Action", knife())
+breathing("KnifeReady", "Action", knife())
 
 # Idle --------------------------------------------------------------------------------
 
