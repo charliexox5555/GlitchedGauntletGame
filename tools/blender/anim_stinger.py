@@ -3,6 +3,11 @@
 #
 # Uzi-type SMG: the bolt cycles, the side cocking knob stays put while firing. The long magazine drops straight out
 # of the grip (no rock). The left hand follows the magazine, then the cocking knob.
+#
+# Round 3 of the 2026-11-20 animation pass: the new magazine comes in from the front, tilted bottom-forward, and only
+# its last ~0.2 stud slides straight up the grip (mag_swap_front). The Uzi's mag goes through the pistol grip, and the
+# block forearm hangs straight down that grip's line, so a mag rising straight up the line went through the forearm
+# (measured 0.15 deep for ~0.3 s with tools/studio/ArmClipCheck.luau).
 
 import bpy, importlib, os, sys
 
@@ -10,10 +15,30 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gunkit
 
 importlib.reload(gunkit)
-from gunkit import Clip, cycle, draw_rack, inspect_tap_check, kick, mag_swap, rack, reload_root, trigger_pull
+from gunkit import Clip, cycle, draw_rack, inspect_tap_check, kick, rack, reload_root, trigger_pull
 
 GUN = "Stinger"
 FPS = 24
+
+
+def mag_swap_front(c, f0, drop=0.7, tilt=-6):
+	# mag_swap's timing and markers (MagOut f0 + 3, MagIn f0 + 18, slap f0 + 37, done f0 + 40); the old mag leaves
+	# straight down as before. The new one (Mag bone: X gun-forward, Y gun-left, Z up; a negative Y turn swings the
+	# mag's bottom forward) shows low and in front of the trigger hand's forearm, rocks back as it rises and is
+	# straight only for the last 0.2 stud, where the mag's bottom is still inside the fist.
+	bone = "Mag"
+	c.key(bone, f0)
+	c.key(bone, f0 + 2, (0.004, 0, -0.03), (0, tilt * 0.2, 0))
+	c.key(bone, f0 + 5, (0.01, 0, -drop * 1.15), (0, tilt, 0))  # hidden from MagOut until MagIn
+	c.key(bone, f0 + 18, (0.45, 0.15, -0.95), (0, -30, 0))  # the new mag, low and forward
+	c.key(bone, f0 + 27, (0.3, 0.08, -0.42), (0, -24, 0))
+	c.key(bone, f0 + 31, (0.12, 0.02, -0.2), (0, -12, 0))
+	c.key(bone, f0 + 34, (0.01, 0, -0.05), (0, -2, 0))  # in the well, straight
+	c.key(bone, f0 + 37, (0, 0, 0.007), (0, 0.6, 0))  # slapped home
+	c.key(bone, f0 + 40)
+	c.mark("MagOut", f0 + 3)
+	c.mark("MagIn", f0 + 18)
+	return f0 + 40
 
 
 def fire():
@@ -26,7 +51,7 @@ def fire():
 
 def reload_tactical():
 	c = Clip(GUN, "Reload", 66)
-	mag_swap(c, 10, drop=0.7, fwd=0.03, tilt=-6)
+	mag_swap_front(c, 10)
 	reload_root(c, 10, roll=12, pitch=-4, yaw=3, lift=0.016)
 	c.key("Root", 58, (0, 0, 0.003), (2, -0.5, 0.5))
 	c.key("Root", 64)
@@ -35,7 +60,7 @@ def reload_tactical():
 
 def reload_empty():
 	c = Clip(GUN, "ReloadEmpty", 97)
-	mag_swap(c, 11, drop=0.7, fwd=0.03, tilt=-6)  # done by f51 = 52%
+	mag_swap_front(c, 11)  # done by f51 = 52%
 	reload_root(c, 11, roll=12, pitch=-4, yaw=3, lift=0.016)
 	rack(c, 80, travel=0.15, jolt=0.8)  # cocking knob from 82%
 	return c
