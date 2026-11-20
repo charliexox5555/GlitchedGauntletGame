@@ -33,3 +33,16 @@ All first person only (other players and the third-person body keep the stock mo
 - [ ] **Bat (PopCircuit) heavy:** right-click a few times. Does the bat read properly on contact now? Is the lean right?
 - [ ] **Fan (Giltfold) inspect:** is it low enough, long enough and smooth? Do the waves read as a wrist flick? Too fast or too big (17° turn, ~2.2 waves a second)?
 - [ ] **Stinger and Outlaw reloads:** the measured check found the rising Stinger mag touching the right forearm and the Outlaw's loading arm meeting the barrels, both hidden behind the gun in frozen frames. Do you see anything odd there at full speed?
+
+## Round 3 (2026-11-21)
+Local commits, not pushed; no Studio-owned changes, so no place to save. Grades and evidence: the FP Round 3 table in the [plan note](../Overnight%202026-11-20%20Animation%20Pass.md).
+
+**What changed**
+1. **Stinger reload:** the new mag used to rise straight up the grip and through the trigger hand's forearm. (Round 2 called it hidden; it wasn't: it sank into the top of the arm block.) It now comes in from low and in front, tilted, rocks back as it rises, and only slides straight for the last bit into the grip. The old mag is also swapped for the falling copy a frame sooner. This is the gun's own clip, so other players see it too. Measured clear in stock and all 13 Stinger skins.
+2. **Outlaw reload:** not changed. Every fix I tried either did nothing, made the overlap longer, or made the loading arm lie across the screen. It needs your call (below).
+
+**What to test**
+- [ ] **Stinger reload** (tactical and empty): does the new mag swinging in from the front read well at full speed? Nothing should pass through the right forearm.
+- [ ] **Outlaw two-round reload:** watch the left hand between the first and second round. It comes up near the crosshair for about 0.2 s with the arm across the lower left (this was already there). Does it bother you? And at the breech the forearm runs alongside the dropped barrels (hidden overlap). If you want it fixed, pick one: (a) leave it, (b) change the reload's gun roll so the barrels hang steeper than the arm, or (c) a new loading pose (the fist behind the breech, the arm coming from below).
+- [ ] **Fan (Giltfold):** the inspect after the melee lane's idle-sway change. It should still be smooth, never stall, and stay low. The swings cover about a third of the screen for a frame mid-swipe (the knife covers a fifth). Is the Fan's size (0.8 of the knife) right?
+- [ ] **Bat (PopCircuit) heavy:** right-click. On contact the bat should stand up the middle with its art toward you.
