@@ -1920,9 +1920,12 @@ add(
 KNEEL_LEGS = {
 	# (Review 1: a deep, forward kneel crumpled into a lump. Upright now: the
 	# right knee down, the left knee up, the hand clearly reaching the floor.)
-	"hips": {"pos": (0, -1.05, 0.15), "rot": (-6, 0, 0)},
-	"left_foot": {"pos": (-0.55, 0, -0.6), "yaw": 6, "pole": (-0.2, 0.3, -1)},
-	"right_foot": {"pos": (0.6, 0, 0.8), "yaw": -8, "pole": (0.2, -0.6, -1), "clamp": True},
+	# (Round 2, measured in the engine: the kneel buried the right knee 0.39
+	# under the floor. Now down on the crouch's stance, no knee on the floor;
+	# the body bends over to put the item down.)
+	"hips": {"pos": (0, -1.12, 0.2), "rot": (-8, -4, 0)},
+	"left_foot": {"pos": (-0.6, 0, -0.62), "yaw": 6, "pole": (-0.25, 0.4, -1), "clamp": True},
+	"right_foot": {"pos": (0.62, 0.05, 0.62), "yaw": -12, "pole": (0.35, -0.5, -1), "clamp": True},
 }
 STAND_LEGS = {
 	"hips": {"pos": (0, 0, 0), "rot": (0, 0, 0)},
@@ -1939,9 +1942,9 @@ add(
 		spline_sequence(
 			[
 				(0.0, grounded({**STAND_LEGS, **arms(bladed(-4, -8), MOD_HOLD_R, MOD_HOLD_L)})),
-				(0.15, grounded({**KNEEL_LEGS, **arms(bladed(-14, -6), (0.55, -1.9, -1.15), (-0.6, -1.35, -0.7), r_pole=(1, 0.2, 0.4))})),
-				(0.28, grounded({**KNEEL_LEGS, **arms(bladed(-20, -4), (0.5, -2.85, -1.2), (-0.6, -1.45, -0.7), r_pole=(1, 0.3, 0.4))})),
-				(0.4, grounded({**KNEEL_LEGS, **arms(bladed(-21, -4), (0.52, -2.88, -1.26), (-0.62, -1.5, -0.68), r_pole=(1, 0.3, 0.4))})),
+				(0.15, grounded({**KNEEL_LEGS, **arms(bladed(-28, -6), (0.55, -1.9, -1.15), (-0.85, -1.35, -0.95), r_pole=(1, 0.2, 0.4), l_pole=(-1, 0, 0.3))})),
+				(0.28, grounded({**KNEEL_LEGS, **arms(bladed(-46, -4), (0.5, -2.85, -1.2), (-1.05, -2.15, -1.1), r_pole=(1, 0.3, 0.4), l_pole=(-1, 0, 0.3))})),
+				(0.4, grounded({**KNEEL_LEGS, **arms(bladed(-48, -4), (0.52, -2.88, -1.26), (-1.07, -2.2, -1.12), r_pole=(1, 0.3, 0.4), l_pole=(-1, 0, 0.3))})),
 				(0.58, grounded({**STAND_LEGS, **arms(bladed(-6, -10), (0.7, 0.4, -0.7), (-0.6, 0.3, -1.0))})),
 			],
 			end=(0.72, STAND_HOLD, ease_out),
@@ -2075,20 +2078,22 @@ def dive(t):
 add(Clip("UpdraftSlam", "Action4", dive, ALL, length=0.4))
 
 IMPACT = {
-	# (Review 1: hips 1.6 low and the chest folded read as a lump; now the chest
-	# stays up and the head looks ahead, the right knee down behind, the left
-	# knee up in front, the free fist planted out to the side, the gun wide.)
-	"hips": {"pos": (0, -1.3, 0.2), "rot": (-12, 0, 0)},
-	"right_foot": {"pos": (0.6, 0, 0.95), "yaw": -10, "pole": (0.2, -0.6, -1), "clamp": True},
-	"left_foot": {"pos": (-0.55, 0, -0.75), "yaw": 8, "pole": (-0.2, 0.3, -1)},
-	"chest": (-16, 6, 0),
-	"head": (6, 0, 0),
+	# (Round 2, measured in the engine: the knee-down landing buried the right
+	# knee 0.73 under the floor, and any kneel high enough to clear it left the
+	# fist a stud off the floor. Now a three-point landing: both feet planted
+	# deep on the crouch's stance (no knee on the floor), the body bent over
+	# with the free fist down by the floor, the gun out wide.)
+	"hips": {"pos": (0, -1.12, 0.2), "rot": (-12, -6, 0)},
+	"left_foot": {"pos": (-0.6, 0, -0.62), "yaw": 6, "pole": (-0.25, 0.4, -1), "clamp": True},
+	"right_foot": {"pos": (0.62, 0.05, 0.62), "yaw": -12, "pole": (0.35, -0.5, -1), "clamp": True},
+	"chest": (-40, 6, 0),
+	"head": (2, 0, 0),
 	"gun": {"shoulder": (-8, -45, 0)},
 	"right_pole": (1, -0.4, 0.6),
-	"left_arm": {"tip": (-1.05, -2.88, -0.55)},
+	"left_arm": {"tip": (-1.0, -2.88, -0.65)},
 	"left_pole": (-1, 0.4, 0.2),
 }
-RISE = {**IMPACT, "hips": {"pos": (0, -1.2, 0.18), "rot": (-10, 0, 0)}, "chest": (-12, 4, 0), "head": (4, 0, 0)}
+RISE = {**IMPACT, "hips": {"pos": (0, -1.05, 0.18), "rot": (-10, -5, 0)}, "chest": (-30, 4, 0), "head": (4, 0, 0)}
 RISE_HALF = {
 	**RISE,
 	"hips": {"pos": (0, -0.7, 0.1), "rot": (-10, 0, 0)},

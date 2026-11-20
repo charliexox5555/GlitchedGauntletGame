@@ -6,6 +6,8 @@ Overhaul.md §15, §18), on the rig in tp_rig.py, sampled at 60 Hz:
 
 For each clip:
     sink    studs the lowest shin / foot corner goes under the floor
+    knee    studs the lowest corner of any thigh or shin block (R15 part box)
+            goes under the floor (a kneel can bury a knee with the soles fine)
     lock    for a ground clip: how fast the corner a planted foot stands on
             moves over the ground, as a share of the ground speed (100% = no
             slide; the block has no ankle, so it rolls heel to toe on its
@@ -51,6 +53,24 @@ def sole_corners(world, side):
 	return [knee[:3] + rot @ v3(cx, -KNEE_TO_SOLE, cz) for cx in (-HALF, HALF) for cz in (-HALF, HALF)]
 
 
+# The engine's leg part boxes (R15, measured in the match place 2026-11-21):
+# a kneel can sink a knee with every sole corner above the floor, so the
+# "knee" column checks the whole thigh and shin blocks.
+LEG_BOXES = {"UpperLeg": (1.0, 1.2166, 1.0), "LowerLeg": (1.0, 1.1931, 1.0)}
+
+
+def leg_low(world):
+	low = 9.0
+	for side in ("Right", "Left"):
+		for part, (sx, sy, sz) in LEG_BOXES.items():
+			m = world[side + part]
+			for cx in (-sx / 2, sx / 2):
+				for cy in (-sy / 2, sy / 2):
+					for cz in (-sz / 2, sz / 2):
+						low = min(low, float((m @ np.array([cx, cy, cz, 1.0]))[1]) + FLOOR)
+	return low
+
+
 def shin_segment(world, side):
 	shin = world[side + "LowerLeg"]
 	knee = (shin @ np.array([0, 0.379, 0, 1.0]))[:3]
@@ -86,6 +106,7 @@ def check(clip, travel=None, full=True):
 		pose = tp_clips.full_pose(clip, t) if full else clip.pose(t)
 		frames.append(fk(pose))
 	sink = 0.0
+	knee = 0.0
 	legs = 9.0
 	arms = 0
 	jump = 0.0
@@ -102,6 +123,7 @@ def check(clip, travel=None, full=True):
 			low[side] = min(c[1] for c in corners) + FLOOR
 			sink = max(sink, -low[side])
 		soles.append({side: (sole_corners(w, side), low[side]) for side in ("Right", "Left")})
+		knee = max(knee, -leg_low(w))
 		k1, s1 = shin_segment(w, "Right")
 		k2, s2 = shin_segment(w, "Left")
 		legs = min(legs, seg_dist(k1, s1, k2, s2))
@@ -139,6 +161,7 @@ def check(clip, travel=None, full=True):
 		lock, mean_slip = float("nan"), float("nan")
 	return {
 		"sink": sink,
+		"knee": knee,
 		"lock": lock,
 		"mean_slip": mean_slip,
 		"slip": slip,
@@ -161,7 +184,7 @@ def main():
 			continue
 		names.append(arg)
 	names = names or list(tp_clips.CLIPS)
-	print("%-14s %6s %6s %6s %6s %6s %5s %6s %6s" % ("clip", "sink", "lock%", "slipm", "slipx", "legs", "arms", "jump", "planted"))
+	print("%-14s %6s %6s %6s %6s %6s %6s %5s %6s %6s" % ("clip", "sink", "knee", "lock%", "slipm", "slipx", "legs", "arms", "jump", "planted"))
 	for name in names:
 		clip = tp_clips.CLIPS[name]
 		travel = tp_clips.GROUND.get(name) if hasattr(tp_clips, "GROUND") else None
@@ -169,8 +192,8 @@ def main():
 			travel = tuple(float(x) for x in speeds[name].split("/"))
 		r = check(clip, travel)
 		print(
-			"%-14s %6.3f %6.1f %6.2f %6.2f %6.2f %5d %6.3f %6d"
-			% (name, r["sink"], r["lock"], r["mean_slip"], r["slip"], r["legs"], r["arms"], r["jump"], r["planted"])
+			"%-14s %6.3f %6.3f %6.1f %6.2f %6.2f %6.2f %5d %6.3f %6d"
+			% (name, r["sink"], r["knee"], r["lock"], r["mean_slip"], r["slip"], r["legs"], r["arms"], r["jump"], r["planted"])
 		)
 
 

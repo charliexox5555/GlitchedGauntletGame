@@ -333,7 +333,7 @@ return table.freeze({
 		-- 2026-11-04: wind-ups, snaps and follow-throughs, ending on the gun hold).
 		ModHold = id(79414521552493),
 		Throw = id(119484404341094), -- r2 2026-11-21: the wind-up reads (item above and behind the head, free arm pointing at the target) (was 129085261001652) -- o1 2026-11-20 overnight TP pass, splines (was 80403547544782)
-		Place = id(83199924746572), -- o1 2026-11-20 overnight TP pass, splines (was 92359767222451)
+		Place = id(105011555120942), -- r2 2026-11-21: down on the crouch stance, bent over (the kneel buried the knee 0.39) (was 83199924746572) -- o1 2026-11-20 overnight TP pass, splines (was 92359767222451)
 		Heal = id(120933430967429), -- r2 2026-11-21: device out front-right at shoulder height, free arm out to the side, no arms through the chest (was 77351510963020) -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
 		Lob = id(123753817056953), -- r2 2026-11-21: free arm reaches out front, the swing goes wide of the hip (was 85103387011074) -- o1 2026-11-20 overnight TP pass, splines (was 86298417428874) -- a held throw's underhand (Molly RMB)
 		Cast = id(78340199527777), -- r2 2026-11-21: leans harder into the shove (was 110417908522750) -- o2 2026-11-20 overnight TP pass, splines, no chest clipping (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
@@ -348,7 +348,7 @@ return table.freeze({
 		-- (looped while UpdraftSlam = "Down") and the knee-and-fist landing
 		-- (once). Uploaded 2026-11-03.
 		UpdraftSlam = id(91174387556328),
-		UpdraftSlamLand = id(137908275018781), -- o1 2026-11-20 overnight TP pass, splines (was 131769446021191)
+		UpdraftSlamLand = id(112038871870364), -- r2 2026-11-21: a three-point landing on both feet (the knee-down one buried the knee 0.73 under the floor) (was 137908275018781) -- o1 2026-11-20 overnight TP pass, splines (was 131769446021191)
 	}),
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
 	SLAM_FADE = 0.08, -- seconds the Crash Down dive pose fades in / out
