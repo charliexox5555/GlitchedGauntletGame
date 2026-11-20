@@ -320,13 +320,22 @@ local function sweep(animator: Animator)
 end
 
 -- Config/TpIk's switch (Studio: the Workspace attribute wins). Mirrors
--- Controllers/TpIkController.
+-- Controllers/TpIkController. Read here, outside the simulation callback:
+-- GetService is not allowed inside one (2026-11-20: calling it there threw
+-- every step and the client stopped posing its own character).
+local tpIkDev: boolean? = nil
+if RunService:IsStudio() then
+	local Workspace = game:GetService("Workspace")
+	local function readDev()
+		local dev = Workspace:GetAttribute(TpIk.DEV_ATTRIBUTE)
+		tpIkDev = if typeof(dev) == "boolean" then dev else nil
+	end
+	readDev()
+	Workspace:GetAttributeChangedSignal(TpIk.DEV_ATTRIBUTE):Connect(readDev)
+end
 local function tpIkOn(): boolean
-	if RunService:IsStudio() then
-		local dev = game:GetService("Workspace"):GetAttribute(TpIk.DEV_ATTRIBUTE)
-		if typeof(dev) == "boolean" then
-			return dev
-		end
+	if tpIkDev ~= nil then
+		return tpIkDev
 	end
 	return TpIk.ENABLED
 end
