@@ -1950,7 +1950,8 @@ function ViewmodelController.swing(attack: string?): number
 		FanMotion.play(
 			right.fan,
 			if attack == "HeavyStab" then "Heavy" else "Slash",
-			if length > 0 then length else nil
+			if length > 0 then length else nil,
+			if own then own.hit else nil
 		)
 	end
 	-- The free hand comes in for the thrust only (owner's knife clip, 2026-11-14).

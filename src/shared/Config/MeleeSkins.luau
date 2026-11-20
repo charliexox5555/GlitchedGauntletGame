@@ -57,7 +57,13 @@ return table.freeze({
 		DRAW_OPEN_AT = 0.3,
 		-- Heavy: folds shut for the thrust, reopens on the recovery.
 		HEAVY_REOPEN_AT = 0.68,
-		-- Light: a small fold on the windup, a flick past open at contact.
+		-- Each rib trails the one inside it by this (seconds; 5 steps out = 30 ms).
+		RIB_LAG = 0.006,
+		-- Seconds a new move takes to pick the leaf up from where it was.
+		BLEND = 0.08,
+		-- Light: a small fold on the windup, a flick past open at contact
+		-- (key SLASH_FLICK, moved onto each swing's own contact).
+		SLASH_FLICK = 3,
 		SLASH = table.freeze({
 			{ 0, 0 },
 			{ 0.12, 0.1 },
@@ -69,12 +75,12 @@ return table.freeze({
 		-- then two fanning pulses toward the camera, then idle.
 		INSPECT = table.freeze({
 			{ 0, 0 },
-			{ 0.14, 0 },
+			{ 0.14, 0.05 }, -- 2026-11-21: was 0, a still leaf; now a slow pre-fold (anticipation)
 			{ 0.24, 1.02 },
 			{ 0.3, 1 },
 			{ 0.4, -0.05 },
 			{ 0.46, 0 },
-			{ 0.56, 0 },
+			{ 0.56, 0.05 }, -- (was 0: a 0.3 s still hold before the pulses)
 			{ 0.61, 0.3 },
 			{ 0.66, -0.03 },
 			{ 0.71, 0.3 },
