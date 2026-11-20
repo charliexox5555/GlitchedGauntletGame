@@ -1251,12 +1251,12 @@ return table.freeze({
 			seat = 0.09,
 		},
 		Frost = {
-			scale = 1.3,
+			scale = 1.5, -- round 3 (weight): overhangs the block's end like RIVALS' 1.5x grenade (1.3 was no wider than it)
 			offset = Vector3.new(0.56, -0.82, -2.05),
 			rotation = Vector3.new(-8, -20, 16),
 			arm = Vector3.new(0.5, -0.85, 0.25),
 			lift = Vector3.new(0, 0.09, 0),
-			seat = 0.14,
+			seat = 0.22, -- at scale 1.5 (rays: median gap ~0.02)
 		},
 		-- The anchor read tiny on the fist (2026-11-16): scale 1.3, default offset.
 		-- Round 3: stood on the fist end like the canisters (it was 40° off the
@@ -1316,12 +1316,12 @@ return table.freeze({
 		},
 		-- Flash: a canister like Frost's, pin side to the free hand.
 		Flash = {
-			scale = 1.3,
+			scale = 1.5, -- round 3 (weight): overhangs the block end (1.3 read as a light can on a post)
 			offset = Vector3.new(0.56, -0.78, -2.02),
 			rotation = Vector3.new(-8, -20, 16),
 			arm = Vector3.new(0.5, -0.85, 0.25),
 			lift = Vector3.new(0, 0.07, 0),
-			seat = 0.18,
+			seat = 0.23, -- at scale 1.5 (rays: median gap ~0.02)
 		},
 		-- Roller: the bot on the palm, nose forward (its placed model held small).
 		Roller = {
@@ -1488,10 +1488,12 @@ return table.freeze({
 					rot = Vector3.new(-22, 18, 22),
 					arm = Vector3.new(0.05, -0.15, 0.25),
 				},
+				-- Fix round 2 (weight): at the brake the canister sags and tips back a
+				-- little under its own mass before the snap.
 				{
 					t = 0.28,
-					pos = Vector3.new(0.38, 1, 1),
-					rot = Vector3.new(-25, 19, 23),
+					pos = Vector3.new(0.39, 0.96, 1.02),
+					rot = Vector3.new(-30, 19, 24),
 					arm = Vector3.new(0.05, -0.15, 0.25),
 				},
 				{

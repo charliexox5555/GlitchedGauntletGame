@@ -80,7 +80,16 @@ type Flight = {
 	sparks: ParticleEmitter?, -- turned off when it lands
 	streak: Trail?, -- the Recon dart's light streak (off when it lands)
 	pointed: boolean?, -- points along its path (a dart) instead of tumbling
+	-- Our own throw: where it left our first-person hand, off its path then
+	-- (blended out over OWN_RELEASE_BLEND from flight time `fromAt`).
+	from: Vector3?,
+	fromAt: number?,
 }
+
+-- Our own canister starts at the first-person hand that let it go and joins
+-- its path over this long (seconds): it appeared at the eye while the hand
+-- released it low right (blind review, round 3; RIVALS draws it out of the fist).
+local OWN_RELEASE_BLEND = 0.15
 
 type Floater = { gui: BillboardGui, label: TextLabel, born: number }
 
@@ -270,6 +279,26 @@ local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [stri
 		return
 	end
 	local elapsed = Workspace:GetServerTimeNow() - start
+	local from: Vector3? = nil
+	local dartLike = id == "ReconDart" or id == "ShockBolt"
+	if data.caster == player and not dartLike then
+		local cam = Workspace.CurrentCamera
+		local held = cam and cam:FindFirstChild("ViewmodelItem")
+		local heldModel = held and held:FindFirstChildOfClass("Model")
+		if heldModel then
+			from = heldModel:GetPivot().Position - Projectile.positionAt(path, math.max(elapsed, 0))
+		end
+	end
+	-- Start it where it is first drawn, its trails cleared, so no streak runs
+	-- in from where the pooled model was last.
+	model:PivotTo(
+		CFrame.new(Projectile.positionAt(path, math.max(elapsed, 0)) + (from or Vector3.zero))
+	)
+	for _, d in model:GetDescendants() do
+		if d:IsA("Trail") then
+			d:Clear()
+		end
+	end
 	ModAudio.play(
 		if data.lob == true then sounds.throwLob else sounds.throw,
 		Projectile.positionAt(path, math.max(elapsed, 0))
@@ -322,6 +351,8 @@ local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [stri
 		),
 		sparks = sparks,
 		streak = streak,
+		from = from,
+		fromAt = math.max(elapsed, 0),
 	})
 end
 
@@ -1055,6 +1086,15 @@ local function update(dt: number)
 			continue
 		end
 		local pos = Projectile.positionAt(f.path, math.max(t, 0))
+		local from, fromAt = f.from, f.fromAt
+		if from and fromAt then
+			local k = math.clamp((t - fromAt) / OWN_RELEASE_BLEND, 0, 1)
+			if k < 1 then
+				pos += from * (1 - k * k * (3 - 2 * k))
+			else
+				f.from = nil
+			end
+		end
 		local spin = f.spin or 9
 		if f.pointed then
 			-- A dart points where it's going (its tip is -Z).
