@@ -52,8 +52,8 @@ local SOUND: { [string]: string } = {
 	["ROUND WON"] = "RoundWon",
 	["ROUND LOST"] = "RoundLost",
 	DRAW = "Banner",
-	VICTORY = "Victory",
-	DEFEAT = "Defeat",
+	VICTORY = "MatchEnd", -- one ending song for everyone (no defeat noise)
+	DEFEAT = "MatchEnd",
 }
 
 type Ui = {

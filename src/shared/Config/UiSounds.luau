@@ -76,7 +76,9 @@ return table.freeze({
 	LockerIn = cue(15675028888, 0.16, 1.1, 0.3, 0.06), -- Whoosh_02, soft: into the Locker
 	LockerOut = cue(15675046931, 0.14, 0.95, 0.3, 0.06), -- Sweep, soft: back to the lobby
 
-	-- Match events (provisional: on the F4 board's MATCH tab)
+	-- Match events. Owner's picks 2026-11-20 (board round 1): draft open /
+	-- card in / draft close / lock in / Mod cues kept; Fight, RoundWon, RoundLost,
+	-- Score and the ending song picked; the rest still on the F4 board.
 	LockIn = cue(15675043410, 0.42), -- Roblox_UI_Tonal_Stinger
 	Open = cue(15675028888, 0.32), -- Roblox_UI_Whoosh_02: the draft slides in
 	CardIn = cue(15674975792, 0.13, 1.2, 0.04), -- Roblox_UI_Whoosh_03, per card, very soft
@@ -84,13 +86,15 @@ return table.freeze({
 	Tick = cue(15675085146, 0.28, nil, 0.3), -- Roblox_UI_Indicator: last seconds of a clock
 	TickFinal = cue(15675085146, 0.39, 1.35, 0.3), -- the same, higher, on the last count
 	Banner = cue(15675012262, 0.32), -- Roblox_UI_Whoosh_04: SUDDEN DEATH / MATCH POINT / DRAW
-	Fight = cue(15675043410, 0.39, 1.25), -- the stinger, higher: the barrier drops
-	RoundWon = cue(15675043410, 0.42, 1.1), -- the stinger, brighter
-	RoundLost = cue(15675062723, 0.35), -- Roblox_UI_Whistle_Low
-	-- Victory / Defeat: the toast and the match-end scene both ask for them
-	-- at match end; the gap keeps it to one play (they used to stack).
-	Victory = cue(1837945707, 0.35, nil, 4), -- APM "Strategic Victory Stinger"
-	Defeat = cue(15675062723, 0.35, nil, 4), -- Roblox_UI_Whistle_Low (was the RoundLost cue)
+	Fight = cue(9043151109, 0.235), -- APM "Get Up And Go - Hit": the barrier drops (owner: look for subtler)
+	RoundWon = cue(9042542887, 0.284), -- APM "Universal Flip - Hit" (= match found)
+	RoundLost = cue(17208214688, 0.438), -- Roblox "GUI - Call Decline" (owner: keep looking)
+	-- The ending song (owner 2026-11-20: no victory / defeat noises; one short,
+	-- positive song for everyone over the end cutscene that shows the winner;
+	-- wants it a little longer, like RIVALS, so the cutscene can be cut to it).
+	-- The VICTORY / DEFEAT toast and the match-end scene both ask for it; the
+	-- gap plays it once.
+	MatchEnd = cue(1846942308, 0.227, nil, 6), -- APM "Winner Sting Four" (5 s)
 	ZoneWarn = cue(15675085146, 0.35, 0.72, 0.3), -- Roblox_UI_Indicator, low: outside the sudden-death circle
-	Score = cue(15675055424, 0.28, 0.9), -- Roblox_UI_Cute_Pop, lower: your team's score diamond fills
+	Score = cue(17208319162, 0.672), -- Roblox "GUI - Pickup": your team's score diamond fills (owner: keep looking)
 })

@@ -17,7 +17,10 @@ local UserInputService = game:GetService("UserInputService")
 
 local SoundAudition = {}
 
-type Cand = { id: number, vol: number, note: string }
+type Layer = { id: number, vol: number, delay: number, pitch: number }
+-- one sound (id + vol), or layers played together (a designed sound: a thump
+-- under a tink, etc.; if picked, it gets baked into one asset)
+type Cand = { note: string, id: number?, vol: number?, layers: { Layer }? }
 type Row = { section: string, name: string, list: { Cand } }
 
 local SHOT_ID = 128240759324250 -- the Vandal's first shot take (gun_semi_auto_rifle_shot_01)
@@ -25,6 +28,7 @@ local HIT_DELAY = 0.05 -- Config/Audio.HIT_DELAY: hits land just after the shot
 local BODY_ID, BODY_VOL = 125235091454234, 0.8 -- the headshot plays on top of this
 
 local SECTIONS = { "SHARED", "MATCH", "HITS" }
+local PER_LINE = 5 -- buttons per line; longer rows wrap
 
 -- Generated from measured loudness (2026-11-20); "vol" is the Sound.Volume
 -- that matches the row's current sound (button 1).
@@ -112,240 +116,448 @@ local ROWS: { Row } = {
 	},
 	{
 		section = "MATCH",
-		name = "DRAFT OPENS",
+		name = "LOCK IN (more options)",
 		list = {
-			{ id = 15675028888, vol = 0.315, note = "now: Roblox Whoosh 02" },
-			{ id = 15675024286, vol = 0.277, note = "Roblox Whoosh 01" },
-			{ id = 15675012262, vol = 0.299, note = "Roblox Whoosh 04" },
-			{ id = 10128766965, vol = 1.717, note = "RBLX UI Swipe" },
-			{ id = 17208405682, vol = 0.807, note = "Roblox GUI Swipe" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "CARD IN (each card, very soft)",
-		list = {
-			{ id = 15674975792, vol = 0.126, note = "now: Roblox Whoosh 03" },
-			{ id = 17208405682, vol = 0.407, note = "Roblox GUI Swipe" },
-			{ id = 15675037413, vol = 0.202, note = "Roblox Paper Swipe" },
-			{ id = 9126014267, vol = 1.917, note = "PSE Very soft swish B" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "DRAFT CLOSES",
-		list = {
-			{ id = 15675046931, vol = 0.28, note = "now: Roblox Sweep" },
-			{ id = 15675024286, vol = 0.207, note = "Roblox Whoosh 01" },
-			{ id = 9119703221, vol = 1.473, note = "PSE Soft swish 14" },
-			{ id = 9120708843, vol = 0.994, note = "PSE Dull whoosh 3" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "LOCK IN",
-		list = {
-			{ id = 15675043410, vol = 0.42, note = "now: Roblox Tonal Stinger" },
-			{ id = 17208396156, vol = 0.715, note = "Roblox GUI Select (= CONFIRM)" },
-			{ id = 17208323435, vol = 0.789, note = "Roblox GUI Equip" },
-			{ id = 17208380755, vol = 0.849, note = "Roblox GUI Purchase" },
-			{ id = 10066947742, vol = 2.279, note = "RBLX UI Purchase" },
+			{
+				note = "now: Roblox Tonal Stinger",
+				layers = { { id = 15675043410, vol = 0.42, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "Roblox GUI Select (= CONFIRM)",
+				layers = { { id = 17208396156, vol = 0.715, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox GUI Equip",
+				layers = { { id = 17208323435, vol = 0.789, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox GUI Purchase",
+				layers = { { id = 17208380755, vol = 0.849, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Thuddy select B",
+				layers = { { id = 9126040335, vol = 0.885, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Padlock lock",
+				layers = { { id = 9117185722, vol = 0.259, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "GUI Equip + soft swell",
+				layers = {
+					{ id = 17208323435, vol = 0.789, delay = 0, pitch = 1 },
+					{ id = 9043336050, vol = 0.119, delay = 0, pitch = 1 },
+				},
+			},
 		},
 	},
 	{
 		section = "MATCH",
 		name = "CLOCK TICK (last seconds)",
 		list = {
-			{ id = 15675085146, vol = 0.28, note = "now: Roblox Indicator" },
-			{ id = 9114216120, vol = 1.424, note = "PSE DVD menu click 9" },
-			{ id = 17208408337, vol = 0.593, note = "Roblox GUI Tab" },
-			{ id = 9113399918, vol = 0.412, note = "PSE Simple beep 4" },
-			{ id = 9117060347, vol = 0.804, note = "PSE NASA beep 1" },
+			{
+				note = "now: Roblox Indicator",
+				layers = { { id = 15675085146, vol = 0.28, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "PSE Mantle clock click",
+				layers = { { id = 9116466272, vol = 0.322, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Drumstick tick",
+				layers = { { id = 9120898005, vol = 0.33, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Dial tick",
+				layers = { { id = 9114071134, vol = 1.466, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Low stick",
+				layers = { { id = 9043367153, vol = 0.107, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Relay tick",
+				layers = { { id = 9118138693, vol = 0.405, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Mantle clock 20",
+				layers = { { id = 9116467494, vol = 0.466, delay = 0.0, pitch = 1.0 } },
+			},
 		},
 	},
 	{
 		section = "MATCH",
 		name = "LAST TICK (on 1)",
 		list = {
-			{ id = 15675085146, vol = 0.385, note = "now: Roblox Indicator, higher" },
-			{ id = 9113399926, vol = 0.692, note = "PSE Simple beep 5" },
-			{ id = 9117060368, vol = 1.105, note = "PSE NASA beep 3" },
-			{ id = 17208396156, vol = 0.398, note = "Roblox GUI Select" },
+			{
+				note = "now: Roblox Indicator, higher",
+				layers = { { id = 15675085146, vol = 0.385, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "Drumstick tick, higher",
+				layers = { { id = 9120898005, vol = 0.454, delay = 0.0, pitch = 1.25 } },
+			},
+			{
+				note = "Mantle clock, higher",
+				layers = { { id = 9116466272, vol = 0.442, delay = 0.0, pitch = 1.2 } },
+			},
+			{
+				note = "APM Low stick, higher",
+				layers = { { id = 9043367153, vol = 0.147, delay = 0.0, pitch = 1.3 } },
+			},
+			{
+				note = "Drumstick + soft pipe ring",
+				layers = {
+					{ id = 9120898005, vol = 0.454, delay = 0, pitch = 1.2 },
+					{ id = 9125741438, vol = 0.409, delay = 0, pitch = 1 },
+				},
+			},
+			{
+				note = "Roblox GUI Select",
+				layers = { { id = 17208396156, vol = 0.398, delay = 0.0, pitch = 1.0 } },
+			},
 		},
 	},
 	{
 		section = "MATCH",
-		name = "BANNER (sudden death, match point, draw)",
+		name = "BANNER (keep subtle)",
 		list = {
-			{ id = 15675012262, vol = 0.315, note = "now: Roblox Whoosh 04" },
-			{ id = 17208372272, vol = 0.203, note = "Roblox GUI Notification Low" },
-			{ id = 9045808545, vol = 0.149, note = "APM Swagger Ting (sting)" },
-			{ id = 9038919815, vol = 0.159, note = "APM Totally Go For It (hit)" },
+			{
+				note = "now: Roblox Whoosh 04",
+				layers = { { id = 15675012262, vol = 0.315, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "Roblox GUI Notification Low",
+				layers = { { id = 17208372272, vol = 0.203, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox GUI Notification High",
+				layers = { { id = 17208361335, vol = 0.169, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Whoosh 04 + Notification Low",
+				layers = {
+					{ id = 15675012262, vol = 0.315, delay = 0, pitch = 1 },
+					{ id = 17208372272, vol = 0.102, delay = 0.05, pitch = 1 },
+				},
+			},
+			{
+				note = "Whoosh 04 + Notification High",
+				layers = {
+					{ id = 15675012262, vol = 0.315, delay = 0, pitch = 1 },
+					{ id = 17208361335, vol = 0.076, delay = 0.05, pitch = 1 },
+				},
+			},
 		},
 	},
 	{
 		section = "MATCH",
-		name = "FIGHT (barrier drops)",
+		name = "FIGHT (subtler)",
 		list = {
-			{ id = 15675043410, vol = 0.385, note = "now: Roblox Tonal Stinger, higher" },
-			{ id = 1848300577, vol = 0.412, note = "APM Raunch On (hit)" },
-			{ id = 9045807338, vol = 0.281, note = "APM Scoundrels (brass + drum)" },
-			{ id = 9043151109, vol = 0.235, note = "APM Get Up And Go (hit)" },
-			{ id = 17208361335, vol = 0.341, note = "Roblox GUI Notification High" },
+			{
+				note = "now: APM Get Up And Go (picked)",
+				layers = { { id = 9043151109, vol = 0.235, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "APM Low swell",
+				layers = { { id = 9043336050, vol = 0.312, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Punch + bass swell",
+				layers = { { id = 9043183024, vol = 0.238, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox GUI Notification High",
+				layers = { { id = 17208361335, vol = 0.341, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Deep whomp swell",
+				layers = { { id = 9118748998, vol = 0.46, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Raunch On (hit)",
+				layers = { { id = 1848300577, vol = 0.412, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Scoundrels (brass + drum)",
+				layers = { { id = 9045807338, vol = 0.281, delay = 0.0, pitch = 1.0 } },
+			},
 		},
 	},
 	{
 		section = "MATCH",
-		name = "ROUND WON",
+		name = "ROUND LOST (keep looking)",
 		list = {
-			{ id = 15675043410, vol = 0.42, note = "now: Roblox Tonal Stinger, brighter" },
-			{ id = 17208361335, vol = 0.372, note = "Roblox GUI Notification High" },
-			{ id = 9042542887, vol = 0.284, note = "APM Universal Flip (= match found)" },
-			{ id = 1844442553, vol = 0.519, note = "APM Winner - Bingo" },
+			{
+				note = "now: Roblox GUI Call Decline (picked)",
+				layers = { { id = 17208214688, vol = 0.438, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "APM Wrong Answer 3",
+				layers = { { id = 1839997989, vol = 0.603, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox GUI Negative",
+				layers = { { id = 17208353912, vol = 0.673, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox GUI Notification Low",
+				layers = { { id = 17208372272, vol = 0.4, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox Whistle Low (old)",
+				layers = { { id = 15675062723, vol = 0.35, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Loser - Sorry",
+				layers = { { id = 1844442622, vol = 0.356, delay = 0.0, pitch = 1.0 } },
+			},
 		},
 	},
 	{
 		section = "MATCH",
-		name = "ROUND LOST",
+		name = "ENDING SONG (everyone; plays over the winner cutscene)",
 		list = {
-			{ id = 15675062723, vol = 0.35, note = "now: Roblox Whistle Low" },
-			{ id = 17208372272, vol = 0.399, note = "Roblox GUI Notification Low" },
-			{ id = 17208214688, vol = 0.438, note = "Roblox GUI Call Decline" },
-			{ id = 1844442622, vol = 0.356, note = "APM Loser - Sorry" },
+			{
+				note = "now: APM Winner Sting Four (5 s, picked)",
+				layers = { { id = 1846942308, vol = 0.227, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "APM Kinetic Victory (5 s)",
+				layers = { { id = 133000497392138, vol = 0.223, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Rise Of Champions (5 s)",
+				layers = { { id = 9041815642, vol = 0.658, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Victory Fanfare (10 s)",
+				layers = { { id = 1836473422, vol = 0.377, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Victory Dance a (11 s)",
+				layers = { { id = 1837762472, vol = 0.21, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Glorious Victory 1 (8 s)",
+				layers = { { id = 1844259840, vol = 0.265, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Victory Slam (8 s)",
+				layers = { { id = 9042702890, vol = 0.296, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Arc Of Triumph (11 s)",
+				layers = { { id = 85130118995016, vol = 0.316, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Emerge Victorious (9 s)",
+				layers = { { id = 9041813643, vol = 0.682, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Flight Of Triumph (10 s)",
+				layers = { { id = 9040625402, vol = 0.368, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "APM Striving for Victory A (8 s)",
+				layers = { { id = 131980079349113, vol = 0.237, delay = 0.0, pitch = 1.0 } },
+			},
 		},
 	},
 	{
 		section = "MATCH",
-		name = "VICTORY",
+		name = "ZONE WARNING (keep looking)",
 		list = {
-			{ id = 1837945707, vol = 0.35, note = "now: APM Strategic Victory" },
-			{ id = 133000497392138, vol = 0.223, note = "APM Kinetic Victory" },
-			{ id = 1842331985, vol = 0.56, note = "APM March to Victory (b)" },
-			{ id = 9041815642, vol = 0.658, note = "APM Rise Of Champions" },
-			{ id = 1846942308, vol = 0.227, note = "APM Winner Sting Four" },
+			{
+				note = "now: Roblox Indicator, low",
+				layers = { { id = 15675085146, vol = 0.35, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "PSE Alarm buzzer (airy)",
+				layers = { { id = 9113085764, vol = 0.487, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Descending beep, low",
+				layers = { { id = 9125933460, vol = 1.78, delay = 0.0, pitch = 0.7 } },
+			},
+			{
+				note = "PSE NASA beep 4",
+				layers = { { id = 9117060548, vol = 1.005, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Simple beep 8, low",
+				layers = { { id = 9113400139, vol = 0.831, delay = 0.0, pitch = 0.8 } },
+			},
+			{
+				note = "Roblox GUI Negative, low",
+				layers = { { id = 17208353912, vol = 0.38, delay = 0.0, pitch = 0.85 } },
+			},
 		},
 	},
 	{
 		section = "MATCH",
-		name = "DEFEAT",
+		name = "SCORE (your point)",
 		list = {
-			{ id = 15675062723, vol = 0.35, note = "now: Roblox Whistle Low" },
-			{ id = 1839857692, vol = 0.361, note = "APM Loser (f)" },
-			{ id = 1846251702, vol = 0.452, note = "APM Fortune Fun Lose" },
-			{ id = 1839846554, vol = 0.347, note = "APM Loser Sting 1" },
-			{ id = 17208372272, vol = 0.399, note = "Roblox GUI Notification Low" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "ZONE WARNING (outside the circle)",
-		list = {
-			{ id = 15675085146, vol = 0.35, note = "now: Roblox Indicator, low" },
-			{ id = 9117060548, vol = 1.005, note = "PSE NASA beep 4" },
-			{ id = 9113400139, vol = 0.831, note = "PSE Simple beep 8" },
-			{ id = 17208353912, vol = 0.38, note = "Roblox GUI Negative" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "SCORE (your team's point)",
-		list = {
-			{ id = 15675055424, vol = 0.28, note = "now: Roblox Cute Pop, lower" },
-			{ id = 17208319162, vol = 0.672, note = "Roblox GUI Pickup" },
-			{ id = 17208323435, vol = 0.495, note = "Roblox GUI Equip" },
-			{ id = 17208396156, vol = 0.449, note = "Roblox GUI Select" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "MOD READY",
-		list = {
-			{ id = 9126076030, vol = 0.35, note = "now: PSE ready chime" },
-			{ id = 17208323435, vol = 0.298, note = "Roblox GUI Equip" },
-			{ id = 17208319162, vol = 0.405, note = "Roblox GUI Pickup" },
-			{ id = 9126134338, vol = 0.656, note = "PSE Soft beeps 4" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "MOD DENIED",
-		list = {
-			{ id = 17208353912, vol = 0.4, note = "now: Roblox GUI Negative" },
-			{ id = 15675075163, vol = 0.875, note = "Roblox Delete (= ERROR)" },
-			{ id = 9126041965, vol = 0.395, note = "PSE Thuddy buzzy A" },
-		},
-	},
-	{
-		section = "MATCH",
-		name = "MOD CANCEL",
-		list = {
-			{ id = 15675032796, vol = 0.35, note = "now: Roblox Small Click" },
-			{ id = 9119703221, vol = 0.596, note = "PSE Soft swish 14 (= BACK)" },
-			{ id = 9119717529, vol = 0.102, note = "PSE Toggle Button 1 (= CLICK)" },
+			{
+				note = "now: Roblox GUI Pickup (picked)",
+				layers = { { id = 17208319162, vol = 0.672, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "Roblox Coin Transfer",
+				layers = { { id = 127645268874265, vol = 0.644, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Coin bounce",
+				layers = { { id = 9113848469, vol = 0.447, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Roblox Cute Pop (old)",
+				layers = { { id = 15675055424, vol = 0.28, delay = 0.0, pitch = 0.9 } },
+			},
+			{
+				note = "Roblox GUI Equip",
+				layers = { { id = 17208323435, vol = 0.495, delay = 0.0, pitch = 1.0 } },
+			},
 		},
 	},
 	{
 		section = "HITS",
-		name = "BODY HIT (every hit)",
+		name = "HEADSHOT (RIVALS / Valorant: thump + tink)",
 		list = {
-			{ id = 125235091454234, vol = 0.8, note = "now: hitmarker_2" },
-			{ id = 9119717529, vol = 2.324, note = "PSE Toggle Button 1 (= CLICK)" },
-			{ id = 9117969584, vol = 0.74, note = "PSE Beefy punch 1" },
-			{ id = 9113263454, vol = 0.724, note = "PSE Balloon pop 1" },
+			{
+				note = "now: H18 pop",
+				layers = { { id = 106431154366392, vol = 0.511, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "PSE Ricochet on plate 3",
+				layers = { { id = 9119651814, vol = 1.85, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Head hit, metal",
+				layers = { { id = 9113500009, vol = 0.959, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Punch + ricochet tink",
+				layers = {
+					{ id = 9117969584, vol = 0.212, delay = 0, pitch = 1 },
+					{ id = 9119651814, vol = 1.017, delay = 0, pitch = 1 },
+				},
+			},
+			{
+				note = "Deep thud + ricochet tink",
+				layers = {
+					{ id = 9113225986, vol = 0.251, delay = 0, pitch = 1 },
+					{ id = 9119652215, vol = 2.264, delay = 0, pitch = 1 },
+				},
+			},
+			{
+				note = "Punch + glass ping",
+				layers = {
+					{ id = 9117969584, vol = 0.212, delay = 0, pitch = 1 },
+					{ id = 9116682109, vol = 0.372, delay = 0, pitch = 1 },
+				},
+			},
 		},
 	},
 	{
 		section = "HITS",
-		name = "HEADSHOT (on top of the hit)",
+		name = "KILL (a real kill sound, not a pop)",
 		list = {
-			{ id = 106431154366392, vol = 0.511, note = "now: H18 pop" },
-			{ id = 9113263454, vol = 0.259, note = "PSE Balloon pop 1" },
-			{ id = 17208204604, vol = 1.238, note = "Roblox GUI Bubble" },
-			{ id = 9117848644, vol = 0.385, note = "PSE Mouth pop 7" },
+			{
+				note = "now: K13 pop",
+				layers = { { id = 97850971640091, vol = 0.524, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "Punch + deep boom",
+				layers = {
+					{ id = 9117969717, vol = 0.292, delay = 0, pitch = 1 },
+					{ id = 9125404320, vol = 0.548, delay = 0, pitch = 1 },
+				},
+			},
+			{
+				note = "Giant thud + K13",
+				layers = {
+					{ id = 9113225986, vol = 0.373, delay = 0, pitch = 1 },
+					{ id = 97850971640091, vol = 0.367, delay = 0, pitch = 1 },
+				},
+			},
+			{
+				note = "PSE Sledgehammer on beam",
+				layers = { { id = 9125672726, vol = 0.913, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Thud + punch-bass swell",
+				layers = {
+					{ id = 9113518281, vol = 0.855, delay = 0, pitch = 1 },
+					{ id = 9043183024, vol = 0.277, delay = 0, pitch = 1 },
+				},
+			},
+			{
+				note = "PSE Deep rock thunk",
+				layers = { { id = 9118598279, vol = 0.873, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "Punch + boom + ricochet",
+				layers = {
+					{ id = 9117969717, vol = 0.255, delay = 0, pitch = 1 },
+					{ id = 9125404320, vol = 0.469, delay = 0, pitch = 1 },
+					{ id = 9119652215, vol = 2.643, delay = 0.02, pitch = 1 },
+				},
+			},
 		},
 	},
 	{
 		section = "HITS",
-		name = "KILL",
+		name = "DAMAGE TAKEN (similar options)",
 		list = {
-			{ id = 97850971640091, vol = 0.524, note = "now: K13 pop" },
-			{ id = 9119669065, vol = 1.305, note = "PSE Suction pop 4" },
-			{ id = 9113537815, vol = 0.612, note = "PSE Hollow pop blip" },
-			{ id = 17208204604, vol = 2.068, note = "Roblox GUI Bubble" },
-			{ id = 80157615235710, vol = 0.513, note = "kill C (older warm pop)" },
-		},
-	},
-	{
-		section = "HITS",
-		name = "DAMAGE TAKEN",
-		list = {
-			{ id = 82753489298942, vol = 0.556, note = "now: muffled thud" },
-			{ id = 9117969584, vol = 0.59, note = "PSE Beefy punch 1" },
-			{ id = 9117969420, vol = 0.999, note = "PSE Punching bag thud" },
-			{ id = 9117969717, vol = 0.487, note = "PSE Beefy punch 3" },
+			{
+				note = "now: muffled thud (current)",
+				layers = { { id = 82753489298942, vol = 0.556, delay = 0, pitch = 1 } },
+			},
+			{
+				note = "PSE Rubber-glove thud",
+				layers = { { id = 9113518281, vol = 1.427, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Gut hit (glove)",
+				layers = { { id = 9113514100, vol = 1.547, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Chin hit (rubber glove)",
+				layers = { { id = 9113520887, vol = 1.056, delay = 0.0, pitch = 1.0 } },
+			},
+			{
+				note = "PSE Cloth body hit",
+				layers = { { id = 9113534108, vol = 2.759, delay = 0.0, pitch = 1.0 } },
+			},
 		},
 	},
 }
 
 local gui: ScreenGui? = nil
-local voices: { [string]: Sound } = {}
 local afterShot = true
 
-local function play(slot: string, id: number, volume: number, delay: number?)
-	local s = voices[slot]
-	if not s then
-		local made = Instance.new("Sound")
-		made.Name = "Audition" .. slot
-		made.Parent = SoundService
-		voices[slot] = made
-		s = made
+local live: { Sound } = {}
+
+local function stopAll()
+	for _, snd in live do
+		snd:Destroy()
 	end
-	local snd = s :: Sound
+	table.clear(live)
+end
+
+local function play(id: number, volume: number, delay: number?, pitch: number?)
 	local function go()
-		snd:Stop()
+		local snd = Instance.new("Sound")
+		snd.Name = "Audition"
 		snd.SoundId = "rbxassetid://" .. tostring(id)
 		snd.Volume = volume
-		snd.TimePosition = 0
+		snd.PlaybackSpeed = pitch or 1
+		snd.Parent = SoundService
+		table.insert(live, snd)
+		snd.Ended:Once(function()
+			snd:Destroy()
+		end)
 		snd:Play()
 	end
 	if delay and delay > 0 then
@@ -355,15 +567,25 @@ local function play(slot: string, id: number, volume: number, delay: number?)
 	end
 end
 
+local function layersOf(c: Cand): { Layer }
+	if c.layers then
+		return c.layers
+	end
+	return { { id = c.id :: number, vol = c.vol :: number, delay = 0, pitch = 1 } }
+end
+
 local function audition(row: Row, c: Cand)
+	stopAll()
+	local base = 0
 	if row.section == "HITS" and afterShot then
-		play("shot", SHOT_ID, 1)
+		play(SHOT_ID, 1)
+		base = HIT_DELAY
 		if string.find(row.name, "HEADSHOT", 1, true) then
-			play("body", BODY_ID, BODY_VOL, HIT_DELAY)
+			play(BODY_ID, BODY_VOL, HIT_DELAY)
 		end
-		play("cand", c.id, c.vol, HIT_DELAY)
-	else
-		play("cand", c.id, c.vol)
+	end
+	for _, l in layersOf(c) do
+		play(l.id, l.vol, base + l.delay, l.pitch)
 	end
 end
 
@@ -480,7 +702,8 @@ local function build(sections: { string }): ScreenGui
 			local f = Instance.new("Frame")
 			f.BackgroundTransparency = 1
 			f.Position = UDim2.fromOffset(0, y)
-			f.Size = UDim2.new(1, -12, 0, 40)
+			local lines = math.ceil(#row.list / PER_LINE)
+			f.Size = UDim2.new(1, -12, 0, 40 * lines)
 			f.Parent = list
 			label(
 				f,
@@ -493,7 +716,7 @@ local function build(sections: { string }): ScreenGui
 				local b = button(
 					f,
 					string.format("%d. %s", i, c.note),
-					UDim2.fromOffset(240 + (i - 1) * 162, 2),
+					UDim2.fromOffset(240 + ((i - 1) % PER_LINE) * 162, 2 + (i - 1) // PER_LINE * 40),
 					UDim2.fromOffset(156, 36),
 					if i == 1 then "3A3A42" else "2A2A31"
 				)
@@ -501,7 +724,7 @@ local function build(sections: { string }): ScreenGui
 					audition(row, c)
 				end)
 			end
-			y += 44
+			y += 40 * lines + 4
 		end
 	end
 	for i, name in sections do

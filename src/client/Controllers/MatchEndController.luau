@@ -678,8 +678,9 @@ local function begin()
 	else
 		buildScreen(winner, results.score1, results.score2) -- phones: the old code-built screen
 	end
-	-- the VICTORY / DEFEAT toast asks for the same cue; its gap plays it once
-	UiSound.play(if winner == Teams.of(player) then "Victory" else "Defeat")
+	-- one positive ending song for everyone, winner or not (owner 2026-11-20);
+	-- the VICTORY / DEFEAT toast asks for it too, its gap plays it once
+	UiSound.play("MatchEnd")
 	local cam = Workspace.CurrentCamera
 	if cam and far and near and focus then
 		cam.CameraType = Enum.CameraType.Scriptable

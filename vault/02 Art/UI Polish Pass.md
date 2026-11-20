@@ -152,3 +152,14 @@ Every candidate's volume is **level-matched to the row's current sound** by meas
 - The toast band tweens the Size of a CanvasGroup that holds its title.
 - No hover/press feedback: phone match-end buttons, the spectate arrows.
 - No settings / pause menu exists in the match.
+
+### Board round 2 (owner's match picks, 2026-11-20)
+**Set:** Fight = APM "Get Up And Go - Hit" (wants subtler options too); Round won = APM "Universal Flip - Hit"; Round lost = Roblox "GUI - Call Decline" (keep looking); Score = Roblox "GUI - Pickup" (keep looking). Kept: draft opens / card in / draft closes, lock in (more options wanted), banner (Whoosh 04; wants a subtle real notification option), Mod ready / denied / cancel, body hit, damage taken (more similar options wanted). SHARED tab not looked at yet.
+
+**No victory / defeat noises** (owner): one short, positive **ending song** for everyone over the end cutscene that shows the winner, a little longer like RIVALS so the cutscene can be cut to it later. New cue `MatchEnd` (VICTORY and DEFEAT toasts and the match-end scene all ask for it; a 6 s gap plays it once); provisional APM "Winner Sting Four" (5 s, the owner's likely pick of the round-1 three). The board offers 8-11 s APM stings.
+
+**RIVALS headshot clip** (owner's recording, measured with `tools/audio/analyze_audio.py`): a deep sub thump (40-85 Hz) under a short broadband crack and a metallic ping near 4.5 kHz (partials 2.8 / 3.3 / 3.7 kHz) that dies in about 0.4 s; centroid 5.2 kHz. The same "thump + tink" shape as Valorant's helmet hit. Earlier glass-ding builds of it (H5) were turned down as "annoying"; this round offers real metal-plate ricochets (PSE "Stun Gun Ricochets, like bullet hitting metal plate") and a "head hit, metal" body impact, alone and layered under punches / a giant thud.
+
+**Kill** ("an actual good kill sound, not just a UI pop"): weighty layered options (punch + deep boom, giant thud + the K13 pop, punch + bass swell, punch + boom + ricochet, a sledgehammer on a beam, a deep rock thunk).
+
+**Board changes:** candidates can be **layers played together** (a designed sound; if one is picked it gets baked into one uploaded asset with the hit-sound tools); long rows wrap. MATCH: lock in, clock tick, last tick, banner, fight, round lost, ending song, zone warning, score. HITS: headshot, kill, damage. Every layer level-matched to the row's current sound (36 new ids measured, in the match place).
