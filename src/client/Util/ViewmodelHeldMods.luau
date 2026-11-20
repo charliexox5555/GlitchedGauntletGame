@@ -76,6 +76,7 @@ export type HeldMods = {
 	actionKind: string?,
 	actionAt: number,
 	itemHidden: boolean,
+	itemLeaving: boolean?, -- let go (letGoItem): hidden, gone once the hand is back on the gun
 	-- Its moving parts (moveItemPart), and where each part sat as built.
 	partMoves: { PartState },
 	partRest: { [BasePart]: CFrame },
@@ -275,6 +276,7 @@ function ViewmodelHeldMods.holdItem(h: HeldMods, template: Model?)
 	local cam = Workspace.CurrentCamera
 	h.actionKind = nil
 	h.itemHidden = false
+	h.itemLeaving = false
 	h.raiseX, h.raiseV = 0, 0
 	table.clear(h.partMoves)
 	table.clear(h.partRest)
@@ -284,6 +286,23 @@ function ViewmodelHeldMods.holdItem(h: HeldMods, template: Model?)
 	end
 	local hold = VM.ITEM_HOLDS[template.Name]
 	h.item = visualCopy(template, "ViewmodelItem", cam, tune("TuneHoldScale", hold and hold.scale))
+end
+
+-- Lets the held item go after a use or a cancel: it disappears now, and the
+-- hand on it eases back onto the gun as the gun comes up; the item is gone
+-- once the hand is there (2026-11-21, traced in play: taking the item away
+-- at once snapped the bow hand 0.7 studs back onto the gun in one frame).
+function ViewmodelHeldMods.letGoItem(h: HeldMods)
+	local held = h.item
+	if not held or h.itemLeaving then
+		return
+	end
+	h.itemLeaving = true
+	for _, d in held:GetDescendants() do
+		if d:IsA("BasePart") then
+			LocalHide.set(d, 1)
+		end
+	end
 end
 
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
@@ -615,9 +634,14 @@ end
 -- Keyed offsets (ITEM_ACTIONS, the dips) at `t` 0..1, and the keys' `arm`
 -- there (added to the arm direction).
 local function keyedOffset(action: VM.ItemAction, t: number): (CFrame, Vector3)
-	if t < 0 or t >= 1 then
+	if t < 0 then
 		return CFrame.identity, Vector3.zero
 	end
+	-- Past its end a move holds its last key (2026-11-21, traced in play: the
+	-- Throw ends 0.7 studs down, and the hand and item snapped 0.6 studs back
+	-- up to the hold in one frame before the item went). Moves that end on
+	-- the hold end on zero anyway.
+	t = math.min(t, 1)
 	local keys = action.keys
 	local i, u = segment(keys, t)
 	local smooth = action.smooth
@@ -867,12 +891,25 @@ function ViewmodelHeldMods.stepFreeHand(
 		h.steerYaw = yaw
 		h.steerX = Ease.approach(h.steerX, goal, if steer then steer.rate else 12, dt)
 		local swing = if steer then steer.swing else 0
-		local point = root:PointToWorldSpace(h.freePos + Vector3.new(h.steerX, 0, 0))
+		-- The held pose is never a statue (2026-11-21, traced in play: the
+		-- burning hand sat still for 3.5 s): a slow ellipse in place and in
+		-- aim, faded in once the move into the pose is done.
+		local idle = VM.FREE_POSE_IDLE
+		local settled = Ease.smooth(if move then (moveT - 1) / idle.fadeIn else 1)
+		local phase = clock * idle.rate * 2 * math.pi
+		local sway = Vector3.new(
+			math.sin(phase) * idle.pos.X,
+			math.cos(phase) * idle.pos.Y,
+			math.sin(phase * 0.5) * idle.pos.Z
+		) * settled
+		local aim = Vector3.new(math.cos(phase * 0.8), math.sin(phase * 0.8), 0)
+			* (math.rad(idle.turn) * settled)
+		local point = root:PointToWorldSpace(h.freePos + sway + Vector3.new(h.steerX, 0, 0))
 		ViewmodelArms.place(
 			a,
 			"Left",
 			point,
-			point + root:VectorToWorldSpace(h.freeDir - Vector3.new(h.steerX * swing, 0, 0)),
+			point + root:VectorToWorldSpace(h.freeDir + aim - Vector3.new(h.steerX * swing, 0, 0)),
 			root.RightVector
 		)
 		if flamePart then
@@ -1265,12 +1302,25 @@ function ViewmodelHeldMods.stepItem(
 		local hand = grip.Position
 		local arm = tune("TuneHoldArm", (hold and hold.arm) or VM.ITEM_ARM) + useArm
 		local side: ViewmodelArms.Side = (hold and hold.side) or "Right"
-		ViewmodelArms.place(a, side, hand, hand + root:VectorToWorldSpace(arm), root.RightVector)
+		local toward = root:VectorToWorldSpace(arm).Unit
+		-- The hand leaves the gun for the item (and comes back) as the gun
+		-- lowers, from where the gun hold put it this frame (2026-11-21,
+		-- traced in play: the bow hand jumped 1.7 studs off the rifle's
+		-- foregrip in one frame at the switch).
+		local k = Ease.smooth((lowerT - 0.05) / VM.ITEM_HAND_BLEND)
+		local gunHand, gunUp = ViewmodelArms.handOf(a, side)
+		if k < 1 and gunHand and gunUp then
+			hand = gunHand:Lerp(hand, k)
+			toward = gunUp:Lerp(toward, k).Unit
+		end
+		ViewmodelArms.place(a, side, hand, hand + toward, root.RightVector)
 		if nock then
 			local base = model:GetPivot()
 			local other: ViewmodelArms.Side = if side == "Left" then "Right" else "Left"
 			stepBowHand(h, a, root, clock, base:PointToWorldSpace(nock), base, other)
 		end
+	elseif h.itemLeaving then
+		ViewmodelHeldMods.holdItem(h, nil) -- the hand is back on the gun
 	end
 end
 

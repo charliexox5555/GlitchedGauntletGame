@@ -1194,9 +1194,15 @@ return table.freeze({
 	-- The item comes up on an underdamped spring: a little overshoot, then it settles.
 	ITEM_RAISE_FREQUENCY = 13, -- rad/s
 	ITEM_RAISE_DAMPING = 0.55, -- ratio (1 = no overshoot)
+	-- Share of the gun's lowering (0..1) over which the item's hand moves from
+	-- the gun onto the item (and back): it switched in one frame (2026-11-21).
+	ITEM_HAND_BLEND = 0.35,
 	-- Held idle: a slow breathing drift on top of the hold (position studs,
 	-- rotation degrees, cycles per second).
-	ITEM_IDLE = { pos = Vector3.new(0.012, 0.018, 0), rot = Vector3.new(1.5, 1.8, 1), rate = 0.55 },
+	-- 2026-11-21: rot (1.5, 1.8, 1) -> (2, 3, 2.6): it turned as slowly as 2.5 deg/s
+	-- and sat under 4 deg/s for up to 0.375 s (a frozen hold by the feel
+	-- checklist); now 4.9-7 deg/s (the yaw and roll run in quadrature).
+	ITEM_IDLE = { pos = Vector3.new(0.012, 0.018, 0), rot = Vector3.new(2, 3, 2.6), rate = 0.55 },
 	-- Per-Mod holds (by the item model's name). Molly and Frost: lifted out of
 	-- the fist (about two thirds of the canister shows) and turned so the pin
 	-- side faces the free hand, right of the aim area. HealOrb: palm up, the
@@ -1965,6 +1971,10 @@ return table.freeze({
 	-- Seconds a Mod gesture takes to blend out of where the free hand was
 	-- (on the gun) into its keys; it jumped there in one frame (2026-11-21).
 	GESTURE_FROM_BLEND = 0.07,
+	-- A held free-hand pose's idle (studs, degrees of aim, cycles a second;
+	-- `fadeIn`: share of the move's length past its end to fade in): an
+	-- ellipse, so the hand never stops (2026-11-21; it sat still).
+	FREE_POSE_IDLE = { pos = Vector3.new(0.03, 0.024, 0.012), turn = 3.6, rate = 0.45, fadeIn = 0.6 },
 	-- Guiding the wall: the fist trails the view's turn and catches up.
 	FREE_POSE_STEER = table.freeze({
 		FirewallGuide = { lag = 0.05, max = 0.18, swing = 0.6, rate = 10 },

@@ -514,7 +514,7 @@ local function dropItem()
 	-- Let the item sink with the raising gun before it goes.
 	task.delay(0.2, function()
 		if token == itemToken then
-			ViewmodelController.holdItem(nil)
+			ViewmodelController.letGoItem()
 		end
 	end)
 end

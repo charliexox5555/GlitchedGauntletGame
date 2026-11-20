@@ -2184,6 +2184,12 @@ function ViewmodelController.holdItem(template: Model?)
 	ViewmodelHeldMods.holdItem(heldMods, template)
 end
 
+-- After a use or a cancel: the item goes, the hand on it eases back onto the
+-- gun as it comes up (ViewmodelHeldMods.letGoItem).
+function ViewmodelController.letGoItem()
+	ViewmodelHeldMods.letGoItem(heldMods)
+end
+
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] while the gun
 -- moves by `dip` ("Dash", "Updraft", "Stim", "Recall"; nil: it stays).
 -- `prop`: a model carried in the fist until the gesture's release.
