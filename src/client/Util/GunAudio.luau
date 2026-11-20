@@ -70,19 +70,21 @@ function GunAudio.shot(key: any, config: WeaponConfig, options: ShotOptions?)
 	AudioController.fadeOut(st.tail, tailFade(config))
 	st.tail = nil
 
-	if o.shadowMist then
-		local skinShot = if o.lastRound
-			then ShadowMistAudio.fireLast
-			elseif first then ShadowMistAudio.fireFirst
-			else ShadowMistAudio.fire
+	local skin = if o.shadowMist and not o.at then ShadowMistAudio.reports[config.id] else nil
+	if skin then
+		local last = o.lastRound == true and skin.fireLast ~= nil
+		local skinShot = if last
+			then skin.fireLast
+			elseif first and skin.fireFirst then skin.fireFirst
+			else skin.fire
 		if AudioController.playSound(skinShot, "Gun") then
-			if not o.lastRound then
-				st.tail = AudioController.playSound(ShadowMistAudio.tail, "Gun")
+			if skin.tail and not last then
+				st.tail = AudioController.playSound(skin.tail, "Gun")
 			end
 			return
 		end
 		local audition = SkinPreviewConfig.SHADOW_MIST.SHOT_PREVIEW
-		if AudioController.isPreloaded(audition) then
+		if config.id == "Vandal" and AudioController.isPreloaded(audition) then
 			AudioController.play(audition, { group = "Gun", volume = 1, jitter = false })
 			return
 		end

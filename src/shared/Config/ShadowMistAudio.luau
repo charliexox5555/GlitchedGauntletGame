@@ -1,5 +1,5 @@
 --!strict
--- Private group audio from vault/06 Assets/RuinBlighted/Vandal.
+-- Private group audio from vault/06 Assets/RuinationType.
 local GunSoundAssets = require(script.Parent.GunSoundAssets)
 local GunSounds = require(script.Parent.GunSounds)
 
@@ -60,18 +60,78 @@ local takes: { [string]: { GunSoundAssets.Take } } = {
 	inspectBed = {
 		{ asset = "rbxassetid://124013117464568", length = 2.000000, gain = 1 }, -- DuringInspect.wav
 	},
+	guardianFire = {
+		{ asset = "rbxassetid://139432816401942", length = 2.191729, gain = 1 }, -- Shot01.wav
+		{ asset = "rbxassetid://75783865517916", length = 2.478354, gain = 1 }, -- Shot02.wav
+		{ asset = "rbxassetid://84311425100097", length = 2.354875, gain = 1 }, -- Shot03.wav
+		{ asset = "rbxassetid://108480473573709", length = 2.510271, gain = 1 }, -- Shot04.wav
+	},
+	spectreFire = {
+		{ asset = "rbxassetid://109755573843533", length = 0.507104, gain = 1 }, -- Shot01.wav
+		{ asset = "rbxassetid://87853184716071", length = 0.507104, gain = 1 }, -- Shot02.wav
+		{ asset = "rbxassetid://128322655351838", length = 0.507104, gain = 1 }, -- Shot03.wav
+		{ asset = "rbxassetid://137890441151198", length = 0.507104, gain = 1 }, -- Shot04.wav
+		{ asset = "rbxassetid://80432823582003", length = 0.507104, gain = 1 }, -- Shot05.wav
+		{ asset = "rbxassetid://112224327060233", length = 0.507104, gain = 1 }, -- Shot06.wav
+		{ asset = "rbxassetid://95611891993665", length = 0.507104, gain = 1 }, -- Shot07.wav
+		{ asset = "rbxassetid://94749737304028", length = 0.507104, gain = 1 }, -- Shot08.wav
+		{ asset = "rbxassetid://71538550686790", length = 0.507104, gain = 1 }, -- Shot09.wav
+	},
+	spectreFirst = {
+		{ asset = "rbxassetid://113650874213693", length = 0.507104, gain = 1 }, -- Shot00_first_01.wav
+	},
+	spectreLast = {
+		{ asset = "rbxassetid://83416211571926", length = 1.858812, gain = 1 }, -- Shot00_last_with_tail_01.wav
+	},
+	spectreTail = {
+		{ asset = "rbxassetid://110132616148222", length = 1.858812, gain = 1 }, -- shot_00_tail_only_01.wav
+	},
+	operatorFire = {
+		{ asset = "rbxassetid://120583832473036", length = 4.593750, gain = 1 }, -- Shot01.wav
+		{ asset = "rbxassetid://128544658070365", length = 4.593750, gain = 1 }, -- Shot02.wav
+		{ asset = "rbxassetid://71787565006684", length = 4.593750, gain = 1 }, -- Shot03.wav
+		{ asset = "rbxassetid://71839253682558", length = 4.593750, gain = 1 }, -- Shot04.wav
+	},
+	ghostFire = {
+		{ asset = "rbxassetid://125900247843077", length = 1.573875, gain = 1 }, -- Shot01.wav
+		{ asset = "rbxassetid://129887493656211", length = 1.521344, gain = 1 }, -- Shot02.wav
+		{ asset = "rbxassetid://75037205452819", length = 1.739969, gain = 1 }, -- Shot03.wav
+		{ asset = "rbxassetid://132487182722121", length = 1.521344, gain = 1 }, -- Shot04.wav
+	},
 }
 
 local function cue(name: string, volume: number): GunSounds.GunSound
 	return { id = "shadow:" .. name, volume = volume }
 end
 
+type Report = {
+	fire: GunSounds.GunSound,
+	fireFirst: GunSounds.GunSound?,
+	fireLast: GunSounds.GunSound?,
+	tail: GunSounds.GunSound?,
+}
+
+local reports: { [string]: Report } = {
+	Vandal = {
+		fire = cue("fire", 1),
+		fireFirst = cue("fireFirst", 1),
+		fireLast = cue("fireLast", 1),
+		tail = cue("tail", 0.65),
+	},
+	Guardian = { fire = cue("guardianFire", 0.92) },
+	Spectre = {
+		fire = cue("spectreFire", 0.92),
+		fireFirst = cue("spectreFirst", 0.92),
+		fireLast = cue("spectreLast", 0.92),
+		tail = cue("spectreTail", 0.65),
+	},
+	Operator = { fire = cue("operatorFire", 0.9) },
+	Ghost = { fire = cue("ghostFire", 0.92) },
+}
+
 return table.freeze({
 	takes = takes,
-	fire = cue("fire", 1),
-	fireFirst = cue("fireFirst", 1),
-	fireLast = cue("fireLast", 1),
-	tail = cue("tail", 0.65),
+	reports = reports,
 	drawAir = cue("drawAir", 0.72),
 	lock = cue("lock", 0.64),
 	magForm = cue("magForm", 0.83),

@@ -759,7 +759,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	-- with every shot faded by the next, the last round), per gun slot.
 	GunAudio.shot(s, config, {
 		lastRound = config.magSize > 0 and s.ammo <= 0,
-		shadowMist = config.id == "Vandal" and usesRuinBlighted(),
+		shadowMist = usesRuinBlighted(),
 	})
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
 	local mag = config.magSize

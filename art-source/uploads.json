@@ -3928,5 +3928,149 @@
   "name": "GG Lobby mode_3v3_card",
   "type": "Decal",
   "uploaded": "2026-11-04 23:46:14"
+ },
+ "vault/06 Assets/RuinationType/Ghost/Shots/Shot01.wav": {
+  "assetId": 125900247843077,
+  "name": "GG Ruin-Blighted Ghost Shot01",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:50"
+ },
+ "vault/06 Assets/RuinationType/Ghost/Shots/Shot02.wav": {
+  "assetId": 129887493656211,
+  "name": "GG Ruin-Blighted Ghost Shot02",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:50"
+ },
+ "vault/06 Assets/RuinationType/Ghost/Shots/Shot03.wav": {
+  "assetId": 75037205452819,
+  "name": "GG Ruin-Blighted Ghost Shot03",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:50"
+ },
+ "vault/06 Assets/RuinationType/Ghost/Shots/Shot04.wav": {
+  "assetId": 132487182722121,
+  "name": "GG Ruin-Blighted Ghost Shot04",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:54"
+ },
+ "vault/06 Assets/RuinationType/Guardian/Shots/Shot01.wav": {
+  "assetId": 139432816401942,
+  "name": "GG Ruin-Blighted Guardian Shot 01",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:31"
+ },
+ "vault/06 Assets/RuinationType/Guardian/Shots/Shot02.wav": {
+  "assetId": 75783865517916,
+  "name": "GG Ruin-Blighted Guardian Shot02",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:54"
+ },
+ "vault/06 Assets/RuinationType/Guardian/Shots/Shot03.wav": {
+  "assetId": 84311425100097,
+  "name": "GG Ruin-Blighted Guardian Shot03",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:54"
+ },
+ "vault/06 Assets/RuinationType/Guardian/Shots/Shot04.wav": {
+  "assetId": 108480473573709,
+  "name": "GG Ruin-Blighted Guardian Shot04",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:58"
+ },
+ "vault/06 Assets/RuinationType/Operator/Shots/Shot01.wav": {
+  "assetId": 120583832473036,
+  "name": "GG Ruin-Blighted Operator Shot01",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:58"
+ },
+ "vault/06 Assets/RuinationType/Operator/Shots/Shot02.wav": {
+  "assetId": 128544658070365,
+  "name": "GG Ruin-Blighted Operator Shot02",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:09:58"
+ },
+ "vault/06 Assets/RuinationType/Operator/Shots/Shot03.wav": {
+  "assetId": 71787565006684,
+  "name": "GG Ruin-Blighted Operator Shot03",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:01"
+ },
+ "vault/06 Assets/RuinationType/Operator/Shots/Shot04.wav": {
+  "assetId": 71839253682558,
+  "name": "GG Ruin-Blighted Operator Shot04",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:02"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot00_first_01.wav": {
+  "assetId": 113650874213693,
+  "name": "GG Ruin-Blighted Spectre Shot00 first 01",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:01"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot00_last_with_tail_01.wav": {
+  "assetId": 83416211571926,
+  "name": "GG Ruin-Blighted Spectre Shot00 last with tail 01",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:05"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot01.wav": {
+  "assetId": 109755573843533,
+  "name": "GG Ruin-Blighted Spectre Shot01",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:05"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot02.wav": {
+  "assetId": 87853184716071,
+  "name": "GG Ruin-Blighted Spectre Shot02",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:05"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot03.wav": {
+  "assetId": 128322655351838,
+  "name": "GG Ruin-Blighted Spectre Shot03",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:08"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot04.wav": {
+  "assetId": 137890441151198,
+  "name": "GG Ruin-Blighted Spectre Shot04",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:08"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot05.wav": {
+  "assetId": 80432823582003,
+  "name": "GG Ruin-Blighted Spectre Shot05",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:09"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot06.wav": {
+  "assetId": 112224327060233,
+  "name": "GG Ruin-Blighted Spectre Shot06",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:11"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot07.wav": {
+  "assetId": 95611891993665,
+  "name": "GG Ruin-Blighted Spectre Shot07",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:11"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot08.wav": {
+  "assetId": 94749737304028,
+  "name": "GG Ruin-Blighted Spectre Shot08",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:12"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/Shot09.wav": {
+  "assetId": 71538550686790,
+  "name": "GG Ruin-Blighted Spectre Shot09",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:15"
+ },
+ "vault/06 Assets/RuinationType/Spectre/Shots/shot_00_tail_only_01.wav": {
+  "assetId": 110132616148222,
+  "name": "GG Ruin-Blighted Spectre shot 00 tail only 01",
+  "type": "Audio",
+  "uploaded": "2026-11-20 01:10:15"
  }
 }
