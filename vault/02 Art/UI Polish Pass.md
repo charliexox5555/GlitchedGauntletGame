@@ -127,3 +127,28 @@ Set in `Config/UiSounds` (Pro Sound Effects = PSE, Roblox's own UI pack = Roblox
 - **Match found:** APM "Universal Flip - Hit" `9042542887` at 0.23. **Backup the owner wants kept:** Roblox "GUI - Notification High" `17208361335` at 0.3 (a comment next to the cue in `Config/UiSounds`).
 - Every lobby UI sound is now picked by the owner. The Studio audition board (`Controllers/SoundAudition`) is removed; to audition again, rebuild it from git history (commit 07f2b45e).
 - **After the test (owner):** hover was a bit loud: 0.67 → **0.4**. The bottom bar items (Locker, Shop, Battle Pass, Range, Settings) now play the hover sound too: `LobbyHudView.hookItem` sets `UiHover = true`, since they're under the 1%-of-screen size the sound controller ticks for on its own. Checked in play: hovering the bar plays it.
+
+## Game-wide sound board (2026-11-20, owner: "the same workflow for every UI/event sound in the game", not gun sounds, yes hit / kill)
+**One theme for both places.** `Config/UiSounds` now opens with a `Theme` table (Click, Hover, Confirm, Back, Tab, ToggleOn/Off, Error, PageOpen: the owner's lobby picks). The lobby names (Click, HoverBig, Denied...) and the match names (Hover, Select, Denied) point at it, so **a pick on the SHARED tab changes the lobby and the match**. The match's `Util/UiSound` is now a thin wrapper over `Shared/UiSfx` (same pool, gap, pitch spread, one "UiSfx" group at 1), so a cue sounds the same in both places; the match-only cues were scaled ×0.7 to stay as loud as they were through the old Ui group (0.7).
+
+**F4 board** (`Shared/SoundAudition`, started by `SoundAuditionController` in the lobby and the match, Studio only; frees the mouse while open). Tabs:
+- **SHARED** (8 rows): current pick first, 3-4 alternatives each.
+- **MATCH** (17 rows): draft opens / card in / draft closes, lock in, clock tick, last tick, banner, FIGHT, round won, round lost, victory, defeat, zone warning, score, Mod ready / denied / cancel.
+- **HITS** (4 rows): body hit, headshot (plays over the body hit), kill, damage taken. Played **after a Vandal shot** by default (toggle), because hit sounds are judged in a fight (memory: hit-sound taste). No rings, high dings or metal offered; pops, punches and thuds only.
+
+Every candidate's volume is **level-matched to the row's current sound** by measured PlaybackLoudness (89 ids measured in a play test; candidates needing more than 3× volume dropped). Sources: Roblox's Pro Sound Effects library, Roblox's own UI packs (Roblox GUI, RBLX UI, Roblox_UI), APM Music, our own hit takes; found with the Creator Store search API filtered to those creators.
+
+**Bugs fixed on the way** (from a full inventory of match sounds):
+- Draft card hover / pick and match-end choices were **silent**: `atlas:UiClick` isn't played by anything since the atlas prefix left AudioController. Now the theme's Hover / Click.
+- **Victory / Defeat played twice** (the toast and the match-end scene). New `Defeat` cue; both carry a 4 s gap.
+- The **enemy's points** made your score ping: now your team's only.
+- Map vote cards and the spectate arrows (both versions) had no click: now `Select`.
+- Parked for the Mods lane (Bugs & Ideas): Mod Ready from a hidden cell, Mod loops off the mix bus, silent map gulls.
+
+**Match UI animations (inventory, not changed yet; questions for the owner):**
+- Overshoot ("Back") easing, against the Quint no-overshoot rule: status tray entries, the old Mod cell pulse, the phone kill-feed pop, the kill pop's ring spin and new segment.
+- Big text-scaling pops (shimmer risk, as the lobby tiles had): the score number 1.35→1, the VICTORY slam 1.6→0.88, the match-end buttons growing from 0.
+- Exits on Quad/Quint **In** (snap at low fps, the leaderboard lesson): toast band, kill feed rows, death card, map vote.
+- The toast band tweens the Size of a CanvasGroup that holds its title.
+- No hover/press feedback: phone match-end buttons, the spectate arrows.
+- No settings / pause menu exists in the match.

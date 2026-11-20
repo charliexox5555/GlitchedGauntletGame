@@ -34,7 +34,7 @@
 
   [Plan, grades and results](05%20Production/Overnight%202026-11-20%20Animation%20Pass.md) · test lists: [Third person](05%20Production/Playtests/2026-11-21%20Third%20Person%20Pass.md), [First-person guns](05%20Production/Playtests/2026-11-21%20First-Person%20Guns%20Pass.md), [Melee and Mods](05%20Production/Playtests/2026-11-21%20Melee%20and%20Mods%20Pass.md)
 
-- **Lobby UI polish pass (2026-11-20).** UI sounds are back (one shared player, a click on every button, a quiet hover tick on big items, queue / Locker / toggle cues; provisional Roblox-pack sounds until the owner picks from the Kenney reel). Play menu tiles focus instead of shaking, the Locker has an opaque charcoal backdrop and bigger long guns, Settings has a sliding toggle, row highlights and staggered tabs. 9-slice plate set drawn, waiting on approval. [Plan and results](02%20Art/UI%20Polish%20Pass.md)
+- **UI polish pass (2026-11-20).** Lobby: every UI sound is the owner's pick (Pro Sound Effects / Roblox UI pack / APM), tiles zoom their art, Locker / Settings / leaderboard motion reworked, 9-slice plates in. **Match:** one shared sound theme with the lobby; F4 board in Studio (SHARED / MATCH / HITS, level-matched options) waiting on the owner's picks; silent draft clicks, double victory sound and enemy score ping fixed. Match UI animation fixes wait on the owner's answers. [Plan and results](02%20Art/UI%20Polish%20Pass.md)
 
 - **Combat feedback audio (2026-11-20).** Ready for audition with two dry headshot slashes and two standard kill cues, including Vandal comparisons and the five-step kill ladder. [Combat feedback audio](02%20Art/Combat%20Feedback%20Audio.md)
 

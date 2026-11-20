@@ -53,7 +53,7 @@ local SOUND: { [string]: string } = {
 	["ROUND LOST"] = "RoundLost",
 	DRAW = "Banner",
 	VICTORY = "Victory",
-	DEFEAT = "RoundLost",
+	DEFEAT = "Defeat",
 }
 
 type Ui = {

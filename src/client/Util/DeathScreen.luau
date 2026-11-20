@@ -6,6 +6,7 @@
 -- SpectateController owns when each shows. Desktop only for now: phones keep
 -- SpectateController's old bar.
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
+local UiSound = require(script.Parent.UiSound)
 local WaitGui = require(script.Parent.WaitGui)
 
 local DeathScreen = {}
@@ -197,6 +198,7 @@ local function bind(gui: ScreenGui)
 		b.Activated:Connect(function()
 			local fn = cycle
 			if fn and s.spectate.shown then
+				UiSound.play("Select")
 				fn(step)
 			end
 		end)

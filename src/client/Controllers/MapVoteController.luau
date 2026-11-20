@@ -34,6 +34,7 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
+local UiSound = require(script.Parent.Parent.Util.UiSound)
 local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
@@ -360,6 +361,7 @@ local function buildCards()
 		setCut(card:FindFirstChild("Cut"), CARD_CUT, cell.X, cell.Y)
 		UiMotion.button(hit, pop, function()
 			if shownChosen == "" then
+				UiSound.play("Select")
 				Net.event("MapVote"):FireServer(id)
 			end
 		end, {

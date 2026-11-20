@@ -333,7 +333,9 @@ function TopBarController.start()
 		s.valueShadow.Text = text
 		if s.shown >= 0 and value > s.shown then
 			-- A point: the block bumps and flashes bright, the number pops.
-			UiSound.play("Score")
+			if s == sides.ally then -- only your own team's point pings (2026-11-20)
+				UiSound.play("Score")
+			end
 			s.pop.Scale = 1.35
 			tween(s.pop, 0.42, { Scale = 1 })
 			local flash = s.color:Lerp(WHITE, 0.55)
