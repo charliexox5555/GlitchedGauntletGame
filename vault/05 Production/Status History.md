@@ -1,6 +1,7 @@
 # Status History
 
 <!-- moved from Home 2026-11-20 (UI polish pass) -->
+- **Results crash and state migration (2026-11-19).** The results screen handled a six-fighter snapshot over 1,024 bytes in Studio. A 2v2 bot run reached results and rematched. Lobby and Match gameplay use state values and shared asset configuration. The scene migrations are staged in both open Studio places. [State contract and test results](../04%20Tech/State%20Values%20and%20Asset%20Data.md)
 - **Gun and round balance (2026-11-19).** Operator body hits leave full-health fighters standing. Odin has a slower spin-up and thin-cover penetration. Gun lineups rotate each round, Sheriff is offered in round two, and Mod cards vary by seat. [Balance sheet](../01%20Design/Gun%20Balance.md) · [Studio playtest](Playtests/2026-11-19%20Gun%20and%20Round%20Balance.md)
 
 <!-- moved from Home 2026-11-17 (maps overnight) -->

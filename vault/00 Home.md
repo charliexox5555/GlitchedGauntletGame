@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Lobby V5 planning (2026-11-20, study only, nothing built).** The owner wants a new concept (no more RIVALS copy) built **Parts first** with MaterialService textures, editable wall bays and Blender only for shells and kit props. RIVALS' lobby measured (696 variant Parts, 283 Textures, 3x mesh reuse vs our 1,373 unique SmoothPlastic meshes). Concepts A / B / C wait on the owner's pick. Blender skill pack and map-builder installed at user level. [Plan](02%20Art/Lobby%20V5%20Plan.md)
+
 - **Overnight animation pass (2026-11-20, done; feel grades provisional until the owner plays).**
   - **Sniper scope:** the reflective lens no longer shows in ADS (fixed in code, no place save needed).
   - **Slide and ADS tilt:** the gun, crosshair and scope reticle roll together on the slide, through one curve.
@@ -33,8 +35,6 @@
 
 - **Ammo, sidearms and assists (2026-11-19).** Match guns have round reserves. Drafting a primary grants Classic. Credited assists show in the feed and on the player's HUD. [Studio checks](05%20Production/Playtests/2026-11-19%20Ammo%20and%20Assists.md)
 
-
-- **Results crash and state migration (2026-11-19).** The results screen handled a six-fighter snapshot over 1,024 bytes in Studio. A 2v2 bot run reached results and rematched. Lobby and Match gameplay use state values and shared asset configuration. The scene migrations are staged in both open Studio places. [State contract and test results](04%20Tech/State%20Values%20and%20Asset%20Data.md)
 
 - **Ruin-Blighted Reaver and ammunition review (2026-11-18).** Meshy-informed Ruined Reaver v09 and all five magazine cartridges are staged in Match Studio. Ejection uses the shared hollow case. [Art and verification](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#meshy-review-and-loaded-cartridge-pass) · [Sound production list](02%20Art/Skins/RuinBlighted/Expansion%20Sound%20Queue.md).
 
