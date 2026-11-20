@@ -224,6 +224,49 @@ Slate02c was tried on the rock and dropped: its cobble pattern fought the facets
 
 **Owner to do:** look from the lift (look up), then **save the Lobby place**.
 
+## Hub dressing (2026-11-20)
+Owner: "decorate the main hub and get things ready before we move on". Built by `tools/studio/lobby_v5/DressHub.luau` into `Hub.Dressing` (about 510 Parts, every fixture its own Model) and `Hub.SeasonMounts`. Rules from `gauntlet-build-style`: fixtures built the way they're made, no blunt ends, pipes enter the rock through a flange, a real light beside every lens, hazard yellow is the hub's one accent.
+
+| Piece | What it is |
+|---|---|
+| **Wall lamps** (16) | Two per rock wall at y = 40, placed by raycast onto the real rock surface. Built in order: mount plate with bolts (sunk 0.85 into the rock), arm, housing, visor, bezel, warm lens set back. Each throws the warm grazing spot down its wall, replacing the invisible `Graze_*` lights. |
+| **Pipes and cable trays** (NE, SE, SW, NW walls) | An 8-sided steel pipe, a charcoal pipe and a cable tray, each run just in front of the most protruding rock. Brackets every 8 studs reach the rock. Both ends turn 90 degrees into the rock (elbow collar and wall flange, or a closed tray end plate and conduit). NE and NW stop before the portal buttresses. New Blender kit pieces: `V5_Pipe8` and `V5_Flange8` (`tools/blender/lobby_v5/v5_pipe.py`). |
+| **Signs** | DUELS (portal lintel), LOCKER (armoury lintel), RANGE (range lintel), SHOP (on feet on the canopy). Cut-corner charcoal plates, a SurfaceGui word in Fredoka One, a yellow accent bar tagged `SeasonAccent`. |
+| **Season screens** | `Screen_N` (16 x 9) above the duels portal, the focal point from the spawn; `Screen_S` (14 x 7.9) above the range door. Charcoal case on a wall arm, SurfaceGui placeholder "SEASON 1 / THE DEEP". The NE / NW spots were hidden behind the lift towers. |
+| **Shop front** | Canopy front leaning out at the top, a light bar under the canopy (replaces the invisible light), a hazard kick strip, a counter lip, and a lit display case with glass and a shelf (the `ShopWindow` season mount). |
+| **Lift** | Four status lamps beside the east and west deck edges (lenses tagged `SeasonAccent`), two hanging downlights under the crossbeam (replace `Lift_W/E`), red beacons on the headframe, and a control console on the east plinth ("LIFT READY"). |
+| **Floor** | Painted yellow walkway lines from the lift to each doorway, and four drain grates with frames. |
+| **Props** | Three hard-case stacks on steel pallets (SE, SW, NW), with yellow latches and corner guards. |
+
+**Season mounts** (`Hub.SeasonMounts`; the parts are tagged `SeasonMount` with a `Slot` attribute; the screens' Display parts are tagged too):
+- `Banner_1/2` hang from the crossbeam.
+- `Centrepiece` (10 x 10) sits behind the spawn at z = +30.
+- `FloorDecal` (12 x 12) is in front of the portal.
+- `ShopWindow` is inside the display case.
+- `Prop_1-3` are spare floor spots.
+
+The `LobbySeason` server module that fills them per season is **not written yet** (next code step, with `SeasonCatalog.SEASON`).
+
+**Fixes during review:**
+- Scaled text caps at 100 px, so signs and screens use a low pixel density.
+- The SHOP sign was raised clear of the canopy front.
+- The pipe runs used to cross the buttresses; they're rebuilt to stay in their walls.
+- A walkway line and two drains were moved off the tower plinths.
+- The tray lips were stepped 0.03 off the base edge.
+- The coplanar scan's remaining hits are faces hidden against the floor or inside other parts.
+
+**Capture gotcha:** a SurfaceGui facing away from `workspace.CurrentCamera` captures blank. Turn the camera to face it first.
+
+**Self-review: 7.5 / 10.** The hub reads as a lived-in working facility: the signs, season screen and lit duels portal pull the eye, and the rock walls have structure.
+
+Weak spots:
+- The floor is still large and plain between the lines.
+- The prop stacks are small at the cave edge.
+- The display case reads as a lit box.
+- The doors are plain until the RIVALS-style door pass.
+
+**Owner to do:** look around, then **save the Lobby place**.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
