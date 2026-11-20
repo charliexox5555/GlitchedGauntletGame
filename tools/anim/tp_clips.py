@@ -1995,15 +1995,17 @@ add(
 				# straight thrust came at the camera. Now the device cocks back low
 				# by the right hip, the right shoulder back, and sweeps up and in
 				# to the front at shoulder height as the chest swings 30 degrees
-				# behind it; the free arm swings back the other way. Rising and
-				# across keeps about 76% of the travel on screen, a straight
-				# thrust 57%.)
-				(0.08, stood(arms(bladed(2, -16), (1.1, 0.4, 0.3), (-0.7, 0.55, -1.5), r_pole=(1, -0.3, 0.6)))),
+				# behind it; the free arm swings back the other way. Seen in the
+				# engine: any end in front of the chest put a big fist block over
+				# the face at the owner's range, so it ends out front-right beside
+				# the face (as round 2) and the read comes from the drop: it
+				# starts low by the hip, so the push is mostly an upward sweep.)
+				(0.08, stood(arms(bladed(2, -18), (1.1, 0.1, 0.35), (-0.7, 0.55, -1.5), r_pole=(1, -0.3, 0.6)))),
 				# (Round 2: both arms crossed the chest at the thrust and it read as a
 				# block; the device stays right of the chest's middle, the free arm
 				# out to the side.)
-				(0.18, stood(arms(bladed(-15, 14), (0.5, 1.1, -1.95), (-1.2, -0.05, 0.45), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6))), ease_out),
-				(0.32, stood(arms(bladed(-13, 12), (0.53, 1.05, -1.87), (-1.2, 0.0, 0.4), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6)))),
+				(0.18, stood(arms(bladed(-15, 12), (0.85, 1.0, -1.9), (-1.2, -0.05, 0.45), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6))), ease_out),
+				(0.32, stood(arms(bladed(-13, 10), (0.88, 0.95, -1.82), (-1.2, 0.0, 0.4), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6)))),
 				# Both hands come back to the gun out in front (they cut through the
 				# chest at 0.43 s).
 				(0.43, stood(arms(bladed(-9, -10), (0.65, 0.75, -1.6), (-0.75, 0.55, -1.55), r_pole=(1, -0.6, 0.3)))),
