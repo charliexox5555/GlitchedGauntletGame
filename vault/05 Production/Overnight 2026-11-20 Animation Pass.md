@@ -158,6 +158,33 @@ Commits (local, main): `22357bb7` (Mod clips, down holds, TpIk), `5d14d28e` (no 
 
 **Not verified:** any Round 2 clip at full speed by a human; bots and a second client (and the bot fix in TpIk); a weapon swap in IK mode.
 
+#### TP: Round 3 (2026-11-21)
+Commits (local, main): `0e109835` (crouch walks, Heal, Cast, ModHold), `e99af152` (throws join the clip at the release), `8e5016f2` (Heal re-keyed after the engine look). Playtest list: the Round 3 section of [2026-11-21 Third Person Pass](Playtests/2026-11-21%20Third%20Person%20Pass.md). Watched on my own body in a playtest from the owner's angle (front-right, 5 studs), measured with engine part positions; nothing branches on a skin.
+
+**Crouch-walk knee: fixed.** The dip was the right leg in the back lane of the sideways shuffle: it ended its stance far behind the hips, rolled onto its toe, and the low crouch folded the leg into a kneel (shin past horizontal, the knee on the floor). A knee limit inside the solver was tried first: it swivelled the knee outward about the hip-to-sole line, but it flipped direction near the floor and crossed the legs in the forward walk (lock 39%), so it was dropped. The fix is in the gait instead: the side lanes sit 0.4 ahead of the hips, the side stance is 0.8 wide (was 0.7) and 0.06 higher, and the sideways knees point outward (pole x 0.6, was 0.3), so the swinging knee no longer comes in to the middle. Forward and back are untouched.
+
+| Clip | knee in floor before → after | lock % before → after | shins apart before → after | engine, lowest leg corner |
+|---|---|---|---|---|
+| CrouchWalkFR | 0.384 → **0** | 99.7 → 98.6 | 0.95 → 0.98 | +0.038 |
+| CrouchWalkR | 0.287 → **0** | 98.5 → 98.1 | 1.17 → 1.04 | +0.107 |
+| CrouchWalkBR | 0.372 → **0** | 99.8 → 98.2 | 0.97 → 1.18 | +0.033 |
+| CrouchWalkBL | 0.348 → **0** | 99.8 → 99.7 | 1.07 → 1.16 | +0.028 |
+| CrouchWalkL | 0.260 → **0** | 99.7 → 99.8 | 1.21 → 1.24 | +0.100 |
+| CrouchWalkFL | 0.312 → **0** | 99.8 → 99.8 | 0.93 → 0.92 | +0.045 |
+
+All six pass the loop-seam, easing (peaks 259-347), foot-plant and rate checks. Crouch walk 8.5 → **9** (not watched at full speed). CrouchWalkB (unchanged) keeps a touchdown skim: one frame 0.012 above the floor moving at 9 studs/s just before the foot lands (lock 94.4%), the same kind as WalkB's.
+
+**Mod clips** (Round 2 → Round 3):
+
+| Clip | R2 → R3 | Seen in the engine / measured | Not verified |
+|---|---|---|---|
+| **Cast** | 8.5 → **9** | from the owner's angle a straight shove came at the camera (about 57% of its travel on screen). Now the free hand draws back low by the left hip, then shoves up and out to the front-left at face height while the chest swings 30° behind it. Seen: the arm sweeps up and across the frame, the chest turns toward the camera. Peak 847 (was 776), no frames in the chest | full speed |
+| **Heal** | 8.5 → **8.5+** | tried ending the push in front of the chest (two versions, numbers said the forearm was side-on), but in the engine the fist block covered the face at 5 studs. It ends out front-right beside the face as in round 2, and the read now comes from the start: the device drops back low by the right hip with the elbow out wide, then sweeps up as the chest swings 30°. Seen: clear cock, face stays visible. Peak 767, 1 frame grazes the chest on the way back (as round 2) | a forward push from the front still comes at the camera; this is the limit of the angle, not of the keys |
+| **ModHold** | 8.5 → **9** prov. | was one slow breath. Now the shoulders sway out of step with the breath, the item hand weighs the item (two small bobs a breath), the free hand drifts, the head follows. Engine: chest yaw swings 5.5°, item hand 0.12 up and down, free hand 0.11. Seam pass, peak 1 | needs a look in motion |
+| **Throw / Lob from outside** | timing | (asked by `anim-melee-mods`) held throws now send `ModUseAt` at the first-person release, so a clip played from frame 0 trailed the canister through its whole coil. `Config/Animations.MOD_USE_START` (Throw 0.14 s, Lob 0.2 s) and `MOD_USE_FADE` 0.06: Poses joins the clip mid-coil and the hand lets go about 60 ms after `ModUseAt` | a second client |
+
+Slides left alone (owner liked them).
+
 ### FP: guns, ADS, slide, scope
 Playtest list: [2026-11-21 First-Person Guns Pass](Playtests/2026-11-21%20First-Person%20Guns%20Pass.md). Commits (local, main): `f7926d0c` scope lens, `13dba819` slide lean, `b21c41de` clip spline + hammer rest, `6d6ae547` Marshal reload hammer. Feel grades are provisional until the owner plays.
 

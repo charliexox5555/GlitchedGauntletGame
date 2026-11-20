@@ -57,3 +57,22 @@ What changed: every third-person Mod clip was watched in the engine from the fro
 ### Known, not done (Round 2)
 - Sideways and diagonal crouch walks dip a knee 0.26-0.38 under the floor mid-step. It needs a knee floor limit in the gait solver, because lifting the knee breaks the foot lock.
 - The slides sink a thigh's edge about 0.4; left as is, since you liked the slides.
+
+## Round 3 (2026-11-21)
+What changed: the sideways and diagonal crouch walks no longer put a knee through the floor; Heal and Cast were re-keyed to read from your angle; ModHold moves; other players' throws now line up with the canister leaving the hand. Grades and numbers: the plan note → TP: Round 3.
+
+## What to test, Round 3 (watch another player or a bot from the front-right, or your own body with `DevThirdPerson`)
+1. **Crouch walk, every direction** (hold crouch, strafe and walk diagonally):
+   - [ ] no knee through the floor going sideways or diagonally;
+   - [ ] the feet still stay planted (no skating), and the knees don't knock together;
+   - [ ] does the slightly wider, knees-out sideways shuffle look right?
+2. **Cast (Firewall):** [ ] the free hand drops back by the hip, then shoves up and out to the front-left while the chest turns. Does it read from your angle now?
+3. **Heal (Heal Orb on an ally, or the launcher):** [ ] the device drops back low by the hip, then sweeps up and forward beside the face. Does it read as a push?
+4. **ModHold** (hold any held Mod): [ ] a slow sway and the item weighed in the hand. Alive, or too busy?
+5. **Throw / Lob from another player:** [ ] the hand lets go when the canister appears, not after it.
+
+### Known, not done (Round 3)
+- A forward push seen from the front-right still comes toward the camera (Heal); it's the angle.
+- CrouchWalkB (straight back) has one touchdown frame that skims 0.012 above the floor before the foot lands; same as WalkB.
+- Nothing watched at full speed by a person; no second client or bots.
+
