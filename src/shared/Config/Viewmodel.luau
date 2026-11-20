@@ -1298,7 +1298,10 @@ return table.freeze({
 		-- Release: the string snaps to rest (an accelerating `snap`), rings past
 		-- it (`overshoot` of the draw, `ring` Hz, dying over `decay` s), the
 		-- limbs with it. A tap is the same, scaled by its draw.
-		release = { snap = 0.055, overshoot = 0.2, ring = 15, decay = 0.05 },
+		-- 2026-11-21: overshoot 0.2 -> 0.36 and ring 15 -> 16 Hz, so the ring
+		-- starts at the snap's speed (overshoot * 2 pi * ring = 2 / snap, 36
+		-- draws a second): the string's speed halved in one frame at rest.
+		release = { snap = 0.055, overshoot = 0.36, ring = 16, decay = 0.05 },
 		-- The bow hand's kick at release (scaled by the draw, at least `tap`):
 		-- out in `out` s, then a damped settle (one small overshoot).
 		kick = {
@@ -1316,7 +1319,15 @@ return table.freeze({
 		handFrom = Vector3.new(0.75, -1.5, -0.5), -- where the drawing hand comes up from / drops to (lower right)
 		-- After the release it follows through (back and out, root space), holds,
 		-- then drops away.
-		follow = { offset = Vector3.new(0.14, 0.05, 0.3), out = 0.07, hold = 0.08, back = 0.24 },
+		-- (`creep`: the hand keeps drifting this share further through the hold;
+		-- 2026-11-21, it froze for the 80 ms hold.)
+		follow = {
+			offset = Vector3.new(0.14, 0.05, 0.3),
+			out = 0.07,
+			hold = 0.08,
+			back = 0.24,
+			creep = 0.15,
+		},
 		letDown = 0.16, -- a cancelled draw easing back to rest
 		-- Charge_Energy: transparency from `dim` to 0 with the charge, its
 		-- colour from `dimColour` toward its own; a flash at full.

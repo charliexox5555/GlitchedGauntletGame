@@ -587,11 +587,15 @@ local function segment(keys: { any }, t: number): (number, number)
 	return n - 1, 1
 end
 
--- `field` at `u` through the segment from key `i`: smoothstep between the
--- two keys, or (`smooth`) the spline through all of them.
+-- `field` at `u` through the segment from key `i`: the spline through all of
+-- them, or (`smooth = false`) smoothstep between the two keys. 2026-11-21:
+-- the spline is the default for every Mod move. Smoothstep stopped dead at
+-- each key, 15 hitches mid-motion across the Dash, Updraft and Stim dips, the
+-- Dash hands, UpdraftDown, Heal and OrbChest (the owner's "posed keys"); the
+-- spline is monotone, so it adds no overshoot and still stops on a turn back.
 local function keyed(keys: { any }, i: number, u: number, field: string, smooth: boolean?): Vector3
 	local a, b = valueOf(keys, i, field), valueOf(keys, i + 1, field)
-	if not smooth then
+	if smooth == false then
 		return a:Lerp(b, Ease.smooth(u))
 	end
 	local span = keys[i + 1].t - keys[i].t
@@ -1139,6 +1143,7 @@ local function stepBowHand(
 	if not h.bowCharge and t >= 0 and t < f.out + f.hold + f.back then
 		local strength = B.kick.tap + (1 - B.kick.tap) * h.bowReleaseDraw
 		local k = Ease.out(math.clamp(t / f.out, 0, 1))
+			* (1 + f.creep * Ease.out(math.clamp((t - f.out) / (f.hold + f.back * 0.5), 0, 1)))
 		w = 1 - Ease.smooth(math.clamp((t - f.out - f.hold) / f.back, 0, 1))
 		point = from:Lerp(root:PointToWorldSpace(h.bowHand + f.offset * (k * strength)), w)
 	elseif h.bowCharge then
