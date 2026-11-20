@@ -100,7 +100,7 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | **Test range** | Testers (TestMode) | ✅ | ✅ | 🟡 | 🟡 | Rebuilt plain (2026-10-25): an open-air concrete practice yard from code (`src/server/TestRange/RangeBuilder`): lanes + markers 10/25/50/100/150, cover with a plywood ThinWall, concrete wall, low cover and pillars, movement course. Grey dummies (6 kinds) hold the Vandal; health bars kept. No tester menu, stats or weapon racks until the new UI. `art-source/maps/TestRange.rbxm` is the old Style B version (outdated) |
 
 ## Lobby
-> **2026-11-20, Lobby V5 "The Deep":** hub shell built 🟡 (waiting on the owner) in `Workspace.LobbyV5.Shell.Hub` of the Lobby place: Parts + MaterialVariants, 5 Blender rock meshes in `ServerStorage.V5Kit` (`art-source/lobby/v5/`), hazard texture 75158634706115. Not saved in the place yet. [Plan and results](../02%20Art/Lobby%20V5%20Plan.md#9-hub-shell-built-2026-11-20)
+> **2026-11-20, Lobby V5 "The Deep":** hub shell built 🟡 (waiting on the owner) in `Workspace.LobbyV5.Shell.Hub` of the Lobby place: Parts + MaterialVariants, 5 Blender rock meshes in `ServerStorage.V5Kit` (`art-source/lobby/v5/`), hazard texture 75158634706115. Not saved in the place yet. [Plan and results](../02%20Art/Lobby%20V5%20Plan.md#hub-shell-built-2026-11-20)
 
 > **2026-11-05:** the table below describes the earlier kit; the Lobby was rebuilt overnight (see the Lobby row above and [Lobby Rebuild](../02%20Art/Lobby%20Rebuild%202026-11-04.md)).
 

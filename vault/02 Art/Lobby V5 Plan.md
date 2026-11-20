@@ -132,7 +132,7 @@ When the images come back: put them in `third-party/lobby-v5-concepts/`, which i
 - **Round 2** (laser-tag centre, indoor sports dome, warehouse hangout): the owner wants the underground bunker feel instead. Ideas kept: different-size queue rooms per mode, the "walk in to fight" moment.
 - **Round 1** (Gauntlet tournament backstage, outdoor training compound, fight club): the game is no longer Gauntlet-themed, and the lobby must be indoors.
 
-## 9. Hub shell built (2026-11-20)
+## Hub shell built (2026-11-20)
 The owner approved the three ChatGPT concepts (`third-party/lobby-v5-concepts/`, git-ignored) and asked for the hub's main build, with little decoration.
 
 **Concept review notes:**
