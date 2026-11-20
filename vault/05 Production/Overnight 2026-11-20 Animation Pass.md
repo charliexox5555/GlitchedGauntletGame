@@ -159,3 +159,25 @@ Playtest list: [2026-11-21 Melee and Mods Pass](Playtests/2026-11-21%20Melee%20a
 **Skill notes.** `rbx-curve-easing-audit` misread melee: its acceleration limit flags every intended snap, and it couldn't see the two faults the owner named. I added two optional checks (backward compatible): `hold` (fails a stretch under `min_speed` longer than `max_seconds`; the checklist's 4°/s for 0.3 s) and `contact` (fails when peak speed is more than `tolerance` from the contact, or the contact runs under `min_share` of peak). Feed it the tip's arc length as the value, so speed is tip speed. A port gotcha: the bat's springs must be sub-stepped at 1/240 s as in the game, or the port goes unstable at 60 Hz.
 
 LihFolk used: Combat Animation Craft and Timing Spacing and Frame Charts (anticipation 2-5 frames, strike 1-3 frames, ease out after the strike), Interpolation Easing and Curves Math (overshoot that shrinks with distance), Springs Damping and Smoothing, VFX Timing with Animation (`Trail:Clear()` before enabling; cancel effects when an action is cut short), Hit-Stop and Screen Shake Tuning by Numbers.
+
+## Round 2 (2026-11-21, the owner's play feedback)
+**What he said, item by item:** "Everything really looks good." Then:
+- **TpIk:** he turned it on and "didn't really notice a difference... just do what you think's best". **Decision rule (from the main chat):** IK becomes the default only if it scores at least as well as the clips on every case, looking up and looking down included (it currently gets 7 / 7.5 there). The clips stay in the code as a fallback either way. If it can't get there, it goes back off, and whatever it does better (the level hip) moves into the clips. Write down which way it went and why.
+- **Mods:** "we really have to work on the mods", in both first and third person. These are the top priority.
+- **Ruined Reaver:** "it's nice", but "the follow throughs aren't long enough, like the slashes". Make the brake after each slash and heavy longer.
+- **Stock knife:** "looks good", so polish only.
+- **Fan:** good, but the **inspect** should be "like you're fanning yourself for a little bit", not a throw.
+- **Bat:** looks good, but the **right-click** (heavy) angle "looks like the bat's sideways". Fix the angle of the heavy swing.
+- **Ruin-Blighted Operator:** when you work the bolt after a shot, "the arm goes kind of through the gun". Fix it (and check the other bolt guns and skins for the same thing).
+- Then a final check and final improvements on everything. "Take your time on this, make this good."
+
+**Same rules as before** (lock, grades with evidence, local commits only and no push). The file ownership changes for this round:
+
+| Lane | Round 2 work |
+|---|---|
+| `anim-tp` | Decide TpIk by the rule above. Third-person **Mod** clips (Dash ×4, Flinch, Updraft, UpdraftSlam, ModHold, Throw, Cast, Lob, Heal, Place) up to 9. Final third-person check |
+| `anim-fp-guns` | Ruin-Blighted **Operator** bolt arm through the gun (+ the same check on every bolt or lever gun and skin). Then the **Bat** heavy angle and the **Fan** fanning inspect: it takes over `Util/PopCircuitBat.luau`, `Util/FanMotion.luau` and the Bat / Fan blocks in `ViewmodelController`. Final first-person gun check |
+| `anim-melee-mods` | First-person **Mods** first (every Mod seen in play: Dash ×4, Updraft, Stim, Heal, Molly, Firewall, bow, and any others in `Config/Mods`), to 9. Then longer **Reaver** follow-throughs, then the stock knife polish. No longer owns the Bat or the Fan |
+
+### Round 2 results
+_(each lane adds its rows under its own heading above, marked "Round 2")_
