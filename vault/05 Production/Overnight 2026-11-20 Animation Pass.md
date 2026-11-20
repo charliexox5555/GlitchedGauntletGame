@@ -111,6 +111,53 @@ Playtest list: [2026-11-21 Third Person Pass](Playtests/2026-11-21%20Third%20Per
 
 **Not verified:** a second real client, a bot match, any re-keyed clip at full speed by a human (Draw, PistolReload, KnifeHeavy, Lob, Heal, Place, UpdraftSlamLand and Death were measured and sampled in the engine, not watched); `lihfolk:quality-score` was not run.
 
+#### TP: Round 2 (2026-11-21)
+Commits (local, main): `22357bb7` (Mod clips, down holds, TpIk), `5d14d28e` (no knee in the floor, `tp_check` knee column). Playtest list: the Round 2 section of [2026-11-21 Third Person Pass](Playtests/2026-11-21%20Third%20Person%20Pass.md). All third-person work stays the same for every skin (owner's rule); nothing third-person branches on a skin (checked: Poses, TpIkController, GripController, BodyRecoil, BodySkinController, MatchBody, Config/Animations, Config/TpIk).
+
+**How it was watched.** Every Mod clip was posed at its key frame on my own body in a playtest, from the owner's angle (front-right, 5-6.5 studs), with the gun hidden where the game hides it. A camera rig holds the game camera at a set pitch, so Poses, the replicated aim and IK all see the same pitch while the capture camera stays front-right. Measurements are engine part positions. A rig pose sheet was tried first, but its stand-in bodies were too small to judge.
+
+**TpIk: decided, stays OFF; the clips are the default.**
+- First I fixed what I'd graded down. The gun hung off the head, so as the neck pitched, the head and the gun's pivot drifted apart. It now swings about the real right shoulder joint, and the head rolls onto the stock at sights.
+- Then a fair A/B on my body (round 1 had compared steep pitch only on a range dummy, which plays a fixed level hold):
+
+| Case | Clips | IK | Seen |
+|---|---|---|---|
+| Level hip | 8 | 8.5 | the same pose (IK's offsets come from the clips); IK sits the gun a touch higher and exactly on the aim |
+| Looking 35° up | 7.5 | 7.5 | **both** cross the face with the forearms and the gun (round 1 had graded this an IK flaw; the clips do it too) |
+| Looking 30° down | 8 | 8.5 | IK: the head looks down at the target, the stock in the shoulder. Clips: the head stays near level, the stock up by the beard |
+| Sidearm, sights, blends | 8.5 | 8.5 | as round 1 |
+- On the rig the clips aim exactly at every pitch from −30° to +45° (0.0° error), so IK's only aim gain is past those limits.
+- **Why off anyway:** the owner saw no difference, and I found two hidden interactions in IK mode:
+  - Bots lost their aim pitch: their weapon id isn't mirrored to clients, so IK never engaged while Poses held them level. Fixed in code (the id now comes from the gun model); it can't be checked without a match.
+  - On a weapon swap, my controller could move the gun's grip joint before `GripController` reads it as the gun's rest, which would throw the left hand off. Fixed with `NEW_GUN_WAIT`; not tested in play.
+- Its one clear win moved into the clips: **every down hold's head now takes 0.95 of the pitch** (was 0.7). The head looks 29° down at −30°, and the gun line stays 0.13-0.19 studs clear of the head block. Uploaded as `r2` for the 4 down holds and their 4 recoil poses.
+- The decision is written at the top of `Config/TpIk`. The Workspace attribute `TpIk = true` that was set in the match place was cleared in Edit, so Studio shows what the game ships (save the place to keep that). To bring IK back: `ENABLED = true`, or that attribute on the Server.
+
+**Mod clips** (Round 1 grade → Round 2):
+
+| Clip | R1 → R2 | Seen in the engine / measured | Not verified |
+|---|---|---|---|
+| **Throw** | 8.5 → **9** | the wind-up read as "both arms raised": the hand hid behind the head and the pointing arm bent up at head height. Now the item is up above and behind the head and the free arm points straight at the target at shoulder height (seen). The way back to the gun has a key out front (it cut the chest at 0.50-0.55 s; 1 frame now grazes the chest's front edge by 0.04). Peak 1212, the deliberate 60 ms snap | full speed |
+| **Lob** | 8.5 → **9** | the free arm sat in a boxer's guard; it reaches out front now, and the underhand swing goes wide of the hip (it grazed the belly, 2 → 0 frames). Seen: arm swung wide and low, free arm ahead. Peak 617 | full speed |
+| **Heal** | 8.5 → **8.5** | both arms crossed the chest at the thrust (read as a block). Now the device goes out front-right at shoulder height, the free arm out low to the side, the body leans in; the return passes out front (2 → 1 frame grazing the top edge by 0.03). Peak 757 | from the owner's angle the thrust still comes at the camera; reads, but not a 9 silhouette |
+| **Cast** | 8.5 → **8.5** | leans harder into the shove (chest −15, was −10). Seen: from the front the push is foreshortened; the counter arm reads | same angle issue as Heal |
+| **Place** | 8.5 → **9** | **found:** the kneel buried the right knee 0.39 under the floor (engine part boxes) though every sole corner was fine. Now down on the crouch stance, bent over 48° to put the item down (0.35 off the floor), the free hand on the knee. Knee 0.022, peak 370, nothing in the chest. Seen | full speed |
+| **Crash Down landing** | 8.5 → **9** | **found:** the knee-down landing buried the right knee **0.73** under the floor; any kneel high enough to clear it left the fist a stud up. Now a three-point landing: both feet planted on the crouch stance, bent over, fist 0.16 off the floor. Engine: nothing below the floor. Knee 0.002, peak 756 | full speed |
+| Crash Down dive (UpdraftSlam) | 8 → **8.5** | seen: body pitched at the ground, legs trailing, gun pointed down ahead; reads | unchanged clip |
+| **Dash ×4** | 7.5 → **9** | the lunge held dead still from 0.06 to 0.2 s, and the 18° hip tilt pointed the gun at the floor (seen). Now on splines: a quick compression, the lunge keeps sinking through the burst, springs back and settles; half the tilt, more drop and travel. Seen: body low, gun near level. Peak 734 → 447 (F), sink 0.09 → 0.01 | the side dashes not captured (same code) |
+| **Updraft** | 7.5 → **9** | the tuck held dead still for 0.24 s and the 22° hip tilt pointed the gun down (seen). Now the knees keep rising and the hips tilt half as much. Seen: knees tucked high, gun level | full speed |
+| **Flinch** | 8 → **8.5** prov. | on splines, the hit lands as an impact (arrives and rebounds at speed; it eased to a stop at every key). Peak 464 → 311 | not captured (a 0.34 s jolt over the hold) |
+| ModHold | 8.5 → **8.5** | seen: item up by the right shoulder, the free hand reaching ahead; breathes | a touch flat |
+
+**Final third-person check:**
+- `tp_check` has a new **knee** column: the lowest corner of every thigh and shin box. It reproduces the engine (landing 0.727 vs 0.73 measured, Place 0.395 vs 0.39).
+- What remains: the **slides** sink a thigh's rolled edge 0.34-0.47 under the floor. Raising the hips 0.25 would clear it but changes all nine slide clips the owner liked, so it's left as a nit.
+- **New finding:** the sideways and diagonal **crouch walks** dip the right shin's knee end 0.26-0.38 under the floor mid-step (R / L / FR / FL / BR / BL; forward and back are clean). Lifting the knee pole breaks the foot lock (98-99% → 44-88% measured), so the fix belongs in the gait solver as a knee floor limit. Not changed tonight; crouch walk stays 8.5.
+- The reload's "stock near the chin" isn't a defect: the stock never comes closer to the head than in the plain hold (0.78 vs 0.82 studs).
+- WalkB keeps its one 0.12-stud touchdown slip.
+
+**Not verified:** any Round 2 clip at full speed by a human; bots and a second client (and the bot fix in TpIk); a weapon swap in IK mode.
+
 ### FP: guns, ADS, slide, scope
 Playtest list: [2026-11-21 First-Person Guns Pass](Playtests/2026-11-21%20First-Person%20Guns%20Pass.md). Commits (local, main): `f7926d0c` scope lens, `13dba819` slide lean, `b21c41de` clip spline + hammer rest, `6d6ae547` Marshal reload hammer. Feel grades are provisional until the owner plays.
 
