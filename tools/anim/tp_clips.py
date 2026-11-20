@@ -196,15 +196,24 @@ LONG_KICK = (0.5, 12, 9, 8)
 PISTOL_KICK = (0.45, 17, 5, 4)
 
 
+def head_share(pitch, up):
+	"""How much of the aim pitch the head takes. Looking down it takes nearly
+	all of it (round 2, 2026-11-21: the IK prototype, whose head follows the
+	aim, read better at -30: the face looks down at the target and meets the
+	stock; the clips' head stayed near level). Looking up it keeps `up`, so
+	the face still shows over the gun."""
+	return 0.95 if pitch < 0 else up
+
+
 def long_hold(pitch=0.0, ads=False, kick=None):
 	back, rise, rock, twist = kick or (0, 0, 0, 0)
 	if ads:
 		# Sights up to the eye: the gun rises, the head tips onto the stock.
 		gun, lean = SIGHT_GUN, -7
-		head = (pitch * 0.75, 0, -9)
+		head = (pitch * head_share(pitch, 0.75), 0, -9)
 	else:
 		gun, lean = HIP_GUN, -4
-		head = (pitch * 0.7, 0, 0)
+		head = (pitch * head_share(pitch, 0.7), 0, 0)
 		# Looking down, the gun also goes out from the body (2026-11-15:
 		# swung about the shoulder alone, the right forearm sat inside the
 		# chest block on every frame of AimDown; tp_check "arms" 60 / 60).
@@ -245,10 +254,10 @@ def pistol_hold(pitch=0.0, ads=False, kick=None):
 	# GRIP.sidearm), so the support arm there follows the IK.
 	if ads:
 		gun, lean = (0.3, 1.1, -2.4), -6  # the sights up under the right eye
-		head = (pitch * 0.75, 0, -6)
+		head = (pitch * head_share(pitch, 0.75), 0, -6)
 	else:
 		gun, lean = (0.4, 0.8, -2.3), -4  # the solve slides it back to the arm's reach
-		head = (pitch * 0.7, 0, 0)
+		head = (pitch * head_share(pitch, 0.7), 0, 0)
 	gun = (gun[0], gun[1] + 0.25 * back, gun[2] + back)
 	return standing(
 		{
@@ -1819,14 +1828,21 @@ add(
 				# (Chest turns kept within 22 degrees: the hips belong to the run
 				# under this clip, so a 40-degree chest turn twisted the torso
 				# like a screw. The pointing arm aims past its reach: straight.)
-				(0.12, stood(arms(bladed(4, -20), (1.15, 1.55, 0.6), (-0.15, 1.35, -2.6), r_pole=(1, 0.1, 0.4))), ease_out),
+				# (Round 2, seen in the engine from the front-right: the cocked hand hid
+				# behind the head and the pointing arm bent up at head height, so the
+				# wind-up read as "arms raised". Now the item is up above and behind
+				# the head and the free arm points straight at the target.)
+				(0.12, stood(arms(bladed(6, -20), (1.15, 1.85, 0.55), (-0.4, 1.05, -2.75), r_pole=(1, 0.4, 0.35))), ease_out),
 				# (2026-11-20, on splines: a 60 ms snap (was 50, the owner's ~60 ms),
 				# the pointing arm starts to tuck in as the throw goes, and a longer
 				# way back to the gun; tp_measure peak 1494 -> 1294 studs/s² right,
 				# 1363 -> 1073 left, both velocity-continuous.)
-				(0.17, stood(arms(bladed(6, -22), (1.2, 1.65, 0.8), (-0.35, 1.25, -2.25), r_pole=(1, 0.2, 0.5)))),
+				(0.17, stood(arms(bladed(9, -22), (1.05, 2.15, 0.7), (-0.5, 1.0, -2.8), r_pole=(1, 0.6, 0.3)))),
 				(0.23, stood(arms(bladed(-16, 16), (0.4, 1.45, -1.75), (-0.85, 0.55, -1.05), r_pole=(1, -0.3, 0.2))), ease_in),
 				(0.36, stood(arms(bladed(-22, 22), (-0.35, -0.15, -1.25), (-1.1, 0.1, 0.1), r_pole=(1, -0.6, 0.3))), ease_out),
+				# (Round 2: out in front on the way back to the gun; the hand cut
+				# through the chest at 0.50-0.55 s.)
+				(0.47, stood(arms(bladed(-12, 4), (0.45, 0.55, -1.55), (-0.75, 0.55, -1.45), r_pole=(1, -0.6, 0.3)))),
 			],
 			end=(0.68, STAND_HOLD, ease_in_out),
 		),
@@ -1846,8 +1862,11 @@ add(
 		spline_sequence(
 			[
 				(0.0, MOD_HOLD),
-				(0.14, stood(arms(bladed(-12, -14), (0.85, -0.45, 0.6), (-0.5, 0.6, -1.4), r_pole=(1, 0, 0.6)))),
-				(0.26, stood(arms(bladed(-8, 10), (0.4, 0.5, -1.55), (-0.7, 0.4, -0.9), r_pole=(0.9, -1, 0.1))), ease_in),
+				# (Round 2: the free arm sat in a boxer's guard; it reaches out front now.)
+				(0.14, stood(arms(bladed(-14, -14), (0.85, -0.45, 0.6), (-0.55, 0.65, -2.4), r_pole=(1, 0, 0.6)))),
+				# (Round 2: the swing goes wide of the hip; it grazed the belly at 0.18 s.)
+				(0.2, stood(arms(bladed(-12, -2), (1.05, -0.05, -0.55), (-0.65, 0.55, -2.1), r_pole=(1, -0.2, 0.4)))),
+				(0.26, stood(arms(bladed(-8, 10), (0.4, 0.5, -1.55), (-0.75, 0.45, -1.7), r_pole=(0.9, -1, 0.1))), ease_in),
 				(0.38, stood(arms(bladed(-6, 14), (0.35, 1.1, -1.45), (-0.8, 0.35, -0.7), r_pole=(0.9, -1, 0))), ease_out),
 			],
 			end=(0.62, STAND_HOLD, ease_in_out),
@@ -1864,7 +1883,7 @@ add(
 def cast_push(tremor):
 	return stood(
 		arms(
-			bladed(-10, 18),
+			bladed(-15, 18),  # (Round 2: leans harder into the shove, was -10)
 			(0.95, 0.95, 0.05),
 			(-0.2 + 0.015 * tremor, 0.85 + 0.02 * tremor, -1.85),
 			l_pole=(-0.8, -1, 0.1),
@@ -1943,13 +1962,19 @@ add(
 			[
 				(0.0, MOD_HOLD),
 				(0.07, stood(arms(bladed(4, -12), (0.5, 0.6, -0.35), (-0.6, 0.5, -1.2), r_pole=(1, -0.6, 0.4)))),
-				(0.14, stood(arms(bladed(-10, 10), (0.25, 0.85, -1.8), (-0.85, 0.35, -0.6), r_pole=(0.9, -1, 0.2))), ease_out),
-				(0.32, stood(arms(bladed(-8, 8), (0.28, 0.8, -1.7), (-0.85, 0.35, -0.65), r_pole=(0.9, -1, 0.2)))),
+				# (Round 2: both arms crossed the chest at the thrust and it read as a
+				# block; the device goes out front-right at shoulder height now, the
+				# free arm out to the side.)
+				(0.14, stood(arms(bladed(-15, -2), (0.75, 1.0, -1.95), (-1.25, -0.1, 0.05), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6))), ease_out),
+				(0.32, stood(arms(bladed(-13, -2), (0.78, 0.95, -1.85), (-1.25, -0.05, 0.0), r_pole=(1, -0.6, 0.3), l_pole=(-1, -0.2, 0.6)))),
+				# Both hands come back to the gun out in front (they cut through the
+				# chest at 0.43 s).
+				(0.43, stood(arms(bladed(-9, -10), (0.65, 0.75, -1.6), (-0.75, 0.55, -1.55), r_pole=(1, -0.6, 0.3)))),
 			],
-			end=(0.55, STAND_HOLD, ease_in_out),
+			end=(0.6, STAND_HOLD, ease_in_out),
 		),
 		UPPER,
-		length=0.55,
+		length=0.6,
 		loop=False,
 	)
 )
@@ -1962,38 +1987,61 @@ def dash(lean, lead):
 	lx, lz = lead
 	rest = {**STAND_LEGS, "hips": {"pos": (0, -0.07, 0), "rot": (0, 0, 0)}}
 	hit = {
-		"hips": {"pos": (0.18 * lx, -0.32, 0.18 * lz), "rot": lean},
+		"hips": {"pos": (0.26 * lx, -0.34, 0.26 * lz), "rot": lean},
 		"right_foot": {"pos": (0.6 + 0.45 * max(lx, 0), 0, 0.1 + 0.5 * lz), "yaw": -8, "clamp": True},
 		"left_foot": {"pos": (-0.58 + 0.45 * min(lx, 0), 0, -0.12 - 0.5 * lz), "yaw": 6, "clamp": True},
 	}
 	back = {**STAND_LEGS, "hips": {"pos": (0, -0.05, 0), "rot": tuple(-0.18 * a for a in lean)}}
-	return ctrl_sequence([(0.0, rest), (0.06, hit, ease_out), (0.2, hit), (0.3, back, ease_in_out), (0.38, rest, ease_in_out)])
+	# Round 2 (2026-11-21, owner: "we really have to work on the mods"): the
+	# lunge held dead still from 0.06 to 0.2 s. Now on splines: a quick
+	# compression first, the lunge keeps sinking and leaning a touch deeper
+	# through the burst (the trailing foot dragging), then springs back past
+	# upright and settles.
+	load = {**rest, "hips": {"pos": (-0.04 * lx, -0.14, -0.04 * lz), "rot": tuple(0.12 * a for a in lean)}}
+	deep = {
+		**hit,
+		"hips": {"pos": (0.31 * lx, -0.41, 0.31 * lz), "rot": tuple(1.15 * a for a in lean)},
+		"right_foot": {**hit["right_foot"], "pos": (hit["right_foot"]["pos"][0] - 0.06 * lx, 0, hit["right_foot"]["pos"][2] - 0.06 * lz)},
+		"left_foot": {**hit["left_foot"], "pos": (hit["left_foot"]["pos"][0] - 0.06 * lx, 0, hit["left_foot"]["pos"][2] - 0.06 * lz)},
+	}
+	keys = [(0.0, rest), (0.03, load), (0.08, hit), (0.2, deep), (0.3, back), (0.38, rest)]
+	return spline_sequence([(t, grounded(k)) for t, k in keys], solver=solve_grounded)
 
 
 for name, lean, lead in (
-	("DashForward", (-18, 0, 0), (0, -1)),
-	("DashBack", (12, 0, 0), (0, 1)),
-	("DashLeft", (-4, 6, 15), (-1, 0)),
-	("DashRight", (-4, -6, -15), (1, 0)),
+	# (Round 2, seen in the engine: the hips' tilt carries the whole upper body,
+	# so an 18-degree lean pointed the gun at the floor for the burst. About
+	# half the tilt now; the lunge comes more from the hips dropping and moving.)
+	("DashForward", (-9, 0, 0), (0, -1)),
+	("DashBack", (7, 0, 0), (0, 1)),
+	("DashLeft", (-3, 4, 9), (-1, 0)),
+	("DashRight", (-3, -4, -9), (1, 0)),
 ):
 	add(Clip(name, "Action4", dash(lean, lead), LOWER, length=0.38, loop=False))
 
 # Updraft: the knees snap up on the launch, then the legs drop into the fall.
 UPDRAFT_TUCK = {
-	"hips": {"pos": (0, 0.1, 0), "rot": (-22, 0, 0)},
+	"hips": {"pos": (0, 0.1, 0), "rot": (-11, 0, 0)},  # (Round 2: was -22; the gun pointed at the floor)
 	"right_foot": {"pos": (0.5, 1.15, -0.25), "yaw": -8, "pole": (0.2, 0.3, -1)},
 	"left_foot": {"pos": (-0.5, 0.95, 0.0), "yaw": 6, "pole": (-0.2, 0.3, -1)},
+}
+UPDRAFT_TUCK_HIGH = {
+	"hips": {"pos": (0, 0.14, 0), "rot": (-13, 0, 0)},
+	"right_foot": {"pos": (0.5, 1.3, -0.35), "yaw": -8, "pole": (0.2, 0.3, -1)},
+	"left_foot": {"pos": (-0.5, 1.1, -0.08), "yaw": 6, "pole": (-0.2, 0.3, -1)},
 }
 add(
 	Clip(
 		"Updraft",
 		"Action4",
-		sequence(
+		# Round 2: the tuck held dead still from 0.08 to 0.32 s; now the knees
+		# keep coming up (the launch carries them) before the legs drop.
+		pose_spline(
 			[
 				(0.0, solve(STAND)),
-				(0.08, solve(UPDRAFT_TUCK), ease_out),
-				(0.32, solve(UPDRAFT_TUCK)),
-				(0.6, solve(AIR_FALL), ease_in_out),
+				(0.08, solve(UPDRAFT_TUCK)),
+				(0.3, solve(UPDRAFT_TUCK_HIGH)),
+				(0.6, solve(AIR_FALL)),
 			]
 		),
 		LOWER,
@@ -2081,9 +2129,9 @@ add(
 	Clip(
 		"Flinch",
 		"Action4",
-		sequence(
-			[(0.0, FLINCH_REST), (0.05, FLINCH_HIT, ease_out), (0.2, FLINCH_BACK, ease_in_out), (0.34, FLINCH_REST, ease_in_out)]
-		),
+		# Round 2: on splines with the hit as an impact (it arrives at speed
+		# and rebounds at speed; it eased to a stop at every key before).
+		pose_spline([(0.0, FLINCH_REST), (0.05, FLINCH_HIT), (0.2, FLINCH_BACK), (0.34, FLINCH_REST)], hits=(0.05,)),
 		["LowerTorso", "Head"],
 		length=0.34,
 		loop=False,

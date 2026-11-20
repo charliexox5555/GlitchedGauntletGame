@@ -150,16 +150,16 @@
   "uploaded": "2026-10-26 01:15:31"
  },
  "art-source/animations/GG_AdsDown.rbxm": {
-  "assetId": 77870476375092,
-  "name": "GG AdsDown o2",
+  "assetId": 86597667703377,
+  "name": "GG AdsDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:08"
+  "uploaded": "2026-11-20 10:08:09"
  },
  "art-source/animations/GG_AdsKickDown.rbxm": {
-  "assetId": 132640996566965,
-  "name": "GG AdsKickDown v1",
+  "assetId": 131076841934336,
+  "name": "GG AdsKickDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-15 01:10:41"
+  "uploaded": "2026-11-20 10:08:20"
  },
  "art-source/animations/GG_AdsKickLevel.rbxm": {
   "assetId": 73969040108481,
@@ -186,10 +186,10 @@
   "uploaded": "2026-11-20 03:21:02"
  },
  "art-source/animations/GG_AimDown.rbxm": {
-  "assetId": 118137664448884,
-  "name": "GG AimDown o2",
+  "assetId": 118568564589362,
+  "name": "GG AimDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:00"
+  "uploaded": "2026-11-20 10:08:06"
  },
  "art-source/animations/GG_AimLevel.rbxm": {
   "assetId": 105637585256231,
@@ -204,10 +204,10 @@
   "uploaded": "2026-11-20 03:20:54"
  },
  "art-source/animations/GG_Cast.rbxm": {
-  "assetId": 110417908522750,
-  "name": "GG Cast o2",
+  "assetId": 78340199527777,
+  "name": "GG Cast r2b",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:29:58"
+  "uploaded": "2026-11-20 09:58:05"
  },
  "art-source/animations/GG_Crouch.rbxm": {
   "assetId": 79991946157030,
@@ -264,28 +264,28 @@
   "uploaded": "2026-11-13 01:45:55"
  },
  "art-source/animations/GG_DashBack.rbxm": {
-  "assetId": 75006063877431,
-  "name": "GG DashBack v5",
+  "assetId": 120793622302960,
+  "name": "GG DashBack r2b",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:25:23"
+  "uploaded": "2026-11-20 09:58:11"
  },
  "art-source/animations/GG_DashForward.rbxm": {
-  "assetId": 76094407168365,
-  "name": "GG DashForward v5",
+  "assetId": 93439510581896,
+  "name": "GG DashForward r2b",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:25:20"
+  "uploaded": "2026-11-20 09:58:08"
  },
  "art-source/animations/GG_DashLeft.rbxm": {
-  "assetId": 93347970953423,
-  "name": "GG DashLeft v5",
+  "assetId": 132861580697947,
+  "name": "GG DashLeft r2b",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:25:26"
+  "uploaded": "2026-11-20 09:58:14"
  },
  "art-source/animations/GG_DashRight.rbxm": {
-  "assetId": 110331158301717,
-  "name": "GG DashRight v5",
+  "assetId": 79475213572359,
+  "name": "GG DashRight r2b",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:25:29"
+  "uploaded": "2026-11-20 09:58:17"
  },
  "art-source/animations/GG_Death.rbxm": {
   "assetId": 88289196924695,
@@ -306,16 +306,16 @@
   "uploaded": "2026-11-13 01:05:53"
  },
  "art-source/animations/GG_Flinch.rbxm": {
-  "assetId": 134800149922990,
-  "name": "GG Flinch v5",
+  "assetId": 82256896150427,
+  "name": "GG Flinch r2",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:25:41"
+  "uploaded": "2026-11-20 09:30:05"
  },
  "art-source/animations/GG_Heal.rbxm": {
-  "assetId": 77351510963020,
-  "name": "GG Heal o1",
+  "assetId": 120933430967429,
+  "name": "GG Heal r2",
   "type": "Animation",
-  "uploaded": "2026-11-20 02:52:56"
+  "uploaded": "2026-11-20 10:08:03"
  },
  "art-source/animations/GG_Idle.rbxm": {
   "assetId": 114709237157503,
@@ -330,10 +330,10 @@
   "uploaded": "2026-11-13 01:46:13"
  },
  "art-source/animations/GG_KickDown.rbxm": {
-  "assetId": 89250731384338,
-  "name": "GG KickDown v1",
+  "assetId": 109221910357149,
+  "name": "GG KickDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-15 01:10:30"
+  "uploaded": "2026-11-20 10:08:17"
  },
  "art-source/animations/GG_KickLevel.rbxm": {
   "assetId": 76597005020546,
@@ -390,10 +390,10 @@
   "uploaded": "2026-11-13 02:22:35"
  },
  "art-source/animations/GG_Lob.rbxm": {
-  "assetId": 85103387011074,
-  "name": "GG Lob o1",
+  "assetId": 123753817056953,
+  "name": "GG Lob r2b",
   "type": "Animation",
-  "uploaded": "2026-11-20 02:52:50"
+  "uploaded": "2026-11-20 09:57:59"
  },
  "art-source/animations/GG_ModCast.rbxm": {
   "assetId": 93574122239655,
@@ -438,16 +438,16 @@
   "uploaded": "2026-11-04 01:49:32"
  },
  "art-source/animations/GG_PistolAdsDown.rbxm": {
-  "assetId": 73233869134802,
-  "name": "GG PistolAdsDown o2",
+  "assetId": 100517179779054,
+  "name": "GG PistolAdsDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:26"
+  "uploaded": "2026-11-20 10:08:14"
  },
  "art-source/animations/GG_PistolAdsKickDown.rbxm": {
-  "assetId": 100422843394946,
-  "name": "GG PistolAdsKickDown v1",
+  "assetId": 97409435633700,
+  "name": "GG PistolAdsKickDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-15 01:11:02"
+  "uploaded": "2026-11-20 10:08:26"
  },
  "art-source/animations/GG_PistolAdsKickLevel.rbxm": {
   "assetId": 93859139822565,
@@ -474,10 +474,10 @@
   "uploaded": "2026-11-20 03:21:20"
  },
  "art-source/animations/GG_PistolAimDown.rbxm": {
-  "assetId": 111015808504046,
-  "name": "GG PistolAimDown o2",
+  "assetId": 88754165814506,
+  "name": "GG PistolAimDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:17"
+  "uploaded": "2026-11-20 10:08:11"
  },
  "art-source/animations/GG_PistolAimLevel.rbxm": {
   "assetId": 134408200055475,
@@ -492,10 +492,10 @@
   "uploaded": "2026-11-20 03:21:11"
  },
  "art-source/animations/GG_PistolKickDown.rbxm": {
-  "assetId": 90306962924727,
-  "name": "GG PistolKickDown v1",
+  "assetId": 128468054309219,
+  "name": "GG PistolKickDown r2",
   "type": "Animation",
-  "uploaded": "2026-11-15 01:10:51"
+  "uploaded": "2026-11-20 10:08:23"
  },
  "art-source/animations/GG_PistolKickLevel.rbxm": {
   "assetId": 89288747742889,
@@ -654,16 +654,16 @@
   "uploaded": "2026-11-13 01:46:11"
  },
  "art-source/animations/GG_Throw.rbxm": {
-  "assetId": 129085261001652,
-  "name": "GG Throw o1",
+  "assetId": 119484404341094,
+  "name": "GG Throw r2b",
   "type": "Animation",
-  "uploaded": "2026-11-20 02:52:47"
+  "uploaded": "2026-11-20 09:57:56"
  },
  "art-source/animations/GG_Updraft.rbxm": {
-  "assetId": 122572879619635,
-  "name": "GG Updraft v5",
+  "assetId": 134947951901387,
+  "name": "GG Updraft r2b",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:25:32"
+  "uploaded": "2026-11-20 09:58:19"
  },
  "art-source/animations/GG_UpdraftSlam.rbxm": {
   "assetId": 91174387556328,
@@ -760,6 +760,18 @@
   "name": "GG Gun Atlas v9",
   "type": "Audio",
   "uploaded": "2026-11-14 17:25:48"
+ },
+ "art-source/audio/ui/UiClick_Soft.wav": {
+  "assetId": 112177281704509,
+  "name": "GG UI UiClick_Soft",
+  "type": "Audio",
+  "uploaded": "2026-11-20 09:25:20"
+ },
+ "art-source/audio/ui/UiTick_Soft.wav": {
+  "assetId": 89023085407630,
+  "name": "GG UI UiTick_Soft",
+  "type": "Audio",
+  "uploaded": "2026-11-20 09:25:23"
  },
  "art-source/body/BlockBody.fbx": {
   "assetId": 103550484592616,

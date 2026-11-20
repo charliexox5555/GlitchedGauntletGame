@@ -11,6 +11,13 @@
 -- waist and neck 0.25 / 0.75 of the aim through the joints' attachments.
 -- Poses then holds the level clip only (the pitch comes from the joints).
 --
+-- Decided 2026-11-21 (round 2): stays OFF; the clips are the default. With
+-- the gun swung about the real shoulder, IK tied or slightly beat the clips
+-- from the owner's angle (level, sights, 35 up, 30 down, sidearm), but the
+-- owner saw no difference, bots and a weapon swap in IK mode are not
+-- verified in the engine, and its one clear win (the head looking down at
+-- the target) is now in the clips' down holds. Overnight plan note, TP.
+--
 -- How to flip it:
 --   * for good: ENABLED = true below.
 --   * in a Studio playtest, live: set the Workspace attribute `TpIk`
@@ -24,17 +31,25 @@ return table.freeze({
 	-- Third Person Overhaul §7 / §22). Seconds for a full fade.
 	FADE_IN = 0.2,
 	FADE_OUT = 0.12,
+	-- Seconds after a gun appears before the IK may move it (GripController
+	-- reads the gun's resting grip first; the draw clip plays meanwhile).
+	NEW_GUN_WAIT = 0.25,
 
-	-- The gun's handle from the head's centre, in the body's yaw frame
-	-- (x right, y up, -z ahead), level aim; measured on tools/anim/tp_rig
-	-- from the hold clips' solved poses, so IK mode starts where the clips are.
-	LONG_HIP = Vector3.new(0.445, -0.706, -0.652),
-	LONG_ADS = Vector3.new(0.263, -0.518, -0.743),
-	PISTOL_HIP = Vector3.new(0.655, -0.553, -1.474),
-	PISTOL_ADS = Vector3.new(0.546, -0.382, -1.482),
-	-- Where the gun swings up and down (the right shoulder, from the head;
-	-- tp_clips AIM_PIVOT), so looking down the gun goes out, not into the chest.
-	PIVOT = Vector3.new(0.6, -0.88, 0.51),
+	-- The gun's handle from the right shoulder joint (UpperTorso's
+	-- RightShoulderRigAttachment), in the body's yaw frame (x right, y up,
+	-- -z ahead), level aim; measured on tools/anim/tp_rig from the hold
+	-- clips' solved poses (LONG_HIP = tp_rig HOLD_OFFSET), so IK mode starts
+	-- where the clips are. The gun swings about that joint as you look up
+	-- and down, like the clips (round 2; it hung off the head before).
+	LONG_HIP = Vector3.new(-0.454, 0.086, -1.105),
+	LONG_ADS = Vector3.new(-0.512, 0.236, -1.269),
+	PISTOL_HIP = Vector3.new(-0.284, 0.245, -1.831),
+	PISTOL_ADS = Vector3.new(-0.333, 0.401, -1.847),
+	-- Fallback when a rig has no shoulder attachment: from the head's centre.
+	LONG_HIP_HEAD = Vector3.new(0.445, -0.706, -0.652),
+	PISTOL_HIP_HEAD = Vector3.new(0.655, -0.553, -1.474),
+	-- At sights the head rolls onto the stock, as the clips do (degrees).
+	NECK_ADS_ROLL = -9,
 	-- Aim pitch limits for the gun (radians) and the body split (RIVALS).
 	PITCH_MAX = math.rad(70),
 	WAIST_SHARE = 0.25,

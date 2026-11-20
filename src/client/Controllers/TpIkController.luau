@@ -50,6 +50,7 @@ type Rig = {
 	humanoid: Humanoid,
 	root: BasePart,
 	head: BasePart,
+	shoulder: Attachment?, -- UpperTorso's RightShoulderRigAttachment: where the gun swings
 	torso: BasePart,
 	hand: BasePart,
 	ik: IKControl,
@@ -66,6 +67,7 @@ type Rig = {
 	gun: Model?,
 	motor: Motor6D?,
 	rest: CFrame, -- the WeaponGrip's C0 as the server made it (hand -> handle)
+	gunAt: number, -- os.clock() when this gun appeared
 	pistol: boolean,
 	moved: boolean, -- the motor hangs off the root (not the hand) right now
 	progress: number, -- 0..1, linear; the weight is its smoothstep
@@ -154,6 +156,10 @@ local function newRig(character: Model): Rig?
 		humanoid = humanoid,
 		root = root,
 		head = head,
+		shoulder = (function(): Attachment?
+			local a = torso:FindFirstChild("RightShoulderRigAttachment")
+			return if a and a:IsA("Attachment") then a else nil
+		end)(),
 		torso = torso,
 		hand = hand,
 		ik = ik,
@@ -166,6 +172,7 @@ local function newRig(character: Model): Rig?
 		gun = nil,
 		motor = nil,
 		rest = CFrame.identity,
+		gunAt = 0,
 		pistol = false,
 		moved = false,
 		progress = 0,
@@ -265,6 +272,7 @@ local function refreshGun(rig: Rig)
 	rig.gun = model
 	rig.motor = nil
 	rig.progress = 0
+	rig.gunAt = os.clock()
 	if not model then
 		return
 	end
@@ -283,10 +291,21 @@ local function wants(rig: Rig, holder: Instance): boolean
 	if not rig.motor or not Health.isAlive(rig.humanoid) then
 		return false
 	end
+	-- A new gun: leave its grip alone for a moment, so GripController reads
+	-- the server's hand -> handle C0 first (it keeps that as the gun's rest).
+	if os.clock() - rig.gunAt < TpIk.NEW_GUN_WAIT then
+		return false
+	end
 	if rig.character:FindFirstChild("WorldWeaponLeft") then
 		return false -- Akimbo: two guns, the clips hold them
 	end
-	local weaponId = StateValues.get(holder, "WeaponId")
+	-- The held gun's own id: a bot's owner lives on the server, so its
+	-- WeaponId never reaches clients (BotService mirrors only some states).
+	local gun = rig.gun
+	local weaponId = if gun then StateValues.get(gun, "WeaponId") else nil
+	if typeof(weaponId) ~= "string" then
+		weaponId = StateValues.get(holder, "WeaponId")
+	end
 	local config = if typeof(weaponId) == "string" then Weapons.get(weaponId) else nil
 	if not config or config.fireMode == "Melee" then
 		return false
@@ -326,29 +345,44 @@ local function aimPlace(rig: Rig): CFrame
 	local sights = if rig.pistol then TpIk.PISTOL_ADS else TpIk.LONG_ADS
 	local offset = hip:Lerp(sights, rig.ads)
 	local pitch = CFrame.Angles(math.clamp(rig.pitch, -TpIk.PITCH_MAX, TpIk.PITCH_MAX), 0, 0)
-	-- Swung about the shoulder: pivot + pitch * (offset - pivot).
-	local pivot = TpIk.PIVOT
-	local local_ = CFrame.new(pivot) * pitch * CFrame.new(offset - pivot)
-	return CFrame.new(rig.head.Position) * yaw * local_
+	-- Swung about the real right shoulder joint, which the waist pitch moves
+	-- too, so the stock stays in the shoulder (round 2: anchored at the head,
+	-- the head and the gun's pivot drifted apart as the neck pitched).
+	local shoulder = rig.shoulder
+	if shoulder and shoulder.Parent then
+		return CFrame.new(shoulder.WorldPosition) * yaw * pitch * CFrame.new(offset)
+	end
+	local fallback = if rig.pistol then TpIk.PISTOL_HIP_HEAD else TpIk.LONG_HIP_HEAD
+	return CFrame.new(rig.head.Position) * yaw * pitch * CFrame.new(fallback)
 end
 
 local function smooth(t: number): number
 	return t * t * (3 - 2 * t)
 end
 
-local function pitchJoint(joint: Joint?, frame: BasePart, axisWorld: Vector3, angle: number)
+-- Turns a joint's parent-side attachment about a world axis (pitch), and
+-- optionally about a second one (the head's roll onto the stock at sights).
+local function pitchJoint(
+	joint: Joint?,
+	frame: BasePart,
+	axisWorld: Vector3,
+	angle: number,
+	rollWorld: Vector3?,
+	roll: number
+)
 	if not joint or not joint.attachment.Parent then
 		return
 	end
-	if math.abs(angle) < 1e-4 then
+	if math.abs(angle) < 1e-4 and math.abs(roll) < 1e-4 then
 		joint.attachment.CFrame = joint.origin
 		return
 	end
-	local axis = frame.CFrame:VectorToObjectSpace(axisWorld)
+	local turn = CFrame.fromAxisAngle(frame.CFrame:VectorToObjectSpace(axisWorld), angle)
+	if rollWorld and math.abs(roll) >= 1e-4 then
+		turn = CFrame.fromAxisAngle(frame.CFrame:VectorToObjectSpace(rollWorld), roll) * turn
+	end
 	local o = joint.origin
-	joint.attachment.CFrame = CFrame.new(o.Position)
-		* CFrame.fromAxisAngle(axis, angle)
-		* o.Rotation
+	joint.attachment.CFrame = CFrame.new(o.Position) * turn * o.Rotation
 end
 
 local function stepRig(rig: Rig, dt: number, on: boolean)
@@ -370,9 +404,16 @@ local function stepRig(rig: Rig, dt: number, on: boolean)
 	local lower = rig.character:FindFirstChild("LowerTorso")
 	local share = smooth(mode)
 	if lower and lower:IsA("BasePart") then
-		pitchJoint(rig.waist, lower, right, rig.pitch * TpIk.WAIST_SHARE * share)
+		pitchJoint(rig.waist, lower, right, rig.pitch * TpIk.WAIST_SHARE * share, nil, 0)
 	end
-	pitchJoint(rig.neck, rig.torso, right, rig.pitch * TpIk.NECK_SHARE * share)
+	pitchJoint(
+		rig.neck,
+		rig.torso,
+		right,
+		rig.pitch * TpIk.NECK_SHARE * share,
+		rig.root.CFrame.LookVector,
+		math.rad(TpIk.NECK_ADS_ROLL) * rig.ads * share
+	)
 
 	local motor = rig.motor
 	if not motor or not motor.Parent or w <= 0 then

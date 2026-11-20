@@ -22,14 +22,14 @@ return table.freeze({
 		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
 		AimUp = id(88731037976156), -- o2 2026-11-20: breathing hold (was 137847543596504) -- looking AIM_PITCH_UP degrees up
 		AimLevel = id(105637585256231), -- o2 2026-11-20: breathing hold (was 133205732621181)
-		AimDown = id(118137664448884), -- o2 2026-11-20: breathing hold (was 86939677186257) -- looking AIM_PITCH_DOWN degrees down (v7 2026-11-15: the gun goes out as it drops, the right forearm was inside the chest; was 111694202793931)
+		AimDown = id(118568564589362), -- r2 2026-11-21: breathing hold, the head looks down with the aim (o2 118137664448884; was 86939677186257) -- looking AIM_PITCH_DOWN degrees down (v7 2026-11-15: the gun goes out as it drops, the right forearm was inside the chest; was 111694202793931)
 		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
 		PistolAimUp = id(104552117240290), -- o2 2026-11-20: breathing hold (was 95901417628746)
 		PistolAimLevel = id(134408200055475), -- o2 2026-11-20: breathing hold (was 91403700231911)
-		PistolAimDown = id(111015808504046), -- o2 2026-11-20: breathing hold (was 70510113818516)
+		PistolAimDown = id(88754165814506), -- r2 2026-11-21: breathing hold, head looks down (o2 111015808504046; was 70510113818516)
 		PistolAdsUp = id(123908701376846), -- o2 2026-11-20: breathing hold (was 115421178439718)
 		PistolAdsLevel = id(93700559415008), -- o2 2026-11-20: breathing hold (was 77191013164054)
-		PistolAdsDown = id(73233869134802), -- o2 2026-11-20: breathing hold (was 80580729310516)
+		PistolAdsDown = id(100517179779054), -- r2 2026-11-21: breathing hold, head looks down (o2 73233869134802; was 80580729310516)
 		-- Movement (Action2; Slide is Action3 so it wins over everything).
 		-- The run's upper body, in step with SprintRun (a loop the same length):
 		-- a low ready that swings with the stride; sidearms and the knife have their own.
@@ -100,10 +100,10 @@ return table.freeze({
 	COMBAT = table.freeze({
 		AdsUp = id(87449585195829), -- o2 2026-11-20: breathing hold (was 88665317482255)
 		AdsLevel = id(86480588512249), -- o2 2026-11-20: breathing hold (was 95863412039587)
-		AdsDown = id(77870476375092), -- o2 2026-11-20: breathing hold (was 139601720262674)
+		AdsDown = id(86597667703377), -- r2 2026-11-21: breathing hold, head looks down (o2 77870476375092; was 139601720262674)
 		Reload = id(110565531734561), -- o1 2026-11-20 overnight TP pass, splines (was 102765870602957) -- v7 2026-11-15: a low-ready swap, the face stays clear (v6 112777133763655 stood the rifle up over the head)
 		PistolReload = id(99293327658491), -- o1 2026-11-20 overnight TP pass, splines (was 120367219025692) -- sidearms
-		Flinch = id(134800149922990),
+		Flinch = id(82256896150427), -- r2 2026-11-21: on splines, the hit lands as an impact (was 134800149922990)
 		Death = id(88289196924695), -- o1 2026-11-20 overnight TP pass, splines (was 120072987587692) -- going down (DeathFxController, on the falling copy)
 		Victory = id(71447089078892), -- the match-end winners (MatchEndController): gun up, fist pumps (tools/anim, 2026-11-12)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
@@ -128,16 +128,16 @@ return table.freeze({
 	RECOIL = table.freeze({
 		AimUp = id(95144292931563),
 		AimLevel = id(76597005020546),
-		AimDown = id(89250731384338),
+		AimDown = id(109221910357149), -- r2: head as the hold (was 89250731384338)
 		AdsUp = id(136021206805401),
 		AdsLevel = id(73969040108481),
-		AdsDown = id(132640996566965),
+		AdsDown = id(131076841934336), -- r2 (was 132640996566965)
 		PistolAimUp = id(71397627439679),
 		PistolAimLevel = id(89288747742889),
-		PistolAimDown = id(90306962924727),
+		PistolAimDown = id(128468054309219), -- r2 (was 90306962924727)
 		PistolAdsUp = id(117128552950066),
 		PistolAdsLevel = id(93859139822565),
-		PistolAdsDown = id(100422843394946),
+		PistolAdsDown = id(97409435633700), -- r2 (was 100422843394946)
 	}),
 	-- The left hand on each gun's LeftGrip (GripController IK, every visible
 	-- character). The target rides on the gun itself, so the hand follows the
@@ -332,18 +332,18 @@ return table.freeze({
 		-- Studio set: MakeModAnimations.luau pass 2,
 		-- 2026-11-04: wind-ups, snaps and follow-throughs, ending on the gun hold).
 		ModHold = id(79414521552493),
-		Throw = id(129085261001652), -- o1 2026-11-20 overnight TP pass, splines (was 80403547544782)
+		Throw = id(119484404341094), -- r2 2026-11-21: the wind-up reads (item above and behind the head, free arm pointing at the target) (was 129085261001652) -- o1 2026-11-20 overnight TP pass, splines (was 80403547544782)
 		Place = id(83199924746572), -- o1 2026-11-20 overnight TP pass, splines (was 92359767222451)
-		Heal = id(77351510963020), -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
-		Lob = id(85103387011074), -- o1 2026-11-20 overnight TP pass, splines (was 86298417428874) -- a held throw's underhand (Molly RMB)
-		Cast = id(110417908522750), -- o2 2026-11-20 overnight TP pass, splines, no chest clipping (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
+		Heal = id(120933430967429), -- r2 2026-11-21: device out front-right at shoulder height, free arm out to the side, no arms through the chest (was 77351510963020) -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
+		Lob = id(123753817056953), -- r2 2026-11-21: free arm reaches out front, the swing goes wide of the hip (was 85103387011074) -- o1 2026-11-20 overnight TP pass, splines (was 86298417428874) -- a held throw's underhand (Molly RMB)
+		Cast = id(78340199527777), -- r2 2026-11-21: leans harder into the shove (was 110417908522750) -- o2 2026-11-20 overnight TP pass, splines, no chest clipping (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
 		-- Dash: the torso leans into the dash (Simulation/Poses, by direction).
-		DashForward = id(76094407168365),
-		DashBack = id(75006063877431),
-		DashLeft = id(93347970953423),
-		DashRight = id(110331158301717),
+		DashForward = id(93439510581896), -- r2 2026-11-21: on splines, no dead hold, half the hip tilt (the gun stays near level) (was 76094407168365)
+		DashBack = id(120793622302960), -- r2 2026-11-21 (was 75006063877431)
+		DashLeft = id(132861580697947), -- r2 2026-11-21 (was 93347970953423)
+		DashRight = id(79475213572359), -- r2 2026-11-21 (was 110331158301717)
 		-- Updraft: knees tuck on the launch.
-		Updraft = id(122572879619635),
+		Updraft = id(134947951901387), -- r2 2026-11-21: the tuck keeps rising, half the hip tilt (the gun stays level) (was 122572879619635)
 		-- Updraft Crash Down (tools/anim; was MakeSlamAnimations.luau): the dive
 		-- (looped while UpdraftSlam = "Down") and the knee-and-fist landing
 		-- (once). Uploaded 2026-11-03.
