@@ -45,7 +45,11 @@ local FOLLOW = { fist = 11, dir = 8, damping = 0.62, maxLag = math.rad(40) }
 -- second at rest, a frozen hold): a slow roll and lean (degrees) and a lift
 -- (studs), `rate` cycles a second, off-ratio so it doesn't repeat. It eases
 -- out for a swing (`fade`, 1/s), which has to land where it is keyed.
-local DRIFT = { roll = 3.2, lean = 2, lift = 0.02, rate = 0.31, fade = 10 }
+-- 2026-11-21: the roll and lean now trace an ellipse (sine and cosine of one
+-- phase), so the bat never stops turning, plus a small off-ratio turn so it
+-- doesn't read as a loop. Off-ratio roll and lean turned round together and
+-- the idle sat under 1 degree a second for 0.66 s twice a loop (measured).
+local DRIFT = { roll = 3.2, lean = 2.8, turn = 1.2, lift = 0.02, rate = 0.4, fade = 10 }
 local drift = 1
 -- A hit drags the bat (it slows and eases back, never holding a frame: the
 -- dead stop read as choppy, owner 2026-11-15). The drag lasts STOP_SCALE
@@ -73,6 +77,7 @@ type Key = {
 	face: Vector3, -- a hint for which way the bat's face (+Y) turns
 	left: Vector3?, -- the left fist, nil = at rest
 	support: boolean?, -- the left fist holds the handle
+	tension: number?, -- under 1 the move slows through this key (a coil), over 1 carries speed (a strike)
 }
 type Clip = {
 	length: number, -- seconds at speed 1
@@ -118,28 +123,54 @@ local clips: { [string]: Clip } = {
 	SlashLeft = {
 		length = 0.5,
 		hit = 0.3,
-		trail = { 0.18, 0.42 },
+		trail = { 0.22, 0.44 },
 		keys = {
 			{ t = 0, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
-			{ t = 0.17, fist = v(1.3, -0.55, -1.6), dir = v(0.35, 1, -0.05), face = v(-1, 0, 0.3) },
+			{
+				t = 0.17,
+				fist = v(1.3, -0.52, -1.62),
+				dir = v(0.416, 0.87, 0.265),
+				face = v(-0.87, 0.296, 0.394),
+				tension = 0.4,
+			},
+			{
+				t = 0.25,
+				fist = v(1, -0.48, -1.9),
+				dir = v(0.778, 0.53, -0.337),
+				face = v(-0.615, 0.754, -0.233),
+			},
 			{
 				t = 0.3,
-				fist = v(0.35, -0.72, -2.05),
-				dir = v(-1, 0.12, -0.35),
-				face = v(0, 1, 0.2),
+				fist = v(0.42, -0.52, -2.05),
+				dir = v(-0.251, -0.442, -0.861),
+				face = v(-0.438, 0.845, -0.307),
+				tension = 1.3,
 			},
 			{
-				t = 0.44,
-				fist = v(-0.6, -1.25, -1.7),
-				dir = v(-0.75, -0.45, 0.35),
-				face = v(0.2, 1, 0),
+				t = 0.35,
+				fist = v(0.05, -0.8, -2),
+				dir = v(-0.687, -0.508, -0.519),
+				face = v(-0.372, 0.86, -0.349),
 			},
-			-- Home a little past the idle (it came from the left), then back.
 			{
-				t = 0.82,
+				t = 0.47,
+				fist = v(-0.45, -1.15, -1.78),
+				dir = v(-0.599, -0.799, -0.05),
+				face = v(0.226, -0.229, 0.947),
+				tension = 0.45,
+			},
+			{
+				t = 0.66,
+				fist = v(0.55, -1.4, -1.9),
+				dir = v(0.606, 0.673, -0.424),
+				face = v(0.284, 0.315, 0.906),
+			},
+			{
+				t = 0.86,
 				fist = IDLE_FIST + v(0.06, 0.03, 0),
 				dir = IDLE_DIR + v(0.07, 0, 0),
 				face = FACE,
+				tension = 0.6,
 			},
 			{ t = 1, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 		},
@@ -149,23 +180,54 @@ local clips: { [string]: Clip } = {
 	SlashRight = {
 		length = 0.5,
 		hit = 0.3,
-		trail = { 0.18, 0.42 },
+		trail = { 0.22, 0.44 },
 		keys = {
 			{ t = 0, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 			{
-				t = 0.17,
-				fist = v(-0.35, -1.3, -1.65),
-				dir = v(-0.9, -0.25, 0.15),
-				face = v(0, 1, 0.3),
+				t = 0.21,
+				fist = v(-0.12, -1.12, -1.74),
+				dir = v(-0.954, -0.179, 0.239),
+				face = v(-0.099, 0.944, 0.314),
+				tension = 0.4,
 			},
-			{ t = 0.3, fist = v(0.2, -0.75, -2.05), dir = v(1, 0.2, -0.35), face = v(0, 1, 0.2) },
-			{ t = 0.44, fist = v(1.2, -0.6, -1.65), dir = v(0.55, 0.8, 0.2), face = v(-1, 0.2, 0) },
-			-- Home a little past the idle (it came from up on the right), then back.
 			{
-				t = 0.82,
+				t = 0.262,
+				fist = v(0.02, -0.92, -1.98),
+				dir = v(-0.53, -0.556, -0.64),
+				face = v(-0.48, 0.819, -0.314),
+			},
+			{
+				t = 0.3,
+				fist = v(0.3, -0.66, -2.08),
+				dir = v(0.544, 0.096, -0.833),
+				face = v(-0.007, 0.994, 0.11),
+				tension = 1.3,
+			},
+			{
+				t = 0.338,
+				fist = v(0.72, -0.55, -1.98),
+				dir = v(0.739, 0.502, -0.449),
+				face = v(-0.402, 0.864, 0.304),
+			},
+			{
+				t = 0.47,
+				fist = v(1.22, -0.55, -1.68),
+				dir = v(0.571, 0.809, 0.143),
+				face = v(-0.809, 0.525, 0.263),
+				tension = 0.45,
+			},
+			{
+				t = 0.66,
+				fist = v(1.12, -0.95, -1.9),
+				dir = v(0.583, 0.811, -0.046),
+				face = v(-0.168, 0.175, 0.97),
+			},
+			{
+				t = 0.86,
 				fist = IDLE_FIST + v(-0.04, -0.06, 0),
 				dir = IDLE_DIR + v(-0.06, 0, 0),
 				face = FACE,
+				tension = 0.6,
 			},
 			{ t = 1, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 		},
@@ -175,47 +237,66 @@ local clips: { [string]: Clip } = {
 	Smash = {
 		length = 0.9,
 		hit = 0.44,
-		trail = { 0.34, 0.52 },
+		trail = { 0.37, 0.54 },
 		keys = {
 			{ t = 0, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 			{
 				t = 0.14,
-				fist = v(0.4, -0.45, -1.55),
-				dir = v(0.05, 0.95, 0.3),
-				face = v(1, 0, 0),
+				fist = v(0.42, -0.45, -1.55),
+				dir = v(0.096, 0.923, 0.373),
+				face = v(0.995, -0.089, -0.036),
 				left = v(0.3, -0.7, -1.5),
 				support = true,
 			},
 			{
 				t = 0.3,
-				fist = v(0.38, -0.3, -1.5),
-				dir = v(0.05, 0.9, 0.42),
-				face = v(1, 0, 0),
-				left = v(0.25, -0.55, -1.45),
+				fist = v(0.38, -0.32, -1.48),
+				dir = v(0.051, 0.861, 0.506),
+				face = v(0.999, -0.044, -0.026),
+				left = v(0.25, -0.57, -1.43),
+				support = true,
+				tension = 0.35,
+			},
+			{
+				t = 0.4,
+				fist = v(0.22, -0.55, -1.85),
+				dir = v(0.646, 0.529, -0.551),
+				face = v(0.764, -0.447, 0.466),
+				left = v(0.12, -0.8, -1.75),
 				support = true,
 			},
 			{
 				t = 0.44,
-				fist = v(0.2, -1.0, -2.1),
-				dir = v(-0.05, -0.1, -1),
-				face = v(1, 0, 0),
-				left = v(0.15, -1.15, -2.0),
+				fist = v(0.12, -0.95, -2.1),
+				dir = v(0.111, -0.367, -0.924),
+				face = v(0.994, 0.041, 0.103),
+				left = v(0.05, -1.1, -2),
+				support = true,
+				tension = 1.3,
+			},
+			{
+				t = 0.48,
+				fist = v(0.12, -1.25, -2),
+				dir = v(-0.1, -0.597, -0.796),
+				face = v(0.995, -0.06, -0.08),
+				left = v(0.05, -1.4, -1.9),
 				support = true,
 			},
 			{
-				t = 0.56,
-				fist = v(0.2, -1.45, -1.9),
-				dir = v(-0.05, -0.85, -0.55),
-				face = v(1, 0, 0),
-				left = v(0.15, -1.6, -1.75),
+				t = 0.58,
+				fist = v(0.2, -1.5, -1.88),
+				dir = v(-0.051, -0.889, -0.455),
+				face = v(0.999, -0.045, -0.023),
+				left = v(0.15, -1.62, -1.75),
 				support = true,
+				tension = 0.45,
 			},
-			-- Up out of the smash a little past the idle, then back.
 			{
-				t = 0.86,
+				t = 0.84,
 				fist = IDLE_FIST + v(0.03, 0.07, 0),
 				dir = IDLE_DIR + v(0.03, 0, -0.04),
 				face = FACE,
+				tension = 0.6,
 			},
 			{ t = 1, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 		},
@@ -359,8 +440,12 @@ local function batAt(fist: Vector3, dir: Vector3, face: Vector3): CFrame
 	return cf * CFrame.new(0, 0, GRIP) -- from the grip point back to the pivot
 end
 
--- `dir` turned (in the plane it makes with the forearm) until it is at least
--- BAT_MIN_ANGLE from the forearm's line (fist to shoulder, either way).
+-- `dir` kept at least about BAT_MIN_ANGLE from the forearm's line (fist to
+-- shoulder, either way). 2026-11-21: the part along the forearm past the limit
+-- is taken off and the rest kept, which is continuous everywhere. The old
+-- clamp pushed the bat out along its sideways part, which has no direction
+-- on the forearm's line: a swing passing it flipped the bat 113 degrees in
+-- one frame (measured). Keys keep clear of the line, so this rarely acts.
 local BAT_MIN_ANGLE = math.rad(65)
 local function acrossArm(dir: Vector3, fist: Vector3): Vector3
 	local arm = Bat.RIGHT_SHOULDER - fist
@@ -373,15 +458,8 @@ local function acrossArm(dir: Vector3, fist: Vector3): Vector3
 	if math.abs(along) <= limit then
 		return d
 	end
-	local side = d - a * along
-	if side.Magnitude < 1e-3 then
-		side = a:Cross(Vector3.xAxis)
-		if side.Magnitude < 1e-3 then
-			side = a:Cross(Vector3.yAxis)
-		end
-	end
-	local sign = if along > 0 then 1 else -1
-	return (a * (sign * limit) + side.Unit * math.sin(BAT_MIN_ANGLE)).Unit
+	local kept = d - a * (along - math.sign(along) * limit)
+	return if kept.Magnitude > 1e-3 then kept.Unit else d
 end
 
 -- A key's value for one channel (the free left fist rests when unset).
@@ -396,15 +474,104 @@ local function channel(key: Key, name: string): Vector3
 	return key.left or LEFT_REST
 end
 
--- A key's Catmull-Rom tangent (in time); zero at the ends of the clip.
+-- A key's Catmull-Rom tangent (in time), scaled by its tension; zero at the
+-- ends of the clip.
 local function tangent(keys: { Key }, n: number, name: string, k: number): Vector3
 	if k <= 1 or k >= n then
 		return Vector3.zero
 	end
 	local dt = keys[k + 1].t - keys[k - 1].t
 	return if dt > 0
-		then (channel(keys[k + 1], name) - channel(keys[k - 1], name)) / dt
+		then (channel(keys[k + 1], name) - channel(keys[k - 1], name)) * ((keys[k].tension or 1) / dt)
 		else Vector3.zero
+end
+
+-- The bat's turn is splined as a rotation, not as two loose vectors
+-- (2026-11-21, measured): a pointing vector splined between keys ~160 degrees
+-- apart passed near zero length and the bat whipped round in one frame (the
+-- backhand's tip jumped at 459 studs/s), and a face vector crossing the bat's
+-- axis rolled it 180 degrees in one frame (the forehand). Each key's (dir,
+-- face) becomes one orientation; the curve between keys is a Bezier on
+-- rotations with Catmull-Rom angular tangents (Util/RuinedReaver's scheme).
+local function orientation(key: Key): CFrame
+	local look = channel(key, "dir")
+	local face = channel(key, "face")
+	local up = face - look * face:Dot(look)
+	if up.Magnitude < 1e-3 then
+		up = Vector3.yAxis - look * look.Y
+	end
+	return CFrame.lookAt(Vector3.zero, look, up.Unit)
+end
+
+local function rotationVector(relative: CFrame): Vector3
+	local axis, angle = relative:ToAxisAngle()
+	return axis * angle
+end
+
+local function turned(base: CFrame, spin: Vector3, time: number): CFrame
+	return if spin.Magnitude > 1e-5
+		then base * CFrame.fromAxisAngle(spin.Unit, spin.Magnitude * time)
+		else base
+end
+
+type Turn = { from: CFrame, exit: CFrame, entry: CFrame, to: CFrame }
+local turns: { [Clip]: { Turn } } = {}
+
+local function turnsOf(clip: Clip): { Turn }
+	local cached = turns[clip]
+	if cached then
+		return cached
+	end
+	local keys = clip.keys
+	local n = #keys
+	local poses: { CFrame } = {}
+	for k, key in keys do
+		poses[k] = orientation(key)
+	end
+	local function spin(k: number): Vector3
+		if k <= 1 or k >= n then
+			return Vector3.zero
+		end
+		local dt = keys[k + 1].t - keys[k - 1].t
+		if dt <= 0 then
+			return Vector3.zero
+		end
+		local ahead = rotationVector(poses[k]:ToObjectSpace(poses[k + 1]))
+		local behind = rotationVector(poses[k]:ToObjectSpace(poses[k - 1]))
+		return (ahead - behind) * ((keys[k].tension or 1) / dt)
+	end
+	local list: { Turn } = {}
+	for k = 1, n - 1 do
+		local third = (keys[k + 1].t - keys[k].t) / 3
+		list[k] = {
+			from = poses[k],
+			exit = turned(poses[k], spin(k), third),
+			entry = turned(poses[k + 1], spin(k + 1), -third),
+			to = poses[k + 1],
+		}
+	end
+	turns[clip] = list
+	return list
+end
+
+local function orientationAt(clip: Clip, u: number): CFrame
+	local keys = clip.keys
+	local list = turnsOf(clip)
+	local i = #keys - 1
+	for k = 1, #keys - 1 do
+		if u <= keys[k + 1].t then
+			i = k
+			break
+		end
+	end
+	local h = keys[i + 1].t - keys[i].t
+	local s = if h > 0 then math.clamp((u - keys[i].t) / h, 0, 1) else 1
+	local turn = list[i]
+	local middle = turn.exit:Lerp(turn.entry, s)
+	return turn.from
+		:Lerp(turn.exit, s)
+		:Lerp(middle, s)
+		:Lerp(middle:Lerp(turn.entry:Lerp(turn.to, s), s), s)
 end
 
 -- Spline interpolation through the keys (cubic Hermite with Catmull-Rom
@@ -460,8 +627,9 @@ local function sample(clip: Clip, u: number): (CFrame, Vector3, Vector3, boolean
 	-- The fist IS the grip point while held: no sliding. The bat stays
 	-- across the fist: never closer than BAT_MIN_ANGLE to the forearm's line,
 	-- so the handle never runs along the arm (that read as "weird angles").
-	local dir = acrossArm(spline(clip, "dir", u), fist)
-	local bat = batAt(fist, dir, spline(clip, "face", u))
+	local turn = orientationAt(clip, u)
+	local dir = acrossArm(turn.LookVector, fist)
+	local bat = batAt(fist, dir, turn.UpVector)
 	local support = supportAt(clip, u)
 	local left = if support
 		then bat:PointToWorldSpace(Vector3.new(0, 0, -SUPPORT))
@@ -556,8 +724,8 @@ function Bat.step(
 	if drift > 1e-3 then
 		local a = os.clock() * DRIFT.rate * 2 * math.pi
 		aim = CFrame.Angles(
-			math.rad(DRIFT.lean) * math.sin(a * 0.7 + 1) * drift,
-			0,
+			math.rad(DRIFT.lean) * math.cos(a) * drift,
+			math.rad(DRIFT.turn) * math.sin(a * 1.3 + 2) * drift,
 			math.rad(DRIFT.roll) * math.sin(a) * drift
 		):VectorToWorldSpace(aim)
 		fist += Vector3.new(0, math.sin(a * 0.5) * DRIFT.lift * drift, 0)

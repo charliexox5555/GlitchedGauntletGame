@@ -2736,7 +2736,11 @@ local function update(dt: number)
 		batSupport = support
 		batSupportHeld = supportHeld
 		for _, ribbon in right.batTrails or {} do
-			ribbon.Enabled = trail and not hidden and lowerT < 0.1
+			local on = trail and not hidden and lowerT < 0.1
+			if on and not ribbon.Enabled then
+				ribbon:Clear() -- a re-enabled trail joins its last point across the screen
+			end
+			ribbon.Enabled = on
 		end
 		if done then
 			right.batMotion = PopCircuitBat.play("Idle")
