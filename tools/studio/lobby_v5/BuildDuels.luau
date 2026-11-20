@@ -226,9 +226,9 @@ for _, x in PIL do
 	local m = model(bulk, ("Pilaster_%d"):format(x))
 	box(m, "Shaft", Vector3.new(x - 1.2, YD, ZW - 1.4), Vector3.new(x + 1.2, WALL_TOP - 1.5, ZW), L.trim)
 	box(m, "Foot", Vector3.new(x - 1.6, YD, ZW - 1.9), Vector3.new(x + 1.6, YD + 1.4, ZW), L.wains)
-	tri(m, "FootSlope", Vector3.new(x, YD + 1.4, ZW - 1.9), Vector3.new(0, 1, 0), 0.6, Vector3.new(0, 0, 1), 0.5, Vector3.xAxis, 3.2, L.wains)
+	tri(m, "FootSlope", Vector3.new(x, YD + 1.4, ZW - 1.4), Vector3.new(0, 1, 0), 0.6, Vector3.new(0, 0, -1), 0.5, Vector3.xAxis, 3.2, L.wains) -- slope falls toward the deck
 	box(m, "Head", Vector3.new(x - 1.6, WALL_TOP - 1.5, ZW - 1.9), Vector3.new(x + 1.6, WALL_TOP, ZW), L.trim)
-	tri(m, "HeadSlope", Vector3.new(x, WALL_TOP - 1.5, ZW - 1.9), Vector3.new(0, -1, 0), 0.6, Vector3.new(0, 0, 1), 0.5, Vector3.xAxis, 3.2, L.trim)
+	tri(m, "HeadSlope", Vector3.new(x, WALL_TOP - 1.5, ZW - 1.4), Vector3.new(0, -1, 0), 0.6, Vector3.new(0, 0, -1), 0.5, Vector3.xAxis, 3.2, L.trim) -- corbel under the head
 end
 for i = 1, #PIL - 1 do
 	local xa, xb = PIL[i] + 1.2, PIL[i + 1] - 1.2
@@ -236,7 +236,7 @@ for i = 1, #PIL - 1 do
 		local m = model(bulk, ("Bay_%d"):format(i))
 		box(m, "Wall", Vector3.new(xa, YD, ZW), Vector3.new(xb, WALL_TOP, ZW + 2), L.board)
 		box(m, "Wainscot", Vector3.new(xa, YD, ZW - 0.6), Vector3.new(xb, YD + 3.2, ZW), L.wains)
-		tri(m, "WainscotSlope", Vector3.new((xa + xb) / 2, YD + 3.2, ZW - 0.6), Vector3.new(0, 1, 0), 0.6, Vector3.new(0, 0, 1), 0.6, Vector3.xAxis, xb - xa, L.wains)
+		tri(m, "WainscotSlope", Vector3.new((xa + xb) / 2, YD + 3.2, ZW), Vector3.new(0, 1, 0), 0.6, Vector3.new(0, 0, -1), 0.6, Vector3.xAxis, xb - xa, L.wains) -- slope falls toward the deck
 		box(m, "Panel", Vector3.new(xa + 1.4, YD + 5.5, ZW - 0.3), Vector3.new(xb - 1.4, 23, ZW), L.corr)
 		box(m, "PanelFrame_T", Vector3.new(xa + 1.0, 23, ZW - 0.45), Vector3.new(xb - 1.0, 23.5, ZW), L.dark)
 		box(m, "PanelFrame_B", Vector3.new(xa + 1.0, YD + 5.0, ZW - 0.45), Vector3.new(xb - 1.0, YD + 5.5, ZW), L.dark)

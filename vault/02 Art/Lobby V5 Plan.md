@@ -462,6 +462,68 @@ The floor part keeps the name `Square_A / B` and the `LobbyPadSquare` tag (Lobby
 - Sized from the well's short side, so the V4 pads get it too.
 - Format and lint clean. Capture `V5Pads_Reticle`: idle reticles, plus a cyan lock-on with a player in it.
 
+## Locker room plan (2026-11-20)
+Owner: "let's move on to the locker area, creating the locker area" (building only, no season code). Concept: `third-party/lobby-v5-concepts/03-supply-depot-and-armoury.png`, right half: a cut-corner concrete arch, pegboard gun walls behind mesh panels, a central bench with a gun on a turntable, yellow floor marks.
+
+**RIVALS weapons room, structure only** (`LobbyRivals.Hub.Extra.Weapons`, capture `RivalsWeaponsRoom`): a room off the hall with a gun wall at the back, tables of laid guns, the vendor NPC by the gun wall, crates, wall lamps, a recessed-light ceiling and a big floor emblem.
+
+**Hooks in our code (reuse):**
+- `LobbyGunDisplay` anchors show each player's own skins (`LobbyGunDisplays.luau`), with state values Gun, Mount, B / F (Blender axes) and Scale / Fill.
+- The V4 locker used 9 Wall mounts (Bulldog, Guardian, Stinger, Ares, Ghost, Marshal, Bucky, Shorty, Outlaw at 1.9 / 5.9), 8 Lay mounts (Phantom, Operator, Spectre, Judge, Vandal, Odin, Classic, Sheriff at 2.3 / 6.6) and 1 Stand (Knife).
+- A `LobbyLocker` part opens the Locker menu with a prompt (`WorldPrompts`).
+- `LobbyNPC` Armorer (`LobbyV4Staging.NPCs.Armorer`).
+
+**Layout** (hub-local, east of the hub):
+- **Entrance:** the hub's armoury frame (x 40-46) opens; its doors, transom and back block go. A 8-long vestibule leads to the room.
+- **Room:** x 55-103, z -22..22, y 0-18. Board-concrete walls, a dropped soffit with lit ceiling panels, a polished concrete floor with yellow marks.
+- **Back wall:** a pegboard gun wall with the 9 Wall guns (3 x 3), framed by see-through mesh panels.
+- **Side walls:** rows of steel lockers (number plates, vents, handles, a sloped top) with padded benches.
+- **Tables:** four tables holding the 8 Lay guns.
+- **Centre:** a workbench island (sloped sides, hazard panels) with a turntable and the Knife stand, and the `LobbyLocker` prompt; a yellow floor box around it.
+- **Armorer:** NPC by the gun wall.
+
+**New textures** (drawn, uploaded): pegboard, and a mesh grid with see-through holes.
+
+## Locker room built (2026-11-20)
+Built by `tools/studio/lobby_v5/BuildLocker.luau` into `Workspace.LobbyV5.Shell.Locker` (about 605 Parts). The hub's armoury frame is now open: doors, transom and back block removed. New textures (ours, uploaded):
+- `Pegboard.png`: image `120794687026437`.
+- `MeshGrid.png` (see-through holes): image `79156982233553`.
+
+**Vestibule** (x 46-55): continues the frame's cut-corner profile, with a diamond-plate threshold and a ceiling light.
+
+**Room** (x 55-103, z +/-22, 18 high):
+- Board-concrete walls with a wainscot by the door.
+- A dropped soffit round the ceiling with a warm lit cove, and four ceiling light panels.
+- Polished concrete floor (`98,96,93`), with yellow walkway lines from the door and a yellow box round the bench.
+
+**Gun wall** (east):
+- A pegboard in a steel frame, tinted so it doesn't blow out, holding the **9 Wall guns** (Bulldog, Guardian, Stinger, Ares, Ghost, Marshal, Bucky, Shorty, Outlaw) on pairs of pegs.
+- Mesh-fronted cages either side with shelves of cases.
+- A LOCKER lightbox on the soffit, and three spotlights.
+
+**Lockers:** 36 steel lockers in two rows on the side walls.
+- Charcoal bodies with **muted olive doors** (the room's colour), vents, handles, sloped crowns and number plates (Rubik).
+- Two padded benches per side.
+
+**Tables:** four display tables (rubber mat, steel frame) with the **8 Lay guns** (Phantom, Operator, Spectre, Judge, Vandal, Odin, Classic, Sheriff).
+
+**Workbench** (centre):
+- Sloped hazard-striped sides, steel ends and top.
+- An octagonal turntable (`V5_Flange8`) with the **Knife** standing and turning (Spin 30).
+- `LockerZone` tagged `LobbyLocker` gives the "Open Locker" prompt.
+
+**Armorer:** a copy of the V4 `LobbyNPC`, by the gun wall.
+
+**Playtest (Studio):**
+- 18 gun copies appeared in the room as the player's own skins.
+- The bench prompt reads "Open Locker".
+
+**Lighting note:** in Studio play the client runs at about 15 fps on automatic quality. At low quality Roblox drops most local lights, so lamp-lit rooms look darker and bluer than in edit. Phones will look like this too. If it matters, raise the interior Ambient or add self-lit surfaces; parked for the colour pass.
+
+**Fixes in the same pass:**
+- The duels bulkhead foot, head and wainscot slopes (34) and the queue-pad dais slopes (32) were built facing the wrong way (small overhangs instead of ramps). Turned in Studio and fixed in `BuildDuels` / `BuildQueueBays`; the pad slope now runs from y -0.46 at the rim to -0.94 at the platform.
+- The coplanar scan of the Locker shows only hidden joints inside the mesh cages.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).

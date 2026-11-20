@@ -198,10 +198,10 @@ for _, anchor in anchors do
 	box(pad, "Rim_W", Vector3.new(cx - DX, YD, DZ1 + 1.0), Vector3.new(cx - DX + 1.0, TOP, DZ0 - 1.0), L.rim)
 	box(pad, "Rim_E", Vector3.new(cx + DX - 1.0, YD, DZ1 + 1.0), Vector3.new(cx + DX, TOP, DZ0 - 1.0), L.rim)
 	box(pad, "Rim_Mid", Vector3.new(cx - 0.6, YD, DZ1 + 1.0), Vector3.new(cx + 0.6, TOP, DZ0 - 1.0), L.rim)
-	tri(pad, "Slope_Front", Vector3.new(cx, TOP, DZ0), Vector3.new(0, -1, 0), 0.6, Vector3.new(0, 0, 1), 1.0, Vector3.xAxis, 2 * DX, L.rim)
-	tri(pad, "Slope_Back", Vector3.new(cx, TOP, DZ1), Vector3.new(0, -1, 0), 0.6, Vector3.new(0, 0, -1), 1.0, Vector3.xAxis, 2 * DX, L.rim)
-	tri(pad, "Slope_W", Vector3.new(cx - DX, TOP, (DZ0 + DZ1) / 2), Vector3.new(0, -1, 0), 0.6, Vector3.new(-1, 0, 0), 1.0, Vector3.zAxis, DZ0 - DZ1, L.rim)
-	tri(pad, "Slope_E", Vector3.new(cx + DX, TOP, (DZ0 + DZ1) / 2), Vector3.new(0, -1, 0), 0.6, Vector3.new(1, 0, 0), 1.0, Vector3.zAxis, DZ0 - DZ1, L.rim)
+	tri(pad, "Slope_Front", Vector3.new(cx, YD, DZ0), Vector3.new(0, 1, 0), 0.6, Vector3.new(0, 0, 1), 1.0, Vector3.xAxis, 2 * DX, L.rim) -- ramps down from the rim
+	tri(pad, "Slope_Back", Vector3.new(cx, YD, DZ1), Vector3.new(0, 1, 0), 0.6, Vector3.new(0, 0, -1), 1.0, Vector3.xAxis, 2 * DX, L.rim)
+	tri(pad, "Slope_W", Vector3.new(cx - DX, YD, (DZ0 + DZ1) / 2), Vector3.new(0, 1, 0), 0.6, Vector3.new(-1, 0, 0), 1.0, Vector3.zAxis, DZ0 - DZ1, L.rim)
+	tri(pad, "Slope_E", Vector3.new(cx + DX, YD, (DZ0 + DZ1) / 2), Vector3.new(0, 1, 0), 0.6, Vector3.new(1, 0, 0), 1.0, Vector3.zAxis, DZ0 - DZ1, L.rim)
 	local FLOOR = YD + 0.06
 	local well = look(nil, Color3.fromRGB(44, 46, 50), Enum.Material.SmoothPlastic)
 	for ti, t in TEAM do
