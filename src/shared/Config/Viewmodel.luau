@@ -2492,8 +2492,8 @@ return table.freeze({
 					Vector3.new(-0.075, 0.13, -0.18),
 					Vector3.new(8, 11, -19),
 					Enum.EasingStyle.Sine,
-					INOUT
-				),
+					Enum.EasingDirection.In
+				), -- on its way out to the handle: arrives moving (2026-11-20: it stopped dead here, then jerked on)
 				key(
 					0.74,
 					Vector3.new(-0.05, 0.065, -0.27),
