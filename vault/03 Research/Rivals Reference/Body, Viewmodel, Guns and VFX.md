@@ -42,6 +42,24 @@ Part of [Rivals Reference](00%20Rivals%20Reference.md). Studied 2026-11-15, read
 
 ## Abilities and utilities
 - Held items reuse the gun contract (Grenade, Flashbang, Molotov, Smoke, Satchel + Detonator, Tripmine, Jump Pad, Medkit, Riot Shield, Grappler). Thrown copies in `SPA.Throwables` (58: a few MeshParts + a small Primary with a Trail); projectiles in `SPA.Projectiles` (90, minimal: e.g. RPG = head + neck with smoke emitters).
+### Held utilities in block arms: measured 2026-11-21 (anim-melee-mods, round 3)
+Sources: the RIVALS file, read only (`ReplicatedStorage.Modules.ItemLibrary` `add_viewmodel` / `add_throwable`, `.AnimationLibrary`, `SPA.ViewModels.Weapons.Grenade / Molotov / Medkit`). The clips themselves are asset-locked (they won't load in Studio), so poses and framing come from play footage: WhaleChips' "Coffee Molotov Skin Showcase" (YouTube `K5yeYwmzoJs`; the Coffee skin uses the stock grenade clips) and "Briefcase Medkit Skin Showcase" (`Gv3r7NHjpiU`). Frames are in `third-party/viewmodel/` (git-ignored). The video's FOV is unknown, so screen sizes are approximate; the ratios and timings are firm.
+
+| What | RIVALS | Notes |
+|---|---|---|
+| Block arm | 1.8 × 0.45 × 0.45, `HandAttachment` at the end | ours is 3.6 long |
+| Item size vs the block | grenade 0.68 across (**1.5×** the block's 0.45); molotov bottle 0.57 wide (**1.27×**), 1.6 tall; medkit box 1.38 × 1.02 (two-handed) | on screen the mug reads ~1.1-1.2× the arm's end |
+| Seat | the item **sits on top of the block's end face**, base on the end, not sunk in; the end face is mostly hidden under it | the grip attachment is 0.44 from the item's centre |
+| Root offset (every throwable) | `RootPartOffset = CFrame.new(0, -0.25, -0.375)` | the whole viewmodel a little lower and further out than a gun's |
+| Hold framing (16:9) | item centre **x 58%, y 62%**; the right forearm runs in from the bottom right at **~36°** from vertical; the **left arm is up too, empty**, its end level with the item's base at x ~43%, leaning ~46° | both arms frame the item; the gun is gone |
+| Medkit | held in both fists at the bottom centre (x 50%, y 60-70%) | |
+| Throw clip set | `ThrowStart` (`_pinpull` for grenade/smoke) → `ThrowIdle` (held while the button is down) → `ThrowFinish`; the same for Lob | molotov skips the pin pull |
+| Throw release | `grenade_throw_finish`: length **0.7 s**, ActionTimestamp **0.25 s** (the projectile spawns then). Lob finish 0.85 s at speed 1.25 = **0.68 s**, action **0.32 s** | the server spawn is synced to the clip |
+| Throw in play (from the frames) | the left arm drops away at once; the canister swings **up and back beside the head** (top right, very close: it fills ~¼ of the screen width) by **~0.13 s**; the arm whips down and forward and the canister leaves at **~0.25 s**; the arm is thrown **out at the crosshair** at **0.33-0.42 s**; out of view by **~0.55 s** | |
+| After a throw | `UseEndLag` 0.25 s, then the next one equips (`grenade_equip`, 0.85 s) | |
+
+**How we used it (Round 3):** our held Mods sit on top of the fist end, the right forearm leans in, the left arm comes up empty beside the item, the Throw coil goes up by the head with the release at 0.25 s, and the throw is sent when the hand lets go. Numbers and grades: [Overnight 2026-11-20 Animation Pass](../../05%20Production/Overnight%202026-11-20%20Animation%20Pass.md) → MELEE + MODS Round 3.
+
 - Effect folders in `SPA.Misc`: SmokeClouds, BurningEffects, MolotovExplosionEffects, FireHitboxes, Flamethrower flames/airblasts, FreezeEffects, Deflect hit/active, WarHorn, Vortexes, Portals, JumpPads, MushroomCloud. Our [Mods](../../01%20Design/Mods.md) can look here for how a similar effect is layered.
 
 ## VFX recipes (rebuild with our own textures)

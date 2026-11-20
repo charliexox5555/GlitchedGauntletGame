@@ -67,3 +67,30 @@ Plan and evidence: the Round 2 table under MELEE + MODS in [Overnight 2026-11-20
 - [ ] Throws: does the canister leave your hand when the projectile appears? (The hand releases about 0.2 s after the click; check it doesn't fly before the hand lets go.) Should the wind-up be bigger?
 - [ ] Ruined Reaver: do the slashes and the heavy now carry through far enough? Is it too floaty? (It's one number to tune: the follow-through time constant, 0.09 s.)
 - [ ] Stock knife idle: a slow sway, never frozen.
+
+## Round 3 (Mods to RIVALS' numbers, 2026-11-21)
+Plan and evidence: the Round 3 rows under MELEE + MODS in [Overnight 2026-11-20 Animation Pass](../Overnight%202026-11-20%20Animation%20Pass.md). The RIVALS numbers are in [Body, Viewmodel, Guns and VFX](../../03%20Research/Rivals%20Reference/Body,%20Viewmodel,%20Guns%20and%20VFX.md) → Held utilities in block arms.
+
+**What changed:**
+- **Held items stand on the fist's end**, like RIVALS (they were half sunk into it), turned to sit square on it, and the forearm leans in from the bottom right.
+- **The left arm comes up empty** beside the held item, so both arms frame it, and it drops away when you throw, set down or pull the pin.
+- **Bigger throw:** the canister swings up and back beside your head, then snaps forward. It leaves at 0.25 s, the arm is thrown out at the crosshair, then drops out of view.
+- **Your call, now in:** a throw is sent when the hand lets go, about 0.25 s after the click, not on the click. The canister now appears as the hand releases it (it used to fly ~0.2 s early). Set-downs (Recall, Roller) are sent at the bottom of the push, so there are never two for a moment. The gun comes back 0.35 s after the release (0.6 s after the click).
+- **Cancel in the wind-up:** pressing the Mod's key or a weapon key during the throw's wind-up calls it off. Nothing is thrown and no charge is spent, and the hand eases back. Dying in the wind-up sends nothing either.
+- Recall, the Firewall's raised hand and the Roller set-down were all seen in play this time.
+- From the review rounds:
+  - Your thrown canister now flies out of the hand that lets it go (it used to appear at the eye).
+  - A small view kick at the release (a roll toward the throwing arm and an FOV punch; the aim doesn't move).
+  - Frost and Flash are a bit bigger, so they overhang the fist like RIVALS' grenade.
+  - The held Roller is smaller (it was about 3 times the fist's width and crowded the crosshair).
+  - The heal orb's core sits on the fist.
+
+**What to test:**
+- [ ] Hold each item (Molly, Frost, Flash, Recall, Heal Orb, Roller): does it look held, standing on the fist, with the empty left arm beside it? Is the left arm a help or in the way?
+- [ ] Molly / Flash throw (LMB): the big wind-up by your head, then the snap. Does the canister appear right as the hand lets go?
+- [ ] Is the ~0.25 s wait before the throw leaves OK in a fight? (It's `Config/Mods` `THROW_RELEASE`.)
+- [ ] Click to throw, then press a weapon key straight away: no canister should fly, and the hand should ease back.
+- [ ] Lob (RMB) and Frost's javelin: unchanged moves, now sent at their release.
+- [ ] Recall and Roller: set down. Only one should ever show (in the hand or on the ground).
+- [ ] Other players' throws (third person, anim-tp's commit `e99af152`): does their hand release with the canister?
+- [ ] Does the throw feel heavy enough? Every blind reviewer said the mass doesn't quite read. Should it get a bigger camera pull during the wind-up and a stronger kick at the release? (`Config/Mods` `THROW_KICK` is the kick.)
