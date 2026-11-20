@@ -26,6 +26,7 @@ local Health = require(script.Parent.Parent.Health)
 local Fields = require(script.Parent.Fields)
 local Pawns = require(script.Parent.Pawns)
 local Animations = require(script.Parent.Parent.Config.Animations)
+local TpIk = require(script.Parent.Parent.Config.TpIk)
 local Weapons = require(script.Parent.Parent.Config.Weapons)
 
 local PoseSim = {}
@@ -318,6 +319,18 @@ local function sweep(animator: Animator)
 	end
 end
 
+-- Config/TpIk's switch (Studio: the Workspace attribute wins). Mirrors
+-- Controllers/TpIkController.
+local function tpIkOn(): boolean
+	if RunService:IsStudio() then
+		local dev = game:GetService("Workspace"):GetAttribute(TpIk.DEV_ATTRIBUTE)
+		if typeof(dev) == "boolean" then
+			return dev
+		end
+	end
+	return TpIk.ENABLED
+end
+
 local function aimPitch(player: Player): number
 	local context = player:FindFirstChild("PlayContext")
 	local action = context and context:FindFirstChild("AimPitch")
@@ -581,6 +594,10 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	local previous = posedPitch[character] or target
 	local pitch = previous + (target - previous) * (1 - math.exp(-Animations.AIM_SMOOTHING * dt))
 	posedPitch[character] = pitch
+	-- Third-person IK mode (Config/TpIk, a prototype, off by default): the
+	-- watchers' TpIkController pitches the waist and neck and places the gun
+	-- from the aim, so the holds stay level here.
+	local holdPitch = if tpIkOn() then 0 else pitch
 	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
 	-- Crouch blends into crouch-walk over a small speed range instead of a
 	-- hard switch at MOVING_SPEED.
@@ -608,12 +625,12 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	local slideKind = if knife then "Knife" elseif pistol then "Pistol" else ""
 	for setName, names in HOLD_SETS do
 		local on = if (setName == "pistol") == pistol then 1 else 0
-		setWeight(animator, names[1], on * hip * math.max(pitch, 0))
-		setWeight(animator, names[2], on * hip * (1 - math.abs(pitch)))
-		setWeight(animator, names[3], on * hip * math.max(-pitch, 0))
-		setWeight(animator, names[4], on * sights * math.max(pitch, 0))
-		setWeight(animator, names[5], on * sights * (1 - math.abs(pitch)))
-		setWeight(animator, names[6], on * sights * math.max(-pitch, 0))
+		setWeight(animator, names[1], on * hip * math.max(holdPitch, 0))
+		setWeight(animator, names[2], on * hip * (1 - math.abs(holdPitch)))
+		setWeight(animator, names[3], on * hip * math.max(-holdPitch, 0))
+		setWeight(animator, names[4], on * sights * math.max(holdPitch, 0))
+		setWeight(animator, names[5], on * sights * (1 - math.abs(holdPitch)))
+		setWeight(animator, names[6], on * sights * math.max(-holdPitch, 0))
 	end
 	-- A reload (timed to the gun) and a flinch when hit, from the server.
 	if
