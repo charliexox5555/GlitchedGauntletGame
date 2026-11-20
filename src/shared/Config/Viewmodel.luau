@@ -1976,7 +1976,12 @@ return table.freeze({
 	-- A held free-hand pose's idle (studs, degrees of aim, cycles a second;
 	-- `fadeIn`: share of the move's length past its end to fade in): an
 	-- ellipse, so the hand never stops (2026-11-21; it sat still).
-	FREE_POSE_IDLE = { pos = Vector3.new(0.03, 0.024, 0.012), turn = 3.6, rate = 0.45, fadeIn = 0.6 },
+	FREE_POSE_IDLE = {
+		pos = Vector3.new(0.03, 0.024, 0.012),
+		turn = 3.6,
+		rate = 0.45,
+		fadeIn = 0.6,
+	},
 	-- Guiding the wall: the fist trails the view's turn and catches up.
 	FREE_POSE_STEER = table.freeze({
 		FirewallGuide = { lag = 0.05, max = 0.18, swing = 0.6, rate = 10 },
