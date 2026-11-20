@@ -446,6 +446,16 @@ def _norm_feet(ctrl):
 	return out
 
 
+def grounded(ctrl):
+	"""Both feet kept on or above the floor by solve_grounded (spline paths
+	between a dive and a kneel swung a shin 0.33 under it, 2026-11-20)."""
+	out = dict(ctrl)
+	for side in ("right_foot", "left_foot"):
+		if side in out:
+			out[side] = {**out[side], "clamp": True}
+	return out
+
+
 def tip_of(world, side):
 	"""The block end (forearm + hand, to the fingertips) of a solved pose:
 	what an arm's {"tip": ...} target places."""
@@ -1860,15 +1870,19 @@ add(
 	Clip(
 		"Place",
 		"Action4",
-		ctrl_sequence(
+		# (2026-11-20, on splines with both feet kept out of the floor: the
+		# kneel sank a shin 0.14 and the press held dead still for 0.12 s; now
+		# the hand keeps pressing down a touch while it is on the floor.)
+		spline_sequence(
 			[
-				(0.0, {**STAND_LEGS, **arms(bladed(-4, -8), MOD_HOLD_R, MOD_HOLD_L)}),
-				(0.15, {**KNEEL_LEGS, **arms(bladed(-14, -6), (0.55, -1.9, -1.15), (-0.6, -1.35, -0.7), r_pole=(1, 0.2, 0.4))}, ease_out),
-				(0.28, {**KNEEL_LEGS, **arms(bladed(-20, -4), (0.5, -2.85, -1.2), (-0.6, -1.45, -0.7), r_pole=(1, 0.3, 0.4))}),
-				(0.4, {**KNEEL_LEGS, **arms(bladed(-20, -4), (0.5, -2.85, -1.2), (-0.6, -1.45, -0.7), r_pole=(1, 0.3, 0.4))}),
-				(0.58, {**STAND_LEGS, **arms(bladed(-6, -10), (0.7, 0.4, -0.7), (-0.6, 0.3, -1.0))}, ease_in_out),
+				(0.0, grounded({**STAND_LEGS, **arms(bladed(-4, -8), MOD_HOLD_R, MOD_HOLD_L)})),
+				(0.15, grounded({**KNEEL_LEGS, **arms(bladed(-14, -6), (0.55, -1.9, -1.15), (-0.6, -1.35, -0.7), r_pole=(1, 0.2, 0.4))})),
+				(0.28, grounded({**KNEEL_LEGS, **arms(bladed(-20, -4), (0.5, -2.85, -1.2), (-0.6, -1.45, -0.7), r_pole=(1, 0.3, 0.4))})),
+				(0.4, grounded({**KNEEL_LEGS, **arms(bladed(-21, -4), (0.52, -2.88, -1.26), (-0.62, -1.5, -0.68), r_pole=(1, 0.3, 0.4))})),
+				(0.58, grounded({**STAND_LEGS, **arms(bladed(-6, -10), (0.7, 0.4, -0.7), (-0.6, 0.3, -1.0))})),
 			],
 			end=(0.72, STAND_HOLD, ease_out),
+			solver=solve_grounded,
 		),
 		ALL,
 		length=0.72,
@@ -1992,16 +2006,6 @@ RISE_HALF = {
 	"gun": {"shoulder": (-6, -15, 0)},
 	"left_arm": {"tip": (-0.7, -0.4, -0.8)},
 }
-def grounded(ctrl):
-	"""Both feet kept on or above the floor by solve_grounded (spline paths
-	between a dive and a kneel swung a shin 0.33 under it, 2026-11-20)."""
-	out = dict(ctrl)
-	for side in ("right_foot", "left_foot"):
-		if side in out:
-			out[side] = {**out[side], "clamp": True}
-	return out
-
-
 add(
 	Clip(
 		"UpdraftSlamLand",

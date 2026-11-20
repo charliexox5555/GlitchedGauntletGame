@@ -333,7 +333,7 @@ return table.freeze({
 		-- 2026-11-04: wind-ups, snaps and follow-throughs, ending on the gun hold).
 		ModHold = id(79414521552493),
 		Throw = id(129085261001652), -- o1 2026-11-20 overnight TP pass, splines (was 80403547544782)
-		Place = id(92359767222451),
+		Place = id(83199924746572), -- o1 2026-11-20 overnight TP pass, splines (was 92359767222451)
 		Heal = id(77351510963020), -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
 		Lob = id(85103387011074), -- o1 2026-11-20 overnight TP pass, splines (was 86298417428874) -- a held throw's underhand (Molly RMB)
 		Cast = id(134329068544989), -- o1 2026-11-20 overnight TP pass, splines (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
