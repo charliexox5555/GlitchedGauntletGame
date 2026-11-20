@@ -132,6 +132,62 @@ When the images come back: put them in `third-party/lobby-v5-concepts/`, which i
 - **Round 2** (laser-tag centre, indoor sports dome, warehouse hangout): the owner wants the underground bunker feel instead. Ideas kept: different-size queue rooms per mode, the "walk in to fight" moment.
 - **Round 1** (Gauntlet tournament backstage, outdoor training compound, fight club): the game is no longer Gauntlet-themed, and the lobby must be indoors.
 
+## 9. Hub shell built (2026-11-20)
+The owner approved the three ChatGPT concepts (`third-party/lobby-v5-concepts/`, git-ignored) and asked for the hub's main build, with little decoration.
+
+**Concept review notes:**
+- Kept: the freight-lift hub, the lift-cage duels deck, and the shop and armoury fronts.
+- Changed: pipes in the concept bend round, ours bend at angles. Rock colour is one warm taupe in every room (the duels image used blue-grey rock).
+
+**Where it is (Lobby place, Studio, NOT saved yet):**
+- `Workspace.LobbyV5.Shell.Hub` at (0, 0, -1600), clear of V4 and the live spawn. 188 pieces, every one its own Part or MeshPart.
+- Models: `Floor` (16 slabs), `LiftPlatform` (diamond-plate octagon 40 x 32 with a hazard border), `LiftTowers` (two steel towers with counterweights and cables, crossbeam at 55), `Rock` (40 rock MeshParts), `Shaft`, `Portal_Duels`, `DuelsStub` (temporary tunnel end), `Shop`, `Armoury`, `RangeDoor`, `Lights` (temporary invisible light sources), `Anchors.Spawn`.
+
+**Layout:**
+- Octagon cavern, rock backs at radius 50, walls 48 high, then an upper row leaning in 30 degrees up to a rock ceiling at about 62-76.
+- A 48 x 48 lift shaft rises to y = 134.
+- Lift centred on the shaft. The spawn faces north to the duels portal (36 x 20 opening with cut corners, one step down into the tunnel).
+- Shop facade at x = -40 (west), armoury doors at x = 40 (east), range shutter at z = 42 (south, behind the spawn).
+
+**Materials:**
+
+| Surface | Variant | Colour |
+|---|---|---|
+| Floor | ConcretePanels-02a | 130,127,122 |
+| Shop walls | Lobby_ConcreteBoard | 118,116,112 |
+| Frames | Concrete-02a | 128,126,123 |
+| Steel | Metal 2022 | |
+| Lift deck | Diamond Plate 2022 | |
+| Tunnel floor | Bunker_Grate | |
+| Shutters | Corrugated_01a | |
+| Rock | **Lobby_Rock** (Slate) | 132,116,102 |
+
+Slate02c was tried on the rock and dropped: its cobble pattern fought the facets. The hazard stripes are our own texture (`art-source/lobby/v5/textures/Hazard.png`, image id 75158634706115; the Decal asset is 128601803791013).
+
+**Rock kit (Blender, live MCP on port 9897, `tools/blender/lobby_v5/v5_rock.py`, `art-source/lobby/v5/LobbyV5.blend`):**
+- `V5_RockWall_A/B/C` (24 x 48), `V5_RockLow_A` (24 x 16), `V5_RockCeil_A` (48 x 48).
+- 23-92 triangles each, flat facets, box UVs; uploaded as Models (ids in `art-source/uploads.json`).
+- Templates live in `ServerStorage.V5Kit`; every wall piece is a clone scaled with `Size`.
+- **Gotcha:** after import the rock face points local **-Z** (Blender -Y), so pieces get a 180 degree turn. The first pass showed the flat backs.
+
+**Build script:** `tools/studio/lobby_v5/BuildHub.luau` is a one-time placement record. It only rebuilds `Shell.Hub`; once the owner edits by hand, the place owns the parts.
+
+**Checks:**
+- 4,200 rays from 7 points inside the hub. One opening was found (under the shop: the floor stopped at x = -52) and fixed.
+- Coplanar-face scan: the lift hazard strips shared deck edges; they now sit 0.02 inside.
+- The armoury jambs were widened into the rock to close a light sliver.
+
+**Self-review: 6.5 / 10 as a shell.**
+- Works: the silhouette and mood match the concept (faceted rock, towers framing the lit portal); the lift and hazard border read at once.
+- Missing (dressing pass):
+  - Real light fixtures; the light sources are invisible for now.
+  - Trims and cut-corner edges on the shop facade and canopy.
+  - Pipes and cable trays on the rock, and wall screens on the NE / NW rock.
+  - The shop display window, lift corner lamps, and shaft lights.
+  - The floor is big and plain, and the shop facade still reads as a box.
+
+**Owner to do:** look around the hub in Studio, then **save the Lobby place** (nothing here is saved yet). Rotate or move any piece freely.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
