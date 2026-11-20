@@ -163,3 +163,21 @@ Every candidate's volume is **level-matched to the row's current sound** by meas
 **Kill** ("an actual good kill sound, not just a UI pop"): weighty layered options (punch + deep boom, giant thud + the K13 pop, punch + bass swell, punch + boom + ricochet, a sledgehammer on a beam, a deep rock thunk).
 
 **Board changes:** candidates can be **layers played together** (a designed sound; if one is picked it gets baked into one uploaded asset with the hit-sound tools); long rows wrap. MATCH: lock in, clock tick, last tick, banner, fight, round lost, ending song, zone warning, score. HITS: headshot, kill, damage. Every layer level-matched to the row's current sound (36 new ids measured, in the match place).
+
+### Board round 3: match sounds locked (owner, 2026-11-20)
+| Cue | Sound |
+|---|---|
+| Lock in | Roblox "GUI - Equip" + APM "SWELL 22" low swell, soft (a **layered** cue) |
+| Clock tick | PSE "Relay Clicks 15" |
+| Last tick | the same relay click, pitch 1.2 and a little louder (owner: "whatever is closest to relay click") |
+| Banner | Roblox Whoosh 04 + a faint "GUI - Notification High" 50 ms later (layered) |
+| Fight | APM "Get Up And Go - Hit" (kept) |
+| Round won / lost | APM "Universal Flip - Hit" / Roblox "GUI - Call Decline" (kept) |
+| Ending song (everyone) | **APM "Victory Slam stinger 1" (8 s)**: the end cutscene will be cut to it |
+| Zone warning | Roblox Indicator, low (kept for now) |
+| Score | Roblox "GUI - Pickup" (kept) |
+| Hits (body, headshot, kill, damage) | kept; maybe a later update (the HITS tab stays on the board) |
+
+Layered cues are played by `Shared/UiSfx` (`Cue.also`: each layer has its own pool and an optional delay; `layered()` in `Config/UiSounds`), so no new upload was needed. The board's MATCH tab is gone (all picked); SHARED (the owner hasn't reviewed it yet) and HITS remain. Checked in a match play test: lock in and banner play both layers, the ending song plays once when asked twice.
+
+**Next:** the end-of-match cutscene timed to the 8 s song (owner: "a really good professional cutscene for #7"), and the match UI animation pass (inventory above).

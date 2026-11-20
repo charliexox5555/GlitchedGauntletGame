@@ -88,14 +88,30 @@ function UiSfx.play(name: string, pitchScale: number?)
 		return
 	end
 	lastPlayed[name] = now
-	local p = poolFor(name, cue)
-	local s = p.sounds[p.next]
-	p.next = p.next % #p.sounds + 1
 	local spread = cue.spread or 0
-	s.Volume = cue.volume
-	s.PlaybackSpeed = (cue.pitch or 1) * (pitchScale or 1) * (1 + rng:NextNumber(-spread, spread))
-	s.TimePosition = 0
-	s:Play()
+	local speed = (pitchScale or 1) * (1 + rng:NextNumber(-spread, spread))
+	local function fire(key: string, c: UiSounds.Cue)
+		local p = poolFor(key, c)
+		local s = p.sounds[p.next]
+		p.next = p.next % #p.sounds + 1
+		s.Volume = c.volume
+		s.PlaybackSpeed = (c.pitch or 1) * speed
+		s.TimePosition = 0
+		s:Play()
+	end
+	fire(name, cue)
+	-- layers: a designed cue is a few recordings played together (each its
+	-- own pool, an optional delay)
+	if cue.also then
+		for i, layer in cue.also do
+			local key = name .. "+" .. i
+			if layer.delay and layer.delay > 0 then
+				task.delay(layer.delay, fire, key, layer)
+			else
+				fire(key, layer)
+			end
+		end
+	end
 end
 
 function UiSfx.claim()
@@ -132,6 +148,9 @@ function UiSfx.preload()
 			local cue = cueOf(name)
 			if cue then
 				table.insert(list, poolFor(name, cue).sounds[1])
+				for i, layer in cue.also or {} do
+					table.insert(list, poolFor(name .. "+" .. i, layer).sounds[1])
+				end
 			end
 		end
 		pcall(ContentProvider.PreloadAsync, ContentProvider, list)

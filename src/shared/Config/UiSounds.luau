@@ -20,6 +20,8 @@ export type Cue = {
 	pitch: number?, -- default 1
 	gap: number?, -- seconds before the same cue can play again (hover spam)
 	spread: number?, -- random pitch +- this (repeated sounds don't sound stamped)
+	also: { Cue }?, -- layers played with it (a designed cue), see layered()
+	delay: number?, -- a layer's start after the cue's (seconds)
 }
 
 local function cue(n: number, volume: number, pitch: number?, gap: number?, spread: number?): Cue
@@ -30,6 +32,26 @@ local function cue(n: number, volume: number, pitch: number?, gap: number?, spre
 		gap = gap,
 		spread = spread,
 	})
+end
+
+-- A designed cue: the main sound plus layers ({ id, volume, delay?, pitch? })
+-- played with it, each from its own pool.
+local function layered(main: Cue, layers: { { number } }): Cue
+	local also: { Cue } = {}
+	for _, l in layers do
+		table.insert(
+			also,
+			table.freeze({
+				id = "rbxassetid://" .. tostring(l[1]),
+				volume = l[2],
+				delay = l[3],
+				pitch = l[4],
+			})
+		)
+	end
+	local c = table.clone(main) :: any
+	c.also = table.freeze(also)
+	return table.freeze(c)
 end
 
 -- The shared theme. History (lobby, 2026-11-20): Kenney round taps and ticks
@@ -79,13 +101,14 @@ return table.freeze({
 	-- Match events. Owner's picks 2026-11-20 (board round 1): draft open /
 	-- card in / draft close / lock in / Mod cues kept; Fight, RoundWon, RoundLost,
 	-- Score and the ending song picked; the rest still on the F4 board.
-	LockIn = cue(15675043410, 0.42), -- Roblox_UI_Tonal_Stinger
+	-- Round 2 picks (owner, same day): lock in, ticks, banner, ending song.
+	LockIn = layered(cue(17208323435, 0.789), { { 9043336050, 0.119 } }), -- Roblox "GUI - Equip" + APM "SWELL 22" (low swell), soft
 	Open = cue(15675028888, 0.32), -- Roblox_UI_Whoosh_02: the draft slides in
 	CardIn = cue(15674975792, 0.13, 1.2, 0.04), -- Roblox_UI_Whoosh_03, per card, very soft
 	Close = cue(15675046931, 0.28), -- Roblox_UI_Sweep: the draft leaves
-	Tick = cue(15675085146, 0.28, nil, 0.3), -- Roblox_UI_Indicator: last seconds of a clock
-	TickFinal = cue(15675085146, 0.39, 1.35, 0.3), -- the same, higher, on the last count
-	Banner = cue(15675012262, 0.32), -- Roblox_UI_Whoosh_04: SUDDEN DEATH / MATCH POINT / DRAW
+	Tick = cue(9118138693, 0.405, nil, 0.3), -- PSE "Relay Clicks 15": last seconds of a clock
+	TickFinal = cue(9118138693, 0.56, 1.2, 0.3), -- the same click, a little higher and louder, on the last count
+	Banner = layered(cue(15675012262, 0.315), { { 17208361335, 0.076, 0.05 } }), -- Whoosh_04 + a faint Roblox "GUI - Notification High": SUDDEN DEATH / MATCH POINT / DRAW
 	Fight = cue(9043151109, 0.235), -- APM "Get Up And Go - Hit": the barrier drops (owner: look for subtler)
 	RoundWon = cue(9042542887, 0.284), -- APM "Universal Flip - Hit" (= match found)
 	RoundLost = cue(17208214688, 0.438), -- Roblox "GUI - Call Decline" (owner: keep looking)
@@ -94,7 +117,7 @@ return table.freeze({
 	-- wants it a little longer, like RIVALS, so the cutscene can be cut to it).
 	-- The VICTORY / DEFEAT toast and the match-end scene both ask for it; the
 	-- gap plays it once.
-	MatchEnd = cue(1846942308, 0.227, nil, 6), -- APM "Winner Sting Four" (5 s)
+	MatchEnd = cue(9042702890, 0.296, nil, 9), -- APM "Victory Slam stinger 1" (8 s); the end cutscene gets cut to it (owner's pick)
 	ZoneWarn = cue(15675085146, 0.35, 0.72, 0.3), -- Roblox_UI_Indicator, low: outside the sudden-death circle
 	Score = cue(17208319162, 0.672), -- Roblox "GUI - Pickup": your team's score diamond fills (owner: keep looking)
 })
