@@ -179,5 +179,7 @@ LihFolk used: Combat Animation Craft and Timing Spacing and Frame Charts (antici
 | `anim-fp-guns` | Ruin-Blighted **Operator** bolt arm through the gun (+ the same check on every bolt or lever gun and skin). Then the **Bat** heavy angle and the **Fan** fanning inspect: it takes over `Util/PopCircuitBat.luau`, `Util/FanMotion.luau` and the Bat / Fan blocks in `ViewmodelController`. Final first-person gun check |
 | `anim-melee-mods` | First-person **Mods** first (every Mod seen in play: Dash ×4, Updraft, Stim, Heal, Molly, Firewall, bow, and any others in `Config/Mods`), to 9. Then longer **Reaver** follow-throughs, then the stock knife polish. No longer owns the Bat or the Fan |
 
+**Skin rule (owner, 2026-11-21):** every third-person animation and sound is the same for every skin. Skin-specific motion and sound (Ruin-Blighted reloads, Reaver swings, Bat, Fan, inspects) is **first person only**. Don't add per-skin third-person clips or spatial sounds. Locked in Home.
+
 ### Round 2 results
 _(each lane adds its rows under its own heading above, marked "Round 2")_

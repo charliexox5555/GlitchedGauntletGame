@@ -132,7 +132,7 @@
 
 ## 🔒 Locked decisions
 
-**Ruin-Blighted presentation (owner, 2026-11-19).** The equipped player's first-person view owns the custom motion and sound. Other players see the skin's static geometry, color and emissive finish with stock world motion and stock spatial audio. [Sound production checklist](02%20Art/Skins/RuinBlighted/Expansion%20Sound%20Queue.md)
+**Skin presentation (owner, 2026-11-19 for Ruin-Blighted; widened to every skin on 2026-11-21).** Custom skin motion and sound live only in the equipped player's first-person view. Every third-person animation and every third-person (spatial) sound is the same for all skins. Other players, and the player's own third-person body, see the skin's static geometry, colour and finish with stock third-person motion and stock spatial audio. No skin line gets its own third-person reloads, inspects, swings or sounds. The code already works this way: `GunAudio` uses skin reports only when the shot isn't positional. [Sound production checklist](02%20Art/Skins/RuinBlighted/Expansion%20Sound%20Queue.md)
 
 **Bot difficulty (owner, 2026-11-17).** Hard is the temporary match default across all queue modes until difficulty selection is implemented. See [Bots](01%20Design/Bots.md).
 
