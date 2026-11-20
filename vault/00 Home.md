@@ -9,18 +9,29 @@
 
 - **Lobby V5 planning (2026-11-20, study only, nothing built).** The owner wants a new concept (no more RIVALS copy) built **Parts first** with MaterialService textures, editable wall bays and Blender only for shells and kit props. RIVALS' lobby measured (696 variant Parts, 283 Textures, 3x mesh reuse vs our 1,373 unique SmoothPlastic meshes). Owner (round 3): stay an **underground bunker** (no laser tag, **no Gauntlet theme**), professional with detail, and **customisable per season**. Concept "The Deep": rock cavern facility, freight-lift hub, lift-cage duels deck, shell + season layer (mount points, packs, accent colour). Concepts approved; **hub shell built** in the Lobby place (`Workspace.LobbyV5.Shell.Hub`: Parts + MaterialVariants, Blender rock kit, 188 pieces, leak and overlap checks done), not saved yet. Round 2: open **skylight** chimney (ceiling glitches gone), headframe towers, portal buttresses (no rock in the opening), warmer and brighter place Lighting (ClockTime 14.6, old values in the plan). Doors stay plain until a RIVALS-style door pass. Next: owner review, then dressing or the duels deck. Blender skill pack and map-builder installed at user level. [Plan](02%20Art/Lobby%20V5%20Plan.md)
 
-- **Overnight animation pass (2026-11-20, done; feel grades provisional until the owner plays).**
-  - **Sniper scope:** the reflective lens no longer shows in ADS (fixed in code, no place save needed).
-  - **Slide and ADS tilt:** the gun, crosshair and scope reticle roll together on the slide, through one curve.
-  - **Gun clips:** move on splines instead of straight lines between keys.
-  - **Marshal:** the hammer pop is fixed.
-  - **Third person:** 16+ clips re-keyed on splines, holds breathe.
-  - **RIVALS body:** study written up.
-  - **IK-hands prototype:** off by default; `Config/TpIk.luau` `ENABLED`, or the Server attribute `TpIk`. Owner to pick.
-  - **Melee:** Reaver re-keyed and reframed (score 9.3), knife 8.7, Fan 8.3. Bat 7.3 waits on the owner's call on how far it points into the screen.
-  - **Mods:** 5.3; every move is on splines and the bow is fixed, but each Mod still needs a look in play.
+- **Animation pass (2026-11-20 to 21, three rounds, done; feel grades provisional until the owner plays).**
+  - **First person, guns:**
+    - Sniper lens no longer shows in ADS.
+    - The slide and ADS roll the gun, crosshair and reticle together.
+    - Gun clips run on splines.
+    - The Marshal hammer pop is fixed.
+    - Ruin-Blighted Operator bolt: no arm through the gun.
+    - Stinger and Outlaw reloads are clear; the Outlaw got a steeper barrel roll (owner's pick).
+  - **Melee:**
+    - Reaver follow-throughs are about 2.5x longer (score 9.3).
+    - Bat heavy no longer reads sideways.
+    - Fan inspect is now a low, long fanning from the wrist.
+    - The knife idle never freezes.
+  - **Mods:**
+    - First-person score 5.3 → **9.3**: held items sit at RIVALS' numbers, the throw coil is bigger, and the throw leaves at the hand's release (`Config/Mods THROW_RELEASE`, owner's pick).
+    - Third-person Mod clips are at 8.5-9.
+  - **Third person:**
+    - Clips re-keyed on splines; the knee floor limit is in the crouch walks.
+    - **TpIk stays off** (the clips look the same, and IK had hidden bot and swap issues); its better look-down head is now in the clips.
+    - **Save the match place** to keep the cleared TpIk attribute.
+  - **Skin rule locked:** third-person motion and sound are the same for every skin.
   - **Git:** all committed locally, not pushed.
-  
+
   [Plan, grades and results](05%20Production/Overnight%202026-11-20%20Animation%20Pass.md) · test lists: [Third person](05%20Production/Playtests/2026-11-21%20Third%20Person%20Pass.md), [First-person guns](05%20Production/Playtests/2026-11-21%20First-Person%20Guns%20Pass.md), [Melee and Mods](05%20Production/Playtests/2026-11-21%20Melee%20and%20Mods%20Pass.md)
 
 - **Lobby UI polish pass (2026-11-20).** UI sounds are back (one shared player, a click on every button, a quiet hover tick on big items, queue / Locker / toggle cues; provisional Roblox-pack sounds until the owner picks from the Kenney reel). Play menu tiles focus instead of shaking, the Locker has an opaque charcoal backdrop and bigger long guns, Settings has a sliding toggle, row highlights and staggered tabs. 9-slice plate set drawn, waiting on approval. [Plan and results](02%20Art/UI%20Polish%20Pass.md)
