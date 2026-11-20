@@ -153,6 +153,8 @@ The names in backticks are the files or take families to look for. A range inclu
 
 ## Ruined Reaver
 
+**2026-11-20 implementation.** The six planned cues play as layered Roblox Creator Store recordings in Match. The table below retains the recording brief. See the [playtest](../../../05%20Production/Playtests/2026-11-20%20Ruin-Blighted%20Audio.md) for source IDs, mix choices and Studio results.
+
 **Files to make · Six local WAVs.** Export `Reaver_Slash_01.wav`–`Reaver_Slash_03.wav`, `Reaver_Heavy.wav`, `Reaver_Inspect_Grip.wav`, and `Reaver_Inspect_Split_Resonance.wav`. Keep the stock attack recordings as dry air sources if they help. Put the weight in a brief stone texture and restrained bronze ring, so a missed cut still sounds like a clean swing.
 
 | Action | What plays now | What to do |

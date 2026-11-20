@@ -8,6 +8,7 @@ local Vfx = require(Shared.Config.VfxTextures)
 local UiMotion = require(Shared.UiMotion)
 local LocalHide = require(script.Parent.LocalHide)
 local Audio = require(script.Parent.Parent.Controllers.AudioController)
+local ReaverAudio = require(Shared.Config.RuinedReaverAudio)
 local ShadowAudio = require(Shared.Config.ShadowMistAudio)
 
 type Key = { at: number, offset: CFrame, spread: number }
@@ -41,8 +42,7 @@ export type State = {
 	current: Attachment,
 	orbits: { Beam },
 	orbitNodes: { Attachment },
-	inspectStart: Audio.Handle?,
-	inspectBed: Audio.Handle?,
+	inspectLayers: { Audio.Handle },
 	flash: number,
 }
 
@@ -451,22 +451,43 @@ function Reaver.new(model: Model, scale: number): State?
 		current = current,
 		orbits = orbits,
 		orbitNodes = orbitNodes,
+		inspectLayers = {},
 		flash = 0,
 	}
 end
 
 function Reaver.play(state: State, name: string): number
 	if state.name == "Inspect" then
-		Audio.fadeOut(state.inspectStart, 0.12)
-		Audio.fadeOut(state.inspectBed, 0.18)
-		state.inspectStart = nil
-		state.inspectBed = nil
+		for _, handle in state.inspectLayers do
+			Audio.fadeOut(handle, 0.12)
+		end
+		table.clear(state.inspectLayers)
 	end
 	state.origin = state.pose
 	state.originSpread = state.spread
 	state.name = name
 	state.time = 0
 	return if TRACKS[name] then TRACKS[name].contact or 0 else 0
+end
+
+local function playLayers(
+	layers: { ReaverAudio.Layer },
+	group: Audio.Group,
+	active: { Audio.Handle }?
+)
+	for _, layer in layers do
+		local handle = Audio.play(layer.id, {
+			group = group,
+			volume = layer.volume,
+			pitch = layer.pitch,
+			start = layer.start,
+			cut = layer.cut,
+			jitter = false,
+		})
+		if active and handle then
+			table.insert(active, handle)
+		end
+	end
 end
 
 local function sample(track: Track, t: number): (CFrame, number)
@@ -566,10 +587,10 @@ function Reaver.step(
 		end
 		if inspecting and visible then
 			if previous < 0.10 and state.time >= 0.10 then
-				state.inspectStart = Audio.playSound(ShadowAudio.inspect, "Foley")
+				playLayers(ReaverAudio.inspectGrip, "Foley", state.inspectLayers)
 			end
 			if previous < 1.13 and state.time >= 1.13 then
-				state.inspectBed = Audio.playSound(ShadowAudio.inspectBed, "Foley", nil, 0.74)
+				playLayers(ReaverAudio.inspectSplit, "Foley", state.inspectLayers)
 				if fx then
 					state.sparks:Emit(6)
 					state.flash = 0.69
@@ -578,6 +599,13 @@ function Reaver.step(
 		end
 		if movement == "HeavyStab" and previous == 0 and state.time > 0 and visible then
 			Audio.playSound(ShadowAudio.drawAir, "Foley", nil, 0.62)
+		end
+		local swingLayers = ReaverAudio.swings[movement]
+		if visible and swingLayers and track.contact then
+			local swingAt = track.contact - ReaverAudio.swingLead
+			if previous < swingAt and state.time >= swingAt then
+				playLayers(swingLayers, "Gun")
+			end
 		end
 		pulseAt = if movement == "Draw"
 			then DRAW_LOCK

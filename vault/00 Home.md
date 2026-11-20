@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Ruin-Blighted audio (2026-11-20).** Saved the owner-approved gun mix for all five weapons. Ruined Reaver's three slashes, heavy swing and two inspect beats have layered Pro Sound Effects audio. The Match client verified timing, clip playback and inspect cancellation. [Audio and playtest](05%20Production/Playtests/2026-11-20%20Ruin-Blighted%20Audio.md)
+
 - **Spectate and final-kill replay (2026-11-20).** Spectating streams the watched player's aim at 30 Hz (no jitter) and shows their health, ammo, reloads, hitmarkers and Mod row; held Mods come out and get thrown, and third-person bodies swap the gun for the Mod. The final kill is always first person (killer for gun kills, victim otherwise) with eased slow motion. A downed teammate cuts away instantly. [Plan and results](05%20Production/Spectate%20Replay%20Fix%20Plan.md)
 
 - **Overtime zone visuals (2026-11-19).** Replaced overlapping beams with a 320-stud Blender curtain, inset ground trace and drifting fragments. Match Studio has a command to preview the wall without waiting for overtime. [Art and preview command](02%20Art/Overtime%20Zone.md) · [Playtest](05%20Production/Playtests/2026-11-19%20Overtime%20Zone.md)

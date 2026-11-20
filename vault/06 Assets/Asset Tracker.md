@@ -22,6 +22,8 @@ Active Lobby and Match assets now get authored fields from the shared AssetData 
 
 **Shadow Mist audio (2026-11-18).** All 30 owner WAVs were uploaded as private group audio for firing, draw, reload and inspect. Match Studio loaded all 30 and played the opening shot, all eight repeats, the split tail, the empty-mag shot, and the handling beats. [Cue sheet](../02%20Art/Skins/RuinBlighted/Sound%20Cue%20Sheet.md) · [Asset IDs](../../src/shared/Config/ShadowMistAudio.luau) · [Playtest](../05%20Production/Playtests/2026-11-18%20Shadow%20Mist%20Action%20Polish.md#owner-audio-batch)
 
+**Ruin-Blighted audio (2026-11-20).** The 24 newly uploaded gun WAVs are archived under [RuinationType](RuinationType) with IDs in the [upload manifest](../../art-source/uploads.json). The Reaver layers stream six Roblox Creator Store assets. [Clip credits and Match verification](../05%20Production/Playtests/2026-11-20%20Ruin-Blighted%20Audio.md)
+
 **Exotic bundles (2026-11-16).** All 18 guns, three original melees and three charms have finished Blender files, material renders and verified motion. Each melee has nine named first-person action assets. [Blender finish ledger](../02%20Art/Skins/Exotic%20Bundle%20Blender%20Finish%20Ledger.md) · [Concepts and previews](../02%20Art/Skins/Exotic%20Bundle%20Concept%20Ledger.md)
 
 **Battle pass cosmetics (2026-11-16).** Poolside Spectre v02 is owner approved. Both 17-gun rosters and Rootglass Broad Leaf are installed as regular skins and saved in Lobby v604 and Match v617. [Blend, maps and review evidence](../02%20Art/Skins/Battle%20Pass%20Blender%20Build%20Ledger.md)

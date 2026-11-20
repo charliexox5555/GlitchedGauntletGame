@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local GunSoundAssets = require(ReplicatedStorage.Shared.Config.GunSoundAssets)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
+local RuinedReaverAudio = require(ReplicatedStorage.Shared.Config.RuinedReaverAudio)
 local SharedSoundAssets = require(ReplicatedStorage.Shared.Config.SharedSoundAssets)
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
 local SkinPreviewConfig = require(ReplicatedStorage.Shared.Config.SkinPreview)
@@ -31,8 +32,8 @@ export type PlayOptions = {
 	far: boolean?, -- use the "<Name>_Far" recording if there is one
 	jitter: boolean?, -- add the group's small random pitch (default true)
 	range: number?, -- 3D: audible up to this many studs (default Config/Audio ROLLOFF_MAX)
-	cut: number?, -- plain ids: fade out and stop this many seconds after `start`
-	start: number?, -- plain ids: seconds into the file to start from
+	cut: number?, -- fade out and stop this many wall-clock seconds after playback starts
+	start: number?, -- seconds into the file to start from
 	protect: boolean?, -- let a gunshot or its tail play without voice stealing
 }
 
@@ -64,6 +65,7 @@ local BANKS: { [string]: SoundBank } = {
 	gun = { takes = GunSoundAssets, voices2d = {}, voices3d = {} },
 	sfx = { takes = SharedSoundAssets, voices2d = {}, voices3d = {} },
 	shadow = { takes = {}, voices2d = {}, voices3d = {} },
+	reaver = { takes = {}, voices2d = {}, voices3d = {} },
 }
 
 local groups: { [string]: SoundGroup } = {}
@@ -429,13 +431,23 @@ function AudioController.play(id: string?, options: PlayOptions?): Handle?
 		s.RollOffMinDistance = math.min(Audio.ROLLOFF_MIN, far * 0.25)
 		s.RollOffMaxDistance = far
 	end
-	s.TimePosition = 0
+	local start = o.start or 0
+	s.TimePosition = start
 	s:Play()
 	v.key = key
 	v.protected = protect
 	v.startedAt = now
-	v.endsAt = now + take.length / pitch + 0.05
-	return { voice = v, startedAt = now }
+	v.endsAt = now + math.max(take.length - start, 0) / pitch + 0.05
+	local handle = { voice = v, startedAt = now }
+	if o.cut then
+		local fadeTime = math.min(o.cut, 0.10)
+		task.delay(o.cut - fadeTime, function()
+			if not v.fade then
+				AudioController.fadeOut(handle, fadeTime)
+			end
+		end)
+	end
+	return handle
 end
 
 -- Fades a started sound out over `time` s and stops it, unless its voice has
@@ -564,6 +576,9 @@ function AudioController.init()
 	buildGroups()
 	if RunService:IsStudio() and game.PlaceId == SkinPreviewConfig.PLACE_ID then
 		preloadBank(BANKS.shadow, nil, ShadowMistAudio.takes)
+	end
+	if game.PlaceId == SkinPreviewConfig.PLACE_ID then
+		preloadBank(BANKS.reaver, nil, RuinedReaverAudio.takes)
 	end
 	preloadBank(BANKS.gun, { "Vandal", "Classic", "Knife" })
 	preloadBank(BANKS.sfx)
