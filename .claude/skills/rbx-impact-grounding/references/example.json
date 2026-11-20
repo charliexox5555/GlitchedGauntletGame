@@ -1,0 +1,29 @@
+{
+  "max_offset": 0.08,
+  "max_tilt_deg": 6,
+  "contacts": [
+    {
+      "id": "slope",
+      "point": [
+        2,
+        3,
+        4
+      ],
+      "origin": [
+        2,
+        3.03,
+        4
+      ],
+      "normal": [
+        0,
+        1,
+        1
+      ],
+      "effect_up": [
+        0,
+        1,
+        1
+      ]
+    }
+  ]
+}

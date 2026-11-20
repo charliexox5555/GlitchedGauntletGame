@@ -42,6 +42,7 @@ The vault is big. **Query it, don't load it.**
 | Performance, bugs | — | `12 Performance Testing and Debugging`, `23 Debugging Deep Dives`, `SYMPTOMS.md` | `roblox-performance-audit`, `roblox-debugging` |
 | Design, fun, retention | `05 Production/Game Plan.md`, `03 Research/` | `10 Game Design and Genres`, `32 Case Studies of Top Roblox Games`, `58 Player QoL and Game Tweaks` | `lihfolk-tutorial` |
 | Scoring built work | — | — | `lihfolk:quality-score` (min 8.5), `lihfolk:council` for big decisions |
+| Proving a build or tune with numbers (seams, floating props, hit feedback, FX cleanup, easing, gun audio peaks, frame time) | `04 Tech/Measured Check Skills.md` (which `rbx-*` skill per area) | — | the matching `rbx-*` skill: capture real JSON, run its checker |
 
 ## Keep the vault current
 After a task: update `vault/00 Home.md` → Status, the Asset Tracker row, and the design note plus the Locked decisions table if a decision changed (see CLAUDE.md → Vault upkeep).

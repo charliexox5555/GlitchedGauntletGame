@@ -1,0 +1,21 @@
+{
+  "events": [
+    {
+      "time": 0,
+      "generation": "g1",
+      "id": "tool-input",
+      "event": "acquire"
+    },
+    {
+      "time": 1,
+      "generation": "g1",
+      "id": "tool-input",
+      "event": "release"
+    },
+    {
+      "time": 2,
+      "generation": "g1",
+      "event": "end"
+    }
+  ]
+}

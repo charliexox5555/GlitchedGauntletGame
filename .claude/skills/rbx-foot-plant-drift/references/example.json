@@ -1,0 +1,26 @@
+{
+  "max_horizontal": 0.08,
+  "max_vertical": 0.04,
+  "plants": [
+    {
+      "id": "walk/left",
+      "positions": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0.03,
+          0.01,
+          0
+        ],
+        [
+          0.02,
+          0,
+          0
+        ]
+      ]
+    }
+  ]
+}

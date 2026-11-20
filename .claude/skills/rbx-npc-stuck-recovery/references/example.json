@@ -1,0 +1,33 @@
+{
+  "min_speed": 0.25,
+  "max_stall_s": 1,
+  "samples": [
+    {
+      "time": 0,
+      "p": [
+        0,
+        0,
+        0
+      ],
+      "should_move": true
+    },
+    {
+      "time": 0.5,
+      "p": [
+        0,
+        0,
+        0
+      ],
+      "should_move": true
+    },
+    {
+      "time": 1,
+      "p": [
+        1,
+        0,
+        0
+      ],
+      "should_move": true
+    }
+  ]
+}

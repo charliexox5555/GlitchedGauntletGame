@@ -1,0 +1,13 @@
+{
+  "required": [
+    "low/mobile/cast"
+  ],
+  "min_recognition": 0.75,
+  "observations": [
+    {
+      "id": "low/mobile/cast",
+      "recognized": 4,
+      "attempts": 5
+    }
+  ]
+}

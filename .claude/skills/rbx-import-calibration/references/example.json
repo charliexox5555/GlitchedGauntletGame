@@ -1,0 +1,24 @@
+{
+  "expected_size": [
+    3,
+    5,
+    1
+  ],
+  "observed_size": [
+    3,
+    5,
+    1
+  ],
+  "expected_front": [
+    0,
+    0,
+    -1
+  ],
+  "observed_front": [
+    0,
+    0,
+    -1
+  ],
+  "max_scale_error": 0.03,
+  "max_front_error_deg": 3
+}

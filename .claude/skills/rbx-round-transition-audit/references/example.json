@@ -1,0 +1,28 @@
+{
+  "initial": "Idle",
+  "initial_round": 0,
+  "start_phase": "Active",
+  "final": "Idle",
+  "allowed": {
+    "Idle": [
+      "Active"
+    ],
+    "Active": [
+      "Idle"
+    ]
+  },
+  "events": [
+    {
+      "time": 1,
+      "round": 1,
+      "from": "Idle",
+      "to": "Active"
+    },
+    {
+      "time": 5,
+      "round": 1,
+      "from": "Active",
+      "to": "Idle"
+    }
+  ]
+}

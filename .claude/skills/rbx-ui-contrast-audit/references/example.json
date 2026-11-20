@@ -1,0 +1,10 @@
+{
+  "pairs": [
+    {
+      "id": "quest text",
+      "foreground": "#FFFFFF",
+      "background": "#242424",
+      "min_ratio": 4.5
+    }
+  ]
+}

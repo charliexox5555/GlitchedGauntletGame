@@ -1,0 +1,10 @@
+{
+  "max_growth": 4,
+  "max_per_cycle": 1.5,
+  "settled_counts": [
+    40,
+    42,
+    41,
+    42
+  ]
+}

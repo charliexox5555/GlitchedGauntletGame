@@ -1,0 +1,34 @@
+{
+  "views": {
+    "north-approach": {
+      "reference": "north-reference.png",
+      "capture": "north-studio.png",
+      "comparable": true
+    }
+  },
+  "checks": [
+    {
+      "id": "north-gate-row",
+      "view": "north-approach",
+      "label": "Gates along the north approach",
+      "expected_count": 3,
+      "observed_count": 2,
+      "note": "Two gates are visible. The middle gate is missing."
+    },
+    {
+      "id": "first-gate-post",
+      "view": "north-approach",
+      "label": "First gate left post base",
+      "reference_point": [0.26, 0.73],
+      "capture_point": [0.27, 0.73],
+      "tolerance": 0.025
+    },
+    {
+      "id": "banner-material",
+      "view": "north-approach",
+      "label": "Red banners visible on the approach",
+      "status": "unverified",
+      "note": "Leaves cover the banners in the current capture."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "cases": [
+    {
+      "id": "skip after respawn",
+      "expected": {
+        "mode": "Custom",
+        "subject": "generation-2",
+        "can_move": true
+      },
+      "actual": {
+        "mode": "Custom",
+        "subject": "generation-2",
+        "can_move": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "metrics": [
+    {
+      "id": "start-to-line",
+      "unit": "s",
+      "min": 0.4,
+      "max": 0.7,
+      "actual": 0.55
+    },
+    {
+      "id": "brake",
+      "unit": "studs",
+      "min": 0,
+      "max": 1.8,
+      "actual": 1.2
+    }
+  ]
+}

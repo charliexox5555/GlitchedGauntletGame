@@ -1,0 +1,19 @@
+{
+  "cycle_distance": 3,
+  "cycle_seconds": 1.2,
+  "root_drift": 0.01,
+  "max_root_drift": 0.04,
+  "max_rate_error": 0.08,
+  "samples": [
+    {
+      "id": "slow",
+      "speed": 1.25,
+      "rate": 0.5
+    },
+    {
+      "id": "full",
+      "speed": 2.5,
+      "rate": 1
+    }
+  ]
+}

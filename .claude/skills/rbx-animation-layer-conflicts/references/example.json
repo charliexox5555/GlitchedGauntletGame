@@ -1,0 +1,30 @@
+{
+  "planned_pairs": [
+    [
+      "walk",
+      "aim"
+    ]
+  ],
+  "tracks": [
+    {
+      "id": "walk",
+      "start": 0,
+      "end": 3,
+      "priority": 1,
+      "joints": [
+        "legs",
+        "spine"
+      ]
+    },
+    {
+      "id": "aim",
+      "start": 1,
+      "end": 2,
+      "priority": 2,
+      "joints": [
+        "spine",
+        "arm"
+      ]
+    }
+  ]
+}

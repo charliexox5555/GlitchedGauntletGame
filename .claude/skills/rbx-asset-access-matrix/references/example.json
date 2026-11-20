@@ -1,0 +1,10 @@
+{
+  "required": [
+    "anim-7/staging/owner",
+    "anim-7/staging/player"
+  ],
+  "results": {
+    "anim-7/staging/owner": "loaded",
+    "anim-7/staging/player": "loaded"
+  }
+}

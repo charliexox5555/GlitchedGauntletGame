@@ -1,0 +1,31 @@
+{
+  "range": [
+    0,
+    1
+  ],
+  "max_entry_speed": 0.8,
+  "max_exit_speed": 0.8,
+  "max_acceleration": 15,
+  "samples": [
+    {
+      "time": 0,
+      "value": 0
+    },
+    {
+      "time": 0.25,
+      "value": 0.1
+    },
+    {
+      "time": 0.5,
+      "value": 0.5
+    },
+    {
+      "time": 0.75,
+      "value": 0.9
+    },
+    {
+      "time": 1,
+      "value": 1
+    }
+  ]
+}

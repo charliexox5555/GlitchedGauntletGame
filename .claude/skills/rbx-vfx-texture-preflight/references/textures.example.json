@@ -1,0 +1,11 @@
+{
+  "textures": [
+    {
+      "file": "impact-sheet.png",
+      "columns": 4,
+      "rows": 2,
+      "source": "Original creator listing or internal asset record",
+      "usage": "Record the actual license or team permission here"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "rig_paths": [
+    "Root/Spine",
+    "Root/Spine/Hand"
+  ],
+  "channels": [
+    "Root/Spine",
+    "Root/Spine/Hand"
+  ],
+  "required": [
+    "Root/Spine/Hand"
+  ],
+  "allow_unbound": []
+}

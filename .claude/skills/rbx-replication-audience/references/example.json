@@ -1,0 +1,16 @@
+{
+  "cases": [
+    {
+      "id": "private quest update",
+      "required": [
+        "acting-client"
+      ],
+      "forbidden": [
+        "nearby-client"
+      ],
+      "observed": [
+        "acting-client"
+      ]
+    }
+  ]
+}

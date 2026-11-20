@@ -1,0 +1,17 @@
+{
+  "max_feedback_s": 0.15,
+  "cases": [
+    {
+      "id": "target-contact",
+      "server": "hit",
+      "presented": "hit",
+      "feedback_s": 0.08
+    },
+    {
+      "id": "whiff",
+      "server": "miss",
+      "presented": "miss",
+      "feedback_s": 0.05
+    }
+  ]
+}

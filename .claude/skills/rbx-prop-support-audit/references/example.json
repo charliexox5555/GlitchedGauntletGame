@@ -1,0 +1,11 @@
+{
+  "max_float": 0.03,
+  "max_sink": 0.08,
+  "contacts": [
+    {
+      "id": "bench-left",
+      "foot_y": 12.02,
+      "ground_y": 12
+    }
+  ]
+}

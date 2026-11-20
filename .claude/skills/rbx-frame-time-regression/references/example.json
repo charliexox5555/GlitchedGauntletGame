@@ -1,0 +1,18 @@
+{
+  "max_p95_increase_ms": 2,
+  "budget_ms": 18,
+  "baseline_ms": [
+    10,
+    11,
+    11,
+    12,
+    13
+  ],
+  "candidate_ms": [
+    10,
+    10,
+    11,
+    12,
+    14
+  ]
+}

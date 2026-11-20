@@ -1,0 +1,27 @@
+{
+  "expected": {
+    "VillagePrompt": 2
+  },
+  "events": [
+    {
+      "time": 0,
+      "id": "VillagePrompt",
+      "event": "bind"
+    },
+    {
+      "time": 2,
+      "id": "VillagePrompt",
+      "event": "unbind"
+    },
+    {
+      "time": 5,
+      "id": "VillagePrompt",
+      "event": "bind"
+    },
+    {
+      "time": 8,
+      "id": "VillagePrompt",
+      "event": "unbind"
+    }
+  ]
+}

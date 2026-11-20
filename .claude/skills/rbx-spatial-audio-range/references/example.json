@@ -1,0 +1,18 @@
+{
+  "samples": [
+    {
+      "id": "close",
+      "distance": 5,
+      "level_db": -15,
+      "min_db": -25,
+      "max_db": -10
+    },
+    {
+      "id": "far",
+      "distance": 60,
+      "level_db": -36,
+      "min_db": -70,
+      "max_db": -30
+    }
+  ]
+}

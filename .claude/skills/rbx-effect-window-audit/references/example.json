@@ -1,0 +1,16 @@
+{
+  "cutoff": 1,
+  "budget_s": 0.4,
+  "events": [
+    {
+      "time": 0.1,
+      "id": "trailA",
+      "on": true
+    },
+    {
+      "time": 0.3,
+      "id": "trailA",
+      "on": false
+    }
+  ]
+}

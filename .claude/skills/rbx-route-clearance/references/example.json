@@ -1,0 +1,18 @@
+{
+  "avatar_width": 2,
+  "avatar_height": 5,
+  "side_margin": 0.25,
+  "head_margin": 0.2,
+  "stations": [
+    {
+      "id": "roof corner",
+      "width": 2.7,
+      "height": 5.3
+    },
+    {
+      "id": "gate",
+      "width": 3,
+      "height": 6
+    }
+  ]
+}

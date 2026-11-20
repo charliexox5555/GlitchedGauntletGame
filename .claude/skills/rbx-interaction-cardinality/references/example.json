@@ -1,0 +1,9 @@
+{
+  "expected": {
+    "open-gate#1": 1,
+    "cancelled-buy#1": 0
+  },
+  "commits": [
+    "open-gate#1"
+  ]
+}
