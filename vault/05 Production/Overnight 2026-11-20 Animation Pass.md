@@ -259,3 +259,12 @@ Playtest list: the Round 2 section of [2026-11-21 Melee and Mods Pass](Playtests
 
 ### Round 2 results
 _(each lane adds its rows under its own heading above, marked "Round 2")_
+
+## Round 3 (2026-11-21, keep improving)
+The owner: "keep on going and making everything look better... take your time on this, make this good." Round 2 left the first-person Mods as the one area well under 9 (quality score 5.3). Each lane picks up the items it wrote down as blocking 9:
+
+| Lane | Round 3 work |
+|---|---|
+| `anim-melee-mods` | **First-person Mods to 9.** **Owner's call (2026-11-21): match RIVALS' numbers for held items.** In the RIVALS file (read-only, nothing copied), measure how their grenade / molotov / smoke / medkit / satchel viewmodels sit in a fingerless block arm: how deep the item goes into the block end, its size compared with the block, its framing on screen, the hand and arm angles, and the throw wind-up. Fit our items to those numbers and grade them side by side. Then: a bigger Throw coil; check that the projectile leaves when the hand releases (round 2 measured about 210 ms between the click and the hand letting go); and see Recall, the raised Firewall idle and the Roller set-down in play |
+| `anim-tp` | The **crouch-walk knee** (sideways and diagonal walks dip the shin's knee end 0.26-0.38 under the floor): add a knee floor limit in the gait solver without breaking the foot lock. Heal / Cast thrusts that read foreshortened from the owner's angle. ModHold "a touch flat" |
+| `anim-fp-guns` | The **Stinger** and **Outlaw** reload contacts measured in round 2 (hidden on screen, but fix them if it's cheap). Then the final first-person polish on whatever still grades under 9 |
