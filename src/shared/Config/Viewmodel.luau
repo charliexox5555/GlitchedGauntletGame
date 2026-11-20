@@ -1208,24 +1208,28 @@ return table.freeze({
 	-- side faces the free hand, right of the aim area. HealOrb: palm up, the
 	-- forearm running in under it.
 	ITEM_HOLDS = table.freeze({
+		-- 2026-11-21 (round 2, blind review of hold frames): `lift` lowered ~0.08 on
+		-- the thrown items, the orb and the Roller, so each sits just down in the fist
+		-- end instead of perched on top of it (0.16 hid half the canister
+		-- behind the forearm).
 		Molly = {
 			scale = 1.3, -- at 1 the canister read small, perched on the forearm's end (2026-11-16)
 			offset = Vector3.new(0.56, -0.72, -2),
 			rotation = Vector3.new(12, -22, -6),
-			lift = Vector3.new(0, 0.13, 0),
+			lift = Vector3.new(0, 0.05, 0),
 		},
 		Frost = {
 			scale = 1.3,
 			offset = Vector3.new(0.56, -0.82, -2.05),
 			rotation = Vector3.new(10, -20, -6),
-			lift = Vector3.new(0, 0.17, 0),
+			lift = Vector3.new(0, 0.09, 0),
 		},
 		Recall = { scale = 1.3 }, -- the anchor read tiny on the fist (2026-11-16); default offset
 		HealOrb = {
 			offset = Vector3.new(0.48, -0.72, -1.85),
 			rotation = Vector3.new(0, -10, 0),
 			arm = Vector3.new(0.3, -0.42, 0.85),
-			lift = Vector3.new(0, 0.1, 0),
+			lift = Vector3.new(0, 0.02, 0),
 		},
 		-- Recon bow (rebuilt 2026-11-16, owner: "should look like a good two
 		-- hand first person draw back"): a right-handed archer. The bow in the
@@ -1269,7 +1273,7 @@ return table.freeze({
 			scale = 1.3,
 			offset = Vector3.new(0.56, -0.78, -2.02),
 			rotation = Vector3.new(10, -20, -6),
-			lift = Vector3.new(0, 0.15, 0),
+			lift = Vector3.new(0, 0.07, 0),
 		},
 		-- Roller: the bot on the palm, nose forward (its placed model held small).
 		Roller = {
@@ -1279,7 +1283,7 @@ return table.freeze({
 			offset = Vector3.new(0.62, -0.9, -2.05),
 			rotation = Vector3.new(6, -14, 0),
 			arm = Vector3.new(0.3, -0.42, 0.85),
-			lift = Vector3.new(0, 0.12, 0),
+			lift = Vector3.new(0, 0.05, 0),
 		},
 	} :: { [string]: ItemHold }),
 	-- A drawn bow (Util/ViewmodelHeldMods bow rig: any held item with the
