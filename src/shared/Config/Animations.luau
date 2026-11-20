@@ -272,7 +272,7 @@ return table.freeze({
 		-- `leadEarly` s before contact and easing back over `leadTime`. The miss
 		-- punch (kick.X) went from 0.25-0.3 to 0.55-0.7 degrees.
 		leadRoll = 1.6,
-		leadEarly = 0.05,
+		leadEarly = 0.064, -- 0.05 until 2026-11-21: CameraController.rollKick rises over 20% of leadTime, so the roll peaked 14 ms after contact; now on it
 		leadTime = 0.32,
 		wallStop = 0.035,
 		recover = 0.14,

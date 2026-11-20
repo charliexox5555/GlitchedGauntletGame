@@ -44,6 +44,7 @@ local MeleeSkins = require(ReplicatedStorage.Shared.Config.MeleeSkins)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local MagDrop = require(script.Parent.Parent.Util.MagDrop)
 local FanMotion = require(script.Parent.Parent.Util.FanMotion)
+local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local ShadowMistIdle = require(script.Parent.Parent.Util.ShadowMistIdle)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
@@ -1225,6 +1226,7 @@ function ViewmodelController.setTimeScale(scale: number)
 end
 function ViewmodelController.unequip()
 	turnToken += 1
+	KnifeSwipeFx.cancel() -- a cut-short slash's streak goes with it
 	ViewmodelHeldMods.dropGestureProp(heldMods)
 	for _, gun in guns do
 		if gun.shadowActions then

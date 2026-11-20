@@ -110,6 +110,20 @@ local function stepSwipes(dt: number)
 	end
 end
 
+-- Drops every streak, drawn or still waiting for its swing's contact
+-- (2026-11-21: a slash cut short by a weapon switch still drew its streak
+-- over the new gun at the old contact time). ViewmodelController.unequip.
+function KnifeSwipeFx.cancel()
+	for _, w in swipes do
+		w.part:Destroy()
+	end
+	table.clear(swipes)
+	if swipeConn then
+		swipeConn:Disconnect()
+		swipeConn = nil
+	end
+end
+
 function KnifeSwipeFx.swipe(arc: { Vector3 }, delay: number, sweep: number, strength: number)
 	local cam = Workspace.CurrentCamera
 	if not cam or #arc ~= 3 then
