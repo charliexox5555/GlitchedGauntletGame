@@ -311,7 +311,7 @@ Owner: "build the structure of it, and then we'll go into the pads". Built by `t
 
 **Next (pads pass):** the lift cages in each bay, sized per mode, with an inset floor pad, team edge strips, gates, a beacon, a mode sign and a queue screen. Then hook them to `LobbyQueue` (Step zones) and remove `TEMP_EdgeRail`.
 
-## Duels cages (2026-11-20)
+## Duels cages (2026-11-20), SUPERSEDED by Queue bays v2 below
 Owner: "Yes, build the cages". Built by `tools/studio/lobby_v5/BuildCages.luau` into `Duels.Cages`: 9 cages, about 1,000 Parts. `TEMP_EdgeRail` was removed.
 
 **One cage per bay**, sized by the bay (`Duels.BayAnchors`, attribute `Mode`), built the way a lift car is made:
@@ -350,6 +350,65 @@ Still missing:
 - **Motion:** gates sliding shut, the beacon spinning and the cage dropping when a match is found. That's the next code step: a `LobbyCageFx` client controller reading the player's `QueueStatus`.
 - Header text is small from the far end of the deck.
 - The colours are still the owner's "bland" note.
+
+## Queue bays v2 and a wider hall (2026-11-20)
+**Owner on the cages:**
+- There were overlapping parts.
+- The queue area colours weren't liked, and it felt like a horror game.
+- Queue areas should be larger, like the 4v4 one: you walk in, stand on it, it highlights and goes up, and you walk off to leave. Expanding the duels area is fine.
+- The 1v1 / 2v2 signs should be structured like RIVALS' (study, not copy).
+
+**The overlaps found:** the side rock walls bulge up to 12 studs inward and cut through the end bulkhead bays and pilasters, the end rails, the last gantry columns and the end cages. All gone in v2. The only rock contacts left are deliberate: the end parapets and end pilasters run into the rock.
+
+**RIVALS pad study** (`LobbyRivals` Queue Pad #3, read-only):
+- Two team squares (~13 x 10) side by side, about 29 x 21 in total.
+- Each square is a dark floor panel with thin team-colour neon edge strips in a concrete rim with a textured top.
+- A small sign of a coloured title plate and a mode plate, on dark boards.
+- When occupied, rings and a glow column rise.
+
+**What we took:** the two-square pad and the lit sign over each pad, plus the occupied highlight (our LobbyPadFx already does it). **Not taken:** their look, colours or hallway layout.
+
+**Hall v2** (`BuildDuels.luau`):
+- 244 wide (x +/-122, was 168).
+- 8 equal bays of 24 between gantry column lines every 26 (x -104..104).
+- Back columns at z -124 (bays 26 deep).
+- The bulkhead runs to +/-100, with floor-to-ceiling corner rock beyond it.
+- Concrete end parapets on the deck edge run into the rock; the end rails are gone.
+- Hub-style rock lamps, pilaster lamps and uplights are spread for the width.
+- 801 pieces, 121 rock meshes.
+
+**Bays** (`BuildQueueBays.luau`, replaces the deleted `BuildCages.luau`), in mode order mirrored from the tunnel:
+
+| 3v3 | 2v2 | 1v1 | 1v1 | 1v1 | 1v1 | 2v2 | 3v3 |
+|---|---|---|---|---|---|---|---|
+
+4v4 can be added later as end bays. Each bay:
+- **Platform:** an open light-concrete platform (24 x 26) out over the chasm, hung from the gantry by two back cables. Low steel rails on three sides with invisible colliders just inside.
+- **Pad:** a raised dais (21 x 18, 0.6 high, sloped edges all round, light concrete rim). Two light-grey team squares, each with a thin neutral edge line and one team pip per player at the front.
+  - The squares are tagged `LobbyPadSquare` (Team 1 / 2).
+  - One `QueueZone` per bay is tagged `LobbyQueue` (Mode, Trigger Step). 8 zones in all.
+- **Lightbox sign:** hung from the front runway on two hangers, tilted 25 degrees toward the deck. A cut-corner charcoal case with a white self-lit face (SurfaceGui, not Neon).
+  - The mode is in big dark Rubik Heavy, with "STEP IN TO QUEUE" and one gold / cyan pip per player.
+  - A SurfaceLight glows from the face, and a pad light under the case lights the dais.
+
+**Colours:**
+- Team A **gold** `FFB627` (the hub accent) and team B **cyan** `2EC8FF` (the game's ally colour), replacing orange / blue.
+- `src/lobby/client/Controllers/LobbyPadFx.luau` TEAM changed too; Rojo is syncing it. It also recolours the V4 pads.
+- Pads are neutral when empty and light up in the team colour when someone stands on them.
+
+**Playtest (Studio):**
+- Stepping into Bay_04 1v1, Bay_07 2v2 and Bay_01 3v3 set `QueueStatus` to searching for that mode; stepping out returned to idle.
+- Standing on a square shows the gold rings with the rising glow, plus the "SEARCHING FOR PLAYERS 1V1" bar (capture `V5Bays_Occupied`).
+
+**Review fixes:**
+- The squares were overexposed (darkened, pad light 2).
+- The front hoist cables cluttered the entry (removed).
+- The rail post tops were flush with the top rail (posts raised 0.2).
+
+**Still open:**
+- Match-found motion (the platform lifting or dropping, the sign flashing), via a `LobbyCageFx`-style client controller.
+- The owner's colour, sign and prop pass for the hub.
+- The LobbySeason module.
 
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.

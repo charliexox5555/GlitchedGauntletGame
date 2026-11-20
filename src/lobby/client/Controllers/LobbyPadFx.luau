@@ -17,7 +17,7 @@ local RunService = game:GetService("RunService")
 local LobbyPadFx = {}
 
 local TAG = "LobbyPadSquare"
-local TEAM = { [1] = Color3.fromHex("FF6A3D"), [2] = Color3.fromHex("2A86FF") }
+local TEAM = { [1] = Color3.fromHex("FFB627"), [2] = Color3.fromHex("2EC8FF") } -- gold / cyan (owner 2026-11-20: away from orange / blue)
 local IDLE = Color3.fromRGB(202, 203, 209)
 local IDLE_T = 0.75 -- the rings when nobody is on the well
 local ON_T = 0.05

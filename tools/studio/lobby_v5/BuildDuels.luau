@@ -158,23 +158,20 @@ local function rockFlat(parent, name, cx, cz, w, dpt, yBack, faceDown, rot)
 end
 
 -- LAYOUT ---------------------------------------------------------------------------------------------
-local X0, X1 = -84, 84 -- hall width
+local X0, X1 = -122, 122 -- hall width (v2, owner 2026-11-20: bigger queue bays; rock walls clear the gantry by 4+)
 local ZW = -60 -- bulkhead face (south wall of the hall)
 local ZE = -96 -- deck front edge
 local ZF = -150 -- far chasm wall (back plane)
 local YD = -1 -- deck top
 local YC = -90 -- chasm floor
 local YCEIL = 70 -- back of the ceiling rock (faces hang to about 56)
--- cage bays, mirrored from the centre in mode order: 4v4 | 3v3 | 2v2 | 1v1 | 1v1  (pads come later)
-local BAYS = { { "4v4", -12, 12 } }
-do
-	local x = 12
-	for _, spec in { { "3v3", 18 }, { "2v2", 14 }, { "1v1", 10 }, { "1v1", 10 } } do
-		x += 2 -- column line
-		table.insert(BAYS, { spec[1], x, x + spec[2] })
-		table.insert(BAYS, 1, { spec[1], -(x + spec[2]), -x })
-		x += spec[2]
-	end
+-- queue bays (v2): eight equal 24-stud bays in mode order, mirrored from the tunnel; column lines every 26 studs.
+-- 4v4 can be added later as end bays.
+local BAY_MODES = { "3v3", "2v2", "1v1", "1v1", "1v1", "1v1", "2v2", "3v3" }
+local BAYS = {}
+for i, m in BAY_MODES do
+	local c = -104 + 26 * (i - 1)
+	BAYS[i] = { m, c + 1, c + 25 }
 end
 local COLS = {} -- column line centres (between bays and at both ends)
 for _, b in BAYS do
@@ -186,7 +183,7 @@ for x in COLS do
 	table.insert(colX, x)
 end
 table.sort(colX)
-local ZG0, ZG1 = -98, -118 -- gantry front / back column lines
+local ZG0, ZG1 = -98, -124 -- gantry front / back column lines (bays are 26 deep)
 
 ---------------------------------------------------------------------------------------------------
 local shell = workspace.LobbyV5.Shell
@@ -223,7 +220,7 @@ end
 
 -- 2. BULKHEAD (south wall of the hall): pilasters every 16 studs, battered wainscot, corrugated panels -
 local bulk = model(duels, "Bulkhead")
-local PIL = { -84, -68, -52, -36, -20, 20, 36, 52, 68, 84 }
+local PIL = { -100, -84, -68, -52, -36, -20, 20, 36, 52, 68, 84, 100 } -- rock corners take over beyond +/-100
 local WALL_TOP = 30
 for _, x in PIL do
 	local m = model(bulk, ("Pilaster_%d"):format(x))
@@ -260,12 +257,13 @@ end
 local deck = model(duels, "Deck")
 box(deck, "UnderPlate", Vector3.new(X0, YD - 1.2, ZE), Vector3.new(X1, YD - 0.6, ZW), L.under)
 local panels = model(deck, "Panels")
-for i = 0, 13 do
+local PW = (X1 - X0) / 20
+for i = 0, 19 do
 	for j = 0, 2 do
-		local x0, z0 = X0 + i * 12, ZW - j * 12
-		local entry = x0 >= -12 and x0 < 12
+		local x0, z0 = X0 + i * PW, ZW - j * 12
+		local entry = math.abs(x0 + PW / 2) < 12
 		local isGrate = (not entry) and j == 1 and (i % 2 == 0)
-		box(panels, ("Panel_%d_%d"):format(i, j), Vector3.new(x0 + 0.05, YD - 0.5, z0 - 11.95), Vector3.new(x0 + 11.95, YD, z0 - 0.05), isGrate and L.grate or L.diamond)
+		box(panels, ("Panel_%d_%d"):format(i, j), Vector3.new(x0 + 0.05, YD - 0.5, z0 - 11.95), Vector3.new(x0 + PW - 0.05, YD, z0 - 0.05), isGrate and L.grate or L.diamond)
 	end
 end
 local kerb = box(deck, "EdgeKerb", Vector3.new(X0, YD - 0.6, ZE - 1), Vector3.new(X1, YD + 0.2, ZE), L.paint)
@@ -292,9 +290,14 @@ local function rail(parent, xa, xb)
 end
 local temp = model(duels, "TEMP_EdgeRail")
 rail(temp, colX[1] + 1, colX[#colX] - 1)
-local ends = model(duels, "EndRails")
-rail(ends, X0, colX[1] - 1)
-rail(ends, colX[#colX] + 1, X1)
+-- end landings: a concrete parapet on the deck edge that runs into the rock (no rail stubs in the rock)
+local ends = model(duels, "EndParapets")
+for _, s in { -1, 1 } do
+	local xa, xb = s < 0 and X0 or colX[#colX] + 1, s < 0 and colX[1] - 1 or X1
+	local m = model(ends, s < 0 and "Parapet_W" or "Parapet_E")
+	box(m, "Wall", Vector3.new(xa, YD - 0.8, ZE - 1.2), Vector3.new(xb, YD + 3.2, ZE + 0.2), L.trim)
+	box(m, "Cap", Vector3.new(xa, YD + 3.2, ZE - 1.5), Vector3.new(xb, YD + 3.7, ZE + 0.5), L.wains)
+end
 
 -- 5. GANTRY over the chasm edge: column pairs on every bay line, runway beams, cross beams, bracing -----
 local gantry = model(duels, "Gantry")
@@ -336,31 +339,36 @@ local k = 0
 for _, side in { { -1, "W" }, { 1, "E" } } do
 	local n = Vector3.new(-side[1], 0, 0)
 	for c = 0, 3 do
-		local z = ZW - 11.25 - c * 22.5
+		local z = -58 - 11.5 - c * 23
 		for r, row in ROWS do
 			k += 1
-			rockWall(rockF, ("Wall_%s_%d_%d"):format(side[2], c, r), TPL[k % 3 + 1], Vector3.new(side[1] * 84, row[1], z), n, 25, row[2], k % 2 == 0)
+			rockWall(rockF, ("Wall_%s_%d_%d"):format(side[2], c, r), TPL[k % 3 + 1], Vector3.new(side[1] * X1, row[1], z), n, 25.5, row[2], k % 2 == 0)
 		end
 	end
+	-- corner rock where the bulkhead ends (+/-100 to the side wall), floor to ceiling
+	k += 1
+	rockWall(rockF, "Corner_" .. side[2], TPL[k % 3 + 1], Vector3.new(side[1] * 112.25, YD, ZW + 2), -Vector3.zAxis, 23.5, YCEIL - YD + 2, k % 2 == 0)
 end
-for c = 0, 6 do
-	local x = X0 + 12 + c * 24
+local SPAN = (X1 - X0) / 9
+for c = 0, 8 do
+	local x = X0 + SPAN * (c + 0.5)
 	for r, row in ROWS do
 		k += 1
-		rockWall(rockF, ("Wall_N_%d_%d"):format(c, r), TPL[k % 3 + 1], Vector3.new(x, row[1], ZF), Vector3.zAxis, 26.5, row[2], k % 2 == 1)
+		rockWall(rockF, ("Wall_N_%d_%d"):format(c, r), TPL[k % 3 + 1], Vector3.new(x, row[1], ZF), Vector3.zAxis, SPAN + 2.5, row[2], k % 2 == 1)
 	end
-	-- ledge face under the deck, facing the chasm
 	for r, row in { { YC - 10, 58 }, { YC + 46, (YD - 1.4) - (YC + 46) } } do
 		k += 1
-		rockWall(rockF, ("Ledge_%d_%d"):format(c, r), TPL[k % 3 + 1], Vector3.new(x, row[1], -84), -Vector3.zAxis, 26.5, row[2], k % 2 == 0, 0.8)
+		rockWall(rockF, ("Ledge_%d_%d"):format(c, r), TPL[k % 3 + 1], Vector3.new(x, row[1], -84), -Vector3.zAxis, SPAN + 2.5, row[2], k % 2 == 0, 0.8)
 	end
-	-- above the bulkhead, up to the ceiling
-	k += 1
-	rockWall(rockF, ("Above_Bulkhead_%d"):format(c), TPL[k % 3 + 1], Vector3.new(x, WALL_TOP - 1, ZW + 2), -Vector3.zAxis, 26.5, YCEIL - WALL_TOP + 3, k % 2 == 0, 0.8)
 end
-for c = 0, 3 do -- chasm floor runs under the ledge so nothing shows between floor and walls
+for c = 0, 7 do
+	k += 1
+	rockWall(rockF, ("Above_Bulkhead_%d"):format(c), TPL[k % 3 + 1], Vector3.new(-100 + 12.5 + c * 25, WALL_TOP - 1, ZW + 2), -Vector3.zAxis, 27.5, YCEIL - WALL_TOP + 3, k % 2 == 0, 0.8)
+end
+local FW = (X1 - X0) / 6
+for c = 0, 5 do -- chasm floor runs under the ledge so nothing shows between floor and walls
 	for r, zr in { { -82, -118 }, { -116, -153 } } do
-		rockFlat(rockF, ("ChasmFloor_%d_%d"):format(c, r), X0 + 21 + c * 42, (zr[1] + zr[2]) / 2, 44, math.abs(zr[2] - zr[1]) + 2, YC - 6, false, (c + r) % 2 == 0)
+		rockFlat(rockF, ("ChasmFloor_%d_%d"):format(c, r), X0 + FW * (c + 0.5), (zr[1] + zr[2]) / 2, FW + 2, math.abs(zr[2] - zr[1]) + 2, YC - 6, false, (c + r) % 2 == 0)
 	end
 end
 -- ceiling, leaving the skylight crack over the chasm (x -36..36, z -118..-138)
@@ -393,15 +401,8 @@ end
 
 -- 7. LIGHTS (fixtures on the gantry and the bulkhead; chasm glow from below) --------------------------
 local lights = folder(duels, "Lights")
-for i, b in BAYS do -- a downlight under the front runway over each bay
-	local x = (b[2] + b[3]) / 2
-	local m = model(lights, ("BayLight_%02d"):format(i))
-	box(m, "Housing", Vector3.new(x - 1.6, YT - 1.0, ZG0 - 1.2), Vector3.new(x + 1.6, YT, ZG0 + 1.2), L.dark)
-	box(m, "Bezel", Vector3.new(x - 1.4, YT - 1.2, ZG0 - 1.0), Vector3.new(x + 1.4, YT - 1.0, ZG0 + 1.0), L.steel)
-	local ln = box(m, "Lens", Vector3.new(x - 1.1, YT - 1.25, ZG0 - 0.7), Vector3.new(x + 1.1, YT - 1.2, ZG0 + 0.7), L.white)
-	light(ln, "SpotLight", Enum.NormalId.Bottom, WHITE, 2, 40, 80)
-end
-for _, x in { -68, -52, -36, -20, 20, 36, 52, 68 } do -- wall lamps on every inner pilaster head, lighting the deck
+-- (bay lighting comes from the lightbox signs built with the queue bays)
+for _, x in PIL do -- wall lamps on every pilaster head, lighting the deck
 	local m = model(lights, ("WallLamp_%d"):format(x))
 	local F = CFrame.lookAt(O + Vector3.new(x, WALL_TOP - 3, ZW - 2.6), O + Vector3.new(x, YD, ZW - 18))
 	part(m, "Bracket", Vector3.new(0.5, 0.5, 1.4), CFrame.new(O + Vector3.new(x, WALL_TOP - 2.6, ZW - 1.9 - 0.5)), L.steel)
@@ -433,7 +434,7 @@ local function rockLamp(name, P, n, target, bright, range)
 	local A, B = P + n * 0.35, H - F.LookVector * 0.4
 	part(m, "Arm", Vector3.new(0.45, 0.45, (B - A).Magnitude), CFrame.lookAt((A + B) / 2, B), L.steel)
 end
-for x = -72, 72, 24 do
+for x = -96, 96, 24 do
 	local h = workspace:Raycast(O + Vector3.new(x, 20, -120), Vector3.new(0, 0, -60), lampParams)
 	if h then
 		rockLamp(("RockLamp_Far_%d"):format(x), h.Position, Vector3.zAxis, O + Vector3.new(x, -50, -146), 3, 80)
@@ -441,22 +442,22 @@ for x = -72, 72, 24 do
 end
 for _, sx in { -1, 1 } do
 	for _, z in { -78, -125 } do
-		local h = workspace:Raycast(O + Vector3.new(sx * 60, 22, z), Vector3.new(sx * 40, 0, 0), lampParams)
+		local h = workspace:Raycast(O + Vector3.new(sx * 95, 22, z), Vector3.new(sx * 40, 0, 0), lampParams)
 		if h then
-			rockLamp(("RockLamp_Side_%s_%d"):format(sx < 0 and "W" or "E", z), h.Position, Vector3.new(-sx, 0, 0), O + Vector3.new(sx * 80, -30, z), 3, 70)
+			rockLamp(("RockLamp_Side_%s_%d"):format(sx < 0 and "W" or "E", z), h.Position, Vector3.new(-sx, 0, 0), O + Vector3.new(sx * 118, -30, z), 3, 70)
 		end
 	end
 end
 -- uplights on the gantry beams wash the rock ceiling
-for _, x in { -61, -33, 0, 33, 61 } do
+for _, x in { -78, -26, 26, 78 } do -- on cross beams (column lines)
 	local m = model(lights, ("Uplight_%d"):format(x))
-	local base = O + Vector3.new(x, 29.0, x == 0 and -98 or -108)
+	local base = O + Vector3.new(x, 29.0, -111)
 	part(m, "Housing", Vector3.new(1.8, 0.8, 1.8), CFrame.new(base + Vector3.new(0, 0.4, 0)), L.dark)
 	local ln = part(m, "Lens", Vector3.new(1.4, 0.06, 1.4), CFrame.new(base + Vector3.new(0, 0.83, 0)), L.lens)
 	light(ln, "SpotLight", Enum.NormalId.Top, WARM, 2.5, 45, 100)
 end
 -- warm fill over the deck (no shadows)
-for x = -70, 70, 35 do
+for x = -100, 100, 40 do
 	local p = part(lights, "Fill", Vector3.new(0.5, 0.5, 0.5), CFrame.new(O + Vector3.new(x, 18, -78)), look(nil, Color3.new(1, 1, 1)))
 	p.Transparency = 1
 	p.CanCollide = false
