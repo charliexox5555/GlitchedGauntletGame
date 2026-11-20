@@ -50,8 +50,19 @@ def check(d):
     for name, row in unique(d["joints"], "id").items():
         pose = distance(row["start"], row["end"])
         velocity = distance(subtract(row["after_start"], row["start"]), subtract(row["end"], row["before_end"])) / dt
-        notes.append(f"{name}: {pose:.3f} studs pose gap, {velocity:.2f} studs/s velocity jump")
-        if pose > number(d["max_pose_gap"]) or velocity > number(d["max_velocity_gap"]):
+        # A fast effector (a running foot) changes velocity between ANY two
+        # frames; the seam only pops when it changes more than the clip does
+        # inside its own cycle. With "interior_velocity_jump" (the largest
+        # frame-to-frame velocity change inside the loop), the limit is the
+        # larger of max_velocity_gap and that baseline times interior_margin.
+        limit = number(d["max_velocity_gap"])
+        if "interior_velocity_jump" in row:
+            interior = number(row["interior_velocity_jump"])
+            limit = max(limit, interior * number(d.get("interior_margin", 1.25)))
+            notes.append(f"{name}: {pose:.3f} studs pose gap, {velocity:.2f} studs/s velocity jump (interior {interior:.2f}, limit {limit:.2f})")
+        else:
+            notes.append(f"{name}: {pose:.3f} studs pose gap, {velocity:.2f} studs/s velocity jump")
+        if pose > number(d["max_pose_gap"]) or velocity > limit:
             failures.append(f"{name}: visible seam risk")
     return failures, notes
 

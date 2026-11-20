@@ -14,3 +14,5 @@ python scripts/check.py path/to/capture.json
 ```
 
 The report gives maximum excursion from the first planted position and vertical bob. Retest the same intervals after tuning pose, stride, or IK. Include at least one interior sample to catch drift that returns by the last frame.
+
+**Feet with no ankle that roll heel to toe (added 2026-11-20, GlitchedGauntletGame TP lane).** A block foot stands on its lowest corner and rolls onto the next one, so the contact point legitimately travels about a block length along the ground while nothing slips. Sampling "the lowest corner" each frame reads that roll as drift (our RunF showed 1.41 studs "lateral" with no slip at all). Feed **integrated slip** instead: start at the first contact point and add, each frame, how far the *same* corner (the one in contact at the earlier frame) moved over the ground between the two frames. That is the distance the sole's material slid; the limits keep their meaning. `tools/anim/tp_measure.py` does this for the game's clips.
