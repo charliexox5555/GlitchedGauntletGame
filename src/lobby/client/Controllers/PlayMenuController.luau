@@ -177,6 +177,67 @@ local function shadeOf(t: Tile): Frame?
 	return if sh and sh:IsA("Frame") then sh else nil
 end
 
+-- Size on hover (owner round 3: "the hover should also have some size
+-- animation") without scaling any words: the picture zooms inside its own
+-- frame (its crop rectangle shrinks around the centre, so the tile, its
+-- rounded corners and the text stay exactly as they are) and the tile lifts
+-- a few pixels. The art is drawn from an explicit crop rect (Stretch over a
+-- rect of the tile's own aspect = the same look as Crop).
+local ZOOM = 1.08
+local LIFT_PX = 5
+local cropOf: { [Tile]: { size: Vector2, centre: Vector2 } } = {}
+
+local ART_PX = Vector2.new(840, 940) -- the mode pictures' size (refined below when readable)
+
+local function applyCrop(t: Tile, dims: Vector2)
+	local art = t.art
+	if not art then
+		return
+	end
+	local tile = t.button.Size
+	local aspect = tile.X.Offset / math.max(tile.Y.Offset, 1)
+	local size = if aspect > dims.X / dims.Y
+		then Vector2.new(dims.X, dims.X / aspect)
+		else Vector2.new(dims.Y * aspect, dims.Y)
+	cropOf[t] = { size = size, centre = dims / 2 }
+	art.ScaleType = Enum.ScaleType.Stretch
+	art.ImageRectSize = size
+	art.ImageRectOffset = dims / 2 - size / 2
+end
+
+local function setupCrop(t: Tile)
+	local art = t.art
+	if not art then
+		return
+	end
+	applyCrop(t, ART_PX)
+	-- new mode art may have another size: read it in the background, and keep
+	-- the default if the client can't (EditableImage may be unavailable)
+	task.spawn(function()
+		local ok, img = pcall(function()
+			return game:GetService("AssetService")
+				:CreateEditableImageAsync(Content.fromUri(art.Image))
+		end)
+		if ok and img then
+			local dims = img.Size
+			img:Destroy()
+			if dims ~= ART_PX and dims.X > 0 and dims.Y > 0 then
+				applyCrop(t, dims)
+			end
+		end
+	end)
+end
+
+local function zoomArt(t: Tile, z: number, time: number)
+	local c = cropOf[t]
+	local art = t.art
+	if not (c and art) then
+		return
+	end
+	local size = c.size / z
+	tween(art, time, { ImageRectSize = size, ImageRectOffset = c.centre - size / 2 })
+end
+
 local function paintTile(o: Tile, time: number)
 	if o.art then
 		tween(o.art, time, { ImageColor3 = artColour(o) })
@@ -203,6 +264,15 @@ local function setFocus(t: Tile?)
 	focused = t
 	for _, o in tiles do
 		paintTile(o, 0.3)
+		local on = o == t and o.live
+		zoomArt(o, if on then ZOOM else 1, if on then 0.4 else 0.3)
+		if isOpen then
+			tween(
+				o.button,
+				0.3,
+				{ Position = o.home - UDim2.fromOffset(0, if on then LIFT_PX else 0) }
+			)
+		end
 	end
 end
 
@@ -285,6 +355,7 @@ local function open()
 		StateValues.set(t.pop, "Rest", 1)
 		t.pop.Scale = 1 -- they rise in without scaling (scaling makes the words shimmer)
 		paintTile(t, 0)
+		zoomArt(t, 1, 0)
 		task.delay((i - 1) * 0.03, function()
 			if isOpen then
 				tween(t.button, 0.42, { Position = t.home })
@@ -417,6 +488,7 @@ function PlayMenuController.init()
 	end
 	for _, t in tiles do
 		hookTile(t, hitFor(t.button))
+		setupCrop(t)
 	end
 	table.sort(tiles, function(a, b)
 		return a.button.LayoutOrder < b.button.LayoutOrder

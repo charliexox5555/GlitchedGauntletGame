@@ -355,6 +355,7 @@ local function hookItem(s: State, b: TextButton)
 	local tagHome = if tag and tag:IsA("GuiObject") then tag.Size else UDim2.new()
 	local chev: TextLabel? = nil
 	local hoverToken = 0
+	local chevAt = UDim2.new()
 	if tag and tag:IsA("GuiObject") then
 		local bottom = tag.Position.Y.Offset + tag.Size.Y.Offset
 		tag.AnchorPoint = Vector2.new(0.5, 1)
@@ -369,13 +370,15 @@ local function hookItem(s: State, b: TextButton)
 			plate.Visible = false
 			local c = plate:FindFirstChild("Chevrons")
 			if c and c:IsA("TextLabel") then
-				c.Parent = tag
+				-- on the button, not inside the tag: a tag's children draw under
+				-- the icon (sibling ZIndex), so the » sat behind it. It goes
+				-- to the grown tag's top-right corner, above the icon.
+				chevAt = UDim2.new(0.5, (tagHome.X.Offset + 8) / 2 + 6, 0, bottom - TAG_UP) -- where the old plate had it
+				c.Parent = b
 				c.AnchorPoint = Vector2.new(1, 0)
-				c.Position = UDim2.new(1, -4, 0, 2)
-				c.ZIndex = tag.ZIndex + 2
-				c.TextColor3 = if label and label:IsA("TextLabel")
-					then label.TextColor3
-					else c.TextColor3
+				c.Position = chevAt
+				c.ZIndex = icon.ZIndex + 2
+				-- white, as on the old plate
 				c.TextTransparency = 1
 				c.TextStrokeTransparency = 1
 				-- its outline (LobbyLook's TitleOutline) would stay drawn while
@@ -409,11 +412,11 @@ local function hookItem(s: State, b: TextButton)
 			local my = hoverToken
 			if on then
 				c.Visible = true
-				c.Position = UDim2.new(1, -14, 0, 2)
+				c.Position = chevAt - UDim2.fromOffset(10, 0)
 			end
 			local t = tween(c, if on then 0.3 else 0.15, {
 				TextTransparency = if on then 0 else 1,
-				Position = UDim2.new(1, -4, 0, 2),
+				Position = chevAt,
 			}, QUINT, OUT)
 			if not on then
 				t.Completed:Once(function()
