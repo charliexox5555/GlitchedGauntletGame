@@ -2220,6 +2220,63 @@ return table.freeze({
 			},
 			tossPivot = Vector3.new(0, 0, -0.4),
 		},
+		-- The Giltfold Fan's inspect (2026-11-21, owner: "like you're fanning
+		-- yourself for a little bit", then "too high up in the air... a little
+		-- bit chunky... should last for longer... mainly like a thing of the
+		-- wrist"): a small coil, the open fan up a little beside the face (a
+		-- touch past, settle), then seven relaxed waves that build and fade,
+		-- low on the screen. The block arm has no wrist, so the turn is the
+		-- fist and fan together about the grip (this track's pivot): the
+		-- forearm stays put but for a small sway a quarter wave behind. Keys
+		-- every quarter wave on a sine, so the cubic has no steps. The leaf
+		-- flexes behind each wave (Config/MeleeSkins FAN.INSPECT). Chosen when
+		-- the knife slot holds the Fan (ViewmodelController). Made by a script
+		-- (wave count, sizes and envelope in the 2026-11-21 FP lane note).
+		InspectFan = {
+			length = 4.6,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			keys = {
+				key(0, Vector3.new(0, 0, 0), Vector3.new(0, 0, 0)),
+				key(0.05, Vector3.new(0.02, -0.03, 0.015), Vector3.new(-3, -5, -4)),
+				key(0.12, Vector3.new(-0.11, 0.085, 0.105), Vector3.new(5, 25, 9)),
+				key(0.15, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(5.65, 31.35, 11.3)),
+				key(0.175, Vector3.new(-0.111, 0.076, 0.105), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.2, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(1.9, 10.1, 3.8)),
+				key(0.225, Vector3.new(-0.086, 0.062, 0.094), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.25, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(6.55, 36.45, 13.1)),
+				key(0.275, Vector3.new(-0.116, 0.079, 0.107), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.3, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(1.225, 6.275, 2.45)),
+				key(0.325, Vector3.new(-0.082, 0.06, 0.092), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.35, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(7.0, 39.0, 14.0)),
+				key(0.375, Vector3.new(-0.118, 0.08, 0.108), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.4, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(1.0, 5.0, 2.0)),
+				key(0.425, Vector3.new(-0.082, 0.06, 0.092), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.45, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(7.0, 39.0, 14.0)),
+				key(0.475, Vector3.new(-0.118, 0.08, 0.108), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.5, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(1.075, 5.425, 2.15)),
+				key(0.525, Vector3.new(-0.083, 0.06, 0.092), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.55, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(6.85, 38.15, 13.7)),
+				key(0.575, Vector3.new(-0.117, 0.079, 0.107), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.6, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(1.375, 7.125, 2.75)),
+				key(0.625, Vector3.new(-0.085, 0.062, 0.093), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.65, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(6.4, 35.6, 12.8)),
+				key(0.675, Vector3.new(-0.114, 0.078, 0.106), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.7, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(1.9, 10.1, 3.8)),
+				key(0.725, Vector3.new(-0.089, 0.064, 0.095), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.75, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(5.8, 32.2, 11.6)),
+				key(0.775, Vector3.new(-0.11, 0.076, 0.104), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.8, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(2.65, 14.35, 5.3)),
+				key(0.825, Vector3.new(-0.094, 0.067, 0.097), Vector3.new(4.0, 22.0, 8.0)),
+				key(0.85, Vector3.new(-0.1, 0.07, 0.1), Vector3.new(4.9, 27.1, 9.8)),
+				key(0.885, Vector3.new(-0.09, 0.06, 0.09), Vector3.new(3, 20, 7)),
+				key(0.95, Vector3.new(0.02, -0.04, 0.01), Vector3.new(-2.5, -3, -2.5)), -- lowered over ~0.3 s, past the hold
+				key(0.98, Vector3.new(-0.004, 0.008, 0), Vector3.new(0.6, 0.6, 0.6)),
+				key(1, Vector3.new(0, 0, 0), Vector3.new(0, 0, 0)),
+			},
+		},
 		-- Pull-out: up from below with the blade hanging, about three quarters
 		-- of a turn anticlockwise in the fist in ~0.2 s while the arm swings in
 		-- from the right, landing pointing left low on the left, back up to the

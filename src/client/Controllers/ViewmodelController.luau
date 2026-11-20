@@ -2009,6 +2009,7 @@ function ViewmodelController.inspect(): boolean
 	end
 	local track = if guns.Right.shadowActions
 		then guns.Right.shadowActions.profile.inspectTrack
+		elseif guns.Right.fan then "InspectFan"
 		elseif c.fireMode == "Melee" then "InspectMelee"
 		else VM.INSPECT_TRACK[c.id] or "Inspect"
 	-- Akimbo: each gun gets a whole inspect, one after the other.

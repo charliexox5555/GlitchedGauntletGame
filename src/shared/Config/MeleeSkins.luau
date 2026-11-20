@@ -71,21 +71,48 @@ return table.freeze({
 			{ 0.5, 0.01 },
 			{ 0.65, 0 },
 		}),
-		-- Inspect (fractions of the inspect): shut and reopen to show the leaf,
-		-- then two fanning pulses toward the camera, then idle.
+		-- Inspect (fractions of the inspect, on Config/Viewmodel InspectFan):
+		-- 2026-11-21 (owner: fanning yourself, not a throw) the leaf stays
+		-- open and flexes with the air: a little fold on the coil, a flick
+		-- open as it arrives by the face, then on each wave toward the face
+		-- the ribs bend back a beat after the wrist turns (follow-through) and
+		-- spring open on the way out, smaller as the waves relax.
 		INSPECT = table.freeze({
 			{ 0, 0 },
-			{ 0.14, 0.05 }, -- 2026-11-21: was 0, a still leaf; now a slow pre-fold (anticipation)
-			{ 0.24, 1.02 },
-			{ 0.3, 1 },
-			{ 0.4, -0.05 },
-			{ 0.46, 0 },
-			{ 0.56, 0.05 }, -- (was 0: a 0.3 s still hold before the pulses)
-			{ 0.61, 0.3 },
-			{ 0.66, -0.03 },
-			{ 0.71, 0.3 },
-			{ 0.76, -0.03 },
-			{ 0.82, 0 },
+			{ 0.05, 0.07 },
+			{ 0.12, -0.04 },
+			{ 0.162, 0.025 },
+			{ 0.187, 0.055 },
+			{ 0.212, 0.025 },
+			{ 0.237, -0.015 },
+			{ 0.262, 0.025 },
+			{ 0.287, 0.069 },
+			{ 0.312, 0.025 },
+			{ 0.337, -0.024 },
+			{ 0.362, 0.025 },
+			{ 0.387, 0.075 },
+			{ 0.412, 0.025 },
+			{ 0.437, -0.025 },
+			{ 0.462, 0.025 },
+			{ 0.487, 0.075 },
+			{ 0.512, 0.025 },
+			{ 0.537, -0.023 },
+			{ 0.562, 0.025 },
+			{ 0.587, 0.071 },
+			{ 0.612, 0.025 },
+			{ 0.637, -0.016 },
+			{ 0.662, 0.025 },
+			{ 0.687, 0.063 },
+			{ 0.712, 0.025 },
+			{ 0.737, -0.007 },
+			{ 0.762, 0.025 },
+			{ 0.787, 0.053 },
+			{ 0.812, 0.025 },
+			{ 0.837, 0.008 },
+			{ 0.862, 0.025 },
+			{ 0.9, 0 },
+			{ 0.95, 0.05 },
+			{ 0.985, 0 },
 		}),
 	}),
 })
