@@ -405,7 +405,6 @@ local function fillSlider(control: Frame, row: Row)
 	local knobPop = child(knob, "Pop") :: UIScale
 	local value = child(s, "Value") :: TextLabel
 	local lo, hi, step = row.min or 0, row.max or 1, row.step or 0.1
-	local shown: number? = nil
 	local function show(v: number, ease: number?)
 		local a = (v - lo) / (hi - lo)
 		if ease and ease > 0 then
@@ -416,10 +415,6 @@ local function fillSlider(control: Frame, row: Row)
 			knob.Position = UDim2.fromScale(a, 0.5)
 		end
 		value.Text = if row.fmt then row.fmt(v) else one(v)
-		if shown ~= nil and shown ~= v then
-			UiSfx.play("SliderTick", 0.9 + a * 0.25) -- a little higher as it fills
-		end
-		shown = v
 	end
 	show(if row.get then row.get() else lo)
 	local function setFromX(x: number, ease: number?)
@@ -437,7 +432,7 @@ local function fillSlider(control: Frame, row: Row)
 		if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then
 			return
 		end
-		UiSfx.claim() -- the slider ticks; no generic click
+		UiSfx.claim() -- sliders are silent (owner: Settings sounds were too much)
 		setFromX(input.Position.X, 0.16) -- a click eases there; the drag then follows
 		UiMotion.rest(knobPop, LobbyKit.M.hover)
 		for _, c in dragConns do

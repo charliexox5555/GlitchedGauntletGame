@@ -47,6 +47,7 @@ local ALLY, GOLD = Color3.fromHex("3FE0F2"), Color3.fromHex("FFC83D")
 local RED, WHITE, INK = Color3.fromHex("FF4D5E"), Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
 local MAX_ROWS = 8
 local ICON_SIZE, ICON_HOVER, LIFT = 74, 84, 10
+local TAG_UP = 104 -- the name tag's height while its item is hovered (it grows up behind the icon)
 local LIST_AWAY = 440 -- least px the player list slides right when hidden with Tab
 local QUINT = Enum.EasingStyle.Quint
 local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
@@ -344,53 +345,80 @@ end
 local function hookItem(s: State, b: TextButton)
 	local icon = child(b, "Icon") :: ImageLabel
 	local homeY = icon.Position.Y.Offset
-	-- concept C's hover: the item's colour plate (with ») pops up behind the
-	-- icon from its base; the name stays on its coloured tag (concept A)
-	local plate = b:FindFirstChild("Plate")
-	local platePop = plate and plate:FindFirstChild("Pop")
-	local chevrons = plate and plate:FindFirstChild("Chevrons")
-	local chevHome = if chevrons and chevrons:IsA("GuiObject")
-		then chevrons.Position
-		else UDim2.new()
-	local hovered = false
-	-- the tag's slanted ends have a dark edge fringe that shows on the same-
-	-- colour plate, so they hide while it's up (the tag body merges into it)
+	-- Hover (owner 2026-11-20: the old pop-up plate didn't line up with the
+	-- name tag and felt chunky): the item's own name TAG grows up behind the
+	-- icon, one plate the whole way, so plate and name can't misalign; the
+	-- name stays at its foot, the » fades in at its top corner, one Quint ease
+	-- each way. The old separate Plate stays hidden.
 	local tag = b:FindFirstChild("Tag")
-	local function tagEnds(show: boolean)
-		for _, c in if tag then tag:GetChildren() else {} do
-			if c:IsA("ImageLabel") then
-				c.ImageTransparency = if show then 0 else 1
+	local label = tag and tag:FindFirstChild("Label")
+	local tagHome = if tag and tag:IsA("GuiObject") then tag.Size else UDim2.new()
+	local chev: TextLabel? = nil
+	local hoverToken = 0
+	if tag and tag:IsA("GuiObject") then
+		local bottom = tag.Position.Y.Offset + tag.Size.Y.Offset
+		tag.AnchorPoint = Vector2.new(0.5, 1)
+		tag.Position = UDim2.new(0.5, 0, 0, bottom)
+		if label and label:IsA("GuiObject") then
+			label.AnchorPoint = Vector2.new(0.5, 0.5)
+			label.Position = UDim2.new(0.5, 0, 1, -tagHome.Y.Offset / 2)
+		end
+		icon.ZIndex = math.max(icon.ZIndex, tag.ZIndex + 1)
+		local plate = b:FindFirstChild("Plate")
+		if plate and plate:IsA("GuiObject") then
+			plate.Visible = false
+			local c = plate:FindFirstChild("Chevrons")
+			if c and c:IsA("TextLabel") then
+				c.Parent = tag
+				c.AnchorPoint = Vector2.new(1, 0)
+				c.Position = UDim2.new(1, -4, 0, 2)
+				c.ZIndex = tag.ZIndex + 2
+				c.TextColor3 = if label and label:IsA("TextLabel")
+					then label.TextColor3
+					else c.TextColor3
+				c.TextTransparency = 1
+				c.TextStrokeTransparency = 1
+				-- its outline (LobbyLook's TitleOutline) would stay drawn while
+				-- the text is hidden: the » showed on every idle tag
+				for _, st in c:GetChildren() do
+					if st:IsA("UIStroke") then
+						st:Destroy()
+					end
+				end
+				c.Visible = false
+				chev = c
 			end
 		end
 	end
 	local function hover(on: boolean)
-		hovered = on
-		if on then
-			tagEnds(false)
-		end
-		tween(icon, if on then 0.22 else 0.18, {
+		tween(icon, 0.28, {
 			Size = UDim2.fromOffset(
 				if on then ICON_HOVER else ICON_SIZE,
 				if on then ICON_HOVER else ICON_SIZE
 			),
 			Position = UDim2.new(0.5, 0, 0, homeY - (if on then LIFT else 0)),
 		}, QUINT, OUT)
-		if plate and plate:IsA("GuiObject") and platePop and platePop:IsA("UIScale") then
+		if tag and tag:IsA("GuiObject") then
+			tween(tag, 0.28, {
+				Size = if on then UDim2.fromOffset(tagHome.X.Offset + 8, TAG_UP) else tagHome,
+			}, QUINT, OUT)
+		end
+		local c = chev
+		if c then
+			hoverToken += 1
+			local my = hoverToken
 			if on then
-				plate.Visible = true
-				platePop.Scale = 0.8
-				tween(platePop, 0.26, { Scale = 1 }, QUINT, OUT)
-				local chev = plate:FindFirstChild("Chevrons")
-				if chev and chev:IsA("GuiObject") then
-					chev.Position = chevHome - UDim2.fromOffset(18, 0)
-					tween(chev, 0.34, { Position = chevHome }, QUINT, OUT)
-				end
-			else
-				local t = tween(platePop, 0.12, { Scale = 0.7 }, QUINT, IN)
+				c.Visible = true
+				c.Position = UDim2.new(1, -14, 0, 2)
+			end
+			local t = tween(c, if on then 0.3 else 0.15, {
+				TextTransparency = if on then 0 else 1,
+				Position = UDim2.new(1, -4, 0, 2),
+			}, QUINT, OUT)
+			if not on then
 				t.Completed:Once(function()
-					if not hovered then
-						plate.Visible = false
-						tagEnds(true)
+					if my == hoverToken then
+						c.Visible = false
 					end
 				end)
 			end
@@ -754,6 +782,13 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		s.listShown = not s.listShown
 		LobbyHudView.placeCorners(true)
 		boardLook()
+		if s.listShown then
+			-- coming back: the rows cascade in again, like the HUD's entrance
+			-- (owner 2026-11-20: "bring the leaderboard animation back")
+			listIntro = true
+			table.clear(shownRows)
+			renderList()
+		end
 	end
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		if not processed and input.KeyCode == Enum.KeyCode.Tab then
@@ -888,12 +923,15 @@ function LobbyHudView.placeCorners(force: boolean)
 			goal += UDim2.fromOffset(math.max(LIST_AWAY, away), 0)
 		end
 		local leaving = menuOpen or hiding
+		-- Tab slides the list away with a soft stop (an accelerating exit
+		-- read as a snap); a menu opening still clears the corners quickly
+		local tabOnly = hiding and not menuOpen
 		tween(
 			g,
-			if leaving then 0.24 else 0.42,
+			if tabOnly then 0.36 elseif leaving then 0.24 else 0.45,
 			{ Position = goal },
 			QUINT,
-			if leaving then IN else OUT
+			if leaving and not tabOnly then IN else OUT
 		)
 	end
 end

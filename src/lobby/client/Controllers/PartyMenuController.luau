@@ -461,7 +461,7 @@ local function open()
 	loadFriends()
 	render()
 	scrim.BackgroundTransparency = 1
-	tween(scrim, 0.25, { BackgroundTransparency = 0.45 })
+	tween(scrim, 0.25, { BackgroundTransparency = 0.62 }) -- lighter (owner 2026-11-20: "really dark")
 	slideIn(child(canvas, "Title"), -40, 0, 0)
 	slideIn(left, -40, 0, 0.02)
 	slideIn(child(canvas, "Search"), 0, 24, 0.04)

@@ -66,19 +66,33 @@ end
 
 -- Tabs: the picked tab is a white plate with ink words, the rest navy with
 -- muted words (a tab's words are its first TextLabel; icons keep their art).
+-- Tabs sit side by side, so they never grow (owner 2026-11-20: "chunky, the
+-- buttons overlap"): hovering an idle tab lifts its plate a shade and its
+-- words to white, eased; picking one eases to the white plate.
 -- Returns pick(i), which also runs onSelect.
 function LobbyKit.tabs(list: { GuiButton }, onSelect: (i: number) -> ()): (i: number) -> ()
 	local current = 0
+	local over: GuiButton? = nil
 	local function words(tab: GuiButton): TextLabel?
 		return tab:FindFirstChildWhichIsA("TextLabel", true)
 	end
-	local function look(i: number)
+	local function look()
 		for j, tab in list do
-			local on = j == i
-			UiMotion.tween(tab, M.quick, { BackgroundColor3 = if on then C.white else C.navy })
+			local on = j == current
+			local hot = not on and tab == over
+			UiMotion.tween(tab, 0.2, {
+				BackgroundColor3 = if on
+					then C.white
+					elseif hot then C.navyHi:Lerp(C.white, 0.08)
+					else C.navy,
+			})
 			local w = words(tab)
 			if w then
-				UiMotion.tween(w, M.quick, { TextColor3 = if on then C.ink else C.muted })
+				UiMotion.tween(
+					w,
+					0.2,
+					{ TextColor3 = if on then C.ink elseif hot then C.white else C.muted }
+				)
 			end
 		end
 	end
@@ -87,7 +101,7 @@ function LobbyKit.tabs(list: { GuiButton }, onSelect: (i: number) -> ()): (i: nu
 			return
 		end
 		current = i
-		look(i)
+		look()
 		onSelect(i)
 	end
 	for i, tab in list do
@@ -96,7 +110,16 @@ function LobbyKit.tabs(list: { GuiButton }, onSelect: (i: number) -> ()): (i: nu
 				UiSfx.cue("Tab")
 			end
 			pick(i)
-		end)
+		end, {
+			hover = 1,
+			enabled = function()
+				return false -- no grow, no dip
+			end,
+			onHover = function(on: boolean)
+				over = if on then tab elseif over == tab then nil else over
+				look()
+			end,
+		})
 	end
 	return pick
 end

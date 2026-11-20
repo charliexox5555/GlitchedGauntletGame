@@ -331,7 +331,7 @@ local function placeGun(gunId: string, line: string, animate: boolean)
 	m.Parent = view
 	gunOnStand = m
 	if animate then
-		UiSfx.cue("Equip")
+		UiSfx.claim() -- switching guns / skins is silent (owner 2026-11-20), no click either
 		swapRot.Value = CFrame.new(0, -0.3, 0)
 			* CFrame.Angles(math.rad(-12), math.rad(-18), math.rad(-6))
 		tween(swapRot, 0.55, { Value = CFrame.new() }, BACK)
@@ -875,9 +875,9 @@ local function reveal()
 		end
 	end
 	-- the gun swings in from a big angle (overrides the swap's small entrance)
-	swapRot.Value = CFrame.new(0, -1.4, 0)
-		* CFrame.Angles(math.rad(-28), math.rad(-75), math.rad(-14))
-	tween(swapRot, 0.9, { Value = CFrame.new() })
+	swapRot.Value = CFrame.new(0, -0.8, 0)
+		* CFrame.Angles(math.rad(-16), math.rad(-42), math.rad(-8))
+	tween(swapRot, 0.75, { Value = CFrame.new() })
 	slideIn(child(canvas, "GunClass"), 0, -50, 0.12)
 	slideIn(child(canvas, "GunName"), 0, -50, 0.16)
 	slideIn(child(canvas, "SkinTag"), 0, -50, 0.2)
@@ -922,8 +922,9 @@ end
 -- Locker appears behind it, so you come out of the wipe in a new place.
 -- Leaving: the wipe sweeps back up and the camera is home again under it.
 -- Reduced motion: straight in and out.
-local RISE, RISE_TIME = 25, 0.375
-local WIPE_IN, WIPE_OUT = 0.9, 0.75
+-- a little more subtle than RIVALS' (owner 2026-11-20): was 25 studs, 0.9 / 0.75 s
+local RISE, RISE_TIME = 14, 0.32
+local WIPE_IN, WIPE_OUT = 0.72, 0.6
 local wipe: Frame
 local savedCamType: Enum.CameraType? = nil
 local passToken = 0

@@ -237,7 +237,7 @@ Style.KIT = table.freeze({
 		robux = hex("3FD45C"), -- Robux prices (white words)
 		cyan = hex("3FE0F2"), -- selection, info tags
 		red = hex("FF4D5E"), -- warnings, badges
-		wash = table.freeze({ hex("2E2E31"), hex("1E1E21"), hex("131316") }), -- menu backdrop
+		wash = table.freeze({ hex("3C3C42"), hex("2B2B31"), hex("1F1F24") }), -- menu backdrop (a step lighter 2026-11-20)
 	}),
 	font = table.freeze({
 		-- Rubik (owner pick 2026-11-16, after RIVALS' own UI; a Roblox font):

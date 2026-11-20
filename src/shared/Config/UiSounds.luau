@@ -51,23 +51,25 @@ return table.freeze({
 
 	-- Lobby menus (owner 2026-11-20 brought UI sounds back: "consistent, not
 	-- over the top"; vault/02 Art/UI Polish Pass.md → Sounds). Played by
-	-- Shared/UiSfx. PROVISIONAL Roblox-pack picks until the owner picks from
-	-- art-source/audio/ui/UiReel.wav (Kenney CC0) and those are uploaded.
-	-- RIVALS' rule kept: few sounds, quiet, a click on every button, nothing
-	-- loud on hover; a hover tick only on big items (owner pick).
-	HoverBig = cue(15675032796, 0.1, 1.35, 0.07, 0.04), -- Small_Click, high and faint
-	Click = cue(15675059323, 0.3, 1, 0.04, 0.03), -- Bright_Click: any button
-	Confirm = cue(15675055424, 0.38, 1.05, 0.1), -- Cute_Pop: queue a mode, equip, claim
-	Back = cue(15675032796, 0.28, 0.85, 0.08), -- Small_Click, low: close / back
-	Tab = cue(15675032796, 0.26, 1.12, 0.05, 0.02), -- Small_Click: a tab or page of a list
-	ToggleOn = cue(15675059323, 0.28, 1.18, 0.05),
-	ToggleOff = cue(15675059323, 0.26, 0.88, 0.05),
-	SliderTick = cue(15675032796, 0.08, 1.5, 0.045, 0.05), -- per step while dragging
-	PageOpen = cue(15674975792, 0.16, 1.1, 0.2), -- Whoosh_03, soft: a menu page opens
-	QueueJoin = cue(15675043410, 0.36, 1.1, 0.5), -- Tonal_Stinger: searching starts
-	QueueLeave = cue(15675081158, 0.3, nil, 0.5), -- Cute_Goodbye: searching stops
-	MatchFound = cue(15675043410, 0.5, 1.25, 1), -- the stinger, higher
-	LockerIn = cue(15675028888, 0.32, 1.05, 0.3, 0.08), -- Whoosh_02: the camera rises
-	LockerOut = cue(15675046931, 0.28, 0.9, 0.3, 0.08), -- Sweep: back to the lobby
-	Equip = cue(15675037413, 0.32, 1, 0.08, 0.1), -- Paper_Swipe: the shown gun / skin changes
+	-- Shared/UiSfx. Round 2 (owner, same day): the bright click, the gun /
+	-- skin switch sound and the Settings ticks were too much. Now one soft
+	-- round tap for every click (Kenney CC0 drop_002, art-source/audio/ui/
+	-- UiClick_Soft.wav) and a tiny tick for tabs / toggles (click_002,
+	-- UiTick_Soft.wav), all quiet; no sound for switching guns or skins.
+	-- round 3 (owner: the tick was high-pitched, "just fun sounds that add to
+	-- the game"): the tiny tick is gone; everything is the one soft round tap,
+	-- a little lower, with small pitch steps for meaning
+	HoverBig = cue(112177281704509, 0.05, 1.05, 0.08, 0.04), -- the tap, barely there: big items only
+	Click = cue(112177281704509, 0.24, 0.92, 0.04, 0.03), -- soft round tap: any button
+	Confirm = cue(112177281704509, 0.3, 1.05, 0.1), -- the tap, a touch brighter: queue a mode
+	Back = cue(112177281704509, 0.2, 0.8, 0.08), -- the tap, lower: close / back
+	Tab = cue(112177281704509, 0.18, 0.98, 0.05, 0.03), -- a tab
+	ToggleOn = cue(112177281704509, 0.2, 1.02, 0.05),
+	ToggleOff = cue(112177281704509, 0.18, 0.84, 0.05),
+	PageOpen = cue(15674975792, 0.1, 1.1, 0.2), -- Whoosh_03, very soft: a menu page opens
+	QueueJoin = cue(15675043410, 0.3, 1.1, 0.5), -- Tonal_Stinger: searching starts
+	QueueLeave = cue(112177281704509, 0.24, 0.8, 0.5), -- the tap, low: searching stops
+	MatchFound = cue(15675043410, 0.45, 1.25, 1), -- the stinger, higher
+	LockerIn = cue(15675028888, 0.16, 1.1, 0.3, 0.06), -- Whoosh_02, soft: into the Locker
+	LockerOut = cue(15675046931, 0.14, 0.95, 0.3, 0.06), -- Sweep, soft: back to the lobby
 })

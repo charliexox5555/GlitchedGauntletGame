@@ -149,23 +149,51 @@ local function choose(t: Tile)
 	Router.close()
 end
 
--- Focus (owner 2026-11-20: "focus in on a duel, not shake it"; vault/02 Art/UI
--- Polish Pass.md): the hovered tile lifts a little and its art goes full
--- bright, the other tiles dim back, like RIVALS' queue cards. Hover is read
--- from a fixed, invisible Hit button over each tile's home, so the tile's own
--- scale and its open slide never move the hover area (that flip-flop at the
--- edges was the shake).
-local DIM = Color3.fromRGB(120, 120, 128)
-local FOCUS = 1.025 -- the tiles sit ~6 px apart: a bigger lift would cover the gap
+-- Focus (owner 2026-11-20: "focus in on a duel, not shake it"; round 2: "the
+-- text still shakes a little, and it's really dark"; vault/02 Art/UI Polish
+-- Pass.md): NOTHING scales any more (a scaling tile re-draws its words every
+-- frame, which reads as a shimmer). The hovered tile's art goes full bright
+-- and its dark shade lifts; the other tiles ease back a little. At rest the
+-- live tiles sit brighter than before. Hover is read from a fixed, invisible
+-- Hit button over each tile's home.
+local WHITE = Color3.new(1, 1, 1)
+local DIM = Color3.fromRGB(150, 150, 158)
+local REST_LIFT = 0.35 -- live tiles at rest: their tone this far toward white
 local focused: Tile? = nil
+local shadeHome: { [Tile]: number } = {}
 
 local function artColour(t: Tile): Color3
+	local base = if t.live then t.tone:Lerp(WHITE, REST_LIFT) else t.tone
 	if focused == t then
-		return if t.live then Color3.new(1, 1, 1) else t.tone:Lerp(Color3.new(1, 1, 1), 0.2)
+		return if t.live then WHITE else t.tone:Lerp(WHITE, 0.25)
 	elseif focused then
-		return t.tone:Lerp(DIM, 0.55) -- another tile has the focus
+		return base:Lerp(DIM, 0.3) -- another tile has the focus
 	end
-	return t.tone
+	return base
+end
+
+local function shadeOf(t: Tile): Frame?
+	local sh = t.button:FindFirstChild("Shade")
+	return if sh and sh:IsA("Frame") then sh else nil
+end
+
+local function paintTile(o: Tile, time: number)
+	if o.art then
+		tween(o.art, time, { ImageColor3 = artColour(o) })
+	end
+	local sh = shadeOf(o)
+	if sh then
+		local home = shadeHome[o]
+		if home == nil then
+			home = sh.BackgroundTransparency
+			shadeHome[o] = home
+		end
+		tween(sh, time, {
+			-- the dark shade is lighter at rest too (owner: "really dark"); the
+			-- focused tile lifts it further
+			BackgroundTransparency = math.min(home + (if focused == o then 0.4 else 0.15), 1),
+		})
+	end
 end
 
 local function setFocus(t: Tile?)
@@ -174,10 +202,7 @@ local function setFocus(t: Tile?)
 	end
 	focused = t
 	for _, o in tiles do
-		rest(o.pop, if o == t then (if o.live then FOCUS else 1.012) else 1)
-		if o.art then
-			tween(o.art, 0.25, { ImageColor3 = artColour(o) })
-		end
+		paintTile(o, 0.3)
 	end
 end
 
@@ -242,7 +267,7 @@ local function open()
 	refreshTiles()
 	resetClose()
 	scrim.BackgroundTransparency = 1
-	tween(scrim, 0.25, { BackgroundTransparency = 0.45 })
+	tween(scrim, 0.25, { BackgroundTransparency = 0.62 }) -- lighter (owner: "really dark")
 	-- the header slides in from the left, the tiles rise in one after another
 	for _, name in { "Title", "Hint" } do
 		local o = canvas:FindFirstChild(name)
@@ -258,14 +283,11 @@ local function open()
 	for i, t in tiles do
 		t.button.Position = t.home + UDim2.fromOffset(0, 36)
 		StateValues.set(t.pop, "Rest", 1)
-		t.pop.Scale = 0.96
-		if t.art then
-			t.art.ImageColor3 = t.tone
-		end
+		t.pop.Scale = 1 -- they rise in without scaling (scaling makes the words shimmer)
+		paintTile(t, 0)
 		task.delay((i - 1) * 0.03, function()
 			if isOpen then
 				tween(t.button, 0.42, { Position = t.home })
-				tween(t.pop, 0.42, { Scale = 1 })
 			end
 		end)
 	end
