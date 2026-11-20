@@ -70,7 +70,7 @@ Checked in a Lobby Studio play test (no errors from the new code; captures in ch
 - **Play tiles:** cause measured: tiles sit ~6 px apart and the old 1.04 hover pushed ~7 px into the neighbour, with the hover area scaling too, so the mouse flipped between tiles. Now each tile has a fixed invisible `<Mode>Hit` button (the tile itself `Interactable = false`); focus = lift 1.025, art full bright, the other tiles dim toward grey.
 - **Locker:** `Backdrop` is opaque (was 0.3, the world showed through); the skin-tinted light is stronger (0.7 / 0.58). Gun size per class (`CLASS_SIZE`): sidearms 1, SMG 1.12, shotgun 1.2, rifle 1.24, sniper / heavy 1.28 (before, every gun was fitted to the same 5 studs ≈ 838 px). The Vandal now spans ~880 px on screen.
 - **Settings:** toggles have a knob that slides (Quint 0.3 s) while the plate eases white / navy; rows highlight (colour + name eases 8 px) instead of growing 1.04 and don't dip; a tab's rows rise in 0.025 s apart; slider clicks ease (0.16 s) and tick per step; Inspect words cross-fade.
-- **Plates:** `tools/ui/make_plates.py` → `art-source/ui/plates/v2/` (`plate_slant`, `plate_slant_r`, `plate_cut1`, `plate_cut2`, `plate_cell`, `plate_shadow`, `slices.json`, `preview.png`). One image each (fill, top light and lip baked in), tinted by `ImageColor3`. **Not uploaded** until the owner approves the board; then the templates move onto them and `Plates.finish` / the caps go.
+- **Plates:** `tools/ui/make_plates.py` → `art-source/ui/plates/v2/` (`plate_slant`, `plate_slant_r`, `plate_cut1`, `plate_cut2`, `plate_cell`, `plate_shadow`, `slices.json`, `preview.png`). One image each (fill, top light and lip baked in), tinted by `ImageColor3`. Approved and uploaded 2026-11-20 (ids in `Config/UiPlates`).
 
 ## Test list
 1. Lobby: hover the Play tiles (no jitter, the focused one brightens, others dim); click 1V1 (Confirm) and a SOON tile (Denied + nudge).
@@ -79,3 +79,10 @@ Checked in a Lobby Studio play test (no errors from the new code; captures in ch
 4. Settings: REDUCED MOTION / UI SOUNDS toggles slide; rows highlight; CROSSHAIR tab rows rise in; sliders tick.
 5. Queue: search start / cancel / match found sounds.
 6. Listen to `UiReel.wav` and pick per role.
+
+## Plates moved over (2026-11-20, after the owner approved the board)
+- Uploaded all six (`Config/UiPlates`: slant 126358774182782, slantR 79321781380250, cut1 129601412125296, cut2 131426917946532, cell 94287691931985, shadow 120049214308831).
+- **Studio migration** (`tools/studio/MigratePlates.luau`, run in the Lobby's Edit mode): **122 cap plates** in StarterGui and `UiTemplates.Lobby` now hold one `PlateArt.Skin` (the slant image, sliced) instead of `CapL` + `CapR`; same geometry as before. The originals are copied to `ServerStorage.PlateMigrationBackup` (delete it once you're happy). **Save the Lobby place.**
+- **`Util/Plates`** now only binds a plate at run time (Skin follows the body's colour / transparency, white words get an outline); the second Gloss layer is gone (its light is in the image). Plates still built with caps by code are converted the same way. NpcTalk now binds its plates too (it never did).
+- Play-tested: no errors, 130 plates bound, no runaway widths, HUD and Shop captured. The new shapes (`slantR`, `cut1`, `cut2`, `cell`, `shadow`) are ready for the look pass; nothing uses them yet.
+- Rollback: delete each `PlateArt` / `HideFill` and copy the guis back from the backup folder; `git revert` the Plates change.

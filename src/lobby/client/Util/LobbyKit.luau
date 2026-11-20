@@ -37,6 +37,7 @@ LobbyKit.M = M
 LobbyKit.FONT = UiStyle.KIT.font.display
 
 LobbyKit.plate = Plates.finish
+LobbyKit.deepen = Plates.deepen
 LobbyKit.cell = Cards.finish
 LobbyKit.close = CloseButton.hook
 

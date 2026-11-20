@@ -58,6 +58,7 @@ local function ui(): ScreenGui?
 	local g = pg and pg:WaitForChild("NpcTalk", 10)
 	if g and g:IsA("ScreenGui") then
 		gui = g
+		LobbyKit.deepen(g) -- its plates follow their colour (PlateArt, Util/Plates)
 		local tpl = child(g, "ReplyTemplate") :: GuiObject?
 		if tpl then
 			tpl.Visible = false
