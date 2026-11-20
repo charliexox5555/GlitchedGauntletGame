@@ -115,7 +115,10 @@ def reload_empty():
 	c.key("Root", 22, (0.004, 0, 0.034), (-27, -9, 8))
 	c.key("Root", 40, (0, 0, 0.01), (-4, -2, 1))
 	lever_cycle(c, 52, hold=2)
-	c.key("Hammer", 86, rot=(0, -32, 0))
+	# The last shot's lever cycle already cocked the hammer (Fire ends cocked, and the game rests it there), so it
+	# stays back the whole reload; it used to start down and snap 32 degrees as the reload began (2026-11-20).
+	for f in (1, 52, 54, 86):
+		c.key("Hammer", f, rot=(0, -32, 0))
 	c.key("Root", 55, (-0.016, 0, -0.004), (-2, 1, 0.5))
 	c.key("Root", 61, (0.01, 0, 0.002), (-1, -0.5, 0.2))
 	c.key("Root", 72, (0, 0, 0), (-0.3, 0, 0))
