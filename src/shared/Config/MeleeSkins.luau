@@ -28,7 +28,20 @@ return table.freeze({
 	-- the model shrinks about its grip. The open Fan filled a third of the view.
 	VIEWMODEL_SCALE = table.freeze({
 		Fan = 0.8,
+		RuinedReaver = 0.84, -- 2026-11-21: its tip reached 72% up the screen (Util/RuinedReaver READY)
 	} :: { [string]: number }),
+	-- The camera's lead into a swing, per knife-slot motion (2026-11-21, owner:
+	-- "not enough lead, punch or follow-through" on the Reaver). Replaces
+	-- Config/Animations KNIFE_FEEL leadRoll / leadEarly / leadTime for that
+	-- motion (ViewmodelController.meleeMotion). CameraController.rollKick
+	-- rises over the first 20% of `leadTime`, so leadEarly = 0.2 * leadTime
+	-- puts the full roll on the contact and the rest is the follow-through.
+	FEEL = table.freeze({
+		RuinedReaver = table.freeze({ leadRoll = 2.4, leadEarly = 0.084, leadTime = 0.42 }),
+		Bat = table.freeze({ leadRoll = 2.2, leadEarly = 0.09, leadTime = 0.45 }),
+		-- The Fan swings on the stock knife tracks: the knife's lead, timed onto the contact.
+		Fan = table.freeze({ leadRoll = 1.6, leadEarly = 0.064, leadTime = 0.32 }),
+	} :: { [string]: { leadRoll: number, leadEarly: number, leadTime: number } }),
 	FAN = table.freeze({
 		RIB_PREFIX = "Rib_",
 		CENTER = 5,

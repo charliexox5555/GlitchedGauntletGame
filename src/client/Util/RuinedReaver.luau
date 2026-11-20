@@ -7,11 +7,13 @@ local Ease = require(Shared.Util.Ease)
 local Vfx = require(Shared.Config.VfxTextures)
 local UiMotion = require(Shared.UiMotion)
 local LocalHide = require(script.Parent.LocalHide)
+local ViewmodelMotion = require(script.Parent.ViewmodelMotion)
 local Audio = require(script.Parent.Parent.Controllers.AudioController)
 local ReaverAudio = require(Shared.Config.RuinedReaverAudio)
+local VM = require(Shared.Config.Viewmodel)
 local ShadowAudio = require(Shared.Config.ShadowMistAudio)
 
-type Key = { at: number, offset: CFrame, spread: number }
+type Key = { at: number, offset: CFrame, spread: number, tension: number }
 type Segment = { a: Key, b: Key, exit: CFrame, entry: CFrame }
 type Track = { length: number, contact: number?, keys: { Key }, segments: { Segment }? }
 type Shard = { motor: Motor6D, axis: Vector3, attached: { BasePart } }
@@ -44,20 +46,36 @@ export type State = {
 	orbitNodes: { Attachment },
 	inspectLayers: { Audio.Handle },
 	flash: number,
+	drag: number, -- seconds left of a hit's drag (the swing slows, eases back)
+	dragFor: number,
 }
 
 local Reaver = {}
+-- Where each arm block runs back to (viewmodel frame): the right on the
+-- stock knife's forearm line, the left as the bat's.
+Reaver.RIGHT_SHOULDER = VM.MELEE_SHOULDER
+Reaver.LEFT_SHOULDER = Vector3.new(-1.95, -3.0, 0.55)
 local MINT = Color3.fromRGB(105, 228, 193)
 local RIFT_SHADOW = Color3.fromHex("276A60")
 local INSPECT_LOCK = 3.88
 local DRAW_LOCK = 0.58
 local HEAVY_CONTACT = 0.30
 local IDENTITY = CFrame.identity
+local IDLE = { roll = 2.6, yaw = 1.0, lean = 2.2, lift = 0.014, rate = 0.4 }
 local TIP = Vector3.new(0, 0.065, -3.64)
 local PRIMARY_GRIP = Vector3.new(0, -0.03, 0.20)
 local SECONDARY_GRIP = Vector3.new(-0.024, -0.035, 0.54)
-local READY = CFrame.new(0.97, -0.80, -1.50)
-	* CFrame.fromOrientation(math.rad(52), math.rad(-8), math.rad(-38))
+-- The hold (2026-11-21, owner: "hold and framing"). Was (0.97, -0.80, -1.50)
+-- at (52, -8, -38) with the bat's shoulders: the forearm came straight up into
+-- the handle (24 degrees off the blade, the rejected "facing the sky" knife
+-- hold) and the tip reached 72% up the screen. Now on the stock knife's
+-- forearm line (Config/Viewmodel MELEE_SHOULDER) at 0.84 size (Config/
+-- MeleeSkins VIEWMODEL_SCALE): fist at ~(0.37, -0.60) of the screen, tip
+-- ~(0.17, 0.57), leaning in 17 degrees, 45 degrees off the forearm, the blade
+-- seen three-quarter on (its art shows, not flat). Fitted with the
+-- viewport projection (WorldToViewportPoint maths, 80 degree FOV).
+local READY = CFrame.new(1.0, -0.92, -1.85)
+	* CFrame.fromOrientation(math.rad(57), math.rad(6), math.rad(-6))
 
 local function handleAt(grip: CFrame, scale: number): CFrame
 	return grip * CFrame.new(-PRIMARY_GRIP * scale)
@@ -71,7 +89,8 @@ local function key(
 	pitch: number,
 	yaw: number,
 	roll: number,
-	spread: number
+	spread: number,
+	tension: number?
 ): Key
 	return {
 		at = at,
@@ -79,11 +98,32 @@ local function key(
 			* CFrame.new(x, y, z)
 			* CFrame.fromOrientation(math.rad(pitch), math.rad(yaw), math.rad(roll)),
 		spread = spread,
+		tension = tension or 1,
 	}
 end
 
 local function rest(at: number): Key
-	return { at = at, offset = IDENTITY, spread = 0 }
+	return { at = at, offset = IDENTITY, spread = 0, tension = 1 }
+end
+
+-- A small move past the hold, in the hold's own frame (studs, degrees): the
+-- recovery overshoots here and settles back (owner: no posed stops).
+local function past(
+	at: number,
+	x: number,
+	y: number,
+	z: number,
+	pitch: number,
+	yaw: number,
+	roll: number
+): Key
+	return {
+		at = at,
+		offset = CFrame.new(x, y, z)
+			* CFrame.fromOrientation(math.rad(pitch), math.rad(yaw), math.rad(roll)),
+		spread = 0,
+		tension = 0.6,
+	}
 end
 
 local TRACKS: { [string]: Track } = {
@@ -97,15 +137,25 @@ local TRACKS: { [string]: Track } = {
 			rest(1.05),
 		},
 	},
+	-- 2026-11-21 (owner: "too clunky", stiff posed keys): every attack is a
+	-- coil (tension < 1: the key slows, it never stops), a ~60 ms strike that
+	-- is at full speed ON the contact (strike-in / contact / strike-out keys
+	-- 30-35 ms apart), a follow-through that brakes, then home past the hold
+	-- (settle) and back. Was: the wind-up was the fastest part of every swing
+	-- and the blade crossed contact at half speed. Contacts unchanged, so the
+	-- hit timing and Config/RuinedReaverAudio cues stay in sync.
 	Slash1 = {
 		length = 0.55,
 		contact = 0.168,
 		keys = {
 			rest(0),
-			key(0.080, 1.29, -0.34, -1.46, 51, -37, -60, 0.02),
-			key(0.168, 0.33, -0.22, -2.09, 21, 38, -43, 0.09),
-			key(0.279, -0.65, -0.61, -1.91, -12, 73, -65, 0.05),
-			key(0.41, 0.02, -0.99, -1.62, 11, 39, -51, 0.01),
+			key(0.095, 1.24, -0.42, -1.42, 50, -36, -58, 0.02, 0.4),
+			key(0.138, 0.90, -0.30, -1.82, 38, -6, -51, 0.05),
+			key(0.168, 0.33, -0.24, -2.08, 22, 34, -45, 0.10, 1.3),
+			key(0.200, -0.30, -0.42, -2.00, 2, 60, -56, 0.06),
+			key(0.285, -0.62, -0.62, -1.86, -10, 72, -62, 0.03, 0.45),
+			key(0.40, 0.10, -0.96, -1.62, 14, 32, -48, 0.01),
+			past(0.49, 0.035, 0.03, 0.01, 3, -3, 2),
 			rest(0.55),
 		},
 	},
@@ -114,10 +164,13 @@ local TRACKS: { [string]: Track } = {
 		contact = 0.231,
 		keys = {
 			rest(0),
-			key(0.124, -0.53, -0.83, -1.62, -9, 65, 53, 0.02),
-			key(0.231, 0.08, -0.42, -2.12, 12, 8, 70, 0.10),
-			key(0.342, 1.10, -0.15, -1.84, 29, -56, 67, 0.04),
-			key(0.456, 1.23, -0.54, -1.56, 49, -25, 12, 0.01),
+			key(0.150, -0.42, -0.78, -1.62, -6, 60, 50, 0.02, 0.4),
+			key(0.200, -0.32, -0.60, -1.92, 0, 46, 60, 0.05),
+			key(0.231, 0.14, -0.40, -2.12, 12, 6, 70, 0.10, 1.3),
+			key(0.262, 0.62, -0.24, -2.02, 21, -30, 68, 0.06),
+			key(0.340, 1.12, -0.14, -1.82, 29, -56, 66, 0.03, 0.45),
+			key(0.450, 1.20, -0.56, -1.56, 48, -24, 14, 0.01),
+			past(0.51, -0.03, -0.03, 0, -3, 3, -3),
 			rest(0.55),
 		},
 	},
@@ -126,10 +179,13 @@ local TRACKS: { [string]: Track } = {
 		contact = 0.29,
 		keys = {
 			rest(0),
-			key(0.16, 1.27, -0.51, -1.43, 8, -70, -66, 0.02),
-			key(0.29, 0.43, -0.44, -2.12, 3, 17, -79, 0.10),
-			key(0.42, -0.68, -0.49, -1.91, -1, 71, -68, 0.06),
-			key(0.57, 0.19, -0.87, -1.67, 17, 38, -41, 0.01),
+			key(0.190, 1.30, -0.46, -1.40, 10, -68, -66, 0.02, 0.4),
+			key(0.262, 0.94, -0.44, -1.88, 6, -24, -75, 0.05),
+			key(0.29, 0.40, -0.42, -2.12, 3, 16, -80, 0.10, 1.3),
+			key(0.318, -0.20, -0.46, -2.05, 0, 48, -75, 0.06),
+			key(0.420, -0.70, -0.52, -1.88, -2, 74, -68, 0.03, 0.45),
+			key(0.560, 0.16, -0.90, -1.66, 18, 36, -44, 0.01),
+			past(0.64, 0.04, 0.03, 0.01, 3, -3, 2),
 			rest(0.70),
 		},
 	},
@@ -138,11 +194,14 @@ local TRACKS: { [string]: Track } = {
 		contact = HEAVY_CONTACT,
 		keys = {
 			rest(0),
-			key(0.13, 0.81, 0.06, -1.46, 59, -44, -35, 0.07),
-			key(0.207, 0.65, 0.26, -1.52, 70, -18, -30, 0.09),
-			key(HEAVY_CONTACT, 0.26, -0.29, -2.18, 19, 26, -44, 0.17),
-			key(0.425, -0.30, -0.79, -2.06, -24, 43, -49, 0.09),
-			key(0.66, 0.54, -0.96, -1.55, 17, 10, -39, 0.02),
+			key(0.13, 0.86, 0.0, -1.45, 62, -36, -33, 0.06),
+			key(0.215, 0.70, 0.24, -1.38, 72, -20, -30, 0.09, 0.35),
+			key(0.272, 0.47, -0.02, -1.92, 42, 7, -39, 0.12),
+			key(HEAVY_CONTACT, 0.26, -0.30, -2.24, 18, 26, -44, 0.17, 1.3),
+			key(0.328, 0.06, -0.52, -2.24, -3, 34, -46, 0.12),
+			key(0.430, -0.26, -0.80, -2.06, -22, 42, -49, 0.06, 0.45),
+			key(0.640, 0.54, -0.96, -1.58, 17, 10, -39, 0.02),
+			past(0.80, 0.04, 0.04, 0.01, 4, -3, 2),
 			rest(0.88),
 		},
 	},
@@ -162,6 +221,20 @@ local TRACKS: { [string]: Track } = {
 	},
 }
 
+-- The hold is never still (2026-11-21; was a 1.1 degree, 1.7 Hz nod that
+-- turned under 2 degrees a second, a frozen hold by the feel checklist): roll
+-- and lean trace a slow ellipse (so it never stops turning, 4.5-6.5 degrees a
+-- second), a small off-ratio turn and a lift so it doesn't read as a loop.
+local function idleDrift(clock: number): CFrame
+	local phase = clock * IDLE.rate * 2 * math.pi
+	return CFrame.new(0, math.sin(phase * 0.5) * IDLE.lift, 0)
+		* CFrame.Angles(
+			math.rad(math.cos(phase) * IDLE.lean),
+			math.rad(math.sin(phase * 1.3 + 2) * IDLE.yaw),
+			math.rad(math.sin(phase) * IDLE.roll)
+		)
+end
+
 local function rotationVector(relative: CFrame): Vector3
 	local axis, angle = relative:ToAxisAngle()
 	return axis * angle
@@ -172,7 +245,7 @@ local function poseTangent(keys: { Key }, i: number): (Vector3, Vector3)
 	if not before or not after then
 		return Vector3.zero, Vector3.zero
 	end
-	local weight = 0.85 / (after.at - before.at)
+	local weight = 0.85 * keyframe.tension / (after.at - before.at)
 	local pose = keyframe.offset
 	local travel = (after.offset.Position - before.offset.Position) * weight
 	local ahead = rotationVector(pose:ToObjectSpace(after.offset))
@@ -453,6 +526,8 @@ function Reaver.new(model: Model, scale: number): State?
 		orbitNodes = orbitNodes,
 		inspectLayers = {},
 		flash = 0,
+		drag = 0,
+		dragFor = 0,
 	}
 end
 
@@ -467,7 +542,19 @@ function Reaver.play(state: State, name: string): number
 	state.originSpread = state.spread
 	state.name = name
 	state.time = 0
+	state.drag = 0
 	return if TRACKS[name] then TRACKS[name].contact or 0 else 0
+end
+
+-- A hit: the swing drags for a moment and eases back to speed, as the stock
+-- knife and the bat do (Config/Viewmodel HIT_DRAG). It had none, so a hit
+-- looked like a whiff (2026-11-21).
+function Reaver.hitStop(state: State, seconds: number)
+	local track = TRACKS[state.name]
+	if track and track.contact and seconds == seconds then
+		state.dragFor = ViewmodelMotion.dragTime(seconds)
+		state.drag = state.dragFor
+	end
 end
 
 local function playLayers(
@@ -569,7 +656,9 @@ function Reaver.step(
 	sprinting: boolean
 ): (CFrame, Vector3, Vector3, boolean, number)
 	local previous = state.time
-	state.time += dt
+	local rate = ViewmodelMotion.dragRate(state.drag, state.dragFor)
+	state.drag = math.max(state.drag - dt, 0)
+	state.time += dt * rate
 	state.clock = (state.clock + dt) % 360
 	state.flash = Ease.approach(state.flash, 0, 15, dt)
 	local movement = state.name
@@ -638,11 +727,7 @@ function Reaver.step(
 	else
 		target = if sprinting
 			then CFrame.new(0.22, -0.42, 0.14) * CFrame.Angles(0, -0.30, 0.18)
-			else CFrame.new(0, math.sin(state.time * 2.3) * 0.018, 0) * CFrame.Angles(
-				math.sin(state.time * 1.7) * 0.019,
-				0,
-				0
-			)
+			else idleDrift(state.clock)
 		state.pose = state.pose:Lerp(target, 1 - math.exp(-14 * dt))
 		state.spread = Ease.approach(state.spread, 0, 22, dt)
 	end
@@ -661,6 +746,9 @@ function Reaver.step(
 		and state.time >= contact - 0.092
 		and state.time <= contact + 0.11
 	local visibleSweep = sweeping == true and state.name == movement
+	if visibleSweep and not state.trail.Enabled then
+		state.trail:Clear() -- a re-enabled trail joins its last point across the screen
+	end
 	state.trail.Enabled = visibleSweep
 	stepCut(state, track, fx and state.name == movement)
 	state.trail.Lifetime = if movement == "HeavyStab" then 0.27 else 0.20

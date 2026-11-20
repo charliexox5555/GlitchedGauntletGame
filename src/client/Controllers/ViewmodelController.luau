@@ -2075,6 +2075,9 @@ function ViewmodelController.hitStop(seconds: number)
 	if right and right.batMotion then
 		PopCircuitBat.hitStop(right.batMotion, seconds)
 	end
+	if right and right.reaver then
+		RuinedReaver.hitStop(right.reaver, seconds)
+	end
 end
 
 function ViewmodelController.isInspecting(): boolean
@@ -2085,6 +2088,20 @@ end
 
 function ViewmodelController.hasRuinedReaver(): boolean
 	return guns.Right ~= nil and guns.Right.reaver ~= nil
+end
+
+-- Which knife-slot motion is in the hand ("RuinedReaver", "Bat", "Fan"), nil
+-- for the stock knife tracks (Config/MeleeSkins FEEL keys on it).
+function ViewmodelController.meleeMotion(): string?
+	local right = guns.Right
+	if not right then
+		return nil
+	end
+	return if right.reaver
+		then "RuinedReaver"
+		elseif right.batMotion then "Bat"
+		elseif right.fan then "Fan"
+		else nil
 end
 
 function ViewmodelController.isFinishingShadowMistInspect(): boolean
@@ -2877,7 +2894,9 @@ local function update(dt: number)
 			a,
 			"Right",
 			hand,
-			frame:PointToWorldSpace(PopCircuitBat.RIGHT_SHOULDER),
+			frame:PointToWorldSpace(
+				if right.reaver then RuinedReaver.RIGHT_SHOULDER else PopCircuitBat.RIGHT_SHOULDER
+			),
 			handRight
 		)
 		ViewmodelArms.place(

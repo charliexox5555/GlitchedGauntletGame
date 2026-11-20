@@ -25,6 +25,7 @@ local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local HitFx = require(Shared.Config.HitFx)
 local Juice = require(Shared.Config.Juice)
+local MeleeSkins = require(Shared.Config.MeleeSkins)
 local GunSounds = require(Shared.Config.GunSounds)
 local Fighters = require(Shared.Util.Fighters)
 local FireRate = require(Shared.Util.FireRate)
@@ -1048,11 +1049,13 @@ local function swing(s: LocalSlot, heavy: boolean?)
 		end
 	end)
 	local path = Animations.KNIFE_MARK.paths[attack] or Vector2.new(-1, 0)
-	task.delay(math.max(hitDelay - feel.leadEarly, 0), function()
+	-- A knife-slot skin with its own motion leads by its own amount (Config/MeleeSkins FEEL).
+	local lead = MeleeSkins.FEEL[ViewmodelController.meleeMotion() or ""] or feel
+	task.delay(math.max(hitDelay - lead.leadEarly, 0), function()
 		if currentSwing() then
 			CameraController.rollKick(
-				path.X * feel.leadRoll * (if heavy then 0.6 else 1),
-				feel.leadTime
+				path.X * lead.leadRoll * (if heavy then 0.6 else 1),
+				lead.leadTime
 			)
 		end
 	end)

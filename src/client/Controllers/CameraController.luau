@@ -36,6 +36,7 @@ local punchTime = 0.3
 -- A one-off roll (degrees, a sideways Dash) and position lead (a Dash lunge),
 -- both applied fresh each frame on top of everything else.
 local rollKickDegrees = 0
+local rollKickFrom = 0 -- radians the last kick was at when this one began
 local rollKickAt = -math.huge
 local rollKickTime = 0.3
 local lungeOffset = Vector3.zero
@@ -227,12 +228,29 @@ function CameraController.punchFov(degrees: number, duration: number)
 	punchTime = duration
 end
 
+local function rollKickNow(): number
+	local t = (os.clock() - rollKickAt) / rollKickTime
+	if t >= 1 or t < 0 then
+		return 0
+	end
+	-- Up fast (first 20%, eased so it never starts on a jolt), then eased back.
+	local top = math.rad(rollKickDegrees)
+	if t < 0.2 then
+		local u = t / 0.2
+		return rollKickFrom + (top - rollKickFrom) * u * u * (3 - 2 * u)
+	end
+	return top * (1 - (t - 0.2) / 0.8) ^ 2
+end
+
 -- A quick roll of `degrees` (positive leans left) that eases back over
--- `duration` seconds.
+-- `duration` seconds. A kick that lands on another carries on from where the
+-- view is (2026-11-21: a melee hit's roll replaced the swing's lead roll from
+-- zero, so the view snapped back ~1.6 degrees on every hit's contact).
 function CameraController.rollKick(degrees: number, duration: number)
 	if degrees ~= degrees or duration ~= duration or duration <= 0 then
 		return
 	end
+	rollKickFrom = rollKickNow()
 	rollKickDegrees = degrees
 	rollKickAt = os.clock()
 	rollKickTime = duration
@@ -247,16 +265,6 @@ function CameraController.lunge(offset: Vector3, duration: number)
 	lungeOffset = offset
 	lungeAt = os.clock()
 	lungeTime = duration
-end
-
-local function rollKickNow(): number
-	local t = (os.clock() - rollKickAt) / rollKickTime
-	if t >= 1 or t < 0 then
-		return 0
-	end
-	-- Up fast (first 20%), then eased back.
-	local k = if t < 0.2 then t / 0.2 else (1 - (t - 0.2) / 0.8) ^ 2
-	return math.rad(rollKickDegrees) * k
 end
 
 local function lungeNow(): Vector3
