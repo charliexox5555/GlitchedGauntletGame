@@ -26,6 +26,9 @@ WALLS = {
 	"V5_RockLow_A": (24, 16, 8, 3, 2, 51),  # low piece for over doorways and under ledges
 }
 CEIL = {"V5_RockCeil_A": (48, 48, 14, 5, 5, 71)}
+# chimney pieces: the top edge is jagged (JAG studs) so the sky opening has a rock silhouette, not a straight line
+CHIMNEY = {"V5_RockChimney_A": (32, 40, 11, 4, 5, 91), "V5_RockChimney_B": (32, 40, 12, 3, 5, 113)}
+JAG = 16.0
 
 
 def _col(name):
@@ -44,7 +47,7 @@ def _mat():
 	return m
 
 
-def _relief(w, h, depth, cols, rows, seed):
+def _relief(w, h, depth, cols, rows, seed, jag=0.0):
 	"""Grid of vertices with big-mass bulges plus per-vertex jitter. Border columns stay shallow so neighbours meet."""
 	rnd = random.Random(seed)
 	ph = [rnd.uniform(0, math.tau) for _ in range(4)]
@@ -67,14 +70,17 @@ def _relief(w, h, depth, cols, rows, seed):
 				d = depth * 0.35 + rnd.uniform(-0.4, 0.4)
 			if edge_z:
 				d *= 0.6
+			if jag and j == rows:
+				z = h - (rnd.uniform(0, 0.25) if edge_x else rnd.uniform(0.25, 1.0)) * jag
+				d = depth * rnd.uniform(0.3, 0.9)
 			row.append((x, -d, z))
 		grid.append(row)
 	return grid
 
 
-def _panel(name, w, h, depth, cols, rows, seed, horizontal=False):
+def _panel(name, w, h, depth, cols, rows, seed, horizontal=False, jag=0.0):
 	bm = bmesh.new()
-	g = _relief(w, h, depth, cols, rows, seed)
+	g = _relief(w, h, depth, cols, rows, seed, jag)
 	vf = [[bm.verts.new(p) for p in row] for row in g]
 	rnd = random.Random(seed * 7)
 	for j in range(rows):
@@ -140,13 +146,21 @@ def build_all():
 		o = _panel(name, w, h, dep, c, r, s)
 		o.location = (x + w / 2, 0, 0)
 		out[name] = len(o.data.polygons)
+		x += w + 8
+	for name, (w, h, dep, c, r, s) in CHIMNEY.items():
+		o = _panel(name, w, h, dep, c, r, s, jag=JAG)
+		o.location = (x + w / 2, 0, 0)
+		x += w + 8
+		out[name] = len(o.data.polygons)
 	return out
 
 
-def export_all():
+def export_all(only=None):
 	os.makedirs(OUT, exist_ok=True)
 	res = {}
 	for o in bpy.data.collections["COL_V5_Rock"].objects:
+		if only and o.name not in only:
+			continue
 		loc = o.location.copy()
 		o.location = (0, 0, 0)
 		bpy.ops.object.select_all(action="DESELECT")

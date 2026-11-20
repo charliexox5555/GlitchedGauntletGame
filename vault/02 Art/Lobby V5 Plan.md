@@ -188,6 +188,42 @@ Slate02c was tried on the rock and dropped: its cobble pattern fought the facets
 
 **Owner to do:** look around the hub in Studio, then **save the Lobby place** (nothing here is saved yet). Rotate or move any piece freely.
 
+## Hub round 2: owner feedback (2026-11-20)
+**Owner asked for:**
+1. Fix the glitched parts where the ceiling met the top of the walls.
+2. Make the top a **skylight**: "you're at the bottom of a cave and the top opens up where the sky shines in".
+3. Better lighting: it was too dark.
+4. Fix the duels portal overlapping the rock.
+
+**Left for later:** the gaps in the wall between the range door and the other doors. The doors get their own pass "in a similar style to RIVALS" (study RIVALS' doors first; they stay as plain frames for now).
+
+**Done:**
+- **Ceiling and shaft removed.** The flat rock ceiling plates and the boxed lift shaft were where the leaning upper wall cut into the ceiling.
+- **Open chimney instead.** The upper rock row now leans in 20 degrees (it was 30) and ends at radius 41. An open rock chimney (8 pieces, `V5_RockChimney_A/B`, jagged notched tops, leaning out 8 degrees, shallow so it clears the towers) rises to about y = 110. You see sky and sun from the lift.
+- **Headframe.** The lift towers now rise to y = 120 through the opening with a headframe beam at 114, like a mine headframe. No tower piece touches the rock.
+- **Duels portal:**
+  - Opening is now 34 x 20, frame 8 deep, pillars out to x = 24.
+  - The two rock panels beside it (`Wall_NW_2`, `Wall_NE_1`) stop 8 studs short of the corners.
+  - New concrete **buttresses** (`Buttress_W/E`, 9 x 48 x 4.5) fill the corners, so the rock ends on concrete.
+  - Ray check: 0 rock pokes into the opening (there were 34).
+- **Lighting:**
+  - Rock grazing lamps 2.5, warm fill point lights 0.6, floor darkened 20%.
+  - **Place-wide Lighting changed:**
+
+| Setting | Old | New |
+|---|---|---|
+| Ambient | 74,74,78 | 84,78,72 |
+| OutdoorAmbient | 112,112,116 | 84,76,68 |
+| Brightness | 3 | 2.4 |
+| EnvironmentDiffuseScale | 0.55 | 0.3 |
+| ClockTime | 12.3 | **14.6** |
+| ColorShift_Top | 255,253,248 | 255,214,170 |
+
+  - At noon the sun came straight down the opening and lit the whole floor white. At 14.6 a warm sunbeam falls on the east rock above the armoury, with the tower's shadow across it, and the floor stays in warm shade. The V4 lobby shares these settings.
+- **Wall check:** 7,200 rays from 9 points. Every ray that escapes leaves upward through the skylight; none leave through a wall.
+
+**Owner to do:** look from the lift (look up), then **save the Lobby place**.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
