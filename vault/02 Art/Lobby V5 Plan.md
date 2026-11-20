@@ -311,6 +311,46 @@ Owner: "build the structure of it, and then we'll go into the pads". Built by `t
 
 **Next (pads pass):** the lift cages in each bay, sized per mode, with an inset floor pad, team edge strips, gates, a beacon, a mode sign and a queue screen. Then hook them to `LobbyQueue` (Step zones) and remove `TEMP_EdgeRail`.
 
+## Duels cages (2026-11-20)
+Owner: "Yes, build the cages". Built by `tools/studio/lobby_v5/BuildCages.luau` into `Duels.Cages`: 9 cages, about 1,000 Parts. `TEMP_EdgeRail` was removed.
+
+**One cage per bay**, sized by the bay (`Duels.BayAnchors`, attribute `Mode`), built the way a lift car is made:
+- **Base:** diamond-plate platform on an under-frame with joists, and a steel threshold.
+- **Frame:** four corner posts with shoes, a top frame and a header with a gate track.
+- **Walls:** barred side and back panels (rails, bars every 1.6, an X brace), with invisible colliders just inside.
+- **Gates:** two sliding gate leaves parked open behind the front posts.
+- **Hoist:** four cables from lugs up to sheave blocks seated under the gantry runways.
+
+**What players see:**
+- **Pad:** in two team halves.
+  - A is orange (`200,96,30`), B is blue (`40,100,200`).
+  - Each half has neon edge strips, a faint team letter, one pip per player and a soft team-coloured light.
+- **Header sign:** the mode in Rubik Heavy, with one orange and one blue pip per player.
+- **Beacon:** an amber beacon on top (tagged `CageBeacon` for the match-found effect later).
+- **Queue screen:** on the back wall, "STEP IN TO QUEUE" (4v4 says "COMING SOON").
+
+**Queueing:**
+- Each live cage has an invisible `QueueZone` tagged `LobbyQueue` with `GauntletState` values `Mode = "s<mode>"` and `Trigger = "sStep"`. This is the V4 step-pad contract, read by `src/lobby/client/Controllers/WorldPrompts.luau`.
+- There are 8 zones. 4v4 is not in `Config.MODES` yet, so its cage has no zone.
+- The team halves are tagged `LobbyPadSquare` with `Team = n1 / n2`, so `LobbyPadFx` draws its rings and glow when someone stands on them.
+- **Playtest (Studio, 2026-11-20):** standing in `Cage_08_1v1` set the player's `QueueStatus` to `searching / 1v1`; stepping out set it back to `idle`.
+- The V4 step zones in `LobbyV4Staging` are still active as well.
+
+**Review fixes:**
+- The team letters were upside down.
+- The X braces on the gate leaves read as sawhorses, so they're gone.
+- Two hazard lines (cage threshold plus deck kerb) were too much yellow; the threshold is now plain steel.
+- The header and top side beams were flush with the post faces; they're inset now. The remaining coplanar hits are bottoms resting on the platform.
+
+**Watch:** the client log warned "no asset content representation" for the hazard texture (`75158634706115`) during play. It renders in edit, probably still processing. Recheck.
+
+**Self-review: 7.5 / 10.** The row reads clearly (mode, size and team colours) and the queue works.
+
+Still missing:
+- **Motion:** gates sliding shut, the beacon spinning and the cage dropping when a match is found. That's the next code step: a `LobbyCageFx` client controller reading the player's `QueueStatus`.
+- Header text is small from the far end of the deck.
+- The colours are still the owner's "bland" note.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
