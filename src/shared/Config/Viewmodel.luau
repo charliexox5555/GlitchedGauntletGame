@@ -1229,7 +1229,7 @@ return table.freeze({
 			offset = Vector3.new(0.48, -0.72, -1.85),
 			rotation = Vector3.new(0, -10, 0),
 			arm = Vector3.new(0.3, -0.42, 0.85),
-			lift = Vector3.new(0, 0.02, 0),
+			lift = Vector3.new(0, -0.08, 0), -- the orb sits down in the fist (it floated above it),
 		},
 		-- Recon bow (rebuilt 2026-11-16, owner: "should look like a good two
 		-- hand first person draw back"): a right-handed archer. The bow in the
@@ -1277,7 +1277,7 @@ return table.freeze({
 		},
 		-- Roller: the bot on the palm, nose forward (its placed model held small).
 		Roller = {
-			scale = 1.4,
+			scale = 1.2, -- 1.4 until 2026-11-21: it filled the centre-right of the view
 			-- 2026-11-21 (frame in play): at (0.5, -0.7, -2) the car's top-left
 			-- wheel sat on the crosshair; lower and further right, clear of it.
 			offset = Vector3.new(0.62, -0.9, -2.05),
@@ -1538,6 +1538,10 @@ return table.freeze({
 		},
 		Place = {
 			length = 0.32,
+			-- The item leaves the hand at the bottom of the set-down (2026-11-21,
+			-- frame in play: the placed Roller was already out in the world while
+			-- the held one was still in the hand, so there were two).
+			hideAt = 0.42,
 			keys = {
 				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
 				{ t = 0.4, pos = Vector3.new(0, -0.38, -0.55), rot = Vector3.new(28, 0, 0) },

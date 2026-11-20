@@ -513,6 +513,11 @@ local function dropItem()
 	local token = itemToken
 	-- Let the item sink with the raising gun before it goes.
 	task.delay(0.2, function()
+		-- Studio review only: while Workspace VfxTimeScale freezes the rig
+		-- (0), the item waits too, so a frozen use can be looked at.
+		while RunService:IsStudio() and StateValues.get(Workspace, "VfxTimeScale") == 0 do
+			task.wait(0.1)
+		end
 		if token == itemToken then
 			ViewmodelController.letGoItem()
 		end
