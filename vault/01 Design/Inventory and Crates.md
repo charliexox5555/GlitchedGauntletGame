@@ -67,7 +67,7 @@ Re-test after the fixes (Studio store, fresh save): 2,500 → Apex → 500 → E
 - [ ] Rejoin: coins and cases are still there.
 
 ## Crate design: ChatGPT prompts (paste in order)
-Same three tiers and colours as the Shop already uses: **Standard** slate grey + cyan, **Elite** deep violet + gold, **Apex** black + red-orange with a faceted gem. The models are built from the sheet, so the sheet must show real shapes, not a painting.
+**2026-11-20: a fourth look, the Knife case** (knives only; dark green, bright steel, a green glow; `Config/Crates` tier 4; [Skin Tiers and Cases](Skin%20Tiers%20and%20Cases.md)). Same three tiers and colours as the Shop already uses: **Standard** slate grey + cyan, **Elite** deep violet + gold, **Apex** black + red-orange with a faceted gem. The models are built from the sheet, so the sheet must show real shapes, not a painting.
 
 **Prompt 1: shape options (pick one)**
 > Design a loot crate for a stylised Roblox arena shooter. Show **3 different shape concepts side by side** on a plain dark grey background, all in the same colours: slate grey body, darker gunmetal frame, a small cyan light accent. Each crate is about 1.5 wide, 1 deep and 1 tall, sturdy and heavy, like a military supply crate crossed with a high-tech weapon case.

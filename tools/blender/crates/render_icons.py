@@ -13,7 +13,11 @@ TIERS = {
 	"standard": {"Body": "5E636C", "Frame": "37353D", "Hardware": "A7ABB1", "Light": "2FD3E6", "Gem": "3FC8DD", "Interior": "1A1C21"},
 	"elite": {"Body": "5A3A8E", "Frame": "3A2452", "Hardware": "C9A04A", "Light": "F5B82E", "Gem": "E8AE34", "Interior": "1B1424"},
 	"apex": {"Body": "2A2B2F", "Frame": "46474C", "Hardware": "8C9096", "Light": "E8401F", "Gem": "D8341E", "Interior": "140E0E"},
+	"knife": {"Body": "26402A", "Frame": "172A1B", "Hardware": "C5CAD0", "Light": "5BE35A", "Gem": "4FD24E", "Interior": "0F1A11"},
 }
+# CRATE_TIERS=knife,apex renders only those (e.g. a new tier without touching the others)
+if os.environ.get("CRATE_TIERS"):
+	TIERS = {k: v for k, v in TIERS.items() if k in os.environ["CRATE_TIERS"].split(",")}
 
 
 def srgb(h):

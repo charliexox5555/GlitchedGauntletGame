@@ -31,36 +31,24 @@ A skin is one gun in one line (a "pair"). A line has a tier; single guns can be 
 
 Open questions for the owner: tier names; Moltframe; Poolside and Rootglass were Battle Pass cosmetics (the pass is out of the first release, so they're in cases for now); whether reskins with an added part (Breakwater, Sundial) sit where they are.
 
-## Cases (round 3, 2026-11-20: odds by section, like RIVALS)
-Owner: in RIVALS "each thing has the exact same chance… they section it off by type", so percentages never drop to a scary 0.05 %. Built (`Config/Skins.CASES`, `Shared/SkinCases`):
-- A case has **sections by type**: GUN SKINS and KNIFE SKINS, each with a chance. Inside a section **every skin line has the same chance** (owner, round 4: "Playback = Giltfold"), split evenly across that line's guns. Knives are one per line, so every knife is equal. The roll goes section → line → gun, each among what you don't own yet.
-- **Tiers decide what's in a case**, not how rare each skin is. "We won't have everything in each case" (owner): the tier list per case is the lever (more on that later from the owner).
-- Owned skins drop out of the roll; a section with nothing left drops out and the other scales up.
+## Cases (round 5, 2026-11-20: tier first, a Knife case; built)
+The owner approved Claude's proposal ("Yes, build it"). Before this (round 3), tiers only decided what was *in* a case and every line in a section had the same chance, so a Common reskin dropped as often as an Epic.
 
-| Case | Holds tiers | Gun skins | Knife skins |
-|---|---|---|---|
-| Standard (400) | Common | 100 % | (no knives: a knife reskin is Rare) |
-| Elite (900) | Common, Rare, Epic | 88 % | 12 % |
-| Apex (2,000) | Common, Rare, Epic, Legendary | 85 % | 15 % |
+**The roll** (`Config/Skins.CASES`, `Shared/SkinCases.roll`): a **section** by its chance (gun skins / knife skins), then a **tier** by its chance, then a **line** (every line in the tier the same chance, keeping "Playback = Giltfold"), then a **gun** in the line, each among what you don't own yet. A tier or section with nothing left drops out and the rest scale up. No duplicates; a case with nothing left can't be bought, and an opening that finds nothing refunds (unchanged).
 
-### Proposal (2026-11-20, waiting on the owner): roll the tier first, add a Knife case
-The owner asked whether the odds model is right and whether to split gun and knife cases. Claude's recommendation:
+| Case | Sections | Common | Rare | Epic | Legendary | Each line / knife today |
+|---|---|---|---|---|---|---|
+| Standard (400) | guns | 85 % | 15 % | — | — | Common 10.6 %, Rare 2.1 % |
+| Elite (900) | guns | 50 % | 40 % | 10 % | — | Common 6.3 %, Rare 5.7 %, Epic 5 % |
+| Apex (2,000) | guns 97 %, knives 3 % | — | 65 % | 30 % | 5 % | no Legendary line yet, so it drops out: guns Rare 66.4 % (9.5 % per line), Epic 30.6 % (15.3 %); knives Rare 2.1 %, Epic 0.9 % |
+| **Knife (2,500)** | knives | — | 70 % | 30 % | later | Rare 35 % each (only 2 Rare knives), Epic 3.3 % each (9) |
 
-**What's wrong today.** Tiers only decide what's *in* a case, so inside a case a Common reskin line has the same chance as an Epic one. An Epic or Legendary is then no rarer than a Common, and the bigger sounds and effects for high tiers fire at random. Each new line also lowers every other line's chance, so the first Legendary line in Apex would drop as often as a reskin.
-
-**Recommended roll: tier → line → gun.** Each case gives its tiers fixed chances. Inside a tier every line you don't own has the same chance (keeps "Playback = Giltfold" fairness), split across its guns. CONTENTS shows each tier's chance, then the lines in it. A tier you fully own drops out and the others scale up, as now. Each case is one step up the ladder, so a pricier case never pays out worse:
-
-| Case | Common | Rare | Epic | Legendary | Each line (lines today: 8 Common / 7 Rare / 2 Epic / 0 Legendary) |
-|---|---|---|---|---|---|
-| Standard (400) | 85 % | 15 % | — | — | Common 10.6 %, Rare 2.1 % |
-| Elite (900) | 50 % | 40 % | 10 % | — | Common 6.3 %, Rare 5.7 %, Epic 5 % |
-| Apex (2,000) | — | 65 % | 30 % | 5 % | Rare 9.3 %, Epic 15 %, Legendary 5 % split over the Legendary lines |
-| Knife (about 2,500) | — | 70 % | 30 % | (later) | knives only |
-
-- **Apex has no Commons** (the owner's idea, agreed): a 2,000-coin case shouldn't hand out a reskin the 400 case gives. Until a Legendary line exists (Moltframe once the chamber flow ships), Apex is Rare 70 / Epic 30.
-- **Knives get their own case** (agreed): knives are the prestige item. Today they're about 1 % each inside mixed cases, which makes them a vague lottery and pulls guns down. A Knife case makes them a clear goal with a price that fits, and keeps the gun cases clean. Optional jackpot: Apex keeps a small knife slot (about 3 %), so a knife can still come out of a gun case.
-- Needs: a fourth crate look for the Knife case, a Shop card and its render, and `Config/Skins.CASES` + `Shared/SkinCases.roll` switched to tier weights. The no-duplicates and refund rules stay as they are.
-- Open for the owner: which line goes in which tier (the lines are provisional), the exact percentages, the Knife case price.
+- **Apex has no Commons** (owner's idea): a 2,000-coin case never gives a reskin the 400 case gives. Apex keeps a 3 % knife slot, so a knife can still drop from a gun case.
+- **Knife case** (`Inventory.CaseKnife`, crate tier 4, `ShopCatalog` id `Knife`, 2,500 coins, Robux 499 / 1,249 as "soon" placeholders): knives only. Crate look: dark green with bright steel and a green glow (`Config/Crates` tier 4, `render_icons.py` "knife"); pictures `crate_knife_card.png` (image 140470533134784, the Shop card and Backpack icon) and `crate_knife_wide.png` (99120082357595, the case popup). The Shop's Home row now holds four cases (cards cloned in Studio, `BuildShop.luau` matches; the Season Pass card narrowed to 568).
+- **CONTENTS:** section (chance, "a tier is rolled first, then a skin line / knife in it") → tier rows (name in its colour, chance, "N skin lines · each the same chance") → line rows as before.
+- **Flag for the owner:** the Knife case has only 2 Rare knives (the reskin lines' knives) against 9 Epic ones, so each Rare knife is a 35 % drop and they're gone after a couple of openings. More knife reskins, or a 50 / 50 split, would even it out.
+- **Tested (Lobby play):** every case's odds add to 100 %; 20,000 Apex rolls matched (guns Rare 66.0 / Epic 30.9, knives 3.0); Shop row, Knife popup and CONTENTS captured; a Knife case bought (2,500), opened from the Backpack (tier-4 crate in the world), case used, knife granted, no errors.
+- Open for the owner: which line sits in which tier (still provisional), the exact percentages, the Knife price.
 
 **CONTENTS (round 4):** pictures centred with a modest spill up-left (1.3x the tile); clicking a picture pops a card out **next to it with a pointer** (Back Out 0.22 s from 0.82), and a click anywhere else closes it. Before that: each section with its chance ("EVERY SKIN IN HERE HAS THE SAME CHANCE"), then one row per skin line (its Vandal's picture, combined odds, opens to each gun with its own odds); knives one row each. Pictures are the new **portraits** (below) spilling over their tier square like RIVALS' tiles; **click a picture** for a short card (picture on its tier tile, name, "RARE SKIN · GIVEN TO THE VANDAL" / "GIVEN TO A RANDOM GUN (17)", what the tier means).
 

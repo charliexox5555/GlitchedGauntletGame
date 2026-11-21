@@ -93,14 +93,15 @@ local KNIFE_MIN: { [string]: TierId } = {
 	animated = "Epic",
 }
 
--- What each case holds and how it rolls (owner 2026-11-20, after RIVALS' odds
--- list): a case has SECTIONS by type (gun skins, knife skins). The section's
--- chance is picked first, then every item in it has the SAME chance, whatever
--- its tier, so no single skin drops to a tiny number. Tiers decide which skins
--- are IN a case, not how rare each one is. A section with nothing left for the
--- player drops out and the others scale up.
+-- What each case holds and how it rolls (owner 2026-11-20, round 5: "tier first"; vault
+-- Skin Tiers and Cases → Proposal). The roll: a SECTION by its chance (gun skins, knife
+-- skins), then a TIER by its chance, then every line in that tier the SAME chance
+-- (Playback = Giltfold), split across the line's guns. Tiers make a skin rarer; each
+-- case is one step up (a pricier case never pays out worse: Apex has no Commons).
+-- Whatever has nothing left for the player (a tier, a section) drops out and the
+-- rest scale up. Knives have their own case; Apex keeps a small knife slot.
 export type SectionId = "Guns" | "Knives"
-export type Case = { tiers: { TierId }, sections: { [SectionId]: number } }
+export type Case = { tiers: { [TierId]: number }, sections: { [SectionId]: number } }
 
 local SECTIONS: { [SectionId]: { name: string, order: number } } = {
 	Guns = { name = "GUN SKINS", order = 1 },
@@ -108,15 +109,11 @@ local SECTIONS: { [SectionId]: { name: string, order: number } } = {
 }
 
 local CASES: { [string]: Case } = {
-	-- reskins only (so no knives: a knife reskin is Rare)
-	Standard = { tiers = { "Common" }, sections = { Guns = 100 } },
-	-- reskins, shape changes and a few animated
-	Elite = { tiers = { "Common", "Rare", "Epic" }, sections = { Guns = 88, Knives = 12 } },
-	-- everything except Exclusive
-	Apex = {
-		tiers = { "Common", "Rare", "Epic", "Legendary" },
-		sections = { Guns = 85, Knives = 15 },
-	},
+	Standard = { tiers = { Common = 85, Rare = 15 }, sections = { Guns = 100 } },
+	Elite = { tiers = { Common = 50, Rare = 40, Epic = 10 }, sections = { Guns = 100 } },
+	-- Legendary drops out (and Rare / Epic scale up) until a Legendary line exists
+	Apex = { tiers = { Rare = 65, Epic = 30, Legendary = 5 }, sections = { Guns = 97, Knives = 3 } },
+	Knife = { tiers = { Rare = 70, Epic = 30 }, sections = { Knives = 100 } }, -- Legendary knives later
 }
 
 return table.freeze({

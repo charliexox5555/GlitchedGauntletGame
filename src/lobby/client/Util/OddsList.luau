@@ -259,143 +259,169 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 		hn.TextSize = 26
 		shiftX(hn, -66)
 		local hs = child(head, "Sub") :: TextLabel
-		hs.Text = "EVERY SKIN LINE IN HERE HAS THE SAME CHANCE"
+		hs.Text = if sec.id == "Knives"
+			then "A TIER IS ROLLED FIRST, THEN A KNIFE IN IT"
+			else "A TIER IS ROLLED FIRST, THEN A SKIN LINE IN IT"
 		shiftX(hs, -66);
 		(child(head, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(sec.odds)
 		head.Parent = list
 
-		for _, g in sec.groups do
-			local tier = Skins.TIERS[g.tier]
-			local def = Skins.LINES[g.line]
-			local kind = KIND_TEXT[if def then def.kind else "reskin"] or ""
-			local single = #g.entries == 1
-			local first = g.entries[1]
-			local guns: { string } = {}
-			for _, e in g.entries do
-				table.insert(guns, e.gun)
-			end
-			local r = row()
-			r.Name = "Line_" .. g.line .. "_" .. g.tier .. "_" .. sec.id
-			if not single then
-				for _, n in { "Cell", "Name", "Sub" } do
-					shiftX(child(r, n) :: GuiObject, ARROW_W)
-				end
-			end
-			local cell = child(r, "Cell") :: Frame
-			cell.BackgroundColor3 = tier.color
-			local image = if single
-				then SkinArt.portrait(first.gun, first.line)
-				else SkinArt.line(g.line, guns)
-			local hit = picture(r, image, g.line)
-			local name = child(r, "Name") :: TextLabel
-			name.Text = if single
-				then SkinCases.name(first.gun, first.line)
-				else string.upper(g.line)
-			name.TextColor3 = tier.color;
-			(child(r, "Sub") :: TextLabel).Text = if single
-				then string.format("%s SKIN FOR %s", tier.name, gunWord(first.gun, first.line))
-				else string.format(
-					"%s SKIN FOR A RANDOM GUN  ·  %d GUNS",
-					tier.name,
-					#g.entries
-				);
-			(child(r, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(g.odds)
-			hit.Activated:Connect(function()
-				if single then
-					showInfo(
-						cell,
-						image,
-						tier.color,
-						SkinCases.name(first.gun, first.line),
-						string.format(
-							"%s SKIN  ·  GIVEN TO THE %s",
-							tier.name,
-							gunWord(first.gun, first.line)
-						),
-						kind
-					)
-				else
-					showInfo(
-						cell,
-						image,
-						tier.color,
-						string.upper(g.line),
-						string.format(
-							"%s SKIN  ·  GIVEN TO A RANDOM GUN (%d)",
-							tier.name,
-							#g.entries
-						),
-						kind
-					)
-				end
-			end)
-			r.Parent = list
-			if single then
-				continue
-			end
+		for _, tb in sec.tiers do
+			-- the tier: its name in its colour, its chance, how many lines share it
+			local tierDef = Skins.TIERS[tb.tier]
+			local th = row()
+			th.Name = "Tier_" .. tb.tier .. "_" .. sec.id
+			th.BackgroundTransparency = 1;
+			(child(th, "Cell") :: Frame).Visible = false
+			local tn = child(th, "Name") :: TextLabel
+			tn.Text = tierDef.name
+			tn.TextColor3 = tierDef.color
+			tn.TextSize = 22
+			shiftX(tn, -66)
+			local ts = child(th, "Sub") :: TextLabel
+			local noun = if sec.id == "Knives"
+				then (if #tb.groups == 1 then "KNIFE" else "KNIVES")
+				else (if #tb.groups == 1 then "SKIN LINE" else "SKIN LINES")
+			ts.Text = string.format("%d %s  ·  EACH THE SAME CHANCE", #tb.groups, noun)
+			shiftX(ts, -66)
+			local tp = child(th, "Pct") :: TextLabel
+			tp.Text = ShopCatalog.formatOdds(tb.odds)
+			tp.TextColor3 = tierDef.color
+			th.Parent = list
 
-			-- the line's skins, hidden until it's opened
-			local arrow = Instance.new("TextLabel")
-			arrow.Name = "Arrow"
-			arrow.BackgroundTransparency = 1
-			arrow.AnchorPoint = Vector2.new(0, 0.5)
-			arrow.Position = UDim2.new(0, 8, 0.5, 0)
-			arrow.Size = UDim2.fromOffset(ARROW_W, 30)
-			arrow.FontFace = name.FontFace
-			arrow.TextSize = 18
-			arrow.TextColor3 = MUTED
-			arrow.Text = "▶"
-			arrow.ZIndex = name.ZIndex
-			arrow.Parent = r
-			local toggle = Instance.new("TextButton")
-			toggle.Name = "Toggle"
-			toggle.BackgroundTransparency = 1
-			toggle.Text = ""
-			toggle.Size = UDim2.fromScale(1, 1)
-			-- under the picture cell (siblings layer by ZIndex), so a click on the
-			-- picture opens its card and a click anywhere else on the row opens the line
-			toggle.ZIndex = cell.ZIndex - 1
-			toggle.Parent = r
-			local rows: { Frame } = {}
-			for _, e in g.entries do
-				local c = row()
-				c.Name = "Skin_" .. e.gun .. "_" .. e.line
-				c.Size = c.Size - UDim2.fromOffset(INDENT, 0)
-				c.Visible = false;
-				(child(c, "Cell") :: Frame).BackgroundColor3 = tier.color
-				local pic = SkinArt.portrait(e.gun, e.line)
-				local chit = picture(c, pic, e.line)
-				local cn = child(c, "Name") :: TextLabel
-				cn.Text = SkinCases.name(e.gun, e.line)
-				cn.TextColor3 = tier.color;
-				(child(c, "Sub") :: TextLabel).Text =
-					string.format("%s SKIN FOR %s", tier.name, gunWord(e.gun, e.line));
-				(child(c, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(e.odds)
-				chit.Activated:Connect(function()
-					showInfo(
-						child(c, "Cell") :: GuiObject,
-						pic,
-						tier.color,
-						SkinCases.name(e.gun, e.line),
-						string.format(
-							"%s SKIN  ·  GIVEN TO THE %s",
-							tier.name,
-							gunWord(e.gun, e.line)
-						),
-						kind
-					)
-				end)
-				c.Parent = list
-				table.insert(rows, c)
-			end
-			local open = false
-			toggle.Activated:Connect(function()
-				open = not open
-				arrow.Text = if open then "▼" else "▶"
-				for _, c in rows do
-					c.Visible = open
+			for _, g in tb.groups do
+				local tier = Skins.TIERS[g.tier]
+				local def = Skins.LINES[g.line]
+				local kind = KIND_TEXT[if def then def.kind else "reskin"] or ""
+				local single = #g.entries == 1
+				local first = g.entries[1]
+				local guns: { string } = {}
+				for _, e in g.entries do
+					table.insert(guns, e.gun)
 				end
-			end)
+				local r = row()
+				r.Name = "Line_" .. g.line .. "_" .. g.tier .. "_" .. sec.id
+				if not single then
+					for _, n in { "Cell", "Name", "Sub" } do
+						shiftX(child(r, n) :: GuiObject, ARROW_W)
+					end
+				end
+				local cell = child(r, "Cell") :: Frame
+				cell.BackgroundColor3 = tier.color
+				local image = if single
+					then SkinArt.portrait(first.gun, first.line)
+					else SkinArt.line(g.line, guns)
+				local hit = picture(r, image, g.line)
+				local name = child(r, "Name") :: TextLabel
+				name.Text = if single
+					then SkinCases.name(first.gun, first.line)
+					else string.upper(g.line)
+				name.TextColor3 = tier.color;
+				(child(r, "Sub") :: TextLabel).Text = if single
+					then string.format("%s SKIN FOR %s", tier.name, gunWord(first.gun, first.line))
+					else string.format(
+						"%s SKIN FOR A RANDOM GUN  ·  %d GUNS",
+						tier.name,
+						#g.entries
+					);
+				(child(r, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(g.odds)
+				hit.Activated:Connect(function()
+					if single then
+						showInfo(
+							cell,
+							image,
+							tier.color,
+							SkinCases.name(first.gun, first.line),
+							string.format(
+								"%s SKIN  ·  GIVEN TO THE %s",
+								tier.name,
+								gunWord(first.gun, first.line)
+							),
+							kind
+						)
+					else
+						showInfo(
+							cell,
+							image,
+							tier.color,
+							string.upper(g.line),
+							string.format(
+								"%s SKIN  ·  GIVEN TO A RANDOM GUN (%d)",
+								tier.name,
+								#g.entries
+							),
+							kind
+						)
+					end
+				end)
+				r.Parent = list
+				if single then
+					continue
+				end
+
+				-- the line's skins, hidden until it's opened
+				local arrow = Instance.new("TextLabel")
+				arrow.Name = "Arrow"
+				arrow.BackgroundTransparency = 1
+				arrow.AnchorPoint = Vector2.new(0, 0.5)
+				arrow.Position = UDim2.new(0, 8, 0.5, 0)
+				arrow.Size = UDim2.fromOffset(ARROW_W, 30)
+				arrow.FontFace = name.FontFace
+				arrow.TextSize = 18
+				arrow.TextColor3 = MUTED
+				arrow.Text = "▶"
+				arrow.ZIndex = name.ZIndex
+				arrow.Parent = r
+				local toggle = Instance.new("TextButton")
+				toggle.Name = "Toggle"
+				toggle.BackgroundTransparency = 1
+				toggle.Text = ""
+				toggle.Size = UDim2.fromScale(1, 1)
+				-- under the picture cell (siblings layer by ZIndex), so a click on the
+				-- picture opens its card and a click anywhere else on the row opens the line
+				toggle.ZIndex = cell.ZIndex - 1
+				toggle.Parent = r
+				local rows: { Frame } = {}
+				for _, e in g.entries do
+					local c = row()
+					c.Name = "Skin_" .. e.gun .. "_" .. e.line
+					c.Size = c.Size - UDim2.fromOffset(INDENT, 0)
+					c.Visible = false;
+					(child(c, "Cell") :: Frame).BackgroundColor3 = tier.color
+					local pic = SkinArt.portrait(e.gun, e.line)
+					local chit = picture(c, pic, e.line)
+					local cn = child(c, "Name") :: TextLabel
+					cn.Text = SkinCases.name(e.gun, e.line)
+					cn.TextColor3 = tier.color;
+					(child(c, "Sub") :: TextLabel).Text =
+						string.format("%s SKIN FOR %s", tier.name, gunWord(e.gun, e.line));
+					(child(c, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(e.odds)
+					chit.Activated:Connect(function()
+						showInfo(
+							child(c, "Cell") :: GuiObject,
+							pic,
+							tier.color,
+							SkinCases.name(e.gun, e.line),
+							string.format(
+								"%s SKIN  ·  GIVEN TO THE %s",
+								tier.name,
+								gunWord(e.gun, e.line)
+							),
+							kind
+						)
+					end)
+					c.Parent = list
+					table.insert(rows, c)
+				end
+				local open = false
+				toggle.Activated:Connect(function()
+					open = not open
+					arrow.Text = if open then "▼" else "▶"
+					for _, c in rows do
+						c.Visible = open
+					end
+				end)
+			end
 		end
 	end
 	list.CanvasPosition = Vector2.zero

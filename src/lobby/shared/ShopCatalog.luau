@@ -93,6 +93,15 @@ ShopCatalog.CASES = {
 		robux3 = 999,
 		color = Color3.fromHex("C2412F"),
 	},
+	{
+		id = "Knife", -- knives only (owner 2026-11-20)
+		name = "KNIFE CASE",
+		art = "rbxassetid://99120082357595", -- crate_knife_wide.png
+		coins = 2500,
+		robux = 499,
+		robux3 = 1249,
+		color = Color3.fromHex("1E8A5C"),
+	},
 } :: { Case }
 
 ShopCatalog.BUNDLES = {

@@ -53,6 +53,20 @@ local TIERS: { [number]: Tier } = {
 			Interior = look("140E0E"),
 		},
 	},
+	-- knives only (2026-11-20): dark green and bright steel with a green glow (no
+	-- skin tier uses green, so it reads apart from the gun cases)
+	[4] = {
+		name = "Knife",
+		accent = Color3.fromHex("5BE35A"),
+		roles = {
+			Body = look("26402A"),
+			Frame = look("172A1B"),
+			Hardware = look("C5CAD0", Enum.Material.Metal),
+			Light = look("5BE35A", Enum.Material.Neon),
+			Gem = look("4FD24E", Enum.Material.Neon),
+			Interior = look("0F1A11"),
+		},
+	},
 }
 
 return table.freeze({

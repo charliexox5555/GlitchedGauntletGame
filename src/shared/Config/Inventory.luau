@@ -51,6 +51,16 @@ local ITEMS: { [string]: ItemDef } = {
 		maxStack = 999,
 		icon = "rbxassetid://93123564652737",
 	},
+	-- knives only (owner 2026-11-20: knives got their own case)
+	CaseKnife = {
+		id = "CaseKnife",
+		kind = "Case",
+		name = "KNIFE CASE",
+		tier = 4,
+		case = "Knife",
+		maxStack = 999,
+		icon = "rbxassetid://140470533134784",
+	},
 }
 
 -- the item each Shop case puts in the inventory

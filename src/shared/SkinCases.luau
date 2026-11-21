@@ -4,13 +4,12 @@
 -- is in the game only if its WeaponSkins model is SkinReady). Both sides use it: the
 -- Shop's CONTENTS odds on the client, the roll on the server (Lobby ShopService).
 --
--- Odds (owner 2026-11-20, after RIVALS): a case has SECTIONS by type (gun skins, knife
--- skins) with a chance each; inside a section every SKIN LINE has the same chance
--- (Playback = Giltfold), split evenly across that line's guns. Knives are one per
--- line, so every knife is equal. Tiers only decide which skins a case holds
--- (Config/Skins.CASES). The roll: a section by weight, then a line, then a gun, each
--- among what the player doesn't own yet (owned skins drop out, so the rest go up;
--- ShopCatalog.ODDS_NOTE).
+-- Odds (owner 2026-11-20, round 5): a case has SECTIONS by type (gun skins, knife
+-- skins) and TIERS, each with a chance (Config/Skins.CASES). The roll: a section by
+-- weight, then a tier by weight, then a line (every line in the tier the same chance,
+-- Playback = Giltfold), then a gun in the line, each among what the player doesn't own
+-- yet. A tier or section with nothing left drops out and the rest scale up
+-- (ShopCatalog.ODDS_NOTE).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -75,7 +74,7 @@ function SkinCases.pool(caseId: string): { [Skins.SectionId]: { Pair } }
 		return out
 	end
 	for _, p in allPairs() do
-		if (def.sections[p.section] or 0) > 0 and table.find(def.tiers, p.tier) then
+		if (def.sections[p.section] or 0) > 0 and (def.tiers[p.tier] or 0) > 0 then
 			local list = out[p.section] or {}
 			table.insert(list, p)
 			out[p.section] = list
@@ -95,8 +94,37 @@ local function sectionOrder(): { Skins.SectionId }
 	return ids
 end
 
--- Every skin with its odds in % (a section with nothing in it drops out and the
--- rest scale), sections in order, then tier (highest first), line and gun.
+local function tierOrder(): { Skins.TierId }
+	return Skins.ORDER
+end
+
+-- Split a section's pairs by tier, then by line (lines sorted, so a seed always rolls
+-- the same).
+type Lines = { names: { string }, byLine: { [string]: { Pair } } }
+local function byTier(list: { Pair }): { [Skins.TierId]: Lines }
+	local out: { [Skins.TierId]: Lines } = {}
+	for _, p in list do
+		local l = out[p.tier]
+		if not l then
+			l = { names = {}, byLine = {} }
+			out[p.tier] = l
+		end
+		local guns = l.byLine[p.line]
+		if not guns then
+			guns = {}
+			l.byLine[p.line] = guns
+			table.insert(l.names, p.line)
+		end
+		table.insert(guns, p)
+	end
+	for _, l in out do
+		table.sort(l.names)
+	end
+	return out
+end
+
+-- Every skin with its odds in % (sections, then tiers, with nothing in them drop out
+-- and the rest scale), sections in order, then tier (highest first), line and gun.
 function SkinCases.contents(caseId: string): { Entry }
 	local def = Skins.CASES[caseId]
 	local pool = SkinCases.pool(caseId)
@@ -111,24 +139,25 @@ function SkinCases.contents(caseId: string): { Entry }
 		local list = pool[id]
 		if list and #list > 0 then
 			local share = (def.sections[id] or 0) / total * 100
-			-- equal per line, then equal per gun inside the line
-			local perLine: { [string]: number } = {}
-			local lines = 0
-			for _, p in list do
-				if not perLine[p.line] then
-					lines += 1
-					perLine[p.line] = 0
-				end
-				perLine[p.line] += 1
+			local tiers = byTier(list)
+			local tierTotal = 0
+			for tier in tiers do
+				tierTotal += def.tiers[tier] or 0
 			end
-			for _, p in list do
-				table.insert(out, {
-					gun = p.gun,
-					line = p.line,
-					tier = p.tier,
-					section = p.section,
-					odds = share / lines / perLine[p.line],
-				})
+			for tier, l in tiers do
+				local tierShare = share * (def.tiers[tier] or 0) / tierTotal
+				for _, line in l.names do
+					local guns = l.byLine[line]
+					for _, p in guns do
+						table.insert(out, {
+							gun = p.gun,
+							line = p.line,
+							tier = p.tier,
+							section = p.section,
+							odds = tierShare / #l.names / #guns,
+						})
+					end
+				end
 			end
 		end
 	end
@@ -150,34 +179,68 @@ function SkinCases.contents(caseId: string): { Entry }
 end
 
 export type Group = { line: string, tier: Skins.TierId, odds: number, entries: { Entry } }
-export type Section = { id: Skins.SectionId, name: string, odds: number, groups: { Group } }
+export type TierBlock = { tier: Skins.TierId, odds: number, groups: { Group } }
+export type Section = { id: Skins.SectionId, name: string, odds: number, tiers: { TierBlock } }
 
--- The CONTENTS laid out like RIVALS: each section with its chance, inside it one
--- group per skin line (the line's combined odds, its skins with their own). Knives
--- are one skin per line, so each knife is its own group.
+-- The CONTENTS: each section with its chance, inside it each tier with its chance
+-- (highest first), inside that one group per skin line (the line's combined odds,
+-- its skins with their own). Knives are one skin per line, so each is its own group.
 function SkinCases.sections(caseId: string): { Section }
 	local out: { Section } = {}
 	local bySection: { [string]: Section } = {}
+	local byTierKey: { [string]: TierBlock } = {}
 	local byGroup: { [string]: Group } = {}
 	for _, e in SkinCases.contents(caseId) do
 		local sec = bySection[e.section]
 		if not sec then
-			sec = { id = e.section, name = Skins.SECTIONS[e.section].name, odds = 0, groups = {} }
+			sec = { id = e.section, name = Skins.SECTIONS[e.section].name, odds = 0, tiers = {} }
 			bySection[e.section] = sec
 			table.insert(out, sec)
 		end
 		sec.odds += e.odds
-		local key = e.section .. "|" .. e.line .. "|" .. e.tier
+		local tk = e.section .. "|" .. e.tier
+		local tb = byTierKey[tk]
+		if not tb then
+			tb = { tier = e.tier, odds = 0, groups = {} }
+			byTierKey[tk] = tb
+			table.insert(sec.tiers, tb)
+		end
+		tb.odds += e.odds
+		local key = tk .. "|" .. e.line
 		local g = byGroup[key]
 		if not g then
 			g = { line = e.line, tier = e.tier, odds = 0, entries = {} }
 			byGroup[key] = g
-			table.insert(sec.groups, g)
+			table.insert(tb.groups, g)
 		end
 		g.odds += e.odds
 		table.insert(g.entries, e)
 	end
 	return out
+end
+
+-- Pick one key of `weights` among `keys` (in that order) by weight; nil if none.
+local function weighted<K>(keys: { K }, weights: { [K]: number }, rng: Random): K?
+	local total = 0
+	for _, k in keys do
+		total += weights[k] or 0
+	end
+	if total <= 0 then
+		return nil
+	end
+	local pick = rng:NextNumber() * total
+	local last: K? = nil
+	for _, k in keys do
+		local w = weights[k] or 0
+		if w > 0 then
+			last = k
+			pick -= w
+			if pick <= 0 then
+				return k
+			end
+		end
+	end
+	return last
 end
 
 -- One roll for a player who owns `owned`, with `rng` (seeded per purchase so a
@@ -188,53 +251,37 @@ function SkinCases.roll(caseId: string, owned: PlayerData.Skins, rng: Random): P
 		return nil
 	end
 	local pool = SkinCases.pool(caseId)
-	local open: { [Skins.SectionId]: { Pair } } = {}
-	local total = 0
-	local order = sectionOrder()
-	for _, id in order do
+	-- what's left, by section then tier
+	local open: { [Skins.SectionId]: { [Skins.TierId]: Lines } } = {}
+	local sectionW: { [Skins.SectionId]: number } = {}
+	local sections = sectionOrder()
+	for _, id in sections do
 		local list: { Pair } = {}
 		for _, p in (pool[id] or {}) do
 			if not PlayerData.owns(owned, p.gun, p.line) then
 				table.insert(list, p)
 			end
 		end
-		if #list > 0 and (def.sections[id] or 0) > 0 then
-			open[id] = list
-			total += def.sections[id]
+		if #list > 0 then
+			open[id] = byTier(list)
+			sectionW[id] = def.sections[id] or 0
 		end
 	end
-	if total <= 0 then
+	local section = weighted(sections, sectionW, rng)
+	if not section then
 		return nil
 	end
-	-- a section by weight
-	local pick = rng:NextNumber() * total
-	local chosen: { Pair }? = nil
-	for _, id in order do
-		local list = open[id]
-		if list then
-			chosen = list
-			pick -= def.sections[id]
-			if pick <= 0 then
-				break
-			end
-		end
+	local tiers = open[section]
+	local tierW: { [Skins.TierId]: number } = {}
+	for tier in tiers do
+		tierW[tier] = def.tiers[tier] or 0
 	end
-	local list = chosen
-	if not list then
+	local tier = weighted(tierOrder(), tierW, rng)
+	if not tier then
 		return nil
 	end
-	-- then a line (each line with something left counts once), then a gun in it
-	local lines: { string } = {}
-	local byLine: { [string]: { Pair } } = {}
-	for _, p in list do
-		if not byLine[p.line] then
-			byLine[p.line] = {}
-			table.insert(lines, p.line)
-		end
-		table.insert(byLine[p.line], p)
-	end
-	table.sort(lines) -- a fixed order, so a seed always rolls the same
-	local guns = byLine[lines[rng:NextInteger(1, #lines)]]
+	local l = tiers[tier]
+	local guns = l.byLine[l.names[rng:NextInteger(1, #l.names)]]
 	return guns[rng:NextInteger(1, #guns)]
 end
 

@@ -55,6 +55,7 @@ local ART = {
 		Standard = "rbxassetid://133624978874225", -- 3D crate card renders, end-on (crates/crate_*_card.png, 2026-11-20)
 		Elite = "rbxassetid://103320622297328",
 		Apex = "rbxassetid://93123564652737",
+		Knife = "rbxassetid://140470533134784",
 	},
 	tab = {
 		HOME = "rbxassetid://86144101123567",
@@ -571,7 +572,9 @@ do
 	local home = page(scroll, "Home", true)
 	header(home, "CASES", nil, 1)
 	local top = row(home, "Top", 360, 24, 2)
-	local cases = frame(top, "Cases", { Size = UDim2.fromOffset(512, 360), LayoutOrder = 1 })
+	-- four cases (Standard, Elite, Apex, Knife: owner 2026-11-20, knives got their own case)
+	local CASES_W = 4 * 160 + 3 * 16
+	local cases = frame(top, "Cases", { Size = UDim2.fromOffset(CASES_W, 360), LayoutOrder = 1 })
 	make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		Padding = UDim.new(0, 16),
@@ -582,6 +585,7 @@ do
 			{ "Standard", "STANDARD", hex("69696C"), "400" },
 			{ "Elite", "ELITE", hex("6A3FC2"), "900" },
 			{ "Apex", "APEX", hex("C2412F"), "2,000" },
+			{ "Knife", "KNIFE", hex("1E8A5C"), "2,500" },
 		}
 	do
 		local b = card(cases, "Case_" .. c[1], Vector2.new(160, 360), c[3], nil, nil, true, i)
@@ -606,7 +610,7 @@ do
 			ZIndex = 5,
 		}, slab)
 		local caseArt = ART.case[c[1]]
-		if caseArt then
+		if caseArt and caseArt ~= "" then
 			slab.Visible = false
 			make("ImageLabel", {
 				Name = "CaseArt",
@@ -637,7 +641,7 @@ do
 	local pass = card(
 		top,
 		"SeasonPass",
-		Vector2.new(W - 512 - 24, 360),
+		Vector2.new(W - CASES_W - 24, 360),
 		hex("2B3FB0"),
 		"SEASON PASS",
 		44,
