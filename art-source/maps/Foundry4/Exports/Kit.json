@@ -11,12 +11,6 @@
     "F4Chimney_F4_Red"
    ]
   },
-  "F4Clad": {
-   "props": {},
-   "parts": [
-    "F4Clad"
-   ]
-  },
   "F4Coil": {
    "props": {},
    "parts": [
@@ -104,9 +98,7 @@
    "parts": [
     "F4OxyTanks_F4_Black",
     "F4OxyTanks_F4_White",
-    "F4OxyTanks_F4_Yellow",
-    "F4OxyTanks_F4_SteelDark",
-    "F4OxyTanks_F4_Concrete"
+    "F4OxyTanks_F4_SteelDark"
    ]
   },
   "F4Post": {
@@ -120,15 +112,6 @@
    "parts": [
     "F4Rail4_F4_Yellow",
     "F4Rail4_F4_SteelDark"
-   ]
-  },
-  "F4ScrapBin": {
-   "props": {},
-   "parts": [
-    "F4ScrapBin_F4_Rust",
-    "F4ScrapBin_F4_SteelDark",
-    "F4ScrapBin_F4_SteelLight",
-    "F4ScrapBin_F4_Black"
    ]
   },
   "F4Stair12": {
@@ -234,27 +217,6 @@
     6.46699,
     6.46699,
     13.1
-   ]
-  },
-  {
-   "piece": "F4Clad",
-   "name": "F4Clad",
-   "material": "F4_Steel",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "4B525C"
-   },
-   "glow": false,
-   "tris": 396,
-   "center": [
-    0.0,
-    -0.07,
-    4.0
-   ],
-   "size": [
-    6.0,
-    0.38,
-    8.0
    ]
   },
   {
@@ -1151,13 +1113,13 @@
    "tris": 276,
    "center": [
     0.0,
-    0.05,
-    3.475
+    0.025,
+    3.225
    ],
    "size": [
-    5.22163,
     4.92163,
-    6.25
+    4.67163,
+    5.95
    ]
   },
   {
@@ -1169,37 +1131,16 @@
     "color": "D8D6D0"
    },
    "glow": false,
-   "tris": 348,
+   "tris": 420,
    "center": [
     0.0,
-    0.05,
-    7.35
+    0.025,
+    6.97
    ],
    "size": [
-    5.2989,
     4.9989,
-    1.7
-   ]
-  },
-  {
-   "piece": "F4OxyTanks",
-   "name": "F4OxyTanks_F4_Yellow",
-   "material": "F4_Yellow",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "E2A62C"
-   },
-   "glow": false,
-   "tris": 704,
-   "center": [
-    0.0,
-    0.0,
-    4.69
-   ],
-   "size": [
-    6.28,
-    6.28,
-    8.62
+    4.7489,
+    1.62
    ]
   },
   {
@@ -1211,37 +1152,16 @@
     "color": "30353C"
    },
    "glow": false,
-   "tris": 408,
+   "tris": 1704,
    "center": [
     0.0,
-    0.05,
-    8.475
+    0.025,
+    4.25
    ],
    "size": [
-    4.0,
-    3.21737,
-    0.65
-   ]
-  },
-  {
-   "piece": "F4OxyTanks",
-   "name": "F4OxyTanks_F4_Concrete",
-   "material": "F4_Concrete",
-   "look": {
-    "material": "Concrete",
-    "color": "8C8A85"
-   },
-   "glow": false,
-   "tris": 44,
-   "center": [
-    0.0,
-    0.0,
-    0.2
-   ],
-   "size": [
-    6.4,
-    6.4,
-    0.4
+    5.0955,
+    4.8455,
+    8.5
    ]
   },
   {
@@ -1305,90 +1225,6 @@
     4.0,
     0.1,
     0.38
-   ]
-  },
-  {
-   "piece": "F4ScrapBin",
-   "name": "F4ScrapBin_F4_Rust",
-   "material": "F4_Rust",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "9A5734"
-   },
-   "glow": false,
-   "tris": 704,
-   "center": [
-    0.0,
-    0.0,
-    1.97181
-   ],
-   "size": [
-    10.2,
-    5.04,
-    3.94362
-   ]
-  },
-  {
-   "piece": "F4ScrapBin",
-   "name": "F4ScrapBin_F4_SteelDark",
-   "material": "F4_SteelDark",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "30353C"
-   },
-   "glow": false,
-   "tris": 176,
-   "center": [
-    0.0,
-    0.0,
-    3.27438
-   ],
-   "size": [
-    9.4,
-    4.3,
-    0.74877
-   ]
-  },
-  {
-   "piece": "F4ScrapBin",
-   "name": "F4ScrapBin_F4_SteelLight",
-   "material": "F4_SteelLight",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "A6AEB7"
-   },
-   "glow": false,
-   "tris": 308,
-   "center": [
-    -0.44053,
-    -0.57384,
-    3.42217
-   ],
-   "size": [
-    8.02557,
-    2.45726,
-    1.07782
-   ]
-  },
-  {
-   "piece": "F4ScrapBin",
-   "name": "F4ScrapBin_F4_Black",
-   "material": "F4_Black",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "25272B"
-   },
-   "glow": false,
-   "tris": 272,
-   "center": [
-    0.0,
-    0.0,
-    2.36352
-   ],
-   "size": [
-    9.8,
-    1.2,
-    0.92704
    ]
   },
   {
@@ -1581,5 +1417,5 @@
    ]
   }
  ],
- "tris": 61520
+ "tris": 60284
 }

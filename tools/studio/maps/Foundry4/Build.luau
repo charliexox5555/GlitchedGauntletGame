@@ -37,20 +37,22 @@ type Look = { color: Color3, mat: Enum.Material?, variant: string?, alpha: numbe
 local function look(color: Color3, variant: string?, mat: Enum.Material?, alpha: number?): Look
 	return { color = color, variant = variant, mat = mat, alpha = alpha }
 end
+local MET = Enum.Material.Metal
 local L = {
-	yard = look(hex("4A4D52"), "R4_Asphalt", Enum.Material.Asphalt),
-	concrete = look(hex("6F6E6B"), "R4_Concrete", Enum.Material.Concrete),
-	castFloor = look(hex("5A5552"), "R4_Concrete", Enum.Material.Concrete),
-	render = look(hex("7E7A74"), "R4_Render", Enum.Material.Concrete),
-	renderDark = look(hex("5F5C58"), "R4_Render", Enum.Material.Concrete),
-	refractory = look(hex("5C4034"), "R4_Brick", Enum.Material.Brick),
-	plate = look(hex("68707A"), "R4_Plate", Enum.Material.DiamondPlate),
-	steel = look(hex("4B525C")),
-	steelDark = look(hex("30353C")),
-	steelLight = look(hex("8F98A2")),
+	-- RIVALS variants (owner 2026-11-21: MaterialService.ExtraTextures; the ones RIVALS' own maps use)
+	yard = look(hex("74726D"), "ConcretePanels-02a", Enum.Material.Concrete),
+	concrete = look(hex("7C7A75"), "Concrete-01a", Enum.Material.Concrete),
+	castFloor = look(hex("635F5B"), "Concrete-02a", Enum.Material.Concrete),
+	render = look(hex("8C8982"), "Concrete-01a", Enum.Material.Concrete),
+	renderDark = look(hex("67645F"), "Concrete-01a", Enum.Material.Concrete),
+	refractory = look(hex("6E4636"), "CinderBlock_01a", Enum.Material.Brick),
+	plate = look(hex("7C848E"), "Diamond Plate 2022", Enum.Material.DiamondPlate),
+	steel = look(hex("525A64"), "Metal 2022", MET),
+	steelDark = look(hex("353A42"), "Metal 2022", MET),
+	steelLight = look(hex("98A1AB"), "Metal 2022", MET),
 	roofUnder = look(hex("2C3036")),
-	roof = look(hex("3E434A")),
-	clad = look(hex("56606B")),
+	roof = look(hex("424750"), "Corrugated_01a", MET),
+	clad = look(hex("56606B"), "Corrugated_01a", MET),
 	yellow = look(hex("E2A62C")),
 	black = look(hex("25272B")),
 	paintY = look(hex("C9962E")),
@@ -59,11 +61,12 @@ local L = {
 	moltenHot = look(hex("B85416"), nil, Enum.Material.Neon),
 	crust = look(hex("3A2B25")),
 	lens = look(hex("8C6E4C"), nil, Enum.Material.Neon),
-	window = look(hex("4A3A2A"), nil, Enum.Material.Neon),
+	window = look(hex("30261D"), nil, Enum.Material.Neon),
 	glass = look(hex("1E2830"), nil, Enum.Material.Glass),
-	wood = look(hex("7A5A3C"), nil, Enum.Material.Wood),
-	rail = look(hex("7D848C"), nil, Enum.Material.Metal),
-	sleeper = look(hex("4A3E36")),
+	wood = look(hex("8A6A48"), "Wood01a", Enum.Material.Wood),
+	rust = look(hex("8E5232"), "Metal 2022", MET),
+	rail = look(hex("7D848C"), "Metal 2022", MET),
+	sleeper = look(hex("5A4A3E"), "Wood03a", Enum.Material.Wood),
 	none = look(hex("FFFFFF")),
 }
 type Side = { team: Color3, letter: string }
@@ -290,9 +293,44 @@ return function(): string
 		l.Shadows = false
 		l.Parent = a
 	end
-	-- a corrugated clad panel (F4Clad, 6 x 8) on a wall face. `face` +1 = ribs toward +Z, -1 toward -Z (before the
-	-- half's mirror); the panel's back sits `inset` into the wall core whose face is at z = zf. Checkerboard depth
-	-- (+0.05) so neighbours never share a plane; panels overlap 0.04 along the run.
+	-- corrugated cladding on a wall face, RIVALS-style: plain Parts with the Corrugated_01a variant (owner 2026-11-21;
+	-- the mesh panels sat 0.05 apart and shimmered at distance). The run is cut into 6-wide columns of 8-tall rows;
+	-- `skip` drops cells (doors). Columns with the same rows merge into one sheet; neighbouring sheets overlap 0.02
+	-- and step 0.04 in depth and 0.03 at the top, so no two faces share a plane. `face` +1 = sheet on the +Z side of
+	-- the core face zf (before the half's mirror).
+	local function sheets(
+		n: number,
+		rows: number,
+		y0: number,
+		skip: (number, number) -> boolean,
+		at: (number) -> number
+	)
+		local out = {}
+		local last: { number }? = nil
+		for c = 0, n - 1 do
+			local lo, hi = math.huge, -math.huge
+			for r = 0, rows - 1 do
+				if not skip(at(c), y0 + r * 8) then
+					lo = math.min(lo, r)
+					hi = math.max(hi, r)
+				end
+			end
+			if lo > hi then
+				last = nil
+				continue
+			end
+			if last and last[3] == lo and last[4] == hi and last[2] == c - 1 then
+				last[2] = c
+			else
+				last = { c, c, lo, hi }
+				table.insert(out, last)
+			end
+		end
+		return out
+	end
+	local function noSkip(_a: number, _b: number): boolean
+		return false
+	end
 	local function cladRun(
 		parent: Instance,
 		x0: number,
@@ -306,25 +344,22 @@ return function(): string
 		skip: ((number, number) -> boolean)?
 	)
 		local n = math.floor((x1 - x0) / 6 + 0.5)
-		for r = 0, rows - 1 do
-			for c = 0, n - 1 do
-				local xc = x0 + 3 + c * 6
-				local yb = y0 + r * 8
-				if skip and skip(xc, yb) then
-					continue
-				end
-				local d = ((r + c) % 2) * 0.05
-				local cf = CFrame.new(xc, yb - 0.02, zf + face * (0.05 + d))
-					* (if face > 0 then I else yaw(180))
-				local m = kit("F4Clad", parent, cf, H)
-				local p = m:FindFirstChildWhichIsA("BasePart")
-				assert(p, "F4Clad has no part")
-				p.Size = V(6.04, 8.04, p.Size.Z)
-				p.Color = colr
-			end
+		local lk = look(colr, "Corrugated_01a", MET)
+		for i, rc in
+			sheets(n, rows, y0, skip or noSkip, function(c: number): number
+				return x0 + 3 + c * 6
+			end)
+		do
+			local d = (i % 2) * 0.04
+			local a = V(x0 + rc[1] * 6 - 0.02, y0 + rc[3] * 8 - 0.03, zf - face * 0.05)
+			local b = V(
+				x0 + (rc[2] + 1) * 6 + 0.02,
+				y0 + (rc[4] + 1) * 8 - (i % 2) * 0.03,
+				zf + face * (0.22 + d)
+			)
+			box(parent, "Cladding", a, b, lk, false, H)
 		end
 	end
-	-- along a Z run: same panels turned 90 degrees (face +1 = ribs toward +X)
 	local function cladRunZ(
 		parent: Instance,
 		z0: number,
@@ -338,22 +373,20 @@ return function(): string
 		skip: ((number, number) -> boolean)?
 	)
 		local n = math.floor((z1 - z0) / 6 + 0.5)
-		for r = 0, rows - 1 do
-			for c = 0, n - 1 do
-				local zc = z0 + 3 + c * 6
-				local yb = y0 + r * 8
-				if skip and skip(zc, yb) then
-					continue
-				end
-				local d = ((r + c) % 2) * 0.05
-				local cf = CFrame.new(xf + face * (0.05 + d), yb - 0.02, zc)
-					* yaw(if face > 0 then 90 else -90)
-				local m = kit("F4Clad", parent, cf, H)
-				local p = m:FindFirstChildWhichIsA("BasePart")
-				assert(p, "F4Clad has no part")
-				p.Size = V(6.04, 8.04, p.Size.Z)
-				p.Color = colr
-			end
+		local lk = look(colr, "Corrugated_01a", MET)
+		for i, rc in
+			sheets(n, rows, y0, skip or noSkip, function(c: number): number
+				return z0 + 3 + c * 6
+			end)
+		do
+			local d = (i % 2) * 0.04
+			local a = V(xf - face * 0.05, y0 + rc[3] * 8 - 0.03, z0 + rc[1] * 6 - 0.02)
+			local b = V(
+				xf + face * (0.22 + d),
+				y0 + (rc[4] + 1) * 8 - (i % 2) * 0.03,
+				z0 + (rc[2] + 1) * 6 + 0.02
+			)
+			box(parent, "Cladding", a, b, lk, false, H)
 		end
 	end
 	-- a run of the kit railing (F4Rail4 scaled to fit, F4Post at every joint) along X at z, floor y
@@ -409,7 +442,9 @@ return function(): string
 			H
 		)
 	end
-	-- the slab pile (one design): `n` steel slabs on timber dunnage, slabs 8 x 0.9 x 3.6 along X
+	-- the slab pile (one design, owner 2026-11-21: "things don't line up"): identical steel slabs 8 x 0.9 x 3.6,
+	-- stacked exactly on identical timber bearers (0.6 x 0.35, 0.2 proud of the slab each side); each layer seats
+	-- 0.02 into the one below so no faces touch in one plane. Layer pitch 1.23.
 	local function slabPile(
 		parent: Instance,
 		x: number,
@@ -420,34 +455,109 @@ return function(): string
 	)
 		local T = CFrame.new(x, 0, z) * yaw(rot or 0)
 		local y = 0
-		for k = 1, n do
-			for _, dx in { -2.8, 2.8 } do
+		for _ = 1, n do
+			for _, dx in { -2.6, 2.6 } do
 				box(
 					parent,
-					"Dunnage",
-					V(dx - 0.35, y - 0.02, -1.95 - (k % 2) * 0.05),
-					V(dx + 0.35, y + 0.35, 1.95 + (k % 2) * 0.05),
+					"Bearer",
+					V(dx - 0.3, y - 0.02, -2.0),
+					V(dx + 0.3, y + 0.35, 2.0),
 					L.wood,
 					false,
 					H,
 					T
 				)
 			end
-			local w = 3.6 - (k % 2) * 0.2
-			local lenk = 8 - (k % 3) * 0.3
+			box(parent, "Slab", V(-4, y + 0.33, -1.8), V(4, y + 1.23, 1.8), L.steel, false, H, T)
+			y += 1.23
+		end
+		col("Slab pile", V(-4.0, 0, -2.0), V(4.0, y, 2.0), H, T)
+	end
+	-- the skip (one design): a steel bin 9.6 x 4.8 on two skids, an enclosing top rim, evenly spaced ribs that stop
+	-- under the rim, lifting lugs at the ends, a level fill of scrap plates inside the rim
+	local function skipBin(parent: Instance, x: number, z: number, H: Half?, rot: number?)
+		local T = CFrame.new(x, 0, z) * yaw(rot or 0)
+		for _, sz in { -1, 1 } do
 			box(
 				parent,
-				"Slab",
-				V(-lenk / 2, y + 0.33, -w / 2),
-				V(lenk / 2, y + 1.23, w / 2),
-				if k % 2 == 0 then L.steelLight else L.steel,
+				"Skid",
+				V(-4.6, -0.02, sz * 1.5),
+				V(4.6, 0.4, sz * 2.1),
+				L.steelDark,
 				false,
 				H,
 				T
 			)
-			y += 1.21
 		end
-		col("Slab pile", V(-4.1, 0, -2.0), V(4.1, y, 2.0), H, T)
+		box(parent, "Skip body", V(-4.8, 0.38, -2.4), V(4.8, 3.0, 2.4), L.rust, false, H, T)
+		for _, sz in { -1, 1 } do
+			box(
+				parent,
+				"Skip rim",
+				V(-5.0, 2.95, sz * 2.3),
+				V(5.0, 3.3, sz * 2.6),
+				L.steelDark,
+				false,
+				H,
+				T
+			)
+			for _, rx in { -3.6, -1.2, 1.2, 3.6 } do
+				box(
+					parent,
+					"Skip rib",
+					V(rx - 0.15, 0.4, sz * 2.38),
+					V(rx + 0.15, 2.97, sz * 2.55),
+					L.rust,
+					false,
+					H,
+					T
+				)
+			end
+		end
+		for _, sx in { -1, 1 } do
+			box(
+				parent,
+				"Skip rim",
+				V(sx * 4.7, 2.94, -2.32),
+				V(sx * 5.0, 3.28, 2.32),
+				L.steelDark,
+				false,
+				H,
+				T
+			)
+			box(
+				parent,
+				"Skip lug",
+				V(sx * 4.78, 1.8, -0.55),
+				V(sx * 5.3, 2.6, 0.55),
+				L.steelDark,
+				false,
+				H,
+				T
+			)
+		end
+		box(
+			parent,
+			"Skip fill",
+			V(-4.72, 2.4, -2.32),
+			V(4.72, 2.72, 2.32),
+			L.steelDark,
+			false,
+			H,
+			T
+		)
+		box(
+			parent,
+			"Scrap plate",
+			V(-4.2, 2.66, -1.9),
+			V(-0.2, 2.98, 0.4),
+			L.steelLight,
+			false,
+			H,
+			T
+		)
+		box(parent, "Scrap plate", V(0.4, 2.64, -0.6), V(4.1, 3.06, 1.8), L.steel, false, H, T)
+		col("Skip", V(-5.0, 0, -2.6), V(5.0, 3.3, 2.6), H, T)
 	end
 	-- a coil stack (one design): two coils side by side along their axis (X), two bottom rows + one on top,
 	-- on timber chocks; footprint 5.4 (X) x 9.8 (Z), 8.9 tall
@@ -586,7 +696,7 @@ return function(): string
 			secRunner,
 			"Edge line",
 			V(-45.5, -0.05, s * 6.0),
-			V(50, 0.04, s * 6.35),
+			V(50, 0.06, s * 6.35),
 			L.paintY,
 			false
 		)
@@ -895,7 +1005,7 @@ return function(): string
 				secHall,
 				"Threshold",
 				V(d[1] + 0.05, -0.1, 31.0),
-				V(d[2] - 0.05, 0.05, 33.0),
+				V(d[2] - 0.05, 0.07, 33.0),
 				L.plate,
 				false,
 				H
@@ -1091,7 +1201,7 @@ return function(): string
 		rivals("R_Cone", secHall, CFrame.new(46, 0, 9) * yaw(20), H)
 		rivals("R_Cone", secHall, CFrame.new(42.5, 0, 9.6) * yaw(-35), H)
 		-- painted walk lines along the wall
-		box(secHall, "Wall line", V(-47, -0.05, 22.0), V(47, 0.04, 22.3), L.paintW, false, H)
+		box(secHall, "Wall line", V(-47, -0.05, 22.0), V(47, 0.06, 22.3), L.paintW, false, H)
 
 		------------------------------------------------------------------ the yard
 		-- the hot blast stove (its main comes from the furnace kit) and its valve house
@@ -1150,8 +1260,7 @@ return function(): string
 		rivals("R_PowerBox", secYard, CFrame.new(-57.4, 2.5, 60.2) * yaw(-90), H)
 		blocker("Roof guard", V(-66.9, 9.7, 54.3), V(-57.1, 30, 61.9), H)
 		-- skip, coil stacks, slab piles
-		kit("F4ScrapBin", secYard, CFrame.new(-36, 0, 46), H)
-		col("Skip", V(-41.1, 0, 43.6), V(-30.9, 3.4, 48.4), H)
+		skipBin(secYard, -36, 46, H)
 		slabPile(secYard, -26, 60, 7, H, 90)
 		coilStack(secYard, -6, 48, H, 90)
 		coilStack(secYard, 20, 54, H)
@@ -1163,9 +1272,19 @@ return function(): string
 				box(
 					secYard,
 					"Stand leg",
-					V(dx - 0.5, 0, dz - 0.5),
-					V(dx + 0.5, 4.6, dz + 0.5),
+					V(dx - 0.5, -0.02, dz - 0.5),
+					V(dx + 0.5, 4.4, dz + 0.5),
 					L.yellow,
+					false,
+					H,
+					LS
+				)
+				box(
+					secYard,
+					"Stand foot",
+					V(dx - 0.75, -0.03, dz - 0.75),
+					V(dx + 0.75, 0.3, dz + 0.75),
+					L.steelDark,
 					false,
 					H,
 					LS
@@ -1174,29 +1293,29 @@ return function(): string
 			box(
 				secYard,
 				"Stand beam",
-				V(dx - 0.55, 4.0, -4.75),
-				V(dx + 0.55, 4.9, 4.75),
+				V(dx - 0.4, 4.3, -4.6),
+				V(dx + 0.4, 5.1, 4.6),
 				L.steelDark,
 				false,
 				H,
 				LS
 			)
 		end
-		for _, dz in { -4.2, 4.2 } do
+		for _, dz in { -3.4, 3.4 } do
 			box(
 				secYard,
 				"Stand rail",
-				V(-4.7, 4.85, dz - 0.5),
-				V(4.7, 5.3, dz + 0.5),
-				L.steelDark,
+				V(-4.5, 5.05, dz - 0.4),
+				V(4.5, 5.5, dz + 0.4),
+				L.steel,
 				false,
 				H,
 				LS
 			)
 		end
-		kit("F4Ladle", secYard, LS * CFrame.new(0, 5.2, 0) * yaw(90), H)
-		col("Ladle stand", V(-5.5, 0, -5.5), V(5.5, 13.3, 5.5), H, LS)
-		blocker("Ladle guard", V(-5.8, 13.3, -5.8), V(5.8, 30, 5.8), H, LS)
+		kit("F4Ladle", secYard, LS * CFrame.new(0, 5.48, 0) * yaw(90), H)
+		col("Ladle stand", V(-5.5, 0, -5.5), V(5.5, 13.6, 5.5), H, LS)
+		blocker("Ladle guard", V(-5.8, 13.6, -5.8), V(5.8, 30, 5.8), H, LS)
 		-- the shunting loco on its spur (team colour)
 		for _, rx in { 33.4, 38.6 } do
 			box(
@@ -1351,8 +1470,59 @@ return function(): string
 		rivals("R_WaterTank", secYard, CFrame.new(0, 12.85, 72), H, 0.95)
 		blocker("Roof guard", V(-11.8, 12.9, 67.2), V(11.8, 30, 76.8), H)
 		-- gas cylinders, drums, the jersey barrier and cones
-		kit("F4OxyTanks", secYard, CFrame.new(-40, 0, 76), H)
-		col("Gas cage", V(-43.2, 0, 72.8), V(-36.8, 9, 79.2), H)
+		-- the gas cage (owner 2026-11-21): a plinth, four posts, three rail levels on all four sides; each rail runs
+		-- between the posts' inner faces and buries 0.05 into them; the kit's cylinders stand on the plinth
+		local GC = CFrame.new(-40, 0, 76)
+		box(
+			secYard,
+			"Cage plinth",
+			V(-3.3, -0.05, -3.3),
+			V(3.3, 0.4, 3.3),
+			L.concrete,
+			false,
+			H,
+			GC
+		)
+		for _, px in { -3.0, 3.0 } do
+			for _, pz in { -3.0, 3.0 } do
+				box(
+					secYard,
+					"Cage post",
+					V(px - 0.18, 0.35, pz - 0.18),
+					V(px + 0.18, 9.0, pz + 0.18),
+					L.yellow,
+					false,
+					H,
+					GC
+				)
+			end
+		end
+		for _, ry in { 3.0, 6.0, 8.7 } do
+			for _, sd in { -3.0, 3.0 } do
+				box(
+					secYard,
+					"Cage rail",
+					V(sd - 0.1, ry - 0.1, -2.87),
+					V(sd + 0.1, ry + 0.1, 2.87),
+					L.yellow,
+					false,
+					H,
+					GC
+				)
+				box(
+					secYard,
+					"Cage rail",
+					V(-2.87, ry - 0.12, sd - 0.1),
+					V(2.87, ry + 0.12, sd + 0.1),
+					L.yellow,
+					false,
+					H,
+					GC
+				)
+			end
+		end
+		kit("F4OxyTanks", secYard, GC * CFrame.new(0, 0.4, 0), H)
+		col("Gas cage", V(-3.3, 0, -3.3), V(3.3, 9, 3.3), H, GC)
 		-- four drums, each a different height so no two lids share a plane
 		for i, p in
 			{
@@ -1374,12 +1544,12 @@ return function(): string
 		col("Barrier", V(53, 0, 82.75), V(63, 4.2, 85.25), H)
 		rivals("R_Cone", secYard, CFrame.new(64.5, 0, 82) * yaw(15), H)
 		-- painted lines: walkway along the hall wall, the spawn band (team colour)
-		box(secYard, "Walk line", V(-46, -0.05, 35.0), V(46, 0.04, 35.3), L.paintY, false, H)
+		box(secYard, "Walk line", V(-46, -0.05, 35.0), V(46, 0.06, 35.3), L.paintY, false, H)
 		box(
 			secYard,
 			"Spawn band",
 			V(-20, -0.05, 81.0),
-			V(20, 0.04, 81.6),
+			V(20, 0.06, 81.6),
 			look(side.team),
 			false,
 			H
@@ -1630,6 +1800,17 @@ return function(): string
 				d.Color = L.molten.color
 			elseif string.find(d.Name, "F4_Lamp", 1, true) then
 				d.Color = L.lens.color
+			elseif
+				string.match(d.Name, "_F4_Steel")
+				or string.match(d.Name, "_F4_Pipe")
+				or string.match(d.Name, "_F4_Rust")
+			then
+				d.Material = MET
+				d.MaterialVariant = "Metal 2022"
+			elseif string.match(d.Name, "_F4_Concrete") then
+				d.MaterialVariant = "Concrete-01a"
+			elseif string.match(d.Name, "_F4_Grate") then
+				d.MaterialVariant = "Diamond Plate 2022"
 			end
 		end
 	end

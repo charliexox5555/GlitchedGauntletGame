@@ -56,7 +56,7 @@ Not taken: crates (their `CrateBadges` carry a logo), the tall roadblock, pallet
 | Heights | runner (kill), ground 0, catwalks + crane walkway +12 (4 stairs); roofs, loco, ladles, ingot cart out of reach (roof guards) |
 
 ## Kit (`tools/blender/maps_foundry4/`, asset 133709238746938, `ServerStorage.MapKit.Foundry4`)
-16 pieces, ~58k tris, built in its own file `art-source/maps/Foundry4/Kit_Foundry4.blend`: F4Furnace, F4Stove, F4Ladle, F4LadleCar, F4Crane, F4Stair12, F4Rail4, F4Post, F4Coil, F4ScrapBin, F4IngotCart, F4Loco, F4OxyTanks, F4Mudgun, F4Chimney, F4Clad (corrugated panel, ~300 uses). Round forms are 8-12 flat facets with flat shading; chamfers are flat 1-segment cuts.
+14 pieces, ~60k tris, built in its own file `art-source/maps/Foundry4/Kit_Foundry4.blend`: F4Furnace, F4Stove, F4Ladle, F4LadleCar, F4Crane, F4Stair12, F4Rail4, F4Post, F4Coil, F4IngotCart, F4Loco, F4OxyTanks (cylinders only), F4Mudgun, F4Chimney. (F4ScrapBin and the F4Clad panel were dropped in the owner fixes below.) Round forms are 8-12 flat facets with flat shading; chamfers are flat 1-segment cuts.
 
 **Owner feedback on the first kit look (2026-11-21):** the ladle, the ladle car and the loco read as "curved boxes" whose parts "don't align well, they don't flush well". Cause: smooth shading across the 12 facets made them read round, the ladle's bands were straight rings on a tapered body, and the loco's louvres, rails and the car's blocks were stuck on. Rebuilt the same day:
 - every kit piece is flat-shaded (each facet a plane);
@@ -101,6 +101,34 @@ Close-ups: [kit sheet](../../02%20Art/References/maps/foundry4/kit-sheet.jpg), [
 ## ChatGPT concept prompts (for the owner later)
 1. *Overview:* "Stylised Roblox shooter map in the style of RIVALS, three-quarter aerial view at night. A steel works: a long blue-grey steel melt shop with corrugated walls and big doors, a tall dark blast furnace at one end with yellow platform rails, pipes and a bustle ring, a glowing orange molten-iron channel running down the middle of the hall into a pour pit, a ladle on a yellow rail car beside it, catwalks with yellow railings and an overhead yellow crane. Outside: hot blast stoves with domed tops, coil stacks, slab piles, a red shunting locomotive, a small pump house, gas cylinders in a cage. Chimneys with red and white bands, mill sheds with warm high windows. Chunky clean shapes, flat colours, warm lamp light against a cool night."
 2. *Player view:* "First-person view on a steel works cast floor at night: a glowing orange channel of molten metal with a low brick kerb and yellow edge lines, a steel plate bridge with yellow rails, a yellow overhead crane with a hanging walkway above, an ingot-mould car, coil stacks, warm pendant lamps under a dark roof. Stylised Roblox RIVALS look, clean and readable."
+
+## Owner fixes (2026-11-21, second look)
+The owner: some props (the bins, the slab piles, the gas cage) "don't line up well" and look unprofessional, there is still flicker and overlap in play, and RIVALS' textures (now in `MaterialService.ExtraTextures`) should be used well.
+
+**RIVALS variants.** What RIVALS' own maps use (counted on `ServerStorage.MapsRivals` and `Workspace["Rivals Map Examples"]`): Concrete-02a ×1,364, Concrete-01a ×814, Wood01a ×6,574, RubberSmooth, PineFoliage_01a, Slate02c, Corrugated_01a ×105 (corrugated metal on plain Parts), CinderBlock_01a, Paver_01b, ConcretePanels-02a; the Museum adds StoneBlock_01a and Marble_01a. They render in our place from inside the `ExtraTextures` subfolders (test parts captured), so nothing was moved. Foundry4 now uses:
+
+| Surface | Variant (base) |
+|---|---|
+| Yards | ConcretePanels-02a (Concrete) |
+| Cast floor | Concrete-02a (Concrete) |
+| Ground strips, plinths, walls, cage plinth, kit concrete | Concrete-01a (Concrete) |
+| Runner kerbs and lining | CinderBlock_01a (Brick) |
+| Decks, bridges, thresholds, kit grating | Diamond Plate 2022 (DiamondPlate) |
+| Steel (columns, beams, slabs, rails, skips) and the kit's steel, pipe and rust parts | Metal 2022 (Metal) |
+| Hall, cast house, pump house, mill and back-shed walls, roofs | Corrugated_01a (Metal) |
+| Bearers / sleepers | Wood01a / Wood03a (Wood) |
+
+Paint (yellow, team colours) and the molten / lamp Neon stay flat.
+
+**Flicker.** The corrugated walls were ~300 mesh panels in a checkerboard 0.05 apart, which shimmers at distance. They are now plain Parts with Corrugated_01a, like RIVALS: one sheet per run of equal height, neighbours overlapping 0.02 and stepping 0.04. Floor paint lines and door thresholds sit 0.06-0.07 above the floor instead of 0.04-0.05.
+
+**Props rebuilt as designed Parts (one design each):**
+- **Skip:** a 9.6 × 4.8 steel bin on two skids, an enclosing top rim, four evenly spaced ribs a side that stop under the rim, lifting lugs, a level fill of two scrap plates inside the rim (no random bars).
+- **Slab pile:** identical 8 × 0.9 × 3.6 slabs stacked exactly on identical bearers (0.2 proud each side), each layer seated 0.02 into the one below.
+- **Gas cage:** a concrete plinth, four posts, three rail levels on all four sides, every rail running between the posts' inner faces; the kit now holds only the three cylinders (foot ring, body, stepped shoulder, dome, neck, valve, guard ring).
+- **Ladle stand:** beams stepped in from the legs, cross rails the ladle's foot actually stands on, steel feet.
+
+Checks after the fixes (run once): **z-fight 0, floating 0, slopes 0**. About 1,560 parts (300 fewer meshes).
 
 ## Waiting on the owner
 - Play it: the runner (falling in kills), the bridges, the crane walkway, the catwalk stairs, the yards and the east lane past the ladle.

@@ -22,14 +22,12 @@ bottom centre unless noted.
   F4Stair12    a steel stair rising 12 over 20 toward +Y, 4 wide: channel stringers, 16 treads, posts, rails (3.2).
   F4Rail4      a 4-long catwalk railing (along X, no posts): top rail 3.2, mid rail, toe plate.  F4Post: its post.
   F4Coil       a steel coil, axis along X (2.6 wide, 4.8 across), two straps.
-  F4ScrapBin   a skip (10 x 5 x 3.4) heaped with scrap.
   F4IngotCart  a rail car (track along X) with three ingot moulds (8 tall).
   F4Loco       the shunting loco (along Y, 7.2 x 16 x 11): hood, cab with windows, frame, wheels, rails, buffers.
                Its body paint is F4_Paint (team colour in Studio).
-  F4OxyTanks   three gas cylinders in a cage frame (9 tall).
+  F4OxyTanks   three gas cylinders (the cage is Parts in Studio).
   F4Mudgun     the clay gun on its pedestal, the arm swung toward +X.
   F4Chimney    a background stack (60 tall), banded, with a red-and-white top.
-  F4Clad       a corrugated cladding panel 6 wide x 8 tall (face toward -Y), reused along every clad wall.
 Our own designs (RIVALS meshes used in Studio are listed in the map note).
 """
 from math import cos, pi, sin
@@ -495,33 +493,6 @@ def coil(coll):
 	return [obj("F4Coil", b, ["F4_SteelLight", "F4_SteelDark", "F4_Pipe"], coll, 0.06)]
 
 
-def scrap_bin(coll):
-	b = bmesh.new()
-	RU, SD, SL, BK = range(4)
-	prism(b, [(-3.9, 0.0), (3.9, 0.0), (5.0, 3.0), (-5.0, 3.0)], "y", -2.3, 2.3, RU)
-	cube(b, -5.1, 5.1, -2.45, 2.45, 2.85, 3.25, RU)  # top rim
-	for x in (-3.0, -1.0, 1.0, 3.0):
-		xt = x * 5.0 / 3.9
-		for s in (-1, 1):
-			bar(b, (x * 0.97, s * 2.36, 0.15), (xt * 0.97, s * 2.36, 2.9), 0.32, 0.18, RU, up=Vector((1, 0, 0)))
-	for s in (-1, 1):
-		cyl(b, (s * 4.4, -0.5, 2.4), (s * 4.4, 0.5, 2.4), 0.45, 8, BK)
-		cube(b, s * 4.0, s * 4.9, -0.6, 0.6, 1.9, 2.5, BK)
-	# the heap of scrap (angled plates and bars)
-	cube(b, -4.7, 4.7, -2.15, 2.15, 2.9, 3.15, SD)
-	import random
-	rnd = random.Random(4)
-	for _ in range(16):
-		x, y = rnd.uniform(-3.8, 3.8), rnd.uniform(-1.5, 1.5)
-		L = rnd.uniform(1.2, 2.6)
-		a = rnd.uniform(0, pi)
-		z0 = 3.0
-		p0 = Vector((x - cos(a) * L / 2, y - sin(a) * L / 2 * 0.6, z0 + rnd.uniform(0.0, 0.4)))
-		p1 = Vector((x + cos(a) * L / 2, y + sin(a) * L / 2 * 0.6, z0 + rnd.uniform(0.3, 0.9)))
-		bar(b, p0, p1, rnd.uniform(0.2, 0.7), rnd.uniform(0.12, 0.3), rnd.choice((SD, SL, RU)))
-	return [obj("F4ScrapBin", b, ["F4_Rust", "F4_SteelDark", "F4_SteelLight", "F4_Black"], coll, 0.06)]
-
-
 def ingot_cart(coll):
 	"""The ingot-mould car (track along Y, gauge 4.0, rail top z 0; Studio turns it to run along X). Three square
 	moulds stand on the deck, each a tapered body with a foot flange, a top rim, lifting lugs and the glowing ingot
@@ -625,21 +596,19 @@ def loco(coll):
 
 
 def oxy_tanks(coll):
+	"""Three gas cylinders (the cage and the plinth are Parts in Studio, owner 2026-11-21). Each one is a clean stack:
+	a chamfered foot ring, the body, a white shoulder that steps 0.04 out, a faceted dome, the neck, a valve and a
+	guard ring round it. Origin = the plinth top at the cage centre."""
 	b = bmesh.new()
-	BK, WH, YE, SD, CO = range(5)
-	cube(b, -3.2, 3.2, -3.2, 3.2, 0.0, 0.4, CO)
-	for cx, cy in ((-1.5, -1.3), (1.5, -1.3), (0.0, 1.4)):
-		loft(b, [(1.15, 0.35), (1.15, 6.6)], N, BK, rot=ROT12, cx=cx, cy=cy)
-		loft(b, [(1.19, 6.5), (1.19, 7.2), (0.85, 7.9), (0.4, 8.2)], N, WH, rot=ROT12, cx=cx, cy=cy)
-		loft(b, [(0.28, 8.15), (0.28, 8.8)], 8, SD, cx=cx, cy=cy)
-		cube(b, cx - 0.5, cx + 0.5, cy - 0.12, cy + 0.12, 8.6, 8.8, SD)
-	for x, y in ((-3.0, -3.0), (3.0, -3.0), (-3.0, 3.0), (3.0, 3.0)):
-		cube(b, x - 0.14, x + 0.14, y - 0.14, y + 0.14, 0.38, 9.0, YE)
-	for z in (3.0, 6.2, 8.85):
-		for s in (-1, 1):
-			cube(b, -3.0, 3.0, s * 3.0 - 0.1, s * 3.0 + 0.1, z - 0.1, z + 0.1, YE)
-			cube(b, s * 3.0 - 0.1, s * 3.0 + 0.1, -3.0, 3.0, z - 0.1 + 0.03, z + 0.1 - 0.03, YE)
-	return [obj("F4OxyTanks", b, ["F4_Black", "F4_White", "F4_Yellow", "F4_SteelDark", "F4_Concrete"], coll, 0.05)]
+	BK, WH, SD = range(3)
+	for cx, cy in ((-1.35, -1.2), (1.35, -1.2), (0.0, 1.25)):
+		revolve(b, [(0.9, 0.0), (1.2, 0.0), (1.24, 0.08), (1.24, 0.24), (1.2, 0.3), (0.9, 0.3)], N, SD, rot=ROT12, cx=cx, cy=cy)
+		loft(b, [(1.15, 0.25), (1.15, 6.2)], N, BK, rot=ROT12, cx=cx, cy=cy)
+		loft(b, [(1.19, 6.16), (1.19, 6.8), (0.95, 7.35), (0.55, 7.7), (0.32, 7.78)], N, WH, rot=ROT12, cx=cx, cy=cy)
+		loft(b, [(0.3, 7.7), (0.3, 8.2)], 8, SD, cx=cx, cy=cy)
+		cube(b, cx - 0.22, cx + 0.22, cy - 0.45, cy + 0.45, 8.1, 8.45, SD)
+		revolve(b, [(0.5, 7.72), (0.62, 7.72), (0.62, 8.5), (0.5, 8.5)], 8, SD, cx=cx, cy=cy)
+	return [obj("F4OxyTanks", b, ["F4_Black", "F4_White", "F4_SteelDark"], coll, 0.04)]
 
 
 def mudgun(coll):
@@ -688,26 +657,14 @@ def chimney(coll):
 	return [obj("F4Chimney", b, ["F4_Concrete", "F4_SteelDark", "F4_White", "F4_Red"], coll, 0.1)]
 
 
-def clad(coll):
-	b = bmesh.new()
-	CL = 0
-	cube(b, -3.0, 3.0, 0.0, 0.12, 0.0, 8.0, CL)
-	x = -3.0
-	while x < 2.99:
-		prism(b, [(x + 0.12, 0.02), (x + 0.62, 0.02), (x + 0.5, -0.26), (x + 0.24, -0.26)], "z", 0.0, 8.0, CL)
-		x += 0.75
-	return [obj("F4Clad", b, ["F4_Steel"], coll, 0.03)]
-
-
 PIECES = (
 	"F4Furnace", "F4Stove", "F4Ladle", "F4LadleCar", "F4Crane", "F4Stair12", "F4Rail4", "F4Post", "F4Coil",
-	"F4ScrapBin", "F4IngotCart", "F4Loco", "F4OxyTanks", "F4Mudgun", "F4Chimney", "F4Clad",
+	"F4IngotCart", "F4Loco", "F4OxyTanks", "F4Mudgun", "F4Chimney",
 )
 BUILD = {
 	"F4Furnace": furnace, "F4Stove": stove, "F4Ladle": ladle, "F4LadleCar": ladle_car, "F4Crane": crane,
-	"F4Stair12": stair12, "F4Rail4": rail4, "F4Post": post, "F4Coil": coil, "F4ScrapBin": scrap_bin,
+	"F4Stair12": stair12, "F4Rail4": rail4, "F4Post": post, "F4Coil": coil,
 	"F4IngotCart": ingot_cart, "F4Loco": loco, "F4OxyTanks": oxy_tanks, "F4Mudgun": mudgun, "F4Chimney": chimney,
-	"F4Clad": clad,
 }
 
 
