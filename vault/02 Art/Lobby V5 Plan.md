@@ -990,6 +990,30 @@ Audits: no overlaps, no floating parts, no flicker. Captures `20`–`23`.
 - the special dummies' mechanics and the terminals' menu (the merge);
 - the shop icons (later).
 
+## Final lobby cleanup (2026-11-21, night)
+
+**Owner** (Rojo reconnected): "the final cleanup of the lobby before adding more after we merge".
+- **Locker:** things too spaced out ("you walk in and there's not really anything"); the stands need to look better; the Armorer shouldn't be behind a counter ("like rivals where you should just be standing in there").
+- **Range:** the damage dummy should just be "a different color", not on a stage with a sign; improve the moving one a bit; the dummies all face the same way.
+- **Everything:** aligned and looking good.
+
+**Built** (place saved v887):
+- **Gun pedestal modelled** (`tools/blender/lobby_v5/v5_pedestal.py`, asset 117837262151466, render `33`): an octagonal stepped base, a tapered column with an inset glow band, a steel collar, and a top with an inset glow ring and a dish.
+- **Locker v4** (`BuildLockerV4.luau`):
+  - The back wall comes in 12 (room x 54..121; beams and ducts trimmed, one clean belt each side).
+  - **The gun circle sits just inside the doors** (centre x 80), with the hero plinth (your rifle, the LockerZone) in its middle and the eight new pedestals round it. The floor guide lines stop at its edge.
+  - The **Armorer stands free** between the circle and the weapon wall, looking at the doors; the counter and rack are gone.
+  - Weapon wall on the new back wall, supplies on the south wall, crates in the back corners (`31`, `32`).
+- **Range** (`PolishPass4.luau`):
+  - The damage dummy keeps only its orange (stage and board gone; the `RangeDamageDummy` tag stays).
+  - **The moving dummy has a proper track:** a bed, sleepers every 2.5, two rails, end stops with hazard faces, and a carriage on four wheels with purple glow sides (`30`).
+  - **The ten yard dummies face different ways** (along bridges, out of doorways, down the hall, at each other).
+- **Whole-lobby pass** over the Hub, Shop, Locker, Duels and Range: **0 flicker, 0 floating**. The last three were fixed: the blast-door core, the alcove glow strip and the gate sign.
+
+**Next:**
+- the owner's own polish pass;
+- after the merge: the range mechanics (damage counter, moving dummy, loadout terminals), the NPC redesign and animations, and new areas (passes).
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
