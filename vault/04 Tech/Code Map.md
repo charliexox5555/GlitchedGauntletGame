@@ -57,6 +57,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 ## src/shared (pure data and logic used by both sides)
 | Module | Owns |
 |---|---|
+| `ItemPortraits`, `SkinArt` | 208 square diagonal skin portraits (`tools/studio/RenderPortraits.luau`); `SkinArt.portrait / side / line` picks portrait → side-on → nil |
 | `PlayerData`, `CrateLook`, `SkinCases` | the saved wallet + inventory + owned skins (`skins`) and their published values (`Coins`, `DataReady`, `Inventory`, `Skins`); `SkinCases` = what each case can give from `Config/Skins` tiers, the odds list and the seeded roll; a crate copy per tier from `ReplicatedStorage.Crates.Crate` + `Config/Crates` (`make`, `paint`, `joint`) |
 | `Config/*.luau` | All tuning data. Weapons (1073 l), Viewmodel (1145), Mods (625), Match, Combat, Bots, Movement, Input, Camera, Animations, Audio / GunSounds / GunSoundAssets and SharedSoundAssets (generated standalone asset IDs) / ModSounds / Sounds / UiSounds, Ambience, MapLife, Theme / UiStyle, StatusEffects, TestRange, Avatar, Juice, VfxTextures, Dev, Game |
 | `Net.luau` | the remote list above |

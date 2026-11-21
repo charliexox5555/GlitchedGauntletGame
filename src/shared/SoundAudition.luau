@@ -130,6 +130,100 @@ local ROWS: { Row } = {
 			},
 		},
 	},
+	-- CASE (lobby, 2026-11-20): the in-world case opening (Config/CaseOpening). Not
+	-- level-matched yet: volumes are the config's; button 1 is what the opening plays.
+	{
+		section = "CASE",
+		name = "CASE LANDS",
+		list = {
+			{ id = 9117456325, vol = 0.6, note = "now: PSE Plastic Cooler Hits 3" },
+			{ id = 9117451558, vol = 0.6, note = "PSE Plastic Cooler 6" },
+			{ id = 9117939191, vol = 0.6, note = "PSE Prop Dirt Drops 1" },
+			{ id = 9113767320, vol = 0.5, note = "PSE Chair Drop 2" },
+		},
+	},
+	{
+		section = "CASE",
+		name = "LATCHES",
+		list = {
+			{ id = 9119727934, vol = 0.9, note = "now: PSE Plastic Switch 14" },
+			{ id = 9119717523, vol = 0.5, note = "PSE Toggle Button 2" },
+			{ id = 9119727796, vol = 1.2, note = "PSE Plastic Switch 12" },
+		},
+	},
+	{
+		section = "CASE",
+		name = "LID BURST (whoosh + hit + swell)",
+		list = {
+			{
+				note = "now: whoosh + low hit + swell",
+				layers = {
+					{ id = 15675028888, vol = 0.45, delay = 0, pitch = 0.9 },
+					{ id = 9117456325, vol = 0.55, delay = 0, pitch = 0.8 },
+					{ id = 9043336050, vol = 0.3, delay = 0, pitch = 1 },
+				},
+			},
+			{
+				note = "whoosh + hit",
+				layers = {
+					{ id = 15675028888, vol = 0.45, delay = 0, pitch = 0.9 },
+					{ id = 9117456325, vol = 0.55, delay = 0, pitch = 0.8 },
+				},
+			},
+			{ id = 15675012262, vol = 0.4, note = "Roblox Whoosh 04" },
+		},
+	},
+	{
+		section = "CASE",
+		name = "REVEAL: COMMON",
+		list = {
+			{ id = 17208396156, vol = 0.45, note = "now: Roblox GUI Select" },
+			{ id = 17208323435, vol = 0.6, note = "Roblox GUI Equip" },
+			{ id = 17208361335, vol = 0.3, note = "Roblox GUI Notification High" },
+		},
+	},
+	{
+		section = "CASE",
+		name = "REVEAL: RARE",
+		list = {
+			{ id = 17208361335, vol = 0.4, note = "now: Roblox GUI Notification High" },
+			{ id = 9042542887, vol = 0.3, note = "APM Universal Flip - Hit" },
+			{ id = 1840076509, vol = 0.35, note = "APM Through the Roof (sting)" },
+		},
+	},
+	{
+		section = "CASE",
+		name = "REVEAL: EPIC",
+		list = {
+			{ id = 9042542887, vol = 0.35, note = "now: APM Universal Flip - Hit" },
+			{ id = 9043151109, vol = 0.3, note = "APM Get Up And Go - Hit" },
+			{ id = 1840076509, vol = 0.4, note = "APM Through the Roof (sting)" },
+		},
+	},
+	{
+		section = "CASE",
+		name = "REVEAL: LEGENDARY",
+		list = {
+			{ id = 9043151109, vol = 0.35, note = "now: APM Get Up And Go - Hit" },
+			{ id = 9042702890, vol = 0.3, note = "APM Victory Slam stinger 1" },
+			{ id = 1840076509, vol = 0.45, note = "APM Through the Roof (sting)" },
+		},
+	},
+	{
+		section = "CASE",
+		name = "COLLECT (into you)",
+		list = {
+			{
+				note = "now: Equip + Notification High",
+				layers = {
+					{ id = 17208323435, vol = 0.6, delay = 0, pitch = 1 },
+					{ id = 17208361335, vol = 0.25, delay = 0, pitch = 1.25 },
+				},
+			},
+			{ id = 17208323435, vol = 0.6, note = "Roblox GUI Equip" },
+			{ id = 17208396156, vol = 0.45, note = "Roblox GUI Select" },
+		},
+	},
 	{
 		section = "SHARED",
 		name = "PAGE OPEN (soft whoosh)",

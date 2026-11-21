@@ -24,8 +24,13 @@ return table.freeze({
 	TOSS_SPIN = 50, -- degrees of yaw it turns while flying
 
 	SHAKE_EVERY = 0.55, -- s between shakes while waiting / building up
-	SHAKES = 2, -- at least this many before the latches
-	SHAKE_ANGLES = { 4, 7, 9 }, -- degrees, growing
+	SHAKES = 2, -- at least this many before the latches (more for higher tiers: TIER_SHAKES)
+	SHAKE_ANGLES = { 4, 6, 8, 10, 12 }, -- degrees, growing
+	-- the build-up scales with what's inside (owner 2026-11-20: "people are paying,
+	-- it needs to be satisfying"): more shakes, and the seams glow in the tier colour
+	-- from the second-to-last shake
+	TIER_SHAKES = table.freeze({ Common = 2, Rare = 3, Epic = 4, Legendary = 5, Exclusive = 5 }),
+	TEASE_GLOW = 1.4, -- seam light brightness while teasing
 	WAIT_LIMIT = 10, -- s without the server's answer → it sinks away
 
 	LATCH_GAP = 0.1, -- s between the two latches
@@ -43,7 +48,7 @@ return table.freeze({
 	SKIN_LENGTH = 4.4, -- the revealed skin is fitted to this (studs)
 	SPIN_SPEED = 40, -- degrees / s after the first turn
 	CARD_UP = 1.9, -- studs above the skin
-	CARD_SIZE = Vector2.new(6.6, 1.9), -- studs (BillboardGui); 5.6 clipped "SEALWORK VANDAL"
+	CARD_SIZE = Vector2.new(7.4, 2.3), -- studs (BillboardGui), with the portrait tile
 
 	HOLD = 3.2, -- s the skin and card stay
 	FLY_TIME = 0.85, -- s into the player
@@ -51,6 +56,21 @@ return table.freeze({
 
 	LIGHT_RANGE = 16,
 	LIGHT_PEAK = 2.2, -- 6 washed the player out white (playtest 2026-11-20)
+
+	-- the lid burst
+	RING_SIZE = 16, -- studs: the floor shockwave grows to this
+	RING_TIME = 0.55,
+	BEAM_HEIGHT = 9, -- studs: the light beam out of the crate
+	BEAM_TIME = 1.1,
+	CAMERA_KICK = 0.35, -- studs of camera shake on the burst (yours only)
+	FOV_PUNCH = 5, -- degrees the camera FOV pulls in and springs back
+	-- the hold
+	SPARKLES = 6, -- per second around the skin
+	-- the fly-in: an arc up and into your chest, spinning, shrinking
+	FLY_ARC = 3.5, -- studs the arc rises above the straight line
+	FLY_SPIN = 720, -- degrees over the flight
+	-- the card: the portrait on its tier tile beside the name
+	CARD_TILE = 0.32, -- of the card's width
 
 	-- Licensed sounds (Pro Sound Effects, Roblox UI packs, APM). PROVISIONAL:
 	-- auditioned by the owner next.
@@ -62,6 +82,10 @@ return table.freeze({
 		Lid = s(15675028888, 0.45, 0.9),
 		Swell = s(9043336050, 0.3), -- APM "SWELL 22"
 		Collect = s(17208323435, 0.6), -- Roblox "GUI - Equip"
+		CollectSpark = s(17208361335, 0.25, 1.25), -- Roblox "GUI - Notification High", up a little
+		Fly = s(15675012262, 0.3, 1.15), -- Roblox Whoosh_04
+		Burst = s(9117456325, 0.55, 0.8), -- the case hit, low: weight under the lid
+		Tease = s(9043336050, 0.18, 1.3), -- the swell, short: the seams light up
 		Sink = s(15675046931, 0.2, 0.9), -- Roblox Sweep
 	}),
 	-- one reveal stinger per tier
@@ -72,6 +96,65 @@ return table.freeze({
 		Legendary = s(9043151109, 0.35), -- APM "Get Up And Go - Hit"
 		Exclusive = s(9043151109, 0.35),
 	}),
+	-- How hard each tier hits (owner 2026-11-20: "more intense sounds + VFX for a higher
+	-- rarity"). hold = s the lid strains (trembling, glow ramping, a riser) before it
+	-- bursts; sparks / waves = spark count and extra waves; rings = floor shockwaves;
+	-- beam = light beam scale (0 = none); kick = camera kick scale; flash = screen flash
+	-- (yours only, 0 = none); extra = sounds layered on the lid.
+	TIER_FX = table.freeze({
+		Common = table.freeze({
+			hold = 0,
+			sparks = 30,
+			waves = 0,
+			rings = 1,
+			beam = 0,
+			kick = 0.6,
+			flash = 0,
+			extra = {},
+		}),
+		Rare = table.freeze({
+			hold = 0.15,
+			sparks = 50,
+			waves = 0,
+			rings = 1,
+			beam = 0.8,
+			kick = 0.85,
+			flash = 0,
+			extra = {},
+		}),
+		Epic = table.freeze({
+			hold = 0.45,
+			sparks = 75,
+			waves = 1,
+			rings = 2,
+			beam = 1.2,
+			kick = 1.15,
+			flash = 0.35,
+			extra = { s(9042542887, 0.35) }, -- APM "Universal Flip - Hit"
+		}),
+		Legendary = table.freeze({
+			hold = 0.8,
+			sparks = 110,
+			waves = 2,
+			rings = 3,
+			beam = 1.6,
+			kick = 1.5,
+			flash = 0.5,
+			extra = { s(9042702890, 0.35), s(9043151109, 0.3, 0.9) }, -- APM "Victory Slam" + "Get Up And Go"
+		}),
+		Exclusive = table.freeze({
+			hold = 0.8,
+			sparks = 110,
+			waves = 2,
+			rings = 3,
+			beam = 1.6,
+			kick = 1.5,
+			flash = 0.5,
+			extra = { s(9042702890, 0.35), s(9043151109, 0.3, 0.9) },
+		}),
+	}),
+	RISER = s(9043336050, 0.35, 1.5), -- the swell, up: plays through the held beat
+
 	OTHERS_VOLUME = 0.5, -- someone else's opening is quieter (RIVALS does the same)
 	ROLLOFF = Vector2.new(8, 70), -- studs: full volume / silent
 })

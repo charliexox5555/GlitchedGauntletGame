@@ -31,32 +31,21 @@ A skin is one gun in one line (a "pair"). A line has a tier; single guns can be 
 
 Open questions for the owner: tier names; Moltframe; Poolside and Rootglass were Battle Pass cosmetics (the pass is out of the first release, so they're in cases for now); whether reskins with an added part (Breakwater, Sundial) sit where they are.
 
-## Cases
-Per case, the chance of each **tier** (`src/shared/Config/Skins.luau` CASE_ODDS); a tier's chance splits evenly over its skins. Owned skins are **re-rolled** (dropped), so the others' odds go up (the Shop's odds note). A tier with nothing left drops out and the rest scale. If a player owns everything a case can give, it can't be opened ("You already own everything this case can give") and they keep it.
+## Cases (round 3, 2026-11-20: odds by section, like RIVALS)
+Owner: in RIVALS "each thing has the exact same chance… they section it off by type", so percentages never drop to a scary 0.05 %. Built (`Config/Skins.CASES`, `Shared/SkinCases`):
+- A case has **sections by type**: GUN SKINS and KNIFE SKINS, each with a chance. Inside a section **every skin line has the same chance** (owner, round 4: "Playback = Giltfold"), split evenly across that line's guns. Knives are one per line, so every knife is equal. The roll goes section → line → gun, each among what you don't own yet.
+- **Tiers decide what's in a case**, not how rare each skin is. "We won't have everything in each case" (owner): the tier list per case is the lever (more on that later from the owner).
+- Owned skins drop out of the roll; a section with nothing left drops out and the other scales up.
 
-| Case | Common | Rare | Epic | Legendary | Owner's brief |
-|---|---|---|---|---|---|
-| Standard (400) | 100 | | | | "only the reskinned ones" |
-| Elite (900) | 80 | 19 | 1 | | reskins + shape changes, "very, very low chances of the animated ones" |
-| Apex (2,000) | 50 | 33 | 13 | 4 | "everything besides exclusive" |
+| Case | Holds tiers | Gun skins | Knife skins |
+|---|---|---|---|
+| Standard (400) | Common | 100 % | (no knives: a knife reskin is Rare) |
+| Elite (900) | Common, Rare, Epic | 88 % | 12 % |
+| Apex (2,000) | Common, Rare, Epic, Legendary | 85 % | 15 % |
 
-**Nothing left to give:** the Shop won't sell a case when you'd hold more of it than it has skins left for you, and opening a case that has run dry (the pools overlap: a Common from Apex can empty a held Standard) gives its **coin price back** in the same write (`ShopEvent` "refunded").
+**CONTENTS (round 4):** pictures centred with a modest spill up-left (1.3x the tile); clicking a picture pops a card out **next to it with a pointer** (Back Out 0.22 s from 0.82), and a click anywhere else closes it. Before that: each section with its chance ("EVERY SKIN IN HERE HAS THE SAME CHANCE"), then one row per skin line (its Vandal's picture, combined odds, opens to each gun with its own odds); knives one row each. Pictures are the new **portraits** (below) spilling over their tier square like RIVALS' tiles; **click a picture** for a short card (picture on its tier tile, name, "RARE SKIN · GIVEN TO THE VANDAL" / "GIVEN TO A RANDOM GUN (17)", what the tier means).
 
-Today (Legendary empty) Apex shows 52.1 / 34.4 / 13.5 %. Standard holds 138 skins, Elite and Apex 208. The owner called the top case "elite cases"; ours are Standard / Elite / Apex (top = Apex).
-
-## CONTENTS: grouped like RIVALS (2026-11-20, round 2)
-Owner: a flat list of single skins reads as "0.5 %, oh my god"; RIVALS groups. Built: one row per **skin line** (name in the tier colour, the line's emblem, "COMMON SKIN FOR A RANDOM GUN · 17 GUNS", the line's **combined** %), click to open its skins underneath with each one's own %. **Knives** of one tier share a row ("EPIC KNIVES · 9 KNIVES"). Rows with no picture use the line's colour and initial. Highest tier first. Every skin's odds are still shown (Roblox paid random items). Rotating which lines a case holds (seasonal cases) is a later lever, not needed for readability.
-
-## Backpack item popup (2026-11-20, round 2)
-After the owner's RIVALS reference ("Charm Capsule"): clicking a stack opens a popup with its name, picture and ×count, **CONTENTS** (the grouped list in its own panel, close goes back) and **OPEN** (gold). The OPEN CASE button under the grid is gone. `StarterGui.Backpack.Canvas.ItemShade / ItemPanel / ContentsPanel` (builder `tools/studio/BuildBackpack.luau`).
-
-## Duplicates
-You can't roll one: owned skins drop out of the roll (the others' odds go up). A case with nothing left gives its coin price back on opening, and the Shop won't sell more of a case than it has skins left for you. A RIVALS-style "duplicates become something" (coins, keys, a crafting currency) is possible later if the owner wants duplicates in the pool instead.
-
-## The opening itself: options (owner to pick)
-1. **In the world, RIVALS style (recommended):** the crate drops at your feet in the lobby, the camera frames it, it shakes, the latches flip, the lid opens with a tier-coloured burst and the skin rises out. Uses the rigged crate as built (joints and effect attachments), feels physical, and players nearby can see an Apex glow (a social moment). Your view runs locally for smoothness; others see a short replicated version.
-2. **CS:GO strip:** a UI reel of skins that slows onto the result. Cheap and suspenseful, but it doesn't use the 3D crate and reads more like a casino.
-3. **Separate showcase stage:** the camera cuts to a lit stage off the map. The most control over light and camera, but no one else sees it and it's another area to build. Keep as the fallback where the lobby can't fit it.
+**Portraits (owner: the side-on renders "don't look good"; RIVALS' are diagonal and fill the tile):** `tools/studio/RenderPortraits.luau` renders every case skin with the muzzle up-left, a front three-quarter perspective view and more contrast, 5 x 3 per sheet; `tools/render/icon_sheet.py --cols 5 --rows 3 --centered` cuts them (alpha from black / white captures) into `art-source/ui/item-portraits/` (sheet lists in `tools/render/portrait-lists/`); uploaded ids in `Shared/ItemPortraits`; `Shared/SkinArt.portrait` picks the portrait, else the side-on picture. The side-on `ItemIcons` stay for the Locker's wide gun cards (56 missing side-on pictures were rendered to `art-source/ui/item-icons/` but not uploaded).
 
 ## How it works (built 2026-11-20)
 - **Ownership:** `Shared/PlayerData` save field `skins = { [gunId] = { line } }` (Stock always owned, never stored), published as the JSON StringValue `Skins`. Everyone starts with **no skins** (the owner's wipe).

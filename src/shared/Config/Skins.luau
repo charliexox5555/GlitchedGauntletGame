@@ -93,20 +93,37 @@ local KNIFE_MIN: { [string]: TierId } = {
 	animated = "Epic",
 }
 
--- Chance of each tier per case (relative weights; a tier with nothing left to
--- give drops out and the rest scale up). Owner's brief: the lowest case gives
--- reskins only; the middle one reskins and shape changes with a very low chance
--- of animated; the top case can give everything except Exclusive.
-local CASE_ODDS: { [string]: { [TierId]: number } } = {
-	Standard = { Common = 100 },
-	Elite = { Common = 80, Rare = 19, Epic = 1 },
-	Apex = { Common = 50, Rare = 33, Epic = 13, Legendary = 4 },
+-- What each case holds and how it rolls (owner 2026-11-20, after RIVALS' odds
+-- list): a case has SECTIONS by type (gun skins, knife skins). The section's
+-- chance is picked first, then every item in it has the SAME chance, whatever
+-- its tier, so no single skin drops to a tiny number. Tiers decide which skins
+-- are IN a case, not how rare each one is. A section with nothing left for the
+-- player drops out and the others scale up.
+export type SectionId = "Guns" | "Knives"
+export type Case = { tiers: { TierId }, sections: { [SectionId]: number } }
+
+local SECTIONS: { [SectionId]: { name: string, order: number } } = {
+	Guns = { name = "GUN SKINS", order = 1 },
+	Knives = { name = "KNIFE SKINS", order = 2 },
+}
+
+local CASES: { [string]: Case } = {
+	-- reskins only (so no knives: a knife reskin is Rare)
+	Standard = { tiers = { "Common" }, sections = { Guns = 100 } },
+	-- reskins, shape changes and a few animated
+	Elite = { tiers = { "Common", "Rare", "Epic" }, sections = { Guns = 88, Knives = 12 } },
+	-- everything except Exclusive
+	Apex = {
+		tiers = { "Common", "Rare", "Epic", "Legendary" },
+		sections = { Guns = 85, Knives = 15 },
+	},
 }
 
 return table.freeze({
 	TIERS = TIERS,
 	LINES = LINES,
-	CASE_ODDS = CASE_ODDS,
+	CASES = CASES,
+	SECTIONS = SECTIONS,
 	KNIFE_MIN = KNIFE_MIN,
 	ORDER = { "Common", "Rare", "Epic", "Legendary", "Exclusive" } :: { TierId },
 })

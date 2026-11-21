@@ -1,0 +1,1 @@
+WeaponSkins/Nitrous/Vandal;WeaponSkins/PopCircuit/Vandal;WeaponSkins/Moltframe/Vandal;WeaponSkins/Giltfold/Vandal;WeaponSkins/Inkshift/Vandal;WeaponSkins/Sealwork/Vandal;WeaponSkins/Payload/Vandal;WeaponSkins/Oilwake/Vandal;WeaponSkins/Misprint/Vandal;WeaponSkins/Faultline/Vandal;WeaponSkins/Breakwater/Vandal;WeaponSkins/Poolside/Vandal;WeaponSkins/Rootglass/Vandal

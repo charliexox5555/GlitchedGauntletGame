@@ -18,7 +18,7 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
-local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
+local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
@@ -180,7 +180,7 @@ function BackpackController.init()
 		local tier = Skins.TIERS[(tierId or "Common") :: any] or Skins.TIERS.Common
 		local art = child(reveal, "Art") :: ImageLabel
 		local emblem = child(reveal, "Emblem") :: ImageLabel
-		local pic = ItemIcons.get(gun, line)
+		local pic = SkinArt.portrait(gun, line) -- the square portrait, like the case card
 		art.Image = pic or ""
 		art.Visible = pic ~= nil
 		emblem.Image = Locker.EMBLEMS[line] or ""
@@ -314,16 +314,10 @@ function BackpackController.init()
 			else
 				got = nil
 			end
-			-- back in the Backpack with EQUIP / NICE once the skin has flown into you
+			-- it just ends once the skin has flown into you (owner 2026-11-20: no
+			-- panel afterwards; it's in the Locker)
 			local function finish()
 				crate = nil
-				if Router.current() ~= "Backpack" then
-					Router.open("Backpack")
-				end
-				task.defer(function()
-					UiSfx.cue("Confirm")
-					showReveal(true)
-				end)
 			end
 			if h and not h:isDead() and got then
 				h:reveal({
@@ -333,10 +327,16 @@ function BackpackController.init()
 					name = text,
 				}, finish)
 			else
+				-- no crate could be placed (no room): fall back to the result panel
 				if h then
 					h:abort()
 				end
-				finish()
+				crate = nil
+				Router.open("Backpack")
+				task.defer(function()
+					UiSfx.cue("Confirm")
+					showReveal(true)
+				end)
 			end
 		elseif p.kind == "refunded" then
 			opening = false

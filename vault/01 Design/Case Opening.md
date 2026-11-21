@@ -24,6 +24,27 @@ From the RIVALS file's `Modules.Functions.LootboxEffect` and `Assets.Lootboxes` 
 
 **Review knob (Studio only):** the workspace value `CaseTimeScale` (StateValues) slows the whole sequence, e.g. 0.12, to capture each beat.
 
+## Round 2: more payoff (2026-11-20)
+Owner: "people are going to be paying money for these cases, it needs to be satisfying"; the card should look much better; the fly-in should look better and more satisfying.
+- **Build-up scales with the tier:** Common 2 shakes, Rare 3, Epic 4, Legendary 5 (`TIER_SHAKES`), each bigger (4 → 12 degrees). From the second-to-last shake the **seams glow in the tier colour** (the light strip and a light inside, throbbing with each shake, a short swell): the tease before the lid. The lid strains against the latches during the dip.
+- **Lid burst:** layered whoosh + a low case hit + the swell + the tier stinger; sparks and glow (more for higher tiers), a **floor shockwave ring** and a **light beam** straight up in the tier colour; **camera kick and FOV punch** for the opener only.
+- **The hold:** the skin turns in a soft glow with sparkles (more for higher tiers) and its own light.
+- **Card:** the skin's **portrait spilling over a tier-coloured tile** beside the name and tier tag, pops in (Back Out) with **one shine sweep**; "NAME UNBOXED" on top for others.
+- **Fly-in:** the skin **arcs up and into your chest** (3.5-stud arc), spinning twice and shrinking, with a **trail** in the tier colour; on arrival a spark burst, a floor ring at your feet, the equip pop + a bright ping, a small camera kick.
+- **Sounds on the F4 board, CASE tab** (lobby): case lands, latches, lid burst, a reveal per tier, collect. Not level-matched yet; pick by number.
+- The result panel uses the new portrait.
+
+## Round 3 (owner notes, 2026-11-20)
+- **It just ends:** after the skin flies into you there's no panel; the Backpack and result panel only come back if no crate could be placed (no room).
+- **Higher tiers hit harder** (`Config/CaseOpening.TIER_FX`):
+
+| Tier | Held beat before the lid | Sparks (waves) | Floor rings | Beam | Camera kick | Screen flash | Extra sounds |
+|---|---|---|---|---|---|---|---|
+| Common | none | 30 | 1 | none | 0.6 | none | — |
+| Rare | 0.15 s | 50 | 1 | 0.8x | 0.85 | none | — |
+| Epic | 0.45 s, trembling, glow ramps, riser | 75 (+1 wave) | 2 | 1.2x | 1.15 | 35 % | APM Universal Flip |
+| Legendary / Exclusive | 0.8 s | 110 (+2 waves) | 3 | 1.6x | 1.5 | 50 % | APM Victory Slam + Get Up And Go |
+
 ## Tested (2026-11-20, Lobby place)
 - Apex at full speed: tossed, opened, Playback Ares (Epic), back in the Backpack with the result, no errors.
 - Elite slowed to 0.12 and captured: in the air, landed facing the player, latches and lid open (right direction), Moltframe Ares (Rare) risen with its card, cleanup (crate and skin gone) and the result panel.
