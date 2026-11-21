@@ -85,6 +85,14 @@ local LINES: { [string]: Line } = {
 	RuinBlighted = { tier = "Exclusive", kind = "animated" },
 }
 
+-- Knives sit higher (owner 2026-11-20): a knife reskin is at least Rare, a knife
+-- that changes shape (or animates) at least Epic. SkinCases.tierOf applies it.
+local KNIFE_MIN: { [string]: TierId } = {
+	reskin = "Rare",
+	shape = "Epic",
+	animated = "Epic",
+}
+
 -- Chance of each tier per case (relative weights; a tier with nothing left to
 -- give drops out and the rest scale up). Owner's brief: the lowest case gives
 -- reskins only; the middle one reskins and shape changes with a very low chance
@@ -99,5 +107,6 @@ return table.freeze({
 	TIERS = TIERS,
 	LINES = LINES,
 	CASE_ODDS = CASE_ODDS,
+	KNIFE_MIN = KNIFE_MIN,
 	ORDER = { "Common", "Rare", "Epic", "Legendary", "Exclusive" } :: { TierId },
 })

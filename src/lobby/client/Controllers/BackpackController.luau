@@ -3,7 +3,9 @@
 -- holds, from the server-published inventory (Shared/PlayerData). Studio-built
 -- StarterGui.Backpack + UiTemplates.Lobby.BackpackCell (tools/studio/BuildBackpack.luau),
 -- opened from the bottom bar's BACKPACK (it replaced the Battle Pass for the first release).
--- Opening (2026-11-20): pick a case stack, OPEN CASE sends ShopRequest("openCase")
+-- Opening (2026-11-20): click a stack → the item popup (after RIVALS' Backpack):
+-- its picture and ×count, CONTENTS (the grouped odds, Util/OddsList) and OPEN, which
+-- sends ShopRequest("openCase")
 -- (Services/ShopService rolls and grants a skin you don't own); the reveal panel
 -- shows it with its tier, EQUIP puts it on through the Locker's LockerRequest.
 -- The cinematic crate opening replaces the reveal's entrance later.
@@ -20,7 +22,9 @@ local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
+local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
+local OddsList = require(script.Parent.Parent.Util.OddsList)
 local LobbyHud = require(script.Parent.LobbyHud)
 local Router = require(script.Parent.Parent.Util.Router)
 
@@ -77,33 +81,40 @@ function BackpackController.init()
 	local detail = child(canvas, "Detail") :: TextLabel
 	local empty = child(canvas, "Empty") :: Frame
 	local openShop = child(empty, "OpenShop") :: GuiButton
-	local openBtn = child(canvas, "OpenCase") :: GuiButton
+	local itemShade = child(canvas, "ItemShade") :: Frame
+	local itemPanel = child(canvas, "ItemPanel") :: Frame
+	local contentsPanel = child(canvas, "ContentsPanel") :: Frame
 	local shade = child(canvas, "RevealShade") :: Frame
 	local reveal = child(canvas, "Reveal") :: Frame
 	local revealPop = child(reveal, "Pop") :: UIScale
 	local first: GuiObject? = nil
 	local isOpen = false
-	local picked: string? = nil -- the case item id OPEN CASE will open
+	local picked: string? = nil -- the item the popup shows
 	local opening = false -- one request at a time (cleared on its answer, or after 8 s)
 	local lastOpen = -math.huge -- answers within LATE_OK of an opening are ours, even slow ones
 	local LATE_OK = 30
 	local got: { gun: string, line: string }? = nil
+
+	local showItem: (def: Inventory.ItemDef, count: number) -> ()
+
+	local function pop(panel: Frame)
+		local sc = panel:FindFirstChild("Pop")
+		if sc and sc:IsA("UIScale") then
+			sc.Scale = 0.85
+			UiMotion.tween(sc, 0.3, { Scale = 1 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+		end
+	end
+	local function hideItem()
+		itemShade.Visible = false
+		itemPanel.Visible = false
+		contentsPanel.Visible = false
+	end
 
 	local function render()
 		LobbyKit.clearSlots(grid)
 		detail.Text = ""
 		first = nil
 		local list = stacks()
-		-- keep the pick while that case is still held
-		local still = false
-		for _, s in list do
-			if s.def.id == picked then
-				still = true
-			end
-		end
-		if not still then
-			picked = nil
-		end
 		local cells = math.max(MIN_ROWS * COLS, math.ceil(#list / COLS) * COLS)
 		for i = 1, cells do
 			local s = list[i]
@@ -130,29 +141,21 @@ function BackpackController.init()
 			if s then
 				first = first or cell
 				local name = string.format("%s  ×%d", s.def.name, s.count)
-				local id = s.def.id
-				local function pick()
-					detail.Text = name
-					if s.def.kind == "Case" then
-						picked = id
-					end
-					openBtn.Visible = picked ~= nil
-				end
+				local def = s.def
+				local held = s.count
 				cell.MouseEnter:Connect(function()
 					detail.Text = name
 				end)
 				cell.SelectionGained:Connect(function()
 					detail.Text = name
 				end)
-				LobbyKit.button(cell, pick)
-				if id == picked then
-					detail.Text = name
-				end
+				LobbyKit.button(cell, function()
+					showItem(def, held)
+				end)
 			end
 		end
 		empty.Visible = #list == 0
 		grid.Visible = true
-		openBtn.Visible = picked ~= nil
 	end
 
 	local function showReveal(on: boolean)
@@ -194,10 +197,48 @@ function BackpackController.init()
 		(child(plate, "Label") :: TextLabel).Text = tier.name
 	end
 
-	LobbyKit.button(openBtn, function()
+	-- the item popup: a case shows CONTENTS and OPEN
+	showItem = function(def: Inventory.ItemDef, count: number)
+		picked = def.id
+		local case = if def.case then ShopCatalog.case(def.case) else nil;
+		(child(itemPanel, "Title") :: TextLabel).Text = def.name
+		local art = child(itemPanel, "Art") :: ImageLabel
+		art.Image = (if case then case.art else nil) or def.icon or ""
+		local word = "×" .. tostring(count);
+		(child(itemPanel, "Count") :: TextLabel).Text = word;
+		(child(itemPanel, "CountShadow") :: TextLabel).Text = word
+		local isCase = def.kind == "Case" and case ~= nil;
+		(child(itemPanel, "Contents") :: GuiObject).Visible = isCase;
+		(child(itemPanel, "Open") :: GuiObject).Visible = isCase
+		contentsPanel.Visible = false
+		itemShade.Visible = true
+		itemPanel.Visible = true
+		pop(itemPanel)
+	end
+	LobbyKit.button(child(itemPanel, "Close") :: GuiButton, hideItem)
+	LobbyKit.button(child(contentsPanel, "Close") :: GuiButton, function()
+		contentsPanel.Visible = false
+		itemPanel.Visible = true
+	end)
+	LobbyKit.button(child(itemPanel, "Contents") :: GuiButton, function()
+		local def = if picked then Inventory.ITEMS[picked] else nil
+		local case = if def and def.case then ShopCatalog.case(def.case) else nil
+		if not (def and case) then
+			return
+		end
+		(child(contentsPanel, "Sub") :: TextLabel).Text = def.name;
+		(child(contentsPanel, "Note") :: TextLabel).Text = ShopCatalog.ODDS_NOTE
+		OddsList.fill(child(contentsPanel, "List") :: ScrollingFrame, case)
+		itemPanel.Visible = false
+		contentsPanel.Visible = true
+		pop(contentsPanel)
+	end)
+
+	LobbyKit.button(child(itemPanel, "Open") :: GuiButton, function()
 		if opening or not picked then
 			return
 		end
+		hideItem()
 		opening = true
 		lastOpen = os.clock()
 		LobbyNet.event("ShopRequest"):FireServer("openCase", picked)
@@ -280,6 +321,7 @@ function BackpackController.init()
 		onClose = function()
 			isOpen = false
 			showReveal(false)
+			hideItem()
 		end,
 		-- phones: the header and the grid fill the screen
 		phone = { region = Rect.new(440, 100, 1480, 960) },

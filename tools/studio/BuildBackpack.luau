@@ -242,7 +242,7 @@ text(canvas, "Detail", "", 26, WHITE, {
 text(
 	canvas,
 	"Note",
-	"PICK A CASE, THEN OPEN IT. YOU NEVER GET A SKIN YOU ALREADY OWN.",
+	"CLICK A CASE TO SEE WHAT'S IN IT OR OPEN IT. YOU NEVER GET A SKIN YOU ALREADY OWN.",
 	18,
 	MUTED,
 	{
@@ -284,24 +284,8 @@ make("UIScale", { Name = "Pop" }, shop)
 text(shop, "Label", "OPEN SHOP", 32, INK, { Size = UDim2.fromScale(1, 1), ZIndex = 7 })
 
 ------------------------------------------------------------------------------
--- Opening (2026-11-20): OPEN CASE for the picked case stack, and the reveal panel
+-- Opening (2026-11-20): the reveal panel after OPEN
 -- (the cinematic crate opening replaces the panel's entrance later).
-
-local openBtn = make("TextButton", {
-	Name = "OpenCase",
-	AnchorPoint = CENTRE,
-	Position = UDim2.fromOffset(left + GRID_W - 8 - 150, 917),
-	Size = UDim2.fromOffset(280, 64),
-	BackgroundColor3 = GOLD,
-	BorderSizePixel = 0,
-	Text = "",
-	AutoButtonColor = false,
-	Visible = false,
-	ZIndex = 6,
-}, canvas)
-slant(openBtn, GOLD, 64, 20)
-make("UIScale", { Name = "Pop" }, openBtn)
-text(openBtn, "Label", "OPEN CASE", 28, INK, { Size = UDim2.fromScale(1, 1), ZIndex = 7 })
 
 local shade = make("Frame", {
 	Name = "RevealShade",
@@ -395,6 +379,177 @@ local ok = make("TextButton", {
 slant(ok, NAVY_HI, 64, 20)
 make("UIScale", { Name = "Pop" }, ok)
 text(ok, "Label", "NICE", 28, WHITE, { Size = UDim2.fromScale(1, 1), ZIndex = 23 })
+
+------------------------------------------------------------------------------
+-- Item popup (owner 2026-11-20, after RIVALS' Backpack): click a stack → its name,
+-- picture and ×count, CONTENTS (the grouped odds, Util/OddsList) and OPEN.
+
+local function closeX(parent: Instance, z: number): TextButton
+	local b = make("TextButton", {
+		Name = "Close",
+		AnchorPoint = CENTRE,
+		Position = UDim2.new(1, -46, 0, 46),
+		Size = UDim2.fromOffset(60, 60),
+		BackgroundColor3 = NAVY_HI,
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = z,
+	}, parent)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
+	make("UIScale", { Name = "Pop" }, b)
+	local glyph = make("Frame", {
+		Name = "Glyph",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(24, 24),
+		BackgroundTransparency = 1,
+		ZIndex = z + 1,
+	}, b)
+	for _, r in { 45, -45 } do
+		local bar = make("Frame", {
+			Name = if r > 0 then "A" else "B",
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(24, 4),
+			Rotation = r,
+			BackgroundColor3 = WHITE,
+			BorderSizePixel = 0,
+			ZIndex = z + 1,
+		}, glyph)
+		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, bar)
+	end
+	return b
+end
+
+make("Frame", {
+	Name = "ItemShade",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundColor3 = Color3.new(0, 0, 0),
+	BackgroundTransparency = 0.35,
+	BorderSizePixel = 0,
+	Active = true,
+	Visible = false,
+	ZIndex = 18,
+}, canvas)
+local item = make("Frame", {
+	Name = "ItemPanel",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(960, 540),
+	Size = UDim2.fromOffset(820, 560),
+	BackgroundColor3 = NAVY,
+	BorderSizePixel = 0,
+	Visible = false,
+	ZIndex = 20,
+}, canvas)
+corner(item, 10)
+make("UIScale", { Name = "Pop" }, item)
+text(item, "Title", "ELITE CASE", 44, WHITE, {
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 28),
+	Size = UDim2.fromOffset(600, 50),
+	ZIndex = 22,
+})
+closeX(item, 22)
+make("ImageLabel", {
+	Name = "Art",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0.5, 0, 0, 230),
+	Size = UDim2.fromOffset(400, 250),
+	BackgroundTransparency = 1,
+	ScaleType = Enum.ScaleType.Fit,
+	ZIndex = 22,
+}, item)
+text(item, "CountShadow", "×1", 52, INK, {
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 3, 0, 343),
+	Size = UDim2.fromOffset(300, 58),
+	TextTransparency = 0.25,
+	ZIndex = 22,
+})
+text(item, "Count", "×1", 52, WHITE, {
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 340),
+	Size = UDim2.fromOffset(300, 58),
+	ZIndex = 23,
+})
+local contentsB = make("TextButton", {
+	Name = "Contents",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0.5, -165, 1, -70),
+	Size = UDim2.fromOffset(260, 72),
+	BackgroundColor3 = NAVY_HI,
+	BorderSizePixel = 0,
+	Text = "",
+	AutoButtonColor = false,
+	ZIndex = 22,
+}, item)
+slant(contentsB, NAVY_HI, 72, 23)
+make("UIScale", { Name = "Pop" }, contentsB)
+text(contentsB, "Label", "CONTENTS", 30, WHITE, { Size = UDim2.fromScale(1, 1), ZIndex = 23 })
+local openB = make("TextButton", {
+	Name = "Open",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0.5, 165, 1, -70),
+	Size = UDim2.fromOffset(260, 72),
+	BackgroundColor3 = GOLD,
+	BorderSizePixel = 0,
+	Text = "",
+	AutoButtonColor = false,
+	ZIndex = 22,
+}, item)
+slant(openB, GOLD, 72, 23)
+make("UIScale", { Name = "Pop" }, openB)
+text(openB, "Label", "OPEN", 32, INK, { Size = UDim2.fromScale(1, 1), ZIndex = 23 })
+
+-- CONTENTS: the grouped odds list (rows: UiTemplates.Lobby.ShopOddsRow)
+local odds = make("Frame", {
+	Name = "ContentsPanel",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(960, 540),
+	Size = UDim2.fromOffset(860, 760),
+	BackgroundColor3 = NAVY,
+	BorderSizePixel = 0,
+	Visible = false,
+	ZIndex = 30,
+}, canvas)
+corner(odds, 10)
+make("UIScale", { Name = "Pop" }, odds)
+text(odds, "Title", "CONTENTS", 40, WHITE, {
+	Position = UDim2.fromOffset(40, 26),
+	Size = UDim2.fromOffset(600, 44),
+	TextXAlignment = Enum.TextXAlignment.Left,
+	ZIndex = 34,
+})
+text(odds, "Sub", "ELITE CASE", 18, MUTED, {
+	Position = UDim2.fromOffset(42, 76),
+	Size = UDim2.fromOffset(600, 22),
+	TextXAlignment = Enum.TextXAlignment.Left,
+	ZIndex = 34,
+})
+closeX(odds, 34)
+local oddsList = make("ScrollingFrame", {
+	Name = "List",
+	Position = UDim2.fromOffset(30, 118),
+	Size = UDim2.new(1, -60, 1, -230),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 0,
+	ScrollBarImageTransparency = 1,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
+	ScrollingDirection = Enum.ScrollingDirection.Y,
+	ZIndex = 33,
+}, odds)
+make("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, oddsList)
+text(odds, "Note", "", 13, MUTED, {
+	Position = UDim2.new(0, 40, 1, -96),
+	Size = UDim2.new(1, -80, 0, 76),
+	TextWrapped = true,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextYAlignment = Enum.TextYAlignment.Top,
+	ZIndex = 34,
+})
 
 gui.Parent = SG
 

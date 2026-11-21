@@ -20,14 +20,19 @@ export type Entry = Pair & { odds: number } -- odds in % before re-rolls
 
 local SkinCases = {}
 
--- The tier of one skin (the line's, or its per-gun override), or nil if the line
--- has no tier yet.
+-- The tier of one skin (the line's, or its per-gun override, raised to the knife
+-- minimum for knives), or nil if the line has no tier yet.
 function SkinCases.tierOf(gunId: string, line: string): Skins.TierId?
 	local def = Skins.LINES[line]
 	if not def then
 		return nil
 	end
-	return if def.guns and def.guns[gunId] then def.guns[gunId] else def.tier
+	local tier: Skins.TierId = if def.guns and def.guns[gunId] then def.guns[gunId] else def.tier
+	local floor = if gunId == "Knife" then Skins.KNIFE_MIN[def.kind] else nil
+	if floor and Skins.TIERS[floor].order > Skins.TIERS[tier].order then
+		tier = floor
+	end
+	return tier
 end
 
 -- Every skin in the game a case could hold (models present, tier in cases).
@@ -93,6 +98,53 @@ function SkinCases.contents(caseId: string): { Entry }
 			return a.line < b.line
 		end
 		return a.gun < b.gun
+	end)
+	return out
+end
+
+-- `knives`: the group is every knife of that tier (one row instead of one per line)
+export type Group = {
+	line: string,
+	tier: Skins.TierId,
+	odds: number,
+	entries: { Entry },
+	knives: boolean,
+}
+
+-- The CONTENTS grouped like RIVALS (owner 2026-11-20): one group per skin line and
+-- tier with the line's combined odds, its skins inside with their own odds. Knives
+-- of one tier share a group (each line has one knife). Highest tier first, then
+-- knives, then line name.
+function SkinCases.groups(caseId: string): { Group }
+	local byKey: { [string]: Group } = {}
+	local out: { Group } = {}
+	for _, e in SkinCases.contents(caseId) do
+		local knife = e.gun == "Knife"
+		local key = (if knife then "@Knife" else e.line) .. "|" .. e.tier
+		local g = byKey[key]
+		if not g then
+			g = {
+				line = if knife then "Knife" else e.line,
+				tier = e.tier,
+				odds = 0,
+				entries = {},
+				knives = knife,
+			}
+			byKey[key] = g
+			table.insert(out, g)
+		end
+		g.odds += e.odds
+		table.insert(g.entries, e)
+	end
+	table.sort(out, function(a, b)
+		local ta, tb = Skins.TIERS[a.tier].order, Skins.TIERS[b.tier].order
+		if ta ~= tb then
+			return ta > tb
+		end
+		if a.knives ~= b.knives then
+			return a.knives
+		end
+		return a.line < b.line
 	end)
 	return out
 end
