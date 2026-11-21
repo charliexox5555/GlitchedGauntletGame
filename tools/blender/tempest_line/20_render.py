@@ -121,6 +121,9 @@ for v in VIEWS:
 		else:
 			aim((x + 0.3 * d, 0.45 * d, z - d), (x, 0, z))
 		shoot(v, lens=50, res=(1200, 800))
+	elif v == "fpkat":
+		# katana first-person angle: behind and right of the hand, the long blade rising away to the upper left
+		aim((-1.75, -1.50, 1.10), (1.30, 0.15, 0.12)); shoot(v, lens=30, res=(1600, 900))
 	elif v == "fpk":
 		# knife first-person angle (owner's sheet): behind and right of the hilt, blade rising away to the upper left
 		aim((-1.35, -1.05, 0.80), (0.62, 0.10, 0.06)); shoot(v, lens=32, res=(1600, 900))

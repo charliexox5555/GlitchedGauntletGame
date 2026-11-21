@@ -1,0 +1,247 @@
+{
+ "variant": "TempestStrike Knife s05x (flat-material export)",
+ "joints": [
+  {
+   "name": "TS_Ring",
+   "parent": "Root",
+   "c0": [
+    -0.77,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "TS_Charm",
+   "parent": "Root",
+   "c0": [
+    -0.77,
+    0.0,
+    -0.0638,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  }
+ ],
+ "date": "2026-11-14",
+ "gun": "Knife",
+ "source_blend": "Knife_TempestStrike_s05x.blend",
+ "fbx": "Knife_TempestStrike_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Root_01": {
+   "color": "0C111C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Dark",
+   "triangles": 232,
+   "size": [
+    3.7,
+    0.108,
+    0.275
+   ],
+   "center": [
+    1.238,
+    0.0,
+    0.0725
+   ]
+  },
+  "SK_Root_02": {
+   "color": "4A3328",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Grip",
+   "triangles": 448,
+   "size": [
+    0.9069,
+    0.1199,
+    0.1414
+   ],
+   "center": [
+    -0.1633,
+    0.0,
+    0.0004
+   ]
+  },
+  "SK_Root_03": {
+   "color": "7A8491",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Metal",
+   "triangles": 1241,
+   "size": [
+    3.772,
+    0.3192,
+    0.3696
+   ],
+   "center": [
+    1.202,
+    0.0,
+    0.0252
+   ]
+  },
+  "SK_Root_04": {
+   "color": "5FE6E0",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Neon",
+   "triangles": 301,
+   "size": [
+    2.816,
+    0.043,
+    0.2415
+   ],
+   "center": [
+    1.68,
+    0.0,
+    0.0908
+   ]
+  },
+  "SK_Root_05": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Panel",
+   "triangles": 156,
+   "size": [
+    0.928,
+    0.18,
+    0.18
+   ],
+   "center": [
+    -0.166,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_06": {
+   "color": "40F5D4",
+   "material": "SmoothPlastic",
+   "reflectance": 0.12,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Water",
+   "triangles": 118,
+   "size": [
+    2.828,
+    0.0184,
+    0.276
+   ],
+   "center": [
+    1.686,
+    0.0,
+    0.068
+   ]
+  },
+  "SK_TS_Charm_01": {
+   "color": "0C111C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "TS_Charm",
+   "blender_material": "TS Dark",
+   "triangles": 28,
+   "size": [
+    0.0157,
+    0.0104,
+    0.0157
+   ],
+   "center": [
+    -0.77,
+    0.0,
+    -0.1731
+   ]
+  },
+  "SK_TS_Charm_02": {
+   "color": "7A8491",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "TS_Charm",
+   "blender_material": "TS Metal",
+   "triangles": 64,
+   "size": [
+    0.011,
+    0.058,
+    0.073
+   ],
+   "center": [
+    -0.77,
+    0.0,
+    -0.0946
+   ]
+  },
+  "SK_TS_Charm_03": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "TS_Charm",
+   "blender_material": "TS Panel",
+   "triangles": 60,
+   "size": [
+    0.092,
+    0.008,
+    0.092
+   ],
+   "center": [
+    -0.77,
+    0.0,
+    -0.1731
+   ]
+  },
+  "SK_TS_Ring_01": {
+   "color": "7A8491",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "TS_Ring",
+   "blender_material": "TS Metal",
+   "triangles": 432,
+   "size": [
+    0.1932,
+    0.033,
+    0.1932
+   ],
+   "center": [
+    -0.77,
+    0.0,
+    0.0
+   ]
+  }
+ }
+}
