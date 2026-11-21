@@ -1,0 +1,1585 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "F4Chimney": {
+   "props": {},
+   "parts": [
+    "F4Chimney_F4_Concrete",
+    "F4Chimney_F4_SteelDark",
+    "F4Chimney_F4_White",
+    "F4Chimney_F4_Red"
+   ]
+  },
+  "F4Clad": {
+   "props": {},
+   "parts": [
+    "F4Clad"
+   ]
+  },
+  "F4Coil": {
+   "props": {},
+   "parts": [
+    "F4Coil_F4_SteelLight",
+    "F4Coil_F4_SteelDark",
+    "F4Coil_F4_Pipe"
+   ]
+  },
+  "F4Crane": {
+   "props": {},
+   "parts": [
+    "F4Crane_F4_Yellow",
+    "F4Crane_F4_SteelDark",
+    "F4Crane_F4_Black",
+    "F4Crane_F4_Glass",
+    "F4Crane_F4_Lamp"
+   ]
+  },
+  "F4Furnace": {
+   "props": {},
+   "parts": [
+    "F4Furnace_F4_Steel",
+    "F4Furnace_F4_SteelDark",
+    "F4Furnace_F4_Pipe",
+    "F4Furnace_F4_Yellow",
+    "F4Furnace_F4_Concrete",
+    "F4Furnace_F4_Grate",
+    "F4Furnace_F4_Glow",
+    "F4Furnace_F4_GlowHot",
+    "F4Furnace_F4_Refractory",
+    "F4Furnace_F4_Black"
+   ]
+  },
+  "F4IngotCart": {
+   "props": {},
+   "parts": [
+    "F4IngotCart_F4_SteelDark",
+    "F4IngotCart_F4_Black",
+    "F4IngotCart_F4_Rubber",
+    "F4IngotCart_F4_Glow",
+    "F4IngotCart_F4_Yellow"
+   ]
+  },
+  "F4Ladle": {
+   "props": {},
+   "parts": [
+    "F4Ladle_F4_SteelDark",
+    "F4Ladle_F4_Rust",
+    "F4Ladle_F4_Glow",
+    "F4Ladle_F4_Black"
+   ]
+  },
+  "F4LadleCar": {
+   "props": {},
+   "parts": [
+    "F4LadleCar_F4_Yellow",
+    "F4LadleCar_F4_SteelDark",
+    "F4LadleCar_F4_Black",
+    "F4LadleCar_F4_Rubber"
+   ]
+  },
+  "F4Loco": {
+   "props": {},
+   "parts": [
+    "F4Loco_F4_Paint",
+    "F4Loco_F4_SteelDark",
+    "F4Loco_F4_Black",
+    "F4Loco_F4_Glass",
+    "F4Loco_F4_Yellow",
+    "F4Loco_F4_Rubber",
+    "F4Loco_F4_Lamp"
+   ]
+  },
+  "F4Mudgun": {
+   "props": {},
+   "parts": [
+    "F4Mudgun_F4_SteelDark",
+    "F4Mudgun_F4_Yellow",
+    "F4Mudgun_F4_Black",
+    "F4Mudgun_F4_Concrete"
+   ]
+  },
+  "F4OxyTanks": {
+   "props": {},
+   "parts": [
+    "F4OxyTanks_F4_Black",
+    "F4OxyTanks_F4_White",
+    "F4OxyTanks_F4_Yellow",
+    "F4OxyTanks_F4_SteelDark",
+    "F4OxyTanks_F4_Concrete"
+   ]
+  },
+  "F4Post": {
+   "props": {},
+   "parts": [
+    "F4Post"
+   ]
+  },
+  "F4Rail4": {
+   "props": {},
+   "parts": [
+    "F4Rail4_F4_Yellow",
+    "F4Rail4_F4_SteelDark"
+   ]
+  },
+  "F4ScrapBin": {
+   "props": {},
+   "parts": [
+    "F4ScrapBin_F4_Rust",
+    "F4ScrapBin_F4_SteelDark",
+    "F4ScrapBin_F4_SteelLight",
+    "F4ScrapBin_F4_Black"
+   ]
+  },
+  "F4Stair12": {
+   "props": {},
+   "parts": [
+    "F4Stair12_F4_Yellow",
+    "F4Stair12_F4_Grate",
+    "F4Stair12_F4_SteelDark"
+   ]
+  },
+  "F4Stove": {
+   "props": {},
+   "parts": [
+    "F4Stove_F4_Pipe",
+    "F4Stove_F4_SteelDark",
+    "F4Stove_F4_Concrete",
+    "F4Stove_F4_Grate",
+    "F4Stove_F4_Yellow",
+    "F4Stove_F4_Black"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "F4Chimney",
+   "name": "F4Chimney_F4_Concrete",
+   "material": "F4_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "8C8A85"
+   },
+   "glow": false,
+   "tris": 208,
+   "center": [
+    0.0,
+    0.0,
+    23.0
+   ],
+   "size": [
+    10.432,
+    10.432,
+    46.0
+   ]
+  },
+  {
+   "piece": "F4Chimney",
+   "name": "F4Chimney_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 2112,
+   "center": [
+    0.0,
+    0.0,
+    25.25
+   ],
+   "size": [
+    8.59674,
+    8.59674,
+    30.5
+   ]
+  },
+  {
+   "piece": "F4Chimney",
+   "name": "F4Chimney_F4_White",
+   "material": "F4_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D8D6D0"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    0.0,
+    51.95
+   ],
+   "size": [
+    6.27381,
+    6.27381,
+    4.1
+   ]
+  },
+  {
+   "piece": "F4Chimney",
+   "name": "F4Chimney_F4_Red",
+   "material": "F4_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B7402F"
+   },
+   "glow": false,
+   "tris": 304,
+   "center": [
+    0.0,
+    0.0,
+    52.45
+   ],
+   "size": [
+    6.46699,
+    6.46699,
+    13.1
+   ]
+  },
+  {
+   "piece": "F4Clad",
+   "name": "F4Clad",
+   "material": "F4_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4B525C"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    -0.07,
+    4.0
+   ],
+   "size": [
+    6.0,
+    0.38,
+    8.0
+   ]
+  },
+  {
+   "piece": "F4Coil",
+   "name": "F4Coil_F4_SteelLight",
+   "material": "F4_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A6AEB7"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    2.31822
+   ],
+   "size": [
+    2.6,
+    4.63644,
+    4.63644
+   ]
+  },
+  {
+   "piece": "F4Coil",
+   "name": "F4Coil_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    2.31822
+   ],
+   "size": [
+    2.5,
+    1.93185,
+    1.93185
+   ]
+  },
+  {
+   "piece": "F4Coil",
+   "name": "F4Coil_F4_Pipe",
+   "material": "F4_Pipe",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5D6F7A"
+   },
+   "glow": false,
+   "tris": 1056,
+   "center": [
+    0.02,
+    0.0,
+    2.31822
+   ],
+   "size": [
+    1.34,
+    4.77167,
+    4.77167
+   ]
+  },
+  {
+   "piece": "F4Crane",
+   "name": "F4Crane_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 4708,
+   "center": [
+    0.195,
+    0.0,
+    -0.85618
+   ],
+   "size": [
+    13.01,
+    60.9,
+    17.38764
+   ]
+  },
+  {
+   "piece": "F4Crane",
+   "name": "F4Crane_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 1136,
+   "center": [
+    0.0,
+    0.0,
+    -0.94693
+   ],
+   "size": [
+    13.2,
+    58.5,
+    17.09107
+   ]
+  },
+  {
+   "piece": "F4Crane",
+   "name": "F4Crane_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 1204,
+   "center": [
+    0.0,
+    0.0,
+    0.15
+   ],
+   "size": [
+    9.6,
+    60.9,
+    13.5
+   ]
+  },
+  {
+   "piece": "F4Crane",
+   "name": "F4Crane_F4_Glass",
+   "material": "F4_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "26323C"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    5.15,
+    0.0,
+    -0.8
+   ],
+   "size": [
+    3.1,
+    3.76,
+    2.2
+   ]
+  },
+  {
+   "piece": "F4Crane",
+   "name": "F4Crane_F4_Lamp",
+   "material": "F4_Lamp",
+   "look": {
+    "material": "Neon",
+    "color": "F2C98A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    4.9,
+    0.0,
+    -3.05
+   ],
+   "size": [
+    1.4,
+    3.64,
+    0.3
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Steel",
+   "material": "F4_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4B525C"
+   },
+   "glow": false,
+   "tris": 236,
+   "center": [
+    0.0,
+    0.0,
+    23.85
+   ],
+   "size": [
+    22.40948,
+    22.40948,
+    45.5
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 8984,
+   "center": [
+    -1.75553,
+    0.0,
+    29.72863
+   ],
+   "size": [
+    31.23315,
+    85.6,
+    54.65726
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Pipe",
+   "material": "F4_Pipe",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5D6F7A"
+   },
+   "glow": false,
+   "tris": 3864,
+   "center": [
+    -1.23646,
+    0.0,
+    32.88935
+   ],
+   "size": [
+    31.85169,
+    85.6,
+    44.2213
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 2024,
+   "center": [
+    0.0,
+    0.0,
+    22.61
+   ],
+   "size": [
+    20.18785,
+    72.7,
+    45.22
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Concrete",
+   "material": "F4_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "8C8A85"
+   },
+   "glow": false,
+   "tris": 484,
+   "center": [
+    0.0,
+    0.0,
+    0.625
+   ],
+   "size": [
+    22.40948,
+    73.38582,
+    1.25
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Grate",
+   "material": "F4_Grate",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "5A6169"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    41.9
+   ],
+   "size": [
+    20.47763,
+    20.47763,
+    0.4
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Glow",
+   "material": "F4_Glow",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A1F"
+   },
+   "glow": true,
+   "tris": 44,
+   "center": [
+    12.495,
+    0.0,
+    0.91
+   ],
+   "size": [
+    2.49,
+    2.16,
+    0.22
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_GlowHot",
+   "material": "F4_GlowHot",
+   "look": {
+    "material": "Neon",
+    "color": "FFC05A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    11.39,
+    0.0,
+    1.75
+   ],
+   "size": [
+    0.18,
+    1.1,
+    1.1
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Refractory",
+   "material": "F4_Refractory",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4A3C"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    12.51,
+    0.0,
+    0.8
+   ],
+   "size": [
+    2.42,
+    3.0,
+    1.6
+   ]
+  },
+  {
+   "piece": "F4Furnace",
+   "name": "F4Furnace_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 572,
+   "center": [
+    0.375,
+    0.0,
+    4.725
+   ],
+   "size": [
+    22.05,
+    21.3,
+    8.25
+   ]
+  },
+  {
+   "piece": "F4IngotCart",
+   "name": "F4IngotCart_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 2268,
+   "center": [
+    0.0,
+    0.0,
+    4.10265
+   ],
+   "size": [
+    4.9,
+    12.8,
+    7.39469
+   ]
+  },
+  {
+   "piece": "F4IngotCart",
+   "name": "F4IngotCart_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 1132,
+   "center": [
+    0.0,
+    0.0,
+    3.855
+   ],
+   "size": [
+    4.92,
+    13.1,
+    6.89
+   ]
+  },
+  {
+   "piece": "F4IngotCart",
+   "name": "F4IngotCart_F4_Rubber",
+   "material": "F4_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2A2A2A"
+   },
+   "glow": false,
+   "tris": 736,
+   "center": [
+    0.0,
+    0.0,
+    0.75
+   ],
+   "size": [
+    4.5,
+    9.34,
+    1.74
+   ]
+  },
+  {
+   "piece": "F4IngotCart",
+   "name": "F4IngotCart_F4_Glow",
+   "material": "F4_Glow",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A1F"
+   },
+   "glow": true,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    7.415
+   ],
+   "size": [
+    2.16,
+    9.36,
+    0.33
+   ]
+  },
+  {
+   "piece": "F4IngotCart",
+   "name": "F4IngotCart_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    -0.40833,
+    0.0,
+    1.375
+   ],
+   "size": [
+    4.08333,
+    12.0,
+    0.95
+   ]
+  },
+  {
+   "piece": "F4Ladle",
+   "name": "F4Ladle_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 536,
+   "center": [
+    0.85734,
+    0.0,
+    4.35
+   ],
+   "size": [
+    12.18532,
+    10.47064,
+    7.5
+   ]
+  },
+  {
+   "piece": "F4Ladle",
+   "name": "F4Ladle_F4_Rust",
+   "material": "F4_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9A5734"
+   },
+   "glow": false,
+   "tris": 664,
+   "center": [
+    0.0,
+    0.0,
+    4.35
+   ],
+   "size": [
+    9.69562,
+    9.69562,
+    5.2
+   ]
+  },
+  {
+   "piece": "F4Ladle",
+   "name": "F4Ladle_F4_Glow",
+   "material": "F4_Glow",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A1F"
+   },
+   "glow": true,
+   "tris": 136,
+   "center": [
+    1.22837,
+    0.0,
+    7.62
+   ],
+   "size": [
+    11.34326,
+    8.88652,
+    0.64
+   ]
+  },
+  {
+   "piece": "F4Ladle",
+   "name": "F4Ladle_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 840,
+   "center": [
+    0.0,
+    0.0,
+    2.98235
+   ],
+   "size": [
+    7.57286,
+    12.32,
+    5.96469
+   ]
+  },
+  {
+   "piece": "F4LadleCar",
+   "name": "F4LadleCar_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 904,
+   "center": [
+    -0.00082,
+    0.0,
+    4.8
+   ],
+   "size": [
+    8.59837,
+    14.4,
+    7.0
+   ]
+  },
+  {
+   "piece": "F4LadleCar",
+   "name": "F4LadleCar_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 1532,
+   "center": [
+    0.0,
+    0.0,
+    1.90265
+   ],
+   "size": [
+    8.6,
+    15.5,
+    2.49469
+   ]
+  },
+  {
+   "piece": "F4LadleCar",
+   "name": "F4LadleCar_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 1456,
+   "center": [
+    0.5375,
+    0.0,
+    1.69
+   ],
+   "size": [
+    7.525,
+    15.9,
+    2.22
+   ]
+  },
+  {
+   "piece": "F4LadleCar",
+   "name": "F4LadleCar_F4_Rubber",
+   "material": "F4_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2A2A2A"
+   },
+   "glow": false,
+   "tris": 1472,
+   "center": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    5.7,
+    11.44,
+    2.24
+   ]
+  },
+  {
+   "piece": "F4Loco",
+   "name": "F4Loco_F4_Paint",
+   "material": "F4_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C4553A"
+   },
+   "glow": false,
+   "tris": 1164,
+   "center": [
+    0.0,
+    0.25,
+    5.925
+   ],
+   "size": [
+    6.2,
+    14.3,
+    7.15
+   ]
+  },
+  {
+   "piece": "F4Loco",
+   "name": "F4Loco_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 2396,
+   "center": [
+    0.0,
+    0.0,
+    5.36345
+   ],
+   "size": [
+    7.2,
+    17.4,
+    9.77309
+   ]
+  },
+  {
+   "piece": "F4Loco",
+   "name": "F4Loco_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 2848,
+   "center": [
+    0.0,
+    0.0,
+    4.825
+   ],
+   "size": [
+    7.06,
+    17.8,
+    7.45
+   ]
+  },
+  {
+   "piece": "F4Loco",
+   "name": "F4Loco_F4_Glass",
+   "material": "F4_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "26323C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    5.0,
+    7.4
+   ],
+   "size": [
+    5.96,
+    4.56,
+    2.9
+   ]
+  },
+  {
+   "piece": "F4Loco",
+   "name": "F4Loco_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 1012,
+   "center": [
+    -0.085,
+    0.0,
+    3.35
+   ],
+   "size": [
+    6.63,
+    16.4,
+    4.5
+   ]
+  },
+  {
+   "piece": "F4Loco",
+   "name": "F4Loco_F4_Rubber",
+   "material": "F4_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2A2A2A"
+   },
+   "glow": false,
+   "tris": 1104,
+   "center": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    5.7,
+    11.04,
+    2.24
+   ]
+  },
+  {
+   "piece": "F4Loco",
+   "name": "F4Loco_F4_Lamp",
+   "material": "F4_Lamp",
+   "look": {
+    "material": "Neon",
+    "color": "F2C98A"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    -7.495,
+    5.45
+   ],
+   "size": [
+    0.96,
+    0.09,
+    0.52
+   ]
+  },
+  {
+   "piece": "F4Mudgun",
+   "name": "F4Mudgun_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 460,
+   "center": [
+    2.14779,
+    0.0,
+    3.46997
+   ],
+   "size": [
+    6.76868,
+    2.47311,
+    5.73994
+   ]
+  },
+  {
+   "piece": "F4Mudgun",
+   "name": "F4Mudgun_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 312,
+   "center": [
+    1.45,
+    0.0,
+    5.7
+   ],
+   "size": [
+    5.9,
+    2.49447,
+    1.8
+   ]
+  },
+  {
+   "piece": "F4Mudgun",
+   "name": "F4Mudgun_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 412,
+   "center": [
+    2.1804,
+    0.0,
+    5.0149
+   ],
+   "size": [
+    7.26079,
+    1.46939,
+    5.07021
+   ]
+  },
+  {
+   "piece": "F4Mudgun",
+   "name": "F4Mudgun_F4_Concrete",
+   "material": "F4_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "8C8A85"
+   },
+   "glow": false,
+   "tris": 124,
+   "center": [
+    0.0,
+    0.0,
+    0.35
+   ],
+   "size": [
+    3.60313,
+    3.60313,
+    0.7
+   ]
+  },
+  {
+   "piece": "F4OxyTanks",
+   "name": "F4OxyTanks_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 276,
+   "center": [
+    0.0,
+    0.05,
+    3.475
+   ],
+   "size": [
+    5.22163,
+    4.92163,
+    6.25
+   ]
+  },
+  {
+   "piece": "F4OxyTanks",
+   "name": "F4OxyTanks_F4_White",
+   "material": "F4_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D8D6D0"
+   },
+   "glow": false,
+   "tris": 348,
+   "center": [
+    0.0,
+    0.05,
+    7.35
+   ],
+   "size": [
+    5.2989,
+    4.9989,
+    1.7
+   ]
+  },
+  {
+   "piece": "F4OxyTanks",
+   "name": "F4OxyTanks_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 704,
+   "center": [
+    0.0,
+    0.0,
+    4.69
+   ],
+   "size": [
+    6.28,
+    6.28,
+    8.62
+   ]
+  },
+  {
+   "piece": "F4OxyTanks",
+   "name": "F4OxyTanks_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 408,
+   "center": [
+    0.0,
+    0.05,
+    8.475
+   ],
+   "size": [
+    4.0,
+    3.21737,
+    0.65
+   ]
+  },
+  {
+   "piece": "F4OxyTanks",
+   "name": "F4OxyTanks_F4_Concrete",
+   "material": "F4_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "8C8A85"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.2
+   ],
+   "size": [
+    6.4,
+    6.4,
+    0.4
+   ]
+  },
+  {
+   "piece": "F4Post",
+   "name": "F4Post",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    1.68
+   ],
+   "size": [
+    0.4,
+    0.4,
+    3.36
+   ]
+  },
+  {
+   "piece": "F4Rail4",
+   "name": "F4Rail4_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    2.4
+   ],
+   "size": [
+    4.0,
+    0.22,
+    1.64
+   ]
+  },
+  {
+   "piece": "F4Rail4",
+   "name": "F4Rail4_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.17
+   ],
+   "size": [
+    4.0,
+    0.1,
+    0.38
+   ]
+  },
+  {
+   "piece": "F4ScrapBin",
+   "name": "F4ScrapBin_F4_Rust",
+   "material": "F4_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9A5734"
+   },
+   "glow": false,
+   "tris": 704,
+   "center": [
+    0.0,
+    0.0,
+    1.97181
+   ],
+   "size": [
+    10.2,
+    5.04,
+    3.94362
+   ]
+  },
+  {
+   "piece": "F4ScrapBin",
+   "name": "F4ScrapBin_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    3.27438
+   ],
+   "size": [
+    9.4,
+    4.3,
+    0.74877
+   ]
+  },
+  {
+   "piece": "F4ScrapBin",
+   "name": "F4ScrapBin_F4_SteelLight",
+   "material": "F4_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A6AEB7"
+   },
+   "glow": false,
+   "tris": 308,
+   "center": [
+    -0.44053,
+    -0.57384,
+    3.42217
+   ],
+   "size": [
+    8.02557,
+    2.45726,
+    1.07782
+   ]
+  },
+  {
+   "piece": "F4ScrapBin",
+   "name": "F4ScrapBin_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 272,
+   "center": [
+    0.0,
+    0.0,
+    2.36352
+   ],
+   "size": [
+    9.8,
+    1.2,
+    0.92704
+   ]
+  },
+  {
+   "piece": "F4Stair12",
+   "name": "F4Stair12_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 616,
+   "center": [
+    0.0,
+    0.0,
+    7.80779
+   ],
+   "size": [
+    4.04,
+    19.01126,
+    14.71557
+   ]
+  },
+  {
+   "piece": "F4Stair12",
+   "name": "F4Stair12_F4_Grate",
+   "material": "F4_Grate",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "5A6169"
+   },
+   "glow": false,
+   "tris": 704,
+   "center": [
+    0.0,
+    0.03,
+    6.275
+   ],
+   "size": [
+    3.52,
+    20.02,
+    11.41
+   ]
+  },
+  {
+   "piece": "F4Stair12",
+   "name": "F4Stair12_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    -0.175,
+    5.95
+   ],
+   "size": [
+    4.02,
+    20.70132,
+    12.23216
+   ]
+  },
+  {
+   "piece": "F4Stove",
+   "name": "F4Stove_F4_Pipe",
+   "material": "F4_Pipe",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5D6F7A"
+   },
+   "glow": false,
+   "tris": 164,
+   "center": [
+    0.0,
+    0.0,
+    19.35
+   ],
+   "size": [
+    11.59111,
+    11.59111,
+    36.5
+   ]
+  },
+  {
+   "piece": "F4Stove",
+   "name": "F4Stove_F4_SteelDark",
+   "material": "F4_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "30353C"
+   },
+   "glow": false,
+   "tris": 3300,
+   "center": [
+    0.6699,
+    0.0,
+    16.6
+   ],
+   "size": [
+    15.0602,
+    13.7204,
+    31.2
+   ]
+  },
+  {
+   "piece": "F4Stove",
+   "name": "F4Stove_F4_Concrete",
+   "material": "F4_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "8C8A85"
+   },
+   "glow": false,
+   "tris": 116,
+   "center": [
+    0.0,
+    0.0,
+    0.6
+   ],
+   "size": [
+    12.94341,
+    12.94341,
+    1.2
+   ]
+  },
+  {
+   "piece": "F4Stove",
+   "name": "F4Stove_F4_Grate",
+   "material": "F4_Grate",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "5A6169"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    26.4
+   ],
+   "size": [
+    15.45481,
+    15.45481,
+    0.4
+   ]
+  },
+  {
+   "piece": "F4Stove",
+   "name": "F4Stove_F4_Yellow",
+   "material": "F4_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2A62C"
+   },
+   "glow": false,
+   "tris": 1056,
+   "center": [
+    0.0,
+    0.0,
+    28.15
+   ],
+   "size": [
+    15.26163,
+    15.26163,
+    3.2
+   ]
+  },
+  {
+   "piece": "F4Stove",
+   "name": "F4Stove_F4_Black",
+   "material": "F4_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272B"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    3.7
+   ],
+   "size": [
+    12.68,
+    1.4,
+    1.8
+   ]
+  }
+ ],
+ "tris": 61520
+}

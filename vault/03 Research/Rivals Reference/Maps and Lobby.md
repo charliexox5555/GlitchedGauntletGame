@@ -52,6 +52,8 @@ Height levels: ~85-90% of the area is floor; Arena +3 / +15 / +20, Docks +2/+4 s
 - **Splash:** a 41-mesh tile kit in Rubber.
 - **Edges are raw blocks**; detail comes from textures / SurfaceAppearance and colour, wedges only for roofs and ramps. Collision is always separate invisible parts. (Our own rule is stricter: carved ends, no blunt cutoffs: `gauntlet-build-style`.)
 
+- **Museum (build study 2026-11-21, [Foundry4](../../01%20Design/Maps/Foundry4.md#rivals-build-study-2026-11-21-read-only)):** big Part masses wearing tiling variants (`StoneBlock_01a` ×665, `Concrete-02a` ×484); 972 MeshParts of only 125 meshes, mostly trims and joins: `GrandTrim_0Na/b/c` stacks three profiles of different depth (3.9 / 2.6 / 2.9) that touch exactly, round every pillar head and wall top; the meshes wear the same variants as the Parts, so joins don't show; one warm-grey colour family (±10% value).
+
 ## Rules worth adopting (with numbers)
 1. **Size by team size.** 1v1-2v2 ~100×140 to 190×120, spawns 120-160 apart. Mid 200-300 across, spawns 180-200. 4v4 250-420 across, spawns 220-380.
 2. **Close the box:** invisible wall box (+ ceiling) or OOB with an OOBSafe hole, a zero-delay kill slab below, far outer walls.

@@ -73,6 +73,13 @@ local MAPS: { [string]: Map } = {
 		size = Vector3.new(260, 120, 300),
 		beds = { { id = "sfx:AmbCity", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.2 } },
 	},
+	-- Foundry4 (2026-11-21): the steel works at night, 150 x 192 at (6000, 200, 47000); the box takes in the mill sheds
+	-- and the stoves round it. Beds only: the plant hum and a little wind.
+	Foundry4 = {
+		center = Vector3.new(6000, 212, 47000),
+		size = Vector3.new(220, 90, 250),
+		beds = { { id = "sfx:AmbHum", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.14 } },
+	},
 	-- Greenhouse4 (2026-11-21): the Victorian conservatory in a walled garden, 140 x 196 at (6000, 200, 40000); the box
 	-- takes in the garden walls. Beds only.
 	Greenhouse4 = {
