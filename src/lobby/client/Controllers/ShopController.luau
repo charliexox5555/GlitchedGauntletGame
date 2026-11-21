@@ -33,6 +33,7 @@ local UserInputService = game:GetService("UserInputService")
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local RunService = game:GetService("RunService")
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -482,15 +483,37 @@ local function openCasePopup(case: ShopCatalog.Case)
 	showPanel(casePanel)
 end
 
+-- A refused purchase (owner 2026-11-20: "an error denied sound"): the denied
+-- cue, a short shake of the button that was pressed and a red flash of the
+-- coin counter, then the toast says why.
+local DENY_RED = Color3.fromHex("FF4D5E")
+local lastBuyButton: GuiObject? = nil
+local countColor: Color3? = nil
+local function denied(button: GuiObject?, short: boolean)
+	UiSfx.cue("PurchaseDenied")
+	if button then
+		UiMotion.nudge(button, UiMotion.home(button)) -- the shared shake (skips with reduced motion)
+	end
+	if short and coinsAmount then
+		countColor = countColor or coinsAmount.TextColor3
+		local label, back = coinsAmount, countColor
+		label.TextColor3 = DENY_RED
+		task.delay(0.35, function() -- hold the red a beat, then ease back
+			tween(label, 0.4, { TextColor3 = back }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		end)
+	end
+end
+
 -- The server checks everything again (Services/ShopService); these checks only
 -- save a round trip and say why. One purchase in flight at a time.
 local buying = false
-local function buyCase(how: string)
+local function buyCase(how: string, button: GuiObject?)
 	local case = openCase
 	if not case then
 		return
 	end
 	if casesRestricted then
+		denied(button, false)
 		LobbyHud.toast("Cases aren't available where you are", "error")
 		return
 	end
@@ -506,9 +529,11 @@ local function buyCase(how: string)
 		return
 	end
 	if PlayerData.coins(player) < case.coins then
+		denied(button, true)
 		LobbyHud.toast("Not enough coins", "error")
 		return
 	end
+	lastBuyButton = button
 	buying = true
 	LobbyNet.event("ShopRequest"):FireServer("buyCase", case.id)
 	task.delay(8, function() -- no answer: let them try again
@@ -1025,7 +1050,7 @@ function ShopController.init()
 		end)
 		b.Activated:Connect(function()
 			press(sc)
-			buyCase(n)
+			buyCase(n, b)
 		end)
 	end
 	-- a click anywhere off a bundle's cells hides the item card
@@ -1123,10 +1148,12 @@ function ShopController.start()
 		end
 		buying = false
 		if p.kind == "bought" then
+			UiSfx.cue("Confirm")
 			LobbyHud.toast(`{p.text or "Item"} added to your Backpack`, "success")
 		elseif p.kind == "coins" then
 			LobbyHud.toast(p.text or "Coins added", "success")
 		else
+			denied(lastBuyButton, p.text == "Not enough coins")
 			LobbyHud.toast(p.text or "Purchase failed", "error")
 		end
 	end)

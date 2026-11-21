@@ -30,7 +30,7 @@ export type Case = {
 	robux: number,
 	robux3: number, -- three at once
 	color: Color3,
-	art: string?, -- the case picture (art-source/ui/shop/case_*.png)
+	art: string?, -- the case picture: a render of the 3D crate (tools/blender/crates/render_icons.py, cropped)
 	contents: { Item },
 }
 
@@ -69,7 +69,7 @@ ShopCatalog.CASES = {
 	{
 		id = "Standard",
 		name = "STANDARD CASE",
-		art = "rbxassetid://115497833864984",
+		art = "rbxassetid://122735078835784", -- the 3D crate render (art-source/ui/shop/crates/crate_standard_wide.png; the Home card uses crate_standard_card.png)
 		coins = 400,
 		robux = 99,
 		robux3 = 249,
@@ -128,7 +128,7 @@ ShopCatalog.CASES = {
 	{
 		id = "Elite",
 		name = "ELITE CASE",
-		art = "rbxassetid://116277478544265",
+		art = "rbxassetid://120685505151159", -- crate_elite_wide.png
 		coins = 900,
 		robux = 199,
 		robux3 = 499,
@@ -179,7 +179,7 @@ ShopCatalog.CASES = {
 	{
 		id = "Apex",
 		name = "APEX CASE",
-		art = "rbxassetid://80186113910491",
+		art = "rbxassetid://87218064940726", -- crate_apex_wide.png
 		coins = 2000,
 		robux = 399,
 		robux3 = 999,

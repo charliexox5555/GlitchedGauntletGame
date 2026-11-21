@@ -50,7 +50,7 @@ local ICON = {
 	Shop = "rbxassetid://75746609493674",
 	Locker = "rbxassetid://94062620763078",
 	BattlePass = "rbxassetid://124123984170556",
-	Backpack = "rbxassetid://106773240441152", -- placeholder (the Standard crate render) until the ChatGPT icon
+	Backpack = "rbxassetid://83907686297008", -- art-source/ui/lobby-icons/backpack_v2_bar.png
 	Range = "rbxassetid://79251886607751",
 	Settings = "rbxassetid://139738672487062",
 	Coin = "rbxassetid://122645025340088",
@@ -897,14 +897,10 @@ do -- Bottom: bar, PLAY, party, callout
 end
 
 do -- Toast: top centre, a navy plate led by a slanted colour block
-	local g = group(
-		screen("LobbyToast", true),
-		"Toast",
-		Vector2.new(0.5, 0),
-		UDim2.fromScale(0.5, 0),
-		700,
-		200
-	)
+	local toastGui = screen("LobbyToast", true)
+	-- over the menus (Shop / Backpack are 30) so a refusal is seen, under MATCH FOUND (40)
+	toastGui.DisplayOrder = 35
+	local g = group(toastGui, "Toast", Vector2.new(0.5, 0), UDim2.fromScale(0.5, 0), 700, 200)
 	local plate = make("Frame", {
 		Name = "Plate",
 		AnchorPoint = Vector2.new(0.5, 0),

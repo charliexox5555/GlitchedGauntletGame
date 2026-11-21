@@ -52,9 +52,9 @@ local ART = {
 	coinFlat = "rbxassetid://100589000171881", -- white silhouette, tinted
 	coinStack = "rbxassetid://77893326046955",
 	case = {
-		Standard = "rbxassetid://115497833864984",
-		Elite = "rbxassetid://116277478544265",
-		Apex = "rbxassetid://80186113910491",
+		Standard = "rbxassetid://133624978874225", -- 3D crate card renders, end-on (crates/crate_*_card.png, 2026-11-20)
+		Elite = "rbxassetid://103320622297328",
+		Apex = "rbxassetid://93123564652737",
 	},
 	tab = {
 		HOME = "rbxassetid://86144101123567",
@@ -611,8 +611,8 @@ do
 			make("ImageLabel", {
 				Name = "CaseArt",
 				AnchorPoint = CENTRE,
-				Position = UDim2.new(0.5, 0, 0, 122),
-				Size = UDim2.fromOffset(156, 104),
+				Position = UDim2.new(0.5, 0, 0, 112),
+				Size = UDim2.fromOffset(136, 126),
 				BackgroundTransparency = 1,
 				Image = caseArt,
 				ScaleType = Enum.ScaleType.Fit,

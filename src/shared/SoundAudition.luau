@@ -108,6 +108,30 @@ local ROWS: { Row } = {
 	},
 	{
 		section = "SHARED",
+		name = "PURCHASE DENIED (not enough coins)",
+		list = {
+			{
+				note = "now: Negative + low buzz",
+				layers = {
+					{ id = 17208353912, vol = 0.17, delay = 0, pitch = 1 },
+					{ id = 9126041965, vol = 0.07, delay = 0, pitch = 1 },
+				},
+			},
+			{ id = 17208353912, vol = 0.17, note = "Roblox GUI Negative" },
+			{ id = 9126041965, vol = 0.142, note = "PSE Thuddy buzzy A" },
+			{ id = 15675075163, vol = 0.315, note = "Roblox Delete (the SOON sound)" },
+			{ id = 10066926605, vol = 1.027, note = "RBLX UI Delete" },
+			{
+				note = "Delete + low buzz",
+				layers = {
+					{ id = 15675075163, vol = 0.3, delay = 0, pitch = 1 },
+					{ id = 9126041965, vol = 0.07, delay = 0, pitch = 1 },
+				},
+			},
+		},
+	},
+	{
+		section = "SHARED",
 		name = "PAGE OPEN (soft whoosh)",
 		list = {
 			{ id = 15674975792, vol = 0.1, note = "now: Roblox Whoosh 03" },

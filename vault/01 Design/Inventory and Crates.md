@@ -18,9 +18,10 @@ The owner selected **the far-left case from the elongated rifle-case comparison*
 3. ✅ **Crate design** (2026-11-20): concept, model sheet and tier sheet picked (section above).
 4. ✅ **Crate model** (2026-11-20): built in Blender, rigged in Studio for animation, three tiers as colour data, tier icons rendered. See "Crate model" below.
 5. ✅ **Backpack screen** (2026-11-20): bottom-bar BACKPACK (replaces the Battle Pass for the first release) opens a grid of stacks. Built in Studio for the owner to edit. See "Backpack" below.
-5b. ⏳ **Backpack icon:** owner runs the icon prompt below; the bar and header use the Standard crate render until then.
-5c. ⬜ Shop case cards and popup still show the old flat case art: swap to the crate renders (`Config/Inventory` icons) when the owner says.
-6. ⬜ **Robux purchases** (BUY / BUY x3 Robux, coin packs): developer products + `ProcessReceipt` on the same atomic write, keyed by `PurchaseId`. Needs product ids from the Creator Dashboard (owner).
+5b. ✅ **Backpack icon** (2026-11-20): the owner's ChatGPT icon (`art-source/ui/lobby-icons/backpack_v2.png`), uploaded full-bleed 400 px (`backpack_v2_bar.png`) like the other bar icons; bar, phone dock and Backpack header.
+5c. ✅ **Shop case art** (2026-11-20): renders, never ViewportFrames (owner: "that's not what Rivals does"). See "Shop art and denied feedback" below.
+5d. ✅ **Not enough coins** feedback (2026-11-20). ⏳ Owner picks the sound on F4.
+6. ⏸ **Robux purchases** (parked by the owner 2026-11-20: more Shop content first) (BUY / BUY x3 Robux, coin packs): developer products + `ProcessReceipt` on the same atomic write, keyed by `PurchaseId`. Needs product ids from the Creator Dashboard (owner).
 7. Parked: earning coins from matches (written by the match place to the same store), case opening.
 
 ## How it works (built)
@@ -111,6 +112,14 @@ Save it as `art-source/ui/lobby-icons/backpack_v2.png` (the other bar icons are 
 - [ ] `ReplicatedStorage.Crates.Crate`: open it in the Animation Editor; the lid, latches, handle and gem joints move.
 - [ ] **Save the Lobby place** (the crate template, the Backpack screen and the bar change live in the place).
 
+## Shop art and denied feedback (2026-11-20)
+- **Renders per slot shape** (memory `ui-item-art-renders`): `tools/blender/crates/render_cards.py` renders an end-on, higher view (aspect about 1:1) for the tall Home case cards and the square Backpack cells (`crate_<tier>_card.png`; images Standard 133624978874225, Elite 103320622297328, Apex 93123564652737 in `Config/Inventory.icon` and the cards' `CaseArt`). The wide 3/4 view (`crate_<tier>_wide.png`; 122735078835784 / 120685505151159 / 87218064940726) is `ShopCatalog.art`, used by the case popup and the Season Pass. The first try put the wide render on the cards and it spilled past the 140 px cards.
+- **Denied:** `Config/UiSounds.PurchaseDenied` = Roblox "GUI - Negative" (0.17) over a quiet PSE "Thuddy buzzy A" (0.07). Plays on a local not-enough-coins check and on any refusal from the server; the pressed BUY button nudges (`UiMotion.nudge`, skipped with reduced motion) and the top coin count holds red for 0.35 s, then eases back. Candidates on the F4 board, SHARED → PURCHASE DENIED (6 options incl. Delete + buzz). A successful buy plays `Confirm`.
+- **Toasts over menus:** `StarterGui.LobbyToast.DisplayOrder` 25 → 35 (menus are 30, MATCH FOUND 40); before this, "NOT ENOUGH COINS" was hidden behind the Shop popup's dim.
+- Playtested: cards and popup show the crates; BUY with 300 coins on the 400 Standard case gives the sound (both layers played), the nudge, the red count and a visible toast; the Backpack shows the end-on crates filling the cells.
+- Still flat: the Starter Bundle banner art (a baked ChatGPT banner with the old case).
+
 ## Changelog
 - 2026-11-20: created. Phases 1 and 2 built and tested; crate prompts written.
+- 2026-11-20 (evening): Shop case art = crate renders, backpack icon in, denied sound + nudge + red count, toasts over menus; Robux parked.
 - 2026-11-20 (later): crate model built, compacted, rigged and tiered; tier icons; Backpack screen replaces the Battle Pass on the bar; backpack icon prompt.

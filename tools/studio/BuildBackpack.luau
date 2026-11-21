@@ -34,8 +34,8 @@ local MUTED = hex("9F9FA2")
 local GOLD = hex("FFC83D")
 local CENTRE = Vector2.new(0.5, 0.5)
 local CAP_R = "rbxassetid://130377997107460"
--- placeholder until the ChatGPT backpack icon: the Standard crate render
-local ICON = "rbxassetid://106773240441152"
+-- the bar's backpack icon (art-source/ui/lobby-icons/backpack_v2_bar.png)
+local ICON = "rbxassetid://83907686297008"
 
 local COLS, CELL_W, CELL_H, GAP = 6, 156, 176, 18
 local GRID_W = COLS * CELL_W + (COLS - 1) * GAP + 16
@@ -300,8 +300,8 @@ corner(cell, 12)
 make("ImageLabel", {
 	Name = "Art",
 	AnchorPoint = CENTRE,
-	Position = UDim2.fromScale(0.5, 0.4),
-	Size = UDim2.fromOffset(196, 196), -- the renders have air round the crate
+	Position = UDim2.fromScale(0.5, 0.41),
+	Size = UDim2.fromOffset(138, 128), -- the tight end-on crate renders
 	BackgroundTransparency = 1,
 	ScaleType = Enum.ScaleType.Fit,
 	ZIndex = 6,

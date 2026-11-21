@@ -19,7 +19,7 @@ export type ItemDef = {
 	tier: number, -- 1 = lowest; sorts the Backpack and picks the crate colour
 	case: string?, -- Case: the ShopCatalog case id it opens
 	maxStack: number, -- the most one player can hold
-	icon: string?, -- Backpack / Shop picture (rendered from the 3D crate: tools/blender/crates/render_icons.py)
+	icon: string?, -- Backpack picture: the end-on crate render (tools/blender/crates/render_cards.py, art-source/ui/shop/crates/crate_<tier>_card.png), shared with the Shop cards
 	retired: boolean?, -- no longer sold or granted; still shown if held
 }
 
@@ -31,7 +31,7 @@ local ITEMS: { [string]: ItemDef } = {
 		tier = 1,
 		case = "Standard",
 		maxStack = 999,
-		icon = "rbxassetid://106773240441152",
+		icon = "rbxassetid://133624978874225",
 	},
 	CaseElite = {
 		id = "CaseElite",
@@ -40,7 +40,7 @@ local ITEMS: { [string]: ItemDef } = {
 		tier = 2,
 		case = "Elite",
 		maxStack = 999,
-		icon = "rbxassetid://81160532398415",
+		icon = "rbxassetid://103320622297328",
 	},
 	CaseApex = {
 		id = "CaseApex",
@@ -49,7 +49,7 @@ local ITEMS: { [string]: ItemDef } = {
 		tier = 3,
 		case = "Apex",
 		maxStack = 999,
-		icon = "rbxassetid://129794608887439",
+		icon = "rbxassetid://93123564652737",
 	},
 }
 

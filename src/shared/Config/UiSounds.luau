@@ -83,6 +83,10 @@ return table.freeze({
 	ToggleOff = Theme.ToggleOff,
 	PageOpen = Theme.PageOpen,
 	Denied = Theme.Error,
+	-- Not enough coins / a refused purchase (owner 2026-11-20: "an error denied sound").
+	-- Roblox "GUI - Negative" over a quiet low PSE buzz for weight; options on the F4
+	-- board's PURCHASE DENIED row.
+	PurchaseDenied = layered(cue(17208353912, 0.17, 1, 0.3), { { 9126041965, 0.07 } }),
 
 	-- Shared theme, match names (draft and match-end). Hover and Select were
 	-- "atlas:UiClick", which nothing plays any more (silent since the atlas
