@@ -79,24 +79,36 @@ HILL = Plan(
 		# two climbs per side up to the piazza: a broad stepped street (centre-left) and a ramp (right)
 		Box("Stepped street", -18, 30, 14, 16, 7, 0, "ramp"),
 		Box("Ramp", 24, 30, 10, 16, 7, 0, "ramp"),
-		Box("Piazza wall", 3, 23, 18, 2, 7),  # retaining wall faces between the climbs
-		Box("Fountain", 22, 52, 12, 12, 3, 0, "low"),
-		Box("Fountain column", 22, 52, 4, 4, 10, 0, "pillar"),
-		# houses: a loggia with a +12 terrace (west), a long house (east), alley arches on the flanks
+		# cover up on the hill (+7): planters and a bench round the tower, a parapet on the edge, a small pavilion
+		Box("Piazza planter", -14, 10, 6, 6, 10.5, 0, "low", 7),
+		Box("Piazza bench", 14, 13, 8, 2.5, 10, 0, "low", 7),
+		Box("Piazza parapet", 3, 20, 12, 2, 10.5, 0, "low", 7),
+		Box("Piazza pavilion", 20, 4, 6, 6, 17, 0, "full", 7),
+		# the lower street: fountain, stall, well, a kiosk at the ramp foot, a wall shrine
+		Box("Fountain", 22, 54, 12, 12, 3, 0, "low"),
+		Box("Fountain column", 22, 54, 4, 4, 10, 0, "pillar"),
+		Box("Stall", -22, 54, 8, 4, 3.5, 0, "low"),
+		Box("Well", -8, 66, 6, 6, 3.5, 0, "low"),
+		Box("Kiosk", 40, 30, 8, 8, 10),
+		Box("Shrine", -55, 14, 6, 4, 10),
+		# the loggia (+12 terrace): its stair, and stone steps up the west side (3.5 -> 7 -> 12)
 		Box("Loggia house", -60, 46, 30, 28, 12, 0, "deck"),
 		Box("Loggia stair", -42.5, 44, 5, 20, 12, 0, "ramp"),
+		Box("Loggia step high", -77.5, 50, 5, 5, 7, 0, "deck"),
+		Box("Loggia step low", -82.5, 50, 5, 5, 3.5, 0, "plinth"),
+		# the east: a long house, its garden wall; alley arches on both flanks
 		Box("Long house", 64, 52, 24, 34, 16),
+		Box("Garden wall", 40, 72, 2.5, 14, 3.5, 0, "low"),
 		Box("Alley arch", -88, 22, 24, 10, 14, 0, "full", 8),
 		Box("Alley arch", 88, 14, 24, 10, 14, 0, "full", 8),
-		Box("Stall", -22, 52, 8, 4, 3.5, 0, "low"),
-		Box("Cart", 40, 80, 8, 4, 3.5, 0, "low"),
+		Box("Cart", 28, 80, 8, 4, 3.5, 0, "low"),
 		Box("Gatehouse", 0, 88, 34, 8, 12, 0, "baffle"),
 		Box("Corner house", -75, 99, 50, 22, 16),
 		Box("Corner house", 75, 99, 50, 22, 16),
 	],
 	spawns_a=[(-12, 101), (0, 103), (12, 101), (-6, 97), (6, 97)],
 	duel=False,
-	notes=["middle piazza +6 round the clock tower; two climbs a side; loggia terrace +12"],
+	notes=["middle piazza +7 round the clock tower; two climbs a side; loggia terrace +12 (stair + steps)"],
 )
 
 PLANS = {"canal": CANAL, "hill": HILL}

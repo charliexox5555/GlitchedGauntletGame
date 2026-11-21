@@ -93,6 +93,40 @@ Our concept-image workflow: ChatGPT makes the concept images from these prompts,
 3. **Canale, overview:** "A bird's-eye concept of an Italian canal town designed as a competitive shooter map. A canal crosses the middle; at its centre a covered stone bridge with arches (you can walk on it and under it), two smaller flat bridges at the sides. Each side has a piazza with a fountain, an arcade house with a roof terrace, a cafe with tables and umbrellas, market stalls, quay houses with boats tied up. The canal continues beyond the map between houses toward a lagoon. Cream, ochre and rose stucco, stone, terracotta roofs, blue and green shutters. Golden hour. Stylised, clean, readable, not cartoony. No text, logos or people."
 4. **Props sheet (either option):** "A clean prop sheet for a stylised Italian old town shooter map: a stone fountain with a basin and a carved column, a market stall with a striped awning and crates of fruit, a stone well with a small roof and crank, a cafe table set with chairs and a parasol, a wooden hand cart, terracotta planters with clipped shrubs, a wall lantern, a wooden door with iron studs, shuttered windows with stone frames. Consistent warm palette, golden-hour lighting, white background. No text or logos."
 
+## Owner pick (2026-11-21)
+**Collina (the hill town).** Canale is parked. Next: the Collina layout iterated to the standard (below), then concept images (prompts above) approved before any build.
+
+## Collina layout v2 (2026-11-21, after the pick)
+Same plan image, iterated: `vault/02 Art/References/maps/oldtown4/oldtown4-hill-layout.png`.
+
+**Up on the hill (+7):**
+- planters, a bench and an edge parapet round the tower (low cover);
+- a small pavilion (full cover), so standing up there isn't a free kill.
+
+**The lower streets:**
+- a well;
+- a kiosk at the ramp foot;
+- a wall shrine on the west flank;
+- a garden wall by the long house;
+- a hand cart.
+
+**The +12 loggia terrace** now has two ways up: the stair, or stone steps (3.5 → 7 → 12).
+
+| Check | Collina v2 |
+|---|---|
+| Spawn gap / longest line | 200 / 224 (0% over 250) |
+| Pinches | **0** |
+| Spawn sees spawn / enemy half sees a spawn | never / 0.0% |
+| First sight | **3.8 s** |
+| Sprint to centre / enemy spawn | 4.0 s / 10.2 s |
+| Heights | 0, low 3-3.5, steps 3.5 / 7, hill piazza **+7** (2 climbs a side + jump from 3.5 cover), cover on top to +10.5 / +17, loggia terrace **+12** (stair + steps), houses 14-16, the tower 40 |
+| Cover | 20 full + 16 low (more detail dressing comes in the build: doorsteps, planters, benches, lamps, washing lines out of the lanes) |
+
+**Concept prompts, updated for v2:** the Collina prompts above stand; add to prompt 1:
+- "a small arched pavilion and stone planters on the raised piazza";
+- "stone steps up the side of the loggia";
+- "a well and a kiosk in the lower streets".
+
 ## Owner decisions needed
 1. **Direction:** A (Canale) or B (Collina), or a mix (for example the hill with a bridge).
 2. **Size:** large 2v2-3v3 (planned) or regular 1v1-2v2.
