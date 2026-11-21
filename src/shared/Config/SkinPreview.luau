@@ -1,7 +1,7 @@
 --!strict
 -- Skin preview: pick a skin line for your guns (F7 cycles, \ cycles, ; opens
--- the list). Cosmetic only: no ownership, purchases or saving. Independent of
--- shared/TestMode.
+-- the list). A dev tool: Studio, or USER_IDS in live servers. Real skins are
+-- owned (Shared/PlayerData) and equipped in the Lobby's Locker.
 --
 -- Each player's line is their own: a Player attribute (ATTRIBUTE) the server
 -- sets from the REMOTE request; your camera guns and your world gun (seen by
@@ -37,7 +37,8 @@ end
 return table.freeze({
 	PLACE_ID = 133387545285290,
 	LIVE = true, -- also outside Studio (live servers of PLACE_ID)
-	-- Live servers: UserIds allowed to use it; empty = every player.
+	-- Live servers: UserIds allowed to use the F7 picker; empty = nobody (skins are
+	-- owned since 2026-11-20; the Locker's owned equips still show everywhere).
 	USER_IDS = table.freeze({} :: { number }),
 	ATTRIBUTE = "PreviewSkinLine",
 	REMOTE = "PreviewSkinLine",

@@ -31,7 +31,7 @@ export type Case = {
 	robux3: number, -- three at once
 	color: Color3,
 	art: string?, -- the case picture: a render of the 3D crate (tools/blender/crates/render_icons.py, cropped)
-	contents: { Item },
+	-- what it gives comes from the skin tiers: Shared/SkinCases.contents(id) (Config/Skins)
 }
 
 export type Bundle = {
@@ -74,56 +74,6 @@ ShopCatalog.CASES = {
 		robux = 99,
 		robux3 = 249,
 		color = Color3.fromHex("69696C"),
-		contents = {
-			{
-				kind = "Skin",
-				name = "REDLINE CLASSIC",
-				gun = "Classic",
-				line = "Redline",
-				rarity = "Common",
-				weight = 30,
-			},
-			{
-				kind = "Skin",
-				name = "REDLINE SPECTRE",
-				gun = "Spectre",
-				line = "Redline",
-				rarity = "Common",
-				weight = 30,
-			},
-			{
-				kind = "Skin",
-				name = "NITROUS SHORTY",
-				gun = "Shorty",
-				line = "Nitrous",
-				rarity = "Rare",
-				weight = 18,
-			},
-			{
-				kind = "Skin",
-				name = "SEALWORK GUARDIAN",
-				gun = "Guardian",
-				line = "Sealwork",
-				rarity = "Rare",
-				weight = 12,
-			},
-			{
-				kind = "Skin",
-				name = "PRISM VANDAL",
-				gun = "Vandal",
-				line = "Prism",
-				rarity = "Epic",
-				weight = 8,
-			},
-			{
-				kind = "Skin",
-				name = "GILTFOLD SHERIFF",
-				gun = "Sheriff",
-				line = "Giltfold",
-				rarity = "Legendary",
-				weight = 2,
-			},
-		},
 	},
 	{
 		id = "Elite",
@@ -133,48 +83,6 @@ ShopCatalog.CASES = {
 		robux = 199,
 		robux3 = 499,
 		color = Color3.fromHex("6A3FC2"),
-		contents = {
-			{
-				kind = "Skin",
-				name = "NITROUS SPECTRE",
-				gun = "Spectre",
-				line = "Nitrous",
-				rarity = "Rare",
-				weight = 35,
-			},
-			{
-				kind = "Skin",
-				name = "POPCIRCUIT BUCKY",
-				gun = "Bucky",
-				line = "PopCircuit",
-				rarity = "Rare",
-				weight = 30,
-			},
-			{
-				kind = "Skin",
-				name = "MOLTFRAME VANDAL",
-				gun = "Vandal",
-				line = "Moltframe",
-				rarity = "Epic",
-				weight = 20,
-			},
-			{
-				kind = "Skin",
-				name = "PAYLOAD OPERATOR",
-				gun = "Operator",
-				line = "Payload",
-				rarity = "Epic",
-				weight = 12,
-			},
-			{
-				kind = "Skin",
-				name = "INKSHIFT VANDAL",
-				gun = "Vandal",
-				line = "Inkshift",
-				rarity = "Legendary",
-				weight = 3,
-			},
-		},
 	},
 	{
 		id = "Apex",
@@ -184,40 +92,6 @@ ShopCatalog.CASES = {
 		robux = 399,
 		robux3 = 999,
 		color = Color3.fromHex("C2412F"),
-		contents = {
-			{
-				kind = "Skin",
-				name = "MOLTFRAME SPECTRE",
-				gun = "Spectre",
-				line = "Moltframe",
-				rarity = "Epic",
-				weight = 40,
-			},
-			{
-				kind = "Skin",
-				name = "SEALWORK OPERATOR",
-				gun = "Operator",
-				line = "Sealwork",
-				rarity = "Epic",
-				weight = 35,
-			},
-			{
-				kind = "Skin",
-				name = "GILTFOLD VANDAL",
-				gun = "Vandal",
-				line = "Giltfold",
-				rarity = "Legendary",
-				weight = 15,
-			},
-			{
-				kind = "Skin",
-				name = "POPCIRCUIT BAT",
-				gun = "Knife",
-				line = "PopCircuit",
-				rarity = "Legendary",
-				weight = 10,
-			},
-		},
 	},
 } :: { Case }
 
@@ -365,19 +239,6 @@ function ShopCatalog.separately(bundle: Bundle): number
 		total += ShopCatalog.itemRobux(item) or 0
 	end
 	return total
-end
-
--- Odds for each item of a case, in %, from its weights (they add up to 100).
-function ShopCatalog.odds(case: Case): { number }
-	local total = 0
-	for _, item in case.contents do
-		total += item.weight or 0
-	end
-	local out: { number } = {}
-	for i, item in case.contents do
-		out[i] = if total > 0 then (item.weight or 0) / total * 100 else 0
-	end
-	return out
 end
 
 -- A percentage for the odds list: at least four digits after the first

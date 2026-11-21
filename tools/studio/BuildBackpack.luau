@@ -239,12 +239,19 @@ text(canvas, "Detail", "", 26, WHITE, {
 	Size = UDim2.fromOffset(GRID_W - 16, 34),
 	TextXAlignment = Enum.TextXAlignment.Left,
 })
-text(canvas, "Note", "OPENING CASES COMES IN A LATER UPDATE.", 18, MUTED, {
-	Position = UDim2.fromOffset(left + 8, 940),
-	Size = UDim2.fromOffset(GRID_W - 16, 26),
-	TextXAlignment = Enum.TextXAlignment.Left,
-	TextTransparency = 0.15,
-})
+text(
+	canvas,
+	"Note",
+	"PICK A CASE, THEN OPEN IT. YOU NEVER GET A SKIN YOU ALREADY OWN.",
+	18,
+	MUTED,
+	{
+		Position = UDim2.fromOffset(left + 8, 940),
+		Size = UDim2.fromOffset(GRID_W - 16, 26),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTransparency = 0.15,
+	}
+)
 
 -- an empty backpack: one line and the act-now button (gold) to the Shop
 local empty = make("Frame", {
@@ -275,6 +282,119 @@ local shop = make("TextButton", {
 slant(shop, GOLD, 72, 23)
 make("UIScale", { Name = "Pop" }, shop)
 text(shop, "Label", "OPEN SHOP", 32, INK, { Size = UDim2.fromScale(1, 1), ZIndex = 7 })
+
+------------------------------------------------------------------------------
+-- Opening (2026-11-20): OPEN CASE for the picked case stack, and the reveal panel
+-- (the cinematic crate opening replaces the panel's entrance later).
+
+local openBtn = make("TextButton", {
+	Name = "OpenCase",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(left + GRID_W - 8 - 150, 917),
+	Size = UDim2.fromOffset(280, 64),
+	BackgroundColor3 = GOLD,
+	BorderSizePixel = 0,
+	Text = "",
+	AutoButtonColor = false,
+	Visible = false,
+	ZIndex = 6,
+}, canvas)
+slant(openBtn, GOLD, 64, 20)
+make("UIScale", { Name = "Pop" }, openBtn)
+text(openBtn, "Label", "OPEN CASE", 28, INK, { Size = UDim2.fromScale(1, 1), ZIndex = 7 })
+
+local shade = make("Frame", {
+	Name = "RevealShade",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundColor3 = Color3.new(0, 0, 0),
+	BackgroundTransparency = 0.35,
+	BorderSizePixel = 0,
+	Active = true,
+	Visible = false,
+	ZIndex = 18,
+}, canvas)
+local reveal = make("Frame", {
+	Name = "Reveal",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(960, 540),
+	Size = UDim2.fromOffset(760, 640),
+	BackgroundColor3 = NAVY,
+	BorderSizePixel = 0,
+	Visible = false,
+	ZIndex = 20,
+}, canvas)
+corner(reveal, 10)
+make("UIScale", { Name = "Pop" }, reveal)
+text(reveal, "Kicker", "NEW SKIN", 24, MUTED, {
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 34),
+	Size = UDim2.fromOffset(600, 30),
+	ZIndex = 22,
+})
+make("ImageLabel", {
+	Name = "Art",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0.5, 0, 0, 230),
+	Size = UDim2.fromOffset(460, 290),
+	BackgroundTransparency = 1,
+	ScaleType = Enum.ScaleType.Fit,
+	ZIndex = 22,
+}, reveal)
+make("ImageLabel", {
+	Name = "Emblem",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0.5, 0, 0, 230),
+	Size = UDim2.fromOffset(180, 180),
+	BackgroundTransparency = 1,
+	ScaleType = Enum.ScaleType.Fit,
+	Visible = false,
+	ZIndex = 22,
+}, reveal)
+text(reveal, "Name", "PRISM VANDAL", 52, WHITE, {
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 392),
+	Size = UDim2.fromOffset(700, 60),
+	ZIndex = 22,
+})
+local tierPlate = make("Frame", {
+	Name = "Tier",
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.new(0.5, 0, 0, 458),
+	Size = UDim2.fromOffset(170, 34),
+	BackgroundColor3 = WHITE,
+	BorderSizePixel = 0,
+	ZIndex = 22,
+}, reveal)
+slant(tierPlate, WHITE, 34, 11)
+text(tierPlate, "Label", "COMMON", 20, INK, { Size = UDim2.fromScale(1, 1), ZIndex = 23 })
+local equip = make("TextButton", {
+	Name = "Equip",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0.5, -140, 1, -58),
+	Size = UDim2.fromOffset(240, 64),
+	BackgroundColor3 = GOLD,
+	BorderSizePixel = 0,
+	Text = "",
+	AutoButtonColor = false,
+	ZIndex = 22,
+}, reveal)
+slant(equip, GOLD, 64, 20)
+make("UIScale", { Name = "Pop" }, equip)
+text(equip, "Label", "EQUIP", 28, INK, { Size = UDim2.fromScale(1, 1), ZIndex = 23 })
+local ok = make("TextButton", {
+	Name = "Done",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0.5, 140, 1, -58),
+	Size = UDim2.fromOffset(240, 64),
+	BackgroundColor3 = NAVY_HI,
+	BorderSizePixel = 0,
+	Text = "",
+	AutoButtonColor = false,
+	ZIndex = 22,
+}, reveal)
+slant(ok, NAVY_HI, 64, 20)
+make("UIScale", { Name = "Pop" }, ok)
+text(ok, "Label", "NICE", 28, WHITE, { Size = UDim2.fromScale(1, 1), ZIndex = 23 })
 
 gui.Parent = SG
 

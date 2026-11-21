@@ -26,6 +26,7 @@ local UserInputService = game:GetService("UserInputService")
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
@@ -149,6 +150,19 @@ end
 
 local function equippedLine(gunId: string): string
 	return Locker.equipped(player)[gunId] or "Stock"
+end
+
+-- The lines this player owns for a gun (Stock first): skins come from case
+-- openings now (Shared/PlayerData), so the Locker only lists owned ones.
+local function ownedLines(gunId: string): { string }
+	local skins = PlayerData.skins(player)
+	local out: { string } = {}
+	for _, line in Locker.linesFor(gunId) do
+		if PlayerData.owns(skins, gunId, line) then
+			table.insert(out, line)
+		end
+	end
+	return out
 end
 
 local function lineTitle(line: string): string
@@ -652,7 +666,7 @@ local function refreshTiles()
 	end
 	local count = tray:FindFirstChild("Count")
 	if count and count:IsA("TextLabel") then
-		count.Text = string.format("%d OWNED", #Locker.linesFor(selectedGun))
+		count.Text = string.format("%d OWNED", #ownedLines(selectedGun))
 	end
 end
 
@@ -663,7 +677,7 @@ local function buildTiles()
 		end
 	end
 	strip.CanvasPosition = Vector2.zero
-	for i, line in Locker.linesFor(selectedGun) do
+	for i, line in ownedLines(selectedGun) do
 		local t = (templates:WaitForChild("SkinTile") :: GuiButton):Clone()
 		t.Name = line
 		t.LayoutOrder = i
@@ -1118,6 +1132,18 @@ function LockerController.init()
 			if trayOpen then
 				refreshTiles()
 			end
+		end
+	end)
+	-- a new skin (a case opening) adds a tile while the tray is open
+	task.spawn(function()
+		local value = player:WaitForChild(PlayerData.SKINS, 60)
+		if value and value:IsA("StringValue") then
+			value.Changed:Connect(function()
+				if isOpen and trayOpen then
+					buildTiles()
+					refreshTiles()
+				end
+			end)
 		end
 	end)
 

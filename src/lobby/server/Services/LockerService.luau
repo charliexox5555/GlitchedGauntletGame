@@ -1,8 +1,10 @@
 --!strict
 -- The Locker's equips (vault/02 Art/UI Locker.md): one skin line per gun,
 -- saved so the Match puts it on your guns (Shared/Locker, read by the match's
--- SkinPreviewService). Every skin is free while testing; ownership comes with
--- the economy.
+-- SkinPreviewService). Only OWNED skins (Shared/PlayerData skins, granted by
+-- case openings; Stock is always owned) can be equipped, and the published
+-- LockerSkins only ever lists owned pairs, so an old save that equipped a skin
+-- the player doesn't own shows Stock (2026-11-20: "wipe out all gun skins").
 --
 -- LockerRequest (client -> server): ("equip", gunId, line). Type-checked,
 -- rate-limited, and only pairs whose skin model exists (Shared/Locker.valid).
@@ -22,6 +24,8 @@ local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local PlayerDataService = require(script.Parent.PlayerDataService)
 
 local LockerService = {}
 
@@ -105,6 +109,26 @@ function LockerService.flush(player: Player)
 	task.spawn(save, player)
 end
 
+-- The equips this player may wear: owned pairs only (nothing but Stock until
+-- their save loads).
+local function owned(player: Player, skins: { [string]: string }): { [string]: string }
+	local data = PlayerDataService.get(player)
+	local out: { [string]: string } = {}
+	for gunId, line in skins do
+		if data and PlayerData.owns(data.skins, gunId, line) then
+			out[gunId] = line
+		end
+	end
+	return out
+end
+
+local function publish(player: Player)
+	local rec = records[player]
+	if rec then
+		Locker.publish(player, owned(player, rec.skins))
+	end
+end
+
 local function load(player: Player)
 	local rec: Record =
 		{ skins = {}, loaded = false, dirty = false, token = 0, saving = false, lastSave = 0 }
@@ -124,7 +148,7 @@ local function load(player: Player)
 			end
 		end
 	end
-	Locker.publish(player, rec.skins)
+	publish(player)
 end
 
 local function equip(player: Player, gunId: string, line: string)
@@ -133,7 +157,7 @@ local function equip(player: Player, gunId: string, line: string)
 		return
 	end
 	rec.skins[gunId] = line
-	Locker.publish(player, rec.skins)
+	publish(player)
 	rec.dirty = true
 	rec.token += 1
 	local token = rec.token
@@ -161,6 +185,11 @@ local function onRequest(player: Player, action: unknown, gunId: unknown, line: 
 		reject("badPair")
 		return
 	end
+	local data = PlayerDataService.get(player)
+	if not (data and PlayerData.owns(data.skins, gunId :: string, line :: string)) then
+		reject("notOwned")
+		return
+	end
 	equip(player, gunId :: string, line :: string)
 end
 
@@ -168,6 +197,8 @@ function LockerService.init() end
 
 function LockerService.start()
 	LobbyNet.event("LockerRequest").OnServerEvent:Connect(onRequest)
+	-- skins loaded or granted: re-filter what this player wears
+	PlayerDataService.changed:Connect(publish)
 	Players.PlayerAdded:Connect(load)
 	for _, p in Players:GetPlayers() do
 		task.spawn(load, p)

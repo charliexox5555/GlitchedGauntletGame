@@ -38,6 +38,11 @@ type Record = {
 
 local PlayerDataService = {}
 
+-- Fires (player) after a load or a change published new data (the Locker
+-- re-filters equips when skins arrive or are granted).
+local changedEvent = Instance.new("BindableEvent")
+PlayerDataService.changed = changedEvent.Event
+
 local store = DataStoreService:GetDataStore(PlayerData.STORE)
 local records: { [Player]: Record } = {}
 local inFlight = 0
@@ -131,7 +136,8 @@ function PlayerDataService.transact(
 			end
 			result = data
 			local out: { [string]: any } = if typeof(old) == "table" then table.clone(old) else {}
-			out.v, out.coins, out.items, out.tx = data.v, data.coins, data.items, data.tx
+			out.v, out.coins, out.items, out.tx, out.skins =
+				data.v, data.coins, data.items, data.tx, data.skins
 			return out, { player.UserId }
 		end)
 	end)
@@ -154,6 +160,7 @@ function PlayerDataService.transact(
 	if ok and result and records[player] == rec then
 		rec.data = result
 		PlayerData.publish(player, result)
+		changedEvent:Fire(player)
 	end
 	if not ok then
 		return false, "saving"
@@ -181,6 +188,7 @@ local function load(player: Player)
 		if ok then
 			rec.data = PlayerData.clean(raw, true)
 			PlayerData.publish(player, rec.data)
+			changedEvent:Fire(player)
 			return
 		end
 		task.wait(pause)

@@ -6,6 +6,8 @@
 -- Also loads the skins equipped in the Lobby's Locker (Shared/Locker, one line
 -- per gun, saved by the Lobby's LockerService) into a replicated folder;
 -- Shared/SkinPreview.line uses them whenever the F7 preview is on Stock.
+-- Only OWNED pairs are published (Shared/PlayerData skins, saved by the
+-- Lobby); if the ownership read fails, every gun is Stock (fail closed).
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,6 +18,7 @@ local Preview = require(Shared.SkinPreview)
 local Net = require(Shared.Net)
 local RateLimit = require(Shared.Util.RateLimit)
 local Locker = require(Shared.Locker)
+local PlayerData = require(Shared.PlayerData)
 
 local SkinPreviewService = {}
 
@@ -23,24 +26,43 @@ local limiter = RateLimit.new({ [Config.REMOTE] = Config.RATE })
 
 function SkinPreviewService.init() end
 
--- Read-only here (the Lobby writes): GetAsync with retry, then publish.
-local function loadLocker(player: Player)
-	local store = DataStoreService:GetDataStore(Locker.STORE)
+-- Read-only here (the Lobby writes): GetAsync with retry.
+local function read(storeName: string, key: string): (boolean, any)
+	local store = DataStoreService:GetDataStore(storeName)
 	local delay = 1
 	for attempt = 1, 3 do
 		local ok, data = pcall(function()
-			return store:GetAsync(Locker.key(player.UserId))
+			return store:GetAsync(key)
 		end)
 		if ok then
-			if player.Parent == Players then
-				Locker.publish(player, Locker.clean(data))
-			end
-			return
+			return true, data
 		end
-		warn(`[SkinPreview] Locker load failed ({attempt}/3): {data}`)
-		task.wait(delay)
-		delay *= 2
+		warn(`[SkinPreview] {storeName} load failed ({attempt}/3): {data}`)
+		if attempt < 3 then
+			task.wait(delay)
+			delay *= 2
+		end
 	end
+	return false, nil
+end
+
+-- The equipped skins, filtered to the ones the player owns, then published.
+local function loadLocker(player: Player)
+	local key = Locker.key(player.UserId)
+	local okLocker, locker = read(Locker.STORE, key)
+	local okOwned, saved = read(PlayerData.STORE, PlayerData.key(player.UserId))
+	if player.Parent ~= Players then
+		return
+	end
+	local equipped = if okLocker then Locker.clean(locker) else {}
+	local skins = if okOwned then PlayerData.clean(saved, true).skins else {}
+	local out: { [string]: string } = {}
+	for gunId, line in equipped do
+		if PlayerData.owns(skins, gunId, line) then
+			out[gunId] = line
+		end
+	end
+	Locker.publish(player, out)
 end
 
 function SkinPreviewService.start()

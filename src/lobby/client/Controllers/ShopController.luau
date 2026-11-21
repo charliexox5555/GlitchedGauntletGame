@@ -1146,13 +1146,16 @@ function ShopController.start()
 		if typeof(p) ~= "table" then
 			return
 		end
+		local wasBuying = buying -- a failure here may be the Backpack's opening, not ours
 		buying = false
 		if p.kind == "bought" then
 			UiSfx.cue("Confirm")
 			LobbyHud.toast(`{p.text or "Item"} added to your Backpack`, "success")
+		elseif p.kind == "opened" then
+			return -- a case opening: the Backpack shows it (Controllers/BackpackController)
 		elseif p.kind == "coins" then
 			LobbyHud.toast(p.text or "Coins added", "success")
-		else
+		elseif wasBuying then
 			denied(lastBuyButton, p.text == "Not enough coins")
 			LobbyHud.toast(p.text or "Purchase failed", "error")
 		end

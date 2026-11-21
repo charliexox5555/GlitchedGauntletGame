@@ -31,12 +31,14 @@ function SkinPreview.allowed(): boolean
 	return game.PlaceId == Config.PLACE_ID and (RunService:IsStudio() or Config.LIVE)
 end
 
--- Whether `player` may pick a line (Config.USER_IDS limits live servers).
+-- Whether `player` may pick a line with F7 (Studio: anyone; live: Config.USER_IDS only).
 function SkinPreview.canUse(player: Player): boolean
 	if not SkinPreview.allowed() then
 		return false
 	end
-	if RunService:IsStudio() or #Config.USER_IDS == 0 then
+	-- Skins are owned now (2026-11-20): outside Studio only the listed testers
+	-- may preview, an empty list means nobody.
+	if RunService:IsStudio() then
 		return true
 	end
 	return table.find(Config.USER_IDS, player.UserId) ~= nil

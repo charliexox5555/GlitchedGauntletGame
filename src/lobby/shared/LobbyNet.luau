@@ -8,7 +8,8 @@
 --   ("decline", userId) | ("leave")
 -- PartyEvent (server -> one client): PartyEventPayload below
 -- LockerRequest (client -> server): ("equip", gunId, line) (Services/LockerService)
--- ShopRequest (client -> server): ("buyCase", caseId) | ("devCoins") (Services/ShopService)
+-- ShopRequest (client -> server): ("buyCase", caseId) | ("openCase", itemId) | ("devCoins") |
+--   ("devSkins") (Services/ShopService)
 -- ShopEvent (server -> one client): ShopEventPayload below
 --
 -- Live state is on attributes the server owns:
@@ -38,9 +39,12 @@ export type PartyEventPayload = {
 }
 
 export type ShopEventPayload = {
-	kind: "bought" | "coins" | "failed",
-	item: string?, -- "bought": the Config/Inventory item id added
-	count: number?, -- "bought": how many
+	kind: "bought" | "opened" | "refunded" | "coins" | "failed",
+	item: string?, -- "bought" / "opened": the Config/Inventory item id
+	count: number?, -- "bought": how many; "refunded": the coins given back
+	gun: string?, -- "opened": the skin's gun (Config/Weapons id)
+	line: string?, -- "opened": the skin line
+	tier: string?, -- "opened": Config/Skins tier id
 	text: string?, -- the item's name, or a short message
 }
 
