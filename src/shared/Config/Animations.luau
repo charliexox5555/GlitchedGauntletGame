@@ -396,7 +396,7 @@ return table.freeze({
 	-- Win<team size>_<slot> is keyed to the ending song and ends on the final
 	-- pose, its Hold loops that pose with a breath (tools/anim/win_clips.py).
 	WIN = table.freeze({
-		Win1_1 = id(140341195868977), -- v6 2026-11-20: the flex on 2.02, a spin-hop on 5.36, the champion final pose (v1-v5: 86843926503984, 104179596361652, 134699509611569, 133941317051463, 95570871529815)
-		Win1_1Hold = id(100162734015944), -- v6 2026-11-20 (gun roll 0; v1 95243084316879, v2 103404308795067)
+		Win1_1 = id(138336403992094), -- v9 2026-11-20: final pose after the owner's reference (gun raised up and out beside the face, its side to the camera, fist on the hip); flex on 2.02, spin-hop on 5.36 (v1-v8: 86843926503984, 104179596361652, 134699509611569, 133941317051463, 95570871529815, 140341195868977, 130129882828158, 139067174967770)
+		Win1_1Hold = id(110107132585954), -- v9 2026-11-20 (v1-v8: 95243084316879, 103404308795067, 100162734015944, 110112421624096, 81237281959483)
 	} :: { [string]: string }),
 })

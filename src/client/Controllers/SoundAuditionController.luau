@@ -7,7 +7,8 @@ local SoundAudition = require(ReplicatedStorage.Shared.SoundAudition)
 local SoundAuditionController = {}
 
 function SoundAuditionController.start()
-	SoundAudition.start()
+	-- the match also gets the win cutscene's accents
+	SoundAudition.start({ "SHARED", "HITS", "CUTSCENE" })
 end
 
 return SoundAuditionController

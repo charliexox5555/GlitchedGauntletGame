@@ -111,22 +111,23 @@ def two_handed(track, windows):
 
 # Win1_1: the 1-player winner (shots in Config/WinCutscene) ----------------------
 
-# The final pose (held from 6.5 s): the champion. Wide stance, chest up,
-# the left fist punched up and out on a diagonal (one line from the gun
-# hand through the body to the fist), the gun hanging easy in
-# the right hand down by the leg, chin level, eyes down on the low camera.
-# (v1 had the gun up by the head: from the engine the right fist covered the
-# face from any front-right camera.) 
+# The final pose (held from 6.5 s), after the owner's reference (2026-11-20,
+# a RIVALS winner shot, studied not copied): the gun raised high in the right
+# hand, the free fist on the hip with the elbow out, wide stance, chest up,
+# chin down a touch to the very low camera. The gun goes up and out to the
+# side, the fist level with the head and just clear of it; the camera sits
+# low and a little to their right, so the gun spreads out beside the face (v1's gun
+# up hid the face from a front-right camera; v2-v6 held a fist up instead).
 FINAL = dict(
-	hy=-0.05,
-	hr=(0, -4, 0),
-	ch=(6, -8, -6),
-	hd=(-8, 8, -8),
-	gun=(-38, -28, 0, 0.1),
-	lt=(-2.1, 2.1, -0.45),
-	lp=(-1, -0.3, 0.4),
-	rf=(0.9, 0, 0.12, -16),
-	lf=(-0.88, 0, -0.18, 12),
+	hy=-0.06,
+	hr=(0, -6, 0),
+	ch=(7, -6, -2),
+	hd=(-10, 2, -3),
+	gun=(60, -45, 45, 0.8),
+	lt=(-1.05, -0.88, 0.12),
+	lp=(-1, 0.05, 0.55),
+	rf=(0.92, 0, 0.12, -16),
+	lf=(-0.9, 0, -0.18, 12),
 )
 
 
@@ -203,12 +204,12 @@ D = [
 # Shot E (5.80-8.15, the low hero shot): the snap into the final pose on
 # 6.14, a nod and a gun bounce on the last hit (6.80), then held.
 E = [
-	(6.20, final(hy=0.05, ch=(9, -6, -4), hd=(-2, 8, -8), gun=(-34, -20, 0, 0.05), lt=(-1.95, 1.95, -0.45))),  # 6.14 SNAP up (60 ms)
-	(6.30, final(hy=0.02, ch=(11, -7, -5), hd=(0, 8, -9), gun=(-40, -30, 1, 0.1), lt=(-2.2, 2.3, -0.48))),  # overshoot
+	(6.20, final(hy=0.05, ch=(10, -6, -2), hd=(-4, 2, -3), gun=(56, -43, 40, 0.6), lt=(-1.12, -0.8, 0.15))),  # 6.14 SNAP: the gun goes up (60 ms)
+	(6.30, final(hy=0.02, ch=(12, -7, -3), hd=(-2, 2, -4), gun=(68, -47, 50, 0.9), lt=(-1.14, -0.84, 0.16))),  # overshoot: past vertical
 	(6.52, final()),
-	(6.72, final(hy=-0.09, lt=(-1.95, 1.8, -0.42))),  # the fist dips
-	(6.86, final(hy=-0.02, ch=(8, -6, -4), hd=(-12, 8, -9), lt=(-2.18, 2.28, -0.47))),  # 6.80 punch + nod
-	(7.02, final(hd=(-6, 8, -8), lt=(-2.08, 2.06, -0.45))),
+	(6.72, final(hy=-0.09, gun=(54, -45, 43, 0.7))),  # dip
+	(6.86, final(hy=-0.02, ch=(9, -6, -2), hd=(-15, 2, -4), gun=(68, -47, 50, 0.95))),  # 6.80 the gun punches up + nod
+	(7.02, final(hd=(-8, 2, -3), gun=(58, -45, 45, 0.78))),
 	(7.30, final()),
 ]
 

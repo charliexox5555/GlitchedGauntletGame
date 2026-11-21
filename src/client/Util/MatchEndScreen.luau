@@ -51,13 +51,13 @@ local GOLD, MUTED, WHITE = Color3.fromHex("FFC83D"), Color3.fromHex("97979A"), C
 local KEY_FACE = Color3.fromHex("E9EDF3")
 local MINE_H, ROW_H = 58, 46
 
--- Entrance beats (seconds): the result slams in, then the history, the
--- scoreboard rows one by one, then the right column.
-local SLAM, SLAM_FROM, SLAM_UNDER = 0.08, 1.6, 0.88
-local REBOUND, REBOUND_TO, SETTLE = 0.1, 1.05, 0.18
-local HISTORY_AT = 0.35
-local ROWS_AT, ROW_STEP = 0.5, 0.05
-local RIGHT_AT, CARD_STEP = 0.7, 0.06
+-- Entrance (2026-11-20, owner): no results UI during the win cutscene; when
+-- it lands on its final pose everything comes in together, one beat, Quint
+-- Out, no overshoot (Shared/UiMotion). The result grows from ENTER_FROM, the
+-- columns rise ENTER_RISE px, the build cards and buttons grow in.
+local ENTER = 0.45
+local ENTER_FROM = 0.94
+local ENTER_RISE = 14
 
 type State = {
 	gui: ScreenGui,
@@ -267,72 +267,45 @@ end
 local function animateIn(s: State, rows: { Frame })
 	s.token += 1
 	local token = s.token
-	local function at(t: number, fn: () -> ())
-		task.delay(t, function()
-			if token == s.token then
-				fn()
-			end
-		end)
-	end
-	-- The result slams in: big, under, rebound, settle.
+	-- the result: grows a touch and fades in
 	local pop = child(s.result, "Pop") :: UIScale
 	local strip = child(s.result, "Strip") :: CanvasGroup
-	pop.Scale = SLAM_FROM
-	strip.GroupTransparency = 0.6
-	tween(strip, SLAM, { GroupTransparency = 0 }, Enum.EasingStyle.Linear)
-	tween(pop, SLAM, { Scale = SLAM_UNDER }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-	at(SLAM, function()
-		tween(pop, REBOUND, { Scale = REBOUND_TO }, Enum.EasingStyle.Quad).Completed:Once(function()
-			if token == s.token then
-				tween(pop, SETTLE, { Scale = 1 }, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-			end
-		end)
-	end)
-	-- The round history drops in.
+	pop.Scale = ENTER_FROM
+	strip.GroupTransparency = 1
+	tween(pop, ENTER, { Scale = 1 })
+	tween(strip, ENTER, { GroupTransparency = 0 })
+	-- the round history drops the same beat
 	local rStrip = child(s.rounds, "Strip") :: CanvasGroup
 	rStrip.GroupTransparency = 1
-	rStrip.Position = UDim2.new(0.5, 0, 0, -10)
-	at(HISTORY_AT, function()
-		tween(rStrip, 0.3, { GroupTransparency = 0, Position = UDim2.fromScale(0.5, 0) })
-	end)
-	-- Scoreboard rows slide in from the left, one after another.
-	for i, holder in rows do
+	rStrip.Position = UDim2.new(0.5, 0, 0, -ENTER_RISE)
+	tween(rStrip, ENTER, { GroupTransparency = 0, Position = UDim2.fromScale(0.5, 0) })
+	-- the scoreboard rows rise together (headers with them)
+	for _, holder in rows do
 		local body = holder:FindFirstChild("Body")
 		if body and body:IsA("CanvasGroup") then
 			body.GroupTransparency = 1
-			body.Position = UDim2.fromOffset(-40, 0)
-			at(ROWS_AT + (i - 1) * ROW_STEP, function()
-				tween(body, 0.3, { GroupTransparency = 0, Position = UDim2.fromOffset(0, 0) })
-			end)
+			body.Position = UDim2.fromOffset(0, ENTER_RISE)
+			tween(body, ENTER, { GroupTransparency = 0, Position = UDim2.fromOffset(0, 0) })
 		else
-			holder.Visible = false -- a header: it appears with its rows
-			at(ROWS_AT + (i - 1) * ROW_STEP, function()
-				holder.Visible = true
-			end)
+			holder.Visible = true
 		end
 	end
-	-- The right column: build cards pop, then the buttons.
+	-- the right column: build cards and buttons grow in
 	local build = child(s.right, "Build") :: Frame
 	for i = 1, 3 do
 		local card = child(child(build, "Mod" .. i) :: Frame, "Card") :: CanvasGroup
 		local cardPop = child(card, "Pop") :: UIScale
 		card.GroupTransparency = 1
-		cardPop.Scale = 0.7
-		at(RIGHT_AT + (i - 1) * CARD_STEP, function()
-			tween(card, 0.2, { GroupTransparency = 0 })
-			tween(cardPop, 0.35, { Scale = 1 })
-		end)
+		cardPop.Scale = ENTER_FROM
+		tween(card, ENTER, { GroupTransparency = 0 })
+		tween(cardPop, ENTER, { Scale = 1 })
 	end
-	local n = 0
 	for _, b in s.buttons do
-		n += 1
 		local bPop = child(b, "Pop") :: UIScale
 		bPop.Scale = 0
-		at(RIGHT_AT + 0.15 + n * CARD_STEP, function()
-			tween(bPop, 0.35, { Scale = 1 })
-		end)
+		tween(bPop, ENTER, { Scale = 1 })
 	end
-	-- Shadows: measured once the result has settled (it's scaled mid-slam).
+	-- shadows: measured once everything is at full size
 	local shadowList = {
 		child(s.result, "Shadow") :: ImageLabel,
 		child(s.canvas, "BoardShadow") :: ImageLabel,
@@ -341,7 +314,10 @@ local function animateIn(s: State, rows: { Frame })
 	for _, sh in shadowList do
 		sh.ImageTransparency = 1
 	end
-	at(SLAM + REBOUND + SETTLE + 0.05, function()
+	task.delay(ENTER, function()
+		if token ~= s.token then
+			return
+		end
 		shadows(s)
 		for _, sh in shadowList do
 			tween(sh, 0.3, { ImageTransparency = 0.45 })

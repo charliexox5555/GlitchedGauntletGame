@@ -4,23 +4,25 @@
 -- Press F4 in a Studio play test. Tabs: SHARED (the theme both places use:
 -- a pick here changes the lobby and the match), HITS
 -- (hit marker, headshot, kill, damage; played after a rifle shot by default,
--- since hit sounds are judged in a fight). Button 1 in each row is the
+-- since hit sounds are judged in a fight), CUTSCENE (match only: the win
+-- cutscene's sound accents, each heard on the song). Button 1 in each row is the
 -- current sound; the others are level-matched to it by measured
 -- PlaybackLoudness. Tell Claude e.g. "LOCK IN 3, KILL 1". Nothing here runs
 -- outside Studio. Candidates: Roblox's licensed Pro Sound Effects library,
 -- Roblox's own UI packs, APM Music, and our own hit takes (no user uploads).
 
 local Players = game:GetService("Players")
+local StateValues = require(script.Parent.StateValues)
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 local UserInputService = game:GetService("UserInputService")
 
 local SoundAudition = {}
 
-type Layer = { id: number, vol: number, delay: number, pitch: number }
+type Layer = { id: number, vol: number, delay: number, pitch: number, from: number?, len: number? }
 -- one sound (id + vol), or layers played together (a designed sound: a thump
 -- under a tink, etc.; if picked, it gets baked into one asset)
-type Cand = { note: string, id: number?, vol: number?, layers: { Layer }? }
+type Cand = { note: string, id: number?, vol: number?, layers: { Layer }?, preview: boolean? }
 type Row = { section: string, name: string, list: { Cand } }
 
 local SHOT_ID = 128240759324250 -- the Vandal's first shot take (gun_semi_auto_rifle_shot_01)
@@ -228,6 +230,119 @@ local ROWS: { Row } = {
 	},
 }
 
+-- CUTSCENE (match only, 2026-11-20): sound accents under the win cutscene's
+-- ending song (Config/WinCutscene cues). Each option plays the song from a
+-- moment before its accent with the candidate started early so its measured
+-- hit (the loudest point of the file) lands on the accent, the way the
+-- cutscene plays it. Option 1 = what the cutscene uses now. Volumes are
+-- level-matched to the song by measured PlaybackLoudness (impacts about 0.75
+-- of the song's peak, whooshes 0.55, the spin swish 0.45, the final hit 0.85).
+local SONG_ID, SONG_VOL = 9042702890, 0.296 -- Config/UiSounds MatchEnd
+local LEAD, TAIL = 1.2, 1.6 -- song seconds played before / after the accent
+type Accent = {
+	name: string,
+	t: number,
+	list: { { note: string, id: number, vol: number, hit: number } },
+}
+local ACCENTS: { Accent } = {
+	{
+		name = "OPEN 0.12 (slam in from the replay)",
+		t = 0.12,
+		list = {
+			{ note = "PSE Whoosh Impact 3", id = 9120729792, vol = 0.261, hit = 0.5 },
+			{ note = "PSE Whoosh Impact 4", id = 9120729903, vol = 0.268, hit = 0.52 },
+			{ note = "PSE Whoosh Combo 4", id = 9120704057, vol = 0.193, hit = 0.5 },
+			{ note = "PSE Thick Swish Hit 3", id = 9120730294, vol = 0.399, hit = 0.37 },
+		},
+	},
+	{
+		name = "CUT B 1.48 (front angle slams in)",
+		t = 1.48,
+		list = {
+			{ note = "PSE Whoosh Impact 5", id = 9120729925, vol = 0.238, hit = 0.56 },
+			{ note = "PSE Whoosh Combo 3", id = 9120703361, vol = 0.192, hit = 0.8 },
+			{ note = "PSE Whoosh Impact 1", id = 9120729732, vol = 0.24, hit = 0.81 },
+			{ note = "PSE Thick Swish Hit 1", id = 9120729973, vol = 0.435, hit = 0.31 },
+		},
+	},
+	{
+		name = "CUT D 4.02 (wide orbit, gun swings)",
+		t = 4.02,
+		list = {
+			{ note = "PSE Fast Swish By 4", id = 9120716440, vol = 0.234, hit = 0.3 },
+			{ note = "PSE Fast Swish By 1", id = 9120718279, vol = 0.273, hit = 0.53 },
+			{ note = "PSE Whoosh Combo 6", id = 9120703601, vol = 0.195, hit = 0.93 },
+			{ note = "PSE Whoosh Combo 1", id = 9120703366, vol = 0.338, hit = 0.51 },
+		},
+	},
+	{
+		name = "SPIN 5.44 (the spin-hop)",
+		t = 5.44,
+		list = {
+			{ note = "PSE Sharp Swish 13", id = 9126013644, vol = 0.262, hit = 0.14 },
+			{ note = "PSE Sharp Swish 11", id = 9126013382, vol = 0.273, hit = 0.12 },
+			{ note = "PSE Fast Swish By 4", id = 9120716440, vol = 0.19, hit = 0.3 },
+			{ note = "APM Reverse Drum Swipe", id = 1837834170, vol = 0.129, hit = 0.14 },
+		},
+	},
+	{
+		name = "FINAL 6.14 (drop to the low hero shot)",
+		t = 6.14,
+		list = {
+			{ note = "PSE Deep Hit Boom", id = 9125484367, vol = 0.24, hit = 0.11 },
+			{ note = "APM Agents Of Deception Hit", id = 1835354496, vol = 0.297, hit = 0.3 },
+			{ note = "APM Tyrant God Big Hits", id = 9045163407, vol = 0.266, hit = 0.32 },
+			{ note = "PSE Whoosh Impact 3", id = 9120729792, vol = 0.285, hit = 0.5 },
+		},
+	},
+}
+table.insert(ROWS, {
+	section = "CUTSCENE",
+	name = "WHOLE CUTSCENE (current picks)",
+	list = { { note = "play it (preview)", preview = true } },
+})
+for _, accent in ACCENTS do
+	local from = math.max(accent.t - LEAD, 0)
+	local list: { Cand } = {}
+	for _, c in accent.list do
+		local start = (accent.t - from) - c.hit -- when the candidate starts, excerpt time
+		table.insert(list, {
+			note = c.note,
+			layers = {
+				{
+					id = SONG_ID,
+					vol = SONG_VOL,
+					delay = 0,
+					pitch = 1,
+					from = from,
+					len = accent.t - from + TAIL,
+				},
+				{
+					id = c.id,
+					vol = c.vol,
+					delay = math.max(start, 0),
+					pitch = 1,
+					from = math.max(-start, 0),
+				},
+			},
+		})
+	end
+	table.insert(list, {
+		note = "no accent",
+		layers = {
+			{
+				id = SONG_ID,
+				vol = SONG_VOL,
+				delay = 0,
+				pitch = 1,
+				from = from,
+				len = accent.t - from + TAIL,
+			},
+		},
+	})
+	table.insert(ROWS, { section = "CUTSCENE", name = accent.name, list = list })
+end
+
 local gui: ScreenGui? = nil
 local afterShot = true
 
@@ -240,7 +355,14 @@ local function stopAll()
 	table.clear(live)
 end
 
-local function play(id: number, volume: number, delay: number?, pitch: number?)
+local function play(
+	id: number,
+	volume: number,
+	delay: number?,
+	pitch: number?,
+	from: number?,
+	len: number?
+)
 	local function go()
 		local snd = Instance.new("Sound")
 		snd.Name = "Audition"
@@ -252,7 +374,15 @@ local function play(id: number, volume: number, delay: number?, pitch: number?)
 		snd.Ended:Once(function()
 			snd:Destroy()
 		end)
+		snd.TimePosition = from or 0
 		snd:Play()
+		if len then
+			task.delay(len, function()
+				if snd.Parent then
+					snd:Destroy()
+				end
+			end)
+		end
 	end
 	if delay and delay > 0 then
 		task.delay(delay, go)
@@ -278,8 +408,14 @@ local function audition(row: Row, c: Cand)
 			play(BODY_ID, BODY_VOL, HIT_DELAY)
 		end
 	end
+	if c.preview then
+		-- the whole win cutscene (MatchEndController's Studio preview)
+		StateValues.set(workspace, "PreviewWinCutscene", false)
+		StateValues.set(workspace, "PreviewWinCutscene", os.clock())
+		return
+	end
 	for _, l in layersOf(c) do
-		play(l.id, l.vol, base + l.delay, l.pitch)
+		play(l.id, l.vol, base + l.delay, l.pitch, l.from, l.len)
 	end
 end
 

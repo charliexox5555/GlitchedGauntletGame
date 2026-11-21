@@ -50,12 +50,20 @@ export type Slot = {
 	hold: string, -- the loop that holds the pose
 	root: { RootKey }?, -- whole-body moves the clip can't do (it's keyed about a fixed root)
 }
+-- A designed sound accent under the song (owner 2026-11-20: an impact or
+-- whoosh-hit when a strong angle slams in). It starts early so the loudest
+-- point of the file (`hit` seconds in, measured) lands on song time `t`.
+-- Licensed only (Pro Sound Effects / Roblox / APM); `vol` level-matched to
+-- the song by measured PlaybackLoudness. Options per accent: the F4 board's
+-- CUTSCENE tab (Shared/SoundAudition).
+export type Cue = { name: string, t: number, id: number, vol: number, hit: number }
 export type Scene = {
 	length: number, -- the camera holds the last key after this
 	slots: { Slot },
 	shots: { Shot },
 	kicks: { Kick },
 	flashes: { Flash },
+	cues: { Cue },
 }
 
 local SCENES: { [number]: Scene } = {
@@ -148,9 +156,13 @@ local SCENES: { [number]: Scene } = {
 				},
 				finishStill = false,
 			},
-			-- E: the final pose. Starts at eye level on the coil, cranes down
-			-- fast as they snap up on 6.14 (the camera falls while they rise),
-			-- then settles low, looking up, and holds through the ring-out.
+			-- E: the final pose, after the owner's reference (a RIVALS winner
+			-- shot, studied not copied): starts at eye level on the coil, then
+			-- drops fast to the floor right in front of them as they snap the
+			-- gun up on 6.14 (the camera falls while they rise; the lens opens
+			-- wide on the way), and holds very low and close, looking up past
+			-- the raised gun, a little to their right so the raised gun spreads
+			-- out beside the face (from their left it hid behind the head). HOLD_FLOAT sways it on the pose.
 			{
 				name = "E low hero",
 				from = 5.8,
@@ -159,12 +171,18 @@ local SCENES: { [number]: Scene } = {
 					{ t = 5.8, eye = v(1.0, 3.6, 7.6), at = v(0, 3.3, 0), fov = 46, roll = 0 },
 					{
 						t = 6.3,
-						eye = v(1.5, 0.9, 9.0),
-						at = v(-0.3, 3.4, 0),
-						fov = 51,
-						roll = -1.5,
+						eye = v(0.6, 0.55, 5.4),
+						at = v(-0.1, 4.0, 0),
+						fov = 64,
+						roll = 2,
 					},
-					{ t = 8.15, eye = v(1.7, 0.7, 9.6), at = v(-0.3, 3.3, 0), fov = 50, roll = -1 },
+					{
+						t = 8.15,
+						eye = v(0.55, 0.4, 4.9),
+						at = v(-0.1, 4.15, 0),
+						fov = 66,
+						roll = 1.5,
+					},
 				},
 			},
 		},
@@ -178,6 +196,14 @@ local SCENES: { [number]: Scene } = {
 			{ t = 5.36, fov = -2, decay = 0.35 },
 			{ t = 6.14, fov = -3, shake = 0.35, decay = 0.45 },
 			{ t = 6.8, fov = -1.5, shake = 0.15, decay = 0.4 },
+		},
+		-- (first options on the F4 board; the owner picks by ear)
+		cues = {
+			{ name = "OPEN", t = 0.12, id = 9120729792, vol = 0.261, hit = 0.5 }, -- PSE Whoosh Impact 3 (big stinger, up and hit)
+			{ name = "CUT B", t = 1.48, id = 9120729925, vol = 0.238, hit = 0.56 }, -- PSE Whoosh Impact 5
+			{ name = "CUT D", t = 4.02, id = 9120716440, vol = 0.234, hit = 0.3 }, -- PSE Whoosh Fast Swish By 4
+			{ name = "SPIN", t = 5.44, id = 9126013644, vol = 0.262, hit = 0.14 }, -- PSE Swish Med High End Sharp 13
+			{ name = "FINAL", t = 6.14, id = 9125484367, vol = 0.24, hit = 0.11 }, -- PSE Deep Hit, Big Reverberant Boom
 		},
 		flashes = {
 			{ t = 0.1, peak = 0.55, decay = 0.35 }, -- the slam: in from the replay
@@ -206,15 +232,20 @@ return table.freeze({
 		v(-6.6, 0, -4.6),
 		v(6.6, 0, -4.6),
 	},
-	-- When the results screen and the name plates come in (song time): after
-	-- the last hit, as the song rings out over the held pose.
-	SCREEN_AT = 6.95,
+	-- When the results screen and the name plates come in (song time): no UI
+	-- during the cutscene (owner 2026-11-20); it all comes in together once
+	-- the winner has landed the final pose (the clip ends at 7.3), as the
+	-- song rings out.
+	SCREEN_AT = 7.35,
 	-- Any click or key after SKIP_AFTER jumps to SKIP_TO (the final pose)
 	-- and brings the screen in.
 	SKIP_AFTER = 0.8,
 	SKIP_TO = 6.6,
 	-- The clip → its hold loop crossfade, and the fade into the first clip.
 	HOLD_FADE = 0.3,
+	-- The held final shot also floats a little (studs, camera space; periods
+	-- in seconds) once the last key is reached: the "slight sway" on the pose.
+	HOLD_FLOAT = table.freeze({ x = 0.06, xPeriod = 5.1, y = 0.05, yPeriod = 3.9, fadeIn = 1.2 }),
 	-- Handheld drift on top of every shot (degrees; periods in seconds): slow
 	-- enough that the held final shot breathes rather than wobbles.
 	HANDHELD = table.freeze({

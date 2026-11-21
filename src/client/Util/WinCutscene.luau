@@ -74,6 +74,8 @@ type Run = {
 	barsOut: boolean,
 	opts: Options,
 	connections: { RBXScriptConnection },
+	cuesFired: { [number]: boolean },
+	cueSounds: { Sound },
 	seed: number,
 }
 
@@ -363,7 +365,20 @@ local function cameraAt(r: Run, t: number): (CFrame, number)
 		rollSway += shake * 0.6 * math.noise(rate, 2.5, r.seed) * 2
 	end
 	local cf = CFrame.lookAt(world(r.stage, eye), world(r.stage, at))
-		* CFrame.Angles(math.rad(pitch), math.rad(yaw), math.rad(roll + rollSway))
+	-- the held final shot floats a little once its last key is reached
+	local last = shot.keys[#shot.keys].t
+	if shot == scene.shots[#scene.shots] and t > last then
+		local hf = Config.HOLD_FLOAT
+		local w = math.clamp((t - last) / hf.fadeIn, 0, 1)
+		w = w * w * (3 - 2 * w)
+		local u = t - last
+		cf *= CFrame.new(
+			w * hf.x * math.sin(2 * math.pi * u / hf.xPeriod),
+			w * hf.y * math.sin(2 * math.pi * u / hf.yPeriod + 1.1),
+			0
+		)
+	end
+	cf *= CFrame.Angles(math.rad(pitch), math.rad(yaw), math.rad(roll + rollSway))
 	return cf, fov
 end
 
@@ -414,6 +429,43 @@ local function moveBars(r: Run, open: boolean, time: number)
 			),
 			{ Size = UDim2.fromScale(1, size) }
 		):Play()
+	end
+end
+
+-- Sound accents ---------------------------------------------------------------------
+
+-- Starts a cue so its hit lands on its time: `late` seconds past the start
+-- (a cue fired after its start time joins part way in).
+local function fireCue(r: Run, cue: Config.Cue, late: number)
+	local snd = Instance.new("Sound")
+	snd.Name = "WinCue" .. cue.name
+	snd.SoundId = "rbxassetid://" .. tostring(cue.id)
+	snd.Volume = cue.vol
+	local song = r.song
+	if song then
+		snd.SoundGroup = song.SoundGroup -- the ending song's group (UI sounds)
+	end
+	snd.Parent = r.folder
+	snd.TimePosition = math.max(late, 0)
+	snd:Play()
+	table.insert(r.cueSounds, snd)
+end
+
+local function cues(r: Run, t: number)
+	if r.frozen then
+		return
+	end
+	for i, cue in r.scene.cues do
+		if not r.cuesFired[i] then
+			local start = cue.t - cue.hit
+			if t >= start then
+				r.cuesFired[i] = true
+				-- more than a beat late (a skip, a hitch): skip it
+				if t - cue.t < 0.15 then
+					fireCue(r, cue, t - start)
+				end
+			end
+		end
 	end
 end
 
@@ -479,12 +531,24 @@ local function skip(r: Run)
 		end
 	end
 	r.flash.BackgroundTransparency = 0.6
+	-- the skip lands with the last accent before SKIP_TO, from its hit
+	local landing: Config.Cue? = nil
+	for i, cue in r.scene.cues do
+		if cue.t <= Config.SKIP_TO then
+			landing = cue
+		end
+		r.cuesFired[i] = r.cuesFired[i] or cue.t - cue.hit <= Config.SKIP_TO
+	end
+	if landing then
+		fireCue(r, landing, landing.hit)
+	end
 	showScreen(r)
 end
 
 local function step(r: Run, cam: Camera, dt: number)
 	local t = clock(r)
 	local frozen = r.frozen
+	cues(r, t)
 	-- the copies: each clip on the song's clock, then its hold loop
 	for _, a in r.actors do
 		local clip = a.clip
@@ -580,6 +644,13 @@ function WinCutscene.preload()
 			a.AnimationId = id
 			table.insert(list, a)
 		end
+		for _, scene in Config.SCENES do
+			for _, cue in scene.cues do
+				local snd = Instance.new("Sound")
+				snd.SoundId = "rbxassetid://" .. tostring(cue.id)
+				table.insert(list, snd)
+			end
+		end
 		pcall(function()
 			ContentProvider:PreloadAsync(list)
 		end)
@@ -636,6 +707,8 @@ function WinCutscene.play(winners: { Model }, opts: Options): boolean
 		barsOut = false,
 		opts = opts,
 		connections = {},
+		cuesFired = {},
+		cueSounds = {},
 		seed = math.random() * 100,
 	}
 	-- (in the DataModel before the clips load: a track loaded on a copy
