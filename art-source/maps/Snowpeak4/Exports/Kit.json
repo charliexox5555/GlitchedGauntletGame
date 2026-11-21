@@ -1,0 +1,1386 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "BoulderA": {
+   "props": {},
+   "parts": [
+    "BoulderA_S_Rock",
+    "BoulderA_S_Snow",
+    "BoulderA_S_RockDark"
+   ]
+  },
+  "BoulderB": {
+   "props": {},
+   "parts": [
+    "BoulderB_S_Rock",
+    "BoulderB_S_Snow",
+    "BoulderB_S_RockDark"
+   ]
+  },
+  "Bullwheel": {
+   "props": {},
+   "parts": [
+    "Bullwheel_S_Paint",
+    "Bullwheel_S_Steel",
+    "Bullwheel_S_SteelLight"
+   ]
+  },
+  "GondolaCabin": {
+   "props": {},
+   "parts": [
+    "GondolaCabin_S_PaintDark",
+    "GondolaCabin_S_Paint",
+    "GondolaCabin_S_Glass",
+    "GondolaCabin_S_Steel",
+    "GondolaCabin_S_SteelLight"
+   ]
+  },
+  "MountainA": {
+   "props": {},
+   "parts": [
+    "MountainA_S_MtnSnow",
+    "MountainA_S_MtnShade",
+    "MountainA_S_Rock",
+    "MountainA_S_RockDark"
+   ]
+  },
+  "MountainB": {
+   "props": {},
+   "parts": [
+    "MountainB_S_MtnShade",
+    "MountainB_S_Rock",
+    "MountainB_S_MtnSnow",
+    "MountainB_S_RockDark"
+   ]
+  },
+  "MountainC": {
+   "props": {},
+   "parts": [
+    "MountainC_S_MtnSnow",
+    "MountainC_S_MtnShade",
+    "MountainC_S_Rock",
+    "MountainC_S_RockDark"
+   ]
+  },
+  "Outcrop": {
+   "props": {},
+   "parts": [
+    "Outcrop_S_Rock",
+    "Outcrop_S_Snow",
+    "Outcrop_S_RockDark"
+   ]
+  },
+  "PineA": {
+   "props": {},
+   "parts": [
+    "PineA_Trunk",
+    "PineA_Foliage",
+    "PineA_Snow"
+   ]
+  },
+  "PineB": {
+   "props": {},
+   "parts": [
+    "PineB_Trunk",
+    "PineB_Foliage",
+    "PineB_Snow"
+   ]
+  },
+  "Snowcat": {
+   "props": {},
+   "parts": [
+    "Snowcat_Tracks_S_Rubber",
+    "Snowcat_Tracks_S_Steel",
+    "Snowcat_Wheels_S_Steel",
+    "Snowcat_Wheels_S_Rubber",
+    "Snowcat_Wheels_S_SteelLight",
+    "Snowcat_Hull_S_Steel",
+    "Snowcat_Hull_S_PaintDark",
+    "Snowcat_Cab_S_Paint",
+    "Snowcat_Cab_S_Glass",
+    "Snowcat_Cab_S_Steel",
+    "Snowcat_Cab_S_Stripe",
+    "Snowcat_Engine_S_Paint",
+    "Snowcat_Engine_S_Steel",
+    "Snowcat_Engine_S_SteelLight",
+    "Snowcat_Engine_S_Amber",
+    "Snowcat_Fittings_S_Steel",
+    "Snowcat_Fittings_S_Lamp",
+    "Snowcat_Fittings_S_Amber",
+    "Snowcat_Fittings_S_SteelLight",
+    "Snowcat_Blade_S_SteelLight",
+    "Snowcat_Blade_S_Steel",
+    "Snowcat_Blade_S_Chrome",
+    "Snowcat_Tiller_S_SteelLight",
+    "Snowcat_Tiller_S_Steel",
+    "Snowcat_Tiller_S_Rubber"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "BoulderA",
+   "name": "BoulderA_S_Rock",
+   "material": "S_Rock",
+   "look": {
+    "material": "Slate",
+    "color": "7A8088"
+   },
+   "glow": false,
+   "tris": 500,
+   "center": [
+    0.09706,
+    0.06888,
+    0.66903
+   ],
+   "size": [
+    5.4825,
+    4.20441,
+    2.73604
+   ]
+  },
+  {
+   "piece": "BoulderA",
+   "name": "BoulderA_S_Snow",
+   "material": "S_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "E4EBF2"
+   },
+   "glow": false,
+   "tris": 255,
+   "center": [
+    -0.07793,
+    -0.08594,
+    1.4649
+   ],
+   "size": [
+    4.67967,
+    3.49931,
+    1.19039
+   ]
+  },
+  {
+   "piece": "BoulderA",
+   "name": "BoulderA_S_RockDark",
+   "material": "S_RockDark",
+   "look": {
+    "material": "Slate",
+    "color": "5E646C"
+   },
+   "glow": false,
+   "tris": 525,
+   "center": [
+    0.09706,
+    0.07513,
+    0.29648
+   ],
+   "size": [
+    5.4825,
+    4.19191,
+    2.24366
+   ]
+  },
+  {
+   "piece": "BoulderB",
+   "name": "BoulderB_S_Rock",
+   "material": "S_Rock",
+   "look": {
+    "material": "Slate",
+    "color": "7A8088"
+   },
+   "glow": false,
+   "tris": 436,
+   "center": [
+    -0.10691,
+    0.02202,
+    0.84897
+   ],
+   "size": [
+    8.01889,
+    5.56276,
+    3.22883
+   ]
+  },
+  {
+   "piece": "BoulderB",
+   "name": "BoulderB_S_Snow",
+   "material": "S_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "E4EBF2"
+   },
+   "glow": false,
+   "tris": 281,
+   "center": [
+    0.15861,
+    0.0986,
+    1.8015
+   ],
+   "size": [
+    6.61814,
+    5.40961,
+    1.49564
+   ]
+  },
+  {
+   "piece": "BoulderB",
+   "name": "BoulderB_S_RockDark",
+   "material": "S_RockDark",
+   "look": {
+    "material": "Slate",
+    "color": "5E646C"
+   },
+   "glow": false,
+   "tris": 563,
+   "center": [
+    -0.10691,
+    0.02202,
+    0.65044
+   ],
+   "size": [
+    8.01889,
+    5.56276,
+    2.98309
+   ]
+  },
+  {
+   "piece": "Bullwheel",
+   "name": "Bullwheel_S_Paint",
+   "material": "S_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    9.80785,
+    9.80785,
+    0.7
+   ]
+  },
+  {
+   "piece": "Bullwheel",
+   "name": "Bullwheel_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 252,
+   "center": [
+    0.0,
+    0.0,
+    -1.425
+   ],
+   "size": [
+    9.1,
+    9.1,
+    3.15
+   ]
+  },
+  {
+   "piece": "Bullwheel",
+   "name": "Bullwheel_S_SteelLight",
+   "material": "S_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.4,
+    1.4,
+    1.0
+   ]
+  },
+  {
+   "piece": "GondolaCabin",
+   "name": "GondolaCabin_S_PaintDark",
+   "material": "S_PaintDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A1C22"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    3.1
+   ],
+   "size": [
+    4.8,
+    4.2,
+    6.2
+   ]
+  },
+  {
+   "piece": "GondolaCabin",
+   "name": "GondolaCabin_S_Paint",
+   "material": "S_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 212,
+   "center": [
+    0.0,
+    0.0,
+    3.025
+   ],
+   "size": [
+    5.11974,
+    4.52009,
+    5.15
+   ]
+  },
+  {
+   "piece": "GondolaCabin",
+   "name": "GondolaCabin_S_Glass",
+   "material": "S_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "26303A",
+    "transparency": 0.25
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    3.75
+   ],
+   "size": [
+    4.9,
+    4.3,
+    2.3
+   ]
+  },
+  {
+   "piece": "GondolaCabin",
+   "name": "GondolaCabin_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    7.85
+   ],
+   "size": [
+    1.8,
+    0.7,
+    3.5
+   ]
+  },
+  {
+   "piece": "GondolaCabin",
+   "name": "GondolaCabin_S_SteelLight",
+   "material": "S_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    9.9
+   ],
+   "size": [
+    0.7,
+    0.8,
+    0.7
+   ]
+  },
+  {
+   "piece": "MountainA",
+   "name": "MountainA_S_MtnSnow",
+   "material": "S_MtnSnow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E6ECF3"
+   },
+   "glow": false,
+   "tris": 337,
+   "center": [
+    0.0,
+    0.0,
+    142.47144
+   ],
+   "size": [
+    660.0,
+    600.0,
+    364.94287
+   ]
+  },
+  {
+   "piece": "MountainA",
+   "name": "MountainA_S_MtnShade",
+   "material": "S_MtnShade",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9D4E0"
+   },
+   "glow": false,
+   "tris": 459,
+   "center": [
+    0.0,
+    0.0,
+    133.72325
+   ],
+   "size": [
+    660.0,
+    600.0,
+    347.4465
+   ]
+  },
+  {
+   "piece": "MountainA",
+   "name": "MountainA_S_Rock",
+   "material": "S_Rock",
+   "look": {
+    "material": "Slate",
+    "color": "7A8088"
+   },
+   "glow": false,
+   "tris": 14,
+   "center": [
+    0.52174,
+    13.7426,
+    50.13937
+   ],
+   "size": [
+    539.08389,
+    572.5148,
+    180.27875
+   ]
+  },
+  {
+   "piece": "MountainA",
+   "name": "MountainA_S_RockDark",
+   "material": "S_RockDark",
+   "look": {
+    "material": "Slate",
+    "color": "5E646C"
+   },
+   "glow": false,
+   "tris": 6,
+   "center": [
+    13.99389,
+    28.35187,
+    16.21655
+   ],
+   "size": [
+    455.41801,
+    485.40198,
+    112.43311
+   ]
+  },
+  {
+   "piece": "MountainB",
+   "name": "MountainB_S_MtnShade",
+   "material": "S_MtnShade",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9D4E0"
+   },
+   "glow": false,
+   "tris": 290,
+   "center": [
+    0.0,
+    -0.34487,
+    64.51697
+   ],
+   "size": [
+    840.0,
+    404.41246,
+    209.03394
+   ]
+  },
+  {
+   "piece": "MountainB",
+   "name": "MountainB_S_Rock",
+   "material": "S_Rock",
+   "look": {
+    "material": "Slate",
+    "color": "7A8088"
+   },
+   "glow": false,
+   "tris": 45,
+   "center": [
+    0.0,
+    -0.02552,
+    13.43145
+   ],
+   "size": [
+    840.0,
+    365.9301,
+    106.86291
+   ]
+  },
+  {
+   "piece": "MountainB",
+   "name": "MountainB_S_MtnSnow",
+   "material": "S_MtnSnow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E6ECF3"
+   },
+   "glow": false,
+   "tris": 451,
+   "center": [
+    0.0,
+    -0.17783,
+    64.51697
+   ],
+   "size": [
+    840.0,
+    405.42731,
+    209.03394
+   ]
+  },
+  {
+   "piece": "MountainB",
+   "name": "MountainB_S_RockDark",
+   "material": "S_RockDark",
+   "look": {
+    "material": "Slate",
+    "color": "5E646C"
+   },
+   "glow": false,
+   "tris": 26,
+   "center": [
+    -1.73883,
+    0.48246,
+    -1.39567
+   ],
+   "size": [
+    767.18463,
+    364.18663,
+    77.20866
+   ]
+  },
+  {
+   "piece": "MountainC",
+   "name": "MountainC_S_MtnSnow",
+   "material": "S_MtnSnow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E6ECF3"
+   },
+   "glow": false,
+   "tris": 216,
+   "center": [
+    0.0,
+    0.0,
+    28.01617
+   ],
+   "size": [
+    440.0,
+    400.0,
+    136.03235
+   ]
+  },
+  {
+   "piece": "MountainC",
+   "name": "MountainC_S_MtnShade",
+   "material": "S_MtnShade",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9D4E0"
+   },
+   "glow": false,
+   "tris": 221,
+   "center": [
+    0.0,
+    0.0,
+    28.01617
+   ],
+   "size": [
+    440.0,
+    400.0,
+    136.03235
+   ]
+  },
+  {
+   "piece": "MountainC",
+   "name": "MountainC_S_Rock",
+   "material": "S_Rock",
+   "look": {
+    "material": "Slate",
+    "color": "7A8088"
+   },
+   "glow": false,
+   "tris": 1,
+   "center": [
+    -93.85656,
+    159.64702,
+    -8.89103
+   ],
+   "size": [
+    27.49815,
+    25.5495,
+    30.40022
+   ]
+  },
+  {
+   "piece": "MountainC",
+   "name": "MountainC_S_RockDark",
+   "material": "S_RockDark",
+   "look": {
+    "material": "Slate",
+    "color": "5E646C"
+   },
+   "glow": false,
+   "tris": 2,
+   "center": [
+    96.85692,
+    136.10082,
+    -16.41113
+   ],
+   "size": [
+    187.34247,
+    127.79836,
+    47.17774
+   ]
+  },
+  {
+   "piece": "Outcrop",
+   "name": "Outcrop_S_Rock",
+   "material": "S_Rock",
+   "look": {
+    "material": "Slate",
+    "color": "7A8088"
+   },
+   "glow": false,
+   "tris": 2214,
+   "center": [
+    0.06363,
+    0.09964,
+    4.11773
+   ],
+   "size": [
+    15.70779,
+    10.82666,
+    10.3393
+   ]
+  },
+  {
+   "piece": "Outcrop",
+   "name": "Outcrop_S_Snow",
+   "material": "S_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "E4EBF2"
+   },
+   "glow": false,
+   "tris": 859,
+   "center": [
+    -0.06796,
+    -0.37989,
+    6.67831
+   ],
+   "size": [
+    13.57173,
+    9.74856,
+    5.21815
+   ]
+  },
+  {
+   "piece": "Outcrop",
+   "name": "Outcrop_S_RockDark",
+   "material": "S_RockDark",
+   "look": {
+    "material": "Slate",
+    "color": "5E646C"
+   },
+   "glow": false,
+   "tris": 2047,
+   "center": [
+    0.06363,
+    0.09964,
+    1.97991
+   ],
+   "size": [
+    15.70779,
+    10.82666,
+    6.55807
+   ]
+  },
+  {
+   "piece": "PineA",
+   "name": "PineA_Trunk",
+   "material": "S_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5E4636"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    3.9
+   ],
+   "size": [
+    1.5,
+    1.5,
+    9.0
+   ]
+  },
+  {
+   "piece": "PineA",
+   "name": "PineA_Foliage",
+   "material": "S_Leaf",
+   "look": {
+    "material": "LeafyGrass",
+    "color": "2C4A35"
+   },
+   "glow": false,
+   "tris": 2384,
+   "center": [
+    0.03698,
+    -0.12175,
+    14.28
+   ],
+   "size": [
+    13.94082,
+    13.7355,
+    20.88
+   ]
+  },
+  {
+   "piece": "PineA",
+   "name": "PineA_Snow",
+   "material": "S_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "E4EBF2"
+   },
+   "glow": false,
+   "tris": 1900,
+   "center": [
+    0.02389,
+    -0.07867,
+    15.2673
+   ],
+   "size": [
+    9.00743,
+    8.87477,
+    19.1454
+   ]
+  },
+  {
+   "piece": "PineB",
+   "name": "PineB_Trunk",
+   "material": "S_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5E4636"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    2.675
+   ],
+   "size": [
+    1.5,
+    1.5,
+    6.55
+   ]
+  },
+  {
+   "piece": "PineB",
+   "name": "PineB_Foliage",
+   "material": "S_Leaf",
+   "look": {
+    "material": "LeafyGrass",
+    "color": "2C4A35"
+   },
+   "glow": false,
+   "tris": 1852,
+   "center": [
+    0.33556,
+    0.20441,
+    10.115
+   ],
+   "size": [
+    10.2425,
+    10.29348,
+    14.79
+   ]
+  },
+  {
+   "piece": "PineB",
+   "name": "PineB_Snow",
+   "material": "S_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "E4EBF2"
+   },
+   "glow": false,
+   "tris": 1476,
+   "center": [
+    0.21681,
+    0.13208,
+    10.9259
+   ],
+   "size": [
+    6.61787,
+    6.65081,
+    13.4082
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Tracks_S_Rubber",
+   "material": "S_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282C"
+   },
+   "glow": false,
+   "tris": 1104,
+   "center": [
+    0.0,
+    0.0,
+    1.65
+   ],
+   "size": [
+    8.0,
+    11.28571,
+    3.29758
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Tracks_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 1104,
+   "center": [
+    0.0,
+    0.0,
+    1.65
+   ],
+   "size": [
+    7.84,
+    11.54033,
+    3.54
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Wheels_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 1632,
+   "center": [
+    0.0,
+    0.0,
+    1.46405
+   ],
+   "size": [
+    8.14,
+    8.83149,
+    1.2034
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Wheels_S_Rubber",
+   "material": "S_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282C"
+   },
+   "glow": false,
+   "tris": 520,
+   "center": [
+    0.0,
+    -0.77375,
+    1.54
+   ],
+   "size": [
+    7.7,
+    8.49986,
+    2.32
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Wheels_S_SteelLight",
+   "material": "S_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 632,
+   "center": [
+    0.0,
+    0.92403,
+    1.65
+   ],
+   "size": [
+    7.82,
+    8.35195,
+    2.14484
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Hull_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.1,
+    1.975
+   ],
+   "size": [
+    3.0,
+    10.2,
+    2.25
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Hull_S_PaintDark",
+   "material": "S_PaintDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A1C22"
+   },
+   "glow": false,
+   "tris": 312,
+   "center": [
+    0.0,
+    0.06347,
+    3.13651
+   ],
+   "size": [
+    8.4,
+    11.87306,
+    0.52699
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Cab_S_Paint",
+   "material": "S_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 684,
+   "center": [
+    0.0,
+    2.475,
+    5.675
+   ],
+   "size": [
+    6.1,
+    4.55,
+    4.55
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Cab_S_Glass",
+   "material": "S_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "26303A",
+    "transparency": 0.25
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    2.49022,
+    6.19226
+   ],
+   "size": [
+    5.62155,
+    4.11143,
+    2.18274
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Cab_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 756,
+   "center": [
+    0.0,
+    3.175,
+    5.6
+   ],
+   "size": [
+    6.14,
+    2.35,
+    4.3
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Cab_S_Stripe",
+   "material": "S_Stripe",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E6E1D6"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    2.525,
+    4.225
+   ],
+   "size": [
+    6.0,
+    4.55,
+    0.35
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Engine_S_Paint",
+   "material": "S_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 272,
+   "center": [
+    0.0,
+    -2.375,
+    4.775
+   ],
+   "size": [
+    5.8,
+    5.45,
+    2.85
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Engine_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 1760,
+   "center": [
+    0.0,
+    -3.165,
+    5.55
+   ],
+   "size": [
+    5.96,
+    4.03,
+    3.9
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Engine_S_SteelLight",
+   "material": "S_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 756,
+   "center": [
+    0.0,
+    -5.2,
+    4.39
+   ],
+   "size": [
+    4.2,
+    0.08,
+    1.28
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Engine_S_Amber",
+   "material": "S_Amber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D08A2A"
+   },
+   "glow": false,
+   "tris": 216,
+   "center": [
+    0.0,
+    -5.15,
+    4.8
+   ],
+   "size": [
+    5.6,
+    0.1,
+    0.4
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Fittings_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 248,
+   "center": [
+    0.0,
+    3.085,
+    5.575
+   ],
+   "size": [
+    7.7,
+    3.93,
+    5.95
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Fittings_S_Lamp",
+   "material": "S_Lamp",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E9E4D2"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    4.325,
+    6.07
+   ],
+   "size": [
+    5.04,
+    1.15,
+    4.82
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Fittings_S_Amber",
+   "material": "S_Amber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D08A2A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    1.5,
+    8.35
+   ],
+   "size": [
+    0.6,
+    0.6,
+    0.5
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Fittings_S_SteelLight",
+   "material": "S_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    -2.6,
+    6.015
+   ],
+   "size": [
+    4.42,
+    4.1,
+    0.79
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Blade_S_SteelLight",
+   "material": "S_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 284,
+   "center": [
+    0.0,
+    6.09924,
+    1.5
+   ],
+   "size": [
+    9.55315,
+    1.29563,
+    3.0
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Blade_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 496,
+   "center": [
+    0.0,
+    5.73939,
+    1.49136
+   ],
+   "size": [
+    8.5,
+    1.96122,
+    2.98271
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Blade_S_Chrome",
+   "material": "S_Chrome",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9BEC4"
+   },
+   "glow": false,
+   "tris": 184,
+   "center": [
+    0.0,
+    5.5,
+    1.95
+   ],
+   "size": [
+    2.57335,
+    0.32445,
+    0.37702
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Tiller_S_SteelLight",
+   "material": "S_SteelLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    0.0,
+    -6.85,
+    0.99686
+   ],
+   "size": [
+    7.7,
+    2.3,
+    1.29372
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Tiller_S_Steel",
+   "material": "S_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 312,
+   "center": [
+    0.0,
+    -6.47745,
+    1.52793
+   ],
+   "size": [
+    8.0,
+    3.3451,
+    2.95585
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Tiller_S_Rubber",
+   "material": "S_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282C"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    -8.475,
+    0.07
+   ],
+   "size": [
+    7.58,
+    0.95,
+    0.1
+   ]
+  }
+ ],
+ "tris": 30624
+}

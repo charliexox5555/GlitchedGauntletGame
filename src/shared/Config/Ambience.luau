@@ -67,6 +67,12 @@ local MAPS: { [string]: Map } = {
 			{ id = "sfx:AmbWind", volume = 0.14 },
 		},
 	},
+	-- Snowpeak4 (2026-11-21): the ski saddle, 150 x 190 at (6000, 200, 19000); the box takes in the slopes. Beds only.
+	Snowpeak4 = {
+		center = Vector3.new(6000, 210, 19000),
+		size = Vector3.new(260, 120, 300),
+		beds = { { id = "sfx:AmbWind", volume = 0.4 } },
+	},
 	-- The older maps: beds only (a hook; no emitters or rooms placed yet). Boxes
 	-- are 300 x 220 x 360 around each map's world origin (maps sit 1500 apart).
 	Dockyard = {
