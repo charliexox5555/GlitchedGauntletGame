@@ -67,4 +67,6 @@ Tier meaning (owner's brief): **Common** = reskin on the stock shape · **Rare**
 
 **Knives after the moves:** Common 2 (Prism, Redline), Rare 3 (Breakwater, Inkshift, Sealwork), Epic 5 (Giltfold Fan, Moltframe, Playback, PopCircuit Bat, Sundial), Legendary 0 until the new lines. Leafblade leaves with Rootglass.
 
-**Open:** where Slipframe goes (Rare), and whether Kilnlock or Stacklight (built exotics) become the new Epic line or one of the Legendaries instead of starting from scratch.
+**Slipframe, Kilnlock, Stacklight (owner, 2026-11-21, after the [built lineup sheets](../02%20Art/Skins/Slipframe/out/lineup_built.jpg)):** all three are "done kind of poorly ... sloppy and don't follow the build rules", so they get **rebuilt** to the build rules, and all three are **Rare** ("slight changes in the way they look, nothing crazy"). **Slipframe has the most potential to become Epic** later, so build it with that headroom. Their knives / melee (Slipframe Dagger, Kiln Cleaver, Patch Tool) and charms (Foundry Stamp, Keycap Tester) are **set aside** (charms aren't a system yet). Build plan: [Rare Line Rework Handoff](../02%20Art/Skins/Rare%20Line%20Rework%20Handoff.md).
+
+**Rare after the rework: 8 lines** (Payload, Breakwater, Sealwork, Inkshift, Giltfold, Slipframe, Kilnlock, Stacklight). Epic stays Playback, Sundial, Moltframe + 1 new (Slipframe is a candidate for that slot once it's upgraded).
