@@ -32,6 +32,7 @@ local lines = {
 }
 if RunService:IsStudio() then
 	table.insert(lines, shadowMistLine)
+	table.insert(lines, "TempestStrike") -- elite hero in progress (Vandal only), Studio preview
 end
 
 return table.freeze({
