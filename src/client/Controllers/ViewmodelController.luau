@@ -1616,6 +1616,7 @@ function ViewmodelController.equip(
 		-- Each class comes in its own way (VM.DRAW_TRACK).
 		local draw = if right.shadowActions
 			then "DrawRuin" .. weapon.id
+			elseif right.tempest then "DrawTempest"
 			else VM.DRAW_TRACK[weapon.class] or "Draw"
 		ViewmodelTracks.play(playing, "Equip", draw, time)
 		local beats = turnBeats(clipBeats(right, "Draw"))
@@ -1830,6 +1831,7 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 	local trackName = if right.shadowActions and right.shadowActions.hero
 		then "ReloadShadowMist"
 		elseif right.shadowActions and config then "ReloadRuin" .. config.id
+		elseif right.tempest then "ReloadTempest"
 		elseif own and config then "Reload" .. config.id
 		elseif clip == "ReloadEmpty" then "ReloadEmpty"
 		else "Reload"
@@ -1838,7 +1840,9 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 		"Reload",
 		trackName,
 		duration,
-		if config and (not right.shadowActions or right.shadowActions.hero)
+		if config
+				and not right.tempest
+				and (not right.shadowActions or right.shadowActions.hero)
 			then VM.RELOAD_TRACK_TURN[config.id]
 			else nil
 	)
@@ -2020,6 +2024,7 @@ function ViewmodelController.inspect(): boolean
 	end
 	local track = if guns.Right.shadowActions
 		then guns.Right.shadowActions.profile.inspectTrack
+		elseif guns.Right.tempest then "InspectTempest"
 		elseif guns.Right.fan then "InspectFan"
 		elseif c.fireMode == "Melee" then "InspectMelee"
 		else VM.INSPECT_TRACK[c.id] or "Inspect"

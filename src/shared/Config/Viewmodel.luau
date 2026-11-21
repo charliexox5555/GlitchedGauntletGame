@@ -2231,6 +2231,86 @@ return table.freeze({
 			Vector3.new(0.01, -0.03, -0.06),
 			Vector3.new(-10, 22, 14)
 		),
+		-- Tempest-Strike Vandal (2026-11-22, our own design; Util/TempestIdle draws
+		-- the water on the same beats). Inspect: snap to the right side, tip the
+		-- top up, bring it to the middle where it lifts out of the hands and rolls
+		-- once inside a water ring (the toss), whip to the left side, home past
+		-- the hold. Every move winds up, overshoots and settles.
+		InspectTempest = {
+			length = 5.0,
+			pivot = "Center",
+			own = true,
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.05, Vector3.new(0.02, -0.04, -0.04), Vector3.new(-4, -6, 4)),
+				key(0.16, Vector3.new(-0.47, 0.31, -0.94), Vector3.new(17, 70, -23)),
+				key(0.21, Vector3.new(-0.44, 0.28, -0.9), Vector3.new(12, 62, -17)),
+				key(0.32, Vector3.new(-0.45, 0.31, -0.94), Vector3.new(25, 58, -28)),
+				key(0.39, Vector3.new(-0.41, 0.27, -0.87), Vector3.new(11, 44, -13)),
+				key(0.455, Vector3.new(-0.38, 0.3, -1.02), Vector3.new(9, 36, -8)),
+				key(0.62, Vector3.new(-0.37, 0.32, -1.0), Vector3.new(6, 28, -2)),
+				key(0.69, Vector3.new(-0.43, 0.22, -0.72), Vector3.new(-9, -60, 23)),
+				key(0.75, Vector3.new(-0.41, 0.2, -0.69), Vector3.new(-4, -52, 18)),
+				key(0.85, Vector3.new(-0.4, 0.24, -0.68), Vector3.new(10, -48, 12)),
+				key(0.885, Vector3.new(-0.42, 0.21, -0.69), Vector3.new(2, -55, 19)),
+				key(0.945, Vector3.new(0.02, -0.03, 0.02), Vector3.new(-3.5, 4, -3)),
+				key(1, ZERO, ZERO),
+			},
+			-- the barrel roll: lifts off the fists, one turn about the bore, caught
+			toss = {
+				key(0, ZERO, ZERO),
+				key(0.465, ZERO, ZERO),
+				key(0.5, Vector3.new(0, 0.07, 0), Vector3.new(0, 0, -80)),
+				key(0.545, Vector3.new(0, 0.11, 0), Vector3.new(0, 0, -215)),
+				key(0.59, Vector3.new(0, 0.07, 0), Vector3.new(0, 0, -335)),
+				key(0.61, Vector3.new(0, -0.006, 0), Vector3.new(0, 0, -362)),
+				key(0.64, ZERO, Vector3.new(0, 0, -360)),
+				key(1, ZERO, Vector3.new(0, 0, -360)),
+			},
+			tossPivot = Vector3.new(0, 0.24, -0.96),
+		},
+		-- Draw: rolls in from below on its side and snaps level past the hold
+		-- (the water ring runs down the barrel meanwhile).
+		DrawTempest = {
+			length = 1,
+			pivot = "Grip",
+			smooth = true,
+			keys = {
+				key(0, Vector3.new(0.1, -0.72, 0.22), Vector3.new(-34, 12, 74)),
+				key(0.18, Vector3.new(0.03, -0.22, -0.08), Vector3.new(-11, 5, 30)),
+				key(0.34, Vector3.new(-0.02, 0.045, -0.045), Vector3.new(6, 0, -9)),
+				key(0.46, Vector3.new(0.008, -0.012, 0.004), Vector3.new(-2.2, 0, 3)),
+				key(0.6, Vector3.new(0, 0.014, -0.01), Vector3.new(1.6, 0, -1.1)),
+				key(0.78, Vector3.new(0, -0.004, 0.003), Vector3.new(-0.5, 0, 0.4)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Reload: tilt up and roll the magwell toward you (the mag bursts into
+		-- water), a slow drift while the water gathers, a hard slap up on the
+		-- seat, the rack kick, home past the hold.
+		ReloadTempest = {
+			length = 1,
+			pivot = "Center",
+			smooth = true,
+			marks = { MagOut = 0.17, MagIn = 0.42, Rack = 0.86 },
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.04, Vector3.new(0.012, -0.022, 0.01), Vector3.new(-3, -2, 4)),
+				key(0.12, Vector3.new(-0.15, 0.26, -0.2), Vector3.new(22, 18, -42)),
+				key(0.165, Vector3.new(-0.14, 0.245, -0.2), Vector3.new(18, 16, -38)),
+				key(0.19, Vector3.new(-0.13, 0.285, -0.21), Vector3.new(26, 17, -35)),
+				key(0.26, Vector3.new(-0.14, 0.235, -0.2), Vector3.new(17, 16, -41)),
+				key(0.36, Vector3.new(-0.145, 0.225, -0.2), Vector3.new(15, 19, -44)),
+				key(0.4, Vector3.new(-0.15, 0.212, -0.2), Vector3.new(13, 19, -46)),
+				key(0.44, Vector3.new(-0.12, 0.3, -0.21), Vector3.new(27, 15, -30)),
+				key(0.52, Vector3.new(-0.125, 0.25, -0.2), Vector3.new(18, 14, -34)),
+				key(0.66, Vector3.new(-0.09, 0.18, -0.16), Vector3.new(12, 10, -24)),
+				key(0.86, Vector3.new(-0.03, 0.08, -0.06), Vector3.new(9, 4, -8)),
+				key(0.94, Vector3.new(0.015, -0.02, 0.015), Vector3.new(-3, -2, 3)),
+				key(1, ZERO, ZERO),
+			},
+		},
 		InspectShadowMist = {
 			length = 5.4,
 			pivot = "Center",

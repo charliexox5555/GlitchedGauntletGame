@@ -19,6 +19,7 @@ local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local RuinedReaverAudio = require(ReplicatedStorage.Shared.Config.RuinedReaverAudio)
 local SharedSoundAssets = require(ReplicatedStorage.Shared.Config.SharedSoundAssets)
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
+local TempestAudio = require(ReplicatedStorage.Shared.Config.TempestAudio)
 local SkinPreviewConfig = require(ReplicatedStorage.Shared.Config.SkinPreview)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
@@ -66,6 +67,7 @@ local BANKS: { [string]: SoundBank } = {
 	sfx = { takes = SharedSoundAssets, voices2d = {}, voices3d = {} },
 	shadow = { takes = {}, voices2d = {}, voices3d = {} },
 	reaver = { takes = {}, voices2d = {}, voices3d = {} },
+	tempest = { takes = {}, voices2d = {}, voices3d = {} },
 }
 
 local groups: { [string]: SoundGroup } = {}
@@ -579,6 +581,7 @@ function AudioController.init()
 	end
 	if game.PlaceId == SkinPreviewConfig.PLACE_ID then
 		preloadBank(BANKS.reaver, nil, RuinedReaverAudio.takes)
+		preloadBank(BANKS.tempest, nil, TempestAudio.takes)
 	end
 	preloadBank(BANKS.gun, { "Vandal", "Classic", "Knife" })
 	preloadBank(BANKS.sfx)

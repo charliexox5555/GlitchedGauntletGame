@@ -12,6 +12,8 @@ local StateValues = require(Shared.StateValues)
 local Style = require(Shared.Config.SkinPreview).TEMPEST
 local VFX = require(Shared.Config.VfxTextures)
 local UiMotion = require(Shared.UiMotion)
+local TempestAudio = require(Shared.Config.TempestAudio)
+local AudioController = require(script.Parent.Parent.Controllers.AudioController)
 
 type Ribbon = { beam: Beam, speed: number, body: boolean }
 type Glow = { part: BasePart, color: Color3 }
@@ -32,6 +34,8 @@ export type State = {
 	pose: CFrame,
 	wellRest: Vector3,
 	drawPrev: number?,
+	inspectPrev: number?,
+	cues: { [string]: () -> () },
 	glows: { Glow },
 	ribbons: { Ribbon },
 	sparks: { ParticleEmitter },
@@ -216,13 +220,6 @@ local function smooth(a: number, b: number, x: number): number
 	return t * t * (3 - 2 * t)
 end
 
--- easeOutBack: passes 1 by ~10 % and settles (draw snap with a little overshoot)
-local function outBack(t: number): number
-	local c = 1.70158
-	local u = t - 1
-	return 1 + (c + 1) * u * u * u + c * u * u
-end
-
 local function droplets(parent: Attachment, scale: number): ParticleEmitter
 	local e = Instance.new("ParticleEmitter")
 	e.Name = "TempestBurst"
@@ -280,6 +277,8 @@ function TempestIdle.new(model: Model, scale: number): State?
 		pose = CFrame.identity,
 		wellRest = Vector3.zero,
 		drawPrev = nil,
+		inspectPrev = nil,
+		cues = {},
 		glows = {},
 		ribbons = {},
 		sparks = {},
@@ -342,6 +341,16 @@ function TempestIdle.new(model: Model, scale: number): State?
 	return state
 end
 
+-- An action beat: its foley (Config/TempestAudio, over the stock handling sounds)
+-- and any hook the caller set (state.cues[name] = fn).
+function TempestIdle.cue(state: State, name: string)
+	AudioController.playSound(TempestAudio.cues[name], "Foley")
+	local f = state.cues[name]
+	if f then
+		f()
+	end
+end
+
 -- One shot (first person): a small skin kick on top of the stock recoil and a conduit flare.
 function TempestIdle.fire(state: State)
 	state.shotAge = 0
@@ -381,6 +390,7 @@ function TempestIdle.reload(
 		end
 		state.burst:Emit(if UiMotion.reduced() then 6 else 14)
 		dissolved = true
+		TempestIdle.cue(state, "magOut")
 	end
 	if prev < inAt and t >= inAt then
 		-- water forms the new magazine in the hand
@@ -389,12 +399,14 @@ function TempestIdle.reload(
 			state.well.WorldPosition = at
 		end
 		state.burst:Emit(if UiMotion.reduced() then 4 else 9)
+		TempestIdle.cue(state, "magForm")
 	end
 	if prev < seat and t >= seat then
 		state.well.Position = state.wellRest
 		state.burst:Emit(8)
 		state.popAge = 0
 		state.boost = math.max(state.boost, Style.BOOST_SEAT)
+		TempestIdle.cue(state, "magSeat")
 	end
 	return dissolved
 end
@@ -499,15 +511,43 @@ function TempestIdle.step(
 			)
 		end
 	elseif inspectP then
-		-- the ring sweeps from the muzzle back over the receiver and returns
-		ringAlpha = smooth(0.08, 0.18, inspectP) * (1 - smooth(0.82, 0.94, inspectP))
+		-- InspectTempest: the ring runs muzzle to receiver while the right side
+		-- shows, then opens wide round the middle of the gun for the barrel roll
+		-- (Config/Viewmodel toss 0.465-0.64) and spins against it; a splash on the catch
+		local roll = smooth(Style.INSPECT_ROLL_IN - 0.04, Style.INSPECT_ROLL_IN, inspectP)
+		ringAlpha = smooth(0.07, 0.15, inspectP) * (1 - smooth(0.70, 0.80, inspectP))
 		if ringAlpha > 0.02 then
-			local sweep = 0.5 - 0.5 * math.cos(smooth(0.08, 0.94, inspectP) * 2 * math.pi)
-			local x = 2.35 + (0.45 - 2.35) * sweep
-			local r = 0.15 + 0.11 * smooth(1.15, 0.85, x)
-			placeRing(state, bl(x, 0, 0.30), bl(0, 1, 0), bl(0, 0, 1.1), r, spin, ringAlpha)
+			local run = smooth(0.08, 0.40, inspectP)
+			local x = 2.35 + (1.05 - 2.35) * run
+			x += (Style.INSPECT_RING_X - x) * roll
+			local r = 0.15 + 0.06 * run
+			r += (Style.INSPECT_RING_R - r) * roll * (1 - 0.35 * smooth(0.64, 0.78, inspectP))
+			local whirl = spin * (1 + 2.2 * roll)
+			placeRing(state, bl(x, 0, 0.30), bl(0, 1, 0), bl(0, 0, 1.1), r, -whirl, ringAlpha)
+		end
+		local prev = state.inspectPrev or 0
+		if inspectP < prev then
+			prev = 0 -- pressed again: a fresh inspect from the top
+		end
+		if prev < Style.INSPECT_ROLL_IN and inspectP >= Style.INSPECT_ROLL_IN then
+			state.boost = math.max(state.boost, Style.BOOST_SHOT)
+			TempestIdle.cue(state, "inspectRoll")
+		end
+		if prev < Style.INSPECT_CATCH and inspectP >= Style.INSPECT_CATCH then
+			state.well.Position = state.toBody:PointToWorldSpace(
+				bl(Style.INSPECT_RING_X, 0, 0.30) * state.frame.scale
+			)
+			state.burst:Emit(if reduced then 5 else 12)
+			state.boost = math.max(state.boost, Style.BOOST_SEAT)
+			TempestIdle.cue(state, "inspectCatch")
+		end
+		if prev < 0.02 and inspectP >= 0.02 then
+			TempestIdle.cue(state, "inspect")
 		end
 	elseif drawP then
+		if state.drawPrev == nil then
+			TempestIdle.cue(state, "draw")
+		end
 		local k = smooth(0, Style.DRAW_RING, drawP)
 		ringAlpha = smooth(0, 0.08, drawP)
 			* (1 - smooth(Style.DRAW_RING - 0.12, Style.DRAW_RING, drawP))
@@ -518,9 +558,14 @@ function TempestIdle.step(
 		end
 		if (state.drawPrev or 0) < Style.DRAW_RING and drawP >= Style.DRAW_RING then
 			state.boost = math.max(state.boost, Style.BOOST_SEAT) -- plates lock
+			TempestIdle.cue(state, "drawLock")
 		end
 	end
 	state.drawPrev = drawP
+	state.inspectPrev = inspectP
+	if not inspectP and state.well.Position ~= state.wellRest and not state.timing then
+		state.well.Position = state.wellRest
+	end
 	if ringAlpha <= 0.02 or not on then
 		for _, b in state.ring.beams do
 			b.Enabled = false
@@ -551,20 +596,6 @@ function TempestIdle.step(
 		if p < 0.5 then
 			local e = math.exp(-p * 9) * math.sin(p * 30)
 			pose *= CFrame.new(0, Style.SEAT_POP * k * e, 0) * CFrame.Angles(-0.02 * e, 0, 0)
-		end
-		-- draw: rolls in from the side and snaps level with a little overshoot
-		if drawP then
-			local d = outBack(math.clamp(drawP / Style.DRAW_SNAP, 0, 1))
-			pose *= CFrame.Angles(0, 0, Style.DRAW_ROLL * (1 - d))
-		end
-		-- inspect: the gun floats up and turns on the water
-		if inspectP then
-			local w = smooth(0.08, 0.25, inspectP) * (1 - smooth(0.80, 0.95, inspectP))
-			pose *= CFrame.new(0, Style.INSPECT_LIFT * k * w, 0) * CFrame.Angles(
-				0,
-				0,
-				Style.INSPECT_ROLL * w * math.sin(inspectP * math.pi * 3)
-			)
 		end
 		-- idle: a faint hover
 		if not reduced and idle then

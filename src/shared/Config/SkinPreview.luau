@@ -100,11 +100,11 @@ return table.freeze({
 		RING_POINTS = 12,
 		RING_BRIGHTNESS = 1.15,
 		RING_SPIN = 5, -- radians per second
-		DRAW_RING = 0.6, -- the ring reaches the receiver at this draw progress
-		DRAW_SNAP = 0.5, -- the roll-in settles level by here
-		DRAW_ROLL = math.rad(24),
-		INSPECT_LIFT = 0.022,
-		INSPECT_ROLL = math.rad(6),
+		DRAW_RING = 0.4, -- the ring reaches the receiver (DrawTempest snaps level at 0.34)
+		INSPECT_ROLL_IN = 0.465, -- InspectTempest toss: the barrel roll starts...
+		INSPECT_CATCH = 0.61, -- ...and the hands catch it
+		INSPECT_RING_X = 1.2, -- the roll ring: round the middle of the gun (Blender x)
+		INSPECT_RING_R = 0.34,
 		INSPECT_SPARKS = 3, -- arc rate multiplier while inspecting
 		KICK_PITCH = math.rad(1.0), -- skin kick on top of the stock recoil
 		KICK_ROLL = math.rad(1.2),
