@@ -31,3 +31,18 @@ Audition: `art-source/audio/tempest/_reel.wav` (cues in the order below, 0.6 s a
 | 189630 | Spark | elliott.klein | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/elliott.klein/sounds/189630/) |
 | 264779 | Civilian Stun Gun 1/10s zap | AnthonyChan0 | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/AnthonyChan0/sounds/264779/) |
 | 582631 | Long Crackle 04.wav | ironcross32 | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/ironcross32/sounds/582631/) |
+| 207371 | Water Splashes | Phil25 | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/Phil25/sounds/207371/) |
+| 398274 | Electricity | FlashTrauma | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/FlashTrauma/sounds/398274/) |
+| 495118 | Wet Splat 1.mp3 | nebulasnails | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/nebulasnails/sounds/495118/) |
+| 495117 | Wet Splat 2.mp3 | nebulasnails | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/nebulasnails/sounds/495117/) |
+| 164596 | Water splash 5.wav | deleted_user_2104797 | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/deleted_user_2104797/sounds/164596/) |
+| 536741 | Zap.ogg | egomassive | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/egomassive/sounds/536741/) |
+| 210878 | highvoltagearc.wav | Sclolex | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/Sclolex/sounds/210878/) |
+| 434359 | Close lightning strike 2018 07 07 | csengeri | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/csengeri/sounds/434359/) |
+| 119494 | Slide lock 1.wav | ingudios | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/ingudios/sounds/119494/) |
+| 337865 | metal-click.wav | newagesoup | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/newagesoup/sounds/337865/) |
+| 725397 | An M16 Rifle being reloaded while empty; full sequence | serøutōnin--deprivəd | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/serøutōnin--deprivəd/sounds/725397/) |
+| 815879 | Assault Rifle Reload | qubodup | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/qubodup/sounds/815879/) |
+| 481789 | Metallic latch release.wav | Crinkem | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/Crinkem/sounds/481789/) |
+| 557647 | Schlorp | Clagnar | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/Clagnar/sounds/557647/) |
+| 683100 | mutliple bubbles bursting | florianreichelt | CC0 1.0 (read on the sound page) | [page](https://freesound.org/people/florianreichelt/sounds/683100/) |

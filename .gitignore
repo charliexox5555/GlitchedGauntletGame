@@ -99,3 +99,6 @@ art-source/weapons/RemasterV2/**/*.png
 vault/02 Art/References/hitfx/*rivals*
 vault/02 Art/References/ui-overhaul/*rivals*
 vault/05 Production/Playtests/*vs RIVALS*
+
+# Tempest-Strike Vandal v2 sound set: built from licensed libraries (GDC 2016) that must not be redistributed
+art-source/audio/tempest/vandal_v2/

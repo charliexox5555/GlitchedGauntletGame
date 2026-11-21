@@ -5,6 +5,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Start
 - `00 Home.md` (13): current status, last results, what waits on the user, Locked decisions table, map of notes
 - [State Values and Asset Data](04%20Tech/State%20Values%20and%20Asset%20Data.md): results snapshot, runtime values and shared authored configuration
+- [Tempest-Strike Vandal Sound Set v2](02%20Art/Skins/TempestStrike/Vandal%20Sound%20Set%20v2.md): every Vandal cue layered from ProPack + Pole Position AKM/HK416 + CC0 water and electric recordings; audition reel, recipes, levels vs stock
 - [Tempest-Strike Line playtest](05%20Production/Playtests/2026-11-22%20Tempest-Strike%20Line.md): owner notes per gun and fixes: measured VFX refit, Stinger s03 + reload, Marshal lever cycle, shell reloads, Sheriff reload/inspect, Katana replaces the kunai
 - [Third Person Pass playtest](05%20Production/Playtests/2026-11-21%20Third%20Person%20Pass.md): third-person clips on splines, breathing holds, knife heavy, throw, slides, RIVALS-style IK prototype (off) and how to flip it
 - [Melee and Mods Pass playtest](05%20Production/Playtests/2026-11-21%20Melee%20and%20Mods%20Pass.md): Ruined Reaver re-key and hold, Bat pops fixed, Fan leaf, knife lead, Mod splines and bow
