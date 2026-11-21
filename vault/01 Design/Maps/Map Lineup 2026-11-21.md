@@ -63,3 +63,8 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
 - **Build checks only:** "I don't really want you to do all these checks on the map like walkability and stuff, because that just takes up a lot of usage ... We're mainly just working on building. Obviously check the build." So from now on:
   - **run:** z-fight (`Audit.luau`), floating (`FloatAudit.luau`), slopes (`SlopeAudit.luau`), and captures to judge the look;
   - **skip:** ReachCheck, route / sightline sims, LockMap playtests, quality-score grading rounds. The owner tests walkability later.
+- **Build in chunks (after a look at Rooftops4):** the owner found overlapping parts, gaps, misaligned trims and weak decorations (the lamps): "we kind of need to go in chunks in order for it to just look good and not have these inconsistencies, so we don't have to go ahead and fix them later". So:
+  - build one area of the playable map at a time;
+  - capture it close at player height from several angles;
+  - fix every visible overlap, gap, misalignment, floating prop or inconsistent size before the next chunk.
+  Simple decorations (lamps, posts, planters) may be Parts ("those can be built with bricks") when that reads cleaner than a Blender piece: one design per kind, reused everywhere. Textures not over the top. The background outside the bounds matters less. Rooftops4 got a chunk-by-chunk polish pass for this.
