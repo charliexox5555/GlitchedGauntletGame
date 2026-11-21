@@ -1,6 +1,6 @@
 # Rooftops4 (Rooftops remade)
 
-**Status (2026-11-21): built v1, checks at 0, in rotation** (shown as **ROOFTOPS**, regular, 1v1-2v2). **Blind grade 8.33/10, under the 8.5 bar** (blocker: navigation read; see [Grade](#grade-lihfolkquality-score-world-rubric-3-blind-reviewers-per-round-medians)). Map 1 of the [lineup round 2](Map%20Lineup%202026-11-21.md) run. The owner was away and waived per-map approval, so the concept round was self-reviewed (layout checks, a reference board, Blender close-ups); the ChatGPT prompts are below for later. **Save the match place.**
+**Status (2026-11-21): built v1 + [polish pass](#polish-pass-2026-11-21-owner-feedback-2), checks at 0, in rotation** (shown as **ROOFTOPS**, regular, 1v1-2v2). **Blind grade 8.33/10, under the 8.5 bar** (blocker: navigation read; see [Grade](#grade-lihfolkquality-score-world-rubric-3-blind-reviewers-per-round-medians)). Map 1 of the [lineup round 2](Map%20Lineup%202026-11-21.md) run. The owner was away and waived per-map approval, so the concept round was self-reviewed (layout checks, a reference board, Blender close-ups); the ChatGPT prompts are below for later. **Save the match place.**
 
 | Overview | Spawn roof | Main path to the catwalk |
 |---|---|---|
@@ -12,6 +12,23 @@
 "A rooftop looks good right now." Two changes, both applied:
 1. **Railings and parapets are jumpable** ("so it's easier to walk around"). The invisible rail guards (9 tall) are now collision strips as tall as the rail (3.45; the jump clears 7.5), the bridge-rail guards the same, the parapet guards are gone. To keep players off roofs they must never reach, each hut, the shed, the vent stack and the cooling tower carry an invisible roof guard instead (from the roof up 8, `MapBlockers`, shots pass). Kept: the billboard catwalk, glass lantern, court bulkhead, fan housing and pump-house roof guards.
 2. **No walkability checks from now on** ("that just takes up a lot of usage, and I can do that later. We're mainly just working on building"). No ReachCheck, route or sightline sims, LockMap playtests or quality-score rounds; only build checks (z-fight `Audit.luau`, `FloatAudit.luau`, `SlopeAudit.luau`) and captures to judge the look. The reach and grade results below are from before this note. The guard change touched invisible collision only, so the visible build and its 0 / 0 / 0 audits are unchanged.
+
+## Polish pass (2026-11-21, owner feedback 2)
+The owner wrote: "it looks really good. However, there's a bunch of inconsistencies ... overlapping parts ... parts that just don't align well ... gaps ... the lamps ... can be built with bricks", and asked for calmer textures. I worked chunk by chunk (spawn roof, alleys and bridges, middle court and wings, then the B half), took close captures from player height, fixed what they showed and recaptured each fix. Everything is in `tools/studio/maps/Rooftops4/Build.luau`, so a rebuild matches.
+- **One lamp, built from Parts**, used for every lamp on the map: a hooded steel housing with a warm lens and a downward spot. It comes as a post (base, collars, braced arm: the crossing, way-up and street lamps) and a wall bracket (beside every door). The caged Blender lamp is out of `R4Door` (`rooftops4_pieces.py`, kit re-exported and re-uploaded).
+- **Calmer textures:** the roofs use a soft concrete membrane instead of the cratered gravel map, and the tar patches are gone (they read as holes). The brick is less saturated (A `8E4535`, B `A97F57`). Lit windows went from lemon neon to a soft warm cream (`C.lit`), the lantern glow too. The team wall bands are painted render toned toward the plaster, not flat plastic. The court is a muted clay (`8E6A58`), not blood red, and its puddles are gone (they read as black holes).
+- **Consistency:** the cooling tower, fan housing and vent stack share one grey-steel (`L.unit`). Every louvre has a light frame, so the slats read as one panel instead of black-and-white stripes. The cooling tower has a plinth and louvres on all four faces. All rail posts are the same light steel. The string-light bulbs are smaller. The penthouse planters are low window boxes under the sills (the hedges used to cover the windows). The fire-bridge lamp is warm coral (the red one washed the plaster pink).
+- **Checks:** z-fight 0, floating 0, coincident slopes 0 (5,079 visible parts). No reach, playtest or grade runs, per the owner.
+
+| Before | After |
+|---|---|
+| ![tower before](../../02%20Art/References/maps/rooftops4/polish-tower-before.jpg) | ![tower after](../../02%20Art/References/maps/rooftops4/polish-tower-after.jpg) |
+| ![penthouse before](../../02%20Art/References/maps/rooftops4/polish-penthouse-before.jpg) | ![penthouse after](../../02%20Art/References/maps/rooftops4/polish-penthouse-after.jpg) |
+| ![court before](../../02%20Art/References/maps/rooftops4/polish-court-before.jpg) | ![court after](../../02%20Art/References/maps/rooftops4/polish-court-after.jpg) |
+| ![lantern before](../../02%20Art/References/maps/rooftops4/polish-lantern-before.jpg) | ![lantern after](../../02%20Art/References/maps/rooftops4/polish-lantern-after.jpg) |
+| The Parts wall lamps by the stair-hut doors | ![lamps](../../02%20Art/References/maps/rooftops4/polish-lamps-after.jpg) |
+
+Left as is: the pump-house wall lamps sit on the stone band; the background towers and neighbours only got the calmer window glow.
 
 ## What the old maps taught (owner verdicts)
 - **Rooftops2** was "the weakest map, with no levels and no character": big flat roof floors, a dark pit, AC stacks blocking routes, blocky signs, props off scale, floating bits ([Rooftops2](Rooftops2.md)). **Rooftops** (the first) met at 1.7 s, far too soon ([Rooftops](Rooftops.md) §3).

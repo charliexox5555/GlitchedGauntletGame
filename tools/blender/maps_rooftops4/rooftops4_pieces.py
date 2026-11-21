@@ -24,8 +24,8 @@ Pieces (Map_<Piece>, export group Kit of map Rooftops4; names start with R4 so n
   R4Plank6     a plank bridge 12 long: timber bearers, loose planks, a scaffold-pipe rail on one side.
   R4Window     a sash window for the brick facades: stone sill and lintel, painted frame, two sashes (*WinPane* is set
                lit or dark per window in Studio). 3 wide, 5 tall. Origin = bottom centre on the wall, out to +Y.
-  R4Door       a steel service door: frame, leaf with a louvre and kick plate, a sloped canopy on brackets, a caged
-               wall lamp. Origin as R4Window.
+  R4Door       a steel service door: frame, leaf with a louvre and kick plate, a sloped canopy on brackets (the wall
+               lamp beside it is built from Parts). Origin as R4Window.
   R4FireEsc    one storey of a facade fire escape: a railed grating landing on brackets with balusters and a stair
                flight down to the next storey (6 below). 8 wide. Origin = landing top, at the wall, out to +Y.
   R4TowerA/B/C city towers past the bounds: banded bodies (*TowerBody* recoloured per instance), lit and dark window
@@ -658,13 +658,8 @@ def door(coll):
 	for x in (-1.8, 1.8):
 		bar(bm, (x, -0.02, 6.6), (x, 1.6, 7.3), 0.14, 0.14, ST)
 	cube(bm, -2.15, 2.15, -0.03, 0.15, 7.5, 7.95, ST)  # canopy wall strip
-	# caged wall lamp beside the door
-	cube(bm, 1.95, 2.55, -0.03, 0.2, 5.5, 6.5, ST)
-	cube(bm, 2.0, 2.5, 0.15, 0.6, 5.7, 6.3, LM)
-	for x in (2.0, 2.5):
-		cube(bm, x - 0.04, x + 0.04, 0.15, 0.68, 5.65, 6.35, ST)
-	cube(bm, 1.96, 2.54, 0.62, 0.68, 5.95, 6.03, ST)  # cage bar
-	o = new_obj("R4Door", bm, ["R4_FramePaint", "R4_DoorPaint", "R4_Steel", "R4_Lamp", "R4_GalvDark"], coll)
+	# (the wall lamp is a Parts piece in the builder now, one design for every lamp on the map)
+	o = new_obj("R4Door", bm, ["R4_FramePaint", "R4_DoorPaint", "R4_Steel", "R4_Lamp", "R4_GalvDark"], coll)  # R4_Lamp unused now
 	bevel(o, 0.02, 1, 40)
 	return [o]
 

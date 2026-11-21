@@ -61,7 +61,6 @@
     "R4Door_R4_FramePaint",
     "R4Door_R4_DoorPaint",
     "R4Door_R4_Steel",
-    "R4Door_R4_Lamp",
     "R4Door_R4_GalvDark"
    ]
   },
@@ -733,37 +732,16 @@
     "color": "3D4450"
    },
    "glow": false,
-   "tris": 616,
+   "tris": 440,
    "center": [
-    0.2,
+    0.0,
     0.88008,
     5.425
    ],
    "size": [
-    4.7,
+    4.3,
     1.83983,
     5.05
-   ]
-  },
-  {
-   "piece": "R4Door",
-   "name": "R4Door_R4_Lamp",
-   "material": "R4_Lamp",
-   "look": {
-    "material": "Neon",
-    "color": "FFE2B0"
-   },
-   "glow": false,
-   "tris": 44,
-   "center": [
-    2.25,
-    0.375,
-    6.0
-   ],
-   "size": [
-    0.5,
-    0.45,
-    0.6
    ]
   },
   {
@@ -1987,5 +1965,5 @@
    ]
   }
  ],
- "tris": 44866
+ "tris": 44646
 }

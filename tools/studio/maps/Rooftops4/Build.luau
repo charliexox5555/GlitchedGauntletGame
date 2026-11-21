@@ -45,6 +45,7 @@ local C = {
 	galv = hex("A9B0B7"),
 	glassDark = hex("1F2B38"),
 	glow = hex("C99052"),
+	lit = hex("9C8466"), -- lit window panes (neon): a soft warm cream, calmer than the bulbs
 	leaf = hex("4F6E3A"),
 	soil = hex("4A3A2C"),
 	asphalt = hex("2F3236"),
@@ -65,8 +66,8 @@ type Side = {
 }
 local SIDE: { [string]: Side } = {
 	A = {
-		brick = hex("9A4A36"),
-		brickDark = hex("7A3829"),
+		brick = hex("8E4535"),
+		brickDark = hex("6E3328"),
 		neon = hex("FFB347"),
 		bill = hex("C8462E"),
 		stripe = hex("F2C14E"),
@@ -75,8 +76,8 @@ local SIDE: { [string]: Side } = {
 		billIcon = "R4NeonStar",
 	},
 	B = {
-		brick = hex("B7895C"),
-		brickDark = hex("94683F"),
+		brick = hex("A97F57"),
+		brickDark = hex("8A6340"),
 		neon = hex("FF5FA8"),
 		bill = hex("5B3C8C"),
 		stripe = hex("FF8FC4"),
@@ -88,7 +89,8 @@ local SIDE: { [string]: Side } = {
 -- soft variants (owner 2026-11-21: not too much texture): colour maps only, no normal maps
 local VARIANTS = {
 	R4_Brick = { "Brick", 7, "107246436113114" },
-	R4_Tar = { "Slate", 10, "76772826954213" },
+	R4_Tar = { "Slate", 10, "76772826954213" }, -- (old roof map, unused since the polish pass)
+	R4_Membrane = { "Concrete", 18, "98131730598502" },
 	R4_Render = { "Concrete", 14, "119615065244839" },
 	R4_Concrete = { "Concrete", 12, "98131730598502" },
 	R4_Asphalt = { "Asphalt", 10, "129833585742683" },
@@ -101,7 +103,7 @@ local function look(color: Color3, variant: string?, mat: Enum.Material?): Look
 	return { color = color, variant = variant, mat = mat }
 end
 local L = {
-	tar = look(C.tar, "R4_Tar", Enum.Material.Slate),
+	tar = look(C.tar, "R4_Membrane", Enum.Material.Concrete),
 	paver = look(C.paver, "R4_Concrete", Enum.Material.Concrete),
 	stone = look(C.stone, "R4_Stone", Enum.Material.Limestone),
 	stoneDark = look(C.stoneDark, "R4_Stone", Enum.Material.Limestone),
@@ -111,9 +113,11 @@ local L = {
 	steel = look(C.steel, nil, Enum.Material.Metal),
 	steelLight = look(C.steelLight, nil, Enum.Material.Metal),
 	galv = look(C.galv, nil, Enum.Material.Metal),
+	unit = look(hex("646C74"), nil, Enum.Material.Metal), -- big plant boxes: tower, fan housing, vent stack
 	plate = look(C.steelLight, "R4_Plate", Enum.Material.DiamondPlate),
 	glassDark = look(C.glassDark),
 	glow = look(C.glow, nil, Enum.Material.Neon),
+	lit = look(C.lit, nil, Enum.Material.Neon),
 	leaf = look(C.leaf, nil, Enum.Material.LeafyGrass),
 	soil = look(C.soil, nil, Enum.Material.Ground),
 	asphalt = look(C.asphalt, "R4_Asphalt", Enum.Material.Asphalt),
@@ -320,12 +324,95 @@ return function(): string
 		end
 		l.Parent = parent
 	end
-	local function addLamp(m: Model, range: number, bright: number)
-		for _, d in m:GetDescendants() do
-			if d:IsA("BasePart") and string.find(d.Name, "Lamp") then
-				light(d, "PointLight", range, bright, hex("FFD9A0"))
-				return
+	-- THE lamp (polish pass): one Parts design for every lamp on the map. A hooded steel housing with a warm lens
+	-- underneath and a spot pool below; the post version stands on a base with collars and a braced arm, the wall
+	-- version hangs off a wall plate. Decoration only (no collision).
+	local function lampHead(parent: Instance, F: CFrame, tint: Color3)
+		-- the head in frame F: housing centred on the frame, lens on its underside
+		box(parent, "LampHousing", V(-0.4, 0.0, -0.32), V(0.4, 0.42, 0.32), L.steel, false, F)
+		box(parent, "LampCap", V(-0.48, 0.38, -0.4), V(0.48, 0.5, 0.4), L.steel, false, F)
+		local lens = box(
+			parent,
+			"LampLens",
+			V(-0.3, -0.05, -0.22),
+			V(0.3, 0.02, 0.22),
+			look(tint, nil, Enum.Material.Neon),
+			false,
+			F
+		)
+		local sp = Instance.new("SpotLight")
+		sp.Face = Enum.NormalId.Bottom
+		sp.Angle = 120
+		sp.Range = 18
+		sp.Brightness = 1.5
+		sp.Color = tint
+		sp.Shadows = false
+		sp.Parent = lens
+	end
+	local function lampPost(
+		parent: Instance,
+		x: number,
+		z: number,
+		y: number,
+		yaw: number,
+		tint: Color3,
+		T: CFrame
+	)
+		local F = T * CFrame.new(x, y, z) * CFrame.Angles(0, yaw, 0) -- the arm points along local +X
+		box(parent, "LampBase", V(-0.45, -0.03, -0.45), V(0.45, 0.25, 0.45), L.steel, false, F)
+		box(parent, "LampPost", V(-0.16, 0.2, -0.16), V(0.16, 7.3, 0.16), L.steel, false, F)
+		box(parent, "LampCollar", V(-0.24, 0.9, -0.24), V(0.24, 1.12, 0.24), L.steel, false, F)
+		box(parent, "LampCollar", V(-0.23, 7.2, -0.23), V(0.23, 7.44, 0.23), L.steel, false, F)
+		box(parent, "LampArm", V(0.1, 6.98, -0.1), V(1.12, 7.18, 0.1), L.steel, false, F)
+		local a, b = V(0.12, 6.2, 0), V(0.85, 6.99, 0)
+		part(
+			parent,
+			"LampBrace",
+			V(0.12, 0.12, (b - a).Magnitude + 0.06),
+			F * CFrame.lookAt((a + b) / 2, b),
+			L.steel
+		)
+		lampHead(parent, F * CFrame.new(1.45, 6.72, 0), tint)
+	end
+	local function wallLamp(parent: Instance, W: CFrame, tint: Color3)
+		-- W: a point on the wall, local -Z out of the wall
+		box(parent, "LampPlate", V(-0.25, -0.5, -0.1), V(0.25, 0.45, 0.04), L.steel, false, W)
+		box(parent, "LampArm", V(-0.08, 0.22, -0.72), V(0.08, 0.38, -0.05), L.steel, false, W)
+		lampHead(parent, W * CFrame.new(0, -0.05, -1.05) * CFrame.Angles(0, math.pi / 2, 0), tint)
+	end
+	-- a louvre panel on a face (E = +X face at x = c, W = -X, N = +Z face at z = c, S = -Z): frame and slats
+	local function louvreFace(
+		parent: Instance,
+		F: string,
+		c: number,
+		u0: number,
+		u1: number,
+		y0: number,
+		y1: number,
+		T: CFrame
+	)
+		local s = if F == "E" or F == "N" then 1 else -1
+		local function slab(
+			name: string,
+			a0: number,
+			a1: number,
+			ya: number,
+			yb: number,
+			d0: number,
+			d1: number,
+			lk: Look
+		)
+			if F == "E" or F == "W" then
+				box(parent, name, V(c + s * d0, ya, a0), V(c + s * d1, yb, a1), lk, false, T)
+			else
+				box(parent, name, V(a0, ya, c + s * d0), V(a1, yb, c + s * d1), lk, false, T)
 			end
+		end
+		slab("LouvreFrame", u0, u1, y0, y1, -0.03, 0.1, L.steelLight)
+		local y = y0 + 0.35
+		while y < y1 - 0.4 do
+			slab("LouvreSlat", u0 + 0.18, u1 - 0.18, y, y + 0.2, 0.08, 0.2, L.galv)
+			y += 0.45
 		end
 	end
 	-- the window panes of a kit window: lit warm or dark glass
@@ -334,7 +421,7 @@ return function(): string
 			if d:IsA("BasePart") and string.find(d.Name, "WinPane") then
 				if lit then
 					d.Material = Enum.Material.Neon
-					d.Color = if rng:NextNumber() < 0.5 then C.glow else hex("B9844B")
+					d.Color = if rng:NextNumber() < 0.5 then C.lit else hex("8C735A")
 				else
 					d.Material = Enum.Material.Glass
 					d.Color = C.glassDark
@@ -461,7 +548,7 @@ return function(): string
 				"RailPost",
 				p + V(-0.11, -0.05, -0.11),
 				p + V(0.11, 3.35, 0.11),
-				L.steel,
+				L.steelLight,
 				false,
 				T
 			)
@@ -534,7 +621,7 @@ return function(): string
 						"Pane",
 						a - V(0, 0.05, 0),
 						p + ud * w + V(0, 4.45, 0) - n * 0.03,
-						if lit then L.glow else L.glassDark,
+						if lit then L.lit else L.glassDark,
 						false,
 						T
 					)
@@ -658,7 +745,8 @@ return function(): string
 			if i == 2 then
 				ya, yb = ya - 0.05, yb + 0.05
 			end
-			local lk = look(b[3] :: Color3)
+			local lk =
+				look((b[3] :: Color3):Lerp(C.renderDark, 0.35), "R4_Render", Enum.Material.Concrete)
 			if F == "E" then
 				box(parent, "WallPaint", V(c - 0.02, ya, u0), V(c + o, yb, u1), lk, false, T)
 			elseif F == "W" then
@@ -669,35 +757,15 @@ return function(): string
 		end
 	end
 	-- a lamp post marking a way up or down (thin, no collision), in a colour
-	local function wayLamp(parent: Instance, x: number, z: number, tint: Color3, T: CFrame)
-		box(
-			parent,
-			"WayPost",
-			V(x - 0.16, -0.03, z - 0.16),
-			V(x + 0.16, 6.2, z + 0.16),
-			L.steel,
-			false,
-			T
-		)
-		local head = box(
-			parent,
-			"WayLamp",
-			V(x - 0.42, 6.15, z - 0.42),
-			V(x + 0.42, 6.75, z + 0.42),
-			look(tint, nil, Enum.Material.Neon),
-			false,
-			T
-		)
-		box(
-			parent,
-			"WayCap",
-			V(x - 0.5, 6.7, z - 0.5),
-			V(x + 0.5, 6.88, z + 0.5),
-			L.steel,
-			false,
-			T
-		)
-		light(head, "PointLight", 15, 1.5, tint)
+	local function wayLamp(
+		parent: Instance,
+		x: number,
+		z: number,
+		tint: Color3,
+		T: CFrame,
+		yaw: number?
+	)
+		lampPost(parent, x, z, 0, yaw or 0, tint, T)
 	end
 
 	--------------------------------------------------------------------------------------------- the halves
@@ -800,7 +868,7 @@ return function(): string
 				"SeamX",
 				V(gx - 0.15, -0.01, 57.4),
 				V(gx + 0.15, 0.08, 94.6),
-				look(C.tarLight, "R4_Tar", Enum.Material.Slate),
+				look(C.tarLight, "R4_Membrane", Enum.Material.Concrete),
 				false,
 				T
 			)
@@ -811,7 +879,7 @@ return function(): string
 				"Seam",
 				V(-68.5, -0.02, zs),
 				V(68.5, 0.07, zs + 0.3),
-				look(C.tarLight, "R4_Tar", Enum.Material.Slate),
+				look(C.tarLight, "R4_Membrane", Enum.Material.Concrete),
 				false,
 				T
 			)
@@ -822,7 +890,7 @@ return function(): string
 		ring(f, "LiftBand", -69, -52, 49.1, 57, 7.2, 7.8, 0.12, L.stone, T)
 		onWall("R4Door", pf, V(-60, 0.0, 57), V(0, 0, 1), T, 1, sd)
 		for _, x in { -66, -56 } do -- louvre panels on the alley face
-			box(f, "Louvre", V(x - 1.5, 3, 49.0), V(x + 1.5, 6, 49.12), L.steel, false, T)
+			box(f, "Louvre", V(x - 1.5, 3, 49.0), V(x + 1.5, 6, 49.12), L.steelLight, false, T)
 			for k = 0, 5 do
 				box(
 					f,
@@ -865,7 +933,7 @@ return function(): string
 
 		hut(f, "PlantRoom", 22, 34, 49.1, 57, 0, 10, L.render, T)
 		for _, x in { 25, 31 } do
-			box(f, "Louvre", V(x - 2, 2.5, 48.97), V(x + 2, 7, 49.12), L.steel, false, T)
+			box(f, "Louvre", V(x - 2, 2.5, 48.97), V(x + 2, 7, 49.12), L.steelLight, false, T)
 			for k = 0, 8 do
 				box(
 					f,
@@ -895,7 +963,7 @@ return function(): string
 			)
 		end
 		-- vent stack: a galvanised exhaust riser with seam bands and a louvred hood
-		box(f, "VentStack", V(62, -0.05, 49.1), V(68.95, 9.2, 57), L.galv, true, T)
+		box(f, "VentStack", V(62, -0.05, 49.1), V(68.95, 9.2, 57), L.unit, true, T)
 		for _, y in { 2, 4.5, 7 } do
 			box(f, "VentSeam", V(61.88, y, 48.98), V(68.9, y + 0.25, 57.12), L.steelLight, false, T)
 		end
@@ -964,17 +1032,17 @@ return function(): string
 		windowRow(f, V(-15, 0, 69.5), V(1, 0, 0), V(0, 0, -1), 4, 26, 5.5, 1.5, true, {}, T, 0.6)
 		onWall("R4Door", pf, V(0, 0.0, 78.5), V(0, 0, 1), T, 1, sd)
 		for _, x in { -9, 9 } do -- brick planters with clipped hedges by the door
-			box(f, "Planter", V(x - 3.5, -0.05, 78.6), V(x + 3.5, 1.4, 80.6), bkD, true, T)
+			box(f, "Planter", V(x - 3.5, -0.05, 78.6), V(x + 3.5, 0.75, 80.6), bkD, true, T)
 			box(
 				f,
 				"PlanterCap",
-				V(x - 3.65, 1.35, 78.45),
-				V(x + 3.65, 1.6, 80.75),
+				V(x - 3.65, 0.7, 78.45),
+				V(x + 3.65, 0.95, 80.75),
 				L.stone,
 				true,
 				T
 			)
-			box(f, "Hedge", V(x - 3.2, 1.5, 78.85), V(x + 3.2, 3.0, 80.35), L.leaf, false, T)
+			box(f, "Hedge", V(x - 3.2, 0.85, 78.85), V(x + 3.2, 1.4, 80.35), L.leaf, false, T)
 		end
 		kit("R4Condenser", pf, T * CFrame.new(-10.5, 11.94, 72) * CFrame.Angles(0, math.pi / 2, 0))
 		kit(
@@ -1041,8 +1109,8 @@ return function(): string
 					box(
 						f,
 						"Bulb",
-						p0 - V(0.16, 0.42, 0.16),
-						p0 + V(0.16, 0.01, 0.16),
+						p0 - V(0.11, 0.3, 0.11),
+						p0 + V(0.11, 0.01, 0.11),
 						L.glow,
 						false,
 						T
@@ -1062,17 +1130,6 @@ return function(): string
 				T
 			)
 			box(f, "Hedge", V(px - 3.7, 1.5, 93.15), V(px + 3.7, 3.1, 94.65), L.leaf, false, T)
-		end
-		for _, tp in { { -60, -48, 84, 92 }, { 40, 52, 58, 61.5 }, { -22, -14, 60, 66 } } do
-			box(
-				f,
-				"TarPatch",
-				V(tp[1], -0.02, tp[3]),
-				V(tp[2], 0.05, tp[4]),
-				look(hex("44474D"), "R4_Tar", Enum.Material.Slate),
-				false,
-				T
-			)
 		end
 		-- conduit runs along the side parapets on small stands
 		for _, sx in { -1, 1 } do
@@ -1101,18 +1158,12 @@ return function(): string
 		kit("R4Condenser", pf, T * CFrame.new(34, 0.5, 87))
 		kit("R4Condenser", pf, T * CFrame.new(38, 0.5, 87))
 		col("VentCol", V(32, 0, 85), V(40, 3.5, 89), T)
-		box(f, "CoolingTower", V(53, -0.05, 71), V(59, 8.8, 77), L.galv, true, T)
-		for _, y in { 1.5, 4, 6.5 } do
-			box(
-				f,
-				"TowerBand",
-				V(52.88, y, 70.88),
-				V(59.12, y + 0.3, 77.12),
-				L.steelLight,
-				false,
-				T
-			)
-		end
+		box(f, "TowerPlinth", V(52.7, -0.05, 70.7), V(59.3, 0.6, 77.3), L.steel, true, T)
+		box(f, "CoolingTower", V(53, 0.55, 71), V(59, 8.8, 77), L.unit, true, T)
+		louvreFace(f, "S", 71, 53.6, 58.4, 1.6, 7.8, T)
+		louvreFace(f, "N", 77, 53.6, 58.4, 1.6, 7.8, T)
+		louvreFace(f, "W", 53, 71.6, 76.4, 1.6, 7.8, T)
+		louvreFace(f, "E", 59, 71.6, 76.4, 1.6, 7.8, T)
 		box(f, "TowerTop", V(52.7, 8.75, 70.7), V(59.3, 10.0, 77.3), L.steel, true, T)
 		blocker("TowerRoofGuard", V(52.4, 10.0, 70.4), V(59.6, 18.0, 77.6), T)
 		kit("R4Condenser", pf, T * CFrame.new(56, 9.98, 74), 1.2)
@@ -1170,39 +1221,10 @@ return function(): string
 			end
 		end
 		-- crossing lamps, one colour per crossing so each route reads from afar: amber plank, white catwalk,
-		-- red fire-escape bridge (thin posts, no collision)
-		for _, c in { { -50.4, "FFB866" }, { 9.0, "DCE8FF" }, { 54.2, "FF5A4A" } } do
+		-- red fire-escape bridge (the map lamp, no collision)
+		for _, c in { { -50.4, "FFB866" }, { 9.0, "DCE8FF" }, { 54.2, "FFA070" } } do
 			for _, zl in { 49.7, 36.3 } do
-				local x = c[1] :: number
-				local tint = hex(c[2] :: string)
-				box(
-					f,
-					"LampPost",
-					V(x - 0.17, -0.03, zl - 0.17),
-					V(x + 0.17, 7.2, zl + 0.17),
-					L.steel,
-					false,
-					T
-				)
-				box(
-					f,
-					"LampArm",
-					V(x - 0.12, 6.95, zl - 0.12),
-					V(x + 1.4, 7.15, zl + 0.12),
-					L.steel,
-					false,
-					T
-				)
-				local head = box(
-					f,
-					"LampHead",
-					V(x + 0.9, 6.55, zl - 0.35),
-					V(x + 1.6, 7.0, zl + 0.35),
-					look(tint, nil, Enum.Material.Neon),
-					false,
-					T
-				)
-				light(head, "PointLight", 16, 1.6, tint)
+				lampPost(f, c[1] :: number, zl, 0, 0, hex(c[2] :: string), T)
 			end
 		end
 		box(secCollision, "BridgeDeck", V(55, -0.3, 36.5), V(61, 0.12, 49.5), L.none, true, T).Transparency =
@@ -1381,13 +1403,13 @@ return function(): string
 		wallBands(f, "N", 25, -21.7, -12.3, -4.6, 1.6, sd, T)
 		wallBands(f, "W", -22.5, 17.8, 24.2, -4.6, 1.6, sd, T)
 		wayLamp(f, -3.3, 29.0, hex("FFD9A0"), T)
-		wayLamp(f, 9.3, 29.0, hex("FFD9A0"), T)
+		wayLamp(f, 9.3, 29.0, hex("FFD9A0"), T, math.pi)
 		onWall("R4Door", pf, V(-17, -6.0, 17), V(0, 0, -1), T, 1, sd)
 		blocker("BulkheadGuard", V(-22.8, 4.0, 16.7), V(-11.2, 12, 25.3), T)
-		box(f, "FanHousing", V(21, -6.05, -4), V(27, 2.6, 18), L.galv, true, T)
+		box(f, "FanHousing", V(21, -6.05, -4), V(27, 2.6, 18), L.unit, true, T)
 		box(f, "FanHousingTop", V(20.8, 2.55, -4.2), V(27.2, 3.0, 18.2), L.steel, true, T)
 		for _, z in { -1, 5, 11 } do
-			box(f, "Louvre", V(20.85, -4, z), V(21.02, -0.5, z + 4), L.steel, false, T)
+			box(f, "Louvre", V(20.85, -4, z), V(21.02, -0.5, z + 4), L.steelLight, false, T)
 			for k = 0, 6 do
 				box(
 					f,
@@ -1487,13 +1509,13 @@ return function(): string
 	end
 	box(mf, "CourtFloor", V(-29.9, -6.65, -27.9), V(29.9, -6.0, 27.9), L.paver, true, I)
 	-- the games court: a painted surface with white lines (straight only) and a wall hoop per side, so the sunken
-	-- court is a place you can name; drains and puddles sit on the paint
+	-- court is a place you can name; drain grates sit on the paint
 	box(
 		mf,
 		"CourtPaint",
 		V(-26.9, -6.02, -25),
 		V(26.9, -5.93, 25),
-		look(hex("6E3B30"), "R4_Concrete", Enum.Material.Concrete),
+		look(hex("8E6A58"), "R4_Concrete", Enum.Material.Concrete),
 		false,
 		I
 	)
@@ -1602,24 +1624,10 @@ return function(): string
 			"Drain",
 			V(dp[1] - 0.7, -6.03, dp[2] - 0.7),
 			V(dp[1] + 0.7, -5.905, dp[2] + 0.7),
-			L.steel,
+			L.steelLight,
 			false,
 			I
 		)
-	end
-	for _, pd in
-		{ { -22.5, 9, 5, 3 }, { 22.5, -9, 5, 3 }, { 12, 20, 3.5, 2.2 }, { -12, -20, 3.5, 2.2 } }
-	do
-		local puddle = box(
-			mf,
-			"Puddle",
-			V(pd[1] - pd[3] / 2, -6.02, pd[2] - pd[4] / 2),
-			V(pd[1] + pd[3] / 2, -5.908, pd[2] + pd[4] / 2),
-			look(hex("2A3340")),
-			false,
-			I
-		)
-		puddle.Reflectance = 0.35
 	end
 	for _, z in { -14, 0, 14 } do
 		box(
@@ -1808,25 +1816,7 @@ return function(): string
 	-- street lamps along the alleys' street ends (glow down there in the dark)
 	for _, z in { -43, 43 } do
 		for _, x in { -76, 76 } do
-			box(
-				wf,
-				"LampPost",
-				V(x - 0.2, STREET, z - 0.2),
-				V(x + 0.2, STREET + 9, z + 0.2),
-				L.steel,
-				false,
-				I
-			)
-			local lp = box(
-				wf,
-				"LampHead",
-				V(x - 0.6, STREET + 9, z - 0.6),
-				V(x + 0.6, STREET + 9.5, z + 0.6),
-				L.glow,
-				false,
-				I
-			)
-			light(lp, "PointLight", 24, 1.6, hex("FFCF8A"))
+			lampPost(wf, x, z, STREET + 0.4, if x < 0 then 0 else math.pi, hex("FFCF8A"), I)
 		end
 	end
 	task.wait()
@@ -1834,8 +1824,13 @@ return function(): string
 	--------------------------------------------------------------------------------------------- practical lights on the map
 	for _, d in secProps:GetDescendants() do
 		if d:IsA("Model") and d.Name == "R4Door" then
-			addLamp(d, 18, 1.3) -- a warm pool on the roof round every door
+			wallLamp(
+				d.Parent :: Instance,
+				ORIGIN:Inverse() * d:GetPivot() * CFrame.new(2.3, 6.0, 0.02),
+				hex("FFD9A0")
+			)
 		elseif d:IsA("BasePart") and string.find(d.Name, "RoomGlow") then
+			d.Color = C.lit
 			light(d, "SurfaceLight", 10, 0.8, hex("F0B070"), Enum.NormalId.Top)
 		end
 	end
