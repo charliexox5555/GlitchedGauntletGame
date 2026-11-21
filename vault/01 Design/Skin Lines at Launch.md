@@ -54,5 +54,17 @@ Tier meaning (owner's brief): **Common** = reskin on the stock shape · **Rare**
 
 **New lines to make before launch: about 3** (2 Epic + the Thanksgiving line) plus 3 knife reskins, Tempest-Strike's roster, and finishing Slipframe, Kilnlock and Stacklight in Studio. Everything else is already built.
 
-## Owner's call
-_(waiting: the owner's placement for each line and the launch counts)_
+## Owner's call (2026-11-21, planning only: nothing changed in the game yet)
+
+| Tier | Launch lines | Work |
+|---|---|---|
+| Common | Prism, Redline, PopCircuit, Nitrous, Oilwake, Misprint, Faultline, Poolside (8) | none. No extra knife reskins ("one Common knife is fine"); Prism and Redline knives exist today |
+| Rare | Payload, Breakwater, Sealwork, Inkshift, Giltfold (5) | Rootglass leaves for the Season Pass, Moltframe moves up. Slipframe (built in Blender) not placed yet |
+| Epic | Playback, Sundial, Moltframe, + 1 new line (4) | improve Playback and Sundial (both in the game, 6 guns + knife each); Moltframe gets more guns and stronger effects; design 1 new Epic line |
+| Legendary | 2 new lines (owner creates) | owner's designs, later |
+| Exclusive | Ruin-Blighted, Tempest-Strike, Thanksgiving | as planned |
+| Season Pass | Rootglass (Season 1) + 1 more pass line later | Rootglass comes out of the cases |
+
+**Knives after the moves:** Common 2 (Prism, Redline), Rare 3 (Breakwater, Inkshift, Sealwork), Epic 5 (Giltfold Fan, Moltframe, Playback, PopCircuit Bat, Sundial), Legendary 0 until the new lines. Leafblade leaves with Rootglass.
+
+**Open:** where Slipframe goes (Rare), and whether Kilnlock or Stacklight (built exotics) become the new Epic line or one of the Legendaries instead of starting from scratch.
