@@ -16,6 +16,13 @@ Blender-only build of the rest of the Tempest-Strike line, per the [Line Blender
   - Audit: 0 floating, 0 z-fight, 0 inverted; open edges only on stock meshes as shipped (receiver 16 under the nose, pins 16). ADS (0.30 / 72): crescent window about 28 % of screen height, rays hit only `TS_Sight_FrontPost` and `TS_Sight_FrontDot`.
   - **Grade 9/10**: silhouette 9 (raked spine, chin, brake and skeletal stock read as a Tempest Stinger, not a reskin) · crispness 9 · layering 9 · connections 9 · ADS 9 · palette 9 · budget 10 · contract 10 (no locator or bone moved). Left as is: the stock bars stay slim and plain (like the Vandal's), stock trigger and selector kept.
 - **Export s02x** · `art-source/weapons/Skins/TempestStrike/Stinger/s02x/Stinger_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 28 MeshParts, **6,143 tris**, bones Root, Mag, Bolt, ChargingHandle, Trigger, FireSelector + **TS_VentL / TS_VentR** (blade plates, pivot at their rear end ±0.08) and **TS_Crescent** (crescent, face, pips; pivot on the AimPoint), C0 offsets in Root axes. Sights kept as `SK_Root_Sight_*` / `SK_TS_Crescent_Sight_*`. Replaced prefixes: Barrel, Bolt, ChargingHandle, CharmLoop, FireSelector, Grip, Handguard, Mag, Neon, Pins, Receiver, Sights, Stock, Trigger. One-sided re-import check (magenta, backface culling): no holes, no flipped faces, nothing inside-out. Not uploaded.
+- **s03, action glitch fix** (owner playtest 2026-11-22: "the action has a glitching part of it") (`tempest_stinger/12_s03.py`) · [sheet](out/Stinger_s03_review.png) · [close-ups](out/Stinger_s03_closeups.png) · **6,170 tris**, 66 parts.
+  - **Cause:** found with the new action sweep `tempest_line/50_action_audit.py`, which plays every stock action and tests the parts on moving bones against the Root parts, reporting contacts that aren't there at rest, plus flicker faces. `TS_BoltHydro` was a 0.0017-thick cyan strip glued to the outside of the bolt face, riding the Bolt bone. On every shot (`Stinger_Fire` frames 2–4) the bolt slides back, and the strip slid into the receiver wall at the ejection port: a cyan sliver clipping and flickering through the receiver on every round.
+  - **Fix:** the strip is gone. The cyan line is now a 0.0014-deep groove cut into the bolt's own face (cyan floor), so it never leaves the bolt.
+  - **Other actions:** Draw, Fire, Inspect, Reload and ReloadEmpty show no new contacts. The only flag is one coplanar face for one frame (Reload f43) as the stock mag passes inside the grip, hidden and the same as the stock gun.
+  - **Vent plates:** fixed plates now (the owner disliked the flare; the runtime no longer drives them). Recess shadow gap 0.003 -> 0.0015, so they read as inlays, and the `TS_VentL/R` bones are dropped.
+  - Static audit: 0 floating, 0 z-fight, 0 inverted. ADS (0.30 / 72): only `TS_Sight_FrontPost` and `TS_Sight_FrontDot` on the aim line. **Grade 9/10.**
+- **Export s03x** (supersedes s02x) · `art-source/weapons/Skins/TempestStrike/Stinger/s03x/Stinger_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 26 MeshParts, **6,170 tris**, bones Root, Mag, Bolt, ChargingHandle, Trigger, FireSelector + **TS_Crescent** only. One-sided check: no holes, no flipped faces.
 
 ## Marshal (lever-action scoped sniper)
 **Stock contract (RemasterV2 v05, 4,697 visible tris):** Muzzle (3.1977, 0, 0.2046) · AimPoint (0.1881, 0, 0.3333) on the rear lens · ScopeAxis (1.1616, 0, 0.3333) · LeftGrip (1.386, 0, -0.0132) · RightGrip origin · Eject (0.3135, 0, 0.2145) · LoadPoint (0.396, -0.055, 0.0429) · CharmPoint (0.82, 0.0678, -0.0602) · Socket_Optic (0.55, 0, 0.258) · Socket_Under (1.39, 0, -0.013) · bones Root, Lever (pivot 0.5643, 0, -0.0264), Bolt, Hammer, Trigger, Shell, Flash, Charm · receiver x 0.099–0.888, half-width 0.066 · stock rear x -1.246 · scope x 0.184–1.16. Scoped (the scope overlay sets the zoom), so no iron ADS check; the lens objects stay stock. Budget ≤ 9K.
@@ -68,14 +75,38 @@ Blender-only build of the rest of the Tempest-Strike line, per the [Line Blender
   - Audit: 0 floating, 0 z-fight, 0 open edges, 0 inverted. **Grade 9/10** (as s03; connection and proportion now follow the sheet).
 - **Export s04x** (supersedes s03x) · `art-source/weapons/Skins/TempestStrike/Knife/s04x/Knife_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 7 MeshParts, **2,464 tris**, bones Root + **TS_Katana** (pivot where the blade leaves the kunai, x 0.76, so the extension grows out of it) and **TS_Ring** (ring centre, x -0.392). One-sided check: no holes, no flipped faces.
 
+## Tempest-Strike Katana (melee, knife slot; replaces the Kunai-Katana)
+**Source:** `refs/style/Tempest-Strike Katana Reference.jpg` and the rewritten [concept](Kunai-Katana%20Concept.md). Owner on the kunai s04x (playtest, 2026-11-22): the worst of the line; "it should look like a lightsaber with the blade over the whole thing and look much better more like a katana". Brief from the Vandal session: about 4.0 studs, tsuka about a quarter, curved single-edged blade from straight segments, a water cutting edge along the whole edge, crescent tsuba, diamond-wrapped tsuka, 12-gon ring pommel, shuriken charm; bones `TS_Ring` and `TS_Charm`, no `TS_Katana`; ≤ 3.5K tris.
+
+- **s05** (`tempest_kunai/14_s05.py`, opens the stock Knife fresh) · [sheet](out/Knife_s05_review.png) (hero, rear, both sides, katana first-person `fpkat`, top) · [close-ups](out/Knife_s05_closeups.png) (guard both sides, wrap, ring and charm both sides, tip, blade, spine) · **3,080 tris**, 32 parts.
+  - **Blade:** single-edged, curving up toward the tip (spine rises 0.15 over the length), 12 stations from straight segments to a true point. One mesh, two looks: matte-black flats (TS Dark), a dark brushed-steel spine and bevel (TS Metal; bright Panel silver read as a silver blade and was dropped), and a fuller groove on each side.
+  - **Blade details:** a separate thin `TS Neon` fuller inlay (`TS_FullerInlay`) recessed in the fuller floors, and an etched lightning zigzag on the spine bevels near the guard (cyan floor).
+  - **Water edge:** `WaterEdge`, `TS Water` 40F5D4, a separate object along the whole edge from inside the tsuba to the point. Band height 0.040 at the root to 0.016 at the kissaki; its top is seated 0.006 up inside a slightly wider steel bottom, and it forms the point itself. Review renders draw it 86 % opaque; the export is plain cyan SmoothPlastic, and Studio makes the glow.
+  - **Guard and collars:** slim steel habaki; a silver seppa; a **cupped crescent tsuba** (16 facets, rim curling toward the blade: a crescent in the side and top views, a disc from behind) with a silver face; fuchi.
+  - **Tsuka:** dark core with eight crossing 45-degree leather band pairs (over-bands proud of under-bands); kashira collar with a silver band.
+  - **Pommel and charm:** a **12-facet ring pommel** (chamfered square section, hole facing the side) on a short neck. An octagonal link rests on the ring's bottom band, and a 4-point steel shuriken charm with a dark hub hangs from it.
+  - Audit: 0 floating, 0 z-fight, 0 open edges, 0 inverted. **Grade 9/10**: silhouette 9 (reads as the sheet's katana: long curved black blade with a glowing edge, crescent guard, wrapped tsuka, ring and charm) · crispness 9 · layering 9 · connections 9 · ADS n/a · palette 9 · budget 10 · contract 10.
+- **Export s05x** (supersedes s04x) · `art-source/weapons/Skins/TempestStrike/Knife/s05x/Knife_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 10 MeshParts, **3,080 tris**, bones Root + **TS_Ring** (pivot at the ring centre) and **TS_Charm** (pivot where the link rests on the ring). `TS_Katana` dropped. One-sided check: no holes, no flipped faces.
+  - **Studio note:** the exporter parents both extra joints to Root. Re-parent `TS_Charm` to the ring part if the charm should follow the ring's spin.
+- **Runtime numbers** (studs, Blender = Root part axes: +X toward the point, +Z = spine side, +Y = player-visible left; hand = RightGrip at the origin):
+  - **Overall:** x -0.867 (ring) to 3.100 (tip) = 3.97 long.
+  - **Edge faces -Z**; the spine is +Z and rises toward the tip.
+  - **Blade stations** (x, edge z, spine z, half-thickness at the shinogi): (0.272, -0.070, 0.066, 0.0215) · (0.400, -0.069, 0.067, 0.0215) · (0.700, -0.061, 0.072, 0.0205) · (1.050, -0.046, 0.083, 0.0195) · (1.400, -0.028, 0.097, 0.0185) · (1.750, -0.004, 0.116, 0.0172) · (2.100, 0.022, 0.137, 0.0160) · (2.420, 0.051, 0.160, 0.0146) · (2.680, 0.078, 0.180, 0.0134) · (2.860, 0.105, 0.195, 0.0120) · (2.980, 0.141, 0.205, 0.0098) · (3.050, 0.178, 0.212, 0.0068). The water band is the lowest 0.016–0.040 of each station.
+  - **Tip:** (3.100, 0.206), the water edge's point.
+  - **Tsuba:** x 0.262–0.326, radius 0.160 (the rim curls forward to x 0.326). Blade root inside it at x 0.272; habaki x 0.296–0.358.
+  - **Grip and pommel:** tsuka x -0.612–0.236 (wrap), kashira -0.668–-0.600, fuchi 0.222–0.264.
+  - **Ring:** centre (-0.770, 0, 0), hole axis Y, inner radius 0.066, outer 0.100, half-thickness 0.0165.
+  - **Charm:** pivot (-0.770, 0, -0.0638), the top of the ring's bottom band. Link centre z -0.0946; shuriken centre (-0.770, 0, -0.1713), radius 0.046, facing ±Y.
+  - **Locators unchanged:** BladeBase (0.364, 0, -0.0065), BladeTip (1.2714, 0, 0.0156), the stock knife's. BladeTip now sits at mid-blade; if trails or hit effects use it as the point, move it to the tip (3.100, 0, 0.206) in Studio, or ask and I'll move it in Blender.
+
 ## Hand-back summary (2026-11-22)
 | Item | Grade | Tris | Review sheet | Export |
 |---|---|---|---|---|
-| Stinger | 9 | 6,143 | [s02](out/Stinger_s02_review.png) | `Stinger/s02x/` (TS_VentL/R, TS_Crescent) |
+| Stinger | 9 | 6,170 | [s03](out/Stinger_s03_review.png) | `Stinger/s03x/` (TS_Crescent; vent bones dropped, bolt glitch fixed) |
 | Marshal | 9 | 4,432 (+92 stock lens) | [s02](out/Marshal_s02_review.png) | `Marshal/s02x/` (TS_ScopeRingRear/Front, TS_Gate; Lever stock) |
 | Bucky | 9 | 6,018 | [s02](out/Bucky_s02_review.png) | `Bucky/s02x/` (TS_PlateL/R; Pump stock) |
 | Sheriff | 9 | 5,158 | [s02](out/Sheriff_s02_review.png) | `Sheriff/s02x/` (TS_SidePlateL/R; Cylinder, Hammer stock) |
-| Kunai-Katana | 9 | 2,464 | [s04](out/Knife_s04_review.png) | `Knife/s04x/` (TS_Katana, TS_Ring) |
+| Katana (knife slot) | 9 | 3,080 | [s05](out/Knife_s05_review.png) | `Knife/s05x/` (TS_Ring, TS_Charm) |
 
 Nothing uploaded or installed. Review PNGs in `out/` are git-ignored (local only), like the Vandal's. Grades are self-grades against the handoff rubric (no blind reviewers this round).
 
