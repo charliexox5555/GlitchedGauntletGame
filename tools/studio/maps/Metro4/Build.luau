@@ -412,8 +412,18 @@ return function(): string
 	task.wait()
 
 	------------------------------------------------------------------------------------------------ trains
-	-- a metro car from Parts: skirt and bogies, white body, window band, doors and stripe in the side's paint,
-	-- roof with chamfered edges and an AC box, gangway ends or an angled cab nose. Collision: the layout box.
+	-- a metro car (v3, owner: "the wheel section and the front made in Blender"): Blender bogies (Metro4 kit) on the
+	-- rails carrying a Parts body (white, window band, stripe, doors in the side's paint, chamfered roof, AC), a sill
+	-- skirt with underframe boxes between the bogies, and a Blender cab front at a driving end (the Parts body stops
+	-- 2 short of the end there and the cab's joint plane meets it) or a gangway. Collision: the layout box (+ the nose).
+	local function recolor(m: Instance, key: string, c: Color3)
+		for _, d in m:GetDescendants() do
+			if d:IsA("BasePart") and string.find(d.Name, key, 1, true) then
+				d.Color = c
+			end
+		end
+	end
+	local RAIL_TOP = BED + 0.95
 	local function car(
 		name: string,
 		cx: number,
@@ -429,42 +439,43 @@ return function(): string
 		col(name, cx, tc, len, 10, 10, BED, T, Enum.Material.Metal)
 		local paint = look(side.paint)
 		local dark = look(side.dark)
+		local xw = cx - hx + (if noseWest then 2 else 0) -- the Parts body's ends
+		local xe = cx + hx - (if noseEast then 2 else 0)
+		for _, bx in { cx - hx + 8, cx + hx - 8 } do
+			kit("Metro4", "Bogie", f, T * CFrame.new(bx, RAIL_TOP, tc))
+		end
+		-- sill and underframe equipment between the bogies (the bogies stay in view)
 		box(
 			f,
-			"Skirt",
-			Vector3.new(cx - hx + 1, -1.2, tc - 4.4),
-			Vector3.new(cx + hx - 1, 0.3, tc + 4.4),
+			"Sill",
+			Vector3.new(cx - hx + 12.3, -0.25, tc - 4.5),
+			Vector3.new(cx + hx - 12.3, 0.3, tc + 4.5),
 			L.trainSkirt,
 			false,
 			T
 		)
-		for _, bx in { cx - hx + 8, cx + hx - 8 } do
+		for _, e in
+			{
+				{ -9.5, 4.6, 3.4, L.trainSkirt },
+				{ -2.5, 6, 3.0, L.rubber },
+				{ 5.5, 5, 3.6, L.trainSkirt },
+			}
+		do
 			box(
 				f,
-				"Bogie",
-				Vector3.new(bx - 4, BED + 1.15, tc - 3.6),
-				Vector3.new(bx + 4, -0.9, tc + 3.6),
-				L.rubber,
+				"Underframe box",
+				Vector3.new(cx + e[1] - e[2] / 2, -1.35, tc - e[3]),
+				Vector3.new(cx + e[1] + e[2] / 2, -0.25, tc + e[3]),
+				e[4],
 				false,
 				T
 			)
-			for _, rz in { tc - 2.2, tc + 2.2 } do
-				box(
-					f,
-					"Wheels",
-					Vector3.new(bx - 3, BED + 0.95, rz - 0.2),
-					Vector3.new(bx + 3, BED + 1.5, rz + 0.2),
-					L.trainSkirt,
-					false,
-					T
-				)
-			end
 		end
 		box(
 			f,
 			"Body",
-			Vector3.new(cx - hx, 0.3, tc - 4.8),
-			Vector3.new(cx + hx, 9.4, tc + 4.8),
+			Vector3.new(xw, 0.3, tc - 4.8),
+			Vector3.new(xe, 9.4, tc + 4.8),
 			L.trainBody,
 			false,
 			T
@@ -472,20 +483,22 @@ return function(): string
 		box(
 			f,
 			"Roof",
-			Vector3.new(cx - hx + 0.4, 9.4, tc - 4.2),
-			Vector3.new(cx + hx - 0.4, 10, tc + 4.2),
+			Vector3.new(xw + (if noseWest then 0 else 0.4), 9.4, tc - 4.2),
+			Vector3.new(xe - (if noseEast then 0 else 0.4), 10, tc + 4.2),
 			L.trainRoof,
 			false,
 			T
 		)
+		local rx0 = xw + (if noseWest then 0 else 0.4)
+		local rx1 = xe - (if noseEast then 0 else 0.4)
 		for _, s in { -1, 1 } do
 			-- roof edge chamfer (a wedge on the body top, sloping out)
 			wedge(
 				f,
 				"Roof chamfer",
-				Vector3.new(len - 0.8, 0.6, 0.6),
+				Vector3.new(rx1 - rx0, 0.6, 0.6),
 				T
-					* CFrame.new(cx, 9.7, tc + s * 4.5)
+					* CFrame.new((rx0 + rx1) / 2, 9.7, tc + s * 4.5)
 					* CFrame.Angles(0, if s > 0 then math.pi else 0, 0),
 				L.trainRoof
 			)
@@ -493,8 +506,8 @@ return function(): string
 			box(
 				f,
 				"Window band",
-				Vector3.new(cx - hx + 1.5, 4.4, zf),
-				Vector3.new(cx + hx - 1.5, 7.2, zf + 0.08 * s),
+				Vector3.new(xw + 1.5, 4.4, zf),
+				Vector3.new(xe - 1.5, 7.2, zf + 0.08 * s),
 				L.glass,
 				false,
 				T
@@ -502,8 +515,8 @@ return function(): string
 			box(
 				f,
 				"Stripe",
-				Vector3.new(cx - hx + 0.2, 1.8, zf),
-				Vector3.new(cx + hx - 0.2, 2.8, zf + 0.1 * s),
+				Vector3.new(xw + (if noseWest then 0 else 0.2), 1.8, zf),
+				Vector3.new(xe - (if noseEast then 0 else 0.2), 2.8, zf + 0.1 * s),
 				paint,
 				false,
 				T
@@ -548,45 +561,47 @@ return function(): string
 			false,
 			T
 		)
-		-- ends: a cab nose (angled plate + windscreen) or a gangway bellows
+		box(
+			f,
+			"AC grille",
+			Vector3.new(cx - 4.4, 11, tc - 2.4),
+			Vector3.new(cx + 4.4, 11.15, tc + 2.4),
+			L.trainSkirt,
+			false,
+			T
+		)
+		-- ends: the Blender cab (nose beyond the collision box gets its own) or a gangway bellows
 		for _, e in { { -1, noseWest }, { 1, noseEast } } do
 			local s, nose = e[1], e[2]
-			local xe = cx + s * hx
+			local xend = cx + s * hx
 			if nose then
-				wedge(
+				local joint = xend - s * 2
+				local cab = kit(
+					"Metro4",
+					"CabFront",
 					f,
-					"Cab nose",
-					Vector3.new(9.6, 6.5, 1.6),
 					T
-						* CFrame.new(xe + s * 0.8, 3.55, tc)
-						* CFrame.Angles(0, if s > 0 then -math.pi / 2 else math.pi / 2, 0),
-					L.trainBody
+						* CFrame.new(joint, 0.3, tc)
+						* CFrame.Angles(0, if s > 0 then 0 else math.pi, 0)
 				)
-				box(
-					f,
-					"Windscreen",
-					Vector3.new(math.min(xe, xe + s * 0.12), 6.8, tc - 3.6),
-					Vector3.new(math.max(xe, xe + s * 0.12), 9, tc + 3.6),
-					L.glass,
-					false,
-					T
-				)
-				box(
-					f,
-					"Cab band",
-					Vector3.new(math.min(xe, xe + s * 0.12), 1.8, tc - 3.6),
-					Vector3.new(math.max(xe, xe + s * 0.12), 2.8, tc + 3.6),
-					paint,
-					false,
-					T
-				)
+				recolor(cab, "Paint", side.paint)
+				col(name .. " nose", xend + s * 0.6, tc, 1.2, 9.6, 10, BED, T, Enum.Material.Metal)
 			else
 				box(
 					f,
 					"Gangway",
-					Vector3.new(math.min(xe, xe + s * 0.8), 1, tc - 2.8),
-					Vector3.new(math.max(xe, xe + s * 0.8), 8.2, tc + 2.8),
+					Vector3.new(math.min(xend, xend + s * 0.8), 1, tc - 2.8),
+					Vector3.new(math.max(xend, xend + s * 0.8), 8.2, tc + 2.8),
 					L.rubber,
+					false,
+					T
+				)
+				box(
+					f,
+					"End skirt",
+					Vector3.new(math.min(xend - s * 3.6, xend), -0.25, tc - 4.5),
+					Vector3.new(math.max(xend - s * 3.6, xend), 0.3, tc + 4.5),
+					L.trainSkirt,
 					false,
 					T
 				)
@@ -602,33 +617,14 @@ return function(): string
 		box(
 			f,
 			"Frame",
-			Vector3.new(67.5, -1.2, 6.4),
+			Vector3.new(67.5, -0.25, 6.4),
 			Vector3.new(82.5, 0.3, 15.6),
 			L.trainSkirt,
 			false,
 			h.T
 		)
 		for _, bx in { 71, 79 } do
-			box(
-				f,
-				"Bogie",
-				Vector3.new(bx - 2.5, BED + 1.15, 7.4),
-				Vector3.new(bx + 2.5, -0.9, 14.6),
-				L.rubber,
-				false,
-				h.T
-			)
-			for _, rz in { 8.8, 13.2 } do
-				box(
-					f,
-					"Wheels",
-					Vector3.new(bx - 2, BED + 0.95, rz - 0.2),
-					Vector3.new(bx + 2, BED + 1.5, rz + 0.2),
-					L.trainSkirt,
-					false,
-					h.T
-				)
-			end
+			kit("Metro4", "Bogie", f, h.T * CFrame.new(bx, RAIL_TOP, 11))
 		end
 		box(
 			f,
@@ -674,15 +670,38 @@ return function(): string
 	-------------------------------------------------------------------------------------------- footbridge
 	local bridge = folder(secStructure, "Footbridge")
 	box(bridge, "Deck", Vector3.new(-3, 13, -38), Vector3.new(3, 14, 38), L.yellow, true)
-	for _, x in { -2.6, 2.6 } do
+	-- v3 (owner: "floating columns under the bridge"): plate girders (web + bottom flange + stiffeners) that sit on
+	-- crossheads, and each crosshead sits on its column cap with knee braces, so every member carries the next
+	for _, sx in { -1, 1 } do
+		local wa, wb = if sx > 0 then 2.45 else -2.75, if sx > 0 then 2.75 else -2.45
 		box(
 			bridge,
-			"Girder",
-			Vector3.new(x - 0.4, 11.5, -38),
-			Vector3.new(x + 0.4, 13, 38),
+			"Girder web",
+			Vector3.new(wa, 11.25, -38),
+			Vector3.new(wb, 13, 38),
 			L.yellowDark,
 			false
 		)
+		local fa, fb = if sx > 0 then 2.0 else -3.2, if sx > 0 then 3.2 else -2.0
+		box(
+			bridge,
+			"Girder flange",
+			Vector3.new(fa, 10.95, -38),
+			Vector3.new(fb, 11.25, 38),
+			L.yellowDark,
+			false
+		)
+		for z = -36, 36, 6 do
+			local ta, tb = if sx > 0 then 2.75 else -2.95, if sx > 0 then 2.95 else -2.75
+			box(
+				bridge,
+				"Stiffener",
+				Vector3.new(ta, 11.25, z - 0.12),
+				Vector3.new(tb, 12.96, z + 0.12),
+				L.yellowDark,
+				false
+			)
+		end
 	end
 	-- side parapets (once, for both halves): the east side is open where A's stair leaves (z 32..38), the west
 	-- side where B's does (z -38..-32); the rail caps stop short of the end caps
@@ -764,34 +783,60 @@ return function(): string
 		)
 	end
 	for _, h in halves do
-		-- columns (on the platform, under the deck and the landing), parapets, the stair down into the concourse
-		box(
-			bridge,
-			"Column",
-			Vector3.new(-1, 0, 24),
-			Vector3.new(1, 11.5, 26),
-			L.yellowDark,
-			true,
-			h.T
-		)
-		box(
-			bridge,
-			"Column foot",
-			Vector3.new(-1.6, 0, 23.4),
-			Vector3.new(1.6, 0.6, 26.6),
-			L.concreteDark,
-			false,
-			h.T
-		)
-		box(
-			bridge,
-			"Column",
-			Vector3.new(-0.6, 0, 36.4),
-			Vector3.new(0.6, 11.5, 37.6),
-			L.yellowDark,
-			true,
-			h.T
-		)
+		-- columns (on the platform, under the deck and the landing): foot, column, cap, crosshead under both girder
+		-- flanges, knee braces between column and crosshead; then parapets and the stair down into the concourse
+		for _, c in { { 25, 1.0 }, { 37, 0.8 } } do
+			local cz, r = c[1], c[2]
+			box(
+				bridge,
+				"Column foot",
+				Vector3.new(-r - 0.6, 0, cz - r - 0.6),
+				Vector3.new(r + 0.6, 0.6, cz + r + 0.6),
+				L.concreteDark,
+				false,
+				h.T
+			)
+			box(
+				bridge,
+				"Column",
+				Vector3.new(-r, 0.6, cz - r),
+				Vector3.new(r, 9.6, cz + r),
+				L.yellowDark,
+				true,
+				h.T
+			)
+			box(
+				bridge,
+				"Column cap",
+				Vector3.new(-r - 0.3, 9.6, cz - r - 0.3),
+				Vector3.new(r + 0.3, 10.0, cz + r + 0.3),
+				L.yellowDark,
+				false,
+				h.T
+			)
+			box(
+				bridge,
+				"Crosshead",
+				Vector3.new(-3.4, 10.0, cz - r),
+				Vector3.new(3.4, 10.95, cz + r),
+				L.yellow,
+				false,
+				h.T
+			)
+			for _, sx in { -1, 1 } do
+				-- knee: flat top under the crosshead, vertical face on the column, sloping away underneath
+				local p = Vector3.new(sx * (r + 0.8), 9.2, cz)
+				part(
+					bridge,
+					"Knee",
+					Vector3.new(2 * r - 0.2, 1.6, 1.6),
+					h.T * CFrame.lookAt(p, p + Vector3.new(sx, 0, 0)) * CFrame.Angles(0, 0, math.pi),
+					L.yellowDark,
+					false,
+					"WedgePart"
+				)
+			end
+		end
 		box(
 			bridge,
 			"Parapet",
@@ -845,6 +890,15 @@ return function(): string
 				false,
 				h.T
 			)
+			box(
+				bridge,
+				"Riser",
+				Vector3.new(x1 - 0.12, math.max(0, k - 1.4), 32.3),
+				Vector3.new(x1, k - 0.8, 37.7),
+				L.yellowDark,
+				false,
+				h.T
+			)
 		end
 		local ang = math.atan2(14, 28)
 		local slen = math.sqrt(28 * 28 + 14 * 14)
@@ -894,7 +948,7 @@ return function(): string
 		end
 		return 26
 	end
-	local TRUSS = { -115, -90, -60, -30, 0, 30, 60, 90, 115 }
+	local TRUSS = { -114, -90, -60, -30, 0, 30, 60, 90, 114 } -- the end trusses stand over the end columns (v3)
 	for _, x in TRUSS do
 		for i = 1, #P - 1 do
 			local a, b = P[i], P[i + 1]
@@ -960,7 +1014,7 @@ return function(): string
 	end
 	for _, h in halves do
 		-- platform columns (z 25) up to the bottom chord, with foot and capital (solid: they're cover)
-		for _, x in { -115 + 1, -90, -60, -30, 30, 60, 90, 115 - 1 } do
+		for _, x in { -114, -90, -60, -30, 30, 60, 90, 114 } do
 			local top = roofY(25) - 2.6
 			box(
 				hall,
@@ -1044,9 +1098,9 @@ return function(): string
 		for _, x in TRUSS do
 			-- the end pilasters reach 0.2 past the wall ends (no shared end face)
 			local xa, xb = x - 1, x + 1
-			if x >= 115 then
+			if x >= 114 then
 				xa, xb = 113, 115.2
-			elseif x <= -115 then
+			elseif x <= -114 then
 				xa, xb = -115.2, -113
 			end
 			box(
@@ -1064,6 +1118,10 @@ return function(): string
 
 	--------------------------------------------------------------------------------------- concourse blocks
 	local blocks = folder(secStructure, "Concourse")
+	-- crates (v3): the shared Blender crate kit (Props: CrateA / CrateB, 5 x 5 units in four heights) set square to
+	-- the grid (owner: "organised, even, lined up", so no random tilts); the invisible body is the collision
+	local CRATE_KEY = { [3.5] = "35", [4.25] = "425", [5] = "5", [6] = "6" }
+	local crateN = 0
 	local function crate(
 		parent: Instance,
 		name: string,
@@ -1074,36 +1132,39 @@ return function(): string
 		y0: number,
 		hh: number,
 		T: CFrame,
-		tilt: number?
+		_tilt: number?
 	)
-		local cf = T * CFrame.new(cx, y0 + hh / 2, cz) * CFrame.Angles(0, math.rad(tilt or 0), 0)
+		local cf = T * CFrame.new(cx, y0 + hh / 2, cz)
 		local body = part(parent, name, Vector3.new(sx, hh, sz), cf, L.plank, true)
-		body.Material = Enum.Material.WoodPlanks
-		for _, a in { -1, 1 } do
-			for _, b in { -1, 1 } do
-				part(
+		body.Transparency = 1
+		body.CastShadow = false
+		local key = CRATE_KEY[hh]
+		assert(key, "no crate kit height " .. hh)
+		local nx, nz = math.max(1, math.round(sx / 5)), math.max(1, math.round(sz / 5))
+		local ux, uz = sx / nx, sz / nz
+		for i = 1, nx do
+			for j = 1, nz do
+				crateN += 1
+				local style = if (crateN * 7 + i + j) % 3 == 0 then "B" else "A"
+				local m = kit(
+					"Props",
+					"Crate" .. style .. "_" .. key,
 					parent,
-					"Batten",
-					Vector3.new(0.7, hh - 0.04, 0.7),
-					cf * CFrame.new(a * (sx / 2 - 0.2), 0, b * (sz / 2 - 0.2)),
-					L.plankDark
+					T
+						* CFrame.new(
+							cx - sx / 2 + (i - 0.5) * ux + (i - (nx + 1) / 2) * 0.06,
+							y0,
+							cz - sz / 2 + (j - 0.5) * uz + (j - (nz + 1) / 2) * 0.06
+						)
+						* CFrame.Angles(0, math.rad(90 * ((crateN + i) % 4)), 0),
+					"Crate"
 				)
+				local sc = math.min(ux, uz) / 5
+				if sc < 0.9 then -- (4.8 footprints keep the full 5-stud crate: 0.1 overhang beats a lower top)
+					m:ScaleTo(sc)
+				end
 			end
 		end
-		part(
-			parent,
-			"Lid rim",
-			Vector3.new(sx + 0.1, 0.32, sz + 0.1),
-			cf * CFrame.new(0, hh / 2 - 0.22, 0),
-			L.plankDark
-		)
-		part(
-			parent,
-			"Band",
-			Vector3.new(sx + 0.1, 0.32, sz + 0.1),
-			cf * CFrame.new(0, -hh / 2 + 0.6, 0),
-			L.plankDark
-		)
 	end
 	for _, h in halves do
 		local T = h.T
@@ -1508,9 +1569,12 @@ return function(): string
 			T * CFrame.new(sx0 - 1.2, 6.35, 51.15) * CFrame.Angles(0, math.pi / 2, 0),
 			paint
 		)
-		-- kiosk (spawn screen): a counter body in the side's paint, a canopy, a menu panel (no text)
+		-- kiosk (spawn screen), v3: stone plinth and corner posts, walls in the side's paint with framed lower panels,
+		-- a framed serving hatch (shutter box, mullions, counter on brackets), side windows, a framed back door with a
+		-- kick plate, a louvred vent, a stone string course, the render fascia, a canopy with chamfered edges
 		local ki = folder(blocks, "Kiosk" .. h.tag)
 		col("Kiosk" .. h.tag, 0, 77.5, 20, 6, 10, 0, T, Enum.Material.Wood)
+		local stone = L.stone
 		box(
 			ki,
 			"Plinth",
@@ -1521,25 +1585,192 @@ return function(): string
 			T
 		)
 		box(ki, "Body", Vector3.new(-10, 0.6, 74.5), Vector3.new(10, 7.5, 80.5), paint, false, T)
+		for _, cx in { -1, 1 } do
+			for _, cz in { -1, 1 } do
+				local x0 = if cx > 0 then 9.15 else -10.15
+				local z0 = if cz > 0 then 79.65 else 74.35
+				box(
+					ki,
+					"Corner post",
+					Vector3.new(x0, 0.6, z0),
+					Vector3.new(x0 + 1, 7.5, z0 + 1),
+					stone,
+					false,
+					T
+				)
+			end
+		end
 		box(
 			ki,
-			"Counter",
-			Vector3.new(-8, 3.2, 74.2),
-			Vector3.new(8, 3.6, 74.6),
-			L.plankDark,
+			"String course",
+			Vector3.new(-10.2, 7.5, 74.3),
+			Vector3.new(10.2, 7.8, 80.7),
+			stone,
 			false,
 			T
 		)
-		box(ki, "Hatch", Vector3.new(-7, 3.6, 74.4), Vector3.new(7, 6.6, 74.52), L.glass, false, T)
 		box(
 			ki,
 			"Upper",
-			Vector3.new(-10, 7.5, 74.5),
+			Vector3.new(-10, 7.8, 74.5),
 			Vector3.new(10, 9.4, 80.5),
 			L.render,
 			false,
 			T
 		)
+		-- front: hatch (dark interior behind a stone frame), shutter box, mullions, counter on three brackets
+		box(ki, "Hatch", Vector3.new(-7, 3.6, 74.42), Vector3.new(7, 6.6, 74.5), L.glass, false, T)
+		box(
+			ki,
+			"Hatch jamb",
+			Vector3.new(-7.5, 3.3, 74.2),
+			Vector3.new(-7, 7.0, 74.5),
+			stone,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Hatch jamb",
+			Vector3.new(7, 3.3, 74.2),
+			Vector3.new(7.5, 7.0, 74.5),
+			stone,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Shutter box",
+			Vector3.new(-7.6, 6.6, 74.05),
+			Vector3.new(7.6, 7.3, 74.5),
+			paintDark,
+			false,
+			T
+		)
+		for _, mx in { -7 / 3, 7 / 3 } do
+			box(
+				ki,
+				"Mullion",
+				Vector3.new(mx - 0.12, 3.6, 74.32),
+				Vector3.new(mx + 0.12, 6.6, 74.5),
+				paintDark,
+				false,
+				T
+			)
+		end
+		box(
+			ki,
+			"Counter",
+			Vector3.new(-7.7, 3.25, 73.5),
+			Vector3.new(7.7, 3.6, 74.5),
+			L.plankDark,
+			false,
+			T
+		)
+		for _, bx in { -6, 0, 6 } do
+			local p = Vector3.new(bx, 2.65, 74.0)
+			part(
+				ki,
+				"Counter bracket",
+				Vector3.new(0.3, 1.2, 1.0),
+				T * CFrame.lookAt(p, p + Vector3.new(0, 0, -1)) * CFrame.Angles(0, 0, math.pi),
+				paintDark
+			)
+		end
+		for i, px in { { -9, -3.4 }, { -2.6, 2.6 }, { 3.4, 9 } } do
+			box(
+				ki,
+				"Panel",
+				Vector3.new(px[1], 1.1, 74.42),
+				Vector3.new(px[2], 2.75, 74.5),
+				paintDark,
+				false,
+				T
+			)
+			local _ = i
+		end
+		-- side windows (x faces)
+		for _, sx in { -1, 1 } do
+			-- the frame stands 0.12 proud, the glass 0.2 (in front of it, smaller: the frame shows round it)
+			local xa, xb = if sx > 0 then 10 else -10.12, if sx > 0 then 10.12 else -10
+			local ga, gb = if sx > 0 then 10 else -10.2, if sx > 0 then 10.06 else -10
+			box(
+				ki,
+				"Window frame",
+				Vector3.new(xa, 3.7, 76),
+				Vector3.new(xb, 6.8, 79),
+				stone,
+				false,
+				T
+			)
+			box(
+				ki,
+				"Window",
+				Vector3.new(ga, 4.0, 76.3),
+				Vector3.new(gb + (if sx > 0 then 0.14 else 0), 6.5, 78.7), -- +x: 10 .. 10.2
+				L.glass,
+				false,
+				T
+			)
+		end
+		-- back: framed door with a light and a kick plate, louvred vent
+		box(
+			ki,
+			"Door frame",
+			Vector3.new(-6.5, 0.6, 80.5),
+			Vector3.new(-1.5, 7.2, 80.7),
+			stone,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Door",
+			Vector3.new(-6, 0.6, 80.55),
+			Vector3.new(-2, 6.8, 80.85),
+			paintDark,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Door light",
+			Vector3.new(-5.2, 4.4, 80.85),
+			Vector3.new(-2.8, 6.0, 80.92),
+			L.glass,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Kick plate",
+			Vector3.new(-5.9, 0.7, 80.85),
+			Vector3.new(-2.1, 1.5, 80.9),
+			L.steelLight,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Vent frame",
+			Vector3.new(2, 4.3, 80.5),
+			Vector3.new(7, 6.7, 80.68),
+			L.steelLight,
+			false,
+			T
+		)
+		for k = 0, 4 do
+			local y = 4.6 + k * 0.42
+			box(
+				ki,
+				"Louvre",
+				Vector3.new(2.3, y, 80.68),
+				Vector3.new(6.7, y + 0.18, 80.8),
+				L.steel,
+				false,
+				T
+			)
+		end
 		box(
 			ki,
 			"Canopy",
@@ -1549,7 +1780,7 @@ return function(): string
 			false,
 			T
 		)
-		-- carved canopy edges (chamfers along the long sides) and a stone plinth
+		-- carved canopy edges (chamfers along the long sides)
 		wedge(ki, "Canopy edge", Vector3.new(21, 0.4, 0.6), T * CFrame.new(0, 10, 74.1), paintDark)
 		wedge(
 			ki,
@@ -1558,59 +1789,16 @@ return function(): string
 			T * CFrame.new(0, 10, 80.9) * CFrame.Angles(0, math.pi, 0),
 			paintDark
 		)
-		box(
-			ki,
-			"Back door",
-			Vector3.new(-6, 0.3, 80.5),
-			Vector3.new(-2, 6.8, 80.62),
-			paintDark,
-			false,
-			T
-		)
-		box(
-			ki,
-			"Back vent",
-			Vector3.new(2, 4.5, 80.5),
-			Vector3.new(7, 6.5, 80.6),
-			L.steelLight,
-			false,
-			T
-		)
 		-- (no kick strip: the plinth is the foot)
 		-- vending pairs (one red, one in the side's paint), benches, gates, planter, crates, luggage cart
 		local pr = folder(secProps, "Concourse" .. h.tag)
-		for _, v in { { -15, 30, false }, { 75, 31, true } } do
+		for _, v in { { -15, 30 }, { 75, 31 } } do
 			col("Vending", v[1], v[2], 6, 3, 9, 0, T, Enum.Material.Metal)
 			for i, dx in { -1.5, 1.5 } do
-				local body = if i == 1 then look(hex("9C4A3F")) else paint
-				box(
-					pr,
-					"Vending",
-					Vector3.new(v[1] + dx - 1.45, 0, v[2] - 1.5),
-					Vector3.new(v[1] + dx + 1.45, 9, v[2] + 1.5),
-					body,
-					false,
-					T
-				)
-				local face = if v[3] then v[2] - 1.5 else v[2] - 1.5
-				box(
-					pr,
-					"Vending glass",
-					Vector3.new(v[1] + dx - 1.1, 3, face - 0.1),
-					Vector3.new(v[1] + dx + 1.1, 8, face),
-					L.glass,
-					false,
-					T
-				)
-				box(
-					pr,
-					"Vending tray",
-					Vector3.new(v[1] + dx - 1.1, 1, face - 0.2),
-					Vector3.new(v[1] + dx + 1.1, 2, face),
-					L.rubber,
-					false,
-					T
-				)
+				local m = kit("Props", "Vending", pr, T * CFrame.new(v[1] + dx, 0, v[2]))
+				if i == 2 then
+					recolor(m, "Paint", h.side.paint)
+				end
 			end
 		end
 		for _, bx in { -45, 45 } do
@@ -1670,62 +1858,29 @@ return function(): string
 			end
 		end
 		col("Ticket gates", -35, 45, 15, 3, 3.5, 0, T, Enum.Material.Metal)
-		for gx = -41.5, -28.5, 4.33 do
-			box(
-				pr,
-				"Gate",
-				Vector3.new(gx - 0.6, 0, 43.5),
-				Vector3.new(gx + 0.6, 3.5, 46.5),
-				L.steelLight,
-				false,
-				T
+		for k = 0, 3 do
+			local gx = -41.5 + k * 13 / 3
+			recolor(
+				kit("Metro4", "TicketGate", pr, T * CFrame.new(gx, 0, 45)),
+				"Paint",
+				h.side.paint
 			)
-			box(
-				pr,
-				"Gate top",
-				Vector3.new(gx - 0.7, 3.2, 43.4),
-				Vector3.new(gx + 0.7, 3.55, 46.6),
-				paint,
-				false,
-				T
-			)
-		end
-		for gx = -39.3, -30.6, 4.33 do
-			box(
-				pr,
-				"Paddle",
-				Vector3.new(gx - 1.5, 1.5, 44.9),
-				Vector3.new(gx + 1.5, 3, 45.1),
-				paint,
-				false,
-				T
-			)
+			if k < 3 then
+				kit("Metro4", "GatePaddles", pr, T * CFrame.new(gx + 13 / 6, 0, 45))
+			end
 		end
 		col("Planter", 30, 75, 10, 10, 3.5, 0, T, Enum.Material.Concrete)
-		box(
-			pr,
-			"Planter wall",
-			Vector3.new(25, 0, 70),
-			Vector3.new(35, 3.5, 70.8),
-			L.concrete,
-			false,
-			T
-		)
-		box(
-			pr,
-			"Planter wall",
-			Vector3.new(25, 0, 79.2),
-			Vector3.new(35, 3.5, 80),
-			L.concrete,
-			false,
-			T
-		)
+		-- planter (v3, the RIVALS recipe: a Pavement body with a Concrete cap ring, LeafyGrass hedge)
+		local pave = { color = hex("A29C91"), mat = Enum.Material.Pavement }
+		local capL = { color = hex("C2BCB0"), mat = Enum.Material.Concrete }
+		box(pr, "Planter wall", Vector3.new(25, 0, 70), Vector3.new(35, 3.1, 70.8), pave, false, T)
+		box(pr, "Planter wall", Vector3.new(25, 0, 79.2), Vector3.new(35, 3.1, 80), pave, false, T)
 		box(
 			pr,
 			"Planter wall",
 			Vector3.new(25, 0, 70.8),
-			Vector3.new(25.8, 3.4, 79.2),
-			L.concrete,
+			Vector3.new(25.8, 3.1, 79.2),
+			pave,
 			false,
 			T
 		)
@@ -1733,21 +1888,84 @@ return function(): string
 			pr,
 			"Planter wall",
 			Vector3.new(34.2, 0, 70.8),
-			Vector3.new(35, 3.4, 79.2),
-			L.concrete,
+			Vector3.new(35, 3.1, 79.2),
+			pave,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Planter cap",
+			Vector3.new(24.85, 3.1, 69.85),
+			Vector3.new(35.15, 3.5, 70.95),
+			capL,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Planter cap",
+			Vector3.new(24.85, 3.1, 79.05),
+			Vector3.new(35.15, 3.5, 80.15),
+			capL,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Planter cap",
+			Vector3.new(24.85, 3.1, 70.95),
+			Vector3.new(25.95, 3.5, 79.05),
+			capL,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Planter cap",
+			Vector3.new(34.05, 3.1, 70.95),
+			Vector3.new(35.15, 3.5, 79.05),
+			capL,
 			false,
 			T
 		)
 		box(pr, "Soil", Vector3.new(25.8, 0, 70.8), Vector3.new(34.2, 2.9, 79.2), L.soil, false, T)
-		for i, b in { { 28, 73, 4, 20 }, { 31.5, 76.5, 4.6, 55 }, { 29, 77.5, 3.2, 35 } } do
-			part(
+		-- a clipped box hedge (owner 2026-11-20: the faceted low-poly tree and bush "don't look good"): Parts in
+		-- LeafyGrass (a real leaf texture), square-cut sides, a slightly narrower top course with chamfered edges
+		local leaf = { color = hex("5C7A4A"), mat = Enum.Material.LeafyGrass }
+		local leafTop = { color = hex("688A52"), mat = Enum.Material.LeafyGrass }
+		box(
+			pr,
+			"Hedge",
+			Vector3.new(25.95, 2.8, 70.95),
+			Vector3.new(34.05, 5.3, 79.05),
+			leaf,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Hedge top",
+			Vector3.new(26.4, 5.3, 71.4),
+			Vector3.new(33.6, 5.9, 78.6),
+			leafTop,
+			false,
+			T
+		)
+		for _, e in
+			{
+				{ 30, 71.15, 7.2, 0 },
+				{ 30, 78.85, 7.2, math.pi },
+				{ 26.15, 75, 7.2, math.pi / 2 },
+				{ 33.85, 75, 7.2, -math.pi / 2 },
+			}
+		do
+			wedge(
 				pr,
-				"Bush",
-				Vector3.new(b[3], b[3] * 0.8, b[3]),
-				T
-					* CFrame.new(b[1], 2.9 + b[3] * 0.25, b[2])
-					* CFrame.Angles(math.rad(12), math.rad(b[4]), math.rad(-9)),
-				if i == 2 then L.bushDark else L.bush
+				"Hedge edge",
+				Vector3.new(e[3], 0.6, 0.5),
+				T * CFrame.new(e[1], 5.6, e[2]) * CFrame.Angles(0, e[4], 0),
+				leafTop
 			)
 		end
 		crate(pr, "Crate stack", -25, 50, 5, 10, 0, 6, T)
@@ -1757,48 +1975,9 @@ return function(): string
 		crate(pr, "Crates", 15, 52.5, 10, 5, 0, 3.5, T)
 		crate(pr, "Shop crates", 45, 65, 5, 10, 0, 3.5, T, 2)
 		crate(pr, "Back crates", -65, 92.5, 10, 5, 0, 3.5, T, -2)
-		-- luggage cart: a low platform with suitcases in mixed colours
+		-- luggage cart (kit): frame on casters, push handle, suitcases
 		col("Luggage cart", -40, 90, 10, 5, 3.5, 0, T, Enum.Material.Metal)
-		box(
-			pr,
-			"Cart deck",
-			Vector3.new(-45, 0.6, 87.5),
-			Vector3.new(-35, 1.1, 92.5),
-			L.steelLight,
-			false,
-			T
-		)
-		for _, w in { { -44, 88 }, { -36, 88 }, { -44, 92 }, { -36, 92 } } do
-			box(
-				pr,
-				"Cart wheel",
-				Vector3.new(w[1] - 0.4, 0, w[2] - 0.4),
-				Vector3.new(w[1] + 0.4, 0.6, w[2] + 0.4),
-				L.rubber,
-				false,
-				T
-			)
-		end
-		for i, s in
-			{
-				{ -42.5, 89.5, 4, 2.4, "8C4A3F" },
-				{ -38, 89.6, 3.4, 2, "A88A4E" },
-				{ -41, 91.4, 3.2, 1.9, "4A6E9A" },
-				{ -37.2, 91.6, 2.6, 2.3, "8E6A4A" },
-			}
-		do
-			local hgt = s[4]
-			box(
-				pr,
-				"Suitcase",
-				Vector3.new(s[1] - s[3] / 2, 1.1, s[2] - 0.9),
-				Vector3.new(s[1] + s[3] / 2, 1.1 + hgt, s[2] + 0.9),
-				look(hex(s[5])),
-				false,
-				T
-			)
-			local _ = i
-		end
+		kit("Props", "LuggageCart", pr, T * CFrame.new(-40, 0, 90))
 	end
 	task.wait()
 

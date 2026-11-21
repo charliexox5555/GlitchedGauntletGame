@@ -1166,9 +1166,12 @@ return function(): string
 	task.wait()
 
 	------------------------------------------------------------------------------------------- crates
-	-- a crate unit: plank body (it is the collision), four corner battens and a lid rim, both 0.1 proud;
-	-- a skid under it. Stacks are units on top of each other, the upper one turned a few degrees.
+	-- crates (2026-11-20, owner: "the boxes" weren't professional): the shared Blender crate kit (MapKit.Props,
+	-- tools/blender/maps_metro4/metro4_pieces.py: CrateA / CrateB, 5 x 5 units in four heights) square to the grid;
+	-- the invisible body is the collision. 10-long boxes are two units 0.06 apart.
 	local crates = folder(props, "Crates")
+	local CRATE_KEY = { [3.5] = "35", [4.25] = "425", [5] = "5", [6] = "6" }
+	local crateN = 0
 	local function crate(
 		name: string,
 		cx: number,
@@ -1178,36 +1181,41 @@ return function(): string
 		y0: number,
 		h: number,
 		T: CFrame,
-		tilt: number?
+		_tilt: number?
 	)
-		local cf = T * CFrame.new(cx, y0 + h / 2, cz) * CFrame.Angles(0, math.rad(tilt or 0), 0)
-		local body = part(crates, name, Vector3.new(sx, h, sz), cf, L.plank, true)
-		body.Material = Enum.Material.WoodPlanks
-		for _, cx2 in { -1, 1 } do
-			for _, cz2 in { -1, 1 } do
-				part(
+		local body = part(
+			crates,
+			name,
+			Vector3.new(sx, h, sz),
+			T * CFrame.new(cx, y0 + h / 2, cz),
+			L.plank,
+			true
+		)
+		body.Transparency = 1
+		body.CastShadow = false
+		local key = CRATE_KEY[h]
+		assert(key, "no crate kit height " .. h)
+		local nx, nz = math.max(1, math.round(sx / 5)), math.max(1, math.round(sz / 5))
+		local ux, uz = sx / nx, sz / nz
+		for i = 1, nx do
+			for j = 1, nz do
+				crateN += 1
+				local style = if (crateN * 5 + i + j) % 3 == 0 then "B" else "A"
+				kit(
+					"Props",
+					"Crate" .. style .. "_" .. key,
 					crates,
-					"Batten",
-					Vector3.new(0.7, h - 0.04, 0.7),
-					cf * CFrame.new(cx2 * (sx / 2 - 0.2), 0, cz2 * (sz / 2 - 0.2)),
-					L.plankDark
+					T
+						* CFrame.new(
+							cx - sx / 2 + (i - 0.5) * ux + (i - (nx + 1) / 2) * 0.06,
+							y0,
+							cz - sz / 2 + (j - 0.5) * uz + (j - (nz + 1) / 2) * 0.06
+						)
+						* CFrame.Angles(0, math.rad(90 * ((crateN + i) % 4)), 0),
+					"Crate"
 				)
 			end
 		end
-		part(
-			crates,
-			"Lid rim",
-			Vector3.new(sx + 0.1, 0.32, sz + 0.1),
-			cf * CFrame.new(0, h / 2 - 0.22, 0),
-			L.plankDark
-		)
-		part(
-			crates,
-			"Band",
-			Vector3.new(sx + 0.1, 0.32, sz + 0.1),
-			cf * CFrame.new(0, -h / 2 + 0.6, 0),
-			L.plankDark
-		)
 	end
 	for _, h in halves do
 		local t = h.tag
@@ -1245,14 +1253,14 @@ return function(): string
 					boll,
 					"Wheel stop cap",
 					Vector3.new(1.6, 0.5, 0.8),
-					h.T * CFrame.new(63.3, 1.85, z - 0.4) * CFrame.Angles(0, math.pi, 0),
+					h.T * CFrame.new(63.3, 1.85, z - 0.4), -- tall side toward the middle: a ridge, not a V
 					L.concreteDark
 				)
 				wedge(
 					boll,
 					"Wheel stop cap",
 					Vector3.new(1.6, 0.5, 0.8),
-					h.T * CFrame.new(63.3, 1.85, z + 0.4),
+					h.T * CFrame.new(63.3, 1.85, z + 0.4) * CFrame.Angles(0, math.pi, 0),
 					L.concreteDark
 				)
 			end
@@ -1261,23 +1269,15 @@ return function(): string
 	end
 	local pallets = folder(props, "Pallets")
 	for _, h in halves do
-		for i, p in { { 13.5, 23, 0 }, { 13.5, 23, 0.6 } } do
-			local cf = h.T * CFrame.new(p[1], p[3], p[2]) * CFrame.Angles(0, math.rad(4 * i), 0)
-			for _, dz in { -1.6, 0, 1.6 } do
-				part(
-					pallets,
-					"Pallet runner",
-					Vector3.new(3.6, 0.4, 0.5),
-					cf * CFrame.new(0, 0.2, dz),
-					L.plankDark
-				)
-			end
-			part(
+		for i, y in { 0, 0.6 } do
+			kit(
+				"Props",
+				"Pallet",
 				pallets,
-				"Pallet deck",
-				Vector3.new(3.6, 0.2, 3.8),
-				cf * CFrame.new(0, 0.5, 0),
-				L.plank
+				h.T
+					* CFrame.new(13.5, y, 23)
+					* CFrame.Angles(0, if i == 2 then math.pi / 2 else 0, 0),
+				"Pallet"
 			)
 		end
 	end
@@ -1476,53 +1476,20 @@ return function(): string
 	bound(Vector3.new(-67, -10, 92.1), Vector3.new(66.4, 60, 94.1)) -- north
 	bound(Vector3.new(-67, -10, -94.1), Vector3.new(66.4, 60, -92.1)) -- south
 	bound(Vector3.new(-67, 60, -94.5), Vector3.new(66.4, 62, 94.5)) -- ceiling
-	-- west bound dressing: a run of concrete barrier blocks with a yellow-black band (the yard edge)
+	-- west bound dressing: a run of concrete safety barriers (Props kit: stepped profile, yellow band, forklift
+	-- slots) along the yard edge and the south end (2026-11-20 touch-up: the slab-and-wedge blocks looked crude)
 	local barrier = folder(secProps, "Yard barrier")
 	for z = -90, 90, 4 do
-		part(
+		kit(
+			"Props",
+			"Barrier",
 			barrier,
-			"Barrier block",
-			Vector3.new(1.4, 2.2, 3.7),
-			CFrame.new(-65.9, 1.1, z),
-			L.concrete
-		)
-		wedge(
-			barrier,
-			"Barrier taper",
-			Vector3.new(3.7, 0.5, 0.35),
-			CFrame.new(-65.375, 2.45, z) * CFrame.Angles(0, -math.pi / 2, 0),
-			L.concrete
-		)
-		part(
-			barrier,
-			"Barrier band",
-			Vector3.new(0.08, 0.5, 3.7),
-			CFrame.new(-65.16, 1.5, z),
-			L.yellow
+			CFrame.new(-65.9, 0, z) * CFrame.Angles(0, math.pi / 2, 0),
+			"Barrier"
 		)
 	end
 	for x = -63, -42, 4 do
-		part(
-			barrier,
-			"Barrier block",
-			Vector3.new(3.7, 2.2, 1.4),
-			CFrame.new(x, 1.1, -92.9),
-			L.concrete
-		)
-		wedge(
-			barrier,
-			"Barrier taper",
-			Vector3.new(3.7, 0.5, 0.35),
-			CFrame.new(x, 2.45, -92.375) * CFrame.Angles(0, math.pi, 0),
-			L.concrete
-		)
-		part(
-			barrier,
-			"Barrier band",
-			Vector3.new(3.7, 0.5, 0.08),
-			CFrame.new(x, 1.5, -92.16),
-			L.yellow
-		)
+		kit("Props", "Barrier", barrier, CFrame.new(x, 0, -92.9), "Barrier")
 	end
 	-- floodlight masts outside the play box (the yard behind the barrier, the berth): tall silhouettes that
 	-- frame the lanes. Plinth with a chamfered top, a square pole, a carved head frame, two lamp housings.

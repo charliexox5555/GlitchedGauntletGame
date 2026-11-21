@@ -1,0 +1,950 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Barrier": {
+   "props": {},
+   "parts": [
+    "Barrier_B_Concrete",
+    "Barrier_B_Band",
+    "Barrier_B_Dark"
+   ]
+  },
+  "CrateA_35": {
+   "props": {},
+   "parts": [
+    "CrateA_35_P_WoodDark",
+    "CrateA_35_P_Wood"
+   ]
+  },
+  "CrateA_425": {
+   "props": {},
+   "parts": [
+    "CrateA_425_P_WoodDark",
+    "CrateA_425_P_Wood"
+   ]
+  },
+  "CrateA_5": {
+   "props": {},
+   "parts": [
+    "CrateA_5_P_WoodDark",
+    "CrateA_5_P_Wood"
+   ]
+  },
+  "CrateA_6": {
+   "props": {},
+   "parts": [
+    "CrateA_6_P_WoodDark",
+    "CrateA_6_P_Wood"
+   ]
+  },
+  "CrateB_35": {
+   "props": {},
+   "parts": [
+    "CrateB_35_P_WoodDark",
+    "CrateB_35_P_Wood",
+    "CrateB_35_P_Metal"
+   ]
+  },
+  "CrateB_425": {
+   "props": {},
+   "parts": [
+    "CrateB_425_P_WoodDark",
+    "CrateB_425_P_Wood",
+    "CrateB_425_P_Metal"
+   ]
+  },
+  "CrateB_5": {
+   "props": {},
+   "parts": [
+    "CrateB_5_P_WoodDark",
+    "CrateB_5_P_Wood",
+    "CrateB_5_P_Metal"
+   ]
+  },
+  "CrateB_6": {
+   "props": {},
+   "parts": [
+    "CrateB_6_P_WoodDark",
+    "CrateB_6_P_Wood",
+    "CrateB_6_P_Metal"
+   ]
+  },
+  "LuggageCart": {
+   "props": {},
+   "parts": [
+    "LuggageCart_T_Rubber",
+    "LuggageCart_V_Trim",
+    "LuggageCart_G_Steel",
+    "LuggageCart_L_Case1",
+    "LuggageCart_L_Case2",
+    "LuggageCart_L_Case3",
+    "LuggageCart_L_Case4"
+   ]
+  },
+  "Pallet": {
+   "props": {},
+   "parts": [
+    "Pallet_P_Wood",
+    "Pallet_P_WoodDark"
+   ]
+  },
+  "Vending": {
+   "props": {},
+   "parts": [
+    "Vending_V_Trim",
+    "Vending_V_Paint",
+    "Vending_V_Glass",
+    "Vending_V_GoodsA",
+    "Vending_V_GoodsB",
+    "Vending_V_GoodsC",
+    "Vending_V_Panel",
+    "Vending_V_Light"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Barrier",
+   "name": "Barrier_B_Concrete",
+   "material": "B_Concrete",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B5AFA3"
+   },
+   "glow": false,
+   "tris": 76,
+   "center": [
+    0.0,
+    0.0,
+    1.1
+   ],
+   "size": [
+    3.7,
+    1.6,
+    2.2
+   ]
+  },
+  {
+   "piece": "Barrier",
+   "name": "Barrier_B_Band",
+   "material": "B_Band",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9A73E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    1.45
+   ],
+   "size": [
+    3.4,
+    0.93444,
+    0.4
+   ]
+  },
+  {
+   "piece": "Barrier",
+   "name": "Barrier_B_Dark",
+   "material": "B_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4740"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    0.11
+   ],
+   "size": [
+    2.7,
+    1.66,
+    0.18
+   ]
+  },
+  {
+   "piece": "CrateA_35",
+   "name": "CrateA_35_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 728,
+   "center": [
+    0.0,
+    0.0,
+    1.75
+   ],
+   "size": [
+    5.2,
+    5.2,
+    3.5
+   ]
+  },
+  {
+   "piece": "CrateA_35",
+   "name": "CrateA_35_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 308,
+   "center": [
+    0.0,
+    0.0,
+    1.85
+   ],
+   "size": [
+    4.6,
+    4.6,
+    3.1
+   ]
+  },
+  {
+   "piece": "CrateA_425",
+   "name": "CrateA_425_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 728,
+   "center": [
+    0.0,
+    0.0,
+    2.125
+   ],
+   "size": [
+    5.2,
+    5.2,
+    4.25
+   ]
+  },
+  {
+   "piece": "CrateA_425",
+   "name": "CrateA_425_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    0.0,
+    2.225
+   ],
+   "size": [
+    4.6,
+    4.6,
+    3.85
+   ]
+  },
+  {
+   "piece": "CrateA_5",
+   "name": "CrateA_5_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 728,
+   "center": [
+    0.0,
+    0.0,
+    2.5
+   ],
+   "size": [
+    5.2,
+    5.2,
+    5.0
+   ]
+  },
+  {
+   "piece": "CrateA_5",
+   "name": "CrateA_5_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    0.0,
+    2.6
+   ],
+   "size": [
+    4.6,
+    4.6,
+    4.6
+   ]
+  },
+  {
+   "piece": "CrateA_6",
+   "name": "CrateA_6_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 728,
+   "center": [
+    0.0,
+    0.0,
+    3.0
+   ],
+   "size": [
+    5.2,
+    5.2,
+    6.0
+   ]
+  },
+  {
+   "piece": "CrateA_6",
+   "name": "CrateA_6_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 440,
+   "center": [
+    0.0,
+    0.0,
+    3.1
+   ],
+   "size": [
+    4.6,
+    4.6,
+    5.6
+   ]
+  },
+  {
+   "piece": "CrateB_35",
+   "name": "CrateB_35_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 792,
+   "center": [
+    0.0,
+    0.0,
+    1.75
+   ],
+   "size": [
+    5.0,
+    5.0,
+    3.5
+   ]
+  },
+  {
+   "piece": "CrateB_35",
+   "name": "CrateB_35_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 308,
+   "center": [
+    0.0,
+    0.0,
+    1.85
+   ],
+   "size": [
+    4.6,
+    4.6,
+    3.1
+   ]
+  },
+  {
+   "piece": "CrateB_35",
+   "name": "CrateB_35_P_Metal",
+   "material": "P_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4B5058"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    1.9
+   ],
+   "size": [
+    5.06,
+    5.06,
+    3.04
+   ]
+  },
+  {
+   "piece": "CrateB_425",
+   "name": "CrateB_425_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 792,
+   "center": [
+    0.0,
+    0.0,
+    2.125
+   ],
+   "size": [
+    5.0,
+    5.0,
+    4.25
+   ]
+  },
+  {
+   "piece": "CrateB_425",
+   "name": "CrateB_425_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    0.0,
+    2.225
+   ],
+   "size": [
+    4.6,
+    4.6,
+    3.85
+   ]
+  },
+  {
+   "piece": "CrateB_425",
+   "name": "CrateB_425_P_Metal",
+   "material": "P_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4B5058"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    2.275
+   ],
+   "size": [
+    5.06,
+    5.06,
+    3.79
+   ]
+  },
+  {
+   "piece": "CrateB_5",
+   "name": "CrateB_5_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 792,
+   "center": [
+    0.0,
+    0.0,
+    2.5
+   ],
+   "size": [
+    5.0,
+    5.0,
+    5.0
+   ]
+  },
+  {
+   "piece": "CrateB_5",
+   "name": "CrateB_5_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    0.0,
+    2.6
+   ],
+   "size": [
+    4.6,
+    4.6,
+    4.6
+   ]
+  },
+  {
+   "piece": "CrateB_5",
+   "name": "CrateB_5_P_Metal",
+   "material": "P_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4B5058"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    2.65
+   ],
+   "size": [
+    5.06,
+    5.06,
+    4.54
+   ]
+  },
+  {
+   "piece": "CrateB_6",
+   "name": "CrateB_6_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 792,
+   "center": [
+    0.0,
+    0.0,
+    3.0
+   ],
+   "size": [
+    5.0,
+    5.0,
+    6.0
+   ]
+  },
+  {
+   "piece": "CrateB_6",
+   "name": "CrateB_6_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 440,
+   "center": [
+    0.0,
+    0.0,
+    3.1
+   ],
+   "size": [
+    4.6,
+    4.6,
+    5.6
+   ]
+  },
+  {
+   "piece": "CrateB_6",
+   "name": "CrateB_6_P_Metal",
+   "material": "P_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4B5058"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    3.15
+   ],
+   "size": [
+    5.06,
+    5.06,
+    5.54
+   ]
+  },
+  {
+   "piece": "LuggageCart",
+   "name": "LuggageCart_T_Rubber",
+   "material": "T_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2B2D31"
+   },
+   "glow": false,
+   "tris": 672,
+   "center": [
+    -0.1,
+    0.0,
+    1.95294
+   ],
+   "size": [
+    9.66,
+    4.16,
+    3.85412
+   ]
+  },
+  {
+   "piece": "LuggageCart",
+   "name": "LuggageCart_V_Trim",
+   "material": "V_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D3B38"
+   },
+   "glow": false,
+   "tris": 656,
+   "center": [
+    -0.14,
+    0.0,
+    2.21
+   ],
+   "size": [
+    10.08,
+    5.0,
+    3.74
+   ]
+  },
+  {
+   "piece": "LuggageCart",
+   "name": "LuggageCart_G_Steel",
+   "material": "G_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A7A9A8"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.11
+   ],
+   "size": [
+    9.7,
+    4.6,
+    0.1
+   ]
+  },
+  {
+   "piece": "LuggageCart",
+   "name": "LuggageCart_L_Case1",
+   "material": "L_Case1",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8C4A3F"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -3.3,
+    -1.0,
+    2.31
+   ],
+   "size": [
+    3.2,
+    1.9,
+    2.3
+   ]
+  },
+  {
+   "piece": "LuggageCart",
+   "name": "LuggageCart_L_Case2",
+   "material": "L_Case2",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A88A4E"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.175,
+    1.96
+   ],
+   "size": [
+    9.4,
+    3.75,
+    1.6
+   ]
+  },
+  {
+   "piece": "LuggageCart",
+   "name": "LuggageCart_L_Case3",
+   "material": "L_Case3",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A6E9A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.4,
+    1.1,
+    2.36
+   ],
+   "size": [
+    2.4,
+    1.9,
+    2.4
+   ]
+  },
+  {
+   "piece": "LuggageCart",
+   "name": "LuggageCart_L_Case4",
+   "material": "L_Case4",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E6A62"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.6,
+    -1.05,
+    1.66
+   ],
+   "size": [
+    3.0,
+    2.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "Pallet",
+   "name": "Pallet_P_Wood",
+   "material": "P_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A98762"
+   },
+   "glow": false,
+   "tris": 440,
+   "center": [
+    0.0,
+    0.0,
+    0.3
+   ],
+   "size": [
+    3.6,
+    3.8,
+    0.6
+   ]
+  },
+  {
+   "piece": "Pallet",
+   "name": "Pallet_P_WoodDark",
+   "material": "P_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7E6447"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    0.29
+   ],
+   "size": [
+    3.6,
+    3.72,
+    0.4
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_Trim",
+   "material": "V_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D3B38"
+   },
+   "glow": false,
+   "tris": 224,
+   "center": [
+    0.0,
+    0.005,
+    4.5
+   ],
+   "size": [
+    3.04,
+    3.15,
+    9.0
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_Paint",
+   "material": "V_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9C4A3F"
+   },
+   "glow": false,
+   "tris": 276,
+   "center": [
+    0.0,
+    0.025,
+    4.55
+   ],
+   "size": [
+    2.9,
+    3.05,
+    8.1
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_Glass",
+   "material": "V_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2B323C",
+    "transparency": 0.35
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -0.35,
+    1.34,
+    5.05
+   ],
+   "size": [
+    1.74,
+    0.08,
+    4.34
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_GoodsA",
+   "material": "V_GoodsA",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B85A45"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    -0.37,
+    0.875,
+    4.945
+   ],
+   "size": [
+    1.56,
+    0.35,
+    3.89
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_GoodsB",
+   "material": "V_GoodsB",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9A54E"
+   },
+   "glow": false,
+   "tris": 220,
+   "center": [
+    -0.37,
+    0.875,
+    4.945
+   ],
+   "size": [
+    1.56,
+    0.35,
+    3.89
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_GoodsC",
+   "material": "V_GoodsC",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5B83A6"
+   },
+   "glow": false,
+   "tris": 220,
+   "center": [
+    -0.37,
+    0.875,
+    4.885
+   ],
+   "size": [
+    1.56,
+    0.35,
+    3.77
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_Panel",
+   "material": "V_Panel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A5752"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.235,
+    1.42,
+    4.42
+   ],
+   "size": [
+    2.17,
+    0.36,
+    5.64
+   ]
+  },
+  {
+   "piece": "Vending",
+   "name": "Vending_V_Light",
+   "material": "V_Light",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E6DFC9"
+   },
+   "glow": false,
+   "tris": 484,
+   "center": [
+    0.01,
+    1.5,
+    6.55
+   ],
+   "size": [
+    2.52,
+    0.12,
+    3.5
+   ]
+  }
+ ],
+ "tris": 14300
+}
