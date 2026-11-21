@@ -89,6 +89,9 @@ def split_by_material(o):
 		bm = bmesh.new()
 		bm.from_mesh(new.data)
 		bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index != idx], context="FACES")
+		# drop vertices no face uses: Roblox ignores them, so they'd stretch this part's recorded centre/size and the
+		# part would land off its neighbours (the Wharf mountains, 2026-11-20)
+		bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
 		for f in bm.faces:
 			f.material_index = 0
 		bm.to_mesh(new.data)

@@ -554,124 +554,149 @@ return function(): string
 		local cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
 		local W, D = x1 - x0, z1 - z0
 		col("Shed" .. tag, cx, cz, W, D, 14, 0, T, Enum.Material.Metal)
-		-- battered concrete plinth: 1.5 high, 0.4 proud, a 45-degree chamfer strip leans it back to the wall
+		-- Layered depths so every piece sits on the one below (owner 2026-11-20: "the pillars don't line up with the
+		-- supports"): plinth 0.6 proud > eave beam 0.55 > columns 0.45 > cladding. Columns stand on the plinth and tuck
+		-- under the eave; the corner columns wrap the corner.
 		box(
 			s,
 			"Plinth",
-			Vector3.new(x0 - 0.4, 0, z0 - 0.4),
-			Vector3.new(x1 + 0.4, 1.5, z1 + 0.4),
+			Vector3.new(x0 - 0.6, 0, z0 - 0.6),
+			Vector3.new(x1 + 0.6, 1.5, z1 + 0.6),
 			L.concreteDark,
 			false,
 			T
 		)
 		for _, side in { { x0, -1 }, { x1, 1 } } do
-			local x = side[1] + side[2] * 0.2
 			wedge(
 				s,
 				"Plinth chamfer",
-				Vector3.new(D + 0.8, 0.4, 0.4),
+				Vector3.new(D + 1.2, 0.4, 0.4),
 				T
-					* CFrame.new(x, 1.7, cz)
+					* CFrame.new(side[1] + side[2] * 0.4, 1.7, cz)
 					* CFrame.Angles(0, if side[2] > 0 then -math.pi / 2 else math.pi / 2, 0),
 				L.concreteDark
 			)
 		end
 		for _, side in { { z0, -1 }, { z1, 1 } } do
-			local z = side[1] + side[2] * 0.2
 			wedge(
 				s,
 				"Plinth chamfer",
-				Vector3.new(W + 0.8, 0.4, 0.4),
-				T * CFrame.new(cx, 1.7, z) * CFrame.Angles(0, if side[2] > 0 then math.pi else 0, 0),
+				Vector3.new(W + 1.2, 0.4, 0.4),
+				T
+					* CFrame.new(cx, 1.7, side[1] + side[2] * 0.4)
+					* CFrame.Angles(0, if side[2] > 0 then math.pi else 0, 0),
 				L.concreteDark
 			)
 		end
-		-- ribbed cladding (the wall body)
 		box(s, "Cladding", Vector3.new(x0, 1.5, z0), Vector3.new(x1, 13.4, z1), wallLook, false, T)
-		-- steel columns proud of the cladding, on a 10 grid along the long sides and at the corners
 		for z = z0, z1, 10 do
-			for _, x in { x0 - 0.2, x1 + 0.2 } do
-				box(
-					s,
-					"Column",
-					Vector3.new(x - 0.4, 1.5, z - 0.5),
-					Vector3.new(x + 0.4, 13.4, z + 0.5),
-					trimLook,
-					false,
-					T
-				)
+			local za, zb = z - 0.5, z + 0.5
+			if z == z0 then
+				za = z0 - 0.45
+			elseif z == z1 then
+				zb = z1 + 0.45
 			end
+			box(
+				s,
+				"Column",
+				Vector3.new(x0 - 0.45, 1.5, za),
+				Vector3.new(x0, 13.4, zb),
+				trimLook,
+				false,
+				T
+			)
+			box(
+				s,
+				"Column",
+				Vector3.new(x1, 1.5, za),
+				Vector3.new(x1 + 0.45, 13.4, zb),
+				trimLook,
+				false,
+				T
+			)
 		end
 		for x = x0 + 10, x1 - 10, 10 do
-			for _, z in { z0 - 0.2, z1 + 0.2 } do
-				box(
-					s,
-					"Column",
-					Vector3.new(x - 0.5, 1.5, z - 0.4),
-					Vector3.new(x + 0.5, 13.4, z + 0.4),
-					trimLook,
-					false,
-					T
-				)
-			end
+			box(
+				s,
+				"Column",
+				Vector3.new(x - 0.5, 1.5, z0 - 0.45),
+				Vector3.new(x + 0.5, 13.4, z0),
+				trimLook,
+				false,
+				T
+			)
+			box(
+				s,
+				"Column",
+				Vector3.new(x - 0.5, 1.5, z1),
+				Vector3.new(x + 0.5, 13.4, z1 + 0.45),
+				trimLook,
+				false,
+				T
+			)
 		end
-		-- eave beam ring (one band, 0.3 proud), its top edge chamfered
 		box(
 			s,
 			"Eave",
-			Vector3.new(x0 - 0.5, 13.4, z0 - 0.5),
-			Vector3.new(x1 + 0.5, 14.2, z1 + 0.5),
+			Vector3.new(x0 - 0.55, 13.4, z0 - 0.55),
+			Vector3.new(x1 + 0.55, 14.2, z1 + 0.55),
 			trimLook,
 			true,
 			T
 		)
-		-- gable roof, ridge along Z at +21: two sloped ribbed plates (solid: bullets and Updraft land on it)
-		local span = W / 2 + 1.2
-		local rise = 7
-		local slope = math.sqrt(span * span + rise * rise)
-		local ang = math.atan2(rise, span)
+		-- gable roof (owner 2026-11-20: "the roofs don't line up, there are holes"): the roof planes now lie exactly on
+		-- the gables' slope (rise 7 over the half-width 10, from the eave top at 14.2), run 1.2 past the walls, and
+		-- cross 0.3 past the ridge under a bigger ridge cap, so there is no gap anywhere
+		local rise, half, over, t = 7, W / 2, 1.2, 0.6
+		local k = rise / half
+		local ang = math.atan(k)
+		local run = half + over + 0.3
+		local slope = run / math.cos(ang)
+		local hc = (half + over - 0.3) / 2 -- horizontal distance of the plane centre from the ridge
+		local under = 14.2 + k * (half - hc)
+		local yc = under + (t / 2) / math.cos(ang)
 		for _, sgn in { -1, 1 } do
-			local mx = cx + sgn * span / 2
 			part(
 				s,
 				"Roof",
-				Vector3.new(slope, 0.6, D + 2.4),
-				T * CFrame.new(mx, 14.2 + rise / 2 + 0.3, cz) * CFrame.Angles(0, 0, -sgn * ang),
+				Vector3.new(slope, t, D + 2.4),
+				T * CFrame.new(cx + sgn * hc, yc, cz) * CFrame.Angles(0, 0, -sgn * ang),
 				roofLook,
 				true
 			)
-			-- fascia board at the eave, carved (a wedge drip edge under it)
-			part(
+			-- fascia board over the roof plane's lower end
+			box(
 				s,
 				"Fascia",
-				Vector3.new(0.4, 0.7, D + 2.8),
-				T * CFrame.new(cx + sgn * (span + 0.05), 14.35, cz),
-				trimLook
+				Vector3.new(cx + sgn * (half + over - 0.1), 13.1, cz - D / 2 - 1.4),
+				Vector3.new(cx + sgn * (half + over + 0.35), 14.2, cz + D / 2 + 1.4),
+				trimLook,
+				false,
+				T
 			)
 		end
-		-- ridge cap: a square bar turned 45 degrees (faceted)
 		part(
 			s,
 			"Ridge",
-			Vector3.new(1.0, 1.0, D + 2.6),
-			T * CFrame.new(cx, 21.35, cz) * CFrame.Angles(0, 0, math.pi / 4),
+			Vector3.new(1.6, 1.6, D + 2.6),
+			T
+				* CFrame.new(cx, 14.2 + rise + t / math.cos(ang) - 0.05, cz)
+				* CFrame.Angles(0, 0, math.pi / 4),
 			trimLook
 		)
-		-- gable ends: two wedges each fill the triangle (ribbed), with a steel barge board along each slope
+		-- gable ends: two wedges fill each triangle exactly under the roof planes
 		for _, side in { { z0, -1 }, { z1, 1 } } do
-			local z = side[1] + side[2] * 0.0
 			for _, sgn in { -1, 1 } do
-				local w = wedge(
+				wedge(
 					s,
 					"Gable",
-					Vector3.new(0.6, rise, W / 2),
+					Vector3.new(0.6, rise, half),
 					T
-						* CFrame.new(cx + sgn * W / 4, 14.2 + rise / 2, z - side[2] * 0.3)
+						* CFrame.new(cx + sgn * half / 2, 14.2 + rise / 2, side[1] - side[2] * 0.3)
 						* CFrame.Angles(0, -sgn * math.pi / 2, 0),
 					wallLook,
 					true
 				)
-				local _ = w
 			end
 		end
 		-- roller doors: one on the mid-lane face, two on the dock face; each a darker ribbed panel 0.15 proud

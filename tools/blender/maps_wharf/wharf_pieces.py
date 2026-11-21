@@ -16,6 +16,7 @@ from math import cos, pi, radians, sin, sqrt
 import random
 
 import arena_kit as A
+import bmesh
 from mathutils import Vector
 
 ROOT = "WharfKit"
@@ -182,6 +183,8 @@ def mountain(name, collection, rx, ry, peak, seed, n=22, ridge=0.0, sink=12.0):
 					continue
 				f = bm.faces.new(tri)
 				tops.append(f)
+	# the rim grid points under the water that no triangle uses go (they'd stretch the exported bounds)
+	bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
 	bm.normal_update()
 	for f in tops:
 		nz = f.normal.z if f.normal.z > 0 else -f.normal.z
@@ -193,10 +196,13 @@ def mountain(name, collection, rx, ry, peak, seed, n=22, ridge=0.0, sink=12.0):
 		else:
 			f.material_index = M._slot(rock)
 	o = M.finish()
-	# an open surface: make sure the faces point up (recalc can flip an open sheet)
-	if sum(p.normal.z * p.area for p in o.data.polygons) < 0:
-		for p in o.data.polygons:
+	# an open heightfield: every face must point up. recalc_face_normals can't orient an open sheet reliably (about
+	# half the triangles came out facing down and rendered as holes in Roblox, owner 2026-11-20), so each face is
+	# checked on its own.
+	for p in o.data.polygons:
+		if p.normal.z < 0:
 			p.flip()
+	o.data.update()
 	return o
 
 
