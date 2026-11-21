@@ -1,0 +1,115 @@
+# Win Cutscene
+
+The end-of-match winner cutscene in the match place (2026-11-20). It replaces the old victory scene (one camera, the winners pumping a fist). Same cutscene every time, cut to the ending song, ending on a low final pose. This note holds the plan, the shot list, how it is built, the captures and what to test.
+
+**Status (2026-11-20):** 1-player version built, six review rounds in the engine, play-tested in Studio (preview, a faked match end with the results screen, the skip). Clip v6 (`Win1_1` 140341195868977, `Win1_1Hold` 100162734015944). **Waiting on the owner's look** (play it with the preview command below). Versions for 2-5 winners slot in as data (see "Adding the 2-5 player versions").
+
+## Owner's direction (2026-11-20)
+- The same cutscene every time. Later one version per winning-team size (1 to 5), each with its own motion.
+- Several camera angles, eased camera moves and cuts, real keyframed character animation. Not one static camera and one motion.
+- Ends on a **final pose**: the last shot goes down to a low camera looking up at the winners, who hold the pose with a slight sway. RIVALS has a similar low hero shot (study, don't copy).
+- Staged on the baseplate for now. Every map will get its own spot open enough for 5 players later, so the stage is a per-map anchor.
+- Music: APM "Victory Slam stinger 1" (asset 9042702890, 8.15 s), the owner's pick for the ending song.
+
+## The song (measured)
+`PlaybackLoudness` sampled in a play test at 0.2x speed (20 ms bins, onset = rise over the last 80 ms):
+
+| Time (s) | What | Use |
+|---|---|---|
+| 0.14 | opening slam | flash in from the replay, shake |
+| 0.68 | hit | the winner's head comes up |
+| **1.48** | the band comes in | cut to shot B, the snap up |
+| 1.82 | hit | stomp |
+| **2.02** | loudest hit | the flex (arm snaps out wide), FOV punch |
+| 3.14 | hit | cut to shot C, the "too easy" flick |
+| **4.02 / 4.16** | double hit | cut to shot D, the gun swings down and is caught |
+| 4.80 | hit | lean back, muzzle up |
+| 5.36 | hit | the spin-hop |
+| **5.80** | hit | cut to shot E (the coil) |
+| **6.14** | hit | snap into the final pose, the camera cranes down |
+| **6.80** | last hit | fist punch and nod |
+| 6.9-8.05 | ring-out | held pose; results screen comes in at 6.95 |
+
+The beat is about 0.54 s (111 BPM). Every time in the clip and in the config is song time.
+
+## Shot list (1 player)
+Stage space: the winner on the anchor, facing forward; points are right, up, forward in studs, floor at 0, head at about 4.6.
+
+| Shot | Song time | Camera | Winner (clip `Win1_1`) |
+|---|---|---|---|
+| A over the shoulder | 0-1.48 | behind the right shoulder, high, craning down and in | head down catching breath; head snaps up on 0.68 and looks out; coils (knees dip, gun in) from 1.1 |
+| B front three-quarter | 1.48-3.14 | front left (the raised gun arm stays behind the head), whips round after the cut, brakes on 2.02, drifts in | snaps up, gun straight up (60 ms, overshoot, settle); stomp on 1.82; the flex on 2.02: fist tucked, then the free arm snaps out wide, chest open (coil, snap, brake); groove nod on the beat |
+| C close up | 3.14-4.02 | front left, head and chest, slow truck | the "too easy" flick of the free hand (out to the back left), chin up, head turns into the camera; gun bounces on the beat |
+| D wide orbit | 4.02-5.80 | wide from the left, orbiting round the front to the right | the gun swings down into two hands (4.02), caught (4.16), sweep across, lean back with the muzzle up (4.80), **spin-hop** on 5.36 (coil, take off, a full turn in the air with knees tucked, land and absorb; the turn and lift are the slot's `root` keys in the config), coil low for the final |
+| E low hero | 5.80-8.15 and held | starts at eye level on the coil, **cranes down fast as the winner rises** on 6.14, settles low looking up, holds | snap into the champion pose: free fist punched up and out on a diagonal, gun hanging easy in the right hand, wide stance, chin level, eyes down at the lens; fist punch and nod on 6.80; then the hold loop `Win1_1Hold` (3.2 s breath) |
+
+Accents also kick the camera (FOV punches and short shakes) and there are three short white flashes (0.1 opening, 1.46 and 6.12 cuts). Cinema bars slide in at the start and out when the results screen comes in. A light grade (contrast and saturation) plays under it.
+
+**Results UI:** the results screen and the name plates come in at **6.95 s**, after the last hit, over the held pose. A click or key after 0.8 s skips to the final pose and brings the screen in at once. The 20 s match-end timer is unchanged, so the screen has about 13 s on it.
+
+## How it is built
+- **Data:** `src/shared/Config/WinCutscene.luau`: `SCENES[team size]` = slots (position, facing, clip, hold loop, optional `root` keys for whole-body turns and lifts) + shots (camera keys) + kicks + flashes; stage tag, baseplate fallback, screen time, skip, handheld drift, bars, grade.
+- **Player:** `src/client/Util/WinCutscene.luau`. Copies of the winners (`BodyClone` "root" + `kinematic`, so the clip poses them with no physics lag) on the stage, each playing its slot's clip at Action4, then the hold loop (0.3 s crossfade). The camera is set every frame from the shot's keys on a time-parameterised Catmull-Rom (eye, look-at, FOV, roll), plus a slow handheld drift and the kicks. **The song is the clock:** each frame reads the song's `TimePosition`, so it stays in time at Studio's ~15 fps and nothing drifts (no chained tweens). The clips are pulled back onto the song clock if they drift more than 0.1 s.
+- **Controller:** `MatchEndController` starts it on the MatchEnd phase (after the replay hands back) and shows the results screen on its `onScreen` call. The cutscene starts the ending song; the VICTORY / DEFEAT toast no longer plays it (it would start the song before the cutscene and break the sync).
+- **Camera hook:** `CameraController.setOverrideFov` (an override's own FOV, cleared with the override).
+- **Clips:** `tools/anim/win_clips.py` (on the third-person rig in `tp_rig.py` / `tp_clips.py`): keys on monotone cubics (`spline_sequence`), feet kept on the floor (`solve_grounded`), the free hand carried onto the gun's grip over the two-handed window. `render`, `check`, `export`; upload with `tools/opencloud/upload_asset.py --type Animation`; ids in `Config/Animations` `WIN`.
+- **Stage:** a part tagged `WinnerStage` anywhere in the map (`workspace.ActiveMap`): its position = the lead's spot on the floor, its LookVector = the way the winners face. No tag: the fallback spot on `workspace.Baseplate` (600, 0, 600), clear of every map's footprint. The client asks the server to stream that area in; if the Baseplate still isn't there, a plain floor is made for the cutscene.
+
+### Adding the 2-5 player versions
+1. Key the clips in `win_clips.py` as `Win2_1`, `Win2_2`, ... (+ `Hold`), each slot with its own motion, on the same song times. Export, upload, add the ids to `Config/Animations` `WIN`.
+2. Add `SCENES[2]` (and so on) in `Config/WinCutscene.luau`: one slot per winner (`pos` in stage space, `yaw`, `clip`, `hold`) and its own shots framed for the group.
+3. Until a size has its own scene, the largest smaller scene plays and the extra winners stand in a V behind the lead (`EXTRA_SLOTS`) on the lead's clips.
+
+### Per-map stage spots (owner, later)
+In each map, add a small anchored, invisible, non-colliding part named `WinnerStage`, tag it `WinnerStage` (CollectionService), put it on the floor where the lead should stand, and turn it so its front face points the way the winners should face. Leave about 12 studs clear in front, 8 to each side and 6 behind for a 5-player line-up and the cameras (shot A goes about 10 studs behind and 8 up).
+
+## RIVALS study (read-only, structure only)
+From the RIVALS file's `FinalResults.Winners` module (read, not copied): a per-map `Winners` folder (a 1x1x1 `Primary` anchor + a flat 35 x 32 `Reference` plate), an animated camera rig cloned onto the anchor and played as an animation with markers for FOV moves (FOV 40 to 70 to 120), one animation per slot (`FinalResultsPlayer1..5`), a gun scaled 1.5x on the first slot, a handheld sine drift of about 1 degree, everything frozen (`AdjustSpeed(0)`) at 12 s, the player cards after about 10 s, a skip that jumps to the frozen end. We took the structure (per-map anchor, per-slot clips, held end, skip to the end, slow handheld drift) and did our own timing, shots, motion and look. Reference notes: [Rivals Reference](../03%20Research/Rivals%20Reference/00%20Rivals%20Reference.md), [Maps and Lobby](../03%20Research/Rivals%20Reference/Maps%20and%20Lobby.md) (`Winners` folder).
+
+## LihFolk notes used
+- `09 Gameplay Systems/Camera Systems.md`: replace the camera at Camera priority with Scriptable, restore type, subject and FOV.
+- `08 Animation/05 Systems/Cinematic Ultimates.md`: shot grammar (low close hero, wide establish, low three-quarter climax).
+- `14 3D Modeling/Bezier Curves and Splines for Modellers.md`: Catmull-Rom passes through its keys (C1).
+- `60 High-Craft Game Teardowns/Teardown - Funky Friday.md` and `07 Lighting VFX and Audio/Music and Adaptive Audio.md`: drive the timeline from the song position, not frame deltas.
+- `08 Animation/01 Fundamentals/AnimationTrack Reference.md`: hold a pose with `AdjustSpeed(0)` / a loop, not by letting a one-shot end.
+- `07 Lighting VFX and Audio/Atmosphere Sky Clouds and Post-Processing.md`, `Screen Damage Effects`: one owner per post effect, restore what you change.
+- Memory `animation-oomph` (coil, ~60 ms snap, brake, overshoot, settle, splines) and `third-person-body-taste`.
+
+## Studio preview
+Match place, Play, then in the **Client** command bar:
+
+```lua
+require(game.ReplicatedStorage.Shared.StateValues).set(workspace, "PreviewWinCutscene", os.clock())
+```
+
+It plays the cutscene with you as the winner (no results screen). Run it again to restart; `false` as the last argument stops it. To hold one frame (for captures), set `"PreviewWinCutsceneAt"` to a song time (a new value each time, e.g. 6.4 then 6.41); `false` plays on.
+
+## Captures (v6, Studio, baseplate fallback stage)
+Frozen frames from the preview (`PreviewWinCutsceneAt`); the bars are the cutscene's own.
+
+| | |
+|---|---|
+| ![A](Win%20Cutscene/A%20over%20the%20shoulder%200.90.jpg) A 0.90: over the shoulder, head coming up | ![B](Win%20Cutscene/B%20flex%202.20.jpg) B 2.20: the flex, gun up behind the head |
+| ![C](Win%20Cutscene/C%20close%20up%203.40.jpg) C 3.40: close up, the "too easy" look into the lens | ![D](Win%20Cutscene/D%20spin%20hop%205.44.jpg) D 5.44: mid spin-hop (shadow on the floor) |
+| ![E](Win%20Cutscene/E%20low%20hero%207.50.jpg) E 7.50: the low hero shot, held | ![Screen](Win%20Cutscene/E%20results%20screen.jpg) the results screen over the held pose (a faked match end) |
+
+Measured in a play test: the clip and the song stay within 0.02 s of each other the whole way (60 fps); the hold loop takes over at 7.0 s; the screen comes in at 6.95; a click after 0.8 s jumps to the final pose and pulls the bars out.
+
+## Review rounds
+- **v1 (engine):** every shot about 1.5x too close (cut at the knees, the fist filling the frame, [capture](Win%20Cutscene/v1%20B%20too%20close.jpg)); from the front right the raised right fist covered the face (shots B and E); the C flick crossed the lens. **Fixes:** cameras pulled back, B and C moved to the front left, the flick goes to the back left, the final pose changed from "gun up by the head" to the diagonal champion pose (face clear from every front angle).
+- **v2:** the hold loop never played (a track loaded on a copy outside the DataModel never loads: the stage folder is now parented first, and the hold reloads if it has no length). The fist thrust at the lens on 2.02 hid the face; the barrel-roll twirl lifted the fist to the chin; E cut the feet.
+- **v3-v4:** the thrust lowered to chest height still hid the face from the front-left camera, so 2.02 became **the flex** (arm out wide). E reframed to show the planted feet (FOV 50, look-at lower).
+- **v5:** the twirl kept low still folded the forearm past the chin (the rigid fist follows the gun's roll). **v6:** replaced by the **spin-hop** (the root turns, the clip tucks and lands).
+- Self-grade (v6): about 7.5/10. Timing, cuts and the final frame read well; the flat baseplate background is the weakest part until each map has its `WinnerStage` spot. Block hands make the raised fist read a little like a wave.
+
+## What to test
+- [ ] Win a match (Studio with bots, or a real match): the cutscene starts as the final-kill replay hands back, the song starts with it, the hits land on the cuts and moves (1.48 snap, 2.02 flex, 4.02 swing, 5.36 spin-hop, 6.14 final, 6.80 punch).
+- [ ] Lose a match: same cutscene of the other side, same song.
+- [ ] The final pose holds with a slow breath and drift; nothing pops when the hold loop takes over (about 7 s).
+- [ ] The results screen and name plates come in at about 7 s over the held pose; the plate sits over the winner's head; the buttons work; Enter / R do nothing before the screen is up.
+- [ ] Click or press a key after the first second: it jumps to the final pose and the screen comes in.
+- [ ] At a low frame rate (Studio ~15 fps) the cuts still land on the hits and the camera moves smoothly.
+- [ ] The winner holds a pistol or the knife: the hand poses still read (the clips are keyed on the rifle grip).
+- [ ] 2v2 and larger: the lead plays the clip, the others stand in the V behind (until their own versions exist).
+- [ ] Rematch / Play Again: the cutscene cleans up (no copies, bars, grade or flash left; camera back to normal).
+- [ ] A map with a `WinnerStage` part: it plays there, facing the part's front.

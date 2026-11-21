@@ -1,7 +1,8 @@
 --!strict
 -- The end of a match (vault/05 Production/Match Structure Revamp.md, phase
--- D): a victory scene on the map (copies of the winning side, side by side,
--- cheering, the camera in front pushing in) and the post-match screen in the
+-- D): the winner cutscene (Util/WinCutscene, vault/02 Art/Win Cutscene.md:
+-- copies of the winning side on the map's stage, several keyed shots cut to
+-- the ending song, held on a low final pose) and then the post-match screen in the
 -- v1 style, laid out after the RIVALS reference: VICTORY / DEFEAT on top,
 -- your stats card at the bottom, a table of everyone in team modes, and
 -- Rematch / Play Again / Leave at the bottom right. The server decides
@@ -11,10 +12,10 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
-local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -31,10 +32,10 @@ local SpectateController = require(script.Parent.SpectateController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 local Ui = require(script.Parent.Parent.Util.Ui)
-local BodyClone = require(script.Parent.Parent.Util.BodyClone)
 local Device = require(script.Parent.Parent.Util.Device)
 local MatchEndScreen = require(script.Parent.Parent.Util.MatchEndScreen)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
+local WinCutscene = require(script.Parent.Parent.Util.WinCutscene)
 
 local MatchEndController = {}
 
@@ -65,9 +66,7 @@ type Results = {
 
 local summary: { Line } = {}
 local active = false
-local scene: Folder? = nil
--- The scene's copies and the bodies they copy (for the name plates).
-local sceneCopies: { { copy: Model, body: Model } } = {}
+local screenUp = false -- the results screen is in (after the cutscene)
 local hidden: { Instance } = {}
 local hiddenGuis: { ScreenGui } = {}
 local gui: ScreenGui? = nil
@@ -78,33 +77,6 @@ local picked: string? = nil
 local buttons: { [string]: GuiObject } = {}
 
 -- Helpers ---------------------------------------------------------------------------
-
-local function cheer(copy: Model)
-	local humanoid = copy:FindFirstChildOfClass("Humanoid")
-	if not humanoid then
-		return
-	end
-	local animator = humanoid:FindFirstChildOfClass("Animator")
-	if not animator then
-		local made = Instance.new("Animator")
-		made.Parent = humanoid
-		animator = made
-	end
-	local a = animator :: Animator
-	for _, track in a:GetPlayingAnimationTracks() do
-		track:Stop(0)
-	end
-	local clip = Instance.new("Animation")
-	clip.AnimationId = Animations.COMBAT.Victory
-	local ok, track = pcall(function()
-		return a:LoadAnimation(clip)
-	end)
-	if ok and track then
-		track.Looped = true
-		track.Priority = Enum.AnimationPriority.Action4
-		track:Play(0.2)
-	end
-end
 
 local function hideLive()
 	for _, body in Fighters.bodies() do
@@ -124,75 +96,20 @@ local function hideLive()
 	end
 end
 
--- The scene -------------------------------------------------------------------------
+-- The cutscene ----------------------------------------------------------------------
 
--- Copies of the winners side by side where the first of them ended the match,
--- facing a clear spot for the camera. Returns the camera's start and end
--- positions and the point it looks at.
-local function buildScene(winner: number): (Vector3?, Vector3?, Vector3?)
+-- The winning side's live bodies, the last one standing first (the lead).
+local function winnersOf(winner: number): { Model }
 	local winners: { Model } = {}
 	for _, body in Fighters.bodies() do
 		if Teams.of(body) == winner then
 			table.insert(winners, body)
 		end
 	end
-	-- The survivors first (the last one standing leads).
 	table.sort(winners, function(a, b)
 		return Health.isAlive(a) and not Health.isAlive(b)
 	end)
-	local lead = winners[1]
-	local leadRoot = lead and lead:FindFirstChild("HumanoidRootPart")
-	if not lead or not leadRoot or not leadRoot:IsA("BasePart") then
-		return nil, nil, nil
-	end
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	local skip: { Instance } = {}
-	for _, body in Fighters.bodies() do
-		table.insert(skip, body)
-	end
-	params.FilterDescendantsInstances = skip
-	-- Stand them on the ground.
-	local base = leadRoot.Position
-	local down = Workspace:Raycast(base + Vector3.new(0, 3, 0), Vector3.new(0, -30, 0), params)
-	local ground = if down then down.Position.Y else base.Y - 3
-	-- The camera's side: their facing first, then round the circle, the first
-	-- with room in front.
-	local look = leadRoot.CFrame.LookVector
-	local facing = Vector3.new(look.X, 0, look.Z)
-	facing = if facing.Magnitude > 1e-3 then facing.Unit else Vector3.zAxis
-	local eye = Vector3.new(base.X, ground + 3, base.Z)
-	local dir = facing
-	for i = 0, 7 do
-		local d = CFrame.Angles(0, i * math.pi / 4, 0):VectorToWorldSpace(facing)
-		if not Workspace:Raycast(eye, d * 11, params) then
-			dir = d
-			break
-		end
-	end
-	local right = dir:Cross(Vector3.yAxis)
-	local folder = Instance.new("Folder")
-	folder.Name = "VictoryScene"
-	local spacing = 3.6
-	for i, body in winners do
-		local copy = BodyClone.copy(body, "root")
-		if copy then
-			local offset = (i - 1 - (#winners - 1) / 2) * spacing
-			local root = copy:FindFirstChild("HumanoidRootPart")
-			local hip = if root and root:IsA("BasePart") then root.Size.Y / 2 + 2 else 3
-			local at = Vector3.new(base.X, ground + hip, base.Z) + right * offset
-			copy:PivotTo(CFrame.lookAt(at, at + dir))
-			copy.Parent = folder
-			table.insert(sceneCopies, { copy = copy, body = body })
-			cheer(copy)
-		end
-	end
-	folder.Parent = Workspace
-	scene = folder
-	local focus = Vector3.new(base.X, ground + 3.2, base.Z)
-	local far = focus + dir * 11 + Vector3.new(0, -0.6, 0)
-	local near = focus + dir * 8 + Vector3.new(0, -0.9, 0)
-	return far, near, focus
+	return winners
 end
 
 -- The screen ------------------------------------------------------------------------
@@ -548,7 +465,7 @@ end
 local function showPlates(winner: number)
 	local myTeam = Teams.of(player)
 	local list: { MatchEndScreen.PlateData } = {}
-	for _, pair in sceneCopies do
+	for _, pair in WinCutscene.copies() do
 		local owner = Players:GetPlayerFromCharacter(pair.body)
 		local line = lineOf(pair.body)
 		table.insert(list, {
@@ -595,17 +512,13 @@ local function stop()
 		return
 	end
 	active = false
+	screenUp = false
+	MatchEndScreen.hide() -- (its plates follow the copies: gone first)
+	WinCutscene.stop()
 	CameraController.setOverride(nil)
 	if not DraftController.isOpen() then -- a rematch's draft may already want it
 		CameraController.setCursorVisible(false)
 	end
-	local s = scene
-	if s then
-		s:Destroy()
-		scene = nil
-	end
-	table.clear(sceneCopies)
-	MatchEndScreen.hide()
 	for _, d in hidden do
 		local body = Fighters.bodyOfPart(d)
 		if d.Parent and body and Health.isAlive(body) then
@@ -645,8 +558,10 @@ local function begin()
 		return
 	end
 	active = true
-	summary = results.lines
-	local winner = results.winner
+	screenUp = false
+	local data: Results = results
+	summary = data.lines
+	local winner = data.winner
 	SpectateController.stop()
 	DeathFxController.clearGrade()
 	WeaponController.setSpectating(true)
@@ -668,31 +583,35 @@ local function begin()
 			end
 		end
 	end
-	table.clear(sceneCopies)
-	local far, near, focus = buildScene(winner)
-	if MatchEndScreen.active() then
-		picked = nil
-		MatchEndScreen.show(screenData(results), choose)
-		showPlates(winner)
-		refreshScreen()
-	else
-		buildScreen(winner, results.score1, results.score2) -- phones: the old code-built screen
+	-- The results screen comes in as the song rings out over the final
+	-- pose (or at once on a skip, or with no cutscene).
+	local function screen()
+		if screenUp or not active then
+			return
+		end
+		screenUp = true
+		if MatchEndScreen.active() then
+			picked = nil
+			MatchEndScreen.show(screenData(data), choose)
+			showPlates(winner)
+			refreshScreen()
+		else
+			buildScreen(winner, data.score1, data.score2) -- phones: the old code-built screen
+		end
 	end
-	-- one positive ending song for everyone, winner or not (owner 2026-11-20);
-	-- the VICTORY / DEFEAT toast asks for it too, its gap plays it once
-	UiSound.play("MatchEnd")
-	local cam = Workspace.CurrentCamera
-	if cam and far and near and focus then
-		cam.CameraType = Enum.CameraType.Scriptable
-		local began = os.clock()
-		CameraController.setOverride(function(c: Camera, _dt: number)
+	-- one positive ending song for everyone, winner or not (owner
+	-- 2026-11-20): the cutscene starts it and runs on its clock
+	local played = WinCutscene.play(winnersOf(winner), {
+		onScreen = screen,
+		onFrame = function()
 			for _, d in hidden do
 				(d :: any).LocalTransparencyModifier = 1
 			end
-			local t = math.clamp((os.clock() - began) / 6, 0, 1)
-			local e = 1 - (1 - t) ^ 3
-			c.CFrame = CFrame.lookAt((far :: Vector3):Lerp(near :: Vector3, e), focus :: Vector3)
-		end)
+		end,
+	})
+	if not played then
+		UiSound.play("MatchEnd")
+		screen()
 	end
 end
 
@@ -713,11 +632,83 @@ local function onPhase()
 	end
 end
 
+-- Studio preview (vault/02 Art/Win Cutscene.md → Studio preview): the
+-- cutscene with you as the winner, no results screen. In Play, Client
+-- command bar: require(game.ReplicatedStorage.Shared.StateValues).set(workspace,
+-- "PreviewWinCutscene", os.clock()); `false` stops it.
+local PREVIEW_FIELD = "PreviewWinCutscene"
+-- (and "PreviewWinCutsceneAt" = song time holds it on that frame, for captures)
+local PREVIEW_AT = "PreviewWinCutsceneAt"
+local previewing = false
+
+local function stopPreview()
+	if not previewing then
+		return
+	end
+	previewing = false
+	WinCutscene.stop()
+	CameraController.setOverride(nil)
+	WeaponController.setSpectating(false)
+	for _, g in hiddenGuis do
+		if g.Parent then
+			g.Enabled = true
+		end
+	end
+	table.clear(hiddenGuis)
+	local character = player.Character
+	if character then
+		for _, d in character:GetDescendants() do
+			if d:IsA("BasePart") or d:IsA("Decal") then
+				(d :: any).LocalTransparencyModifier = 0
+			end
+		end
+	end
+	local cam = Workspace.CurrentCamera
+	if cam then
+		cam.CameraType = Enum.CameraType.Custom
+	end
+end
+
+local function preview()
+	local character = player.Character
+	if active or not character then
+		return
+	end
+	stopPreview()
+	previewing = true
+	WeaponController.setSpectating(true)
+	ViewmodelController.unequip()
+	local playerGui = player:FindFirstChildOfClass("PlayerGui")
+	if playerGui then
+		for _, g in playerGui:GetChildren() do
+			if g:IsA("ScreenGui") and g.Enabled and g.Name ~= "WinCutscene" then
+				g.Enabled = false
+				table.insert(hiddenGuis, g)
+			end
+		end
+	end
+	WinCutscene.play({ character }, {
+		onFrame = function()
+			for _, d in character:GetDescendants() do
+				if d:IsA("BasePart") or d:IsA("Decal") then
+					(d :: any).LocalTransparencyModifier = 1
+				end
+			end
+		end,
+	})
+end
+
 function MatchEndController.start()
 	MatchEndScreen.start(Device.compact())
+	WinCutscene.preload()
 	-- Keys: Enter = PLAY AGAIN, R = REMATCH.
 	UserInputService.InputBegan:Connect(function(input: InputObject)
-		if not active or not MatchEndScreen.active() or UserInputService:GetFocusedTextBox() then
+		if
+			not active
+			or not screenUp
+			or not MatchEndScreen.active()
+			or UserInputService:GetFocusedTextBox()
+		then
 			return
 		end
 		if input.KeyCode == Enum.KeyCode.Return or input.KeyCode == Enum.KeyCode.KeypadEnter then
@@ -726,6 +717,19 @@ function MatchEndController.start()
 			MatchEndScreen.press("Rematch")
 		end
 	end)
+	if RunService:IsStudio() then
+		StateValues.changed(Workspace, PREVIEW_FIELD):Connect(function()
+			if StateValues.get(Workspace, PREVIEW_FIELD) then
+				preview()
+			else
+				stopPreview()
+			end
+		end)
+		StateValues.changed(Workspace, PREVIEW_AT):Connect(function()
+			local at = StateValues.get(Workspace, PREVIEW_AT)
+			WinCutscene.freeze(if typeof(at) == "number" then at else nil)
+		end)
+	end
 	MatchState.changed("Phase"):Connect(onPhase)
 	MatchState.changed("Results"):Connect(onPhase)
 	player.CharacterAdded:Connect(stop)

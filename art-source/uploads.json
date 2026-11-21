@@ -731,6 +731,18 @@
   "type": "Animation",
   "uploaded": "2026-11-13 01:45:34"
  },
+ "art-source/animations/GG_Win1_1.rbxm": {
+  "assetId": 140341195868977,
+  "name": "GG Win1_1",
+  "type": "Animation",
+  "uploaded": "2026-11-20 18:02:48"
+ },
+ "art-source/animations/GG_Win1_1Hold.rbxm": {
+  "assetId": 100162734015944,
+  "name": "GG Win1_1Hold",
+  "type": "Animation",
+  "uploaded": "2026-11-20 18:02:50"
+ },
  "art-source/audio/GameAtlas.flac": {
   "assetId": 136994389000525,
   "name": "GG Game Sound Atlas v6",

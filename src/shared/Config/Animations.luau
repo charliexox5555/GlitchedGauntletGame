@@ -105,7 +105,7 @@ return table.freeze({
 		PistolReload = id(99293327658491), -- o1 2026-11-20 overnight TP pass, splines (was 120367219025692) -- sidearms
 		Flinch = id(82256896150427), -- r2 2026-11-21: on splines, the hit lands as an impact (was 134800149922990)
 		Death = id(88289196924695), -- o1 2026-11-20 overnight TP pass, splines (was 120072987587692) -- going down (DeathFxController, on the falling copy)
-		Victory = id(71447089078892), -- the match-end winners (MatchEndController): gun up, fist pumps (tools/anim, 2026-11-12)
+		Victory = id(71447089078892), -- the old match-end winners (fist pumps, tools/anim 2026-11-12); unused since the win cutscene (WIN below, 2026-11-20)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
 		-- A weapon swap: the new gun comes in low and rises (played at its
@@ -392,4 +392,11 @@ return table.freeze({
 	-- How fast the posed pitch follows the camera pitch (1/s, exponential), so
 	-- other players' aim glides instead of stepping with each input update.
 	AIM_SMOOTHING = 14,
+	-- The end-of-match winner cutscene (Config/WinCutscene, Util/WinCutscene):
+	-- Win<team size>_<slot> is keyed to the ending song and ends on the final
+	-- pose, its Hold loops that pose with a breath (tools/anim/win_clips.py).
+	WIN = table.freeze({
+		Win1_1 = id(140341195868977), -- v6 2026-11-20: the flex on 2.02, a spin-hop on 5.36, the champion final pose (v1-v5: 86843926503984, 104179596361652, 134699509611569, 133941317051463, 95570871529815)
+		Win1_1Hold = id(100162734015944), -- v6 2026-11-20 (gun roll 0; v1 95243084316879, v2 103404308795067)
+	} :: { [string]: string }),
 })

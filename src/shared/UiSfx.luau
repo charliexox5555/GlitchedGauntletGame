@@ -75,22 +75,24 @@ local function poolFor(name: string, cue: UiSounds.Cue)
 	return p
 end
 
-function UiSfx.play(name: string, pitchScale: number?)
+-- Returns the main Sound it started (nil when it didn't play), so a caller
+-- can follow it (the win cutscene runs on the ending song's clock).
+function UiSfx.play(name: string, pitchScale: number?): Sound?
 	if not enabled then
-		return
+		return nil
 	end
 	local cue = cueOf(name)
 	if not cue then
-		return
+		return nil
 	end
 	local now = os.clock()
 	if cue.gap and now - (lastPlayed[name] or -math.huge) < cue.gap then
-		return
+		return nil
 	end
 	lastPlayed[name] = now
 	local spread = cue.spread or 0
 	local speed = (pitchScale or 1) * (1 + rng:NextNumber(-spread, spread))
-	local function fire(key: string, c: UiSounds.Cue)
+	local function fire(key: string, c: UiSounds.Cue): Sound
 		local p = poolFor(key, c)
 		local s = p.sounds[p.next]
 		p.next = p.next % #p.sounds + 1
@@ -98,8 +100,9 @@ function UiSfx.play(name: string, pitchScale: number?)
 		s.PlaybackSpeed = (c.pitch or 1) * speed
 		s.TimePosition = 0
 		s:Play()
+		return s
 	end
-	fire(name, cue)
+	local main = fire(name, cue)
 	-- layers: a designed cue is a few recordings played together (each its
 	-- own pool, an optional delay)
 	if cue.also then
@@ -112,6 +115,7 @@ function UiSfx.play(name: string, pitchScale: number?)
 			end
 		end
 	end
+	return main
 end
 
 function UiSfx.claim()

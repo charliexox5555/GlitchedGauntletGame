@@ -100,9 +100,20 @@ end
 -- frame instead of the follow, the turn cap and the lunge; FOV, recoil and
 -- shake still apply on top. nil hands the camera back.
 local override: ((cam: Camera, dt: number) -> ())? = nil
+-- A placed camera's own field of view (the win cutscene keys it), else the base.
+local overrideFov: number? = nil
 function CameraController.setOverride(fn: ((cam: Camera, dt: number) -> ())?)
 	override = fn
+	overrideFov = nil
 	lastLook = nil
+end
+
+-- Called by an override each frame it wants its own FOV (cleared with the override).
+function CameraController.setOverrideFov(fov: number?)
+	if fov and (fov ~= fov or fov == math.huge or fov == -math.huge) then
+		return
+	end
+	overrideFov = fov
 end
 
 function CameraController.setBaseFov(fov: number)
@@ -362,7 +373,9 @@ local function step(dt: number)
 	-- FOV
 	moveFov = lerp(moveFov, targetMoveFov, 1 - math.exp(-MOVE_FOV_RATE * dt))
 	local zoomed = if zoomFov then lerp(baseFov, zoomFov, zoomAlpha) else baseFov
-	local fov = if placed then zoomed else zoomed + (moveFov + punchNow()) * (1 - zoomAlpha)
+	local fov = if placed
+		then (overrideFov or zoomed)
+		else zoomed + (moveFov + punchNow()) * (1 - zoomAlpha)
 	cam.FieldOfView = fov
 	-- First person: the game draws its own crosshair, so hide the OS cursor.
 	UserInputService.MouseIconEnabled = cursorVisible

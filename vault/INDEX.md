@@ -55,6 +55,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Art Direction.md` (16): style rules, palette, model standard, Blender → Open Cloud → WeaponBuilder import pipeline
 - `02 Art/UI Design.md` (13): UI look, tokens, type, Figma screens (v1 approved)
 - `02 Art/UI Art Brief (ChatGPT).md` (3): UI art made with ChatGPT images
+- `02 Art/Win Cutscene.md` (14): **end-of-match winner cutscene** (2026-11-20): song accents measured, shot list A-E on the hits, low hero final pose, how it's built (Config/WinCutscene, Util/WinCutscene, tools/anim/win_clips.py), per-map `WinnerStage` spot, 2-5 player slots, captures, Studio preview, what to test
 - `02 Art/Style Bible.md` (8): **the whole look and feel on one page** (pillars, models, guns, feedback/VFX, sound, UI); start here for anything players see or hear
 - `02 Art/UI Overhaul Research.md` (27): **UI overhaul phase 1** (2026-11-14): current Lobby and match UI review (captures, measured), 5 references, Studio-built ScreenGui hierarchy, Scale vs Offset, text sizing (measured TextScaled tests), what to build first
 - `02 Art/UI Top Bar Draft.md` (12): **match top bar** (2026-11-14): v2 built in Studio (team blocks, headshots, scores, stopwatch timer, motion), the owner calls that led there, where it lives; Figma draft 1 below

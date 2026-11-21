@@ -52,8 +52,8 @@ local SOUND: { [string]: string } = {
 	["ROUND WON"] = "RoundWon",
 	["ROUND LOST"] = "RoundLost",
 	DRAW = "Banner",
-	VICTORY = "MatchEnd", -- one ending song for everyone (no defeat noise)
-	DEFEAT = "MatchEnd",
+	-- VICTORY / DEFEAT: silent here. The ending song (MatchEnd) is started by
+	-- the win cutscene (Util/WinCutscene), which runs on its clock.
 }
 
 type Ui = {
