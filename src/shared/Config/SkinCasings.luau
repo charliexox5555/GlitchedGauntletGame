@@ -35,6 +35,14 @@ return table.freeze({
 			hull = "245C53",
 			hullMaterial = "SmoothPlastic",
 		}),
+		TempestStrike = table.freeze({ -- hydro-core round: storm-navy case, cyan water band
+			body = "1D2433",
+			bodyMaterial = "Metal",
+			band = "2E8C88",
+			bandMaterial = "Neon",
+			hull = "1D2433",
+			hullMaterial = "SmoothPlastic",
+		}),
 		Giltfold = table.freeze({ -- smoked pewter round, ivory paper band
 			body = "6E737D",
 			bodyMaterial = "Metal",

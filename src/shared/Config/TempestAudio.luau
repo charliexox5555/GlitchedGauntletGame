@@ -27,6 +27,7 @@ return table.freeze({
 	cues = table.freeze({
 		draw = cue("draw", 0.55, { 0.97, 1.03 }),
 		drawLock = cue("drawLock", 0.42, { 0.96, 1.04 }),
+		aimIn = cue("draw", 0.16, { 1.28, 1.36 }), -- a short high water swish into the sights
 		inspect = cue("inspect", 0.5),
 		idleSurge = cue("inspect", 0.22, { 1.05, 1.12 }), -- the idle flourish: the swirl, softer and higher
 		inspectRoll = cue("inspectRoll", 0.6),

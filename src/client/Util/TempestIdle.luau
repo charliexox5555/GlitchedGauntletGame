@@ -23,8 +23,7 @@ export type State = {
 	frame: Frame,
 	toBody: CFrame,
 	ring: Ring,
-	burst: ParticleEmitter,
-	well: Attachment,
+	bursts: { [string]: ParticleEmitter }, -- droplet bursts, one attachment each (mag, well, centre)
 	reloadPrev: number, -- reload progress last frame (-1 = not reloading)
 	timing: { outAt: number, inAt: number, seat: number }?,
 	shotAge: number,
@@ -33,7 +32,6 @@ export type State = {
 	boost: number, -- conduit flare (shots, seat), decays
 	drain: number, -- conduits dimmed while the magazine is out
 	pose: CFrame,
-	wellRest: Vector3,
 	drawPrev: number?,
 	inspectPrev: number?,
 	cues: { [string]: () -> () },
@@ -41,6 +39,7 @@ export type State = {
 	nextFlourish: number,
 	flourishAge: number,
 	flourish: number, -- which idle flourish (1 wrist turn, 2 sight check)
+	aimed: boolean,
 	glows: { Glow },
 	ribbons: { Ribbon },
 	sparks: { ParticleEmitter },
@@ -256,6 +255,27 @@ local function droplets(parent: Attachment, scale: number): ParticleEmitter
 	return e
 end
 
+-- A droplet burst at a Handle-space point (`at`, model studs) or a world point.
+-- Each name keeps its own attachment, so a later burst never drags an earlier
+-- one's live droplets (they are locked to their attachment).
+local function burst(state: State, name: string, count: number, at: Vector3?, world: Vector3?)
+	local e = state.bursts[name]
+	if not e then
+		local a = Instance.new("Attachment")
+		a.Name = "TempestBurst" .. name
+		a.Parent = state.frame.body
+		e = droplets(a, state.frame.scale)
+		state.bursts[name] = e
+	end
+	local a = e.Parent :: Attachment
+	if world then
+		a.WorldPosition = world
+	elseif at then
+		a.Position = state.toBody:PointToWorldSpace(at * state.frame.scale)
+	end
+	e:Emit(if UiMotion.reduced() then math.ceil(count * 0.4) else count)
+end
+
 function TempestIdle.new(model: Model, scale: number): State?
 	if StateValues.get(model, "SkinLine") ~= Style.LINE then
 		return nil
@@ -270,8 +290,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 		frame = frame,
 		toBody = body.CFrame:ToObjectSpace(handle.CFrame),
 		ring = { points = {}, beams = {}, cores = {} },
-		burst = nil :: any,
-		well = nil :: any,
+		bursts = {},
 		reloadPrev = -1,
 		timing = nil,
 		shotAge = math.huge,
@@ -280,7 +299,6 @@ function TempestIdle.new(model: Model, scale: number): State?
 		boost = 0,
 		drain = 0,
 		pose = CFrame.identity,
-		wellRest = Vector3.zero,
 		drawPrev = nil,
 		inspectPrev = nil,
 		cues = {},
@@ -288,6 +306,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 		nextFlourish = 0,
 		flourishAge = math.huge,
 		flourish = 1,
+		aimed = false,
 		glows = {},
 		ribbons = {},
 		sparks = {},
@@ -344,9 +363,6 @@ function TempestIdle.new(model: Model, scale: number): State?
 	light.Parent = glow
 	state.light = light
 	state.ring = makeRing(state, Style.RING_POINTS, w * 0.9)
-	state.well = anchor(frame, "TempestWell", Style.WELL)
-	state.wellRest = state.well.Position
-	state.burst = droplets(state.well, scale)
 	return state
 end
 
@@ -393,26 +409,17 @@ function TempestIdle.reload(
 	local dissolved = false
 	if prev < outAt and t >= outAt then
 		-- the old magazine bursts into water where it is
-		local at = centre(parts)
-		if at then
-			state.well.WorldPosition = at
-		end
-		state.burst:Emit(if UiMotion.reduced() then 6 else 14)
+		burst(state, "Out", 14, nil, centre(parts))
 		dissolved = true
 		TempestIdle.cue(state, "magOut")
 	end
 	if prev < inAt and t >= inAt then
 		-- water forms the new magazine in the hand
-		local at = centre(parts)
-		if at then
-			state.well.WorldPosition = at
-		end
-		state.burst:Emit(if UiMotion.reduced() then 4 else 9)
+		burst(state, "Form", 9, nil, centre(parts))
 		TempestIdle.cue(state, "magForm")
 	end
 	if prev < seat and t >= seat then
-		state.well.Position = state.wellRest
-		state.burst:Emit(8)
+		burst(state, "Well", 8, Style.WELL)
 		state.popAge = 0
 		state.boost = math.max(state.boost, Style.BOOST_SEAT)
 		TempestIdle.cue(state, "magSeat")
@@ -423,7 +430,6 @@ end
 function TempestIdle.endReload(state: State)
 	state.reloadPrev = -1
 	state.timing = nil
-	state.well.Position = state.wellRest
 end
 
 -- The skin's motion layer in Handle space (multiply onto the gun's handle CFrame).
@@ -491,6 +497,12 @@ function TempestIdle.step(
 		else 0
 	state.boost = math.max(state.boost, 0.45 * surge)
 	local on = visible and state.weight > 0.01
+	-- into the sights: a faint water shimmer
+	local aimed = if state.aimed then aim > 0.35 else aim > 0.6
+	if aimed and not state.aimed and visible then
+		TempestIdle.cue(state, "aimIn")
+	end
+	state.aimed = aimed
 	-- reload: conduits drain while the magazine is gone, refill as the new one forms
 	local timing = state.timing
 	local drainGoal = 0
@@ -585,10 +597,7 @@ function TempestIdle.step(
 			TempestIdle.cue(state, "inspectRoll")
 		end
 		if prev < Style.INSPECT_CATCH and inspectP >= Style.INSPECT_CATCH then
-			state.well.Position = state.toBody:PointToWorldSpace(
-				bl(Style.INSPECT_RING_X, 0, 0.30) * state.frame.scale
-			)
-			state.burst:Emit(if reduced then 5 else 12)
+			burst(state, "Centre", 12, bl(Style.INSPECT_RING_X, 0, 0.30))
 			state.boost = math.max(state.boost, Style.BOOST_SEAT)
 			TempestIdle.cue(state, "inspectCatch")
 		end
@@ -609,14 +618,12 @@ function TempestIdle.step(
 		end
 		if (state.drawPrev or 0) < Style.DRAW_RING and drawP >= Style.DRAW_RING then
 			state.boost = math.max(state.boost, Style.BOOST_SEAT) -- plates lock
+			burst(state, "Centre", 10, bl(1.2, 0, 0.32))
 			TempestIdle.cue(state, "drawLock")
 		end
 	end
 	state.drawPrev = drawP
 	state.inspectPrev = inspectP
-	if not inspectP and state.well.Position ~= state.wellRest and not state.timing then
-		state.well.Position = state.wellRest
-	end
 	if ringAlpha <= 0.02 or not on then
 		for _, b in state.ring.beams do
 			b.Enabled = false
