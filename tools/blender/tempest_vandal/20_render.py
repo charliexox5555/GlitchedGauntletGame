@@ -31,7 +31,7 @@ nt.links.new(tc.outputs["Generated"], sx.inputs[0])
 mr = nt.nodes.new("ShaderNodeMapRange"); mr.inputs["From Min"].default_value = 0.0; mr.inputs["From Max"].default_value = 1.0
 nt.links.new(sx.outputs["Z"], mr.inputs["Value"]); nt.links.new(mr.outputs["Result"], cr.inputs["Fac"])
 e = cr.color_ramp.elements
-e[0].position = 0.40; e[0].color = (0.035, 0.037, 0.042, 1)
+e[0].position = 0.40; e[0].color = (0.30, 0.31, 0.34, 1)
 e[1].position = 0.56; e[1].color = (0.95, 0.96, 1.0, 1)
 x = e.new(0.75); x.color = (0.42, 0.44, 0.48, 1)
 nt.links.new(cr.outputs["Color"], bg.inputs[0])

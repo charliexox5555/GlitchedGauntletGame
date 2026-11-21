@@ -63,15 +63,15 @@ def crescent(ro, ri, off, gap, n=22):
 		a = a1 - (a1 - a0) * i / n
 		inner.append((ri * math.cos(a), AZ + off + ri * math.sin(a)))
 	return outer + inner
-cres = crescent(0.076, 0.059, 0.012, 36)
-new_obj("TSC_Sight_Crescent", prism_yz(cres, AX - 0.013, AX + 0.013), "Body")
-face = crescent(0.073, 0.062, 0.008, 38)
-new_obj("TSC_Sight_CrescentFace", prism_yz(face, AX - 0.0155, AX - 0.0125), "Panel", bevel=0)
+cres = crescent(0.074, 0.0645, 0.0055, 36)
+new_obj("TSC_Sight_Crescent", prism_yz(cres, AX - 0.009, AX + 0.009), "Body")
+face = crescent(0.0725, 0.0665, 0.0035, 38)
+new_obj("TSC_Sight_CrescentFace", prism_yz(face, AX - 0.0112, AX - 0.0092), "Panel", bevel=0)
 for s in (1, -1):         # cyan caps seated on the horn tips
 	a = math.radians(90 + s * 36)
-	ty, tz = 0.069 * math.cos(a), AZ + 0.069 * math.sin(a)
-	pip = [(ty, tz + 0.009), (ty + 0.0065, tz), (ty, tz - 0.006), (ty - 0.0065, tz)]
-	new_obj("TSC_Sight_Pip%+d" % s, prism_yz(pip, AX - 0.0145, AX + 0.0145), "Neon", bevel=0)
+	ty, tz = 0.069 * math.cos(a), AZ + 0.069 * math.sin(a) + 0.001
+	pip = [(ty, tz + 0.0065), (ty + 0.0045, tz), (ty, tz - 0.0045), (ty - 0.0045, tz)]
+	new_obj("TSC_Sight_Pip%+d" % s, prism_yz(pip, AX - 0.0105, AX + 0.0105), "Neon", bevel=0)
 for n in ("TS_Sight_Crescent", "TS_Sight_Pip+1", "TS_Sight_Pip-1"):
 	if n in bpy.data.objects:
 		o = bpy.data.objects[n]; o.hide_render = True; o.hide_set(True); o["ts_replaced"] = True
