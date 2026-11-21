@@ -4,7 +4,7 @@
 import bpy, bmesh, math
 from mathutils import Vector, Matrix
 
-SCRATCH = r"C:/Users/charl/AppData/Local/Temp/claude/487954cbd365390d/59720a05-5fc4-46fb-9558-104afc4148ec/scratchpad/"
+SCRATCH = r"C:/Users/charl/AppData/Local/Temp/claude/6f8bed3fe7c45255/59720a05-5fc4-46fb-9558-104afc4148ec/scratchpad/"
 
 # ---------- collections and materials ----------
 def coll(name, parent=None):
