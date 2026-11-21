@@ -397,3 +397,45 @@ def profile_side(name, y_min=None):
 	ws = [o.matrix_world @ v.co for v in o.data.vertices]
 	xs = sorted({round(w.x, 3) for w in ws})
 	return ws
+
+def lathe(prof, n=12, cy=0.0, cz=0.0, rot=None):
+	"""Revolve a (x, r) profile about the X axis (through y=cy, z=cz) in n flat facets (a flat on top by default).
+	Points with r == 0 close the end with a fan. Profile runs from one end to the other."""
+	rot = math.pi / n if rot is None else rot
+	bm = bmesh.new(); rings = []
+	for x, r in prof:
+		if r <= 1e-9:
+			rings.append([bm.verts.new((x, cy, cz))])
+		else:
+			rings.append([bm.verts.new((x, cy + r * math.cos(rot + 2 * math.pi * i / n), cz + r * math.sin(rot + 2 * math.pi * i / n))) for i in range(n)])
+	for a, b in zip(rings[:-1], rings[1:]):
+		if len(a) == 1 and len(b) == 1:
+			continue
+		if len(a) == 1:
+			for i in range(n):
+				bm.faces.new((a[0], b[(i + 1) % n], b[i]))
+		elif len(b) == 1:
+			for i in range(n):
+				bm.faces.new((a[i], a[(i + 1) % n], b[0]))
+		else:
+			for i in range(n):
+				bm.faces.new((a[i], a[(i + 1) % n], b[(i + 1) % n], b[i]))
+	if len(rings[0]) > 1:
+		bm.faces.new(rings[0][::-1])
+	if len(rings[-1]) > 1:
+		bm.faces.new(rings[-1])
+	return bm
+
+def ring_tilt_x(secf, x0, tilt, grow, zc):
+	"""Ring of a section (y,z) list at x0, leaning: x = x0 + tilt * (z - zc). secf(x, grow) -> [(y, z)]."""
+	n = len(secf(x0, grow)); out = []
+	for i in range(n):
+		x = x0
+		for _ in range(3):
+			y, z = secf(x, grow)[i]; x = x0 + tilt * (z - zc)
+		y, z = secf(x, grow)[i]
+		out.append((x, y, z))
+	return out
+
+def sec_grow(pts, grow):
+	return poly_offset(pts, grow) if grow else pts

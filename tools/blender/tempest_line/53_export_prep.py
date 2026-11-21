@@ -40,18 +40,34 @@ for o in list(bpy.data.collections["Tempest"].all_objects):
 for c in bpy.data.collections:
 	if c.name.startswith("Tempest_Cutters"):
 		for o in c.all_objects:
-			o.hide_render = True
+			if o is not None:
+				o.hide_render = True
 for n in ("COL_ReviewRig",):
 	c = bpy.data.collections.get(n)
 	if c:
 		for o in list(c.all_objects):
-			bpy.data.objects.remove(o, do_unlink=True)
+			if o is not None:
+				bpy.data.objects.remove(o, do_unlink=True)
 		bpy.data.collections.remove(c)
 renamed = []
-for n in ("Body", "Panel", "Dark", "Grip", "Metal", "Accent", "Neon", "Brass", "Glass", "Water"):
+for n in ("Body", "Panel", "Dark", "Grip", "Metal", "Accent", "Neon", "Brass", "Water"):   # Glass/Lens stay stock: scope lenses untouched
 	m = bpy.data.materials.get(n)
 	if m:
 		m.name = "TS " + n; renamed.append(m.name)
+# stock parts that must stay untouched in Studio (scope lenses): stock-named slot materials, so the exporter
+# lists them as untouched_stock instead of replacing them
+kept = []
+for on in globals().get("KEEP_STOCK", []):
+	o = bpy.data.objects.get(on)
+	if not o:
+		continue
+	for i, m in enumerate(o.data.materials):
+		if m is not None and m.name.startswith("TS "):
+			base = m.name[3:]
+			ph = bpy.data.materials.get(base) or m.copy()
+			ph.name = base
+			o.data.materials[i] = ph
+	kept.append(on)
 moved = {}
 if GROUPS:
 	stock = bpy.data.objects["%s_Rig" % GUN]
@@ -86,4 +102,4 @@ for f in os.listdir(dst):
 	if f.endswith((".blend", ".blend1")):
 		os.remove(os.path.join(dst, f))
 bpy.ops.wm.save_as_mainfile(filepath=dst + "%s_TempestStrike_%sx.blend" % (GUN, TAG), copy=False)
-result = {"applied": applied, "renamed": renamed, "moved": moved, "saved": bpy.data.filepath}
+result = {"kept_stock": kept, "applied": applied, "renamed": renamed, "moved": moved, "saved": bpy.data.filepath}
