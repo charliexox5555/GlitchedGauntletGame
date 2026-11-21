@@ -72,3 +72,9 @@ Muzzle (2.647, 0, 0.285) · RightGrip origin · LeftGrip (1.32, 0, 0.17) · AimP
   - **Hydro inlays:** thin cyan line under each receiver blade.
   - Gemini's checklist (2026-11-21, via owner) holds: no Subdivision Surface, 1-segment angle-limited chamfers on new parts, octagonal barrel, stepped ported brake, separate named parts; transforms applied at export.
   - **Self-grade 7.5/10** against Ruin-Blighted. Next ideas: layered silver fins on the handguard front, magazine baseplate and grip cap restyle, ADS check at both stock aim cameras, then export manifest and the Studio VFX pass (laminar water ribbons, vent arcs, shuriken flash).
+- 2026-11-21, **s03: front fins, pommel cap, ADS check.** [Master](../../../../art-source/weapons/Skins/TempestStrike/Vandal/s03/Vandal_TempestStrike_s03.blend) · [review sheet](out/Vandal_s03_review.png) · `45_s03_stage_d.py`, `46_ads.py`. **11,952 triangles.**
+  - **Layered fins:** two stacked silver blades on each handguard upper band, pointing forward into the collar, with a cyan line under them (cut from the stock handguard surface, so they sit flush on it).
+  - **Kashira cap:** faceted silver pommel with a pointed heel and a cyan seam under the grip; the lowest grip band was dropped so the wrap ends cleanly on the cap.
+  - **Magazine:** cyan hydro ring just above the baseplate (Mag bone).
+  - **ADS (stock aim camera: eye 0.36 behind AimPoint, vertical FOV 68):** the open crescent is a big clear window (about a quarter of the screen height), the blade post sits centred in it, the cyan horn caps stay outside the aim point. Ray along the aim line hits only `TSC_Sight_FrontPost`: pass.
+  - **Self-grade 8/10.** Next: export (flat exporter manifest of replaced stock prefixes: FrontSight, RearSight, Rail, Stock, Barrel, ChargingHandle, Bolt, Neon), Studio install and the VFX pass (laminar water ribbons, vent arcs, shuriken flash, hydro tracer).

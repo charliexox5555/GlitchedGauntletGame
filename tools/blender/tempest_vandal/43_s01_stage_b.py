@@ -42,7 +42,7 @@ for i, (lo, hi) in enumerate(((0.170, 0.280), (0.310, 0.420), (0.450, 0.560))):
 for i, (lo, hi) in enumerate(((0.289, 0.301), (0.429, 0.441))):
 	surface_band("Vandal_Mag", "TS_ConduitMag%d" % i, MAX, lo, hi, "Neon", lift=0.0006, thick=0.0025)
 # grip: four slanted bands, alternating tilt (tsuka-maki rhythm), below the trigger guard
-for i, (lo, hi, tilt) in enumerate(((0.035, 0.085, 12), (0.101, 0.151, 12), (0.167, 0.217, 12), (0.233, 0.283, 12))):
+for i, (lo, hi, tilt) in enumerate(((0.035, 0.085, 12), (0.101, 0.151, 12), (0.167, 0.217, 12))):
 	a = math.radians(tilt)
 	surface_band("Vandal_Grip", "TS_WrapGrip%d" % i, (math.sin(a), 0, -math.cos(a)), lo, hi, "Grip", thick=0.0055)
 # leather reads smooth: flatten the stock rubber pattern on the Grip role
