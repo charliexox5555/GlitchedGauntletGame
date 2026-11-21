@@ -8,6 +8,7 @@
 -- everyone) follow it. Works in Studio and, with LIVE on, in live servers of
 -- the match place (owner 2026-11-14: "check out skins out of Studio").
 local RunService = game:GetService("RunService")
+local VFX = require(script.Parent.VfxTextures)
 
 local shadowMistLine = "RuinBlighted"
 local lines = {
@@ -51,22 +52,44 @@ return table.freeze({
 		LINE = "TempestStrike",
 		WATER = Color3.fromRGB(95, 230, 224),
 		WATER_EDGE = Color3.fromRGB(214, 255, 252),
-		RIBBON_WIDTH = 0.022, -- model studs, scaled with the viewmodel
-		RIBBON_SPEED = 1.2, -- flow scroll (Beam.TextureSpeed)
-		RIBBON_BODY = 0.45, -- transparency of the continuous water line
-		FLOW_TILE = 0.25, -- flow streak texture length (studs, scaled)
+		RIBBON_WIDTH = 0.072, -- model studs, scaled with the viewmodel
+		RIBBON_SPEED = 0.9, -- water scroll (Beam.TextureSpeed)
+		RIBBON_BODY = 0, -- transparency of the textured water ribbon
+		RIBBON_BRIGHTNESS = 1.9,
+		CORE_WIDTH = 0.35, -- solid core line, fraction of the ribbon width
+		CORE_BODY = 0.5,
+		RIBBON_TILE = 0.32, -- ribbon texture length (studs, scaled)
 		HELIX_LIFT = 0.02, -- clearance off the fore-end surface
 		HELIX_TURNS = 1.25, -- wraps around the fore-end
 		HELIX_POINTS = 14,
-		RING_SPEED = 1.4,
-		RING_RADIUS = 0.058,
-		SPARK_RATE = 5, -- per arc emitter (two on the handguard top)
-		SPARK_SIZE = 0.05,
-		SPARK_LIFE = NumberRange.new(0.10, 0.17),
-		LIGHT_BRIGHTNESS = 0.9,
-		LIGHT_RANGE = 1.1,
+		SPARK_RATE = 2.2, -- per arc emitter (receiver cowl, handguard top, handguard blade)
+		SPARK_SIZE = 0.11,
+		SPARK_LIFE = NumberRange.new(0.06, 0.11),
+		ARC_CORE = Color3.fromRGB(244, 255, 255),
+		LIGHT_BRIGHTNESS = 1.2,
+		LIGHT_RANGE = 2.2,
+		GLOW_PEAK = Color3.fromRGB(150, 255, 250), -- Neon conduits breathe toward this
+		GLOW_MIX = 0.55,
+		GLOW_RATE = 2.1, -- radians per second
 		ADS_RIBBON = 0.35, -- ribbon opacity kept at full ADS
 		ADS_SPARK_CUTOFF = 0.5, -- sparks stop above this aim weight
+		-- shot (Util/TempestFx): shuriken flash, port mist, light pop, splash impacts
+		SHOT_TINT = Color3.fromRGB(120, 240, 236), -- tracer colour
+		FLASH_CORE = Color3.fromRGB(236, 255, 255),
+		FLASH_TIME = 0.055, -- about three frames at 60 fps
+		FLASH_FRONT = VFX.TEMPEST_FLASH_FRONT_2x2,
+		FLASH_FRONT_FLIPBOOK = true,
+		FLASH_SIDE = VFX.TEMPEST_FLASH_SIDE_2x2,
+		DROPLETS = VFX.TEMPEST_DROPLETS_2x2,
+		DROPLETS_FLIPBOOK = true,
+		SPLASH = VFX.TEMPEST_SPLASH_2x2,
+		SPLASH_FLIPBOOK = true,
+		STATIC_MARK = VFX.TEMPEST_STATIC_MARK,
+		STATIC_TIME = 0.7,
+		FLASH_LIGHT = 1.6, -- stock fast-gun pop (MuzzleFx); more strobes or blooms the view
+		FLASH_LIGHT_RANGE = 8,
+		FLASH_BRIGHTNESS = 1.6, -- under the place Bloom threshold (2)
+		FLASH_LIGHT_TIME = 0.06,
 	}),
 	SHADOW_MIST = table.freeze({
 		LINE = shadowMistLine,

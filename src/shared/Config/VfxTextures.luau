@@ -120,4 +120,15 @@ return table.freeze({
 	-- Sudden-death zone (tools/vfx/make_zone_vfx.py → art-source/vfx/zone/): white, tiles left-right.
 	ZONE_WALL = "rbxassetid://108018292345432", -- glitch-storm curtain, top fades out (decal 116087755457548)
 	ZONE_GLITCH = "rbxassetid://128662496057045", -- sparse pixel blocks and streaks (decal 110875138601582)
+
+	-- Tempest-Strike skin (2026-11-21, ChatGPT app → art-source/vfx/tempest/raw/, decals in
+	-- art-source/uploads.json), all white/grey, tinted cyan in code (Util/TempestFx, TempestIdle).
+	TEMPEST_FLASH_FRONT_2x2 = "rbxassetid://97807594653337", -- four-point shuriken star, head-on
+	TEMPEST_FLASH_SIDE_2x2 = "rbxassetid://120162413218716", -- spear of light pointing right, star at the left base
+	TEMPEST_DROPLETS_2x2 = "rbxassetid://107132207407221", -- faceted droplets bursting outward over 4 frames
+	TEMPEST_SPLASH_2x2 = "rbxassetid://128397554140678", -- water crown + ring expanding over 4 frames
+	TEMPEST_ARC_2x2 = "rbxassetid://117194314082417", -- thin branching arcs, left to right, 4 shapes
+	TEMPEST_STATIC_MARK = "rbxassetid://99394363421524", -- crackle scorch decal
+	TEMPEST_WATER_RIBBON = "rbxassetid://107153772972177", -- laminar ribbon, tiles left to right
+	TEMPEST_WATER_TRACER = "rbxassetid://113759566097094", -- razor streak, head on the right, droplets trailing
 })

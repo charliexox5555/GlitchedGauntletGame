@@ -36,6 +36,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local ShadowMist = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
+local Tempest = require(ReplicatedStorage.Shared.Config.SkinPreview).TEMPEST
 local RuinBlightedPresentation = require(ReplicatedStorage.Shared.Config.RuinBlightedPresentation)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
@@ -47,6 +48,7 @@ local HitFx = require(script.Parent.Parent.Util.HitFx)
 local ImpactFx = require(script.Parent.Parent.Util.ImpactFx)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local MuzzleFx = require(script.Parent.Parent.Util.MuzzleFx)
+local TempestFx = require(script.Parent.Parent.Util.TempestFx)
 local ShellFx = require(script.Parent.Parent.Util.ShellFx)
 local ShotFxKit = require(script.Parent.Parent.Util.ShotFxKit)
 local TracerFx = require(script.Parent.Parent.Util.TracerFx)
@@ -102,8 +104,18 @@ local function shadowShot(config: WeaponConfig): Color3?
 		else nil
 end
 
+-- Our own camera gun wears the Tempest-Strike line (first-person shot effects).
+local function tempestShot(): boolean
+	local cam = Workspace.CurrentCamera
+	local model = cam and cam:FindFirstChild("Viewmodel")
+	return model ~= nil and StateValues.get(model, "SkinLine") == Tempest.LINE
+end
+
 function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
-	TracerFx.tracer(from, to, config, own, if own then shadowShot(config) else nil)
+	local tint = if own
+		then (if tempestShot() then Tempest.SHOT_TINT else shadowShot(config))
+		else nil
+	TracerFx.tracer(from, to, config, own, tint)
 end
 
 -- A knife strike on the world: a long thin gouge along `along`, a short wide
@@ -165,6 +177,9 @@ function EffectsController.localWallImpact(
 	size: number
 )
 	ImpactFx.impact(position, normal, hit, material, size, false, shadowShot(config) ~= nil)
+	if tempestShot() then
+		TempestFx.splash(position, normal)
+	end
 end
 
 -- Our own shot -------------------------------------------------------------------
@@ -206,7 +221,11 @@ function EffectsController.localShot(config: WeaponConfig, side: string?, muzzle
 	local scale = config.viewmodelScale or ViewmodelConfig.SCALE
 	local muzzle = viewmodelPoint(side, muzzleName or "Muzzle")
 	if muzzle then
-		MuzzleFx.flash(muzzle, config, true, nil, shadowShot(config))
+		if tempestShot() then
+			TempestFx.flash(muzzle, scale)
+		else
+			MuzzleFx.flash(muzzle, config, true, nil, shadowShot(config))
+		end
 	end
 	local eject = if config.shellsOnFire ~= false then viewmodelPoint(side, "Eject") else nil
 	if eject then
@@ -612,6 +631,7 @@ function EffectsController.start()
 		ShellFx.step(dt)
 		ImpactFx.step(dt)
 		MuzzleFx.step(dt) -- advances the effects clock, then barrel wisps and light pops
+		TempestFx.step(dt)
 	end)
 end
 
