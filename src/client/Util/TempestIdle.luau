@@ -269,6 +269,50 @@ local function smooth(a: number, b: number, x: number): number
 	return t * t * (3 - 2 * t)
 end
 
+-- The gun's outline at bore station x: ring radius and centre height from the
+-- profile's sweep stations (Config/TempestProfiles). Fitted guns read the
+-- measured stations smoothly; the Vandal keeps its stepped bands.
+local function hull(p: Profiles.Profile, x: number): (number, number)
+	local st = p.sweep
+	if x <= st[1][1] then
+		return st[1][2], st[1][3]
+	end
+	for i = 2, #st do
+		local b = st[i]
+		if x <= b[1] then
+			if not p.fit then
+				return b[2], b[3]
+			end
+			local a = st[i - 1]
+			local t = (x - a[1]) / math.max(b[1] - a[1], 1e-3)
+			return a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t
+		end
+	end
+	local last = st[#st]
+	return last[2], last[3]
+end
+
+-- The shot ring's size down its run: explicit ends (the Vandal), or wrapping the
+-- measured outline round the pulse line (fitted guns).
+local function pulseSize(p: Profiles.Profile, scale: number): NumberSequence
+	local pl = p.pulse
+	local s0, s1 = pl.size0, pl.size1
+	if s0 and s1 then
+		return NumberSequence.new({
+			NumberSequenceKeypoint.new(0, s0 * scale),
+			NumberSequenceKeypoint.new(0.45, (s0 + s1) / 2 * scale),
+			NumberSequenceKeypoint.new(1, s1 * scale),
+		})
+	end
+	local keys = {}
+	for i = 0, 7 do
+		local t = i / 7
+		local r, zc = hull(p, pl.x0 + (pl.x1 - pl.x0) * t)
+		table.insert(keys, NumberSequenceKeypoint.new(t, 2 * (r + math.abs(zc - pl.z)) * scale))
+	end
+	return NumberSequence.new(keys)
+end
+
 local function droplets(parent: Attachment, scale: number): ParticleEmitter
 	local e = Instance.new("ParticleEmitter")
 	e.Name = "TempestBurst"
@@ -329,7 +373,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 	local gun = if typeof(gunId) == "string" then gunId else "Vandal"
 	local p = Profiles[gun]
 	if not p then
-		return nil -- the Kunai-Katana is Util/TempestKunai's; other guns have no profile yet
+		return nil -- the Katana is Util/TempestKatana's; other guns have no profile yet
 	end
 	local handle = model.PrimaryPart
 	local body = rootBody(model)
@@ -492,11 +536,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 			e.SpreadAngle = Vector2.zero
 			e.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
 			e.Rotation = NumberRange.new(0, 360)
-			e.Size = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, p.pulse.size0 * scale),
-				NumberSequenceKeypoint.new(0.45, (p.pulse.size0 + p.pulse.size1) / 2 * scale),
-				NumberSequenceKeypoint.new(1, p.pulse.size1 * scale),
-			})
+			e.Size = pulseSize(p, scale)
 			e.Transparency = NumberSequence.new({
 				NumberSequenceKeypoint.new(0, 0.5),
 				NumberSequenceKeypoint.new(0.15, 0),
@@ -847,6 +887,14 @@ function TempestIdle.beat(state: State, kind: string)
 		state.boost = math.max(state.boost, Style.BOOST_SEAT)
 		burst(state, "Centre", 8, bl(p.lock[1], p.lock[2], p.lock[3]))
 		TempestIdle.cue(state, "magSeat")
+	elseif kind == "Settle" then
+		-- a shell reload's last flick: the action locks with a splash
+		state.popAge = 0
+		state.boost = math.max(state.boost, Style.BOOST_SEAT)
+		burst(state, "Centre", 8, bl(p.lock[1], p.lock[2], p.lock[3]))
+		if mv then
+			mv.cres.v += Style.CRESCENT_SHOT_KICK * state.shotSign
+		end
 	elseif kind == "Rack" then
 		state.boost = math.max(state.boost, Style.BOOST_SHOT)
 		if mv then
@@ -860,9 +908,12 @@ function TempestIdle.beat(state: State, kind: string)
 	end
 end
 
--- This gun's Config/Viewmodel track for a slot ("draw", "reload", "inspect"), or
--- nil for the gun's stock track.
-function TempestIdle.track(state: State, slot: "draw" | "reload" | "inspect"): string?
+-- This gun's Config/Viewmodel track for a slot (TempestProfiles tracks), or nil
+-- for the gun's stock track (or none).
+function TempestIdle.track(
+	state: State,
+	slot: "draw" | "reload" | "inspect" | "reloadStart" | "reloadInsert" | "reloadEnd" | "cycle"
+): string?
 	return (state.p.tracks :: any)[slot]
 end
 
@@ -1060,8 +1111,13 @@ function TempestIdle.step(
 			local x = ir.x0 + (ir.x1 - ir.x0) * run
 			x += (pr.x - x) * roll
 			local r = ir.r0 + (ir.r1 - ir.r0) * run
+			local z = state.p.bore
+			if state.p.fit then
+				local hr, hz = hull(state.p, x)
+				r, z = math.max(r, hr), hz
+			end
 			r += (pr.r - r) * roll * (1 - 0.35 * smooth(0.64, 0.78, inspectP))
-			local z = state.p.bore + (pr.z - state.p.bore) * roll
+			z += (pr.z - z) * roll
 			local whirl = spin * (1 + 2.2 * roll)
 			placeRing(state, bl(x, 0, z), bl(0, 1, 0), bl(0, 0, 1.1), r, -whirl, ringAlpha)
 		end
@@ -1092,15 +1148,12 @@ function TempestIdle.step(
 			local dr = state.p.drawRing
 			local x = dr.x0 + (dr.x1 - dr.x0) * k
 			local r = dr.r0 + (dr.r1 - dr.r0) * k
-			placeRing(
-				state,
-				bl(x, 0, state.p.bore),
-				bl(0, 1, 0),
-				bl(0, 0, 1.15),
-				r,
-				spin,
-				ringAlpha
-			)
+			local z = state.p.bore
+			if state.p.fit then
+				local hr, hz = hull(state.p, x)
+				r, z = math.max(r, hr), hz
+			end
+			placeRing(state, bl(x, 0, z), bl(0, 1, 0), bl(0, 0, 1.15), r, spin, ringAlpha)
 		end
 		if (state.drawPrev or 0) < Style.DRAW_RING and drawP >= Style.DRAW_RING then
 			state.boost = math.max(state.boost, Style.BOOST_SEAT) -- plates lock
@@ -1203,13 +1256,7 @@ function TempestIdle.step(
 		end
 		local active = x ~= nil and visible and not reduced
 		if active and x then
-			local r, zc = st[#st][2], st[#st][3]
-			for _, station in st do
-				if x <= station[1] then
-					r, zc = station[2], station[3]
-					break
-				end
-			end
+			local r, zc = hull(state.p, x)
 			local p = state.toBody:PointToWorldSpace(bl(x, 0, zc) * k)
 			local d = state.toBody:VectorToWorldSpace(bl(1, 0, 0))
 			sweep.at.CFrame = CFrame.lookAt(p, p + d)

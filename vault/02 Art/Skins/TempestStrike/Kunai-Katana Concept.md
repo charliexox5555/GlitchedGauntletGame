@@ -1,24 +1,74 @@
-# Tempest-Strike Kunai-Katana (melee): owner concept
+# Tempest-Strike Katana (melee): owner concept
 
-2026-11-22. The owner's knife concept for the Tempest-Strike line (brief pasted in chat plus a model sheet image). **Image:** save the owner's sheet as `refs/style/Tempest-Strike Kunai-Katana Reference.png` (owner to drop it in; the description below covers it until then).
+**2026-11-22 redesign.** After the playtest the owner dropped the kunai: "honestly maybe get rid of the kunai and make a new one … like a katana". The new sheet is at `refs/style/Tempest-Strike Katana Reference.jpg` ("TEMPEST-STRIKE KATANA").
 
-**Owner's rule for the brief:** it is direction, not a spec. Build VFX, animation and sound the way the Vandal was built (our VFX skills, Studio runtime, our own textures and motion rules), and make it look good once in Studio.
+The owner's verdict on the kunai build (s04x): it was the worst of the line. The VFX didn't line up with the blade, and it needed more light: "it should look like a lightsaber with the blade over the whole thing and look much better more like a katana."
 
-## The design (from the sheet)
-- **Physical kunai core** (always visible): matte-black kunai blade, leaf/diamond-shaped with a raised centre spine and **brushed-silver bevelled edges**; an etched lightning crack along the spine (top detail). Round **disc guard** in steel/silver. **Leather grip** (brown) with a **diamond-wrap** pattern (cross-wrapped bands showing diamond windows). Steel collar, then a large **ring pommel** (shinobi ring, steel).
-- **Hydro-katana extension**: a long, thin, translucent cyan **water blade** that extends forward from the kunai tip, roughly three times the kunai blade's length, with a slight katana curve and a sharp tip. Laminar water ribbons spiral round it from the guard to the tip, and thin white lightning arcs run along it.
-- **Sheet palette**: matte black 1C1E22, brushed silver 4E525A, dark indigo 1B1236, leather brown 7F4E30, a darker leather/black (value unreadable on the sheet), steel 6B7280, cyan glow 40F5D4, electric white E2FEFE, storm blue 1D2A44. The sheet quotes 2,140 triangles for the base model.
+**Owner's rule for the brief:** treat it as direction, not a spec. Build the VFX, animation and sound the way the Vandal was built: our VFX skills, the Studio runtime, our own textures and motion rules.
+
+## The design (from the katana sheet)
+- **Blade:**
+  - a curved, single-edged katana blade, about 4.2–4.5 studs overall;
+  - matte-black body, brushed-silver spine and bevel;
+  - a translucent glowing cyan **water cutting edge** along the whole length, brightest near the tip and along the fuller;
+  - an etched lightning line on the spine.
+- **Hilt:**
+  - crescent **tsuba** (steel);
+  - dark-brown leather **diamond-wrapped tsuka** (cross-wrapped bands with diamond windows);
+  - steel collar;
+  - CNC **shinobi ring pommel**;
+  - a small **shuriken charm** hanging from the ring.
+- **Palette:**
+  - matte black 1C1E23
+  - brushed silver (about 4E525A)
+  - dark indigo 181E30
+  - leather brown 7F4E30
+  - cyan glow (about 40F5D4)
+  - electric white E3FEFE
+  - storm blue 1D2544
+- The sheet quotes about 2,140 tris.
+- **Chromas (later):**
+  - Storm Shadow (base)
+  - Amethyst Gale
+  - Mist Ivory
+  - Midnight Eclipse
 
 ## How it plays (direction)
-- **Two forms, toggled with Inspect**: Form A compact kunai (fast reverse-grip shinobi stance, quick jabs); Form B extended water katana (one-handed sword stance). Inspect toggles: kunai to katana = toss, catch mid-spin, wrist thrust, the blade extrudes with a pressurised whoosh and a lightning flash; katana to kunai = spin the hilt, snap, the water blade shatters into falling droplets.
-- **Draw**: twirl by the pommel ring on the index finger, snap to a forward grip, water spirals down and lights the edge.
-- **Idle**: held low and angled across the screen, minimal obstruction; water ribbons flow guard to tip, hair-thin arcs flicker along the spine every couple of seconds.
-- **Light combo** (3 hits): diagonal slash (upper right to lower left) with a thin crescent water arc and sparks; reverse backhand sweep; pommel-spin forward thrust.
-- **Heavy (Storm Cleave)**: 0.35 s iaijutsu draw-back to the hip while the blade surges with white lightning, then a 0.1 s horizontal flash-slash with a wide crescent hydro-lightning arc and a thunderclap.
-- **Impacts**: crisp water droplets, a brief electric-blue spark flash.
-- **Sound**: equip = clean steel ring "ting-shing" plus a pressurised water splash; light swings = razor air cuts with water-whip snaps (no clunky clangs); heavy = katana draw ring, tight thunder crack, water surge; transform = liquid surge + electric hum (extend), crystalline water-shatter chime (retract); impact = surgical slice "shhk" + static zap + splash.
-- **Chromas** (later): Storm Shadow (base), Amethyst Gale (obsidian, royal-purple water, violet arcs), Mist Ivory (porcelain white and silver, seafoam water), Midnight Eclipse (blackout alloy, electric-white veins).
+- **One form** (no kunai toggle).
+- **Equip:** an iaijutsu flash-draw. The pommel ring spins once into the palm, and a water/spark surge runs from guard to tip.
+- **Idle:** held low, angled across the right side, crosshair clear. Water ribbons run from guard to tip, and hair-thin arcs flicker on the spine.
+- **Light combo** (3 hits):
+  1. a diagonal down cut;
+  2. a rising backhand;
+  3. a spinning forward thrust.
+
+  Each cut leaves a crescent wave of water and static.
+- **Heavy (Tempest Cleave):** a hip draw-back as the blade flares white-cyan, then a horizontal flash-slash with a wide crescent wave.
+- **Inspect:**
+  1. spin by the pommel ring;
+  2. balance the flat of the blade horizontally;
+  3. run two fingers along the spine, sending a water-and-lightning wave down it;
+  4. snap back.
+- **Impacts:** cyan droplets plus a static slash mark.
+- **Sound:** equip, swings, heavy, inspect, impact. The owner designs the sounds and auditions them.
+
+## Reference videos (owner, 2026-11-22)
+- **Video 1** (long curved sword, gold with a cyan energy edge). The owner likes its **inspect and slashes**:
+  - The blade is held low across the bottom of the screen, pointing left.
+  - Inspect: the blade turns flat across the view, the off hand comes in under it with open fingers, and the blade turns tip-up near the face, then settles back.
+  - Slashes leave a thin, bright crescent arc on screen (one clean stroke, no smoke).
+- **Video 2** (shorter blade). The owner prefers its **holding**:
+  - a forward grip on the right, with the blade rising up and forward at about 60°, edge glowing the whole length;
+  - a two-handed cut that brings both forearms through the view;
+  - a horizontal presentation of the blade across the screen.
+- **Our pick:**
+  - idle and draw use video 2's raised forward grip, kept low enough to leave the crosshair clear;
+  - inspect and combo arcs follow video 1;
+  - all of it is built in our own art and motion (study, don't copy).
 
 ## Split of work
-- **Blender (now, [Line Blender Handoff](Line%20Blender%20Handoff.md))**: the kunai core and the water-blade mesh, rigged for the extension.
-- **Studio (later, Vandal session)**: two-form toggle, stances, draw / idle / combo / heavy / inspect tracks, water and lightning VFX (our runtime: water coat, ribbons, arcs, rings), sounds, chromas. Gameplay effects of the two forms (reach, speed) need a design decision first; until then the toggle is cosmetic.
+- **Blender:** the katana model and rig, in the [Line Blender Handoff](Line%20Blender%20Handoff.md) pipeline, plus the blade stations for the runtime. Done by the Blender lane session.
+- **Studio (Vandal session):**
+  - draw, idle, combo, heavy and inspect tracks (`Config/Viewmodel` screen tracks, solved by `tools/studio/knife_fp_keys.py`);
+  - the blade VFX in `Util/TempestKunai` (rewritten for the katana);
+  - the install (MatchSkins row 346).

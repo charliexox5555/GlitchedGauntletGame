@@ -47,7 +47,7 @@ local FanMotion = require(script.Parent.Parent.Util.FanMotion)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local ShadowMistIdle = require(script.Parent.Parent.Util.ShadowMistIdle)
 local TempestIdle = require(script.Parent.Parent.Util.TempestIdle)
-local TempestKunai = require(script.Parent.Parent.Util.TempestKunai)
+local TempestKatana = require(script.Parent.Parent.Util.TempestKatana)
 local SlipframeEffects = require(script.Parent.Parent.Util.SlipframeEffects)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
@@ -142,7 +142,7 @@ type Gun = {
 	shadowMist: ShadowMistIdle.State?,
 	tempest: TempestIdle.State?,
 	slipframe: SlipframeEffects.State?,
-	kunai: TempestKunai.State?, -- the Tempest-Strike Kunai-Katana (knife slot)
+	katana: TempestKatana.State?, -- the Tempest-Strike Katana (knife slot)
 	shadowActions: ShadowMistActions.State?,
 	cosmeticInspect: CosmeticInspect.State?,
 }
@@ -1052,7 +1052,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	if templateId == "Guardian" and StateValues.get(m, "SkinLine") == "Slipframe" then
 		gun.slipframe = SlipframeEffects.new(m, scale)
 	end
-	gun.kunai = TempestKunai.new(m, scale)
+	gun.katana = TempestKatana.new(m, scale)
 	gun.shadowActions = ShadowMistActions.new(m, scale, weapon.id)
 	gun.cosmeticInspect = CosmeticInspect.new(m)
 	local rg, lg = gun.rightGrip, gun.leftGrip
@@ -1618,7 +1618,9 @@ function ViewmodelController.equip(
 	-- The knife's pull-out is its own screen-keyed track (VM.MELEE_DRAW_TRACK;
 	-- owner 2026-11-08: the Blender Draw clip's slow twirl read as an
 	-- unnatural 360). The free arm starts out of view and comes up last.
-	local drawTrack = VM.MELEE_DRAW_TRACK
+	local drawTrack = if right.katana and VM.TRACKS.KatanaDraw
+		then "KatanaDraw"
+		else VM.MELEE_DRAW_TRACK
 	if right.fan then
 		FanMotion.play(right.fan, "Draw", time)
 	end
@@ -1703,6 +1705,11 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 	end
 	if gun.tempest then
 		TempestIdle.fire(gun.tempest)
+		-- the Marshal's lever cycle over its Fire clip
+		local cycle = TempestIdle.track(gun.tempest, "cycle")
+		if cycle and not guns.Left then
+			ViewmodelTracks.play(playing, "Cycle", cycle)
+		end
 	end
 	if gun.slipframe then
 		SlipframeEffects.pulse(gun.slipframe, "Fire")
@@ -1922,6 +1929,21 @@ function ViewmodelController.playClip(clip: string, duration: number): { Beat }
 		gun.animator:play(clip, duration, holdEnd)
 	end
 	local beats = clipBeats(right, clip)
+	-- Tempest-Strike shell guns: their own move over each part (TempestProfiles)
+	local partTrack: string? = nil
+	if right.tempest then
+		if clip == "ReloadStart" then
+			partTrack = TempestIdle.track(right.tempest, "reloadStart")
+		elseif clip == "ReloadInsert" then
+			partTrack = TempestIdle.track(right.tempest, "reloadInsert")
+		elseif clip == "ReloadEnd" then
+			partTrack = TempestIdle.track(right.tempest, "reloadEnd")
+		end
+	end
+	if partTrack then
+		ViewmodelTracks.play(playing, "Reload", partTrack, duration)
+		alignTrack("Reload", beats)
+	end
 	queueBumps(beats, duration)
 	if clip == "ReloadEnd" then
 		queueBump("Settle", duration * VM.SHELL_END_SETTLE_AT)
@@ -1938,6 +1960,10 @@ function ViewmodelController.swing(attack: string?): number
 	ViewmodelController.cancelInspect()
 	local right = guns.Right
 	local hitDelay = 0
+	-- the Tempest-Strike Katana has its own cuts (Config/Viewmodel Katana*)
+	if right and right.katana and attack and VM.TRACKS["Katana" .. attack] then
+		attack = "Katana" .. attack
+	end
 	local own = attack and VM.TRACKS[attack]
 	local length = own and own.length or 0
 	if right and right.reaver then
@@ -2050,6 +2076,7 @@ function ViewmodelController.inspect(): boolean
 		then TempestIdle.track(guns.Right.tempest, "inspect") :: string
 		elseif guns.Right.slipframe then "InspectSlipframe"
 		elseif guns.Right.fan then "InspectFan"
+		elseif guns.Right.katana and VM.TRACKS.KatanaInspect then "KatanaInspect"
 		elseif c.fireMode == "Melee" then "InspectMelee"
 		else VM.INSPECT_TRACK[c.id] or "Inspect"
 	-- Akimbo: each gun gets a whole inspect, one after the other.
@@ -2850,10 +2877,14 @@ local function update(dt: number)
 			local visible = not hidden and lowerT < 0.9
 			if gun.slipframe then
 				local inspect = playing.Inspect
+				local draw = playing.Equip
+				local reload = playing.Reload
 				SlipframeEffects.step(
 					gun.slipframe,
 					dt,
 					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if reload and not reload.fading then reload.time / reload.length else nil,
 					adsAlpha,
 					visible
 				)
@@ -2889,19 +2920,24 @@ local function update(dt: number)
 					if inspect and not inspect.fading then inspect.time / inspect.length else nil
 				)
 			end
-			if gun.kunai then
+			if gun.katana then
 				local draw = playing.Equip
 				local inspect = playing.Inspect
 				local sw = playing.Swing
 				local cut = sw ~= nil and not sw.fading
-				TempestKunai.step(
-					gun.kunai,
+				TempestKatana.step(
+					gun.katana,
 					dt,
 					visible,
 					if draw and not draw.fading then draw.time / draw.length else nil,
 					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
 					if sw and cut then sw.time / sw.length else nil,
-					cut and sw ~= nil and sw.track == VM.TRACKS.HeavyStab,
+					cut
+						and sw ~= nil
+						and (
+							sw.track == VM.TRACKS.HeavyStab
+							or sw.track == VM.TRACKS.KatanaHeavyStab
+						),
 					if sw then sw.track.hit else nil
 				)
 			end

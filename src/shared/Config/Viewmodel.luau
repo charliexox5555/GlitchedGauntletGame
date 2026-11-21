@@ -327,6 +327,102 @@ local function inspectTrack(toss: { Key }?, tossPivot: Vector3?): Track
 	}
 end
 
+-- Tempest-Strike shell reload, Start part: tilt to the port (the right side for
+-- the Marshal's side gate), the gun rolling once about the bore on the way
+-- (`toss`, about `tossPivot` in the gun's handle space).
+local function shellStart(tossPivot: Vector3, rightSide: boolean): Track
+	local side = if rightSide then -1 else 1
+	return {
+		length = 1,
+		pivot = "Center",
+		smooth = true,
+		keys = {
+			key(0, ZERO, ZERO),
+			key(0.14, Vector3.new(0.01, -0.02, 0.01), Vector3.new(-3, -2, 4 * side)),
+			key(0.45, Vector3.new(-0.03, 0.05, -0.03), Vector3.new(6, 4 * side, -10 * side)),
+			key(0.7, Vector3.new(-0.02, 0.03, -0.02), Vector3.new(4, 3 * side, -7 * side)),
+			key(0.88, Vector3.new(0.004, -0.006, 0.003), Vector3.new(-1, 0, 1 * side)),
+			key(1, ZERO, ZERO),
+		},
+		toss = {
+			key(0, ZERO, ZERO),
+			key(0.16, ZERO, ZERO),
+			key(0.26, Vector3.new(0, 0.045, 0), Vector3.new(0, 0, -95)),
+			key(0.38, Vector3.new(0, 0.07, 0), Vector3.new(0, 0, -220)),
+			key(0.5, Vector3.new(0, 0.04, 0), Vector3.new(0, 0, -335)),
+			key(0.56, Vector3.new(0, -0.005, 0), Vector3.new(0, 0, -363)),
+			key(0.62, ZERO, Vector3.new(0, 0, -360)),
+			key(1, ZERO, Vector3.new(0, 0, -360)),
+		},
+		tossPivot = tossPivot,
+	}
+end
+
+-- ...Insert part: the push as the round seats at `seat` (the clip's ShellIn).
+local function shellInsert(seat: number): Track
+	return {
+		length = 1,
+		pivot = "Center",
+		smooth = true,
+		keys = {
+			key(0, ZERO, ZERO),
+			key(0.3, Vector3.new(-0.01, 0.015, -0.01), Vector3.new(2, 1, -3)),
+			key(seat - 0.06, Vector3.new(-0.012, 0.008, -0.012), Vector3.new(0.5, 1, -4.5)), -- brace
+			key(seat + 0.01, Vector3.new(-0.006, -0.022, 0.004), Vector3.new(-4, 0, 3)), -- pushed in
+			key(
+				math.min(seat + 0.11, 0.9),
+				Vector3.new(-0.008, 0.008, -0.006),
+				Vector3.new(1.5, 0.5, -2)
+			),
+			key(0.95, ZERO, Vector3.new(0.3, 0, -0.3)),
+			key(1, ZERO, ZERO),
+		},
+	}
+end
+
+-- The Tempest-Strike inspect (2026-11-22, our own design; Util/TempestIdle draws
+-- the water on the same beats), rolling about `tossPivot`: each gun's own
+-- middle (TempestProfiles roll), so it turns inside its water ring.
+local function tempestInspect(tossPivot: Vector3): Track
+	return {
+		length = 5.0,
+		pivot = "Center",
+		own = true,
+		smooth = true,
+		keys = {
+			key(0, ZERO, ZERO),
+			key(0.05, Vector3.new(0.02, -0.04, -0.04), Vector3.new(-4, -6, 4)),
+			-- 2026-11-22 (owner: "a little clunky"): no stop in the middle any
+			-- more. The roll happens while the gun swings from the right side
+			-- to the left, so it reads as one flowing move; each pose drifts.
+			key(0.15, Vector3.new(-0.47, 0.31, -0.94), Vector3.new(17, 70, -23)),
+			key(0.2, Vector3.new(-0.44, 0.28, -0.9), Vector3.new(12, 62, -17)),
+			key(0.3, Vector3.new(-0.45, 0.31, -0.93), Vector3.new(22, 59, -26)),
+			key(0.4, Vector3.new(-0.43, 0.29, -0.91), Vector3.new(14, 65, -18)),
+			-- passes muzzle-up (the stock drops out of the face) for the roll
+			key(0.52, Vector3.new(-0.36, 0.4, -0.9), Vector3.new(50, 6, -4)),
+			key(0.63, Vector3.new(-0.44, 0.22, -0.73), Vector3.new(-10, -62, 24)),
+			key(0.69, Vector3.new(-0.41, 0.2, -0.69), Vector3.new(-4, -52, 18)),
+			key(0.8, Vector3.new(-0.4, 0.24, -0.68), Vector3.new(10, -48, 12)),
+			key(0.87, Vector3.new(-0.42, 0.21, -0.69), Vector3.new(2, -55, 19)),
+			key(0.945, Vector3.new(0.02, -0.03, 0.02), Vector3.new(-3.5, 4, -3)),
+			key(1, ZERO, ZERO),
+		},
+		-- the barrel roll: lifts off the fists, one turn about the bore, caught
+		toss = {
+			key(0, ZERO, ZERO),
+			key(0.44, ZERO, ZERO),
+			key(0.475, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -80)),
+			key(0.52, Vector3.new(0, 0.08, 0), Vector3.new(0, 0, -215)),
+			key(0.565, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -335)),
+			key(0.59, Vector3.new(0, -0.005, 0), Vector3.new(0, 0, -362)),
+			key(0.62, ZERO, Vector3.new(0, 0, -360)),
+			key(1, ZERO, Vector3.new(0, 0, -360)),
+		},
+		tossPivot = tossPivot,
+	}
+end
+
 -- The gun Draw track (TRACKS.Draw and its per-class copies, DRAW_TRACK): every
 -- copy is the same raise, rack and settle; only where the gun comes in from
 -- (`from`, `fromRot`: the first key) differs.
@@ -2257,43 +2353,11 @@ return table.freeze({
 		-- top up, bring it to the middle where it lifts out of the hands and rolls
 		-- once inside a water ring (the toss), whip to the left side, home past
 		-- the hold. Every move winds up, overshoots and settles.
-		InspectTempest = {
-			length = 5.0,
-			pivot = "Center",
-			own = true,
-			smooth = true,
-			keys = {
-				key(0, ZERO, ZERO),
-				key(0.05, Vector3.new(0.02, -0.04, -0.04), Vector3.new(-4, -6, 4)),
-				-- 2026-11-22 (owner: "a little clunky"): no stop in the middle any
-				-- more. The roll happens while the gun swings from the right side
-				-- to the left, so it reads as one flowing move; each pose drifts.
-				key(0.15, Vector3.new(-0.47, 0.31, -0.94), Vector3.new(17, 70, -23)),
-				key(0.2, Vector3.new(-0.44, 0.28, -0.9), Vector3.new(12, 62, -17)),
-				key(0.3, Vector3.new(-0.45, 0.31, -0.93), Vector3.new(22, 59, -26)),
-				key(0.4, Vector3.new(-0.43, 0.29, -0.91), Vector3.new(14, 65, -18)),
-				-- passes muzzle-up (the stock drops out of the face) for the roll
-				key(0.52, Vector3.new(-0.36, 0.4, -0.9), Vector3.new(50, 6, -4)),
-				key(0.63, Vector3.new(-0.44, 0.22, -0.73), Vector3.new(-10, -62, 24)),
-				key(0.69, Vector3.new(-0.41, 0.2, -0.69), Vector3.new(-4, -52, 18)),
-				key(0.8, Vector3.new(-0.4, 0.24, -0.68), Vector3.new(10, -48, 12)),
-				key(0.87, Vector3.new(-0.42, 0.21, -0.69), Vector3.new(2, -55, 19)),
-				key(0.945, Vector3.new(0.02, -0.03, 0.02), Vector3.new(-3.5, 4, -3)),
-				key(1, ZERO, ZERO),
-			},
-			-- the barrel roll: lifts off the fists, one turn about the bore, caught
-			toss = {
-				key(0, ZERO, ZERO),
-				key(0.44, ZERO, ZERO),
-				key(0.475, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -80)),
-				key(0.52, Vector3.new(0, 0.08, 0), Vector3.new(0, 0, -215)),
-				key(0.565, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -335)),
-				key(0.59, Vector3.new(0, -0.005, 0), Vector3.new(0, 0, -362)),
-				key(0.62, ZERO, Vector3.new(0, 0, -360)),
-				key(1, ZERO, Vector3.new(0, 0, -360)),
-			},
-			tossPivot = Vector3.new(0, 0.24, -0.96),
-		},
+		InspectTempest = tempestInspect(Vector3.new(0, 0.24, -0.96)),
+		-- the same roll about each gun's own middle (TempestProfiles roll x, z)
+		InspectTempestStinger = tempestInspect(Vector3.new(0, 0.28, -0.3)),
+		InspectTempestMarshal = tempestInspect(Vector3.new(0, 0.15, -1.0)),
+		InspectTempestBucky = tempestInspect(Vector3.new(0, 0.25, -1.0)),
 		-- Draw: rolls in from below on its side and snaps level past the hold
 		-- (the water ring runs down the barrel meanwhile).
 		DrawTempest = {
@@ -2372,6 +2436,129 @@ return table.freeze({
 				key(1, ZERO, ZERO),
 			},
 		},
+		-- Tempest-Strike line, 2026-11-22 (owner playtest notes; our own moves, every
+		-- one winds up, overshoots and settles; Util/TempestIdle draws the water on
+		-- the same beats).
+		--
+		-- Stinger reload (owner: "makes the hand do like some unnatural movements"):
+		-- the Vandal's reload rolled it 46 degrees with the off hand on the mag.
+		-- Half the tilt and roll, no yaw swing, so the wrist stays in range.
+		ReloadTempestStinger = {
+			length = 1,
+			pivot = "Center",
+			smooth = true,
+			marks = { MagOut = 0.17, MagIn = 0.42, Rack = 0.86 },
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.04, Vector3.new(0.01, -0.018, 0.008), Vector3.new(-2.5, -1.5, 3)),
+				key(0.12, Vector3.new(-0.07, 0.13, -0.1), Vector3.new(12, 6, -20)),
+				key(0.165, Vector3.new(-0.065, 0.122, -0.1), Vector3.new(10, 5, -18)),
+				key(0.19, Vector3.new(-0.06, 0.145, -0.105), Vector3.new(14, 5, -16)), -- mag out: a jolt
+				key(0.26, Vector3.new(-0.066, 0.12, -0.1), Vector3.new(9, 5, -19)),
+				key(0.36, Vector3.new(-0.068, 0.112, -0.1), Vector3.new(8, 6, -21)),
+				key(0.405, Vector3.new(-0.068, 0.1, -0.098), Vector3.new(6.5, 6, -22)), -- brace
+				key(0.435, Vector3.new(-0.06, 0.15, -0.105), Vector3.new(14, 4, -15)), -- slapped home
+				key(0.52, Vector3.new(-0.06, 0.12, -0.1), Vector3.new(9, 4, -17)),
+				key(0.66, Vector3.new(-0.045, 0.09, -0.08), Vector3.new(6, 3, -12)),
+				key(0.86, Vector3.new(-0.015, 0.04, -0.03), Vector3.new(4, 1, -4)),
+				key(0.94, Vector3.new(0.01, -0.012, 0.01), Vector3.new(-2, -1, 2)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Sheriff reload (on top of its own clip, which already flips the revolver
+		-- about 50 degrees): lift as the cylinder swings out, a jolt up as the
+		-- ejector throws the cases, turn the cylinder to the loader, a small push
+		-- as the rounds seat, then the wrist flick that snaps the cylinder shut.
+		ReloadTempestSheriff = {
+			length = 1,
+			pivot = "Center",
+			smooth = true,
+			marks = { Open = 0.08, Eject = 0.2, ShellIn = 0.45, Close = 0.66 },
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.04, Vector3.new(0.01, -0.02, 0.01), Vector3.new(-3, -2, 3)),
+				key(0.08, Vector3.new(-0.06, 0.08, -0.05), Vector3.new(10, 8, -14)), -- cylinder out
+				key(0.12, Vector3.new(-0.055, 0.07, -0.05), Vector3.new(8, 7, -12)),
+				key(0.2, Vector3.new(-0.05, 0.11, -0.04), Vector3.new(16, 6, -10)), -- cases thrown
+				key(0.26, Vector3.new(-0.06, 0.08, -0.05), Vector3.new(9, 7, -13)),
+				key(0.36, Vector3.new(-0.07, 0.05, -0.06), Vector3.new(4, 10, -18)), -- to the loader
+				key(0.45, Vector3.new(-0.07, 0.035, -0.06), Vector3.new(1, 10, -19)), -- rounds seat
+				key(0.5, Vector3.new(-0.068, 0.05, -0.06), Vector3.new(5, 9, -17)),
+				key(0.62, Vector3.new(-0.06, 0.06, -0.05), Vector3.new(6, 12, -24)), -- wind-up
+				key(0.66, Vector3.new(-0.02, 0.07, -0.03), Vector3.new(10, -4, 14)), -- flicked shut
+				key(0.72, Vector3.new(-0.015, 0.03, -0.02), Vector3.new(3, -2, 6)),
+				key(0.84, Vector3.new(0.01, -0.012, 0.008), Vector3.new(-2, 1, -2)),
+				key(0.94, Vector3.new(0, 0.004, 0), Vector3.new(0.6, 0, 0.4)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Sheriff inspect (owner: the stock twirl looked "unnatural/impossible"):
+		-- no toss. Turn it to show the right side, tip the top up, bring it to the
+		-- middle rolled toward you as its own clip swings the cylinder out (0.57)
+		-- and spins it (a water ring round the open cylinder, TempestProfiles
+		-- roll 0.56-0.86), then the wrist flick that shuts it and home past the
+		-- hold. Every turn stays in a wrist's range.
+		InspectTempestSheriff = {
+			length = 2.8,
+			pivot = "Center",
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.05, Vector3.new(0.02, -0.03, 0.02), Vector3.new(-4, -6, 4)),
+				key(0.16, Vector3.new(-0.21, 0.15, -0.13), Vector3.new(10, 60, -20)), -- past the right side
+				key(0.22, Vector3.new(-0.2, 0.14, -0.125), Vector3.new(7, 52, -16)),
+				key(0.31, Vector3.new(-0.205, 0.16, -0.13), Vector3.new(18, 50, -24)), -- the top up
+				key(0.42, Vector3.new(-0.21, 0.15, -0.13), Vector3.new(8, 54, -16)),
+				key(0.5, Vector3.new(-0.12, 0.12, -0.1), Vector3.new(4, 20, -8)),
+				key(0.58, Vector3.new(-0.14, 0.13, -0.16), Vector3.new(10, -8, 38)), -- rolled to you, cylinder out
+				key(0.66, Vector3.new(-0.135, 0.12, -0.155), Vector3.new(8, -6, 34)),
+				key(0.78, Vector3.new(-0.14, 0.125, -0.16), Vector3.new(11, -9, 37)),
+				key(0.83, Vector3.new(-0.13, 0.12, -0.15), Vector3.new(9, -10, 42)), -- wind-up
+				key(0.87, Vector3.new(-0.05, 0.06, -0.06), Vector3.new(6, 4, -14)), -- flicked shut
+				key(0.91, Vector3.new(-0.02, 0.02, -0.02), Vector3.new(1, 2, -4)),
+				key(0.955, Vector3.new(0.015, -0.02, 0.012), Vector3.new(-2.5, -1, 2.5)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Marshal lever cycle (owner: "a custom cock back"), over its Fire clip (lever
+		-- 0.41-0.68): the gun rolls out and dips as the lever swings down, then
+		-- snaps back past the hold as it slams up.
+		CycleTempestMarshal = {
+			length = 0.92,
+			pivot = "Center",
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.38, ZERO, ZERO),
+				key(0.45, Vector3.new(0.01, -0.025, 0.01), Vector3.new(-5, 3, -14)),
+				key(0.55, Vector3.new(0.015, -0.035, 0.012), Vector3.new(-7, 4, -18)),
+				key(0.66, Vector3.new(-0.005, 0.012, -0.006), Vector3.new(3, -1, 5)), -- lever home
+				key(0.76, Vector3.new(0.002, -0.004, 0.002), Vector3.new(-1, 0, -1.5)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Shell guns (Bucky, Marshal), each part over its own clip. Start: the gun
+		-- rolls once about the bore as it turns to the loading port (the Vandal's
+		-- reload spin, which the owner liked); Insert: the thumb's push as each round
+		-- seats (a water burst at the port); End: a wrist flick back to the hold.
+		ReloadStartTempestBucky = shellStart(Vector3.new(0, 0.29, -1.0), false),
+		ReloadStartTempestMarshal = shellStart(Vector3.new(0, 0.15, -1.0), true),
+		ReloadInsertTempestBucky = shellInsert(0.688),
+		ReloadInsertTempestMarshal = shellInsert(0.625),
+		ReloadEndTempest = {
+			length = 1,
+			pivot = "Center",
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.12, Vector3.new(0.01, -0.02, 0.012), Vector3.new(-3, -2, 5)),
+				key(0.3, Vector3.new(-0.02, 0.055, -0.03), Vector3.new(10, -3, -12)), -- flick
+				key(0.45, Vector3.new(-0.01, 0.02, -0.01), Vector3.new(3, -1, -3)),
+				key(0.6, Vector3.new(0.006, -0.01, 0.004), Vector3.new(-1.6, 0.4, 1.2)),
+				key(0.8, Vector3.new(0, 0.003, 0), Vector3.new(0.4, 0, -0.3)),
+				key(1, ZERO, ZERO),
+			},
+		},
 		InspectShadowMist = {
 			length = 5.4,
 			pivot = "Center",
@@ -2417,6 +2604,207 @@ return table.freeze({
 		-- edge down (held), tipped point-down, dropped out low right and back up.
 		-- No spins (owner 2026-11-12: "a simple look at it"). The free hand
 		-- drops out of view meanwhile (FREE_HAND_HIDDEN).
+		-- Tempest-Strike Katana (2026-11-22): its own draw, combo, Tempest Cleave and
+		-- ring-spin inspect, solved by tools/studio/knife_fp_keys.py (KATANA_*; the
+		-- notes are there). Same lengths and hit times as the knife's.
+		KatanaSlash1 = {
+			length = 0.6,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.28,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.03, Vector3.new(0.092, 0.039, 0), Vector3.new(0, 0, -8)),
+				key(0.12, Vector3.new(0.99, -0.4, 0.339), Vector3.new(-2.954, -9.214, -59.53)),
+				key(0.19, Vector3.new(1.047, 0.787, 0.439), Vector3.new(12.443, 5.163, -69.314)),
+				key(0.22, Vector3.new(0.304, 0.724, 0.539), Vector3.new(22.013, 15.517, -69.615)),
+				key(0.245, Vector3.new(-0.173, 0.623, 0.539), Vector3.new(26.166, 16.221, -76.735)),
+				key(0.265, Vector3.new(-0.651, 0.489, 0.539), Vector3.new(27.123, 18.34, -79.688)),
+				key(0.28, Vector3.new(-1.217, 0.346, 0.539), Vector3.new(29.615, 36.681, -90.703)),
+				key(0.305, Vector3.new(-1.784, 0.053, 0.539), Vector3.new(33.42, 48.961, -106.765)),
+				key(
+					0.33,
+					Vector3.new(-2.306, -0.266, 0.539),
+					Vector3.new(29.644, 53.057, -116.768)
+				),
+				key(0.42, Vector3.new(-2.799, -0.635, 0.539), Vector3.new(80.471, 38.391, 148.227)),
+				key(0.5, Vector3.new(-2.888, -0.719, 0.539), Vector3.new(78.294, 30.711, 136.583)),
+				key(0.64, Vector3.new(-1.247, -1.206, 0.339), Vector3.new(56.944, -8.061, 84.495)),
+				key(0.74, Vector3.new(-0.211, -0.916, 0.239), Vector3.new(25.05, -14.824, 38.593)),
+				key(0.83, Vector3.new(0, -0.258, 0), Vector3.new(0, 0, 0)),
+				key(0.9, Vector3.new(0, 0.058, 0), Vector3.new(0, 0, -3)),
+				key(0.96, Vector3.new(0, -0.013, 0), Vector3.new(0, 0, 1)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		KatanaSlash2 = {
+			length = 0.6,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.385,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.03, Vector3.new(-0.069, 0, 0), Vector3.new(0, 0, 12)),
+				key(0.08, Vector3.new(-1.359, -0.325, 0.489), Vector3.new(-3.147, 4.692, 96.92)),
+				key(0.14, Vector3.new(-1.859, -0.325, 0.539), Vector3.new(9.083, 9.857, 102.706)),
+				key(0.3, Vector3.new(-1.934, -0.367, 0.539), Vector3.new(9.024, 9.982, 102.787)),
+				key(0.34, Vector3.new(-1.561, -0.073, 0.539), Vector3.new(13.111, 5.111, 96.603)),
+				key(0.36, Vector3.new(-1.113, 0.179, 0.539), Vector3.new(18.162, -4.244, 88.667)),
+				key(0.385, Vector3.new(-0.591, 0.388, 0.539), Vector3.new(23.785, -31.779, 69.048)),
+				key(
+					0.41,
+					Vector3.new(-0.069, 0.598, 0.539),
+					Vector3.new(-18.866, -28.986, -10.728)
+				),
+				key(0.45, Vector3.new(0.442, 0.75, 0.489), Vector3.new(2.414, 7.573, -53.742)),
+				key(0.55, Vector3.new(0.588, 0.602, 0.439), Vector3.new(1.022, 5.823, -38.31)),
+				key(0.7, Vector3.new(0.185, 0.103, 0.339), Vector3.new(-0.072, 2.673, -15.322)),
+				key(0.82, Vector3.new(0, 0.039, 0), Vector3.new(0, 0, 3)),
+				key(0.92, Vector3.new(0, -0.013, 0), Vector3.new(0, 0, -1)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		KatanaSlash3 = {
+			length = 0.6,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.29,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.03, Vector3.new(0.092, 0.039, 0), Vector3.new(0, 0, -8)),
+				key(0.1, Vector3.new(0.177, -0.316, 0.239), Vector3.new(-0.347, 0.506, -13.137)),
+				key(0.2, Vector3.new(0.221, -0.4, 0.339), Vector3.new(0.026, 0.524, -17.407)),
+				key(0.26, Vector3.new(-0.725, 0.002, 0.439), Vector3.new(73.271, 67.97, -164.035)),
+				key(
+					0.29,
+					Vector3.new(-0.842, -0.048, -0.061),
+					Vector3.new(90.233, 68.723, -174.202)
+				),
+				key(
+					0.36,
+					Vector3.new(-0.889, -0.079, -0.181),
+					Vector3.new(90.977, 68.127, -174.579)
+				),
+				key(
+					0.44,
+					Vector3.new(-0.817, -0.069, -0.081),
+					Vector3.new(94.322, 67.712, -178.593)
+				),
+				key(0.52, Vector3.new(-0.565, -0.113, 0.089), Vector3.new(-26.61, 52.485, -22.696)),
+				key(0.62, Vector3.new(-0.158, -0.149, 0.139), Vector3.new(-5.076, -8.972, 22.418)),
+				key(0.75, Vector3.new(0, 0.058, 0), Vector3.new(0, 0, -5)),
+				key(0.88, Vector3.new(0, -0.015, 0), Vector3.new(0, 0, 2)),
+				key(1, ZERO, ZERO),
+			},
+			toss = {
+				key(0, Vector3.new(0, 0, 0), Vector3.new(0, 0, 0)),
+				key(0.24, Vector3.new(0, 0, 0), Vector3.new(0, 0, 0)),
+				key(0.3, Vector3.new(0, 0, 0), Vector3.new(0, 0, -180)),
+				key(0.36, Vector3.new(0, 0, 0), Vector3.new(0, 0, -360)),
+				key(1, Vector3.new(0, 0, 0), Vector3.new(0, 0, -360)),
+			},
+			tossPivot = Vector3.new(0, 0, 0),
+		},
+		KatanaHeavyStab = {
+			length = 0.9,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.42,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.05, Vector3.new(0.155, -0.266, 0.139), Vector3.new(-1.771, -0.714, -7.395)),
+				key(0.14, Vector3.new(-1.247, -0.501, 0.339), Vector3.new(-4.405, 4.016, 90.45)),
+				key(0.24, Vector3.new(-1.417, -0.533, 0.359), Vector3.new(-4.401, 3.817, 90.918)),
+				key(0.34, Vector3.new(-1.495, -0.534, 0.379), Vector3.new(-4.365, 3.526, 91.276)),
+				key(0.38, Vector3.new(-1.382, 0.002, 0.439), Vector3.new(-1.641, 1.296, 83.747)),
+				key(0.4, Vector3.new(-0.971, 0.169, 0.439), Vector3.new(-0.01, -13.089, 85.036)),
+				key(
+					0.42,
+					Vector3.new(-0.397, 0.205, 0.439),
+					Vector3.new(75.905, -21.469, -158.376)
+				),
+				key(
+					0.445,
+					Vector3.new(0.177, 0.205, 0.439),
+					Vector3.new(72.576, -13.065, -114.511)
+				),
+				key(0.5, Vector3.new(0.74, 0.151, 0.389), Vector3.new(73.871, -13.452, -108.228)),
+				key(0.6, Vector3.new(0.901, -0.048, 0.339), Vector3.new(39.995, 10.12, -57.582)),
+				key(0.72, Vector3.new(0.346, -0.196, 0.159), Vector3.new(-4.392, -9.943, 5.738)),
+				key(0.84, Vector3.new(0, 0.058, 0), Vector3.new(0, 0, -5)),
+				key(0.93, Vector3.new(0, -0.015, 0), Vector3.new(0, 0, 2)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		KatanaDraw = {
+			length = 0.75,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			keys = {
+				key(0, Vector3.new(-0.531, -1.256, 0.339), Vector3.new(-23.132, 4.378, 7.501)),
+				key(0.12, Vector3.new(-1.318, -0.554, 0.389), Vector3.new(-9.063, 2.252, 101.781)),
+				key(0.2, Vector3.new(-1.19, -0.459, 0.419), Vector3.new(-8.484, 0.978, 101.665)),
+				key(0.23, Vector3.new(-0.889, -0.275, 0.439), Vector3.new(10.41, -40.848, 99.243)),
+				key(
+					0.245,
+					Vector3.new(-0.643, -0.136, 0.439),
+					Vector3.new(90.657, -57.379, 159.58)
+				),
+				key(0.26, Vector3.new(-0.397, 0.002, 0.439), Vector3.new(71.403, 32.517, -127.754)),
+				key(0.3, Vector3.new(0.14, 0.218, 0.389), Vector3.new(46.309, 27.362, -80.733)),
+				key(0.42, Vector3.new(0.177, 0.12, 0.239), Vector3.new(18.227, 21.861, -39.461)),
+				key(0.55, Vector3.new(0, 0.052, 0), Vector3.new(0, 0, -4)),
+				key(0.7, Vector3.new(0, -0.015, 0), Vector3.new(0, 0, 1.5)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		KatanaInspect = {
+			length = 3.4,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.08, Vector3.new(-0.138, 0.052, 0), Vector3.new(0, 0, 10)),
+				key(0.15, Vector3.new(-0.683, 0.151, 0.389), Vector3.new(-48.801, 51.07, 39.631)),
+				key(0.2, Vector3.new(-0.683, 0.151, 0.389), Vector3.new(-43.45, 54.6, 32.277)),
+				key(0.27, Vector3.new(-0.702, 0.174, 0.399), Vector3.new(-49.282, 55.781, 36.617)),
+				key(0.5, Vector3.new(-0.701, 0.132, 0.389), Vector3.new(-49.255, 55.703, 37.077)),
+				key(0.55, Vector3.new(-0.701, 0.074, 0.389), Vector3.new(-49.779, 55.484, 37.529)),
+				key(0.572, Vector3.new(-0.701, 0.122, 0.389), Vector3.new(-6.442, 13.751, 25.446)),
+				key(0.59, Vector3.new(-0.708, 0.139, 0.384), Vector3.new(26.27, -19.012, 44.071)),
+				key(0.603, Vector3.new(-0.716, 0.147, 0.379), Vector3.new(32.685, -11.067, 63.302)),
+				key(0.616, Vector3.new(-0.731, 0.16, 0.359), Vector3.new(29.427, 2.285, 81.461)),
+				key(0.63, Vector3.new(-0.71, 0.153, 0.339), Vector3.new(27.087, 6.993, 88.634)),
+				key(0.7, Vector3.new(-0.71, 0.143, 0.339), Vector3.new(27.014, 7.295, 89.206)),
+				key(0.85, Vector3.new(-0.692, 0.123, 0.339), Vector3.new(26.924, 7.505, 90.076)),
+				key(0.89, Vector3.new(-0.674, 0.113, 0.339), Vector3.new(15.798, 5.841, 89.61)),
+				key(0.93, Vector3.new(-0.308, -0.076, 0.239), Vector3.new(9.055, -0.218, 46.479)),
+				key(0.97, Vector3.new(0, 0.026, 0), Vector3.new(0, 0, 3)),
+				key(1, ZERO, ZERO),
+			},
+			toss = {
+				key(0, Vector3.new(0, 0, 0), Vector3.new(0, 0, 0)),
+				key(0.3, Vector3.new(0, 0, 0), Vector3.new(0, 0, 0)),
+				key(0.34, Vector3.new(0, 0, 0), Vector3.new(180, 0, 0)),
+				key(0.38, Vector3.new(0, 0, 0), Vector3.new(360, 0, 0)),
+				key(0.42, Vector3.new(0, 0, 0), Vector3.new(540, 0, 0)),
+				key(0.46, Vector3.new(0, 0, 0), Vector3.new(720, 0, 0)),
+				key(1, Vector3.new(0, 0, 0), Vector3.new(720, 0, 0)),
+			},
+			tossPivot = Vector3.new(0, 0, 0.77),
+		},
 		InspectMelee = {
 			length = 3.4,
 			pivot = "Grip",

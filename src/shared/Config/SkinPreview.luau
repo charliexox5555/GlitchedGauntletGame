@@ -92,32 +92,60 @@ return table.freeze({
 		FLASH_LIGHT_RANGE = 8,
 		FLASH_BRIGHTNESS = 1.6, -- under the place Bloom threshold (2)
 		FLASH_LIGHT_TIME = 0.06,
-		-- the Kunai-Katana (Util/TempestKunai): Blender units of the knife export
-		KUNAI = table.freeze({
-			WATER_BODY = Color3.fromRGB(64, 214, 214), -- the water katana's body (Glass)
-			BLADE_TRANSPARENCY = 0.5, -- the kunai shows through it
-			SKIN_PAD = 0.012, -- the shimmering ForceField skin round it
-			SKIN_OPACITY = 0.55,
-			KATANA_ROOT = 0.76, -- where the water blade grows out of the kunai...
-			KATANA_TIP = 2.33, -- ...and its tip
-			KUNAI_TIP = 0.935,
-			RETRACT = 1.0, -- studs the blade slides back into the kunai when put away
-			TOGGLE_AT = 0.3, -- inspect progress where the form switches
-			EXT_FREQ = 4, -- the extension's spring (snaps out, small overshoot)
-			EXT_DAMP = 0.55,
-			RING_TURNS = 2, -- pommel-ring twirl on the draw
-			RIBBON_WIDTH = 0.032,
-			HELIX_TURNS = 2,
-			ARC_STATIONS = { 0.95, 1.3, 1.65, 2.0, 2.24 },
-			ARC_GAP = { 0.8, 2.2 }, -- seconds between lightning flickers
-			ARC_JITTER = 0.035,
-			BOLT_WIDTH = 0.022,
-			CRACK_X = 0.6, -- the etched crack (compact form arcs)
-			CRACK_RATE = 1.2,
-			TRAIL_LIFE = 0.16,
-			CLEAVE_SIZE = 3.4, -- the heavy's crescent flash (studs, scaled)
-			SURGE_GAIN = 1.5,
-			LIGHT = 0.9,
+		-- the Katana (Util/TempestKatana): Blender units of the knife export
+		-- (s05x). BLADE is the blade's outline guard -> tip ({ x, edge z, spine
+		-- z }; the edge faces -Z), measured in Blender (Line Build Ledger,
+		-- Runtime numbers); the water band is the lowest 0.016-0.040 of it.
+		KATANA = table.freeze({
+			BLADE = {
+				{ 0.272, -0.07, 0.066 },
+				{ 0.7, -0.061, 0.072 },
+				{ 1.05, -0.046, 0.083 },
+				{ 1.4, -0.028, 0.097 },
+				{ 1.75, -0.004, 0.116 },
+				{ 2.1, 0.022, 0.137 },
+				{ 2.42, 0.051, 0.16 },
+				{ 2.68, 0.078, 0.18 },
+				{ 2.86, 0.105, 0.195 },
+				{ 2.98, 0.141, 0.205 },
+				{ 3.1, 0.206, 0.206 },
+			},
+			EDGE_LIFT = 0.012, -- the band's middle above the edge line
+			EXPORT_WATER = Color3.fromRGB(64, 245, 212), -- TS Water as the flat export carries it
+			EDGE_COLOR = Color3.fromRGB(60, 160, 158), -- the edge burns water cyan (Neon: darker, or it blows out white)...
+			SKIN_PAD = 0.014, -- ...under a shimmering ForceField skin
+			SKIN_OPACITY = 0.5,
+			SEGMENTS = 12, -- beam segments guard -> tip
+			HALO_WIDTH = { 0.1, 0.16 }, -- the glowing sheath over the edge, guard -> tip
+			HALO_BRIGHTNESS = 1.5,
+			HALO_TRANSPARENCY = 0.45,
+			HALO_SPEED = 0.35,
+			RIBBON_WIDTH = 0.03,
+			RIBBON_OFFSET = 0.026, -- off the blade's centre plane, each side (at the guard)
+			BOLT_POINTS = 7,
+			BOLT_LIFT = 0.015, -- above the spine
+			BOLT_WIDTH = 0.02,
+			ARC_GAP = { 0.6, 1.6 }, -- seconds between spine flickers
+			ARC_JITTER = 0.03,
+			TRAIL_LIFE = 0.13,
+			CLEAVE_SIZE = 4.2, -- the Cleave's crescent flash (studs, scaled)
+			SURGE_GAIN = 1.6,
+			LIGHT_AT = { 0.4, 0.85 }, -- blade stations of the two lights
+			LIGHT = 1.1,
+			LIGHT_SURGE = 2.2,
+			LIGHT_RANGE = 3,
+			RING_TURNS = 1, -- the pommel ring spins once into the palm on the draw...
+			RING_SPIN_END = 0.2, -- ...by this much of the draw
+			RING_AXIS = Vector3.yAxis, -- the ring hole's axis (bone space)
+			DRAW_SURGE = { 0.22, 0.42 }, -- the surge runs guard -> tip (the flash cut)
+			INSPECT_SPIN = 0.3, -- KatanaInspect's ring spin starts
+			INSPECT_WAVE = { 0.64, 0.84 }, -- the wave down the level blade
+			CHARM_AXIS = Vector3.new(1, 1, 0).Unit, -- the charm swings about this (bone space)
+			CHARM_HANG = 0.0638, -- the charm pivot sits this far under the ring centre (rides the ring spin)
+			CHARM_FREQ = 2.2,
+			CHARM_DAMP = 0.22,
+			CHARM_KICK = 260, -- degrees/s per move
+			CHARM_IDLE = 4, -- degrees of idle sway
 		}),
 		ARC = VFX.TEMPEST_ARC_2x2,
 		IMPACT_LIGHT = 1.4, -- the cyan pop where a shot lands

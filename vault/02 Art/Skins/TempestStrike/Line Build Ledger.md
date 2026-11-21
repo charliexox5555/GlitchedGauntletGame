@@ -126,3 +126,37 @@ Owner: get the line into Studio and start VFX and animations in code and keyfram
 - **Positions are from the stock contracts and measured cross-sections, not seen in play:** the owner's check may need tuning in `Config/TempestProfiles` (helix radii, crescent tips, ring sizes) and `SkinPreview.TEMPEST.KUNAI`.
 - **Studio:** Rojo's Studio plugin was disconnected, so the code changes are in the repo but not yet in Studio; the installs and the MatchSkins rows are in Studio. **Reconnect Rojo before testing.** The match place needs a save (left to the map lane / owner so their work isn't saved mid-build).
 - Not done (owner's call): the Shop bundle still lists only the Vandal, and TempestStrike has no tier in `Config/Skins` (it is a Studio preview line).
+
+### Playtest round (2026-11-22, owner notes; Edit only, no playtest)
+[Playtest note](../../../05%20Production/Playtests/2026-11-22%20Tempest-Strike%20Line.md).
+
+- **Installed:**
+  - Stinger s03x: asset 122767468165673, MatchSkins_342, version s03.
+  - Katana s05x: asset 120180022604213, MatchSkins_346, version s05; joints `TS_Ring` and `TS_Charm`.
+- **Flush fit:** each gun's export was ray-cast in Blender every 0.05 along the bore (top, bottom and full-height width; mag, grip and lever ignored).
+  - The sweep stations are now that measured outline: radius = bigger half-extent + 0.03; centre = mid height.
+  - `fit = true` profiles place the draw and inspect rings and size the shot pulse from it (`TempestIdle` `hull()`).
+  - Helices were refit to the real fore-end stacks:
+    - Stinger: shroud 0.5–0.8.
+    - Marshal: barrel and tube, centre z 0.16 (was 0.2).
+    - Bucky: barrel and tube 2.12–2.72.
+    - Sheriff: barrel and underlug 0.84–1.18.
+  - Muzzle attachments already matched the barrel ends.
+- **Tracks:**
+
+  | Gun | Track | What it does |
+  |---|---|---|
+  | Stinger | `ReloadTempestStinger` | half the Vandal reload's roll |
+  | Stinger, Marshal, Bucky | `InspectTempest<Gun>` | own roll pivot |
+  | Sheriff | `ReloadTempestSheriff` | marks Open, Eject, ShellIn, Close |
+  | Sheriff | `InspectTempestSheriff` | roll window 0.56–0.86 round the open cylinder |
+  | Marshal | `CycleTempestMarshal` | every shot (Cycle slot) |
+  | Bucky, Marshal | `ReloadStartTempest<Gun>` | barrel-roll toss |
+  | Bucky, Marshal | `ReloadInsertTempest<Gun>` | push on ShellIn |
+  | Bucky, Marshal | `ReloadEndTempest` | flick; `Settle` beat splash |
+
+- **Katana runtime:** `Util/TempestKatana` replaces `TempestKunai`; config in `SkinPreview.TEMPEST.KATANA`.
+  - The blade outline comes from the runtime numbers above.
+  - The charm rides the ring spin.
+  - Tracks are `Katana*` in `tools/studio/knife_fp_keys.py`; the ring spin pivot is handle (0, 0, 0.77).
+

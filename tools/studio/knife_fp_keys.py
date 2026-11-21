@@ -426,6 +426,144 @@ INSPECT_TOSS = [
 INSPECT_TOSS_PIVOT = (0, 0, -0.4)
 
 
+# Tempest-Strike Katana, 2026-11-22 (owner: "Needs custom Swinging, inspect,
+# draw everything"; two reference clips: a long curved sword whose inspect and
+# slashes the owner likes, and a shorter blade whose raised forward grip they
+# prefer; vault 02 Art/Skins/TempestStrike/Kunai-Katana Concept.md). The hold
+# stays the knife's (its raised forward grip is the second clip's). Lengths
+# and hit times match the knife's so the server's timing still lines up.
+# Util/TempestKunai draws the water on these beats.
+KATANA_ATTACKS = {
+	# Diagonal down cut: the knife's forehand, coiled higher and swept longer.
+	"KatanaSlash1": (0.6, 0.28, [
+		(0.03, ("near", 0.04, 0.03, -8), None),
+		(0.12, ("aim", (1.05, -0.95, 1.2), (1.45, 0.15, 1.5), "auto"), None),
+		(0.19, ("aim", (1.18, 0.25, 1.1), (1.55, 1.05, 1.5), "auto"), None),
+		(0.22, ("aim", (0.8, 0.2, 1.0), (1.15, 1.05, 1.4), "auto"), None),
+		(0.245, ("aim", (0.48, 0.08, 1.0), (0.98, 0.92, 1.5), "auto"), None),
+		(0.265, ("aim", (0.16, -0.08, 1.0), (0.74, 0.76, 1.6), "auto"), None),
+		(0.28, ("aim", (-0.22, -0.25, 1.0), (0.16, 0.3, 1.7), "auto"), None),
+		(0.305, ("aim", (-0.6, -0.6, 1.0), (-0.2, -0.1, 1.7), "auto"), None),
+		(0.33, ("aim", (-0.95, -0.98, 1.0), (-0.45, -0.46, 1.7), "auto"), None),
+		(0.42, ("aim", (-1.28, -1.42, 1.0), (-0.92, -0.97, 1.6), "auto"), None),
+		(0.5, ("aim", (-1.34, -1.52, 1.0), (-1.02, -1.07, 1.6), "auto"), None),
+		(0.64, ("blend", (-0.2, -1.75, 1.2)), None),
+		(0.74, ("blend", (0.35, -1.35, 1.3)), None),
+		(0.83, ("near", 0.0, -0.2, 0), None),
+		(0.9, ("near", 0.0, 0.045, -3), None),
+		(0.96, ("near", 0.0, -0.01, 1), None),
+	]),
+	# Rising backhand: whipped down to the low left, loaded, then cut up through
+	# the middle and out the top right.
+	"KatanaSlash2": (0.6, 0.385, [
+		(0.03, ("near", -0.03, 0.0, 12), None),
+		(0.08, ("aim", (-0.3, -1.0, 1.05), (-1.0, -1.25, 1.3), "auto", (1.5, -1.7, 0.8)), None),
+		(0.14, ("aim", (-0.65, -1.05, 1.0), (-1.3, -1.4, 1.25), "auto", (1.5, -1.7, 0.6)), None),
+		(0.3, ("aim", (-0.7, -1.1, 1.0), (-1.35, -1.45, 1.25), "auto", (1.5, -1.7, 0.6)), None),
+		(0.34, ("aim", (-0.45, -0.75, 1.0), (-1.1, -0.9, 1.4), "auto", (1.4, -1.7, 0.8)), None),
+		(0.36, ("aim", (-0.15, -0.45, 1.0), (-0.75, -0.35, 1.6), "auto"), None),
+		(0.385, ("aim", (0.2, -0.2, 1.0), (-0.2, 0.25, 1.7), "auto"), None),
+		(0.41, ("aim", (0.55, 0.05, 1.0), (0.4, 0.75, 1.6), "auto"), None),
+		(0.45, ("aim", (0.85, 0.22, 1.05), (1.0, 1.0, 1.5), "auto"), None),
+		(0.55, ("blend", (0.9, 0.05, 1.1)), None),
+		(0.7, ("blend", (0.6, -0.45, 1.2)), None),
+		(0.82, ("near", 0.0, 0.03, 3), None),
+		(0.92, ("near", 0.0, -0.01, -1), None),
+	]),
+	# Spinning forward thrust: pulled back low right, driven straight at the
+	# crosshair while the blade spins once about its length (the toss), drawn back.
+	"KatanaSlash3": (0.6, 0.29, [
+		(0.03, ("near", 0.04, 0.03, -8), None),
+		(0.1, ("fist", (0.55, -0.8, 1.3), -12), None),
+		(0.2, ("fist", (0.62, -0.95, 1.2), -16), None),
+		(0.26, ("aim", (0.1, -0.6, 1.1), (0.02, -0.12, 2.4), "auto", (2.0, -1.3, -0.4)), None),
+		(0.29, ("aim", (0.02, -0.45, 1.6), (-0.03, -0.06, 2.8), "auto", (1.9, -1.4, -0.3)), None),
+		(0.36, ("aim", (0.0, -0.44, 1.72), (-0.04, -0.06, 2.95), "auto", (1.9, -1.4, -0.3)), None),
+		(0.44, ("aim", (0.03, -0.46, 1.62), (-0.03, -0.07, 2.8), "auto", (1.9, -1.4, -0.3)), None),
+		(0.52, ("blend", (0.15, -0.55, 1.45)), None),
+		(0.62, ("fist", (0.35, -0.6, 1.4), 25), None),
+		(0.75, ("near", 0.0, 0.045, -5), None),
+		(0.88, ("near", 0.0, -0.012, 2), None),
+	]),
+	# Tempest Cleave: drawn back to the left hip (iaijutsu; the blade flares
+	# while it coils), then one flat flash-cut left to right across the middle.
+	"KatanaHeavyStab": (0.9, 0.42, [
+		(0.05, ("fist", (0.5, -0.7, 1.4), -6), None),
+		(0.14, ("aim", (-0.2, -1.05, 1.2), (-1.1, -1.15, 1.6), "auto"), None),
+		(0.24, ("aim", (-0.3, -1.1, 1.18), (-1.2, -1.2, 1.6), "auto"), None),
+		(0.34, ("aim", (-0.35, -1.12, 1.16), (-1.25, -1.22, 1.6), "auto"), None),
+		(0.38, ("aim", (-0.3, -0.6, 1.1), (-1.2, -0.55, 1.7), "auto"), None),
+		(0.4, ("aim", (-0.05, -0.42, 1.1), (-0.6, -0.35, 2.0), "auto"), None),
+		(0.42, ("aim", (0.3, -0.38, 1.1), (0.4, -0.3, 2.4), "auto"), None),
+		(0.445, ("aim", (0.65, -0.38, 1.1), (1.6, -0.3, 1.9), "auto"), None),
+		(0.5, ("aim", (0.95, -0.42, 1.15), (2.0, -0.35, 1.5), "auto"), None),
+		(0.6, ("blend", (1.0, -0.6, 1.2)), None),
+		(0.72, ("fist", (0.6, -0.65, 1.38), 10), None),
+		(0.84, ("near", 0.0, 0.045, -5), None),
+		(0.93, ("near", 0.0, -0.012, 2), None),
+	]),
+}
+# The thrust's spin: one turn about the blade's own length (handle -Z).
+KATANA_SLASH3_TOSS = [
+	(0.0, (0, 0, 0), (0, 0, 0)),
+	(0.24, (0, 0, 0), (0, 0, 0)),
+	(0.3, (0, 0, 0), (0, 0, -180)),
+	(0.36, (0, 0, 0), (0, 0, -360)),
+	(1.0, (0, 0, 0), (0, 0, -360)),
+]
+
+# Iaijutsu flash-draw: the fist comes up at the left hip with the blade still
+# pointing down and back (in the scabbard), creeps, then one rising cut out
+# through the middle to the upper right, and settles into the hold past the
+# pose. The ring pommel
+# spins (TS_Ring, Util/TempestKunai) as the hand closes on it.
+KATANA_DRAW = (0.75, [
+	(0.0, ("fist", (0.2, -1.8, 1.2), 10), None),
+	(0.12, ("aim", (-0.25, -1.15, 1.15), (-0.9, -1.5, 1.4), "auto"), None),
+	(0.2, ("aim", (-0.18, -1.08, 1.12), (-0.85, -1.42, 1.42), "auto"), None),
+	(0.23, ("aim", (0.0, -0.9, 1.1), (-0.2, -0.6, 2.1), "auto"), None),
+	(0.245, ("aim", (0.15, -0.75, 1.1), (0.12, -0.2, 2.2), "auto"), None),
+	(0.26, ("aim", (0.3, -0.6, 1.1), (0.45, 0.1, 2.0), "auto"), None),
+	(0.3, ("aim", (0.6, -0.35, 1.15), (1.0, 0.7, 1.5), "auto"), None),
+	(0.42, ("blend", (0.55, -0.4, 1.3)), None),
+	(0.55, ("near", 0.0, 0.04, -4), None),
+	(0.7, ("near", 0.0, -0.012, 1.5), None),
+])
+
+# Inspect: the knife's (face to you, laid over), but the blade spins twice by
+# the ring pommel while it faces you (about the flat's normal, round the ring
+# behind the grip), then it is laid level with the flat up and the spine to you
+# for the water-and-lightning run along it (Util/TempestKunai), and snaps back.
+KATANA_INSPECT = (3.4, [
+	(0.08, ("near", -0.06, 0.04, 10), None),
+	(0.15, ("aim", (0.12, -0.42, 1.15), (-0.34, 0.5, 1.4), (-1, -0.25, 0)), None),
+	(0.2, ("aim", (0.12, -0.42, 1.15), (-0.26, 0.5, 1.4), (-1, -0.2, 0)), None),
+	(0.27, ("aim", (0.11, -0.4, 1.14), (-0.29, 0.52, 1.4), (-1, -0.2, 0.05)), None),
+	(0.5, ("aim", (0.11, -0.44, 1.15), (-0.29, 0.48, 1.4), (-1, -0.2, 0.05)), None),
+	(0.55, ("aim", (0.11, -0.5, 1.15), (-0.29, 0.42, 1.4), (-1, -0.2, 0.05)), None),
+	(0.572, ("split", (0.11, -0.45, 1.15), 0.5, 0.0), None),
+	(0.59, ("split", (0.105, -0.43, 1.155), 0.94, 0.07), None),
+	(0.603, ("split", (0.1, -0.42, 1.16), 1.0, 0.42), None),
+	(0.616, ("split", (0.09, -0.4, 1.18), 1.0, 0.84), None),
+	(0.63, ("aim", (0.1, -0.4, 1.2), (-0.5, -0.42, 1.45), (0, 0, -1)), None),
+	(0.7, ("aim", (0.1, -0.41, 1.2), (-0.5, -0.44, 1.45), (0, 0, -1)), None),
+	(0.85, ("aim", (0.11, -0.43, 1.2), (-0.48, -0.47, 1.45), (0, 0, -1)), None),
+	(0.89, ("aim", (0.12, -0.44, 1.2), (-0.47, -0.5, 1.45), (0, -0.2, -1)), None),
+	(0.93, ("blend", (0.3, -0.58, 1.3)), None),
+	(0.97, ("near", 0.0, 0.02, 3), None),
+])
+KATANA_INSPECT_TOSS = [
+	(0.0, (0, 0, 0), (0, 0, 0)),
+	(0.3, (0, 0, 0), (0, 0, 0)),
+	(0.34, (0, 0, 0), (180, 0, 0)),
+	(0.38, (0, 0, 0), (360, 0, 0)),
+	(0.42, (0, 0, 0), (540, 0, 0)),
+	(0.46, (0, 0, 0), (720, 0, 0)),
+	(1.0, (0, 0, 0), (720, 0, 0)),
+]
+KATANA_RING = (0, 0, 0.77)  # the ring pommel's centre in handle space (s05x: Blender x -0.77)
+
+
 def luau_v(v):
 	return "Vector3.new(" + ", ".join(f"{x:.3f}".rstrip("0").rstrip(".") if abs(x) > 5e-4 else "0" for x in v) + ")"
 
@@ -506,7 +644,20 @@ def emit(name, length, hit, keys, check, extra=()):
 
 
 VIEWMODEL = "src/shared/Config/Viewmodel.luau"
-TRACK_NAMES = ("Slash1", "Slash2", "Slash3", "HeavyStab", "DrawMelee", "InspectMelee")
+TRACK_NAMES = (
+	"Slash1",
+	"Slash2",
+	"Slash3",
+	"HeavyStab",
+	"DrawMelee",
+	"InspectMelee",
+	"KatanaSlash1",
+	"KatanaSlash2",
+	"KatanaSlash3",
+	"KatanaHeavyStab",
+	"KatanaDraw",
+	"KatanaInspect",
+)
 
 
 def write():
@@ -528,6 +679,10 @@ def write():
 		blocks[cur].append(line)
 	lines = open(VIEWMODEL, encoding="utf-8").read().split("\n")
 	for name in TRACK_NAMES:
+		if t2 + name + " = {" not in lines:
+			# a new track: goes in before the knife's inspect
+			at = lines.index(t2 + "InspectMelee = {")
+			lines[at:at] = [t2 + name + " = {", t2 + "},"]
 		start = lines.index(t2 + name + " = {")
 		end = next(i for i in range(start + 1, len(lines)) if lines[i] == t2 + "},")
 		lines[start : end + 1] = blocks[name]
@@ -557,6 +712,23 @@ def emit_all(check):
 	toss.append("},")
 	toss.append(f"tossPivot = {luau_v(INSPECT_TOSS_PIVOT)},")
 	emit("InspectMelee", INSPECT[0], None, INSPECT[1], check, toss)
+	for name, (length, hit, keys) in KATANA_ATTACKS.items():
+		extra = ()
+		if name == "KatanaSlash3":
+			extra = tuple(_toss_lines(KATANA_SLASH3_TOSS, (0, 0, 0)))
+		emit(name, length, hit, keys, check, extra)
+	emit("KatanaDraw", KATANA_DRAW[0], None, KATANA_DRAW[1], check)
+	emit("KatanaInspect", KATANA_INSPECT[0], None, KATANA_INSPECT[1], check,
+		tuple(_toss_lines(KATANA_INSPECT_TOSS, KATANA_RING)))
+
+
+def _toss_lines(keys, pivot):
+	out = ["toss = {"]
+	for t, pos, rot in keys:
+		out.append(f"\tkey({t:g}, {luau_v(pos)}, {luau_v(rot)}),")
+	out.append("},")
+	out.append(f"tossPivot = {luau_v(pivot)},")
+	return out
 
 
 if __name__ == "__main__":
