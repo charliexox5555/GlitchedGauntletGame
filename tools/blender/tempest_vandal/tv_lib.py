@@ -30,11 +30,11 @@ def _lin(h):
 
 # Storm Shadow roles (concept.md working values; tune under neutral light).
 ROLES = {
-	"Body":   ("#2A313C", 0.32, 0.60),   # matte black alloy (blue-black enamel)
-	"Panel":  ("#C9D1D8", 0.26, 1.00),   # brushed silver plates
+	"Body":   ("#30363E", 0.52, 0.20),   # matte black alloy (blue-black enamel)
+	"Panel":  ("#D3D8DD", 0.40, 0.35),   # brushed silver plates
 	"Dark":   ("#0E1320", 0.60, 0.20),   # dark indigo recesses
 	"Grip":   ("#4A3328", 0.70, 0.00),   # dark-brown leather
-	"Metal":  ("#5E6976", 0.40, 0.90),   # dark steel joints, controls, muzzle
+	"Metal":  ("#6D7682", 0.28, 1.00),   # dark steel joints, controls, muzzle
 	"Accent": ("#3E6580", 0.45, 0.30),   # storm blue, sparing
 	"Neon":   ("#5FE6E0", 0.30, 0.00),   # hydro cyan (emissive)
 	"Glass":  ("#A9E5E9", 0.05, 0.00),
@@ -193,20 +193,23 @@ def side_edges(zmin=-9, zmax=9, up=None, ymin=0.9):
 	return p
 
 def finish(o, w=0.006, segs=1, angle=30, wn=True):
-	"""Flat chamfer on every hard edge (live modifier) + weighted normals."""
+	"""Crisp machined finish (owner 2026-11-21: 'sharper corners, cleaner sides, nothing curved').
+	Flat shading on every face, one tiny flat chamfer per hard edge (a thin edge highlight, never a radius),
+	no weighted/hardened normals (they smear light across faces and read as rounded)."""
 	me = o.data
 	for p in me.polygons:
-		p.use_smooth = True
+		p.use_smooth = False
+	w = min(w, 0.0025)
 	if w > 0:
 		b = o.modifiers.new("Chamfer", "BEVEL")
 		b.width = w
-		b.segments = segs
+		b.segments = 1
 		b.limit_method = "ANGLE"
 		b.angle_limit = math.radians(angle)
-		b.harden_normals = True
-		b.miter_outer = "MITER_ARC"
+		b.harden_normals = False
+		b.miter_outer = "MITER_SHARP"
 		b.use_clamp_overlap = True
-	if wn:
+	if False:
 		n = o.modifiers.new("WNormal", "WEIGHTED_NORMAL")
 		n.keep_sharp = True
 		n.weight = 100

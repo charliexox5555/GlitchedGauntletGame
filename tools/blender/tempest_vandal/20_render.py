@@ -20,9 +20,28 @@ except TypeError:
 w = sc.world or bpy.data.worlds.new("World")
 sc.world = w
 w.use_nodes = True
-bg = w.node_tree.nodes.get("Background")
-bg.inputs[0].default_value = (0.36, 0.37, 0.40, 1)
-bg.inputs[1].default_value = 0.9
+nt = w.node_tree
+for n in list(nt.nodes):
+	if n.type not in ("BACKGROUND", "OUTPUT_WORLD"):
+		nt.nodes.remove(n)
+bg = nt.nodes.get("Background")
+# studio gradient for metal reflections: dark floor, bright soft horizon band, mid-grey top
+tc = nt.nodes.new("ShaderNodeTexCoord"); sx = nt.nodes.new("ShaderNodeSeparateXYZ"); cr = nt.nodes.new("ShaderNodeValToRGB")
+nt.links.new(tc.outputs["Generated"], sx.inputs[0])
+mr = nt.nodes.new("ShaderNodeMapRange"); mr.inputs["From Min"].default_value = 0.0; mr.inputs["From Max"].default_value = 1.0
+nt.links.new(sx.outputs["Z"], mr.inputs["Value"]); nt.links.new(mr.outputs["Result"], cr.inputs["Fac"])
+e = cr.color_ramp.elements
+e[0].position = 0.40; e[0].color = (0.035, 0.037, 0.042, 1)
+e[1].position = 0.56; e[1].color = (0.95, 0.96, 1.0, 1)
+x = e.new(0.75); x.color = (0.42, 0.44, 0.48, 1)
+nt.links.new(cr.outputs["Color"], bg.inputs[0])
+bg.inputs[1].default_value = 0.8
+# camera sees a plain grey backdrop (lighting/reflections still use the gradient)
+lp = nt.nodes.new("ShaderNodeLightPath"); mx = nt.nodes.new("ShaderNodeMixShader"); bg2 = nt.nodes.new("ShaderNodeBackground")
+bg2.inputs[0].default_value = (0.42, 0.43, 0.46, 1); bg2.inputs[1].default_value = 1.0
+out = nt.nodes.get("World Output")
+nt.links.new(lp.outputs["Is Camera Ray"], mx.inputs[0]); nt.links.new(bg.outputs[0], mx.inputs[1]); nt.links.new(bg2.outputs[0], mx.inputs[2])
+nt.links.new(mx.outputs[0], out.inputs["Surface"])
 
 L = coll("COL_ReviewRig")
 def light(name, kind, loc, rot, energy, size=1.0, color=(1, 1, 1)):

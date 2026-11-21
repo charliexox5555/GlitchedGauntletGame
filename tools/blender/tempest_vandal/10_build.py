@@ -105,109 +105,123 @@ bm = profile("Magwell", mw_pts, 0.062, M, "Metal")
 chamfer_edges(bm, lambda e: True, 0.008)
 finish(to_obj("TS_Magwell", bm, C["Receiver"], "Metal"), w=0.0)
 
-# front collar: transition ring receiver -> shroud (stepped, steel)
-CZ = 0.292
-bm = loft([ring_x(1.075, octo(0.090, 0.130, c=0.5, cz=CZ)), ring_x(1.092, octo(0.094, 0.134, c=0.5, cz=CZ)),
-	ring_x(1.128, octo(0.094, 0.134, c=0.5, cz=CZ)), ring_x(1.142, octo(0.086, 0.124, c=0.5, cz=CZ))])
-finish(to_obj("TS_Collar", bm, C["Fore"], "Metal"), w=0.0025)
+# ================= FORE-END (r02): one long wedge with the receiver =================
+# Owner's overlay note: the handguard must be nearly as tall as the receiver at the back and taper
+# forward (top almost level, bottom rising), so the gun reads as one long fast body.
+# Stations: (x, half width, top z, bottom z).
+ST = [(1.10, 0.080, 0.418, 0.150), (1.20, 0.079, 0.416, 0.158), (1.40, 0.077, 0.411, 0.172), (1.48, 0.076, 0.409, 0.178),
+	(1.90, 0.068, 0.396, 0.208), (2.04, 0.065, 0.392, 0.218), (2.10, 0.063, 0.390, 0.222)]
+def st_at(x):
+	for a, b in zip(ST[:-1], ST[1:]):
+		if a[0] <= x <= b[0]:
+			f = (x - a[0]) / (b[0] - a[0])
+			return tuple(a[i] + (b[i] - a[i]) * f for i in range(1, 4))
+	return ST[-1][1:] if x > ST[-1][0] else ST[0][1:]
 
-# ================= FORE-END: octagonal fluted shroud =================
-# Section = elongated octagon with broad diagonals. Grooves are part of the section, so they taper
-# with the shroud and run out cleanly (depth ramps to 0) instead of being boxes cut in.
-FLUTE_SPEC = lambda dS, dD: {0: [(0.26, 0.012, dS)], 1: [(0.5, 0.012, dD)], 3: [(0.5, 0.012, dD)],
-	4: [(0.74, 0.012, dS)], 5: [(0.5, 0.010, dD * 0.8)], 7: [(0.5, 0.010, dD * 0.8)]}
-def shroud_sec(x, hw, hh, cz=CZ):
+# front collar: stepped steel ring, receiver -> shroud
+hw0, t0, b0 = st_at(1.10)
+c0, h0 = (t0 + b0) / 2, (t0 - b0) / 2
+bm = loft([ring_x(1.075, octo(hw0 + 0.010, h0 + 0.010, c=0.5, cz=c0)), ring_x(1.090, octo(hw0 + 0.014, h0 + 0.014, c=0.5, cz=c0)),
+	ring_x(1.126, octo(hw0 + 0.014, h0 + 0.014, c=0.5, cz=c0)), ring_x(1.140, octo(hw0 + 0.006, h0 + 0.006, c=0.5, cz=c0))])
+finish(to_obj("TS_Collar", bm, C["Fore"], "Metal"))
+
+FLUTE_SPEC = lambda dS, dD: {0: [(0.86, 0.010, dS)], 1: [(0.5, 0.012, dD)], 3: [(0.5, 0.012, dD)],
+	4: [(0.14, 0.010, dS)], 5: [(0.5, 0.010, dD * 0.8)], 7: [(0.5, 0.010, dD * 0.8)]}
+def shroud_sec(x, hw, top, bot, depth=1.0):
 	ramp = lambda a, b: max(0.0, min(1.0, (x - a) / (b - a)))
-	dD = 0.0065 * ramp(1.12, 1.20) * (1 - ramp(1.96, 2.10))        # diagonal flutes
-	dS = 0.0060 * ramp(1.40, 1.48) * (1 - ramp(1.96, 2.10))        # side flutes start after the vents
-	return fluted(octo(hw, hh, c=0.5, cz=cz), FLUTE_SPEC(dS, dD))
-ST = [(1.10, 0.080, 0.116), (1.20, 0.079, 0.114), (1.44, 0.076, 0.110), (1.52, 0.075, 0.108), (1.96, 0.065, 0.094),
-	(2.10, 0.062, 0.090), (2.18, 0.060, 0.087)]
-rings = [ring_x(x, shroud_sec(x, hw, hh)) for x, hw, hh in ST]
-rings.append(ring_x(2.205, shroud_sec(2.205, 0.050, 0.074, cz=CZ - 0.002)))
+	dD = 0.0065 * ramp(1.12, 1.20) * (1 - ramp(1.90, 2.04)) * depth
+	dS = 0.0060 * ramp(1.38, 1.46) * (1 - ramp(1.90, 2.04)) * depth
+	return fluted(octo(hw, (top - bot) / 2, c=0.42, cz=(top + bot) / 2), FLUTE_SPEC(dS, dD))
+rings = [ring_x(x, shroud_sec(x, hw, t, b)) for x, hw, t, b in ST]
+rings.append(ring_x(2.118, shroud_sec(2.118, 0.054, 0.380, 0.232, 0)))     # chamfered nose
 bm = loft(rings)
-shroud = finish(to_obj("TS_Shroud", bm, C["Fore"], "Body"), w=0.0025, angle=25)
+shroud = finish(to_obj("TS_Shroud", bm, C["Fore"], "Body"), angle=20)
 
-# side vents near the collar: three raked slots each side, cut through to a dark liner
+# raked vents low on each side near the collar, cut through to a dark liner
 FL = coll("COL_Cutters_Vents", K)
 for s in (1, -1):
 	for i in range(3):
-		bmv = box(-0.014, 0.014, -0.03, 0.03, -0.022, 0.022)
+		x = 1.215 + i * 0.062
+		hw, t, b = st_at(x)
+		bmv = box(-0.011, 0.011, -0.03, 0.03, -0.012, 0.012)
 		o = to_obj("CUT_Vent%d%+d" % (i, s), bmv, FL, "Dark")
-		o.location = (1.215 + i * 0.062, s * 0.082, CZ - 0.044)
+		o.location = (x, s * hw, t - 0.42 * hw - 0.016)
 		o.rotation_euler = (0, math.radians(28), 0)
 cut_coll(shroud, FL, "Vents")
-bm = loft([ring_x(1.16, octo(0.060, 0.096, c=0.5, cz=CZ)), ring_x(1.42, octo(0.060, 0.096, c=0.5, cz=CZ))])
+bm = loft([ring_x(1.17, octo(0.058, 0.110, c=0.42, cz=0.285)), ring_x(1.41, octo(0.058, 0.104, c=0.42, cz=0.290))])
 finish(to_obj("TS_VentLiner", bm, C["Fore"], "Dark"), w=0.0)
 
-# silver side blades on the shroud: cover the upper side face, sharp point forward-down
-def hw_at(x):
-	for (x0, w0, h0), (x1, w1, h1) in zip(ST[:-1], ST[1:]):
-		if x0 <= x <= x1:
-			f = (x - x0) / (x1 - x0)
-			return w0 + (w1 - w0) * f, h0 + (h1 - h0) * f
-	return ST[-1][1:]
+# long brushed-silver side band: continues the cowl's line along the handguard, sharp point forward
+def side_face(x):
+	hw, t, b = st_at(x)
+	hh = (t - b) / 2; c = 0.42 * min(hw, hh)
+	return hw, b + c, t - c
 for s in (1, -1):
 	rings = []
-	for x, f0, f1 in ((1.150, 0.46, 0.93), (1.60, 0.46, 0.93), (1.78, 0.50, 0.90), (1.86, 0.62, 0.80), (1.895, 0.70, 0.72)):
-		hw, hh = hw_at(x)
-		z0, z1 = CZ - hh + 0.5 * hw, CZ + hh - 0.5 * hw
+	for x, f0, f1 in ((1.146, 0.06, 0.70), (1.70, 0.06, 0.70), (1.86, 0.10, 0.62), (1.95, 0.22, 0.42), (1.985, 0.30, 0.33)):
+		hw, z0, z1 = side_face(x)
 		za, zb_ = z0 + (z1 - z0) * f0, z0 + (z1 - z0) * f1
-		yi, yo = hw + 0.0008, hw + 0.0050
-		r = [(x, yi, za), (x, yo, za + 0.002), (x, yo, zb_ - 0.002), (x, yi, zb_)]
+		yi, yo = hw + 0.0008, hw + 0.0075
+		r = [(x, yi, za), (x, yo, za + 0.0025), (x, yo, zb_ - 0.0050), (x, yi, zb_)]
 		r = [(px, s * py, pz) for px, py, pz in r]
 		rings.append(r if s > 0 else r[::-1])
 	bm = loft(rings)
-	finish(to_obj("TS_ShroudBlade%+d" % s, bm, C["Plates"], "Panel"), w=0.0012)
+	finish(to_obj("TS_ShroudBlade%+d" % s, bm, C["Plates"], "Panel"))
 
-# silver top plate: a blade riding the shroud's top face, tapering to a point before the front sight
+# black top strip on the shroud's top face (the sheet keeps the very top dark), tapering before the post
 tp = []
-for x, hw, z in ((1.13, 0.042, 0.408), (1.30, 0.041, 0.406), (1.70, 0.035, 0.396), (1.86, 0.026, 0.388), (1.91, 0.004, 0.386)):
-	tp.append([(x, hw, z - 0.004), (x, hw - 0.004, z + 0.006), (x, -hw + 0.004, z + 0.006), (x, -hw, z - 0.004)])
+for x in (1.13, 1.40, 1.70, 1.86, 1.90):
+	hw, t, b = st_at(x)
+	w = (hw - 0.42 * hw) * (0.92 if x < 1.86 else 0.25)
+	tp.append([(x, w, t + 0.0008), (x, w - 0.004, t + 0.007), (x, -w + 0.004, t + 0.007), (x, -w, t + 0.0008)])
 bm = loft(tp)
-finish(to_obj("TS_ShroudPlate", bm, C["Plates"], "Panel"), w=0.0015)
+finish(to_obj("TS_ShroudTop", bm, C["Fore"], "Metal"))
 
-# exposed barrel neck + collar
-bm = loft([ring_x(2.19, octo(0.040, 0.040, c=0.42, cz=BORE)), ring_x(2.32, octo(0.040, 0.040, c=0.42, cz=BORE))])
-finish(to_obj("TS_Barrel", bm, C["Muzzle"], "Metal"), w=0.002)
-bm = loft([ring_x(2.232, octo(0.050, 0.050, c=0.42, cz=BORE)), ring_x(2.246, octo(0.056, 0.056, c=0.42, cz=BORE)),
-	ring_x(2.268, octo(0.056, 0.056, c=0.42, cz=BORE)), ring_x(2.282, octo(0.050, 0.050, c=0.42, cz=BORE))])
-finish(to_obj("TS_BarrelCollar", bm, C["Muzzle"], "Panel"), w=0.0015)
+# exposed barrel neck + silver collar
+bm = loft([ring_x(2.10, octo(0.038, 0.038, c=0.42, cz=BORE)), ring_x(2.27, octo(0.038, 0.038, c=0.42, cz=BORE))])
+finish(to_obj("TS_Barrel", bm, C["Muzzle"], "Metal"))
+bm = loft([ring_x(2.150, octo(0.046, 0.046, c=0.42, cz=BORE)), ring_x(2.162, octo(0.052, 0.052, c=0.42, cz=BORE)),
+	ring_x(2.186, octo(0.052, 0.052, c=0.42, cz=BORE)), ring_x(2.198, octo(0.046, 0.046, c=0.42, cz=BORE))])
+finish(to_obj("TS_BarrelCollar", bm, C["Muzzle"], "Panel"))
 
-# muzzle brake: stepped octagon, three through-ports, two top ports, a cut crown with fangs
+# muzzle brake: long boxy block, two big side windows, top ports, cut crown
 br = []
-for x, hw, hh in ((2.296, 0.050, 0.052), (2.312, 0.062, 0.066), (2.592, 0.062, 0.066), (2.606, 0.058, 0.062),
-	(2.640, 0.058, 0.062), (2.652, 0.052, 0.056)):
-	br.append(ring_x(x, octo(hw, hh, c=0.5, cz=BORE)))
+for x, hw, hh in ((2.232, 0.050, 0.056), (2.246, 0.060, 0.068), (2.600, 0.060, 0.068), (2.614, 0.056, 0.064),
+	(2.640, 0.056, 0.064), (2.652, 0.050, 0.058)):
+	br.append(ring_x(x, octo(hw, hh, c=0.32, cz=BORE)))
 bm = loft(br)
-brake = finish(to_obj("TS_Brake", bm, C["Muzzle"], "Body"), w=0.002)
+brake = finish(to_obj("TS_Brake", bm, C["Muzzle"], "Body"))
 PC = coll("COL_Cutters_Brake", K)
-for i in range(3):
-	bmp = box(-0.0175, 0.0175, -0.10, 0.10, -0.034, 0.034)
+for i, (x, w) in enumerate(((2.335, 0.040), (2.470, 0.040))):
+	bmp = box(-w, w, -0.10, 0.10, -0.034, 0.034)
 	o = to_obj("CUT_Port%d" % i, bmp, PC, "Dark")
-	o.location = (2.365 + i * 0.072, 0, BORE)
-	o.rotation_euler = (0, math.radians(-14), 0)
-for i in range(2):
-	bmp = box(-0.014, 0.014, -0.020, 0.020, -0.03, 0.03)
+	o.location = (x, 0, BORE)
+	o.rotation_euler = (0, math.radians(-10), 0)
+for i in range(3):
+	bmp = box(-0.010, 0.010, -0.022, 0.022, -0.03, 0.03)
 	o = to_obj("CUT_PortTop%d" % i, bmp, PC, "Dark")
-	o.location = (2.40 + i * 0.072, 0, BORE + 0.066)
+	o.location = (2.545 + i * 0.028, 0, BORE + 0.068)
 for s in (1, -1):
-	bmp = box(-0.026, 0.026, -0.026, 0.026, -0.10, 0.10)
+	bmp = box(-0.022, 0.022, -0.022, 0.022, -0.10, 0.10)
 	o = to_obj("CUT_Crown%+d" % s, bmp, PC, "Dark")
-	o.location = (2.662, s * 0.060, BORE)
+	o.location = (2.664, s * 0.058, BORE)
 	o.rotation_euler = (0, 0, math.radians(45))
 bmp = loft([ring_x(2.2, ngon_yz(0.024, 8, cz=BORE, rot=math.pi / 8)), ring_x(2.7, ngon_yz(0.024, 8, cz=BORE, rot=math.pi / 8))])
 to_obj("CUT_Bore", bmp, PC, "Dark")
 cut_coll(brake, PC, "Ports")
-bm = loft([ring_x(2.33, ngon_yz(0.036, 8, cz=BORE, rot=math.pi / 8)), ring_x(2.60, ngon_yz(0.036, 8, cz=BORE, rot=math.pi / 8))])
+bm = loft([ring_x(2.27, ngon_yz(0.034, 8, cz=BORE, rot=math.pi / 8)), ring_x(2.60, ngon_yz(0.034, 8, cz=BORE, rot=math.pi / 8))])
 finish(to_obj("TS_BrakeCore", bm, C["Muzzle"], "Dark"), w=0.0)
+# baffle fins inside the windows (what you see through the brake)
+for i, x in enumerate((2.335, 2.470)):
+	bm = loft([ring_x(x - 0.006, octo(0.055, 0.062, c=0.32, cz=BORE)), ring_x(x + 0.006, octo(0.055, 0.062, c=0.32, cz=BORE))])
+	finish(to_obj("TS_Baffle%d" % i, bm, C["Muzzle"], "Metal"))
 
 # ================= SIGHTS =================
 # front: swept blade post on the shroud, tip on the aim line
-fs_pts = [(1.925, 0.378), (2.085, 0.372), (2.045, 0.430), (2.010, 0.548), (1.996, 0.560), (1.986, 0.548), (1.965, 0.440)]
+fs_pts = [(1.935, 0.396), (2.065, 0.392), (2.030, 0.440), (2.008, 0.548), (1.997, 0.561), (1.988, 0.548), (1.972, 0.450)]
 bm = profile("FrontSight", fs_pts, 0.011, M, "Body")
 finish(to_obj("TS_Sight_Front", bm, C["Sight"], "Body"), w=0.002)
-bm = profile("FrontSightBase", [(1.90, 0.370), (2.11, 0.362), (2.09, 0.392), (1.94, 0.400)], 0.034, M, "Metal")
+bm = profile("FrontSightBase", [(1.915, 0.390), (2.085, 0.386), (2.070, 0.404), (1.935, 0.410)], 0.030, M, "Metal")
 chamfer_edges(bm, side_edges(up=True), 0.012)
 finish(to_obj("TS_Sight_FrontBase", bm, C["Sight"], "Metal"), w=0.002)
 
@@ -253,13 +267,13 @@ for s in (1, -1):
 grip_pts = [(-0.035, 0.100), (0.165, 0.100), (0.128, 0.020), (0.110, -0.050), (0.092, -0.090), (0.078, -0.170),
 	(0.050, -0.262), (0.030, -0.300), (-0.130, -0.300), (-0.160, -0.262), (-0.120, -0.100), (-0.070, 0.030)]
 bm = profile("Grip", grip_pts, 0.054, M, "Body")
-chamfer_edges(bm, side_edges(), 0.018, segs=2)
+chamfer_edges(bm, side_edges(), 0.018, segs=1)
 finish(to_obj("TS_GripCore", bm, C["Grip"], "Body"), w=0.003)
 # leather wrap: shell around the core, cut into slanted bands (tsuka-maki rhythm)
 wrap_pts = poly_offset([(-0.083, -0.03), (0.126, -0.03), (0.110, -0.050), (0.092, -0.090), (0.078, -0.170), (0.054, -0.245),
 	(-0.150, -0.245), (-0.120, -0.100), (-0.096, -0.03)], 0.006)
 bm = profile("GripWrap", wrap_pts, 0.060, M, "Grip")
-chamfer_edges(bm, side_edges(), 0.020, segs=2)
+chamfer_edges(bm, side_edges(), 0.020, segs=1)
 wrap = finish(to_obj("TS_GripWrap", bm, C["Grip"], "Grip"), w=0.002)
 GW = coll("COL_Cutters_GripWrap", K)
 for i in range(5):
@@ -285,9 +299,9 @@ finish(to_obj("TS_Trigger", bm, C["Grip"], "Metal"), w=0.002)
 
 # ================= MAGAZINE (curved in straight segments) =================
 def mag_frame(t):
-	x = 0.645 + 0.10 * t + 0.13 * t * t
-	z = 0.095 - 0.47 * t
-	dx, dz = 0.10 + 0.26 * t, -0.47
+	x = 0.640 + 0.05 * t + 0.32 * t * t
+	z = 0.095 - 0.49 * t
+	dx, dz = 0.05 + 0.64 * t, -0.49
 	l = math.hypot(dx, dz)
 	return Vector((x, 0, z)), Vector((dx / l, 0, dz / l)), Vector((-dz / l, 0, dx / l))  # p, tangent(down), normal(fwd)
 def mag_ring(t, half_d, half_w, ch=0.012, grow=0.0):
@@ -319,33 +333,33 @@ finish(to_obj("TS_MagBase", bm, C["Mag"], "Panel"), w=0.002)
 
 # ================= STOCK: open triangular frame =================
 SW = 0.040
-neck = [(-0.235, 0.120), (-0.150, 0.110), (-0.150, 0.395), (-0.205, 0.400), (-0.250, 0.360)]
+neck = [(-0.240, 0.135), (-0.150, 0.122), (-0.150, 0.402), (-0.250, 0.410), (-0.272, 0.372)]
 bm = profile("StockNeck", neck, 0.070, M, "Body")
-chamfer_edges(bm, side_edges(), 0.016, segs=2)
+chamfer_edges(bm, side_edges(), 0.016, segs=1)
 finish(to_obj("TS_StockNeck", bm, C["Stock"], "Body"), w=0.003)
-top = band([(-0.22, 0.358), (-1.14, 0.326)], 0.074)
+top = band([(-0.22, 0.383), (-1.14, 0.368)], 0.064)
 bm = profile("StockTop", top, SW, M, "Body")
-chamfer_edges(bm, side_edges(), 0.012, segs=2)
+chamfer_edges(bm, side_edges(), 0.012, segs=1)
 finish(to_obj("TS_StockTop", bm, C["Stock"], "Body"), w=0.003)
 strut = band([(-0.22, 0.160), (-1.14, -0.075)], 0.062)
 bm = profile("StockStrut", strut, SW * 0.9, M, "Body")
-chamfer_edges(bm, side_edges(), 0.012, segs=2)
+chamfer_edges(bm, side_edges(), 0.012, segs=1)
 finish(to_obj("TS_StockStrut", bm, C["Stock"], "Body"), w=0.003)
-butt = [(-1.252, 0.400), (-1.150, 0.385), (-1.115, 0.330), (-1.120, -0.060), (-1.150, -0.150), (-1.252, -0.172)]
+butt = [(-1.252, 0.412), (-1.150, 0.405), (-1.115, 0.330), (-1.120, -0.060), (-1.150, -0.150), (-1.252, -0.172)]
 bm = profile("Butt", butt, 0.066, M, "Body")
-chamfer_edges(bm, side_edges(), 0.020, segs=2)
+chamfer_edges(bm, side_edges(), 0.020, segs=1)
 finish(to_obj("TS_StockButt", bm, C["Stock"], "Body"), w=0.003)
-pad = [(-1.262, 0.392), (-1.240, 0.392), (-1.240, -0.162), (-1.262, -0.160)]
+pad = [(-1.262, 0.404), (-1.240, 0.404), (-1.240, -0.162), (-1.262, -0.160)]
 bm = profile("Pad", pad, 0.060, M, "Dark")
 chamfer_edges(bm, side_edges(), 0.012)
 finish(to_obj("TS_StockPad", bm, C["Stock"], "Dark"), w=0.002)
 # silver edge plates on the stock top bar (both sides)
 for s in (1, -1):
-	pp = [(-0.30, 0.380), (-1.05, 0.356), (-1.10, 0.342), (-1.05, 0.334), (-0.32, 0.356)]
+	pp = [(-0.30, 0.404), (-1.05, 0.391), (-1.10, 0.380), (-1.05, 0.371), (-0.32, 0.384)]
 	bm = profile("StockPlate", pp, 0.004, M, "Panel", yc=s * (SW + 0.002))
 	finish(to_obj("TS_StockPlate%+d" % s, bm, C["Plates"], "Panel"), w=0.0015)
 # ring hub at the rear junction (anchor for the water ring VFX later)
-bm = plate_yz("Hub", octo(0.046, 0.046, c=0.42, cz=0.345), -1.13, -1.08)
+bm = plate_yz("Hub", octo(0.046, 0.046, c=0.42, cz=0.370), -1.13, -1.08)
 finish(to_obj("TS_StockHub", bm, C["Stock"], "Metal"), w=0.003)
 
 # charging handle (left side) restyled as a small blade
