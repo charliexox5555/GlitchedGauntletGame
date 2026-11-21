@@ -74,12 +74,13 @@ local SIDE = {
 	},
 }
 
+-- v2 textures (2026-11-20, owner: "a bit much"): half the contrast and bump of v1
 local VARIANTS = {
-	Wharf_Concrete = { "Concrete", 10, "130403684738556", "90337681532173" },
-	Wharf_Asphalt = { "Asphalt", 8, "103818050213787", "129858602794941" },
-	Wharf_Plank = { "WoodPlanks", 5, "84522048152183", "130628660150579" },
-	Wharf_Ribbed = { "Metal", 4, "83467611440604", "115122519591265" },
-	Wharf_Plate = { "DiamondPlate", 5, "108720229048280", "117553222856953" },
+	Wharf_Concrete = { "Concrete", 10, "98131730598502", "101527228918911" },
+	Wharf_Asphalt = { "Asphalt", 8, "129833585742683", "87143270766313" },
+	Wharf_Plank = { "WoodPlanks", 5, "93605016079302", "106545793761281" },
+	Wharf_Ribbed = { "Metal", 4, "135858628433618", "72834346090990" },
+	Wharf_Plate = { "DiamondPlate", 5, "116955307704363", "89970433895475" },
 }
 
 local function ensureVariants()

@@ -54,10 +54,16 @@ def normal_from_height(h: np.ndarray, strength: float) -> np.ndarray:
 	return ((n * 0.5 + 0.5) * 255).astype(np.uint8)
 
 
+# Owner 2026-11-20 (after Wharf v1): "the textures might be a bit much". v2 keeps the patterns and halves both
+# the colour variation and the bump.
+AMP = 0.5
+
+
 def save(name: str, color: np.ndarray, height: np.ndarray, strength: float) -> Image.Image:
 	os.makedirs(OUT, exist_ok=True)
 	c = np.clip(color, 0, 1)
-	c = c - c.mean() + 0.86  # tintable near-white
+	c = (c - c.mean()) * AMP + 0.86  # tintable near-white, softened
+	strength *= AMP
 	c = np.clip(c, 0, 1)
 	rgb = (np.stack([c, c, c], axis=-1) * 255).astype(np.uint8)
 	img = Image.fromarray(rgb, "RGB")
