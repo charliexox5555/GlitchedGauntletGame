@@ -119,3 +119,7 @@ Build on what already works for the elite line (Ruin-Blighted: `ShadowMistIdle`,
 2. **Idle:** two or three thin laminar water ribbons (Beams with a scrolling texture) along the handguard sleeve and around the stock ring hub; sparse white-cyan vent sparks (low rate). ADS keeps the aperture clear.
 3. **Fire:** four-point shuriken flash (a few frames, not 0.04 s which is under 3 frames), mist droplets from the brake ports, thin cyan tracer with droplets, water-splash impact with a short static mark.
 4. **Actions:** equip (water ring runs down the barrel, plates lock), reload (mag dissolves, water-formed mag in the off hand, glides in, cyan pulse), inspect (levitating 360 spin inside a water ring, grip catch). Each on the stock Vandal markers, with interrupt cleanup tested.
+
+**Texture source pass (2026-11-21).** Original white RGBA art for the idle ribbon, vent droplets, front and side shuriken flashes, lightning arc, splash, static mark, and tracer is ready for Roblox import. The ribbon crosses the left and right edges at matching alpha values for horizontal scrolling. The other sprites have clear borders. [Contact sheet](../../../../art-source/vfx/tempest/raw/preview_sheet.png)
+
+**Studio pass (2026-11-21 → 22).** Idle, shot, reload, draw, inspect and ADS are built and play-tested; results, fixes and the 8.5 self-grade are in [Overnight Plan](Overnight%20Plan.md).

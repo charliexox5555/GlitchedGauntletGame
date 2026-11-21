@@ -1683,6 +1683,9 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 	if gun.shadowActions then
 		ShadowMistActions.fire(gun.shadowActions)
 	end
+	if gun.tempest then
+		TempestIdle.fire(gun.tempest)
+	end
 	gun.lockPending = empty == true
 		and config ~= nil
 		and config.lockOnEmpty == true
@@ -2324,6 +2327,9 @@ local function stepMags(gun: Gun)
 			if gun.shadowActions then
 				ShadowMistActions.endReload(gun.shadowActions)
 			end
+			if gun.tempest then
+				TempestIdle.endReload(gun.tempest)
+			end
 			continue
 		end
 		local t = gun.animator:progress()
@@ -2337,6 +2343,18 @@ local function stepMags(gun: Gun)
 				mag.empty == true
 			)
 			mag.gone = t >= timing.outAt
+			continue
+		end
+		-- Tempest-Strike: the old mag bursts into water (no drop copy) and water
+		-- gathers at the magwell before the new one seats (Util/TempestIdle).
+		if gun.tempest and mag.bone == "Mag" and mag.clip then
+			local _, magTo = gun.animator:activity(mag.clip, "Mag")
+			local seat = math.max(timing.inAt, magTo or timing.inAt)
+			if TempestIdle.reload(gun.tempest, mag.parts, t, timing.outAt, timing.inAt, seat) then
+				showMag(mag, false)
+			elseif mag.gone and t >= timing.inAt then
+				showMag(mag, true)
+			end
 			continue
 		end
 		if not mag.gone and t >= timing.outAt and t < timing.inAt then
@@ -2820,12 +2838,16 @@ local function update(dt: number)
 				ShadowMistActions.stepFx(gun.shadowActions, adsAlpha)
 			end
 			if gun.tempest then
+				local draw = playing.Equip
+				local inspect = playing.Inspect
 				TempestIdle.step(
 					gun.tempest,
 					dt,
 					visible,
 					(clipName == nil or clipName == "Fire") and not playing.Inspect and lowerT < 0.1,
-					adsAlpha
+					adsAlpha,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil
 				)
 			end
 			if gun.shadowMist then
@@ -2867,6 +2889,10 @@ local function update(dt: number)
 			local handleCf = if batPose and side == "Right"
 				then root * lowerCf * batPose
 				else root * lowerCf * holdPose(gun, c, side == "Left", adsT, dt)
+			if gun.tempest then
+				-- the skin's own motion layer: shot kick, draw roll-in, seat pop, inspect float
+				handleCf *= TempestIdle.pose(gun.tempest)
+			end
 			-- A knife toss (VM Track `toss`): the knife leaves the fist, the arm
 			-- stays on the fist (handleCf) until the catch.
 			local toss = if side == "Right" then ViewmodelTracks.toss(playing) else nil

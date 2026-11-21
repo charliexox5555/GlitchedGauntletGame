@@ -71,7 +71,7 @@ return table.freeze({
 		GLOW_PEAK = Color3.fromRGB(150, 255, 250), -- Neon conduits breathe toward this
 		GLOW_MIX = 0.55,
 		GLOW_RATE = 2.1, -- radians per second
-		ADS_RIBBON = 0.35, -- ribbon opacity kept at full ADS
+		ADS_RIBBON = 0.2, -- ribbon opacity kept at full ADS (0.35 sat on the front post)
 		ADS_SPARK_CUTOFF = 0.5, -- sparks stop above this aim weight
 		-- shot (Util/TempestFx): shuriken flash, port mist, light pop, splash impacts
 		SHOT_TINT = Color3.fromRGB(120, 240, 236), -- tracer colour
@@ -90,6 +90,28 @@ return table.freeze({
 		FLASH_LIGHT_RANGE = 8,
 		FLASH_BRIGHTNESS = 1.6, -- under the place Bloom threshold (2)
 		FLASH_LIGHT_TIME = 0.06,
+		-- actions (Util/TempestIdle): draw ring, reload dissolve + gather, inspect float
+		BOOST_SHOT = 0.35, -- conduit flare per shot (0..1, decays at BOOST_DECAY / s)
+		BOOST_SEAT = 0.9, -- flare when the new magazine seats or the draw locks
+		BOOST_DECAY = 3.5,
+		RELOAD_DRAIN = 0.75, -- how far the conduits dim while the magazine is out
+		DRAINED = Color3.fromRGB(28, 70, 78),
+		WELL = Vector3.new(0, 0.12, -0.6), -- magwell mouth (measured: Mag bone at 0.155, -0.583) (Handle space, model studs)
+		RING_POINTS = 12,
+		RING_BRIGHTNESS = 1.15,
+		RING_SPIN = 5, -- radians per second
+		DRAW_RING = 0.6, -- the ring reaches the receiver at this draw progress
+		DRAW_SNAP = 0.5, -- the roll-in settles level by here
+		DRAW_ROLL = math.rad(24),
+		INSPECT_LIFT = 0.022,
+		INSPECT_ROLL = math.rad(6),
+		INSPECT_SPARKS = 3, -- arc rate multiplier while inspecting
+		KICK_PITCH = math.rad(1.0), -- skin kick on top of the stock recoil
+		KICK_ROLL = math.rad(1.2),
+		KICK_BACK = 0.008,
+		KICK_TIME = 0.24,
+		SEAT_POP = 0.012,
+		HOVER = 0.003,
 	}),
 	SHADOW_MIST = table.freeze({
 		LINE = shadowMistLine,
