@@ -412,7 +412,8 @@ function ImpactFx.impact(
 	material: Enum.Material?,
 	size: number?,
 	noHole: boolean?, -- the knife: its own gouge (slashMark), not a bullet hole
-	spectral: boolean?
+	spectral: boolean?,
+	ownStrike: boolean? -- a skin draws its own strike (Tempest-Strike: water + static): no orange flash or sparks
 )
 	local function placeHole(at: Vector3, n: Vector3, color: Color3, holeSize: number)
 		if not noHole then
@@ -472,9 +473,12 @@ function ImpactFx.impact(
 	local dust = dustSet(color)
 	dust.att.WorldCFrame = cf
 	local holeSize = 0.36 * (size or 1)
+	local hot = not ownStrike
 	if kind == "Metal" then
-		set.flash:Emit(1)
-		set.metalSparks:Emit(math.random(6, 10))
+		if hot then
+			set.flash:Emit(1)
+			set.metalSparks:Emit(math.random(6, 10))
+		end
 		dust.dust:Emit(1)
 		placeHole(position, normal, Color3.fromHex("8E9399"), holeSize * 0.8)
 	elseif kind == "Wood" then
@@ -485,12 +489,16 @@ function ImpactFx.impact(
 		dust.dust:Emit(3)
 		dust.chips:Emit(math.random(2, 4)) -- clods
 	elseif kind == "Glass" then
-		set.flash:Emit(1)
+		if hot then
+			set.flash:Emit(1)
+		end
 		dust.chips:Emit(math.random(4, 7))
 		placeHole(position, normal, Color3.fromHex("C8CDD2"), holeSize * 0.9)
 	else
-		set.flash:Emit(1)
-		set.sparks:Emit(math.random(1, 3))
+		if hot then
+			set.flash:Emit(1)
+			set.sparks:Emit(math.random(1, 3))
+		end
 		dust.dust:Emit(2)
 		dust.chips:Emit(math.random(3, 5))
 		placeHole(position, normal, WHITE, holeSize)

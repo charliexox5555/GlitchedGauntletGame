@@ -2357,8 +2357,8 @@ local function stepMags(gun: Gun)
 			local seat = math.max(timing.inAt, magTo or timing.inAt)
 			if TempestIdle.reload(gun.tempest, mag.parts, t, timing.outAt, timing.inAt, seat) then
 				showMag(mag, false)
-			elseif mag.gone and t >= timing.inAt then
-				showMag(mag, true)
+			elseif mag.gone and t >= TempestIdle.solidAt(timing.inAt, seat) then
+				showMag(mag, true) -- solid now (it was water from MagIn, Util/TempestCoat)
 			end
 			continue
 		end

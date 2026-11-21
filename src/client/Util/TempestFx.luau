@@ -17,6 +17,7 @@ type Rig = {
 	side: ParticleEmitter,
 	mist: ParticleEmitter,
 	ring: ParticleEmitter,
+	jets: { ParticleEmitter },
 	light: PointLight,
 	lit: number,
 }
@@ -108,6 +109,25 @@ local function build(muzzle: Attachment, scale: number): Rig
 	ring.Rotation = NumberRange.new(0, 360)
 	ring.Size = seq({ { 0, 0.12 * scale }, { 1, Style.MUZZLE_RING_SIZE * scale } })
 	ring.Transparency = seq({ { 0, 0.1 }, { 0.6, 0.35 }, { 1, 1 } })
+	-- jets: short water spurts thrown sideways out of the brake ports
+	local jets: { ParticleEmitter } = {}
+	for _, dir in { Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Top } do
+		local jet = emitter(muzzle, "TempestPortJet", Style.FLASH_SIDE)
+		jet.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+		jet.FlipbookMode = Enum.ParticleFlipbookMode.Random
+		jet.Color = ColorSequence.new(Style.WATER_EDGE, rim)
+		jet.Brightness = Style.FLASH_BRIGHTNESS * 0.75
+		jet.LightEmission = 0.85
+		jet.Lifetime = NumberRange.new(0.05, 0.07)
+		jet.Speed = NumberRange.new(1.2 * scale, 1.8 * scale)
+		jet.Drag = 12
+		jet.EmissionDirection = dir
+		jet.SpreadAngle = Vector2.new(12, 12)
+		jet.Orientation = Enum.ParticleOrientation.VelocityParallel
+		jet.Size = seq({ { 0, 0.12 * scale }, { 0.4, 0.2 * scale }, { 1, 0.05 * scale } })
+		jet.Transparency = seq({ { 0, 0.05 }, { 0.7, 0.35 }, { 1, 1 } })
+		table.insert(jets, jet)
+	end
 	local light = Instance.new("PointLight")
 	light.Name = "TempestFlashLight"
 	light.Color = rim
@@ -116,8 +136,15 @@ local function build(muzzle: Attachment, scale: number): Rig
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = muzzle
-	local rig: Rig =
-		{ front = front, side = side, mist = mist, ring = ring, light = light, lit = -1 }
+	local rig: Rig = {
+		front = front,
+		side = side,
+		mist = mist,
+		ring = ring,
+		jets = jets,
+		light = light,
+		lit = -1,
+	}
 	rigs[muzzle] = rig
 	return rig
 end
@@ -130,6 +157,9 @@ function TempestFx.flash(muzzle: Attachment, scale: number)
 	if not UiMotion.reduced() then
 		rig.mist:Emit(math.random(4, 6))
 		rig.ring:Emit(1)
+		for _, jet in rig.jets do
+			jet:Emit(1)
+		end
 	end
 	rig.light.Brightness = Style.FLASH_LIGHT
 	rig.light.Enabled = true
@@ -179,7 +209,39 @@ function TempestFx.splash(position: Vector3, normal: Vector3)
 	ring.Speed = NumberRange.new(0)
 	ring.Size = seq({ { 0, 0.25 }, { 1, 0.7 } })
 	ring.Transparency = seq({ { 0, 0.1 }, { 1, 1 } })
+	-- the strike: a small white-cyan star, two lightning arcs snapping off it, a light pop
+	local core = emitter(at, "TempestStrikeCore", Style.FLASH_FRONT)
+	core.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+	core.FlipbookMode = Enum.ParticleFlipbookMode.Random
+	core.Color = ColorSequence.new(Style.FLASH_CORE, Style.WATER)
+	core.Brightness = Style.FLASH_BRIGHTNESS
+	core.Lifetime = NumberRange.new(0.06, 0.08)
+	core.Speed = NumberRange.new(0)
+	core.Rotation = NumberRange.new(0, 90)
+	core.Size = seq({ { 0, 0.32 }, { 0.3, 0.62 }, { 1, 0.1 } })
+	core.Transparency = seq({ { 0, 0 }, { 0.6, 0.2 }, { 1, 1 } })
+	local arcs = emitter(at, "TempestStrikeArcs", Style.ARC)
+	arcs.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+	arcs.FlipbookMode = Enum.ParticleFlipbookMode.Random
+	arcs.Color = ColorSequence.new(Style.ARC_CORE, Style.WATER)
+	arcs.Brightness = 1.6
+	arcs.Lifetime = NumberRange.new(0.07, 0.12)
+	arcs.Speed = NumberRange.new(0)
+	arcs.Rotation = NumberRange.new(0, 360)
+	arcs.Size = seq({ { 0, 0.55 }, { 1, 0.75 } })
+	arcs.Transparency = seq({ { 0, 0 }, { 0.5, 0.15 }, { 1, 1 } })
+	local light = Instance.new("PointLight")
+	light.Color = Style.WATER
+	light.Brightness = Style.IMPACT_LIGHT
+	light.Range = 5
+	light.Shadows = false
+	light.Parent = at
 	part.Parent = Workspace
+	core:Emit(1)
+	arcs:Emit(2)
+	task.delay(0.07, function()
+		light.Enabled = false
+	end)
 	drops:Emit(math.random(6, 9))
 	ring:Emit(1)
 	if Style.STATIC_MARK ~= "" then

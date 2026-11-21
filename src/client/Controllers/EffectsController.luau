@@ -175,8 +175,18 @@ function EffectsController.localWallImpact(
 	material: Enum.Material,
 	size: number
 )
-	ImpactFx.impact(position, normal, hit, material, size, false, shadowShot(config) ~= nil)
-	if tempestShot() then
+	local tempest = tempestShot()
+	ImpactFx.impact(
+		position,
+		normal,
+		hit,
+		material,
+		size,
+		false,
+		shadowShot(config) ~= nil,
+		tempest
+	)
+	if tempest then
 		TempestFx.splash(position, normal)
 	end
 end

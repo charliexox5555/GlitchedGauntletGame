@@ -31,6 +31,7 @@ return table.freeze({
 		inspect = cue("inspect", 0.5),
 		idleSurge = cue("inspect", 0.22, { 1.05, 1.12 }), -- the idle flourish: the swirl, softer and higher
 		inspectRoll = cue("inspectRoll", 0.6),
+		reloadSpin = cue("inspectRoll", 0.45, { 1.18, 1.26 }), -- the spin after the seat: the roll whoosh, quicker
 		inspectCatch = cue("inspectCatch", 0.55),
 		magOut = cue("magOut", 0.6, { 0.95, 1.05 }),
 		magForm = cue("magForm", 0.55),

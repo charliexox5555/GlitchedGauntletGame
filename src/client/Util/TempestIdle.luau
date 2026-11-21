@@ -13,10 +13,11 @@ local StateValues = require(Shared.StateValues)
 local Style = require(Shared.Config.SkinPreview).TEMPEST
 local VFX = require(Shared.Config.VfxTextures)
 local UiMotion = require(Shared.UiMotion)
+local TempestCoat = require(script.Parent.TempestCoat)
 local TempestAudio = require(Shared.Config.TempestAudio)
 local AudioController = require(script.Parent.Parent.Controllers.AudioController)
 
-type Ribbon = { beam: Beam, speed: number, body: boolean }
+type Ribbon = { beam: Beam, speed: number, body: boolean, at: number } -- at: 0 receiver .. 1 muzzle end
 type Glow = { part: BasePart, color: Color3 }
 type Ring = { points: { Attachment }, beams: { Beam }, cores: { Beam } }
 export type State = {
@@ -40,6 +41,18 @@ export type State = {
 	flourishAge: number,
 	flourish: number, -- which idle flourish (1 wrist turn, 2 sight check)
 	aimed: boolean,
+	coat: TempestCoat.Coat,
+	former: ParticleEmitter?, -- water beads converging on the new magazine
+	trails: { Trail }, -- water trails off the muzzle and stock (inspect, reload spin)
+	sight: {
+		arcs: { Beam },
+		tips: { ParticleEmitter },
+		apex: Attachment,
+		apexRest: Vector3,
+		next: number,
+		until_: number,
+	},
+	sightFlash: number, -- the sight's water shimmer on entering ADS, decays
 	visible: boolean, -- the camera gun shows (its foley is silent while hidden)
 	glows: { Glow },
 	ribbons: { Ribbon },
@@ -88,7 +101,8 @@ local function ribbon(
 	width: number,
 	speed: number,
 	taper0: number,
-	taper1: number
+	taper1: number,
+	at: number
 )
 	local beam = Instance.new("Beam")
 	beam.Name = "TempestWater"
@@ -107,7 +121,7 @@ local function ribbon(
 	beam.Segments = 4
 	beam.Enabled = false
 	beam.Parent = a0
-	table.insert(state.ribbons, { beam = beam, speed = speed, body = false })
+	table.insert(state.ribbons, { beam = beam, speed = speed, body = false, at = at })
 	-- the solid water core under the textured flow (keeps the line readable when the
 	-- texture's thin streaks go sub-pixel)
 	local core = beam:Clone()
@@ -117,7 +131,7 @@ local function ribbon(
 	core.Transparency = NumberSequence.new(Style.CORE_BODY)
 	core.Color = ColorSequence.new(Style.WATER)
 	core.Parent = a0
-	table.insert(state.ribbons, { beam = core, speed = 0, body = true })
+	table.insert(state.ribbons, { beam = core, speed = 0, body = true, at = at })
 end
 
 local function spark(state: State, at: Attachment, scale: number)
@@ -308,6 +322,11 @@ function TempestIdle.new(model: Model, scale: number): State?
 		flourishAge = math.huge,
 		flourish = 1,
 		aimed = false,
+		coat = nil :: any,
+		former = nil,
+		trails = {},
+		sight = nil :: any,
+		sightFlash = 0,
 		visible = true,
 		glows = {},
 		ribbons = {},
@@ -349,7 +368,16 @@ function TempestIdle.new(model: Model, scale: number): State?
 			local taper = function(t: number): number
 				return math.clamp(math.min(t, 1 - t) / 0.18, 0.25, 1)
 			end
-			ribbon(state, points[i], points[i + 1], w, Style.RIBBON_SPEED, taper(t0), taper(t1))
+			ribbon(
+				state,
+				points[i],
+				points[i + 1],
+				w,
+				Style.RIBBON_SPEED,
+				taper(t0),
+				taper(t1),
+				(t0 + t1) / 2
+			)
 		end
 	end
 	-- arcs flick up off the top of the handguard
@@ -365,6 +393,160 @@ function TempestIdle.new(model: Model, scale: number): State?
 	light.Parent = glow
 	state.light = light
 	state.ring = makeRing(state, Style.RING_POINTS, w * 0.9)
+	state.coat = TempestCoat.new(model, scale)
+	-- the forming magazine: a ball welded to the magazine (before ViewmodelRig, so the
+	-- rig carries it) whose surface throws water beads inward
+	local magPart: BasePart? = nil
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") and string.match(d.Name, "^SK_Mag") then
+			if not magPart or d.Size.Magnitude > magPart.Size.Magnitude then
+				magPart = d
+			end
+		end
+	end
+	if magPart then
+		local ball = Instance.new("Part")
+		ball.Name = "TempestFormBall"
+		ball.Shape = Enum.PartType.Ball
+		ball.Size = Vector3.one * (Style.FORM_RADIUS * 2 * scale)
+		ball.Transparency = 1
+		ball.CanCollide = false
+		ball.CanQuery = false
+		ball.CanTouch = false
+		ball.Massless = true
+		ball.CastShadow = false
+		ball.CFrame = magPart.CFrame
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = magPart
+		weld.Part1 = ball
+		weld.Parent = ball
+		ball.Parent = magPart.Parent
+		local e = Instance.new("ParticleEmitter")
+		e.Name = "TempestFormBeads"
+		e.Texture = VFX.TEMPEST_DROPLETS_2x2
+		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+		e.FlipbookMode = Enum.ParticleFlipbookMode.Random
+		e.Shape = Enum.ParticleEmitterShape.Sphere
+		e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface
+		e.ShapeInOut = Enum.ParticleEmitterShapeInOut.Inward
+		e.Color = ColorSequence.new(Style.WATER_EDGE, Style.WATER)
+		e.LightEmission = 0.85
+		e.LightInfluence = 0
+		e.Brightness = 1.6
+		e.Rate = 0
+		e.Lifetime = NumberRange.new(0.14, 0.2)
+		e.Speed = NumberRange.new(Style.FORM_RADIUS * scale / 0.17)
+		e.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.05 * scale),
+			NumberSequenceKeypoint.new(1, 0.12 * scale),
+		})
+		e.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.6),
+			NumberSequenceKeypoint.new(0.4, 0.1),
+			NumberSequenceKeypoint.new(1, 0.4),
+		})
+		e.LockedToPart = true
+		e.Enabled = false
+		e.Parent = ball
+		state.former = e
+	end
+	-- trails off the muzzle and the stock end (from the body's extent along the bore)
+	local front, back = math.huge, -math.huge
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") and string.match(d.Name, "^SK_Root") then
+			local half = d.Size / 2
+			for _, c in
+				{
+					Vector3.new(1, 1, 1),
+					Vector3.new(-1, -1, -1),
+					Vector3.new(1, -1, 1),
+					Vector3.new(-1, 1, -1),
+				}
+			do
+				local z = handle.CFrame:PointToObjectSpace(d.CFrame:PointToWorldSpace(half * c)).Z
+				front, back = math.min(front, z), math.max(back, z)
+			end
+		end
+	end
+	if front < back then
+		for _, z in { front + 0.06 * scale, back - 0.06 * scale } do
+			local y = 0.29
+			local a0 = anchor(frame, "TempestTrail0", Vector3.new(0, y + 0.035, z / scale))
+			local a1 = anchor(frame, "TempestTrail1", Vector3.new(0, y - 0.035, z / scale))
+			local tr = Instance.new("Trail")
+			tr.Name = "TempestTrail"
+			tr.Attachment0, tr.Attachment1 = a0, a1
+			tr.Texture = VFX.TEMPEST_WATER_RIBBON
+			tr.TextureMode = Enum.TextureMode.Stretch
+			tr.Color = ColorSequence.new(Style.WATER_EDGE, Style.WATER)
+			tr.LightEmission = 0.8
+			tr.LightInfluence = 0
+			tr.Brightness = 1.5
+			tr.Lifetime = Style.TRAIL_LIFE
+			tr.MinLength = 0.01
+			tr.FaceCamera = true
+			tr.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.15),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+			tr.WidthScale = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(1, 0.2),
+			})
+			tr.Enabled = false
+			tr.Parent = a0
+			table.insert(state.trails, tr)
+		end
+	end
+	-- ADS: lightning snapping between the crescent's tips over the top of the
+	-- window, sparks at the tips (Style.SIGHT_*: tips in Blender units)
+	local tipL =
+		anchor(frame, "TempestSightTipL", bl(Style.SIGHT_X, Style.SIGHT_TIP_Y, Style.SIGHT_TIP_Z))
+	local tipR =
+		anchor(frame, "TempestSightTipR", bl(Style.SIGHT_X, -Style.SIGHT_TIP_Y, Style.SIGHT_TIP_Z))
+	local apex = anchor(frame, "TempestSightApex", bl(Style.SIGHT_X, 0, Style.SIGHT_APEX_Z))
+	local arcs: { Beam } = {}
+	for _, pair in { { tipL, apex }, { apex, tipR } } do
+		local b = Instance.new("Beam")
+		b.Name = "TempestSightArc"
+		b.Attachment0, b.Attachment1 = pair[1], pair[2]
+		b.Texture = VFX.STIM_BOLT
+		b.TextureMode = Enum.TextureMode.Stretch
+		b.TextureSpeed = 4
+		b.Color = ColorSequence.new(Style.ARC_CORE, Style.WATER)
+		b.LightEmission = 1
+		b.LightInfluence = 0
+		b.Brightness = Style.SIGHT_ARC_BRIGHTNESS
+		b.FaceCamera = true
+		b.Width0, b.Width1 = Style.SIGHT_ARC_WIDTH * scale, Style.SIGHT_ARC_WIDTH * scale
+		b.Segments = 6
+		b.Enabled = false
+		b.Parent = pair[1]
+		table.insert(arcs, b)
+	end
+	local tips: { ParticleEmitter } = {}
+	for _, at in { tipL, tipR } do
+		local e = Instance.new("ParticleEmitter")
+		e.Name = "TempestSightSpark"
+		e.Texture = VFX.TEMPEST_ARC_2x2
+		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+		e.FlipbookMode = Enum.ParticleFlipbookMode.Random
+		e.Color = ColorSequence.new(Style.ARC_CORE, Style.WATER)
+		e.LightEmission = 1
+		e.LightInfluence = 0
+		e.Brightness = 1.6
+		e.Rate = 0
+		e.Lifetime = NumberRange.new(0.05, 0.09)
+		e.Speed = NumberRange.new(0)
+		e.Rotation = NumberRange.new(0, 360)
+		e.Size = NumberSequence.new(Style.SIGHT_SPARK * scale)
+		e.LockedToPart = true
+		e.Enabled = false
+		e.Parent = at
+		table.insert(tips, e)
+	end
+	state.sight =
+		{ arcs = arcs, tips = tips, apex = apex, apexRest = apex.Position, next = 0, until_ = 0 }
 	return state
 end
 
@@ -385,6 +567,17 @@ function TempestIdle.fire(state: State)
 	state.shotAge = 0
 	state.shotSign = -state.shotSign
 	state.boost = math.max(state.boost, Style.BOOST_SHOT)
+	-- an arc snaps off the receiver now and then (not while aiming: the sight stays clean)
+	if
+		state.aimed == false
+		and not UiMotion.reduced()
+		and math.random() < Style.SHOT_ARC_CHANCE
+	then
+		local e = state.sparks[math.random(1, #state.sparks)]
+		if e then
+			e:Emit(1)
+		end
+	end
 end
 
 local function centre(parts: { BasePart }): Vector3?
@@ -428,10 +621,30 @@ function TempestIdle.reload(
 		state.boost = math.max(state.boost, Style.BOOST_SEAT)
 		TempestIdle.cue(state, "magSeat")
 	end
+	local spinAt = seat + 0.045
+	if prev < spinAt and t >= spinAt then
+		TempestIdle.cue(state, "reloadSpin")
+	end
+	local former = state.former
+	if former then
+		local forming = t >= inAt - 0.12
+			and t < TempestIdle.solidAt(inAt, seat)
+			and not UiMotion.reduced()
+		former.Rate = if forming then Style.FORM_RATE else 0
+		former.Enabled = forming
+	end
 	return dissolved
 end
 
+-- Reload progress at which the water magazine turns solid (the real one shows).
+function TempestIdle.solidAt(inAt: number, seat: number): number
+	return inAt + (seat - inAt) * Style.FORM_SOLID
+end
+
 function TempestIdle.endReload(state: State)
+	if state.former then
+		state.former.Enabled = false
+	end
 	state.reloadPrev = -1
 	state.timing = nil
 end
@@ -505,6 +718,11 @@ function TempestIdle.step(
 	-- into the sights: a faint water shimmer
 	local aimed = if state.aimed then aim > 0.35 else aim > 0.6
 	if aimed and not state.aimed and visible then
+		state.sightFlash = 1
+		state.sight.next = 0 -- crackle across the crescent straight away
+		for _, e in state.sight.tips do
+			e:Emit(2)
+		end
 		TempestIdle.cue(state, "aimIn")
 	end
 	state.aimed = aimed
@@ -520,12 +738,21 @@ function TempestIdle.step(
 	local life = 1 - Style.RELOAD_DRAIN * state.drain
 	-- ribbons: visible fade-in, thinned while aiming; reduced motion stops the scroll
 	local opacity = state.weight * (1 - (1 - Style.ADS_RIBBON) * aim) * life
+	-- each shot sends a bright pulse down the helices, receiver to muzzle
+	local pa = state.shotAge
+	local pulseOn = pa < Style.SHOT_PULSE_TIME + 0.06
+	local pulseAt = pa / Style.SHOT_PULSE_TIME
+	local pulseFade = math.clamp(1 - pa / (Style.SHOT_PULSE_TIME + 0.06), 0, 1) * (1 - 0.6 * aim)
 	for _, r in state.ribbons do
 		r.beam.Enabled = on
 		if on then
+			local pulse = if pulseOn
+				then Style.SHOT_PULSE * pulseFade * math.exp(-((r.at - pulseAt) / 0.16) ^ 2)
+				else 0
 			r.beam.Brightness = (if r.body then 1.3 else Style.RIBBON_BRIGHTNESS)
 					* (opacity + 0.35 * state.boost)
 				+ 0.15 * math.sin(state.clock * 2.1)
+				+ pulse
 			r.beam.TextureSpeed = if reduced then 0 else r.speed * (1 + 1.5 * state.boost)
 		end
 	end
@@ -567,7 +794,21 @@ function TempestIdle.step(
 		local k = smooth(timing.inAt - 0.16, timing.seat, t)
 		ringAlpha = smooth(timing.inAt - 0.16, timing.inAt - 0.10, t)
 			* (1 - smooth(timing.seat - 0.03, timing.seat, t))
-		if ringAlpha > 0.02 then
+		-- the spin after the seat (Config/Viewmodel ReloadTempest toss): a wide ring round the bore
+		local spinA = smooth(timing.seat + 0.02, timing.seat + 0.06, t)
+			* (1 - smooth(timing.seat + 0.18, timing.seat + 0.26, t))
+		if spinA > 0.02 then
+			ringAlpha = spinA
+			placeRing(
+				state,
+				bl(1.2, 0, 0.30),
+				bl(0, 1, 0),
+				bl(0, 0, 1.1),
+				Style.INSPECT_RING_R,
+				-spin * 3,
+				spinA
+			)
+		elseif ringAlpha > 0.02 then
 			placeRing(
 				state,
 				Style.WELL,
@@ -686,6 +927,86 @@ function TempestIdle.step(
 		end
 	end
 	state.pose = pose
+	-- water trails while the gun swings: the inspect and the reload spin
+	local trailsOn = visible
+		and not reduced
+		and (
+			(inspectP ~= nil and inspectP > 0.06 and inspectP < 0.9)
+			or (
+				timing ~= nil
+				and state.reloadPrev >= timing.seat
+				and state.reloadPrev < timing.seat + 0.25
+			)
+		)
+	for _, tr in state.trails do
+		if tr.Enabled ~= trailsOn then
+			tr.Enabled = trailsOn
+		end
+	end
+	-- ADS: lightning snaps over the crescent at random beats while you aim
+	local sight = state.sight
+	local adsOn = visible and aim > 0.7 and not reduced
+	local arcOn = false
+	if adsOn then
+		if state.clock >= sight.next then
+			sight.until_ = state.clock + Style.SIGHT_ARC_TIME * (0.7 + 0.6 * math.random())
+			sight.next = state.clock
+				+ Style.SIGHT_ARC_GAP[1]
+				+ math.random() * (Style.SIGHT_ARC_GAP[2] - Style.SIGHT_ARC_GAP[1])
+			sight.apex.Position = sight.apexRest
+				+ Vector3.new(
+					(math.random() - 0.5) * 0.03 * k,
+					(math.random() - 0.3) * 0.025 * k,
+					0
+				)
+			sight.tips[math.random(1, #sight.tips)]:Emit(1)
+		end
+		arcOn = state.clock < sight.until_
+	else
+		sight.next = 0
+	end
+	for _, b in sight.arcs do
+		if b.Enabled ~= arcOn then
+			b.Enabled = arcOn
+		end
+	end
+	-- the water coat: the gun is water as it draws in and solidifies behind the
+	-- ring; it washes over the gun for the inspect roll; the old magazine leaves as
+	-- a water ghost and the new one is water before it turns solid; the sight
+	-- shimmers as you aim in; each hip shot flickers it
+	local coat = state.coat
+	state.sightFlash = math.max(0, state.sightFlash - s / Style.SIGHT_FLASH_TIME)
+	local body = 0
+	if drawP then
+		body = 1 - smooth(0.06, Style.DRAW_RING + 0.04, drawP)
+	elseif inspectP then
+		body = 0.75 * smooth(0.42, 0.48, inspectP) * (1 - smooth(0.6, 0.7, inspectP))
+			+ 0.4 * smooth(0.1, 0.16, inspectP) * (1 - smooth(0.2, 0.3, inspectP))
+	end
+	body = math.max(body, 0.35 * surge, Style.SHOT_COAT * math.exp(-state.shotAge * 30) * (1 - aim))
+	coat.alpha.body = body
+	coat.alpha.sight = math.max(body, state.sightFlash * Style.SIGHT_FLASH)
+	local mag, free = 0, false
+	if timing and state.reloadPrev >= 0 then
+		local t = state.reloadPrev
+		coat.alpha.body = math.max(
+			coat.alpha.body,
+			0.6
+				* smooth(timing.seat + 0.03, timing.seat + 0.07, t)
+				* (1 - smooth(timing.seat + 0.16, timing.seat + 0.26, t))
+		)
+		local solid = TempestIdle.solidAt(timing.inAt, timing.seat)
+		if t >= timing.outAt and t < timing.outAt + 0.08 then
+			mag, free = 0.9 * (1 - (t - timing.outAt) / 0.08), true -- the old one, a fading ghost
+		elseif t >= timing.inAt and t < solid then
+			mag, free = 1, true -- the new one, all water
+		elseif t >= solid then
+			mag = 1 - smooth(solid, timing.seat + 0.05, t)
+		end
+	end
+	coat.alpha.mag = math.max(mag, body)
+	coat.free.mag = free
+	TempestCoat.step(coat, visible)
 end
 
 return TempestIdle

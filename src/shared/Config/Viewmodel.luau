@@ -2310,6 +2310,20 @@ return table.freeze({
 				key(0.94, Vector3.new(0.015, -0.02, 0.015), Vector3.new(-3, -2, 3)),
 				key(1, ZERO, ZERO),
 			},
+			-- the spin: once the water magazine seats (Vandal clip ~0.454) the gun
+			-- rolls once about the bore and drops back into the hands. Toss keys run on
+			-- the clip's own time (alignTrack warps only `keys`).
+			toss = {
+				key(0, ZERO, ZERO),
+				key(0.5, ZERO, ZERO),
+				key(0.53, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -70)),
+				key(0.58, Vector3.new(0, 0.085, 0), Vector3.new(0, 0, -205)),
+				key(0.63, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -335)),
+				key(0.655, Vector3.new(0, -0.005, 0), Vector3.new(0, 0, -363)),
+				key(0.68, ZERO, Vector3.new(0, 0, -360)),
+				key(1, ZERO, Vector3.new(0, 0, -360)),
+			},
+			tossPivot = Vector3.new(0, 0.24, -0.96),
 		},
 		InspectShadowMist = {
 			length = 5.4,
