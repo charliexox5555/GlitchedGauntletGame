@@ -47,6 +47,7 @@ local FanMotion = require(script.Parent.Parent.Util.FanMotion)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local ShadowMistIdle = require(script.Parent.Parent.Util.ShadowMistIdle)
 local TempestIdle = require(script.Parent.Parent.Util.TempestIdle)
+local TempestKunai = require(script.Parent.Parent.Util.TempestKunai)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
@@ -139,6 +140,7 @@ type Gun = {
 	fan: FanMotion.Fan?, -- the Giltfold Fan's ribs (Util/FanMotion)
 	shadowMist: ShadowMistIdle.State?,
 	tempest: TempestIdle.State?,
+	kunai: TempestKunai.State?, -- the Tempest-Strike Kunai-Katana (knife slot)
 	shadowActions: ShadowMistActions.State?,
 	cosmeticInspect: CosmeticInspect.State?,
 }
@@ -1045,6 +1047,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	gun.reaver = RuinedReaver.new(m, scale)
 	gun.shadowMist = if gun.reaver then nil else ShadowMistIdle.new(m, scale)
 	gun.tempest = TempestIdle.new(m, scale)
+	gun.kunai = TempestKunai.new(m, scale)
 	gun.shadowActions = ShadowMistActions.new(m, scale, weapon.id)
 	gun.cosmeticInspect = CosmeticInspect.new(m)
 	local rg, lg = gun.rightGrip, gun.leftGrip
@@ -1411,6 +1414,11 @@ local pendingBumps: { { at: number, kind: string, token: number } } = {}
 
 -- Kicks every gun's handling spring (VM.HANDLE_BUMPS): the snap on a beat.
 local function bump(kind: string)
+	-- Tempest-Strike: the shell, lever and revolver guns' beats as water (Util/TempestIdle)
+	local right = guns.Right
+	if right and right.tempest then
+		TempestIdle.beat(right.tempest, kind)
+	end
 	local b = VM.HANDLE_BUMPS[kind]
 	if not b then
 		return
@@ -1614,9 +1622,10 @@ function ViewmodelController.equip(
 	if right.animator:has("Draw") then
 		playTurns("Draw", time)
 		-- Each class comes in its own way (VM.DRAW_TRACK).
+		local tempestDraw = if right.tempest then TempestIdle.track(right.tempest, "draw") else nil
 		local draw = if right.shadowActions
 			then "DrawRuin" .. weapon.id
-			elseif right.tempest then "DrawTempest"
+			elseif tempestDraw then tempestDraw
 			else VM.DRAW_TRACK[weapon.class] or "Draw"
 		ViewmodelTracks.play(playing, "Equip", draw, time)
 		local beats = turnBeats(clipBeats(right, "Draw"))
@@ -1828,10 +1837,11 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 	-- Outlaw's break-action) uses it for both reloads; others share the one
 	-- for their clip.
 	local own = if config then VM.TRACKS["Reload" .. config.id] else nil
+	local tempestReload = if right.tempest then TempestIdle.track(right.tempest, "reload") else nil
 	local trackName = if right.shadowActions and right.shadowActions.hero
 		then "ReloadShadowMist"
 		elseif right.shadowActions and config then "ReloadRuin" .. config.id
-		elseif right.tempest then "ReloadTempest"
+		elseif tempestReload then tempestReload
 		elseif own and config then "Reload" .. config.id
 		elseif clip == "ReloadEmpty" then "ReloadEmpty"
 		else "Reload"
@@ -1841,7 +1851,7 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 		trackName,
 		duration,
 		if config
-				and not right.tempest
+				and not tempestReload
 				and (not right.shadowActions or right.shadowActions.hero)
 			then VM.RELOAD_TRACK_TURN[config.id]
 			else nil
@@ -2024,7 +2034,9 @@ function ViewmodelController.inspect(): boolean
 	end
 	local track = if guns.Right.shadowActions
 		then guns.Right.shadowActions.profile.inspectTrack
-		elseif guns.Right.tempest then "InspectTempest"
+		elseif
+			guns.Right.tempest and TempestIdle.track(guns.Right.tempest, "inspect")
+		then TempestIdle.track(guns.Right.tempest, "inspect") :: string
 		elseif guns.Right.fan then "InspectFan"
 		elseif c.fireMode == "Melee" then "InspectMelee"
 		else VM.INSPECT_TRACK[c.id] or "Inspect"
@@ -2853,6 +2865,22 @@ local function update(dt: number)
 					adsAlpha,
 					if draw and not draw.fading then draw.time / draw.length else nil,
 					if inspect and not inspect.fading then inspect.time / inspect.length else nil
+				)
+			end
+			if gun.kunai then
+				local draw = playing.Equip
+				local inspect = playing.Inspect
+				local sw = playing.Swing
+				local cut = sw ~= nil and not sw.fading
+				TempestKunai.step(
+					gun.kunai,
+					dt,
+					visible,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					if sw and cut then sw.time / sw.length else nil,
+					cut and sw ~= nil and sw.track == VM.TRACKS.HeavyStab,
+					if sw then sw.track.hit else nil
 				)
 			end
 			if gun.shadowMist then

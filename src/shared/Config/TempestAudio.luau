@@ -36,5 +36,9 @@ return table.freeze({
 		magOut = cue("magOut", 0.6, { 0.95, 1.05 }),
 		magForm = cue("magForm", 0.55),
 		magSeat = cue("magSeat", 0.45, { 0.96, 1.04 }),
+		katanaOut = cue("inspectRoll", 0.5, { 1.08, 1.14 }), -- Kunai-Katana: the water blade extends...
+		katanaIn = cue("magOut", 0.5, { 1.1, 1.18 }), -- ...and bursts back into droplets
+		cleave = cue("drawLock", 0.6, { 0.84, 0.9 }), -- the heavy's crescent
+		shellIn = cue("magSeat", 0.28, { 1.12, 1.22 }), -- each round or shell going in (shell, lever and revolver guns)
 	} :: { [string]: GunSounds.GunSound }),
 })

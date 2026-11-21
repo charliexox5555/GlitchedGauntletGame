@@ -33,7 +33,7 @@ local lines = {
 }
 if RunService:IsStudio() then
 	table.insert(lines, shadowMistLine)
-	table.insert(lines, "TempestStrike") -- elite hero in progress (Vandal only), Studio preview
+	table.insert(lines, "TempestStrike") -- elite line in progress (Vandal, Stinger, Marshal, Bucky, Sheriff, Kunai-Katana), Studio preview
 end
 
 return table.freeze({
@@ -91,6 +91,33 @@ return table.freeze({
 		FLASH_LIGHT_RANGE = 8,
 		FLASH_BRIGHTNESS = 1.6, -- under the place Bloom threshold (2)
 		FLASH_LIGHT_TIME = 0.06,
+		-- the Kunai-Katana (Util/TempestKunai): Blender units of the knife export
+		KUNAI = table.freeze({
+			WATER_BODY = Color3.fromRGB(64, 214, 214), -- the water katana's body (Glass)
+			BLADE_TRANSPARENCY = 0.5, -- the kunai shows through it
+			SKIN_PAD = 0.012, -- the shimmering ForceField skin round it
+			SKIN_OPACITY = 0.55,
+			KATANA_ROOT = 0.76, -- where the water blade grows out of the kunai...
+			KATANA_TIP = 2.33, -- ...and its tip
+			KUNAI_TIP = 0.935,
+			RETRACT = 1.0, -- studs the blade slides back into the kunai when put away
+			TOGGLE_AT = 0.3, -- inspect progress where the form switches
+			EXT_FREQ = 4, -- the extension's spring (snaps out, small overshoot)
+			EXT_DAMP = 0.55,
+			RING_TURNS = 2, -- pommel-ring twirl on the draw
+			RIBBON_WIDTH = 0.032,
+			HELIX_TURNS = 2,
+			ARC_STATIONS = { 0.95, 1.3, 1.65, 2.0, 2.24 },
+			ARC_GAP = { 0.8, 2.2 }, -- seconds between lightning flickers
+			ARC_JITTER = 0.035,
+			BOLT_WIDTH = 0.022,
+			CRACK_X = 0.6, -- the etched crack (compact form arcs)
+			CRACK_RATE = 1.2,
+			TRAIL_LIFE = 0.16,
+			CLEAVE_SIZE = 3.4, -- the heavy's crescent flash (studs, scaled)
+			SURGE_GAIN = 1.5,
+			LIGHT = 0.9,
+		}),
 		ARC = VFX.TEMPEST_ARC_2x2,
 		IMPACT_LIGHT = 1.4, -- the cyan pop where a shot lands
 		MUZZLE_RING_TIME = 0.13, -- the water ring round the bore per shot
@@ -105,10 +132,6 @@ return table.freeze({
 		FORM_RADIUS = 0.3, -- the ball the water beads converge from (model studs)
 		FORM_RATE = 90, -- beads per second while the new magazine forms
 		TRAIL_LIFE = 0.16, -- water trails off the muzzle and stock (inspect, reload spin)
-		SIGHT_X = 0.078, -- the crescent (Blender units): its plane...
-		SIGHT_TIP_Y = 0.041, -- ...its tips (measured: the screen tips projected onto the AimPoint plane)
-		SIGHT_TIP_Z = 0.62,
-		SIGHT_APEX_Z = 0.645, -- ...and where the arc peaks over the window
 		SIGHT_ARC_WIDTH = 0.03,
 		SIGHT_ARC_TIME = 0.07, -- seconds a crackle shows...
 		SIGHT_ARC_GAP = { 0.35, 1.1 }, -- ...and the random gap between them
@@ -124,6 +147,10 @@ return table.freeze({
 		CRESCENT_FREQ = 4.5,
 		CRESCENT_DAMP = 0.5,
 		CRESCENT_ADS_KICK = 420, -- degrees / s twist entering ADS (it springs back and locks)
+		GATE_ANGLE = 55, -- the Marshal's loading gate: how far it flicks open per round...
+		GATE_KICK = 14, -- ...the kick (open / s) and its spring
+		GATE_FREQ = 5,
+		GATE_DAMP = 0.5,
 		CRESCENT_SHOT_KICK = 60, -- a small tick per hip shot, alternating
 		FORM_SOLID = 0.5, -- share of MagIn -> seat the new magazine stays water
 		SHOT_COAT = 0, -- no whole-gun flicker per shot (owner 2026-11-22); the pulse ring is the shot's mark
@@ -133,7 +160,6 @@ return table.freeze({
 		PULSE_RING = VFX.MOD_RING,
 		PULSE_ARC_RING = VFX.STIM_RING, -- now and then the ring crackles
 		PULSE_TIME = 0.085, -- seconds receiver -> muzzle
-		PULSE_SIZE = { 0.38, 0.18 }, -- ring size at the receiver and at the muzzle (model studs)
 		PULSE_BRIGHTNESS = 1.6,
 		PULSE_ARC_CHANCE = 0.3,
 		-- the sweep: a band of water rings travelling along the gun (inspect, draw)
@@ -147,15 +173,10 @@ return table.freeze({
 		BOOST_DECAY = 3.5,
 		RELOAD_DRAIN = 0.75, -- how far the conduits dim while the magazine is out
 		DRAINED = Color3.fromRGB(28, 70, 78),
-		WELL = Vector3.new(0, 0.12, -0.6), -- magwell mouth (measured: Mag bone at 0.155, -0.583) (Handle space, model studs)
 		RING_POINTS = 12,
 		RING_BRIGHTNESS = 1.15,
 		RING_SPIN = 5, -- radians per second
 		DRAW_RING = 0.4, -- the ring reaches the receiver (DrawTempest snaps level at 0.34)
-		INSPECT_ROLL_IN = 0.44, -- InspectTempest toss: the barrel roll starts...
-		INSPECT_CATCH = 0.59, -- ...and the hands catch it
-		INSPECT_RING_X = 1.2, -- the roll ring: round the middle of the gun (Blender x)
-		INSPECT_RING_R = 0.34,
 		INSPECT_SPARKS = 3, -- arc rate multiplier while inspecting
 		KICK_PITCH = math.rad(1.0), -- skin kick on top of the stock recoil
 		KICK_ROLL = math.rad(1.2),

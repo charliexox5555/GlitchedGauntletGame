@@ -14,6 +14,7 @@ local Style = require(Shared.Config.SkinPreview).TEMPEST
 local VFX = require(Shared.Config.VfxTextures)
 local UiMotion = require(Shared.UiMotion)
 local TempestCoat = require(script.Parent.TempestCoat)
+local Profiles = require(Shared.Config.TempestProfiles)
 local TempestAudio = require(Shared.Config.TempestAudio)
 local AudioController = require(script.Parent.Parent.Controllers.AudioController)
 
@@ -23,10 +24,20 @@ type Glow = { part: BasePart, color: Color3 }
 type Spring = { x: number, v: number }
 -- The s08 moving parts (Rig.Motors TS_VentL / TS_VentR / TS_Crescent, joint axes
 -- = the Root part's = Blender's: X down the bore, Y to the gun's left, Z up).
-type Moving = { ventL: Motor6D?, ventR: Motor6D?, crescent: Motor6D?, vent: Spring, cres: Spring }
+type Flap = { motor: Motor6D, side: number }
+type Moving = {
+	flaps: { Flap }, -- plates that flare like vents (TempestProfiles flaps)
+	spinners: { Motor6D }, -- rings that turn about the bore (crescent, scope rings)
+	gate: Motor6D?, -- a loading gate (Marshal)
+	vent: Spring,
+	cres: Spring,
+	gateS: Spring,
+}
 type Ring = { points: { Attachment }, beams: { Beam }, cores: { Beam } }
 export type State = {
 	frame: Frame,
+	gun: string,
+	p: Profiles.Profile, -- this gun's points and moving parts (Config/TempestProfiles)
 	toBody: CFrame,
 	ring: Ring,
 	bursts: { [string]: ParticleEmitter }, -- droplet bursts, one attachment each (mag, well, centre)
@@ -59,7 +70,7 @@ export type State = {
 		apexRest: Vector3,
 		next: number,
 		until_: number,
-	},
+	}?, -- nil: no iron crescent on the aim line (scoped or no-ADS guns)
 	sightFlash: number, -- the sight's water shimmer on entering ADS, decays
 	visible: boolean, -- the camera gun shows (its foley is silent while hidden)
 	glows: { Glow },
@@ -314,6 +325,12 @@ function TempestIdle.new(model: Model, scale: number): State?
 	if StateValues.get(model, "SkinLine") ~= Style.LINE then
 		return nil
 	end
+	local gunId = StateValues.get(model, "WeaponId")
+	local gun = if typeof(gunId) == "string" then gunId else "Vandal"
+	local p = Profiles[gun]
+	if not p then
+		return nil -- the Kunai-Katana is Util/TempestKunai's; other guns have no profile yet
+	end
 	local handle = model.PrimaryPart
 	local body = rootBody(model)
 	if not handle or not body then
@@ -322,6 +339,8 @@ function TempestIdle.new(model: Model, scale: number): State?
 	local frame: Frame = { handle = handle, body = body, scale = scale }
 	local state: State = {
 		frame = frame,
+		gun = gun,
+		p = p,
 		toBody = body.CFrame:ToObjectSpace(handle.CFrame),
 		ring = { points = {}, beams = {}, cores = {} },
 		bursts = {},
@@ -371,10 +390,11 @@ function TempestIdle.new(model: Model, scale: number): State?
 		for i = 0, N do
 			local t = i / N
 			local angle = start + t * 2 * math.pi * Style.HELIX_TURNS
-			local ry = Style.HELIX_LIFT + 0.114 + (0.068 - 0.114) * t
-			local rz = Style.HELIX_LIFT + 0.152 + (0.094 - 0.152) * t
-			local zc = 0.300 + (0.314 - 0.300) * t
-			local x = 1.08 + (2.02 - 1.08) * t
+			local h = p.helix
+			local ry = Style.HELIX_LIFT + h.ry0 + (h.ry1 - h.ry0) * t
+			local rz = Style.HELIX_LIFT + h.rz0 + (h.rz1 - h.rz0) * t
+			local zc = h.z0 + (h.z1 - h.z0) * t
+			local x = h.x0 + (h.x1 - h.x0) * t
 			table.insert(
 				points,
 				anchor(
@@ -403,10 +423,10 @@ function TempestIdle.new(model: Model, scale: number): State?
 		end
 	end
 	-- arcs flick up off the top of the handguard
-	for i, p in { bl(0.55, 0.098, 0.378), bl(1.30, 0, 0.418), bl(1.55, 0.084, 0.240) } do
-		spark(state, anchor(frame, "TempestArc" .. i, p), scale)
+	for i, a in p.arcs do
+		spark(state, anchor(frame, "TempestArc" .. i, bl(a[1], a[2], a[3])), scale)
 	end
-	local glow = anchor(frame, "TempestGlow", bl(1.20, 0.05, 0.36))
+	local glow = anchor(frame, "TempestGlow", bl(p.glow[1], p.glow[2], p.glow[3]))
 	local light = Instance.new("PointLight")
 	light.Color = Style.WATER
 	light.Brightness = 0
@@ -422,17 +442,32 @@ function TempestIdle.new(model: Model, scale: number): State?
 		local m = motors and motors:FindFirstChild(name)
 		return if m and m:IsA("Motor6D") then m else nil
 	end
+	local flaps: { Flap } = {}
+	for _, f in p.flaps do
+		local m = motor(f.name)
+		if m then
+			table.insert(flaps, { motor = m, side = f.side })
+		end
+	end
+	local spinners: { Motor6D } = {}
+	for _, name in p.spinners do
+		local m = motor(name)
+		if m then
+			table.insert(spinners, m)
+		end
+	end
 	state.moving = {
-		ventL = motor("TS_VentL"),
-		ventR = motor("TS_VentR"),
-		crescent = motor("TS_Crescent"),
+		flaps = flaps,
+		spinners = spinners,
+		gate = if p.gate then motor(p.gate) else nil,
 		vent = { x = 1, v = 0 }, -- drawn in open
-		cres = { x = Style.CRESCENT_DRAW, v = 0 }, -- and the crescent turned away
+		cres = { x = Style.CRESCENT_DRAW, v = 0 }, -- and the rings turned away
+		gateS = { x = 0, v = 0 },
 	}
 	-- the shot pulse: rings shot down the bore from the front of the receiver
 	-- (attachment facing the muzzle; VelocityPerpendicular lays each ring round the bore)
 	do
-		local from = state.toBody:PointToWorldSpace(bl(1.05, 0, 0.3) * scale)
+		local from = state.toBody:PointToWorldSpace(bl(p.pulse.x0, 0, p.pulse.z) * scale)
 		local dir = state.toBody:VectorToWorldSpace(bl(1, 0, 0))
 		local at = Instance.new("Attachment")
 		at.Name = "TempestPulse"
@@ -452,18 +487,15 @@ function TempestIdle.new(model: Model, scale: number): State?
 			e.Brightness = brightness
 			e.Rate = 0
 			e.Lifetime = NumberRange.new(Style.PULSE_TIME)
-			e.Speed = NumberRange.new(1.55 * scale / Style.PULSE_TIME)
+			e.Speed = NumberRange.new((p.pulse.x1 - p.pulse.x0) * scale / Style.PULSE_TIME)
 			e.EmissionDirection = Enum.NormalId.Front
 			e.SpreadAngle = Vector2.zero
 			e.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
 			e.Rotation = NumberRange.new(0, 360)
 			e.Size = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, Style.PULSE_SIZE[1] * scale),
-				NumberSequenceKeypoint.new(
-					0.45,
-					(Style.PULSE_SIZE[1] + Style.PULSE_SIZE[2]) / 2 * scale
-				),
-				NumberSequenceKeypoint.new(1, Style.PULSE_SIZE[2] * scale),
+				NumberSequenceKeypoint.new(0, p.pulse.size0 * scale),
+				NumberSequenceKeypoint.new(0.45, (p.pulse.size0 + p.pulse.size1) / 2 * scale),
+				NumberSequenceKeypoint.new(1, p.pulse.size1 * scale),
 			})
 			e.Transparency = NumberSequence.new({
 				NumberSequenceKeypoint.new(0, 0.5),
@@ -616,55 +648,62 @@ function TempestIdle.new(model: Model, scale: number): State?
 			table.insert(state.trails, tr)
 		end
 	end
-	-- ADS: lightning snapping between the crescent's tips over the top of the
-	-- window, sparks at the tips (Style.SIGHT_*: tips in Blender units)
-	local tipL =
-		anchor(frame, "TempestSightTipL", bl(Style.SIGHT_X, Style.SIGHT_TIP_Y, Style.SIGHT_TIP_Z))
-	local tipR =
-		anchor(frame, "TempestSightTipR", bl(Style.SIGHT_X, -Style.SIGHT_TIP_Y, Style.SIGHT_TIP_Z))
-	local apex = anchor(frame, "TempestSightApex", bl(Style.SIGHT_X, 0, Style.SIGHT_APEX_Z))
-	local arcs: { Beam } = {}
-	for _, pair in { { tipL, apex }, { apex, tipR } } do
-		local b = Instance.new("Beam")
-		b.Name = "TempestSightArc"
-		b.Attachment0, b.Attachment1 = pair[1], pair[2]
-		b.Texture = VFX.STIM_BOLT
-		b.TextureMode = Enum.TextureMode.Stretch
-		b.TextureSpeed = 4
-		b.Color = ColorSequence.new(Style.ARC_CORE, Style.WATER)
-		b.LightEmission = 1
-		b.LightInfluence = 0
-		b.Brightness = Style.SIGHT_ARC_BRIGHTNESS
-		b.FaceCamera = true
-		b.Width0, b.Width1 = Style.SIGHT_ARC_WIDTH * scale, Style.SIGHT_ARC_WIDTH * scale
-		b.Segments = 6
-		b.Enabled = false
-		b.Parent = pair[1]
-		table.insert(arcs, b)
+	local sp = p.sight
+	if sp then
+		-- ADS: lightning snapping between the crescent's tips over the top of the
+		-- window, sparks at the tips (Config/TempestProfiles sight: Blender units)
+		local tipL = anchor(frame, "TempestSightTipL", bl(sp.x, sp.tipY, sp.tipZ))
+		local tipR = anchor(frame, "TempestSightTipR", bl(sp.x, -sp.tipY, sp.tipZ))
+		local apex = anchor(frame, "TempestSightApex", bl(sp.x, 0, sp.apexZ))
+		local arcs: { Beam } = {}
+		for _, pair in { { tipL, apex }, { apex, tipR } } do
+			local b = Instance.new("Beam")
+			b.Name = "TempestSightArc"
+			b.Attachment0, b.Attachment1 = pair[1], pair[2]
+			b.Texture = VFX.STIM_BOLT
+			b.TextureMode = Enum.TextureMode.Stretch
+			b.TextureSpeed = 4
+			b.Color = ColorSequence.new(Style.ARC_CORE, Style.WATER)
+			b.LightEmission = 1
+			b.LightInfluence = 0
+			b.Brightness = Style.SIGHT_ARC_BRIGHTNESS
+			b.FaceCamera = true
+			b.Width0, b.Width1 = Style.SIGHT_ARC_WIDTH * scale, Style.SIGHT_ARC_WIDTH * scale
+			b.Segments = 6
+			b.Enabled = false
+			b.Parent = pair[1]
+			table.insert(arcs, b)
+		end
+		local tips: { ParticleEmitter } = {}
+		for _, at in { tipL, tipR } do
+			local e = Instance.new("ParticleEmitter")
+			e.Name = "TempestSightSpark"
+			e.Texture = VFX.TEMPEST_ARC_2x2
+			e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+			e.FlipbookMode = Enum.ParticleFlipbookMode.Random
+			e.Color = ColorSequence.new(Style.ARC_CORE, Style.WATER)
+			e.LightEmission = 1
+			e.LightInfluence = 0
+			e.Brightness = 1.6
+			e.Rate = 0
+			e.Lifetime = NumberRange.new(0.05, 0.09)
+			e.Speed = NumberRange.new(0)
+			e.Rotation = NumberRange.new(0, 360)
+			e.Size = NumberSequence.new(Style.SIGHT_SPARK * scale)
+			e.LockedToPart = true
+			e.Enabled = false
+			e.Parent = at
+			table.insert(tips, e)
+		end
+		state.sight = {
+			arcs = arcs,
+			tips = tips,
+			apex = apex,
+			apexRest = apex.Position,
+			next = 0,
+			until_ = 0,
+		}
 	end
-	local tips: { ParticleEmitter } = {}
-	for _, at in { tipL, tipR } do
-		local e = Instance.new("ParticleEmitter")
-		e.Name = "TempestSightSpark"
-		e.Texture = VFX.TEMPEST_ARC_2x2
-		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
-		e.FlipbookMode = Enum.ParticleFlipbookMode.Random
-		e.Color = ColorSequence.new(Style.ARC_CORE, Style.WATER)
-		e.LightEmission = 1
-		e.LightInfluence = 0
-		e.Brightness = 1.6
-		e.Rate = 0
-		e.Lifetime = NumberRange.new(0.05, 0.09)
-		e.Speed = NumberRange.new(0)
-		e.Rotation = NumberRange.new(0, 360)
-		e.Size = NumberSequence.new(Style.SIGHT_SPARK * scale)
-		e.LockedToPart = true
-		e.Enabled = false
-		e.Parent = at
-		table.insert(tips, e)
-	end
-	state.sight =
-		{ arcs = arcs, tips = tips, apex = apex, apexRest = apex.Position, next = 0, until_ = 0 }
 	return state
 end
 
@@ -748,13 +787,13 @@ function TempestIdle.reload(
 		TempestIdle.cue(state, "magForm")
 	end
 	if prev < seat and t >= seat then
-		burst(state, "Well", 8, Style.WELL)
+		burst(state, "Well", 8, state.p.well or Vector3.zero)
 		state.popAge = 0
 		state.boost = math.max(state.boost, Style.BOOST_SEAT)
 		TempestIdle.cue(state, "magSeat")
 	end
 	local spinAt = seat + 0.045
-	if prev < spinAt and t >= spinAt then
+	if state.p.reloadSpin and prev < spinAt and t >= spinAt then
 		TempestIdle.cue(state, "reloadSpin")
 	end
 	local former = state.former
@@ -779,6 +818,52 @@ function TempestIdle.endReload(state: State)
 	end
 	state.reloadPrev = -1
 	state.timing = nil
+end
+
+-- A clip beat (ViewmodelController bump): the shell, lever and revolver guns'
+-- handling (mag guns use TempestIdle.reload). Rounds go in as water, the gate
+-- flicks open, the action locks with a flare.
+function TempestIdle.beat(state: State, kind: string)
+	local p = state.p
+	local mv = state.moving
+	if kind == "ShellIn" then
+		if p.load then
+			burst(state, "Load", 7, bl(p.load[1], p.load[2], p.load[3]))
+		end
+		state.boost = math.max(state.boost, Style.BOOST_SHOT)
+		if mv then
+			mv.gateS.v += Style.GATE_KICK
+			mv.vent.v += Style.VENT_SHOT_KICK * 0.6
+		end
+		TempestIdle.cue(state, "shellIn")
+	elseif kind == "Open" or kind == "Eject" then
+		if p.load then
+			burst(state, "Load", 10, bl(p.load[1], p.load[2], p.load[3]))
+		end
+		state.drain = math.max(state.drain, 0.5)
+		TempestIdle.cue(state, "magOut")
+	elseif kind == "Close" then
+		state.popAge = 0
+		state.boost = math.max(state.boost, Style.BOOST_SEAT)
+		burst(state, "Centre", 8, bl(p.lock[1], p.lock[2], p.lock[3]))
+		TempestIdle.cue(state, "magSeat")
+	elseif kind == "Rack" then
+		state.boost = math.max(state.boost, Style.BOOST_SHOT)
+		if mv then
+			mv.vent.v += Style.VENT_SHOT_KICK * 0.5
+			mv.cres.v += Style.CRESCENT_SHOT_KICK * state.shotSign
+		end
+		local e = state.sparks[math.random(1, #state.sparks)]
+		if e and not UiMotion.reduced() then
+			e:Emit(1)
+		end
+	end
+end
+
+-- This gun's Config/Viewmodel track for a slot ("draw", "reload", "inspect"), or
+-- nil for the gun's stock track.
+function TempestIdle.track(state: State, slot: "draw" | "reload" | "inspect"): string?
+	return (state.p.tracks :: any)[slot]
 end
 
 -- The skin's motion layer in Handle space (multiply onto the gun's handle CFrame).
@@ -851,12 +936,15 @@ function TempestIdle.step(
 	local aimed = if state.aimed then aim > 0.35 else aim > 0.6
 	if aimed and not state.aimed and visible then
 		state.sightFlash = 1
-		state.sight.next = 0 -- crackle across the crescent straight away
+		local sight = state.sight
+		if sight then
+			sight.next = 0 -- crackle across the crescent straight away
+			for _, e in sight.tips do
+				e:Emit(2)
+			end
+		end
 		if state.moving then
 			state.moving.cres.v += Style.CRESCENT_ADS_KICK
-		end
-		for _, e in state.sight.tips do
-			e:Emit(2)
 		end
 		TempestIdle.cue(state, "aimIn")
 	end
@@ -930,23 +1018,28 @@ function TempestIdle.step(
 		ringAlpha = smooth(timing.inAt - 0.16, timing.inAt - 0.10, t)
 			* (1 - smooth(timing.seat - 0.03, timing.seat, t))
 		-- the spin after the seat (Config/Viewmodel ReloadTempest toss): a wide ring round the bore
-		local spinA = smooth(timing.seat + 0.02, timing.seat + 0.06, t)
-			* (1 - smooth(timing.seat + 0.18, timing.seat + 0.26, t))
+		local spinA = if state.p.reloadSpin
+			then smooth(timing.seat + 0.02, timing.seat + 0.06, t) * (1 - smooth(
+				timing.seat + 0.18,
+				timing.seat + 0.26,
+				t
+			))
+			else 0
 		if spinA > 0.02 then
 			ringAlpha = spinA
 			placeRing(
 				state,
-				bl(1.2, 0, 0.30),
+				bl(state.p.roll.x, 0, state.p.roll.z),
 				bl(0, 1, 0),
 				bl(0, 0, 1.1),
-				Style.INSPECT_RING_R,
+				state.p.roll.r,
 				-spin * 3,
 				spinA
 			)
-		elseif ringAlpha > 0.02 then
+		elseif ringAlpha > 0.02 and state.p.well then
 			placeRing(
 				state,
-				Style.WELL,
+				state.p.well,
 				bl(1, 0, 0),
 				bl(0, 1, 0),
 				0.24 + (0.07 - 0.24) * k,
@@ -958,27 +1051,30 @@ function TempestIdle.step(
 		-- InspectTempest: the ring runs muzzle to receiver while the right side
 		-- shows, then opens wide round the middle of the gun for the barrel roll
 		-- (Config/Viewmodel toss 0.465-0.64) and spins against it; a splash on the catch
-		local roll = smooth(Style.INSPECT_ROLL_IN - 0.04, Style.INSPECT_ROLL_IN, inspectP)
+		local pr = state.p.roll
+		local roll = smooth(pr.rollIn - 0.04, pr.rollIn, inspectP)
 		ringAlpha = smooth(0.07, 0.15, inspectP) * (1 - smooth(0.70, 0.80, inspectP))
 		if ringAlpha > 0.02 then
 			local run = smooth(0.08, 0.40, inspectP)
-			local x = 2.35 + (1.05 - 2.35) * run
-			x += (Style.INSPECT_RING_X - x) * roll
-			local r = 0.15 + 0.06 * run
-			r += (Style.INSPECT_RING_R - r) * roll * (1 - 0.35 * smooth(0.64, 0.78, inspectP))
+			local ir = state.p.inspectRun
+			local x = ir.x0 + (ir.x1 - ir.x0) * run
+			x += (pr.x - x) * roll
+			local r = ir.r0 + (ir.r1 - ir.r0) * run
+			r += (pr.r - r) * roll * (1 - 0.35 * smooth(0.64, 0.78, inspectP))
+			local z = state.p.bore + (pr.z - state.p.bore) * roll
 			local whirl = spin * (1 + 2.2 * roll)
-			placeRing(state, bl(x, 0, 0.30), bl(0, 1, 0), bl(0, 0, 1.1), r, -whirl, ringAlpha)
+			placeRing(state, bl(x, 0, z), bl(0, 1, 0), bl(0, 0, 1.1), r, -whirl, ringAlpha)
 		end
 		local prev = state.inspectPrev or 0
 		if inspectP < prev then
 			prev = 0 -- pressed again: a fresh inspect from the top
 		end
-		if prev < Style.INSPECT_ROLL_IN and inspectP >= Style.INSPECT_ROLL_IN then
+		if prev < pr.rollIn and inspectP >= pr.rollIn then
 			state.boost = math.max(state.boost, Style.BOOST_SHOT)
 			TempestIdle.cue(state, "inspectRoll")
 		end
-		if prev < Style.INSPECT_CATCH and inspectP >= Style.INSPECT_CATCH then
-			burst(state, "Centre", 12, bl(Style.INSPECT_RING_X, 0, 0.30))
+		if prev < pr.catch and inspectP >= pr.catch then
+			burst(state, "Centre", 12, bl(pr.x, 0, pr.z))
 			state.boost = math.max(state.boost, Style.BOOST_SEAT)
 			TempestIdle.cue(state, "inspectCatch")
 		end
@@ -993,13 +1089,22 @@ function TempestIdle.step(
 		ringAlpha = smooth(0, 0.08, drawP)
 			* (1 - smooth(Style.DRAW_RING - 0.12, Style.DRAW_RING, drawP))
 		if ringAlpha > 0.02 then
-			local x = 2.55 + (1.0 - 2.55) * k
-			local r = 0.10 + (0.17 - 0.10) * k
-			placeRing(state, bl(x, 0, 0.30), bl(0, 1, 0), bl(0, 0, 1.15), r, spin, ringAlpha)
+			local dr = state.p.drawRing
+			local x = dr.x0 + (dr.x1 - dr.x0) * k
+			local r = dr.r0 + (dr.r1 - dr.r0) * k
+			placeRing(
+				state,
+				bl(x, 0, state.p.bore),
+				bl(0, 1, 0),
+				bl(0, 0, 1.15),
+				r,
+				spin,
+				ringAlpha
+			)
 		end
 		if (state.drawPrev or 0) < Style.DRAW_RING and drawP >= Style.DRAW_RING then
 			state.boost = math.max(state.boost, Style.BOOST_SEAT) -- plates lock
-			burst(state, "Centre", 10, bl(1.2, 0, 0.32))
+			burst(state, "Centre", 10, bl(state.p.lock[1], state.p.lock[2], state.p.lock[3]))
 			TempestIdle.cue(state, "drawLock")
 		end
 	end
@@ -1069,6 +1174,7 @@ function TempestIdle.step(
 			(inspectP ~= nil and inspectP > 0.06 and inspectP < 0.9)
 			or (
 				timing ~= nil
+				and state.p.reloadSpin
 				and state.reloadPrev >= timing.seat
 				and state.reloadPrev < timing.seat + 0.25
 			)
@@ -1083,20 +1189,27 @@ function TempestIdle.step(
 	-- draw: down the barrel with the ring)
 	local sweep = state.sweep
 	if sweep then
+		local st = state.p.sweep
+		local back, front = st[1][1], st[#st][1]
 		local x: number? = nil
 		if inspectP then
 			if inspectP > 0.15 and inspectP < 0.38 then
-				x = 2.5 + (0.0 - 2.5) * smooth(0.15, 0.38, inspectP)
+				x = front + (back - front) * smooth(0.15, 0.38, inspectP)
 			elseif inspectP > 0.64 and inspectP < 0.86 then
-				x = 0.0 + (2.5 - 0.0) * smooth(0.64, 0.86, inspectP)
+				x = back + (front - back) * smooth(0.64, 0.86, inspectP)
 			end
 		elseif drawP and drawP < Style.DRAW_RING then
-			x = 2.55 + (0.9 - 2.55) * smooth(0, Style.DRAW_RING, drawP)
+			x = front + (state.p.drawRing.x1 - front) * smooth(0, Style.DRAW_RING, drawP)
 		end
 		local active = x ~= nil and visible and not reduced
 		if active and x then
-			local r = if x < 1.05 then 0.25 elseif x < 1.9 then 0.18 else 0.11
-			local zc = if x < 1.05 then 0.26 else 0.3
+			local r, zc = st[#st][2], st[#st][3]
+			for _, station in st do
+				if x <= station[1] then
+					r, zc = station[2], station[3]
+					break
+				end
+			end
 			local p = state.toBody:PointToWorldSpace(bl(x, 0, zc) * k)
 			local d = state.toBody:VectorToWorldSpace(bl(1, 0, 0))
 			sweep.at.CFrame = CFrame.lookAt(p, p + d)
@@ -1112,9 +1225,9 @@ function TempestIdle.step(
 	end
 	-- ADS: lightning snaps over the crescent at random beats while you aim
 	local sight = state.sight
-	local adsOn = visible and aim > 0.7 and not reduced
+	local adsOn = visible and aim > 0.7 and not reduced and sight ~= nil
 	local arcOn = false
-	if adsOn then
+	if adsOn and sight then
 		if state.clock >= sight.next then
 			sight.until_ = state.clock + Style.SIGHT_ARC_TIME * (0.7 + 0.6 * math.random())
 			sight.next = state.clock
@@ -1129,12 +1242,14 @@ function TempestIdle.step(
 			sight.tips[math.random(1, #sight.tips)]:Emit(1)
 		end
 		arcOn = state.clock < sight.until_
-	else
+	elseif sight then
 		sight.next = 0
 	end
-	for _, b in sight.arcs do
-		if b.Enabled ~= arcOn then
-			b.Enabled = arcOn
+	if sight then
+		for _, b in sight.arcs do
+			if b.Enabled ~= arcOn then
+				b.Enabled = arcOn
+			end
 		end
 	end
 	-- the water coat: the gun is water as it draws in and solidifies behind the
@@ -1168,7 +1283,7 @@ function TempestIdle.step(
 	TempestCoat.step(coat, visible)
 	-- the moving parts: vents flare like gills, the crescent turns about the bore
 	local mv = state.moving
-	if mv and (mv.ventL or mv.crescent) then
+	if mv and (#mv.flaps > 0 or #mv.spinners > 0 or mv.gate) then
 		local ventGoal, cresGoal = 0, 0
 		if drawP then
 			-- drawn in open and turned away; they lock as the water ring lands
@@ -1180,7 +1295,7 @@ function TempestIdle.step(
 				+ smooth(0.42, 0.47, inspectP) * (1 - smooth(0.6, 0.64, inspectP))
 				+ 0.35 * smooth(0.7, 0.76, inspectP) * (1 - smooth(0.86, 0.92, inspectP))
 			-- the crescent turns the other way round while the gun rolls
-			cresGoal = 360 * smooth(Style.INSPECT_ROLL_IN, Style.INSPECT_CATCH + 0.02, inspectP)
+			cresGoal = 360 * smooth(state.p.roll.rollIn, state.p.roll.catch + 0.02, inspectP)
 		elseif timing and state.reloadPrev >= 0 then
 			local t = state.reloadPrev
 			ventGoal = 0.7
@@ -1189,7 +1304,9 @@ function TempestIdle.step(
 				+ 0.6
 					* smooth(timing.seat + 0.03, timing.seat + 0.07, t)
 					* (1 - smooth(timing.seat + 0.16, timing.seat + 0.24, t))
-			cresGoal = 360 * smooth(timing.seat + 0.045, timing.seat + 0.21, t)
+			cresGoal = if state.p.reloadSpin
+				then 360 * smooth(timing.seat + 0.045, timing.seat + 0.21, t)
+				else 0
 		end
 		ventGoal = math.max(ventGoal, 0.4 * surge) * (1 - 0.8 * aim)
 		-- a full turn is home again: wrap so the next action doesn't unwind it
@@ -1200,14 +1317,18 @@ function TempestIdle.step(
 		spring(mv.cres, cresGoal, Style.CRESCENT_FREQ, Style.CRESCENT_DAMP, s)
 		local open = math.rad(Style.VENT_ANGLE) * mv.vent.x
 		local lift = math.rad(Style.VENT_ROLL) * mv.vent.x
-		if mv.ventL then
-			mv.ventL.Transform = CFrame.Angles(-lift, 0, open)
+		for _, f in mv.flaps do
+			f.motor.Transform = CFrame.Angles(-lift * f.side, 0, open * f.side)
 		end
-		if mv.ventR then
-			mv.ventR.Transform = CFrame.Angles(lift, 0, -open)
+		local turn = CFrame.Angles(math.rad(mv.cres.x), 0, 0)
+		for _, m in mv.spinners do
+			m.Transform = turn
 		end
-		if mv.crescent then
-			mv.crescent.Transform = CFrame.Angles(math.rad(mv.cres.x), 0, 0)
+		if mv.gate then
+			-- the loading gate swings out on each round and snaps shut
+			spring(mv.gateS, 0, Style.GATE_FREQ, Style.GATE_DAMP, s)
+			mv.gate.Transform =
+				CFrame.Angles(math.rad(Style.GATE_ANGLE) * math.max(mv.gateS.x, 0), 0, 0)
 		end
 	end
 end
