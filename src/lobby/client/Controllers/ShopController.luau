@@ -37,6 +37,9 @@ local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local RunService = game:GetService("RunService")
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local Skins = require(ReplicatedStorage.Shared.Config.Skins)
+local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
+local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
 local Pivot = require(script.Parent.Parent.Util.Pivot)
@@ -963,7 +966,31 @@ function ShopController.init()
 		local holder = pages.Bundles:FindFirstChild("Bundle_" .. b.id, true)
 		local card = holder and holder:FindFirstChild("Card")
 		if card and card:IsA("GuiButton") then
-			buildBundle(card, b)
+			-- the card's words come from the catalog (Studio holds the layout)
+			local title = card:FindFirstChild("Title")
+			if title and title:IsA("TextLabel") then
+				title.Text = b.name
+			end
+			local sub = card:FindFirstChild("Sub")
+			if sub and sub:IsA("TextLabel") then
+				sub.Text = b.sub or ""
+			end
+			local tag = card:FindFirstChild("Tag")
+			if tag and tag:IsA("GuiObject") then
+				tag.Visible = b.tag ~= nil
+				local label = tag:FindFirstChild("Label")
+				if label and label:IsA("TextLabel") then
+					label.Text = b.tag or ""
+				end
+			end
+			plateAmount(card, commas(b.robux))
+			if b.soon or #b.items == 0 then
+				card.Activated:Connect(function()
+					LobbyHud.toast("Coming soon: what's in it is still being made", "info")
+				end)
+			else
+				buildBundle(card, b)
+			end
 		end
 	end
 	-- everything else that sells waits for the economy
@@ -1018,6 +1045,47 @@ function ShopController.init()
 				soon("Login rewards")
 			end
 		end)
+	end
+	-- today's items: real skins (placeholder stock), the picture big and spilling over
+	-- the card's top like RIVALS' shop cells, on one flat colour of the skin's tier
+	local dailyItems = pages.Daily:FindFirstChild("Items", true)
+	for i, d in ShopCatalog.DAILY do
+		local holder = dailyItems and dailyItems:FindFirstChild("Item" .. i)
+		local card = holder and holder:FindFirstChild("Card")
+		if card and card:IsA("GuiButton") then
+			local tier = SkinCases.tierOf(d.gun, d.line) or "Common"
+			local def = Skins.TIERS[tier]
+			local art = card:FindFirstChild("Art")
+			if art and art:IsA("GuiObject") then
+				art.BackgroundColor3 = def.color:Lerp(Color3.fromHex("0E0F13"), 0.3)
+			end
+			local name = card:FindFirstChild("Name")
+			if name and name:IsA("TextLabel") then
+				name.Text = SkinCases.name(d.gun, d.line)
+			end
+			local tag = card:FindFirstChild("Tag")
+			local tagLabel = tag and tag:FindFirstChild("Label")
+			if tagLabel and tagLabel:IsA("TextLabel") then
+				tagLabel.Text = def.name .. " SKIN"
+			end
+			plateAmount(card, commas(ShopCatalog.DAILY_COINS[tier] or 900))
+			local id = SkinArt.portrait(d.gun, d.line)
+			if id then
+				local pic = card:FindFirstChild("Pic") or Instance.new("ImageLabel")
+				if pic:IsA("ImageLabel") then
+					pic.Name = "Pic"
+					pic.BackgroundTransparency = 1
+					pic.Image = id
+					pic.ScaleType = Enum.ScaleType.Fit
+					pic.AnchorPoint = Vector2.new(0.5, 0.5)
+					-- big, spilling over the top edge, clear of the name and price below
+					pic.Position = UDim2.fromScale(0.56, 0.3)
+					pic.Size = UDim2.fromScale(0.86, 0.95)
+					pic.ZIndex = 4 -- over the colour, under the words and the price
+					pic.Parent = card
+				end
+			end
+		end
 	end
 	local head = scroll:FindFirstChild("Head_TODAY'S ITEMS", true)
 	local note = head and head:FindFirstChild("Note")

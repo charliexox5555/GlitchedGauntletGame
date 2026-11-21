@@ -9,7 +9,7 @@
 -- owned cosmetics (the economy re-rolls those). Cases are hidden for players
 -- where PolicyService says paid random items are restricted.
 
-export type Rarity = "Common" | "Rare" | "Epic" | "Legendary"
+export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Exclusive"
 export type Kind = "Skin" | "Charm" | "Emote" | "Mod" | "Coins" | "Case"
 
 export type Item = {
@@ -40,6 +40,10 @@ export type Bundle = {
 	robux: number,
 	color: Color3,
 	items: { Item },
+	slot: "Featured" | "Limited", -- where it sits on the BUNDLES tab
+	tag: string?, -- the small tag under the name
+	sub: string?, -- one line under the name (what's in it)
+	soon: boolean?, -- contents not decided yet: the card says so and doesn't open
 }
 
 local ShopCatalog = {}
@@ -58,6 +62,7 @@ ShopCatalog.RARITY_COLOR = table.freeze({
 	Rare = Color3.fromHex("3FA9FF"),
 	Epic = Color3.fromHex("B58CFF"),
 	Legendary = Color3.fromHex("FFC83D"),
+	Exclusive = Color3.fromHex("FF4D8D"),
 }) :: { [string]: Color3 }
 
 -- the odds disclaimer shown under every case's contents
@@ -104,123 +109,76 @@ ShopCatalog.CASES = {
 	},
 } :: { Case }
 
+-- The launch bundles (owner 2026-11-20): two featured skin-line bundles and a
+-- Thanksgiving bundle. PLACEHOLDER prices; Tempest-Strike's roster beyond the
+-- Vandal and the Thanksgiving contents are still to be decided.
+local function skin(line: string, lineName: string, gun: string, rarity: Rarity): Item
+	return {
+		kind = "Skin",
+		name = lineName .. " " .. string.upper(gun),
+		gun = gun,
+		line = line,
+		rarity = rarity,
+	}
+end
+
 ShopCatalog.BUNDLES = {
 	{
-		id = "Neon",
-		name = "NEON BUNDLE",
-		robux = 975,
-		color = Color3.fromHex("2B6FE0"),
+		id = "RuinBlighted",
+		name = "RUIN-BLIGHTED",
+		robux = 1999,
+		color = Color3.fromHex("2A6F6A"),
+		slot = "Featured",
+		tag = "EXCLUSIVE",
+		sub = "5 EXCLUSIVE SKINS",
 		items = {
-			{
-				kind = "Skin",
-				name = "NITROUS VANDAL",
-				gun = "Vandal",
-				line = "Nitrous",
-				rarity = "Epic",
-			},
-			{
-				kind = "Skin",
-				name = "NITROUS SPECTRE",
-				gun = "Spectre",
-				line = "Nitrous",
-				rarity = "Rare",
-			},
-			{ kind = "Mod", name = "OVERDRIVE", rarity = "Legendary" },
-			{ kind = "Charm", name = "NEON FANG", rarity = "Rare" },
-			{ kind = "Coins", name = "COINS", amount = 1500 },
+			skin("RuinBlighted", "RUIN-BLIGHTED", "Vandal", "Exclusive"),
+			skin("RuinBlighted", "RUIN-BLIGHTED", "Spectre", "Exclusive"),
+			skin("RuinBlighted", "RUIN-BLIGHTED", "Ghost", "Exclusive"),
+			skin("RuinBlighted", "RUIN-BLIGHTED", "Guardian", "Exclusive"),
+			skin("RuinBlighted", "RUIN-BLIGHTED", "Operator", "Exclusive"),
 		},
 	},
 	{
-		id = "Ember",
-		name = "EMBER BUNDLE",
-		robux = 649,
-		color = Color3.fromHex("C2412F"),
+		id = "TempestStrike",
+		name = "TEMPEST-STRIKE",
+		robux = 1499,
+		color = Color3.fromHex("2F5DB8"),
+		slot = "Featured",
+		tag = "NEW",
+		sub = "STARTS WITH THE VANDAL",
 		items = {
-			{
-				kind = "Skin",
-				name = "REDLINE VANDAL",
-				gun = "Vandal",
-				line = "Redline",
-				rarity = "Rare",
-			},
-			{
-				kind = "Skin",
-				name = "REDLINE SHERIFF",
-				gun = "Sheriff",
-				line = "Redline",
-				rarity = "Rare",
-			},
-			{ kind = "Emote", name = "WARM UP", rarity = "Rare" },
-			{ kind = "Coins", name = "COINS", amount = 800 },
+			skin("TempestStrike", "TEMPEST-STRIKE", "Vandal", "Legendary"),
 		},
 	},
 	{
-		id = "Frost",
-		name = "FROST BUNDLE",
-		robux = 289,
-		color = Color3.fromHex("2BB7D9"),
-		items = {
-			{
-				kind = "Skin",
-				name = "INKSHIFT CLASSIC",
-				gun = "Classic",
-				line = "Inkshift",
-				rarity = "Rare",
-			},
-			{ kind = "Charm", name = "ICE SHARD", rarity = "Common" },
-			{ kind = "Coins", name = "COINS", amount = 300 },
-		},
-	},
-	{
-		id = "Heavy",
-		name = "HEAVY DUTY BUNDLE",
-		robux = 1425,
+		id = "Thanksgiving",
+		name = "THANKSGIVING BUNDLE",
+		robux = 799,
 		color = Color3.fromHex("C9822B"),
-		items = {
-			{
-				kind = "Skin",
-				name = "PAYLOAD ODIN",
-				gun = "Odin",
-				line = "Payload",
-				rarity = "Epic",
-			},
-			{
-				kind = "Skin",
-				name = "PAYLOAD JUDGE",
-				gun = "Judge",
-				line = "Payload",
-				rarity = "Epic",
-			},
-			{ kind = "Mod", name = "BULWARK", rarity = "Legendary" },
-			{ kind = "Emote", name = "SALUTE", rarity = "Rare" },
-			{ kind = "Coins", name = "COINS", amount = 2500 },
-		},
-	},
-	{
-		id = "Classic",
-		name = "CLASSIC BUNDLE",
-		robux = 865,
-		color = Color3.fromHex("6A3FC2"),
-		items = {
-			{
-				kind = "Skin",
-				name = "GILTFOLD CLASSIC",
-				gun = "Classic",
-				line = "Giltfold",
-				rarity = "Epic",
-			},
-			{
-				kind = "Skin",
-				name = "SEALWORK SHERIFF",
-				gun = "Sheriff",
-				line = "Sealwork",
-				rarity = "Epic",
-			},
-			{ kind = "Charm", name = "OLD COIN", rarity = "Rare" },
-			{ kind = "Coins", name = "COINS", amount = 1000 },
-		},
+		slot = "Limited",
+		tag = "LIMITED TIME",
+		sub = "CONTENTS COMING SOON",
+		soon = true,
+		items = {},
 	},
 } :: { Bundle }
+
+-- Today's items (the DAILY tab's eight cards). PLACEHOLDER stock with real skins so
+-- the tab shows real pictures; the daily rotation (same for everyone, 00:00 UTC) and
+-- buying come with the economy. Price in coins by the skin's tier (Config/Skins).
+ShopCatalog.DAILY = {
+	{ gun = "Phantom", line = "Playback" },
+	{ gun = "Sheriff", line = "Sealwork" },
+	{ gun = "Knife", line = "Giltfold" },
+	{ gun = "Vandal", line = "Redline" },
+	{ gun = "Vandal", line = "Prism" },
+	{ gun = "Spectre", line = "Rootglass" },
+	{ gun = "Odin", line = "Payload" },
+	{ gun = "Ghost", line = "Misprint" },
+} :: { { gun: string, line: string } }
+ShopCatalog.DAILY_COINS =
+	table.freeze({ Common = 600, Rare = 900, Epic = 1400, Legendary = 2000 }) :: { [string]: number }
 
 -- What an item costs on its own, in Robux, when it has no price of its own
 -- (PLACEHOLDER prices). A bundle's "separately" total is the sum of these:
