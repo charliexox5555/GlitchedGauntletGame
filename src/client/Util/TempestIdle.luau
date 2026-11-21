@@ -40,6 +40,7 @@ export type State = {
 	flourishAge: number,
 	flourish: number, -- which idle flourish (1 wrist turn, 2 sight check)
 	aimed: boolean,
+	visible: boolean, -- the camera gun shows (its foley is silent while hidden)
 	glows: { Glow },
 	ribbons: { Ribbon },
 	sparks: { ParticleEmitter },
@@ -307,6 +308,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 		flourishAge = math.huge,
 		flourish = 1,
 		aimed = false,
+		visible = true,
 		glows = {},
 		ribbons = {},
 		sparks = {},
@@ -369,7 +371,9 @@ end
 -- An action beat: its foley (Config/TempestAudio, over the stock handling sounds)
 -- and any hook the caller set (state.cues[name] = fn).
 function TempestIdle.cue(state: State, name: string)
-	AudioController.playSound(TempestAudio.cues[name], "Foley")
+	if state.visible then
+		AudioController.playSound(TempestAudio.cues[name], "Foley")
+	end
 	local f = state.cues[name]
 	if f then
 		f()
@@ -448,6 +452,7 @@ function TempestIdle.step(
 	inspectP: number?
 )
 	local reduced = UiMotion.reduced()
+	state.visible = visible
 	local aim = math.clamp(ads, 0, 1)
 	local target = if visible then (if idle then 1 else 0.6) else 0
 	local s = math.min(dt, 0.1)
