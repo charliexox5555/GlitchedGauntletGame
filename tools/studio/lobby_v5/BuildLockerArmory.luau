@@ -146,7 +146,7 @@ local function cabinet(name, zc, w, rows, cols, guns, fill)
 						L.white
 					)
 				)
-				K.spot(m, lens, Enum.NormalId.Bottom, K.WHITE, 1.3, 6, 110)
+				K.spot(m, lens, Enum.NormalId.Bottom, K.WHITE, 1.0, 4.5, 75)
 				box(FB, m, "Tag", V(xc - 1.0, ya + 0.3, 0.15), V(xc + 1.0, ya + 0.7, 0.24), L.plate)
 				box(
 					FB,
@@ -206,6 +206,7 @@ end
 
 -- 2. DISPLAY CONSOLES ------------------------------------------------------------------------------------------------
 local felt = K.look(nil, rgb(30, 33, 38), Enum.Material.Fabric)
+local gunmetal = K.look("Metal 2022", rgb(78, 80, 86)) -- bright steel read white under the canopy lamp
 local RISE, DEPTH, HW = 1.07, 4.0, 4.0
 local n = V(0, DEPTH, RISE).Unit -- the top's normal (tilts toward the viewer)
 local function topAt(x, z) -- a point on the felt
@@ -237,7 +238,7 @@ local function console(name, x, z, facing, guns)
 		felt
 	)
 	for _, sx in { -1, 1 } do
-		box(Fc, m, "Cheek", V(sx * HW, 0.35, -2.05), V(sx * (HW + 0.15), 2.75, 2.05), L.steel)
+		box(Fc, m, "Cheek", V(sx * HW, 0.35, -2.05), V(sx * (HW + 0.15), 2.75, 2.05), gunmetal)
 		K.ltri(
 			Fc,
 			m,
@@ -249,7 +250,7 @@ local function console(name, x, z, facing, guns)
 			4.1,
 			V(1, 0, 0),
 			0.15,
-			L.steel
+			gunmetal
 		)
 	end
 	box(Fc, m, "Lip", V(-HW, 2.5, 1.95), V(HW, 2.8, 2.12), L.steel)
@@ -262,15 +263,15 @@ local function console(name, x, z, facing, guns)
 			"Post",
 			V(sx * (HW - 0.1) - 0.12, 3.6, -2.15),
 			V(sx * (HW - 0.1) + 0.12, 6.75, -1.91),
-			L.steel
+			gunmetal
 		)
 	end
 	box(Fc, m, "Crossbar", V(-HW, 6.6, -2.3), V(HW, 6.95, -1.8), L.dark)
 	box(Fc, m, "Hood", V(-HW + 0.2, 6.7, -1.8), V(HW - 0.2, 6.92, 0.4), L.dark)
-	box(Fc, m, "HoodLip", V(-HW + 0.2, 6.5, 0.25), V(HW - 0.2, 6.92, 0.4), L.steel)
+	box(Fc, m, "HoodLip", V(-HW + 0.2, 6.5, 0.25), V(HW - 0.2, 6.92, 0.4), gunmetal)
 	local lens =
 		K.ghost(box(Fc, m, "Lens", V(-HW + 0.6, 6.64, -1.3), V(HW - 0.6, 6.7, 0.0), L.white))
-	K.spot(m, lens, Enum.NormalId.Bottom, K.WHITE, 1.3, 9, 100)
+	K.spot(m, lens, Enum.NormalId.Bottom, K.WHITE, 0.6, 7, 80)
 	W.sign(Fc * CFrame.new(0, 2.25, 2.6), m, {
 		name = "Sign_" .. name,
 		word = name,
@@ -333,7 +334,7 @@ do
 	end
 	box(Fv, m, "Lid", V(-1.65, 5.6, -1.65), V(1.65, 5.85, 1.65), L.dark)
 	local lens = K.ghost(box(Fv, m, "Lens", V(-0.8, 5.54, -0.8), V(0.8, 5.6, 0.8), L.white))
-	K.spot(m, lens, Enum.NormalId.Bottom, K.WHITE, 1.4, 6, 70)
+	K.spot(m, lens, Enum.NormalId.Bottom, K.WHITE, 0.9, 4, 70)
 	K.gunAnchor(
 		m,
 		"Stand_Knife",

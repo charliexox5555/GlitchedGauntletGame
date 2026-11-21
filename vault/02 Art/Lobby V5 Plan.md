@@ -759,6 +759,96 @@ Walk from the spawn: portal about 40, junction about 120, wing counters about 16
 
 Scripts: `BuildShopHall.luau` (the shell: portal, hall, bays, junction, passages, wings, structure, light) and `BuildShopFit.luau` (displays, the feature, the wings' fit-out, signs, plates, stencils).
 
+## Overnight pass: shop, locker, signs v3, glitches, decor, range (2026-11-21)
+
+Owner before bed: finish the shop ("make it look really good, all the sections, grade yourself"), then the locker ("needs sections for the guns ... the stands need to look better ... dull"), all the signs ("they just don't fit our vibe ... make something new", the 1v1/2v2/3v3 ones too), "your overlapping glitch parts check", the hub decor ("look at all the rivals decorations and build your own ... sleek ... nothing crazy") and the Duels section, then start the range ("arena bricks ... bots different sets away ... trash cans ... to change their loadout ... we're literally just building it"). All built in the Lobby place and **saved** (versions 860 to 868, then a final save).
+
+Captures (`Lobby V5/2026-11-21/`): ![shop front](Lobby%20V5/2026-11-21/01_shop_front.jpg) ![hall](Lobby%20V5/2026-11-21/02_shop_hall.jpg) ![junction](Lobby%20V5/2026-11-21/03_shop_junction.jpg) ![item shop](Lobby%20V5/2026-11-21/04_item_shop.jpg) ![season pass](Lobby%20V5/2026-11-21/05_season_pass.jpg) ![locker](Lobby%20V5/2026-11-21/06_locker_armory.jpg) ![console](Lobby%20V5/2026-11-21/07_locker_console.jpg) ![range](Lobby%20V5/2026-11-21/08_range_hall.jpg) ![duels](Lobby%20V5/2026-11-21/09_duels_deck.jpg)
+
+Edit-mode captures don't show the guns (the client lays each player's skins in play) or the gun stands; the green dots and purple lines in some shots are Studio's attachment and bone overlays, not parts.
+
+**Shop V2, built as planned above** (`BuildShopHall`, `BuildShopFit`, `BuildShopWings`):
+- **Portal:** a 20 x 15 gateway, 12 deep, with return walls out to the rock (no more gaps). The SHOP sign stands on the cornice.
+- **Hall:** 30 x 22 with a raised coffer, pilasters with bar lamps carrying I-beams, a dark aisle between the hub's gold lines, and four stage bays. Each bay has drape walls, a stage with a gold step light, a lighting truss with three cans, a backdrop screen, and its own sign (01 FEATURED, 02 SEASON 1, 03 NEW IN, 04 CASES):
+  - FEATURED: a Vandal on a turntable.
+  - SEASON 1: Elite, Apex and Knife crates on plinths (`SeasonShowcase` mount).
+  - NEW IN: Phantom, Spectre and Sheriff on stands.
+  - CASES: every crate tier on risers. These are the real crate models in their tier looks.
+- **Junction:** 26 high, with 45-degree corners, corner pilasters, two beams, the DAILY SHOP screen under a lit hood, a tiered plinth with the Operator turning (`ShopWindow` mount), a gold floor ring the lines run into, ITEMS / PASS wayfinding boards, and hanging ITEM SHOP and SEASON PASS signs over the two passages.
+- **Item Shop wing:**
+  - the Broker at the counter, with a Talk line that opens the Shop (`NpcTalk.broker`);
+  - the terminal, the slat wall with the MARKET sign, and crate shelves;
+  - two lit gun cabinets (Vandal, Phantom; Operator, Spectre), and a knife-case vitrine table under a pendant from the beam;
+  - a BUNDLES board, and a STOCKROOM shutter (a future door).
+- **Season Pass wing:**
+  - the SEASON 1 screen with a 7-tier track under a lit hood (`PassHero` mount);
+  - a three-step stage with purple step lights and the reward cases;
+  - S1 banners, a floor emblem, and a NEXT SEASON shutter (a future door).
+- **Prompts:** `LobbyShop` and `LobbyBattlePass` sit in front of the counter and the stage.
+
+**Signs v3** (`LobbyWay.luau` → `ServerStorage.V5Kit.LobbyWay`): facility wayfinding instead of neon. Each sign is:
+- a dark steel cabinet with one cut corner on a steel rim;
+- a raised accent tile with the area's HUD icon (or a code: a bay number, "!");
+- the word in flat white Rubik Heavy, a ruled sub-label in the accent, and a small zone code;
+- lit by two gooseneck lamps, on wall stand-offs, hanging rods or posts.
+
+Every label shrinks to fit instead of overflowing (`UITextSizeConstraint`). Replaced:
+- DUELS, LOCKER and SHOP over the gateways;
+- RANGE on the bay girder;
+- the 8 queue bays: the mode as the word, "DUELS · n PLAYERS", and a status strip that keeps MatchLift's MATCH FOUND contract (`Sign` → `Face` → first Frame → right-aligned label).
+
+**Locker armory** (`BuildLockerArmory`): every gun sits in a section for its class (`Config/Weapons`):
+- **Back wall:** three glass-fronted cabinets between steel columns: SNIPERS (Operator, Outlaw, Marshal), RIFLES (Vandal, Phantom, Guardian, Bulldog) and HEAVY (Odin, Ares). Each row has its own hood light and tag.
+- **Centre:** the old flat tables became sloped display consoles: a plinth, a felt top between gunmetal cheeks, a front lip, a canopy lamp and the class sign on the fascia. They hold SIDEARMS (Classic, Ghost, Sheriff, Shorty), SMGS (Stinger, Spectre) and SHOTGUNS (Bucky, Judge).
+- **MELEE:** an octagon vitrine with the knife turning.
+- **Fixed:** the two west wainscot slopes (they stuck 6 studs through the wall into the vestibule). The Armorer moved 1.6 forward (his tail was in a cabinet).
+
+**Glitch pass** (`FixGlitches.luau`): three scans (cross-area GetPartsInPart, a coplanar-face scan, per-area audits). Fixed:
+- the buried Duels tunnel step;
+- flickering faces: bar-lamp caps, bay opening edges, the portal wainscot ends, hall ceiling ends, I-beam web ends, console hood lips, the range bay wainscot;
+- bay jambs widened over the drape edges;
+- sign bolts moved off the accent tile.
+
+What remains are deliberate seats (pilasters into walls, sign mounts, floor paint).
+
+**Hub decor** (`BuildHubDecor`), after a read-only study of RIVALS' hub decor (TVs on arms, standing displays, capsule lamps, stanchions, crates, vents, intercoms, floor arrows; life where players stop):
+- four info kiosks, one beside each gateway, turned to the spawn: a stepped plinth, a slim steel tower, a portrait screen, the area tile, a crown hood lamp and a conduit;
+- two benches behind the spawn.
+
+All clear of the lines, drains, columns, season mounts and rock (the Duels kiosk was moved out of a leaning rock wall; the Shop and Locker kiosks off their gate piers).
+
+**Duels decor** (`BuildDuelsDecor`):
+- bollard lamps in every gap between the queue bays along the chasm edge (RIVALS' lamp between pads, ours);
+- four how-to-play boards on the bulkhead: THE DRAFT, WEAPON TIERS, HEADSHOTS 1.5x, QUEUE UP;
+- two benches.
+
+**Range: the test hall** (`BuildRange`), from the owner's `Workspace.ShootingRangeRivals` (read-only). It extends `Hub.RangeBay` (the sim bay's back wall now opens into it; the hologram stays; the curtain says NOW OPEN):
+- **Hall:** 120 x 155 x 40, arena bricks (our two greys and our grid tile, the arena recipe), 18 downlights.
+- **Firing line:** a firing line and distance lines every 25 studs.
+- **Bots:** nine training bots (R15, yellow torso, anchored, tagged `RangeBot` with Distance / Lane) on pads with distance plates. Three lanes: 20 / 60 / 110, 35 / 80 / 130 and 45 / 95 / 120 studs.
+- **Cover and towers:** six cover blocks and two towers on 5 x 15 x 5 posts with truss ladders.
+- **Loadout bins:** six bins, our take on RIVALS' trash cans (a faceted steel bin, a lid, a cyan band and the locker icon), tagged `RangeLoadout` for the loadout GUI later.
+- **Landmark:** THE DEEP moved to the far wall at 1.8x (the owner's "Hollywood thing at the back").
+
+No code yet: bots don't react and the bins don't open anything.
+
+**Self-grade** (honest; the owner's bar runs higher):
+- Shop: **8**. Structure, wayfinding and the split are strong; the bays depend on the guns showing in play.
+- Season and Item wings: **8**.
+- Locker armory: **7.5**. It needs a play check with the guns in.
+- Signs v3: **7.5**. Clean and consistent, but a new look the owner hasn't seen.
+- Hub decor: **7**. Restrained on purpose.
+- Duels decor: **7**.
+- Range: **7.5**. It matches the reference's vibe; the bots are plain R15 rigs.
+
+**To check in play:**
+- the guns on every stand, cabinet and console;
+- Talk to the Broker → Shop;
+- the Open Shop / Battle Pass prompts;
+- a queue-bay MATCH FOUND flash with the new strip;
+- walking the range (ladders, towers, bins);
+- the Armorer's white outfit still blows out under the lights (an old issue).
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).

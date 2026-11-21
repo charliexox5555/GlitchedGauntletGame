@@ -156,8 +156,8 @@ local function kiosk(pos, area, title, sub, foot)
 	K.pipe(m, "Conduit", (Fk * V(0, 1.9, -0.6)) - K.O, (Fk * V(0, 0.3, -0.6)) - K.O, 0.24, L.steel)
 	return m
 end
-kiosk(V(-32, 0, 14), K.AREA.shop, "SHOP", "DAILY ITEMS · CASES · PASS", "WEST GATE  S-03")
-kiosk(V(33, 0, -13), K.AREA.locker, "LOCKER", "LOADOUT · SKINS · GEAR", "EAST GATE  L-02")
+kiosk(V(-27, 0, 19), K.AREA.shop, "SHOP", "DAILY ITEMS · CASES · PASS", "WEST GATE  S-03")
+kiosk(V(29, 0, -21), K.AREA.locker, "LOCKER", "LOADOUT · SKINS · GEAR", "EAST GATE  L-02")
 kiosk(V(22, 0, -30), K.AREA.duels, "DUELS", "1V1 · 2V2 · 3V3", "GATE  D-01")
 kiosk(V(-20, 0, 33), K.AREA.range, "RANGE", "LIVE FIRE · COMING SOON", "GATE  R-04")
 

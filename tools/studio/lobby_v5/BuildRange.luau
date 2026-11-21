@@ -105,7 +105,7 @@ for _, x in { -30, 0, 30 } do
 		local lens = K.ghost(
 			box(F, m, "Lens", V(x - 1.7, H - 0.56, z - 1.7), V(x + 1.7, H - 0.5, z + 1.7), L.white)
 		)
-		K.spot(m, lens, Enum.NormalId.Bottom, rgb(255, 240, 224), 1.6, 50, 110)
+		K.spot(m, lens, Enum.NormalId.Bottom, rgb(255, 240, 224), 0.9, 50, 110) -- 1.6 washed the greys to white
 	end
 end
 
