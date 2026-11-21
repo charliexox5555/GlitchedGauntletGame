@@ -94,13 +94,14 @@ return table.freeze({
 		Tease = s(9043336050, 0.18, 1.3), -- the swell, short: the seams light up
 		Sink = s(15675046931, 0.2, 0.9), -- Roblox Sweep
 	}),
-	-- one reveal stinger per tier (owner picks 2026-11-20; Legendary must be short)
+	-- one reveal stinger per tier (owner picks 2026-11-20). Legendary must be a music
+	-- stinger like Epic's but bigger, never less (owner): picked on F4 → REVEAL: LEGENDARY
 	REVEAL = table.freeze({
 		Common = s(17208323435, 0.6), -- Roblox "GUI - Equip"
 		Rare = s(9042542887, 0.35), -- APM "Universal Flip - Hit"
 		Epic = s(9043151109, 0.35), -- APM "Get Up And Go - Hit"
-		Legendary = s(15675043410, 0.6), -- Roblox "UI Tonal Stinger" (1.5 s), layered below
-		Exclusive = s(15675043410, 0.6),
+		Legendary = s(9047100306, 0.4), -- APM "Hustler Sting 2" (4.4 s, sports brass)
+		Exclusive = s(9047100306, 0.4),
 	}),
 	-- How hard each tier hits (owner 2026-11-20: "more intense sounds + VFX for a higher
 	-- rarity"). hold = s the lid strains (trembling, glow ramping, a riser) before it
@@ -146,9 +147,8 @@ return table.freeze({
 			beam = 1.6,
 			kick = 1.5,
 			flash = 0.5,
-			-- the Legendary sting, built short: a booming hit (PSE "Truck Tailgate 1", low)
-			-- and a bright sparkle (Roblox "GUI - Notification High", up) on the stinger
-			extra = { s(9113433423, 0.5, 0.85), s(17208361335, 0.3, 1.2) },
+			-- a booming hit under the stinger (PSE "Truck Tailgate 1", low)
+			extra = { s(9113433423, 0.5, 0.85) },
 		}),
 		Exclusive = table.freeze({
 			hold = 0.8,
@@ -158,7 +158,7 @@ return table.freeze({
 			beam = 1.6,
 			kick = 1.5,
 			flash = 0.5,
-			extra = { s(9113433423, 0.5, 0.85), s(17208361335, 0.3, 1.2) },
+			extra = { s(9113433423, 0.5, 0.85) },
 		}),
 	}),
 	RISER = s(9043336050, 0.35, 1.5), -- the swell, up: plays through the held beat

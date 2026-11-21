@@ -43,6 +43,25 @@ Owner: in RIVALS "each thing has the exact same chance… they section it off by
 | Elite (900) | Common, Rare, Epic | 88 % | 12 % |
 | Apex (2,000) | Common, Rare, Epic, Legendary | 85 % | 15 % |
 
+### Proposal (2026-11-20, waiting on the owner): roll the tier first, add a Knife case
+The owner asked whether the odds model is right and whether to split gun and knife cases. Claude's recommendation:
+
+**What's wrong today.** Tiers only decide what's *in* a case, so inside a case a Common reskin line has the same chance as an Epic one. An Epic or Legendary is then no rarer than a Common, and the bigger sounds and effects for high tiers fire at random. Each new line also lowers every other line's chance, so the first Legendary line in Apex would drop as often as a reskin.
+
+**Recommended roll: tier → line → gun.** Each case gives its tiers fixed chances. Inside a tier every line you don't own has the same chance (keeps "Playback = Giltfold" fairness), split across its guns. CONTENTS shows each tier's chance, then the lines in it. A tier you fully own drops out and the others scale up, as now. Each case is one step up the ladder, so a pricier case never pays out worse:
+
+| Case | Common | Rare | Epic | Legendary | Each line (lines today: 8 Common / 7 Rare / 2 Epic / 0 Legendary) |
+|---|---|---|---|---|---|
+| Standard (400) | 85 % | 15 % | — | — | Common 10.6 %, Rare 2.1 % |
+| Elite (900) | 50 % | 40 % | 10 % | — | Common 6.3 %, Rare 5.7 %, Epic 5 % |
+| Apex (2,000) | — | 65 % | 30 % | 5 % | Rare 9.3 %, Epic 15 %, Legendary 5 % split over the Legendary lines |
+| Knife (about 2,500) | — | 70 % | 30 % | (later) | knives only |
+
+- **Apex has no Commons** (the owner's idea, agreed): a 2,000-coin case shouldn't hand out a reskin the 400 case gives. Until a Legendary line exists (Moltframe once the chamber flow ships), Apex is Rare 70 / Epic 30.
+- **Knives get their own case** (agreed): knives are the prestige item. Today they're about 1 % each inside mixed cases, which makes them a vague lottery and pulls guns down. A Knife case makes them a clear goal with a price that fits, and keeps the gun cases clean. Optional jackpot: Apex keeps a small knife slot (about 3 %), so a knife can still come out of a gun case.
+- Needs: a fourth crate look for the Knife case, a Shop card and its render, and `Config/Skins.CASES` + `Shared/SkinCases.roll` switched to tier weights. The no-duplicates and refund rules stay as they are.
+- Open for the owner: which line goes in which tier (the lines are provisional), the exact percentages, the Knife case price.
+
 **CONTENTS (round 4):** pictures centred with a modest spill up-left (1.3x the tile); clicking a picture pops a card out **next to it with a pointer** (Back Out 0.22 s from 0.82), and a click anywhere else closes it. Before that: each section with its chance ("EVERY SKIN IN HERE HAS THE SAME CHANCE"), then one row per skin line (its Vandal's picture, combined odds, opens to each gun with its own odds); knives one row each. Pictures are the new **portraits** (below) spilling over their tier square like RIVALS' tiles; **click a picture** for a short card (picture on its tier tile, name, "RARE SKIN · GIVEN TO THE VANDAL" / "GIVEN TO A RANDOM GUN (17)", what the tier means).
 
 **Portraits (owner: the side-on renders "don't look good"; RIVALS' are diagonal and fill the tile):** `tools/studio/RenderPortraits.luau` renders every case skin with the muzzle up-left, a front three-quarter perspective view and more contrast, 5 x 3 per sheet; `tools/render/icon_sheet.py --cols 5 --rows 3 --centered` cuts them (alpha from black / white captures) into `art-source/ui/item-portraits/` (sheet lists in `tools/render/portrait-lists/`); uploaded ids in `Shared/ItemPortraits`; `Shared/SkinArt.portrait` picks the portrait, else the side-on picture. The side-on `ItemIcons` stay for the Locker's wide gun cards (56 missing side-on pictures were rendered to `art-source/ui/item-icons/` but not uploaded).

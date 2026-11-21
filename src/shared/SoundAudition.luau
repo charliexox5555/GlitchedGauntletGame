@@ -131,99 +131,49 @@ local ROWS: { Row } = {
 		},
 	},
 	-- CASE (lobby, 2026-11-20): the in-world case opening (Config/CaseOpening). Lands,
-	-- latches, Common / Rare / Epic reveals and Collect are picked (owner 2026-11-20).
+	-- latches, shake, lid burst, Common / Rare / Epic reveals and Collect are picked
+	-- (owner 2026-11-20).
 	-- Volumes are the config's; button 1 is what the opening plays now.
 	{
 		section = "CASE",
-		name = "SHAKE (thump + rattle, each shake)",
+		name = "REVEAL: LEGENDARY (bigger than Epic)",
 		list = {
 			{
-				note = "now: thump + PSE Metal Lid Over Box 6",
+				note = "now: APM Hustler Sting 2 (4.4 s, sports brass) + boom",
 				layers = {
-					{ id = 9117456325, vol = 0.35, delay = 0, pitch = 1.25 },
-					{ id = 9116822963, vol = 0.4, delay = 0, pitch = 1.1, len = 0.4 },
-				},
-			},
-			{
-				note = "thump + PSE Metal Box Drawer 5",
-				layers = {
-					{ id = 9117456325, vol = 0.35, delay = 0, pitch = 1.25 },
-					{ id = 9116527992, vol = 0.4, delay = 0, pitch = 1.15, len = 0.4 },
-				},
-			},
-			{
-				note = "thump + PSE Portable Bump 4",
-				layers = {
-					{ id = 9117456325, vol = 0.35, delay = 0, pitch = 1.25 },
-					{ id = 9118084140, vol = 0.45, delay = 0, pitch = 1.1, len = 0.4 },
-				},
-			},
-			{ id = 9117456325, vol = 0.35, note = "old: thump only" },
-		},
-	},
-	{
-		section = "CASE",
-		name = "LID BURST (more umph)",
-		list = {
-			{
-				note = "now: old burst + APM Deep Boom 06",
-				layers = {
-					{ id = 15675028888, vol = 0.45, delay = 0, pitch = 0.9 },
-					{ id = 9117456325, vol = 0.55, delay = 0, pitch = 0.8 },
-					{ id = 9043336050, vol = 0.3, delay = 0, pitch = 1 },
-					{ id = 1837830213, vol = 0.5, delay = 0, pitch = 1 },
-				},
-			},
-			{
-				note = "old burst + PSE Tailgate boom",
-				layers = {
-					{ id = 15675028888, vol = 0.45, delay = 0, pitch = 0.9 },
-					{ id = 9117456325, vol = 0.55, delay = 0, pitch = 0.8 },
-					{ id = 9043336050, vol = 0.3, delay = 0, pitch = 1 },
+					{ id = 9047100306, vol = 0.4, delay = 0, pitch = 1 },
 					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
 				},
 			},
 			{
-				note = "old burst + both booms",
+				note = "APM Move to the Finish Line b (4.6 s, bold brass) + boom",
 				layers = {
-					{ id = 15675028888, vol = 0.45, delay = 0, pitch = 0.9 },
-					{ id = 9117456325, vol = 0.55, delay = 0, pitch = 0.8 },
-					{ id = 9043336050, vol = 0.3, delay = 0, pitch = 1 },
-					{ id = 1837830213, vol = 0.4, delay = 0, pitch = 1 },
-					{ id = 9113433423, vol = 0.4, delay = 0, pitch = 0.85 },
-				},
-			},
-			{
-				note = "old: whoosh + low hit + swell",
-				layers = {
-					{ id = 15675028888, vol = 0.45, delay = 0, pitch = 0.9 },
-					{ id = 9117456325, vol = 0.55, delay = 0, pitch = 0.8 },
-					{ id = 9043336050, vol = 0.3, delay = 0, pitch = 1 },
-				},
-			},
-		},
-	},
-	{
-		section = "CASE",
-		name = "REVEAL: LEGENDARY (short)",
-		list = {
-			{
-				note = "now: Tonal Stinger + boom + sparkle (1.6 s)",
-				layers = {
-					{ id = 15675043410, vol = 0.6, delay = 0, pitch = 1 },
+					{ id = 9043512647, vol = 0.4, delay = 0, pitch = 1 },
 					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
-					{ id = 17208361335, vol = 0.3, delay = 0, pitch = 1.2 },
 				},
 			},
-			{ id = 15675043410, vol = 0.6, note = "Roblox UI Tonal Stinger (1.5 s)" },
 			{
-				note = "Tonal Stinger + Deep Boom",
+				note = "APM 1812 Overture d (4.7 s, rousing) + boom",
 				layers = {
-					{ id = 15675043410, vol = 0.6, delay = 0, pitch = 1 },
-					{ id = 1837830213, vol = 0.5, delay = 0, pitch = 1 },
+					{ id = 9045751388, vol = 0.4, delay = 0, pitch = 1 },
+					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
 				},
 			},
-			{ id = 1840076509, vol = 0.45, note = "APM Through the Roof (2.3 s)" },
+			{
+				note = "APM All It Takes Sting 2 (3.5 s) + boom",
+				layers = {
+					{ id = 9047103106, vol = 0.4, delay = 0, pitch = 1 },
+					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
+				},
+			},
+			{
+				note = "APM Run Forth b (2.7 s, drums) + boom",
+				layers = {
+					{ id = 9043511963, vol = 0.4, delay = 0, pitch = 1 },
+					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
+				},
+			},
+			{ id = 9043151109, vol = 0.35, note = "Epic now, to compare: Get Up And Go - Hit" },
 		},
 	},
 	{
