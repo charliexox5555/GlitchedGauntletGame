@@ -4,12 +4,22 @@ Owner's brief (2026-11-20): build an inventory to hold cases and other loot (ref
 
 Owner on the current case art (`art-source/ui/shop/case_*.png`): **too flat, needs more to it.** The 3D crates replace it, and the Shop icons get re-rendered from the models.
 
+## Selected weapon case concept (2026-11-20)
+
+The owner selected **the far-left case from the elongated rifle-case comparison**, favouring its clean geometry and shapes. The initial tall crate concepts were too chest-like; the approved direction is a long, shallow weapon transport case with two wraparound protective rails, recessed panels, separate raised lid plate, polygonal handles, chunky latches, small cyan window and low skids.
+
+- [Five-view model sheet](../../art-source/ui/shop/crates/crate_sheet.png): top, front, back, short side and three-quarter views generated as a modelling reference. This is concept art, not a measured CAD drawing; reconcile view differences during modelling.
+- [Selected concept comparison](https://chatgpt.com/library?file_id=libfile_b2bc2a87ae588191bdeffec16ee58cb9&account_id=personal): the original image remains available here. Copying it to `art-source/ui/shop/crates/crate_concepts.png` failed because the download host could not be resolved; no local concept file was created.
+- [Tier colour sheet](../../art-source/ui/shop/crates/crate_tiers.png): the selected rifle case in Standard (slate grey / gunmetal / steel / cyan), Elite (deep violet / dark plum / gold) and Apex (near-black / graphite / gunmetal / red-orange, faceted red lid gem). Generated 2026-11-20. Shared construction and colour roles retained; no Blender models or Studio assets changed.
+
 ## Phases
 1. ✅ **Player data and inventory** (2026-11-20): wallet + item stacks in their own DataStore, atomic writes.
 2. ✅ **Buying a case for coins** (2026-11-20): the Shop's case popup BUY (Coins) works end to end.
-3. ⏳ **Crate design:** owner runs the ChatGPT prompts below and picks a shape → model sheet.
-4. ⬜ **Crate models** in Blender MCP (`gauntlet-build-style`, `roblox-blender-modeling`): one mesh, tiers as colourways; import; Shop icons rendered from them.
-5. ⬜ **Backpack screen** (the reference grid): a lobby menu that reads the published inventory. Mocked up in Studio first for the owner to edit.
+3. ✅ **Crate design** (2026-11-20): concept, model sheet and tier sheet picked (section above).
+4. ✅ **Crate model** (2026-11-20): built in Blender, rigged in Studio for animation, three tiers as colour data, tier icons rendered. See "Crate model" below.
+5. ✅ **Backpack screen** (2026-11-20): bottom-bar BACKPACK (replaces the Battle Pass for the first release) opens a grid of stacks. Built in Studio for the owner to edit. See "Backpack" below.
+5b. ⏳ **Backpack icon:** owner runs the icon prompt below; the bar and header use the Standard crate render until then.
+5c. ⬜ Shop case cards and popup still show the old flat case art: swap to the crate renders (`Config/Inventory` icons) when the owner says.
 6. ⬜ **Robux purchases** (BUY / BUY x3 Robux, coin packs): developer products + `ProcessReceipt` on the same atomic write, keyed by `PurchaseId`. Needs product ids from the Creator Dashboard (owner).
 7. Parked: earning coins from matches (written by the match place to the same store), case opening.
 
@@ -75,5 +85,32 @@ Same three tiers and colours as the Shop already uses: **Standard** slate grey +
 
 Save the results into `art-source/ui/shop/crates/` (`crate_concepts.png`, `crate_sheet.png`, `crate_tiers.png`) and point me at them.
 
+## Crate model (built 2026-11-20)
+- **Source:** `tools/blender/crates/build_crate.py` (re-runnable in live Blender MCP through `tools/blender/lobby_v4/send.py --port <port> --pid <pid>`), file `art-source/lobby/crates/Crate.blend`, previews `art-source/lobby/crates/preview/`, data `Crate.json` (part bounds, pivots).
+- **Size:** 3.1 x 1.2 x 1.1 studs, 13 parts, 5,720 tris. Owner (2026-11-20): "a bit too long, compact it": shortened from 3.9 to 3.1, depth and height kept.
+- **Style check:** faceted only (flat 1-segment chamfers, 6/8-sided bars, cut ends), flat shading, no modifiers or subdivision; the latch keepers stand proud of the panel frame (no coplanar faces).
+- **Built for animation:** hollow base tray and hollow lid with dark `Interior` liners; parts split by moving group (`Base`, `Lid`, `Gem`, `LatchL`, `LatchR`, `Handle`) and colour role (`Body`, `Frame`, `Hardware`, `Light`, `Gem`, `Interior`).
+- **Roblox:** asset 134857131915909 (`art-source/lobby/Exports/assets.json` "Crate"), rigged by `tools/studio/BuildCrate.luau` into `ReplicatedStorage.Crates.Crate` (Lobby place, Studio-owned: **save the place**). Motor6D tree Root → Base → Lid → Gem, Base → LatchL / LatchR / Handle; AnimationController + Animator, so the Animation Editor and code can drive it. Attachments for effects: `Base_Body.Burst` (inside), `Base_Body.Seam` (front of the lid seam), `Base_Light.Glow`, `Gem_Gem.GemFx`. **In Roblox the open direction is a positive X angle** (Lid +105 deg, latches +130, handle +45; checked in play). Axes: Roblox (x, y, z) = Blender (-x, z, y), front = -Z.
+- **Tiers:** `src/shared/Config/Crates.luau` (role colours and materials per tier: Standard grey/cyan, Elite violet/gold, Apex black/red-orange); `src/shared/CrateLook.luau` `make(tier)`, `paint`, `joint`.
+- **Icons:** `tools/blender/crates/render_icons.py` → `art-source/ui/backpack/crate_<tier>.png` (512 transparent; sheet `crate_icons_sheet.png`), images Standard 106773240441152, Elite 81160532398415, Apex 129794608887439 in `Config/Inventory` `icon`.
+
+## Backpack (built 2026-11-20)
+- **Bar:** `StarterGui.LobbyBar.Bottom.Backpack` (was BattlePass), label BACKPACK, orange accent `FF8F3D`; the phone dock tile, menu map and intro order follow (`LobbyHud`, `LobbyHudView`, `Icons`, backup `tools/studio/BuildLobbyHud.luau`). The Battle Pass screen still exists and the Shop's Season Pass card still opens it.
+- **Screen:** `StarterGui.Backpack` + `UiTemplates.Lobby.BackpackCell` (builder `tools/studio/BuildBackpack.luau`), `Controllers/BackpackController`. After the owner's RIVALS reference: a header plate (icon, BACKPACK, one line), a 6-wide grid of stacks (crate art, big ×count), at least three rows with dark empty slots, the hovered stack's name under the grid, "OPENING CASES COMES IN A LATER UPDATE.", and a gold OPEN SHOP when empty. Live: a purchase updates it while open. Read only, no remotes.
+- Playtested: bought cases show as Standard ×1, Elite ×2, Apex ×1; hover pops and names the stack; the bar button opens it.
+
+### Backpack icon: ChatGPT prompt
+> Make a game menu icon for a stylised Roblox shooter, in the exact style of our lobby bar icons (chunky, faceted, flat-shaded 3D, bright colour, clean soft lighting, no outline, no text, no glow), matching the attached locker, shop bag, range target and settings gear icons: a **tactical backpack** built from angled flat facets (no round curves; any curve is made of flat planes), chunky and readable at small size. A boxy main pack with a chamfered top flap, one big front pocket with a buckle strap, two side compression straps, a carry loop on top and a small bedroll or pouch on the side. Main colour **warm orange (#FF8F3D)** with darker orange-brown shadow facets, straps in dark charcoal, buckles in light steel. 3/4 front view, slightly from above, centred, filling most of the square. Output: `backpack.png`, 512x512, transparent background, plus a version on dark grey to check it.
+
+Save it as `art-source/ui/lobby-icons/backpack_v2.png` (the other bar icons are in that folder) and tell me; I'll upload it and swap it into the bar, the phone dock and the Backpack header.
+
+### What to test (owner, Backpack and crates)
+- [ ] The bottom bar reads LOCKER · SHOP · BACKPACK · RANGE · SETTINGS; BACKPACK opens the screen, the X and Esc close it.
+- [ ] Buy a case in the Shop with the Backpack closed, open it: the stack is there with the right count.
+- [ ] Empty save (a new account): NOTHING HERE YET and OPEN SHOP, which opens the Shop.
+- [ ] `ReplicatedStorage.Crates.Crate`: open it in the Animation Editor; the lid, latches, handle and gem joints move.
+- [ ] **Save the Lobby place** (the crate template, the Backpack screen and the bar change live in the place).
+
 ## Changelog
 - 2026-11-20: created. Phases 1 and 2 built and tested; crate prompts written.
+- 2026-11-20 (later): crate model built, compacted, rigged and tiered; tier icons; Backpack screen replaces the Battle Pass on the bar; backpack icon prompt.

@@ -56,7 +56,7 @@ local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
 local MENUS: { [string]: string } = {
 	Locker = "Locker",
 	Shop = "Shop",
-	BattlePass = "BattlePass",
+	Backpack = "Backpack", -- replaced the Battle Pass for the first release (owner 2026-11-20)
 	Range = "Range",
 	Settings = "Settings",
 }
@@ -966,7 +966,7 @@ function LobbyHudView.intro()
 			tween(s.bottom, 0.5, { Position = home }, QUINT, OUT)
 		end
 	end)
-	local order = { "Locker", "Shop", "BattlePass", "Range", "Settings" }
+	local order = { "Locker", "Shop", "Backpack", "Range", "Settings" }
 	for i, name in order do
 		local b = s.items[name]
 		local pop = b and b:FindFirstChild("Icon") and (b :: any).Icon:FindFirstChild("Pop")
@@ -1021,7 +1021,7 @@ function LobbyHudView.toast(text: string, kind: string?)
 	end)
 end
 
--- Red count badges on the bar (0 hides). ids: Locker, Shop, BattlePass, Range, Settings.
+-- Red count badges on the bar (0 hides). ids: Locker, Shop, Backpack, Range, Settings.
 function LobbyHudView.setBadge(id: string, count: number)
 	local s = state
 	local b = s and s.items[id]

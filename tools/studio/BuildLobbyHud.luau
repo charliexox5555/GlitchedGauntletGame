@@ -50,6 +50,7 @@ local ICON = {
 	Shop = "rbxassetid://75746609493674",
 	Locker = "rbxassetid://94062620763078",
 	BattlePass = "rbxassetid://124123984170556",
+	Backpack = "rbxassetid://106773240441152", -- placeholder (the Standard crate render) until the ChatGPT icon
 	Range = "rbxassetid://79251886607751",
 	Settings = "rbxassetid://139738672487062",
 	Coin = "rbxassetid://122645025340088",
@@ -728,7 +729,7 @@ do -- Bottom: bar, PLAY, party, callout
 	local items = {
 		{ "Locker", "LOCKER", ALLY },
 		{ "Shop", "SHOP", GOLD },
-		{ "BattlePass", "PASS", PURPLE },
+		{ "Backpack", "BACKPACK", hex("FF8F3D") }, -- replaced the Battle Pass (owner 2026-11-20)
 		{ "Range", "RANGE", TEAL },
 		{ "Settings", "SETTINGS", WHITE },
 	}

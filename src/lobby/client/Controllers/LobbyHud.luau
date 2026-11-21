@@ -5,7 +5,7 @@
 --   beside Roblox's buttons and moves with them): profile chip on the left,
 --   wallet and settings on the right, 44 px like Roblox's own buttons. With no
 --   top bar (console), the row drops to the core-UI safe area's top edge.
--- * Bottom dock: LOCKER · SHOP · PLAY · BATTLE PASS · RANGE, opening menus
+-- * Bottom dock: LOCKER · SHOP · PLAY · BACKPACK · RANGE, opening menus
 --   through the Router. Desktop shows the "searching" pill above the dock;
 --   phones under the top bar. Toasts sit above the dock, or at the top while a
 --   menu is open. Nothing interactive lives where Roblox's chat (top left) or
@@ -49,13 +49,8 @@ local TILES: { Tile } = {
 	{ id = "Locker", label = "LOCKER", menu = "Locker", icon = "Locker" },
 	{ id = "Shop", label = "SHOP", menu = "Shop", icon = "Shop" },
 	{ id = "Play", label = "PLAY", menu = "Queue" },
-	{
-		id = "BattlePass",
-		label = "BATTLE PASS",
-		short = "PASS",
-		menu = "BattlePass",
-		icon = "BattlePass",
-	},
+	-- the Battle Pass waits for a later release (owner 2026-11-20); the Backpack takes its place
+	{ id = "Backpack", label = "BACKPACK", short = "BAG", menu = "Backpack", icon = "Backpack" },
 	{ id = "Range", label = "RANGE", menu = "Range", icon = "Range" },
 }
 
