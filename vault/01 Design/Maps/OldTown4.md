@@ -235,4 +235,7 @@ The owner asked for a last check for out-of-place things, too much texture, and 
   - the vine was one thick leafy slab (it read as a carpet), now four runs laid across the rafters.
 - **Left as is:** the LeafyGrass hedges and pot bushes (the RIVALS hedge recipe) show the material's leaf texture.
 
+### Railings jumpable (2026-11-21, owner)
+The owner wants railings you can hop over "like when you go up on a building". The invisible rail guards over the loggia terrace balustrades are gone. The two roofs a hop or a drop from that railing now carry invisible blockers instead (shots pass): the roof hut and both house bridges. No reach check was run, per the owner's build-checks-only rule. The place is patched in Studio and matches the builder; save the match place.
+
 Studio's own Lighting properties (ClockTime etc.) were changed for preview captures. Every map applies its own lighting on load, so match play doesn't use them.

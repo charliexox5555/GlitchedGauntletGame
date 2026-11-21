@@ -1604,10 +1604,10 @@ return function(): string
 		end
 		box(lg, "Terrace", V(-75.3, 11.4, 31.2), V(-44.7, 12.0, 60.3), L.paving, true, T)
 		-- terrace balustrades: south edge full, east from the stair opening, north from the roof hut, west up to the steps
-		balRun(lg, "X", 31.9, -75.25, -44.75, 12.0, T, 0, true)
-		balRun(lg, "Z", -45.4, 36.2, 60.2, 12.0, T, -0.04, true)
-		balRun(lg, "X", 59.55, -67.0, -46.1, 12.0, T, -0.08, true)
-		balRun(lg, "Z", -74.6, 32.6, 47.3, 12.0, T, -0.04, true)
+		balRun(lg, "X", 31.9, -75.25, -44.75, 12.0, T)
+		balRun(lg, "Z", -45.4, 36.2, 60.2, 12.0, T, -0.04)
+		balRun(lg, "X", 59.55, -67.0, -46.1, 12.0, T, -0.08)
+		balRun(lg, "Z", -74.6, 32.6, 47.3, 12.0, T, -0.04)
 		house({
 			name = "Roof hut",
 			b = R(-75.25, -67.0, 53.4, 60.25),
@@ -1621,6 +1621,8 @@ return function(): string
 			jit = 0.06,
 			parent = lg,
 		}, T, side)
+		-- the terrace railing is a hop-over (owner 2026-11-21: railings jumpable), so its neighbouring roofs get blockers
+		blocker("Roof hut roof", V(-76.4, 19.6, 52.3), V(-65.9, 60, 61.3), T)
 		-- pergola with a vine over the middle of the terrace (plain timber: the plank texture read as stacked boards)
 		local TIMBER: Look = { color = C.wood, mat = Enum.Material.Wood }
 		local TIMBER_DARK: Look = { color = C.woodDark, mat = Enum.Material.Wood }
@@ -1830,6 +1832,7 @@ return function(): string
 				parent = bf,
 			}, T, side)
 			onWall("WallLantern", bf, V(sx * 78.5, 6.0, zc), V(sx, 0, 0), T)
+			blocker("Bridge roof", V(sx * 75.1, 13.0, zc - 5.9), V(sx * 100, 60, zc + 5.9), T)
 		end
 		task.wait()
 
