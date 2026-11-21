@@ -109,7 +109,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Services/ZoneService` | sudden-death circle, damage outside it |
 | `Services/SpectateService` | streams the target's surroundings to a spectator (`Spectate`); keeps `Bots/Spectated` (who watches whom, `watchersOf`) |
 | `Services/LookStream` (2026-11-19) | every fighter's aim on one server-time line: players' `Look`, bots' gun look (`Bots/Brain`); a 6 s ring per fighter (`window`, `lagOf` for the replay); relays `LookRelay` only to that fighter's spectators |
-| `Services/CharacterService` | prepares every combatant: match body, full HP, no regen, hitbox history; our `Animate` ids; puts each one in the `Bodies` collision group (`Config/Collision`, 2026-11-15) |
+| `Services/CharacterService` | prepares every combatant: match body, full HP, no regen, hitbox history; our `Animate` ids; puts each one in the `Bodies` collision group (`Config/Collision`, 2026-11-15); registers `MapBlockers` (collides with `Bodies` only, so invisible map guards stop players but not shots; 2026-11-21) |
 | `Services/MovementService` | server half of the movement and pose simulation |
 | `Services/InputContextService` | per-player Input Action contexts from `Config/Input` |
 | `Services/TestRangeService`, `TestRange/*` | practice yard and dummies, only with `TestMode` on |

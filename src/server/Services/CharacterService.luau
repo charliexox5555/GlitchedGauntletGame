@@ -118,7 +118,8 @@ local function ignoreAccessory(accessory: Instance)
 end
 
 -- Registers the Bodies group once (idempotent): no collision with itself,
--- collision with Default kept so walls, floors and raycasts still work.
+-- collision with Default kept so walls, floors and raycasts still work. Also the
+-- MapBlockers group: invisible map blockers that stop bodies but not shots.
 local function registerCollision()
 	local ok, err = pcall(function()
 		if not PhysicsService:IsCollisionGroupRegistered(Collision.BODIES) then
@@ -126,6 +127,16 @@ local function registerCollision()
 		end
 		PhysicsService:CollisionGroupSetCollidable(Collision.BODIES, Collision.BODIES, false)
 		PhysicsService:CollisionGroupSetCollidable(Collision.BODIES, Collision.DEFAULT, true)
+		if not PhysicsService:IsCollisionGroupRegistered(Collision.MAP_BLOCKERS) then
+			PhysicsService:RegisterCollisionGroup(Collision.MAP_BLOCKERS)
+		end
+		PhysicsService:CollisionGroupSetCollidable(Collision.MAP_BLOCKERS, Collision.DEFAULT, false)
+		PhysicsService:CollisionGroupSetCollidable(
+			Collision.MAP_BLOCKERS,
+			Collision.MAP_BLOCKERS,
+			false
+		)
+		PhysicsService:CollisionGroupSetCollidable(Collision.MAP_BLOCKERS, Collision.BODIES, true)
 	end)
 	if not ok then
 		warn("[CharacterService] couldn't set up the Bodies collision group:", err)

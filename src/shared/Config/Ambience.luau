@@ -73,6 +73,13 @@ local MAPS: { [string]: Map } = {
 		size = Vector3.new(260, 120, 300),
 		beds = { { id = "sfx:AmbCity", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.2 } },
 	},
+	-- Rooftops4 (2026-11-21): the city block at blue hour, 140 x 192 at (6000, 200, 33000); the box takes in the
+	-- alleys and the street below. Beds only.
+	Rooftops4 = {
+		center = Vector3.new(6000, 195, 33000),
+		size = Vector3.new(220, 110, 260),
+		beds = { { id = "sfx:AmbCity", volume = 0.45 }, { id = "sfx:AmbWind", volume = 0.18 } },
+	},
 	-- Snowpeak4 (2026-11-21): the ski saddle, 150 x 190 at (6000, 200, 19000); the box takes in the slopes. Beds only.
 	Snowpeak4 = {
 		center = Vector3.new(6000, 210, 19000),
