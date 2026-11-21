@@ -98,20 +98,6 @@ end
 
 -- The cutscene ----------------------------------------------------------------------
 
--- The winning side's live bodies, the last one standing first (the lead).
-local function winnersOf(winner: number): { Model }
-	local winners: { Model } = {}
-	for _, body in Fighters.bodies() do
-		if Teams.of(body) == winner then
-			table.insert(winners, body)
-		end
-	end
-	table.sort(winners, function(a, b)
-		return Health.isAlive(a) and not Health.isAlive(b)
-	end)
-	return winners
-end
-
 -- The screen ------------------------------------------------------------------------
 
 local function statBox(
@@ -392,6 +378,42 @@ local function lineOf(body: Model): Line?
 	return nil
 end
 
+-- The winning side's bodies, best performing first (owner 2026-11-20: the
+-- cutscene's slots go in order of performance, slot 1 = the lead in the
+-- middle). The MVP first, then eliminations, damage dealt, fewer deaths,
+-- assists; still level: the last one standing, then the name.
+local function rank(line: Line?): { number }
+	if not line then
+		return { 0, 0, 0, 0, 0 }
+	end
+	return { if line.mvp then 1 else 0, line.eliminations, line.dealt, -line.deaths, line.assists }
+end
+
+local function winnersOf(winner: number): { Model }
+	local winners: { Model } = {}
+	local keys: { [Model]: { number } } = {}
+	for _, body in Fighters.bodies() do
+		if Teams.of(body) == winner then
+			table.insert(winners, body)
+			keys[body] = rank(lineOf(body))
+		end
+	end
+	table.sort(winners, function(a, b)
+		local ka, kb = keys[a], keys[b]
+		for i = 1, #ka do
+			if ka[i] ~= kb[i] then
+				return ka[i] > kb[i]
+			end
+		end
+		local la, lb = Health.isAlive(a), Health.isAlive(b)
+		if la ~= lb then
+			return la
+		end
+		return a.Name < b.Name
+	end)
+	return winners
+end
+
 -- What the server's choice buttons do (same rules as the old buttons).
 local function choose(name: string)
 	if picked == "PlayAgain" or picked == "Leave" then
@@ -639,6 +661,7 @@ end
 local PREVIEW_FIELD = "PreviewWinCutscene"
 -- (and "PreviewWinCutsceneAt" = song time holds it on that frame, for captures)
 local PREVIEW_AT = "PreviewWinCutsceneAt"
+local PREVIEW_COUNT = "PreviewWinCutsceneCount"
 local previewing = false
 
 local function stopPreview()
@@ -687,7 +710,14 @@ local function preview()
 			end
 		end
 	end
-	WinCutscene.play({ character }, {
+	-- "PreviewWinCutsceneCount" = how many winners (copies of you), 1-5
+	local count = StateValues.get(Workspace, PREVIEW_COUNT)
+	local n = if typeof(count) == "number" then math.clamp(math.floor(count), 1, 5) else 1
+	local winners: { Model } = {}
+	for _ = 1, n do
+		table.insert(winners, character)
+	end
+	WinCutscene.play(winners, {
 		onFrame = function()
 			for _, d in character:GetDescendants() do
 				if d:IsA("BasePart") or d:IsA("Decal") then

@@ -732,16 +732,64 @@
   "uploaded": "2026-11-13 01:45:34"
  },
  "art-source/animations/GG_Win1_1.rbxm": {
-  "assetId": 138336403992094,
+  "assetId": 106929085431227,
   "name": "GG Win1_1",
   "type": "Animation",
-  "uploaded": "2026-11-20 18:25:32"
+  "uploaded": "2026-11-20 19:03:40"
  },
  "art-source/animations/GG_Win1_1Hold.rbxm": {
-  "assetId": 110107132585954,
+  "assetId": 104387787932719,
   "name": "GG Win1_1Hold",
   "type": "Animation",
-  "uploaded": "2026-11-20 18:25:36"
+  "uploaded": "2026-11-20 19:03:43"
+ },
+ "art-source/animations/GG_WinS2.rbxm": {
+  "assetId": 72681296384469,
+  "name": "GG WinS2",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:16:01"
+ },
+ "art-source/animations/GG_WinS2Hold.rbxm": {
+  "assetId": 123751947911029,
+  "name": "GG WinS2Hold",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:16:04"
+ },
+ "art-source/animations/GG_WinS3.rbxm": {
+  "assetId": 112657946063082,
+  "name": "GG WinS3",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:25:37"
+ },
+ "art-source/animations/GG_WinS3Hold.rbxm": {
+  "assetId": 105314075981764,
+  "name": "GG WinS3Hold",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:25:40"
+ },
+ "art-source/animations/GG_WinS4.rbxm": {
+  "assetId": 113819442314250,
+  "name": "GG WinS4",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:16:14"
+ },
+ "art-source/animations/GG_WinS4Hold.rbxm": {
+  "assetId": 110977103612982,
+  "name": "GG WinS4Hold",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:16:17"
+ },
+ "art-source/animations/GG_WinS5.rbxm": {
+  "assetId": 100674335372888,
+  "name": "GG WinS5",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:16:20"
+ },
+ "art-source/animations/GG_WinS5Hold.rbxm": {
+  "assetId": 135062579610102,
+  "name": "GG WinS5Hold",
+  "type": "Animation",
+  "uploaded": "2026-11-20 19:16:23"
  },
  "art-source/audio/GameAtlas.flac": {
   "assetId": 136994389000525,

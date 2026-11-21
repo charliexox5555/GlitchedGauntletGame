@@ -7,6 +7,7 @@ the song together, so every key below is on a measured accent of the song.
     python -I tools/anim/win_clips.py render out.png Win1_1@0,0.7,1.5 --views=0,90
     python -I tools/anim/win_clips.py check Win1_1 Win1_1Hold
     python -I tools/anim/win_clips.py export Win1_1 Win1_1Hold   # art-source/animations/GG_<Name>.rbxm
+    WIN_FIX=1 python tools/anim/win_clips.py fix Win1_1          # clear new keys of clipping (win_fix), then check
 
 Names: Win<team size>_<slot> is the one-shot (it ends on the final pose),
 Win<team size>_<slot>Hold the loop that holds that pose with a breath. The
@@ -32,6 +33,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(__file__))
 
 import tp_clips  # noqa: E402
+import win_fix  # noqa: E402
 from tp_clips import LONG_GRIP, Clip, add, bladed, spline_sequence  # noqa: E402
 from tp_rig import ALL, solve, v3  # noqa: E402
 
@@ -98,12 +100,24 @@ def two_handed(track, windows):
 
 	def pose(t):
 		ctrl = at(t)
+		# The free fist stays in front of the chest between keys (the keys
+		# are cleared by win_fix, but a path between two clear keys can still
+		# cut through the torso): a soft floor on how far back it can come
+		# while it's level with the torso.
+		tip = ctrl["left_arm"]["tip"]
+		x, y, z = tip
+		inside = max(0.0, 1.0 - max(0.0, abs(x) - 1.0) / 0.5) * max(0.0, 1.0 - max(0.0, y - 1.1, -0.9 - y) / 0.4)
+		if inside > 0 and z > -1.05:
+			ctrl["left_arm"] = {"tip": (x, y, z + (-1.05 - z) * inside)}
 		w = weight(t)
 		if w > 0:
 			grip = gun_grip(ctrl)
 			if grip is not None:
 				tip = v3(ctrl["left_arm"]["tip"])
-				ctrl["left_arm"] = {"tip": tuple(tip + (v3(grip) - tip) * w)}
+				# (an arc out in front on the way on and off the gun: the
+				# straight line went through the chest, 2026-11-20)
+				arc = v3(0, 0, -0.55) * (4 * w * (1 - w))
+				ctrl["left_arm"] = {"tip": tuple(tip + (v3(grip) - tip) * w + arc)}
 		return tp_clips.solve_grounded(ctrl)
 
 	return pose
@@ -215,34 +229,50 @@ E = [
 
 # The groove keys sit on the cubic, which brakes and settles on its own; the
 # left fist goes onto the gun from the 4.02 swing to the 5.20 twirl.
-WIN1_1 = A + B + C + D + E
-win(Clip("Win1_1", "Action4", two_handed(WIN1_1, [(4.06, 4.18, 5.14, 5.3)]), ALL, length=7.3, loop=False, step=1 / 60))
+# Every key cleared of clipping and big wrist twists (win_fix; owner
+# 2026-11-20: "the hands are kind of turned, and they clip through the body").
+WIN1_1_TWO = [(4.06, 4.18, 5.14, 5.3)]
+WIN1_1 = win_fix.fixed("Win1_1", A + B + C + D + E, skip_left=[k[0] for k in D if 4.18 <= k[0] <= 5.14])
+win(Clip("Win1_1", "Action4", two_handed(WIN1_1, WIN1_1_TWO), ALL, length=7.3, loop=False, step=1 / 60))
 
 
 def win1_hold(t):
-	# A slow breath on the final pose: the chest rises, the gun rocks a
-	# touch on the shoulder, the head settles; 3.2 s, so it never pulses.
+	# A slow breath on the final pose (the cleared last key, so the crossfade
+	# from the clip doesn't move the gun): the chest rises, the gun rocks a
+	# touch, the head settles; 3.2 s, so it never pulses.
+	base = WIN1_1[-1][1]
+	p, y, r = base["gun"]["shoulder"]
+	reach = base["gun"].get("reach", 0.0)
+	tip = base["left_arm"]["tip"]
 	ph = TAU * t / 3.2
 	b = math.sin(ph)
 	b2 = math.sin(ph * 2 + 0.6)
-	return tp_clips.solve_grounded(
-		final(
-			hy=FINAL["hy"] - 0.02 + 0.02 * b,
-			ch=(FINAL["ch"][0] + 1.2 * b, FINAL["ch"][1] + 0.6 * b2, FINAL["ch"][2]),
-			hd=(FINAL["hd"][0] - 0.8 * b, FINAL["hd"][1] + 0.8 * b2, FINAL["hd"][2]),
-			gun=(FINAL["gun"][0] + 1.4 * b, FINAL["gun"][1], FINAL["gun"][2], 0),
-			lt=(FINAL["lt"][0], FINAL["lt"][1] + 0.03 * b, FINAL["lt"][2]),
-		)
+	ctrl = final(
+		hy=FINAL["hy"] - 0.02 + 0.02 * b,
+		ch=(FINAL["ch"][0] + 1.2 * b, FINAL["ch"][1] + 0.6 * b2, FINAL["ch"][2]),
+		hd=(FINAL["hd"][0] - 0.8 * b, FINAL["hd"][1] + 0.8 * b2, FINAL["hd"][2]),
+		gun=(p + 1.4 * b, y, r, reach),
+		lt=(tip[0], tip[1] + 0.03 * b, tip[2]),
 	)
+	ctrl["left_pole"] = base["left_pole"]
+	return tp_clips.solve_grounded(ctrl)
 
 
 win(Clip("Win1_1Hold", "Action4", win1_hold, ALL, length=3.2, loop=True, step=1 / 30))
 
 
+# The other winners (slots 2-5): tools/anim/win_group.py
+import win_group  # noqa: E402,F401
+
 # Commands -------------------------------------------------------------------------
 
 
 def main():
+	# (run as a script this file is __main__; the clips list lives on the
+	# imported module, which win_group also registers into)
+	import win_clips as wc
+
+	WIN = wc.WIN
 	cmd = sys.argv[1] if len(sys.argv) > 1 else "list"
 	if cmd == "list":
 		for name in WIN:
@@ -258,6 +288,12 @@ def main():
 
 		sys.argv = [sys.argv[0]] + sys.argv[2:]
 		tp_check.main()
+	elif cmd == "fix":
+		# (run with WIN_FIX=1 so the import clears and caches every key)
+		import win_check
+
+		for name in sys.argv[2:] or WIN:
+			win_check.check(name, 0.1)
 	elif cmd == "export":
 		tp_clips.export(sys.argv[2:] or WIN)
 

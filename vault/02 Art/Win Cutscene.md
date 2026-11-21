@@ -2,7 +2,7 @@
 
 The end-of-match winner cutscene in the match place (2026-11-20). It replaces the old victory scene (one camera, the winners pumping a fist). Same cutscene every time, cut to the ending song, ending on a low final pose. This note holds the plan, the shot list, how it is built, the captures and what to test.
 
-**Status (2026-11-20):** 1-player version built and play-tested in Studio (preview, a faked match end with the results screen, the skip). Round 2 (the owner's additions, below): sound accents under the song with options on the F4 board, the final shot rebuilt after the owner's reference, no UI until the final pose. Clip v9 (`Win1_1` 138336403992094, `Win1_1Hold` 110107132585954). **Waiting on the owner:** pick the accents on F4 → CUTSCENE, and a look at the whole thing. Versions for 2-5 winners slot in as data (see "Adding the 2-5 player versions").
+**Status (2026-11-20):** 1 to 5 winners built and play-tested in Studio (round 3: clipping and turned hands fixed, 2-5 player versions, winners ordered by performance). 1-player version first built and play-tested in Studio (preview, a faked match end with the results screen, the skip). Round 2 (the owner's additions, below): sound accents under the song with options on the F4 board, the final shot rebuilt after the owner's reference, no UI until the final pose. Clip v9 (`Win1_1` 138336403992094, `Win1_1Hold` 110107132585954). **Waiting on the owner:** pick the accents on F4 → CUTSCENE, and a look at the whole thing. Versions for 2-5 winners slot in as data (see "Adding the 2-5 player versions").
 
 ## Owner's direction (2026-11-20)
 - The same cutscene every time. Later one version per winning-team size (1 to 5), each with its own motion.
@@ -71,10 +71,30 @@ Every row also has "no accent". On the board (F4 in a match-place play test, CUT
 - **Clips:** `tools/anim/win_clips.py` (on the third-person rig in `tp_rig.py` / `tp_clips.py`): keys on monotone cubics (`spline_sequence`), feet kept on the floor (`solve_grounded`), the free hand carried onto the gun's grip over the two-handed window. `render`, `check`, `export`; upload with `tools/opencloud/upload_asset.py --type Animation`; ids in `Config/Animations` `WIN`.
 - **Stage:** a part tagged `WinnerStage` anywhere in the map (`workspace.ActiveMap`): its position = the lead's spot on the floor, its LookVector = the way the winners face. No tag: the fallback spot on `workspace.Baseplate` (600, 0, 600), clear of every map's footprint. The client asks the server to stream that area in; if the Baseplate still isn't there, a plain floor is made for the cutscene.
 
-### Adding the 2-5 player versions
-1. Key the clips in `win_clips.py` as `Win2_1`, `Win2_2`, ... (+ `Hold`), each slot with its own motion, on the same song times. Export, upload, add the ids to `Config/Animations` `WIN`.
-2. Add `SCENES[2]` (and so on) in `Config/WinCutscene.luau`: one slot per winner (`pos` in stage space, `yaw`, `clip`, `hold`) and its own shots framed for the group.
-3. Until a size has its own scene, the largest smaller scene plays and the extra winners stand in a V behind the lead (`EXTRA_SLOTS`) on the lead's clips.
+### 2 to 5 winners (round 3, 2026-11-20)
+Owner: "work on 2, 3, 4 and 5 player editions, get everybody to do stuff, the ending a similar angle where you can see the other players, in order of the best performing players."
+- **Order:** `MatchEndController.winnersOf` ranks the winning side: the MVP first, then eliminations, damage dealt, fewer deaths, assists (then still alive, then name). Slot 1 is the best.
+- **Spots by rank** (stage space, `RANKS` in the config), spread out (owner: the best one in the middle is the main subject, the others off to the sides): 1 front and centre; 2 right (4.2 out, 2.6 back); 3 left; 4 far right (9.0 out, 4.0 back); 5 far left. Each is turned 12-22 degrees toward the middle; the outer pair stands well out so it shows between the others from the low final camera.
+- **Everybody moves, each differently** (same song hits, own moves, own final pose; `tools/anim/win_group.py`):
+
+| Slot | Clip | Character | Moves | 5.36 | Final pose |
+|---|---|---|---|---|---|
+| 1 | `Win1_1` | the lead | the solo performance (gun up on the drop, the flex, "too easy", two-hand sweep) | spin-hop | gun raised beside the face, fist on the hip |
+| 2 | `WinS2` | the showman | arms out wide on the drop, fist pumps on 2.02 / 2.56 / 3.10 with the gun held out, points at the lead, beckons the lens one-handed | hop | down on one knee, fist on the knee, gun up on the outside |
+| 3 | `WinS3` | the cool one | late and smooth: gun onto the shoulder, a shrug, finger gun at the lens, turns to watch the lead, raises the gun slowly to the sky | stance switch, leans back | gun pointed down in front, hand on the hip, chin up |
+| 4 | `WinS4` | the hype one | bounces from the first hit, both arms up on the drop, fist pumps, points at the lens, a sideways one-handed aim at the lens, rocks back | big hop, both arms up | both arms up in a V |
+| 5 | `WinS5` | the chill one | head nods with the gun on the shoulder, a salute flicked out, admires the gun with both hands | lazy shrug | points at the sky, gun easy |
+
+- **Shots** (`group(n)` in the config): owner: while they move, the camera stays on the best player and the others are only seen round the edges; everyone is in full view in the last shot. So A-D are the solo shots on the lead, and E is the same low angle on the lead with the lens wider and a little further back, so the spread-out others stand in it.
+- More than 5 winners: scene 5 plays and the rest stand in `EXTRA_SLOTS` on the lead's clip.
+- Owner's 2-player reference (a RIVALS end screen, git-ignored, not committed): the pair close, #2 lower, the camera very low; a stat plate under each winner and a crown on the best (UI, see What to test).
+
+### Clipping and turned hands (round 3)
+Owner: "the way the hands are kind of turned, and a lot of times they clip through the body". Two causes, both measured on the rig:
+- **Turned hands:** the right fist is locked to the gun, so a canted gun twists the forearm (up to 70 degrees). The skinned forearm doesn't show twist, so the hand block looks turned against it.
+- **Clipping:** several keys put a forearm, a fist or the gun inside the chest or the head (worst: the low-ready forearm 0.82 studs into the chest, the raised gun arm 0.54 into the head).
+
+**Fix:** `tools/anim/win_check.py` tests every 60 Hz frame (arm blocks and the gun against the torso, hips, head, legs and the other arm, as boxes on the R15 sizes) and the wrist twist. `tools/anim/win_fix.py` clears each key with a small search: it moves the gun (pitch, yaw, cant, reach) and the free fist and elbow just far enough that nothing sits more than 0.1 studs inside the body, and keeps the forearm twist under 20 degrees, staying close to the authored pose. Results are cached per key (`win_fix_cache.json`), so editing a key re-fixes only that key. The game's own rifle hold measures about 0.3-0.5 on the same test (the skinned limbs hide small overlaps), so 0.1 is stricter than the gameplay clips.
 
 ### Per-map stage spots (owner, later)
 In each map, add a small anchored, invisible, non-colliding part named `WinnerStage`, tag it `WinnerStage` (CollectionService), put it on the floor where the lead should stand, and turn it so its front face points the way the winners should face. Leave about 12 studs clear in front, 8 to each side and 6 behind for a 5-player line-up and the cameras (shot A goes about 10 studs behind and 8 up).
@@ -98,7 +118,13 @@ Match place, Play, then in the **Client** command bar:
 require(game.ReplicatedStorage.Shared.StateValues).set(workspace, "PreviewWinCutscene", os.clock())
 ```
 
-It plays the cutscene with you as the winner (no results screen). Run it again to restart; `false` as the last argument stops it. To hold one frame (for captures), set `"PreviewWinCutsceneAt"` to a song time (a new value each time, e.g. 6.4 then 6.41); `false` plays on.
+It plays the cutscene with you as the winner (no results screen). Run it again to restart; `false` as the last argument stops it. For a group, first set how many winners (copies of you), 1 to 5:
+
+```lua
+require(game.ReplicatedStorage.Shared.StateValues).set(workspace, "PreviewWinCutsceneCount", 5)
+```
+
+ To hold one frame (for captures), set `"PreviewWinCutsceneAt"` to a song time (a new value each time, e.g. 6.4 then 6.41); `false` plays on.
 
 ## Captures (v6 shots A-D, v9 final; Studio, baseplate fallback stage)
 Frozen frames from the preview (`PreviewWinCutsceneAt`); the bars are the cutscene's own.
@@ -109,6 +135,13 @@ Frozen frames from the preview (`PreviewWinCutsceneAt`); the bars are the cutsce
 | ![C](Win%20Cutscene/C%20close%20up%203.40.jpg) C 3.40: close up, the "too easy" look into the lens | ![D](Win%20Cutscene/D%20spin%20hop%205.44.jpg) D 5.44: mid spin-hop (shadow on the floor) |
 | ![E](Win%20Cutscene/E%20low%20hero%207.60.jpg) E 7.60: the low hero shot after the owner's reference, held | ![Screen](Win%20Cutscene/E%20results%20screen.jpg) the results UI in over the held pose (a faked match end, 7.36 s) |
 
+**2-5 winners (round 3, Studio preview with copies of one avatar):**
+
+| | |
+|---|---|
+| ![2P](Win%20Cutscene/2P%20final.jpg) 2 winners, final: the lead in front, #2 down on one knee (after the owner's 2-player reference) | ![5P](Win%20Cutscene/5P%20final.jpg) 5 winners, final: the lead big in the middle, the others spread out, each in their own pose |
+| ![5P B](Win%20Cutscene/5P%20B%20flex%202.20.jpg) 5 winners at 2.20: the camera stays on the lead (the flex); the others do their own moves at the edges | |
+
 Measured in a play test: the clip and the song stay within 0.02 s of each other the whole way (60 fps); the hold loop takes over at 7.0 s; the screen comes in at 6.95; a click after 0.8 s jumps to the final pose and pulls the bars out.
 
 ## Review rounds
@@ -117,6 +150,7 @@ Measured in a play test: the clip and the song stay within 0.02 s of each other 
 - **v3-v4:** the thrust lowered to chest height still hid the face from the front-left camera, so 2.02 became **the flex** (arm out wide). E reframed to show the planted feet (FOV 50, look-at lower).
 - **v5:** the twirl kept low still folded the forearm past the chin (the rigid fist follows the gun's roll). **v6:** replaced by the **spin-hop** (the root turns, the clip tucks and lands).
 - **Round 2 (v7-v9, owner's additions):** v7 put the gun up with the camera low on their left: the gun hid behind the head. v8 moved the camera to their right and the gun up and out beside the face; it read edge-on. v9 rolls the gun so its side faces the lens (matches the reference's read). Sound cues measured and aligned; the screen waits for the pose and comes in together.
+- **Round 3 (owner: hands turned, clipping; 2-5 player versions):** the clip checker and fixer (see Clipping and turned hands) took the worst overlap from 0.82 to 0.37 studs (a frame or two mid-move; the game's own rifle hold measures 0.49 on the same test), the forearm twist stays under 20 degrees on every key, the hold no longer snaps the gun in at the crossfade (its reach was 0 against the clip's 0.8). Group versions: v1 had everyone within 3 studs and every winner doing the same thing at the same time (gun up on the drop, two-hand aim, hop/spin on 5.36); now spread out with their own moves, only the lead spins and #2 / #4 hop, the camera stays on the lead until the final. #3's final changed (pointed down in front, the gun hit the legs and the fixer twisted it up toward the face).
 - Self-grade (v6): about 7.5/10. Timing, cuts and the final frame read well; the flat baseplate background is the weakest part until each map has its `WinnerStage` spot. Block hands make the raised fist read a little like a wave.
 
 ## What to test
@@ -129,6 +163,8 @@ Measured in a play test: the clip and the song stay within 0.02 s of each other 
 - [ ] Click or press a key after the first second: it jumps to the final pose and the screen comes in.
 - [ ] At a low frame rate (Studio ~15 fps) the cuts still land on the hits and the camera moves smoothly.
 - [ ] The winner holds a pistol or the knife: the hand poses still read (the clips are keyed on the rifle grip).
-- [ ] 2v2 and larger: the lead plays the clip, the others stand in the V behind (until their own versions exist).
+- [ ] 2v2 to 5v5: the best performer (MVP, then eliminations, damage) is in the middle; the others stand spread out and each does their own moves; the camera stays on the best one until the final, where everyone is in view. Preview with `PreviewWinCutsceneCount`.
+- [ ] No hand or gun goes through a body or head; hands don't look twisted on the gun.
+- [ ] (UI, owner's reference) a stat plate under each winner and a crown on the best: not built yet (the results screen still has the scoreboard on the left).
 - [ ] Rematch / Play Again: the cutscene cleans up (no copies, bars, grade or flash left; camera back to normal).
 - [ ] A map with a `WinnerStage` part: it plays there, facing the part's front.

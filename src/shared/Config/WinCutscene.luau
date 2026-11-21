@@ -5,9 +5,10 @@
 -- 8.15 s). Every time below is SONG time: the cutscene starts the song and
 -- reads its clock from it.
 --
--- One scene per winning-team size (SCENES[1] .. SCENES[5]); a size with no
--- scene of its own uses the largest one below it, its extra winners standing
--- at EXTRA_SLOTS. Each scene: the winners' slots and clips, then the shots.
+-- One scene per winning-team size (SCENES[1] .. SCENES[5]; 2-5 are built by
+-- group() from the same shots); a bigger team uses SCENES[5], its extra
+-- winners standing at EXTRA_SLOTS. Winners come in order of performance
+-- (MatchEndController), slot 1 = the best. Each scene: the winners' slots and clips, then the shots.
 --
 -- Stage space: the origin is the stage anchor on the floor; a point is
 -- { right, up, forward } in studs, forward = where the winners face (the
@@ -64,6 +65,35 @@ export type Scene = {
 	kicks: { Kick },
 	flashes: { Flash },
 	cues: { Cue },
+}
+
+-- Shared by every scene: camera kicks on the accents, the sound accents
+-- under the song, the white flashes on the cuts.
+local KICKS: { Kick } = {
+	{ t = 0.14, shake = 0.35, decay = 0.35 },
+	{ t = 1.48, fov = -3, shake = 0.3, decay = 0.3 },
+	{ t = 1.82, shake = 0.25, decay = 0.2 },
+	{ t = 2.02, fov = -4, shake = 0.3, decay = 0.4 },
+	{ t = 4.02, shake = 0.2, decay = 0.25 },
+	{ t = 4.16, fov = -2, decay = 0.3 },
+	{ t = 5.36, fov = -2, decay = 0.35 },
+	{ t = 6.14, fov = -3, shake = 0.35, decay = 0.45 },
+	{ t = 6.8, fov = -1.5, shake = 0.15, decay = 0.4 },
+}
+
+-- (first options on the F4 board; the owner picks by ear)
+local CUES: { Cue } = {
+	{ name = "OPEN", t = 0.12, id = 9120729792, vol = 0.261, hit = 0.5 }, -- PSE Whoosh Impact 3 (big stinger, up and hit)
+	{ name = "CUT B", t = 1.48, id = 9120729925, vol = 0.238, hit = 0.56 }, -- PSE Whoosh Impact 5
+	{ name = "CUT D", t = 4.02, id = 9120716440, vol = 0.234, hit = 0.3 }, -- PSE Whoosh Fast Swish By 4
+	{ name = "SPIN", t = 5.44, id = 9126013644, vol = 0.262, hit = 0.14 }, -- PSE Swish Med High End Sharp 13
+	{ name = "FINAL", t = 6.14, id = 9125484367, vol = 0.24, hit = 0.11 }, -- PSE Deep Hit, Big Reverberant Boom
+}
+
+local FLASHES: { Flash } = {
+	{ t = 0.1, peak = 0.55, decay = 0.35 }, -- the slam: in from the replay
+	{ t = 1.46, peak = 0.18, decay = 0.2 },
+	{ t = 6.12, peak = 0.22, decay = 0.3 },
 }
 
 local SCENES: { [number]: Scene } = {
@@ -186,32 +216,138 @@ local SCENES: { [number]: Scene } = {
 				},
 			},
 		},
-		kicks = {
-			{ t = 0.14, shake = 0.35, decay = 0.35 },
-			{ t = 1.48, fov = -3, shake = 0.3, decay = 0.3 },
-			{ t = 1.82, shake = 0.25, decay = 0.2 },
-			{ t = 2.02, fov = -4, shake = 0.3, decay = 0.4 },
-			{ t = 4.02, shake = 0.2, decay = 0.25 },
-			{ t = 4.16, fov = -2, decay = 0.3 },
-			{ t = 5.36, fov = -2, decay = 0.35 },
-			{ t = 6.14, fov = -3, shake = 0.35, decay = 0.45 },
-			{ t = 6.8, fov = -1.5, shake = 0.15, decay = 0.4 },
-		},
-		-- (first options on the F4 board; the owner picks by ear)
-		cues = {
-			{ name = "OPEN", t = 0.12, id = 9120729792, vol = 0.261, hit = 0.5 }, -- PSE Whoosh Impact 3 (big stinger, up and hit)
-			{ name = "CUT B", t = 1.48, id = 9120729925, vol = 0.238, hit = 0.56 }, -- PSE Whoosh Impact 5
-			{ name = "CUT D", t = 4.02, id = 9120716440, vol = 0.234, hit = 0.3 }, -- PSE Whoosh Fast Swish By 4
-			{ name = "SPIN", t = 5.44, id = 9126013644, vol = 0.262, hit = 0.14 }, -- PSE Swish Med High End Sharp 13
-			{ name = "FINAL", t = 6.14, id = 9125484367, vol = 0.24, hit = 0.11 }, -- PSE Deep Hit, Big Reverberant Boom
-		},
-		flashes = {
-			{ t = 0.1, peak = 0.55, decay = 0.35 }, -- the slam: in from the replay
-			{ t = 1.46, peak = 0.18, decay = 0.2 },
-			{ t = 6.12, peak = 0.22, decay = 0.3 },
-		},
+		kicks = KICKS,
+		cues = CUES,
+		flashes = FLASHES,
 	},
 }
+
+-- 2 to 5 winners (owner 2026-11-20: everybody does something, in order of
+-- performance, the best in front; the same kind of shots, with the others
+-- in view). Slot 1 (the best) plays the solo clip; slots 2-5 each have
+-- their own (tools/anim/win_group.py) and their own hop or spin.
+-- The spots by rank: 1 front and centre, then right, left, far right, far
+-- left, each a step further back and turned a little toward the middle;
+-- tight together (owner's 2-player reference: the pair shoulder to
+-- shoulder, #2 a step back and down on one knee).
+local RANKS = {
+	{ pos = v(0, 0, 0), yaw = 0, clip = "Win1_1" },
+	{ pos = v(4.2, 0, -2.6), yaw = 12, clip = "WinS2" },
+	{ pos = v(-4.2, 0, -2.6), yaw = -12, clip = "WinS3" },
+	{ pos = v(9.0, 0, -4.0), yaw = 22, clip = "WinS4" },
+	{ pos = v(-9.0, 0, -4.0), yaw = -22, clip = "WinS5" },
+}
+-- Hops and spins by rank (only some: the others do grounded moves on 5.36)
+local HOPS: { [number]: { RootKey } } = {
+	[1] = SCENES[1].slots[1].root :: { RootKey }, -- the lead's spin-hop
+	[2] = {
+		{ t = 5.32, yaw = 0, lift = 0 },
+		{ t = 5.45, yaw = 0, lift = 0.85 },
+		{ t = 5.57, yaw = 0, lift = 0 },
+	}, -- a hop
+	[4] = {
+		{ t = 5.3, yaw = 0, lift = 0 },
+		{ t = 5.46, yaw = 0, lift = 1.05 },
+		{ t = 5.6, yaw = 0, lift = 0 },
+	}, -- a big hop
+}
+
+-- The group's shots: A-D are the solo shots on the best player (the others
+-- at the edges), the final shot takes everyone in: `w` = how far the
+-- outermost winner stands to the side, `d` how far back the back row is,
+-- `cx` the group's middle. The final shot is the solo's low angle centred between
+-- the lead and the group (owner's 2-player reference), the lens a little
+-- wider and further back, so the others stand in it.
+local FRONT_PULL = 0.45 -- the side cameras' sideways offset, scaled
+local FRONT_LIFT = 0.8 -- and lifted (studs)
+local FRONT_NEAR = 0.85 -- and brought in toward the lead
+
+local function group(n: number): Scene
+	local slots: { Slot } = {}
+	local cx, w, d = 0, 0, 0
+	for i = 1, n do
+		local r = RANKS[i]
+		table.insert(
+			slots,
+			{ pos = r.pos, yaw = r.yaw, clip = r.clip, hold = r.clip .. "Hold", root = HOPS[i] }
+		)
+		cx += r.pos.X / n
+		w = math.max(w, math.abs(r.pos.X))
+		d = math.max(d, -r.pos.Z)
+	end
+	-- (owner 2026-11-20: while they move, the camera stays on the best
+	-- player and the others are only seen round the edges; everyone is in
+	-- full view in the final shot. So A-D are the solo shots.)
+	local shots: { Shot } = {}
+	for i = 1, 4 do
+		-- the solo shot with its camera pulled round toward the front and a
+		-- touch higher, so the side cameras don't pass right by a flanker
+		-- (2026-11-20: the wide orbit put #3 as big as the lead)
+		local solo = SCENES[1].shots[i]
+		local keys: { Key } = {}
+		for _, key in solo.keys do
+			local e = key.eye
+			local front = e.Z > 0
+			local eye = if front then v(e.X * FRONT_PULL, e.Y + FRONT_LIFT, e.Z) else e
+			if front then
+				eye = key.at + (eye - key.at) * FRONT_NEAR -- in a little on the lead
+			end
+			table.insert(
+				keys,
+				{ t = key.t, eye = eye, at = key.at, fov = key.fov, roll = key.roll }
+			)
+		end
+		table.insert(shots, {
+			name = solo.name,
+			from = solo.from,
+			to = solo.to,
+			keys = keys,
+			startStill = solo.startStill,
+			finishStill = solo.finishStill,
+		})
+	end
+	local final: Shot = {
+		name = "E low hero",
+		from = 5.8,
+		to = 8.15,
+		keys = {
+			{
+				t = 5.8,
+				eye = v(1.0, 3.6, 7.6 + 0.4 * w),
+				at = v(0.2 * cx, 3.3, -0.2 * d),
+				fov = 46 + w,
+				roll = 0,
+			},
+			{
+				t = 6.3,
+				eye = v(0.3, 0.55 + 0.06 * w, 5.4 + 0.25 * w),
+				at = v(-0.1, 3.8 - 0.05 * w, -0.3 * d),
+				fov = 64 + 0.9 * w,
+				roll = 2,
+			},
+			{
+				t = 8.15,
+				eye = v(0.25, 0.4 + 0.06 * w, 4.9 + 0.25 * w),
+				at = v(-0.1, 3.95 - 0.05 * w, -0.3 * d),
+				fov = 66 + 0.9 * w,
+				roll = 1.5,
+			},
+		},
+	}
+	table.insert(shots, final)
+	return {
+		length = 8.15,
+		slots = slots,
+		shots = shots,
+		kicks = KICKS,
+		cues = CUES,
+		flashes = FLASHES,
+	}
+end
+
+for n = 2, 5 do
+	SCENES[n] = group(n)
+end
 
 return table.freeze({
 	SONG = "MatchEnd", -- Config/UiSounds cue; the cutscene's clock
