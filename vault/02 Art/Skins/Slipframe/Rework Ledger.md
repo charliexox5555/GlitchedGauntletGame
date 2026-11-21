@@ -86,6 +86,12 @@ The owner found the previous receiver glint hard to see at gameplay size and ask
 
 The camera clone uses the existing Guardian r05fx panel, inlay and blue fore-end MeshParts. The standard world gun, tracers, hit effects and audio retain their current presentation. The [VFX Design Playbook](../../../LihFolk/07%20Lighting%20VFX%20and%20Audio/VFX%20Design%20Playbook.md) informed the white core, blue edge and short falloff. Offline Luau checks covered the inspect sequence and reset, fire and reload fades, ADS attenuation, hiding, and the muzzle recipe and its stock and Shadow Mist fallbacks. In-game appearance remains open for owner review.
 
+### Inspect visibility and finish
+
+The owner liked the revised effect and reported that the support hand hid the front light during inspect. `InspectSlipframe` now owns a shorter 2.4 s presentation with a small left-facing turn. It skips the stock press-check clip, which moved the support hand off its grip. The panel still lifts, slides and returns. The three recessed contacts pass the light to a white leading edge with a blue wake along the upper titanium chamfer. A short receiver flash lands when the panel seats. The shot uses the same chamfer for its forward pulse.
+
+Offline checks sampled the default held camera, stock Grip and AimPoint frames, authored inspect keys, and both arm bounds through the sweep. Both light layers cleared the arms and stayed above the chamfer surface. The effect lifecycle, ADS attenuation, shot and reload resets, and first-person muzzle routing also passed offline. Studio appearance remains for owner review while Claude uses the place. The remaining roster is gated on Guardian approval.
+
 ## Review and install gates
 
 1. Capture matched stock and candidate hero, left, right, top, underside, join details, first-person and ADS views for every version. Check Fire, Reload, ReloadEmpty and Inspect poses where the stock source provides them.

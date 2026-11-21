@@ -11,14 +11,16 @@ type Finish = {
 	material: Enum.Material,
 }
 
+type RailLight = { part: Part, joint: Motor6D }
+
 export type State = {
 	panel: Motor6D,
 	insert: Finish,
 	seam: Finish,
 	foreEnd: Finish,
 	contacts: { Part },
-	railGlint: Part,
-	railMotion: Motor6D,
+	railHead: RailLight,
+	railWake: RailLight,
 	light: PointLight,
 	scale: number,
 	pulse: Pulse?,
@@ -30,6 +32,12 @@ local FIRE_TIME = 0.17
 local SEAT_TIME = 0.16
 local ICE = Color3.fromRGB(191, 232, 255)
 local BLUE = Color3.fromRGB(100, 175, 245)
+local WHITE = Color3.fromRGB(227, 248, 255)
+-- Center and orientation of the player-facing upper chamfer in Guardian r05fx,
+-- relative to the blue fore-end mesh in its imported axes.
+local CHAMFER_Y = 0.0825
+local CHAMFER_Z = 0.078
+local CHAMFER_ANGLE = math.atan2(-0.8, 0.6)
 
 local function finish(part: MeshPart): Finish
 	return { part = part, color = part.Color, material = part.Material }
@@ -74,6 +82,22 @@ local function contactsInRecess(model: Model, seam: MeshPart, scale: number): { 
 	return contacts
 end
 
+local function railLight(
+	model: Model,
+	foreEnd: MeshPart,
+	name: string,
+	size: Vector3,
+	color: Color3
+): RailLight
+	local part = glowPart(model, name, size, foreEnd.CFrame)
+	part.Color = color
+	local joint = Instance.new("Motor6D")
+	joint.Part0 = foreEnd
+	joint.Part1 = part
+	joint.Parent = part
+	return { part = part, joint = joint }
+end
+
 function SlipframeEffects.new(model: Model, scale: number): State?
 	local insert = model:FindFirstChild("SK_Root_SFInspectPanel")
 	local seam = model:FindFirstChild("SK_Root_SFSeam")
@@ -102,18 +126,6 @@ function SlipframeEffects.new(model: Model, scale: number): State?
 	weld:Destroy()
 	panel.Parent = insert
 
-	local railGlint = glowPart(
-		model,
-		"SlipframeRailGlint",
-		Vector3.new(0.24, 0.010, 0.0018) * scale,
-		foreEnd.CFrame
-	)
-	local railMotion = Instance.new("Motor6D")
-	railMotion.Name = "SlipframeRailMotion"
-	railMotion.Part0 = foreEnd
-	railMotion.Part1 = railGlint
-	railMotion.Parent = railGlint
-
 	local light = Instance.new("PointLight")
 	light.Name = "SlipframeReceiverLight"
 	light.Range = 2.2 * scale
@@ -129,8 +141,20 @@ function SlipframeEffects.new(model: Model, scale: number): State?
 		seam = finish(seam),
 		foreEnd = finish(foreEnd),
 		contacts = contactsInRecess(model, seam, scale),
-		railGlint = railGlint,
-		railMotion = railMotion,
+		railHead = railLight(
+			model,
+			foreEnd,
+			"SlipframeRailHead",
+			Vector3.new(0.060, 0.010, 0.0016) * scale,
+			WHITE
+		),
+		railWake = railLight(
+			model,
+			foreEnd,
+			"SlipframeRailWake",
+			Vector3.new(0.25, 0.018, 0.0016) * scale,
+			BLUE
+		),
 		light = light,
 		scale = scale,
 		elapsed = 0,
@@ -166,38 +190,50 @@ local function lightBody(state: State, receiver: number, foreEnd: number, bright
 	state.light.Brightness = brightness
 end
 
+local function hideRail(state: State)
+	state.railHead.part.Transparency = 1
+	state.railWake.part.Transparency = 1
+end
+
 local function drawRail(state: State, progress: number, opacity: number)
-	local plate = state.foreEnd.part.Size
+	if opacity <= 0 then
+		hideRail(state)
+		return
+	end
 	local scale = state.scale
-	local length = (0.27 - 0.09 * progress) * scale
-	state.railGlint.Size = Vector3.new(length, 0.010 * scale, 0.0018 * scale)
-	state.railMotion.Transform = CFrame.new(
-		(0.5 - progress) * (plate.X - length - 0.17 * scale),
-		0.0085 * scale,
-		plate.Z * 0.5 + 0.0012 * scale
-	)
-	state.railGlint.Transparency = 1 - opacity
+	local length = (0.28 - 0.085 * progress) * scale
+	local x = (0.5 - progress) * (state.foreEnd.part.Size.X - length - 0.17 * scale)
+	local frame = CFrame.new(x, CHAMFER_Y * scale, CHAMFER_Z * scale)
+		* CFrame.Angles(CHAMFER_ANGLE, 0, 0)
+	state.railWake.part.Size = Vector3.new(length, 0.018 * scale, 0.0016 * scale)
+	state.railWake.joint.Transform = frame * CFrame.new(0, 0, 0.0014 * scale)
+	state.railHead.joint.Transform = frame
+		* CFrame.new(-length * 0.5 + 0.03 * scale, 0, 0.0026 * scale)
+	state.railWake.part.Transparency = 1 - opacity * 0.62
+	state.railHead.part.Transparency = 1 - opacity
 end
 
 local function showInspect(state: State, progress: number)
-	local lift = ease(progress, 0.19, 0.24) - ease(progress, 0.755, 0.80)
-	local slide = ease(progress, 0.24, 0.34) - ease(progress, 0.68, 0.755)
+	local lift = ease(progress, 0.16, 0.22) - ease(progress, 0.78, 0.84)
+	local slide = ease(progress, 0.22, 0.31) - ease(progress, 0.70, 0.78)
 	state.panel.Transform =
 		CFrame.new(Vector3.new(0.072 * slide, 0.018 * slide, 0.019 * lift) * state.scale)
 
-	local fade = 1 - ease(progress, 0.63, 0.735)
+	local fade = 1 - ease(progress, 0.63, 0.74)
 	for i, contact in state.contacts do
-		local startAt = 0.32 + (i - 1) * 0.055
+		local startAt = 0.29 + (i - 1) * 0.055
 		local rise = ease(progress, startAt, startAt + 0.025)
 		local settle = ease(progress, startAt + 0.035, startAt + 0.15)
 		contact.Color = ICE:Lerp(BLUE, settle * 0.6)
 		contact.Transparency = 1 - rise * fade * (0.98 - 0.46 * settle)
 	end
-	local receiver = ease(progress, 0.32, 0.39) * fade
-	local foreEnd = ease(progress, 0.46, 0.54) * (1 - ease(progress, 0.56, 0.72))
+	local seat = 0.40 * ease(progress, 0.82, 0.84) * (1 - ease(progress, 0.84, 0.92))
+	local receiver = math.max(ease(progress, 0.29, 0.39) * fade, seat)
+	local foreEnd = ease(progress, 0.43, 0.55) * (1 - ease(progress, 0.62, 0.73))
 	lightBody(state, receiver, foreEnd * 0.76, receiver * 0.62 + foreEnd * 0.28)
-	local sweep = math.clamp((progress - 0.46) / 0.23, 0, 1)
-	drawRail(state, sweep, ease(sweep, 0, 0.12) * (1 - ease(sweep, 0.62, 1)))
+	local sweep = ease(progress, 0.43, 0.66)
+	local opacity = ease(progress, 0.43, 0.48) * (1 - ease(progress, 0.64, 0.735))
+	drawRail(state, sweep, opacity)
 end
 
 function SlipframeEffects.step(
@@ -230,13 +266,13 @@ function SlipframeEffects.step(
 				drawRail(state, math.clamp(t / 0.85, 0, 1), (1 - t) * (1 - 0.38 * ads))
 			else
 				lightBody(state, fade * 0.72, fade * 0.24, fade * 0.45)
-				state.railGlint.Transparency = 1
+				hideRail(state)
 			end
 			return
 		end
 	end
 	state.pulse = nil
-	state.railGlint.Transparency = 1
+	hideRail(state)
 	lightBody(state, 0, 0, 0)
 end
 
