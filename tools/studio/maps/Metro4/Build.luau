@@ -1,0 +1,2206 @@
+--!strict
+-- Metro4 (large map, 2v2-3v3), the whole build (2026-11-20). Plan, RIVALS Big Station study, layout and build log:
+-- vault/01 Design/Maps/Metro4.md. Layout rows mirror tools/maps/metro4_layout.py (the A half is turned 180 degrees
+-- for team B). Match place only, edit mode. Returns a function; run it with require(<a clone of this module>)().
+--
+-- Built the Wharf way (owner 2026-11-20): Parts on the 5-stud module, carved ends, our own soft MaterialVariants
+-- (Metro_Tile / Metro_Brick / Metro_Facade + Wharf_*), lively colours (trains striped in each half's colour: A blue,
+-- B green; a yellow footbridge; brick ticket halls; cream shops), no text signs. The hall has a faceted glazed roof on
+-- trusses and open ends: the tracks run out into a city with tunnel portals, mountains beyond.
+-- Collision: layout boxes (invisible) for trains, blocks, low cover; floors, steps, parapets, columns, bridge are
+-- their own collision. Contract: Spawns (ArenaSpawn_A/B), Barriers (empty), Bounds (+25 ceiling under the roof),
+-- KillDepth + Lighting (authored data 413 / 414), LightingFx, WinnerStage.
+
+local CollectionService = game:GetService("CollectionService")
+local MaterialService = game:GetService("MaterialService")
+local ServerStorage = game:GetService("ServerStorage")
+
+local ORIGIN = CFrame.new(6000, 200, 12500) -- concourse floor at the hall centre
+local ROT = CFrame.Angles(0, math.pi, 0)
+local BED = -2.5
+
+local function hex(h: string): Color3
+	return Color3.fromHex(h)
+end
+-- Palette v2 (owner 2026-11-20 on v1: "some colours are too bright", "too cartoony"): muted, earthy, like a real
+-- station dressed the RIVALS way (beige / stone / brick / charcoal, colour only in small doses); side colours dulled.
+local C = {
+	tile = hex("A8A296"),
+	coping = hex("9C968B"),
+	concrete = hex("9C978E"),
+	concreteDark = hex("767169"),
+	ballast = hex("6E675F"),
+	sleeper = hex("8A857C"),
+	rail = hex("55595F"),
+	line = hex("B39545"),
+	steel = hex("3D3B38"), -- the hall's painted steel, warm charcoal
+	steelLight = hex("5A5752"),
+	yellow = hex("B8913E"), -- the footbridge, ochre
+	yellowDark = hex("8A6B2C"),
+	brick = hex("9E5A45"),
+	brickBase = hex("7E786F"),
+	stone = hex("D3C9B4"), -- cream stone dressings (surrounds, quoins, cornices)
+	render = hex("CFC4AD"),
+	glass = hex("2B323C"),
+	roofGlass = hex("C3D3DB"),
+	trainBody = hex("C4C8C6"),
+	trainSkirt = hex("4A4F57"),
+	trainRoof = hex("A9AEB3"),
+	rubber = hex("2B2D31"),
+	timber = hex("A98762"),
+	timberDark = hex("7E6447"),
+	soil = hex("4F4236"),
+	bush = hex("5E7F4C"),
+	bushDark = hex("4C6A3E"),
+	asphalt = hex("4A4D53"),
+	ground = hex("A9A398"),
+	land = hex("7E9468"),
+}
+local SIDE = {
+	A = { paint = hex("4A6E9A"), dark = hex("34506F") }, -- muted blue
+	B = { paint = hex("5E8A62"), dark = hex("436647") }, -- muted green
+}
+
+local VARIANTS = {
+	Metro_Tile = { "Slate", 5, "71874475147084", "82534382218216" },
+	Metro_Brick = { "Brick", 6, "87423292374546", "102189820953792" },
+	Metro_Facade = { "Concrete", 18, "103645488773834", "77884985112296" },
+	Metro_Facade2 = { "Concrete", 24, "73959586817999", "113011737919437" }, -- framed windows, 8 studs a storey
+	-- the Wharf v2 set (soft), shared
+	Wharf_Concrete = { "Concrete", 10, "98131730598502", "101527228918911" },
+	Wharf_Asphalt = { "Asphalt", 8, "129833585742683", "87143270766313" },
+	Wharf_Plank = { "WoodPlanks", 5, "93605016079302", "106545793761281" },
+	Wharf_Ribbed = { "Metal", 4, "135858628433618", "72834346090990" },
+	Wharf_Plate = { "DiamondPlate", 5, "116955307704363", "89970433895475" },
+}
+
+type Look = { color: Color3, mat: Enum.Material?, variant: string?, glass: boolean? }
+local function look(color: Color3, variant: string?, mat: Enum.Material?): Look
+	return { color = color, variant = variant, mat = mat }
+end
+local L = {
+	tile = look(C.tile, "Metro_Tile", Enum.Material.Slate),
+	coping = look(C.coping, "Wharf_Concrete", Enum.Material.Concrete),
+	concrete = look(C.concrete, "Wharf_Concrete", Enum.Material.Concrete),
+	concreteDark = look(C.concreteDark, "Wharf_Concrete", Enum.Material.Concrete),
+	ballast = look(C.ballast, "Wharf_Asphalt", Enum.Material.Asphalt),
+	asphalt = look(C.asphalt, "Wharf_Asphalt", Enum.Material.Asphalt),
+	ground = look(C.ground, "Wharf_Concrete", Enum.Material.Concrete),
+	sleeper = look(C.sleeper),
+	rail = look(C.rail),
+	line = look(C.line),
+	steel = look(C.steel),
+	steelLight = look(C.steelLight),
+	yellow = look(C.yellow, "Wharf_Plate", Enum.Material.DiamondPlate),
+	yellowFlat = look(C.yellow),
+	yellowDark = look(C.yellowDark),
+	brick = look(C.brick, "Metro_Brick", Enum.Material.Brick),
+	brickBase = look(C.brickBase, "Wharf_Concrete", Enum.Material.Concrete),
+	render = look(C.render, "Wharf_Concrete", Enum.Material.Concrete),
+	stone = look(C.stone, "Wharf_Concrete", Enum.Material.Concrete),
+	glass = look(C.glass),
+	trainBody = look(C.trainBody),
+	trainSkirt = look(C.trainSkirt),
+	trainRoof = look(C.trainRoof),
+	rubber = look(C.rubber),
+	plank = look(C.timber, "Wharf_Plank", Enum.Material.WoodPlanks),
+	plankDark = look(C.timberDark, "Wharf_Plank", Enum.Material.WoodPlanks),
+	soil = look(C.soil),
+	bush = look(C.bush),
+	bushDark = look(C.bushDark),
+	plate = look(C.steelLight, "Wharf_Plate", Enum.Material.DiamondPlate),
+}
+
+local function ensureVariants()
+	for name, v in VARIANTS do
+		local found = MaterialService:FindFirstChild(name)
+		local mv: MaterialVariant
+		if found and found:IsA("MaterialVariant") then
+			mv = found
+		else
+			mv = Instance.new("MaterialVariant")
+			mv.Name = name
+			mv.Parent = MaterialService
+		end
+		mv.BaseMaterial = (Enum.Material :: any)[v[1]]
+		mv.StudsPerTile = v[2]
+		mv.ColorMap = "rbxassetid://" .. v[3]
+		mv.NormalMap = "rbxassetid://" .. v[4]
+		mv.RoughnessMap = ""
+		mv.MaterialPattern = Enum.MaterialPattern.Regular
+	end
+end
+
+return function(): string
+	assert(game.PlaceId == 133387545285290, "Metro4: not the match place")
+	ensureVariants()
+	local old = workspace:FindFirstChild("Metro4")
+	if old then
+		old:Destroy()
+	end
+	local map = Instance.new("Model")
+	map.Name = "Metro4"
+	map.WorldPivot = ORIGIN
+	CollectionService:AddTag(map, "GGAsset_MatchMaps_413")
+	CollectionService:AddTag(map, "GauntletAuthoredData")
+
+	local function folder(parent: Instance, name: string): Folder
+		local f = Instance.new("Folder")
+		f.Name = name
+		f.Parent = parent
+		return f
+	end
+	local secCollision = folder(map, "Collision")
+	local secStructure = folder(map, "Structure")
+	local secTrains = folder(map, "Trains")
+	local secProps = folder(map, "Props")
+	local secWorld = folder(map, "World")
+	local secSpawns = folder(map, "Spawns")
+	folder(map, "Barriers")
+	local secBounds = folder(map, "Bounds")
+	local count = 0
+
+	local function part(
+		parent: Instance,
+		name: string,
+		size: Vector3,
+		cf: CFrame,
+		lk: Look,
+		solid: boolean?,
+		class: string?
+	): BasePart
+		local p = Instance.new(class or "Part") :: BasePart
+		p.Name = name
+		p.Anchored = true
+		p.Size = size
+		p.CFrame = ORIGIN * cf
+		p.Color = lk.color
+		p.Material = lk.mat or Enum.Material.SmoothPlastic
+		if lk.variant then
+			p.MaterialVariant = lk.variant
+		end
+		p.TopSurface = Enum.SurfaceType.Smooth
+		p.BottomSurface = Enum.SurfaceType.Smooth
+		p.CanCollide = solid == true
+		p.CanQuery = solid == true
+		p.CanTouch = false
+		p.CastShadow = math.max(size.X, size.Y, size.Z) >= 6
+		p.Parent = parent
+		count += 1
+		return p
+	end
+	local function wedge(
+		parent: Instance,
+		name: string,
+		size: Vector3,
+		cf: CFrame,
+		lk: Look,
+		solid: boolean?
+	): BasePart
+		return part(parent, name, size, cf, lk, solid, "WedgePart")
+	end
+	local function box(
+		parent: Instance,
+		name: string,
+		a: Vector3,
+		b: Vector3,
+		lk: Look,
+		solid: boolean?,
+		T: CFrame?
+	): BasePart
+		local lo, hi = a:Min(b), a:Max(b)
+		return part(
+			parent,
+			name,
+			hi - lo,
+			(T or CFrame.identity) * CFrame.new((lo + hi) / 2),
+			lk,
+			solid
+		)
+	end
+	local function col(
+		name: string,
+		x: number,
+		z: number,
+		sx: number,
+		sz: number,
+		h: number,
+		base: number,
+		T: CFrame,
+		mat: Enum.Material
+	): BasePart
+		local p = part(
+			secCollision,
+			name,
+			Vector3.new(sx, h - base, sz),
+			T * CFrame.new(x, (base + h) / 2, z),
+			{ color = C.concrete, mat = mat },
+			true
+		)
+		p.Transparency = 1
+		p.CastShadow = false
+		return p
+	end
+	local function beam(
+		parent: Instance,
+		name: string,
+		a: Vector3,
+		b: Vector3,
+		w: number,
+		h: number,
+		lk: Look,
+		solid: boolean?
+	)
+		local mid = (a + b) / 2
+		local len = (b - a).Magnitude
+		return part(parent, name, Vector3.new(w, h, len), CFrame.lookAt(mid, b), lk, solid)
+	end
+	local function kit(
+		lib: string,
+		piece: string,
+		parent: Instance,
+		cf: CFrame,
+		name: string?
+	): Model
+		local src = ServerStorage.MapKit:FindFirstChild(lib)
+			and ServerStorage.MapKit[lib]:FindFirstChild(piece)
+		assert(src and src:IsA("Model"), "missing kit piece " .. lib .. "." .. piece)
+		local m = src:Clone()
+		m.Name = name or piece
+		m:PivotTo(ORIGIN * cf)
+		m.Parent = parent
+		for _, d in m:GetDescendants() do
+			if d:IsA("BasePart") then
+				count += 1
+			end
+		end
+		return m
+	end
+
+	local halves =
+		{ { T = CFrame.identity, tag = "", side = SIDE.A }, { T = ROT, tag = "'", side = SIDE.B } }
+
+	------------------------------------------------------------------------------------------------ floors
+	local floors = folder(secStructure, "Floors")
+	for _, h in halves do
+		-- concourse tiles, the platform coping (with a small lip over the bed), the yellow line
+		box(
+			floors,
+			"Concourse",
+			Vector3.new(-115, -4, 17.2),
+			Vector3.new(115, 0, 105),
+			L.tile,
+			true,
+			h.T
+		)
+		box(
+			floors,
+			"Coping",
+			Vector3.new(-115, -0.6, 15.6),
+			Vector3.new(115, 0, 17.2),
+			L.coping,
+			true,
+			h.T
+		)
+		box(
+			floors,
+			"Platform face",
+			Vector3.new(-115, -4, 16),
+			Vector3.new(115, -0.6, 17.2),
+			L.concreteDark,
+			true,
+			h.T
+		)
+		box(
+			floors,
+			"Safety line",
+			Vector3.new(-115, -0.02, 18.4),
+			Vector3.new(115, 0.04, 19),
+			L.line,
+			false,
+			h.T
+		)
+	end
+	-- the bed (ballast), running out of the hall to the tunnel portals
+	box(
+		floors,
+		"Track bed",
+		Vector3.new(-420, -5, -15.6),
+		Vector3.new(420, BED, 15.6),
+		L.ballast,
+		true
+	)
+	-- the city ground round the hall (the tracks run in a cutting between)
+	for _, h in halves do
+		box(
+			floors,
+			"City ground",
+			Vector3.new(-700, -4, 105),
+			Vector3.new(700, 0, 700),
+			L.ground,
+			true,
+			h.T
+		)
+		box(
+			floors,
+			"City ground",
+			Vector3.new(115, -4, 16),
+			Vector3.new(700, 0, 105),
+			L.ground,
+			true,
+			h.T
+		)
+		box(
+			floors,
+			"City ground",
+			Vector3.new(-700, -4, 16),
+			Vector3.new(-115, 0, 105),
+			L.ground,
+			true,
+			h.T
+		)
+		box(
+			floors,
+			"Street",
+			Vector3.new(-700, -0.02, 150),
+			Vector3.new(700, 0.04, 175),
+			L.asphalt,
+			false,
+			h.T
+		)
+		box(
+			floors,
+			"Cutting wall",
+			Vector3.new(115, -4, 15.6),
+			Vector3.new(420, 0, 16),
+			L.concreteDark,
+			true,
+			h.T
+		)
+		box(
+			floors,
+			"Cutting wall",
+			Vector3.new(-420, -4, 15.6),
+			Vector3.new(-115, 0, 16),
+			L.concreteDark,
+			true,
+			h.T
+		)
+	end
+	-- rails and sleepers (two tracks at z +-11)
+	local track = folder(secStructure, "Track")
+	for _, tc in { 11, -11 } do
+		for _, rz in { tc - 2.2, tc + 2.2 } do
+			box(
+				track,
+				"Rail",
+				Vector3.new(-420, BED + 0.35, rz - 0.25),
+				Vector3.new(420, BED + 0.95, rz + 0.25),
+				L.rail
+			)
+		end
+		for x = -200, 200, 5 do
+			box(
+				track,
+				"Sleeper",
+				Vector3.new(x - 0.6, BED, tc - 3.6),
+				Vector3.new(x + 0.6, BED + 0.35, tc + 3.6),
+				L.sleeper
+			)
+		end
+	end
+	task.wait()
+
+	------------------------------------------------------------------------------------------------ trains
+	-- a metro car from Parts: skirt and bogies, white body, window band, doors and stripe in the side's paint,
+	-- roof with chamfered edges and an AC box, gangway ends or an angled cab nose. Collision: the layout box.
+	local function car(
+		name: string,
+		cx: number,
+		tc: number,
+		len: number,
+		side: { paint: Color3, dark: Color3 },
+		T: CFrame,
+		noseWest: boolean,
+		noseEast: boolean
+	)
+		local f = folder(secTrains, name)
+		local hx = len / 2
+		col(name, cx, tc, len, 10, 10, BED, T, Enum.Material.Metal)
+		local paint = look(side.paint)
+		local dark = look(side.dark)
+		box(
+			f,
+			"Skirt",
+			Vector3.new(cx - hx + 1, -1.2, tc - 4.4),
+			Vector3.new(cx + hx - 1, 0.3, tc + 4.4),
+			L.trainSkirt,
+			false,
+			T
+		)
+		for _, bx in { cx - hx + 8, cx + hx - 8 } do
+			box(
+				f,
+				"Bogie",
+				Vector3.new(bx - 4, BED + 1.15, tc - 3.6),
+				Vector3.new(bx + 4, -0.9, tc + 3.6),
+				L.rubber,
+				false,
+				T
+			)
+			for _, rz in { tc - 2.2, tc + 2.2 } do
+				box(
+					f,
+					"Wheels",
+					Vector3.new(bx - 3, BED + 0.95, rz - 0.2),
+					Vector3.new(bx + 3, BED + 1.5, rz + 0.2),
+					L.trainSkirt,
+					false,
+					T
+				)
+			end
+		end
+		box(
+			f,
+			"Body",
+			Vector3.new(cx - hx, 0.3, tc - 4.8),
+			Vector3.new(cx + hx, 9.4, tc + 4.8),
+			L.trainBody,
+			false,
+			T
+		)
+		box(
+			f,
+			"Roof",
+			Vector3.new(cx - hx + 0.4, 9.4, tc - 4.2),
+			Vector3.new(cx + hx - 0.4, 10, tc + 4.2),
+			L.trainRoof,
+			false,
+			T
+		)
+		for _, s in { -1, 1 } do
+			-- roof edge chamfer (a wedge on the body top, sloping out)
+			wedge(
+				f,
+				"Roof chamfer",
+				Vector3.new(len - 0.8, 0.6, 0.6),
+				T
+					* CFrame.new(cx, 9.7, tc + s * 4.5)
+					* CFrame.Angles(0, if s > 0 then math.pi else 0, 0),
+				L.trainRoof
+			)
+			local zf = tc + s * 4.8
+			box(
+				f,
+				"Window band",
+				Vector3.new(cx - hx + 1.5, 4.4, zf),
+				Vector3.new(cx + hx - 1.5, 7.2, zf + 0.08 * s),
+				L.glass,
+				false,
+				T
+			)
+			box(
+				f,
+				"Stripe",
+				Vector3.new(cx - hx + 0.2, 1.8, zf),
+				Vector3.new(cx + hx - 0.2, 2.8, zf + 0.1 * s),
+				paint,
+				false,
+				T
+			)
+			for _, dx in { -14, 0, 14 } do
+				local x = cx + dx
+				box(
+					f,
+					"Door",
+					Vector3.new(x - 2, 0.6, zf),
+					Vector3.new(x + 2, 8.2, zf + 0.16 * s),
+					paint,
+					false,
+					T
+				)
+				box(
+					f,
+					"Door glass",
+					Vector3.new(x - 1.5, 4.6, zf),
+					Vector3.new(x + 1.5, 7.2, zf + 0.24 * s),
+					L.glass,
+					false,
+					T
+				)
+				box(
+					f,
+					"Door seam",
+					Vector3.new(x - 0.06, 0.7, zf),
+					Vector3.new(x + 0.06, 8.1, zf + 0.26 * s),
+					dark,
+					false,
+					T
+				)
+			end
+		end
+		box(
+			f,
+			"AC unit",
+			Vector3.new(cx - 5, 10, tc - 3),
+			Vector3.new(cx + 5, 11, tc + 3),
+			L.trainRoof,
+			false,
+			T
+		)
+		-- ends: a cab nose (angled plate + windscreen) or a gangway bellows
+		for _, e in { { -1, noseWest }, { 1, noseEast } } do
+			local s, nose = e[1], e[2]
+			local xe = cx + s * hx
+			if nose then
+				wedge(
+					f,
+					"Cab nose",
+					Vector3.new(9.6, 6.5, 1.6),
+					T
+						* CFrame.new(xe + s * 0.8, 3.55, tc)
+						* CFrame.Angles(0, if s > 0 then -math.pi / 2 else math.pi / 2, 0),
+					L.trainBody
+				)
+				box(
+					f,
+					"Windscreen",
+					Vector3.new(math.min(xe, xe + s * 0.12), 6.8, tc - 3.6),
+					Vector3.new(math.max(xe, xe + s * 0.12), 9, tc + 3.6),
+					L.glass,
+					false,
+					T
+				)
+				box(
+					f,
+					"Cab band",
+					Vector3.new(math.min(xe, xe + s * 0.12), 1.8, tc - 3.6),
+					Vector3.new(math.max(xe, xe + s * 0.12), 2.8, tc + 3.6),
+					paint,
+					false,
+					T
+				)
+			else
+				box(
+					f,
+					"Gangway",
+					Vector3.new(math.min(xe, xe + s * 0.8), 1, tc - 2.8),
+					Vector3.new(math.max(xe, xe + s * 0.8), 8.2, tc + 2.8),
+					L.rubber,
+					false,
+					T
+				)
+			end
+		end
+	end
+	for _, h in halves do
+		car("Car 1" .. h.tag, -83, 11, 48, h.side, h.T, true, false)
+		car("Car 2" .. h.tag, -28, 11, 48, h.side, h.T, false, true)
+		-- the yellow work wagon on the open stretch of the track
+		local f = folder(secTrains, "Work wagon" .. h.tag)
+		col("Work wagon" .. h.tag, 75, 11, 15, 10, 10, BED, h.T, Enum.Material.Metal)
+		box(
+			f,
+			"Frame",
+			Vector3.new(67.5, -1.2, 6.4),
+			Vector3.new(82.5, 0.3, 15.6),
+			L.trainSkirt,
+			false,
+			h.T
+		)
+		for _, bx in { 71, 79 } do
+			box(
+				f,
+				"Bogie",
+				Vector3.new(bx - 2.5, BED + 1.15, 7.4),
+				Vector3.new(bx + 2.5, -0.9, 14.6),
+				L.rubber,
+				false,
+				h.T
+			)
+			for _, rz in { 8.8, 13.2 } do
+				box(
+					f,
+					"Wheels",
+					Vector3.new(bx - 2, BED + 0.95, rz - 0.2),
+					Vector3.new(bx + 2, BED + 1.5, rz + 0.2),
+					L.trainSkirt,
+					false,
+					h.T
+				)
+			end
+		end
+		box(
+			f,
+			"Van",
+			Vector3.new(67.5, 0.3, 6),
+			Vector3.new(82.5, 9.4, 16),
+			look(C.yellow, "Wharf_Ribbed", Enum.Material.Metal),
+			false,
+			h.T
+		)
+		box(
+			f,
+			"Van roof",
+			Vector3.new(67.9, 9.4, 6.6),
+			Vector3.new(82.1, 10, 15.4),
+			L.yellowDark,
+			false,
+			h.T
+		)
+		for _, s in { -1, 1 } do
+			wedge(
+				f,
+				"Roof chamfer",
+				Vector3.new(14.2, 0.6, 0.6),
+				h.T
+					* CFrame.new(75, 9.7, 11 + s * 4.7)
+					* CFrame.Angles(0, if s > 0 then math.pi else 0, 0),
+				L.yellowDark
+			)
+			box(
+				f,
+				"Hazard band",
+				Vector3.new(67.7, 0.8, 11 + s * 5),
+				Vector3.new(82.3, 1.6, 11 + s * 5.1),
+				L.rubber,
+				false,
+				h.T
+			)
+		end
+	end
+	task.wait()
+
+	-------------------------------------------------------------------------------------------- footbridge
+	local bridge = folder(secStructure, "Footbridge")
+	box(bridge, "Deck", Vector3.new(-3, 13, -38), Vector3.new(3, 14, 38), L.yellow, true)
+	for _, x in { -2.6, 2.6 } do
+		box(
+			bridge,
+			"Girder",
+			Vector3.new(x - 0.4, 11.5, -38),
+			Vector3.new(x + 0.4, 13, 38),
+			L.yellowDark,
+			false
+		)
+	end
+	-- side parapets (once, for both halves): the east side is open where A's stair leaves (z 32..38), the west
+	-- side where B's does (z -38..-32); the rail caps stop short of the end caps
+	local ribY = look(C.yellow, "Wharf_Ribbed", Enum.Material.Metal)
+	box(bridge, "Parapet", Vector3.new(3, 14, -37.6), Vector3.new(3.4, 17.5, 32), ribY, true)
+	box(bridge, "Parapet", Vector3.new(-3.4, 14, -32), Vector3.new(-3, 17.5, 37.6), ribY, true)
+	box(
+		bridge,
+		"Rail cap",
+		Vector3.new(2.9, 17.5, -37.5),
+		Vector3.new(3.5, 17.8, 32),
+		L.yellowDark,
+		false
+	)
+	box(
+		bridge,
+		"Rail cap",
+		Vector3.new(-3.5, 17.5, -32),
+		Vector3.new(-2.9, 17.8, 37.5),
+		L.yellowDark,
+		false
+	)
+	-- glazed upper sides to +21 and a light roof (owner rule: no unplanned perches): without them a player hops the
+	-- 3.5 parapet and drops onto the train roofs. The glass blocks players, not bullets (CanQuery off).
+	local function glassSide(a0: Vector3, b0: Vector3)
+		local g = box(
+			bridge,
+			"Side glass",
+			a0,
+			b0,
+			{ color = C.roofGlass, mat = Enum.Material.Glass },
+			true
+		)
+		g.CanQuery = false
+		g.Transparency = 0.5
+		g.CastShadow = false
+	end
+	glassSide(Vector3.new(3.05, 17.8, -37.6), Vector3.new(3.35, 21, 32))
+	glassSide(Vector3.new(-3.35, 17.8, -32), Vector3.new(-3.05, 21, 37.6))
+	for z = -36, 36, 6 do
+		if z < 32 then
+			box(
+				bridge,
+				"Glazing post",
+				Vector3.new(3, 17.8, z - 0.15),
+				Vector3.new(3.4, 21, z + 0.15),
+				L.yellowDark,
+				false
+			)
+		end
+		if z > -32 then
+			box(
+				bridge,
+				"Glazing post",
+				Vector3.new(-3.4, 17.8, z - 0.15),
+				Vector3.new(-3, 21, z + 0.15),
+				L.yellowDark,
+				false
+			)
+		end
+	end
+	box(
+		bridge,
+		"Roof",
+		Vector3.new(-3.8, 21, -38.4),
+		Vector3.new(3.8, 21.6, 38.4),
+		look(C.steelLight, "Wharf_Ribbed", Enum.Material.Metal),
+		true
+	)
+	for _, x in { -3.6, 3.6 } do
+		wedge(
+			bridge,
+			"Roof edge",
+			Vector3.new(76.8, 0.4, 0.4),
+			CFrame.new(x, 21.8, 0)
+				* CFrame.Angles(0, if x > 0 then -math.pi / 2 else math.pi / 2, 0)
+				* CFrame.Angles(0, if x > 0 then 0 else 0, 0),
+			L.steelLight
+		)
+	end
+	for _, h in halves do
+		-- columns (on the platform, under the deck and the landing), parapets, the stair down into the concourse
+		box(
+			bridge,
+			"Column",
+			Vector3.new(-1, 0, 24),
+			Vector3.new(1, 11.5, 26),
+			L.yellowDark,
+			true,
+			h.T
+		)
+		box(
+			bridge,
+			"Column foot",
+			Vector3.new(-1.6, 0, 23.4),
+			Vector3.new(1.6, 0.6, 26.6),
+			L.concreteDark,
+			false,
+			h.T
+		)
+		box(
+			bridge,
+			"Column",
+			Vector3.new(-0.6, 0, 36.4),
+			Vector3.new(0.6, 11.5, 37.6),
+			L.yellowDark,
+			true,
+			h.T
+		)
+		box(
+			bridge,
+			"Parapet",
+			Vector3.new(-3, 14, 37.6),
+			Vector3.new(3, 17.5, 38),
+			look(C.yellow, "Wharf_Ribbed", Enum.Material.Metal),
+			true,
+			h.T
+		)
+		box(
+			bridge,
+			"Rail cap",
+			Vector3.new(-3.1, 17.5, 37.5),
+			Vector3.new(3.1, 17.8, 38.1),
+			L.yellowDark,
+			false,
+			h.T
+		)
+		local eg = box(
+			bridge,
+			"End glass",
+			Vector3.new(-3.05, 17.8, 37.65),
+			Vector3.new(3.05, 21, 37.95),
+			{ color = C.roofGlass, mat = Enum.Material.Glass },
+			true,
+			h.T
+		)
+		eg.CanQuery = false
+		eg.Transparency = 0.5
+		eg.CastShadow = false
+		-- the stair opening keeps its glass up to the roof too (a door-high gap, 3.4 wide, under a lintel)
+		-- stair: x 3 -> 31 at z 32..38, 14 down to 0 (a smooth wedge for the walk, treads, stringers, handrails)
+		local ramp = wedge(
+			secCollision,
+			"Bridge stair" .. h.tag,
+			Vector3.new(6, 14, 28),
+			h.T * CFrame.new(17, 7, 35) * CFrame.Angles(0, -math.pi / 2, 0),
+			{ color = C.steel, mat = Enum.Material.Metal },
+			true
+		)
+		ramp.Transparency = 1
+		ramp.CastShadow = false
+		for k = 1, 14 do
+			local x1 = 31 - 2 * (k - 1)
+			box(
+				bridge,
+				"Tread",
+				Vector3.new(x1 - 2, k - 0.8, 32.3),
+				Vector3.new(x1, k - 0.4, 37.7),
+				L.plate,
+				false,
+				h.T
+			)
+		end
+		local ang = math.atan2(14, 28)
+		local slen = math.sqrt(28 * 28 + 14 * 14)
+		for _, zz in { 32.15, 37.85 } do
+			part(
+				bridge,
+				"Stringer",
+				Vector3.new(slen - 0.6, 1, 0.3),
+				h.T * CFrame.new(17, 7 - 0.3, zz) * CFrame.Angles(0, 0, -ang),
+				L.yellowDark
+			)
+			part(
+				bridge,
+				"Handrail",
+				Vector3.new(slen - 0.8, 0.3, 0.24),
+				h.T * CFrame.new(17, 7 + 3.3, zz) * CFrame.Angles(0, 0, -ang),
+				L.yellowDark
+			)
+			for k = 0, 3 do
+				local xx = 29.5 - k * 8.5
+				local yy = (31 - xx) / 2
+				box(
+					bridge,
+					"Handrail post",
+					Vector3.new(xx - 0.1, yy, zz - 0.1),
+					Vector3.new(xx + 0.1, yy + 3.2, zz + 0.1),
+					L.yellowDark,
+					false,
+					h.T
+				)
+			end
+		end
+	end
+	task.wait()
+
+	------------------------------------------------------------------------------------------ hall structure
+	local hall = folder(secStructure, "Hall")
+	-- the faceted roof profile across the hall (z, y): a train shed's arch made of straight segments
+	local P =
+		{ { -105, 26 }, { -75, 32 }, { -40, 37 }, { 0, 39 }, { 40, 37 }, { 75, 32 }, { 105, 26 } }
+	local function roofY(z: number): number
+		for i = 1, #P - 1 do
+			local a, b = P[i], P[i + 1]
+			if z >= a[1] and z <= b[1] then
+				return a[2] + (b[2] - a[2]) * (z - a[1]) / (b[1] - a[1])
+			end
+		end
+		return 26
+	end
+	local TRUSS = { -115, -90, -60, -30, 0, 30, 60, 90, 115 }
+	for _, x in TRUSS do
+		for i = 1, #P - 1 do
+			local a, b = P[i], P[i + 1]
+			local wTop = if i % 2 == 0 then 1.3 else 1.2
+			local wBot = if i % 2 == 0 then 0.9 else 0.8
+			beam(
+				hall,
+				"Top chord",
+				Vector3.new(x, a[2], a[1]),
+				Vector3.new(x, b[2], b[1]),
+				wTop,
+				1.6,
+				L.steel
+			)
+			beam(
+				hall,
+				"Bottom chord",
+				Vector3.new(x, a[2] - 2.6, a[1]),
+				Vector3.new(x, b[2] - 2.6, b[1]),
+				wBot,
+				0.8,
+				L.steel
+			)
+		end
+		for i = 2, #P - 1 do
+			box(
+				hall,
+				"Post",
+				Vector3.new(x - 0.35, P[i][2] - 2.2, P[i][1] - 0.35),
+				Vector3.new(x + 0.35, P[i][2] - 0.8, P[i][1] + 0.35),
+				L.steelLight
+			)
+		end
+	end
+	-- glazing: one panel per bay per segment, resting on the chords (pale glass)
+	for t = 1, #TRUSS - 1 do
+		local xa, xb = TRUSS[t], TRUSS[t + 1]
+		for i = 1, #P - 1 do
+			local a, b = P[i], P[i + 1]
+			local A = Vector3.new((xa + xb) / 2, a[2], a[1])
+			local B = Vector3.new((xa + xb) / 2, b[2], b[1])
+			local cf = CFrame.lookAt((A + B) / 2, B)
+			local g = part(
+				hall,
+				"Roof glass",
+				Vector3.new(xb - xa - 1.2, 0.3, (B - A).Magnitude),
+				cf * CFrame.new(0, 0.95, 0),
+				{ color = C.roofGlass, mat = Enum.Material.Glass }
+			)
+			g.Transparency = 0.45
+			g.CastShadow = false
+		end
+	end
+	-- purlins along the hall at the roof joints
+	for i = 2, #P - 1 do
+		box(
+			hall,
+			"Purlin",
+			Vector3.new(-115, P[i][2] + 0.8, P[i][1] - 0.4),
+			Vector3.new(115, P[i][2] + 1.4, P[i][1] + 0.4),
+			L.steelLight
+		)
+	end
+	for _, h in halves do
+		-- platform columns (z 25) up to the bottom chord, with foot and capital (solid: they're cover)
+		for _, x in { -115 + 1, -90, -60, -30, 30, 60, 90, 115 - 1 } do
+			local top = roofY(25) - 2.6
+			box(
+				hall,
+				"Column",
+				Vector3.new(x - 1, 0, 24),
+				Vector3.new(x + 1, top, 26),
+				L.steel,
+				true,
+				h.T
+			)
+			box(
+				hall,
+				"Column foot",
+				Vector3.new(x - 1.5, 0, 23.5),
+				Vector3.new(x + 1.5, 0.7, 26.5),
+				L.concreteDark,
+				false,
+				h.T
+			)
+			box(
+				hall,
+				"Column cap",
+				Vector3.new(x - 1.5, top - 0.7, 23.5),
+				Vector3.new(x + 1.5, top + 0.1, 26.5),
+				L.steelLight,
+				false,
+				h.T
+			)
+		end
+		-- the long walls: brick to 12 on a base course, glazed above to the roof, pilasters on the truss lines
+		box(
+			hall,
+			"Wall base",
+			Vector3.new(-115, 0, 105),
+			Vector3.new(115, 1.5, 107),
+			L.brickBase,
+			true,
+			h.T
+		)
+		box(
+			hall,
+			"Wall",
+			Vector3.new(-115, 1.5, 105.4),
+			Vector3.new(115, 12, 107),
+			L.brick,
+			true,
+			h.T
+		)
+		box(
+			hall,
+			"Wall cornice",
+			Vector3.new(-115, 12, 104.9),
+			Vector3.new(115, 12.8, 107),
+			L.concreteDark,
+			false,
+			h.T
+		)
+		local gl = part(
+			hall,
+			"Wall glass",
+			Vector3.new(230, 13, 0.3),
+			h.T * CFrame.new(0, 19.3, 106.2),
+			{ color = C.roofGlass, mat = Enum.Material.Glass }
+		)
+		gl.Transparency = 0.45
+		gl.CastShadow = false
+		for x = -110, 110, 10 do
+			if x % 30 == 0 then
+				continue -- a pilaster stands there
+			end
+			box(
+				hall,
+				"Mullion",
+				Vector3.new(x - 0.25, 12.8, 105.9),
+				Vector3.new(x + 0.25, 26, 106.5),
+				L.steelLight,
+				false,
+				h.T
+			)
+		end
+		for _, x in TRUSS do
+			-- the end pilasters reach 0.2 past the wall ends (no shared end face)
+			local xa, xb = x - 1, x + 1
+			if x >= 115 then
+				xa, xb = 113, 115.2
+			elseif x <= -115 then
+				xa, xb = -115.2, -113
+			end
+			box(
+				hall,
+				"Pilaster",
+				Vector3.new(xa, 0, 104.6),
+				Vector3.new(xb, 26, 107.4),
+				L.steel,
+				false,
+				h.T
+			)
+		end
+	end
+	task.wait()
+
+	--------------------------------------------------------------------------------------- concourse blocks
+	local blocks = folder(secStructure, "Concourse")
+	local function crate(
+		parent: Instance,
+		name: string,
+		cx: number,
+		cz: number,
+		sx: number,
+		sz: number,
+		y0: number,
+		hh: number,
+		T: CFrame,
+		tilt: number?
+	)
+		local cf = T * CFrame.new(cx, y0 + hh / 2, cz) * CFrame.Angles(0, math.rad(tilt or 0), 0)
+		local body = part(parent, name, Vector3.new(sx, hh, sz), cf, L.plank, true)
+		body.Material = Enum.Material.WoodPlanks
+		for _, a in { -1, 1 } do
+			for _, b in { -1, 1 } do
+				part(
+					parent,
+					"Batten",
+					Vector3.new(0.7, hh - 0.04, 0.7),
+					cf * CFrame.new(a * (sx / 2 - 0.2), 0, b * (sz / 2 - 0.2)),
+					L.plankDark
+				)
+			end
+		end
+		part(
+			parent,
+			"Lid rim",
+			Vector3.new(sx + 0.1, 0.32, sz + 0.1),
+			cf * CFrame.new(0, hh / 2 - 0.22, 0),
+			L.plankDark
+		)
+		part(
+			parent,
+			"Band",
+			Vector3.new(sx + 0.1, 0.32, sz + 0.1),
+			cf * CFrame.new(0, -hh / 2 + 0.6, 0),
+			L.plankDark
+		)
+	end
+	for _, h in halves do
+		local T = h.T
+		local paint = look(h.side.paint)
+		local paintDark = look(h.side.dark)
+		-- ticket hall: brick on a base course, a cornice, tall windows and a door to the platform, a roof deck at
+		-- +10 with a parapet (openings at the stair and over the crate steps)
+		local th = folder(blocks, "Ticket hall" .. h.tag)
+		local x0, x1, z0, z1 = -90, -50, 45, 80
+		col(
+			"Ticket hall" .. h.tag,
+			(x0 + x1) / 2,
+			(z0 + z1) / 2,
+			x1 - x0,
+			z1 - z0,
+			10,
+			0,
+			T,
+			Enum.Material.Brick
+		)
+		-- v2: a stone base, brick walls, cream stone quoins at the corners, framed windows on every face that shows,
+		-- a framed door, a stepped stone cornice under the roof deck (gauntlet-build-style: every joint a transition)
+		box(
+			th,
+			"Base",
+			Vector3.new(x0 - 0.3, 0, z0 - 0.3),
+			Vector3.new(x1 + 0.2, 1.2, z1 + 0.3),
+			L.brickBase,
+			false,
+			T
+		)
+		box(th, "Walls", Vector3.new(x0, 1.2, z0), Vector3.new(x1, 9.2, z1), L.brick, false, T)
+		for _, cx in { x0, x1 } do
+			for _, cz in { z0, z1 } do
+				local ax, bx =
+					if cx == x0 then x0 - 0.25 else x1 - 1.4,
+					if cx == x0 then x0 + 1.4 else x1 + 0.25
+				local az, bz =
+					if cz == z0 then z0 - 0.25 else z1 - 1.4,
+					if cz == z0 then z0 + 1.4 else z1 + 0.25
+				box(
+					th,
+					"Quoin",
+					Vector3.new(ax, 1.2, az),
+					Vector3.new(bx, 9.2, bz),
+					L.stone,
+					false,
+					T
+				)
+			end
+		end
+		box(
+			th,
+			"Cornice",
+			Vector3.new(x0 - 0.45, 9.2, z0 - 0.45),
+			Vector3.new(x1 + 0.45, 9.6, z1 + 0.45),
+			L.stone,
+			false,
+			T
+		)
+		box(
+			th,
+			"Cornice top",
+			Vector3.new(x0 - 0.25, 9.6, z0 - 0.25),
+			Vector3.new(x1 + 0.25, 10, z1 + 0.25),
+			L.stone,
+			false,
+			T
+		)
+		box(
+			th,
+			"Roof deck",
+			Vector3.new(x0, 9.96, z0),
+			Vector3.new(x1, 10.02, z1),
+			L.plate,
+			false,
+			T
+		)
+		-- a framed opening on a face: face "S" (z0, out -Z), "N" (z1, out +Z), "W" (x0, out -X); u along the face
+		local function opening(
+			face: string,
+			u: number,
+			w: number,
+			y0: number,
+			y1: number,
+			fill: Look
+		)
+			local function rect(
+				a0: number,
+				a1: number,
+				ya: number,
+				yb: number,
+				d0: number,
+				d1: number,
+				lk: Look
+			)
+				if face == "S" then
+					box(
+						th,
+						"Surround",
+						Vector3.new(a0, ya, z0 - d1),
+						Vector3.new(a1, yb, z0 - d0),
+						lk,
+						false,
+						T
+					)
+				elseif face == "N" then
+					box(
+						th,
+						"Surround",
+						Vector3.new(a0, ya, z1 + d0),
+						Vector3.new(a1, yb, z1 + d1),
+						lk,
+						false,
+						T
+					)
+				else
+					box(
+						th,
+						"Surround",
+						Vector3.new(x0 - d1, ya, a0),
+						Vector3.new(x0 - d0, yb, a1),
+						lk,
+						false,
+						T
+					)
+				end
+			end
+			rect(u - w / 2, u + w / 2, y0, y1, -0.02, 0.05, fill) -- the glass / door leaf, just proud of the brick
+			rect(u - w / 2 - 0.6, u - w / 2, y0 - 0.1, y1 + 0.1, -0.02, 0.25, L.stone) -- jambs
+			rect(u + w / 2, u + w / 2 + 0.6, y0 - 0.1, y1 + 0.1, -0.02, 0.25, L.stone)
+			rect(u - w / 2 - 0.9, u + w / 2 + 0.9, y1 + 0.1, y1 + 0.9, -0.02, 0.35, L.stone) -- head
+			if y0 > 1.5 then
+				rect(u - w / 2 - 0.9, u + w / 2 + 0.9, y0 - 0.5, y0 - 0.1, -0.02, 0.45, L.stone) -- sill
+			end
+		end
+		for _, wx in { -84, -76, -66 } do
+			opening("S", wx, 4, 2.6, 7.8, L.glass)
+			opening("N", wx, 4, 2.6, 7.8, L.glass)
+		end
+		opening("N", -58, 4, 2.6, 7.8, L.glass)
+		opening("W", 68, 4, 2.6, 7.8, L.glass)
+		opening("W", 75, 4, 2.6, 7.8, L.glass)
+		opening("S", -56, 5, 1.2, 7.4, paint) -- the door to the platform
+		local function parapet(a: Vector3, b: Vector3, ca: Vector3, cb: Vector3)
+			box(th, "Parapet", a, b, L.brick, true, T)
+			box(
+				th,
+				"Parapet coping",
+				Vector3.new(ca.X, 13, ca.Z),
+				Vector3.new(cb.X, 13.3, cb.Z),
+				L.concreteDark,
+				false,
+				T
+			)
+		end
+		parapet(
+			Vector3.new(x0, 10, z0),
+			Vector3.new(x1, 13, z0 + 0.8),
+			Vector3.new(x0 - 0.15, 0, z0 - 0.15),
+			Vector3.new(x1 + 0.15, 0, z0 + 0.95)
+		) -- south
+		parapet(
+			Vector3.new(x0, 10, z1 - 0.8),
+			Vector3.new(x1 - 5, 13, z1),
+			Vector3.new(x0 - 0.15, 0, z1 - 0.95),
+			Vector3.new(x1 - 4.85, 0, z1 + 0.15)
+		) -- north (open over the stair top)
+		parapet(
+			Vector3.new(x0, 10, z0 + 0.8),
+			Vector3.new(x0 + 0.8, 13, 48),
+			Vector3.new(x0 - 0.15, 0, z0 + 0.95),
+			Vector3.new(x0 + 0.95, 0, 48.15)
+		) -- west, south of the crate opening
+		parapet(
+			Vector3.new(x0, 10, 57),
+			Vector3.new(x0 + 0.8, 13, z1 - 0.8),
+			Vector3.new(x0 - 0.15, 0, 56.85),
+			Vector3.new(x0 + 0.95, 0, z1 - 0.95)
+		) -- west, north of it
+		parapet(
+			Vector3.new(x1 - 0.8, 10, z0 + 0.8),
+			Vector3.new(x1, 13, 72),
+			Vector3.new(x1 - 0.95, 0, z0 + 0.95),
+			Vector3.new(x1 + 0.15, 0, 72.15)
+		) -- east, to the stair landing
+		-- the outside stair (x -50..-45, z 60 -> 80, 0 -> 10), steel with yellow nosings
+		local sr = wedge(
+			secCollision,
+			"Hall stair" .. h.tag,
+			Vector3.new(5, 10, 20),
+			T * CFrame.new(-47.5, 5, 70),
+			{ color = C.steel, mat = Enum.Material.Metal },
+			true
+		)
+		sr.Transparency = 1
+		sr.CastShadow = false
+		for k = 1, 10 do
+			local zt = 60 + 2 * k
+			box(
+				th,
+				"Tread",
+				Vector3.new(-49.5, k - 0.8, zt - 2),
+				Vector3.new(-45.3, k - 0.4, zt),
+				L.plate,
+				false,
+				T
+			)
+		end
+		local ang = math.atan2(10, 20)
+		local slen = math.sqrt(500)
+		for _, xx in { -49.85, -45.15 } do
+			part(
+				th,
+				"Stringer",
+				Vector3.new(0.3, 1, slen - 0.6),
+				T * CFrame.new(xx, 4.7, 70) * CFrame.Angles(-ang, 0, 0),
+				L.steel
+			)
+		end
+		part(
+			th,
+			"Handrail",
+			Vector3.new(0.24, 0.3, slen - 0.8),
+			T * CFrame.new(-45.15, 8.2, 70) * CFrame.Angles(-ang, 0, 0),
+			L.yellowDark
+		)
+		for k = 0, 3 do
+			local zz = 61 + k * 6
+			local yy = (zz - 60) / 2
+			box(
+				th,
+				"Handrail post",
+				Vector3.new(-45.25, yy, zz - 0.1),
+				Vector3.new(-45.05, yy + 3.4, zz + 0.1),
+				L.yellowDark,
+				false,
+				T
+			)
+		end
+		-- crate steps on the west (3.5 -> 7 -> deck 10)
+		crate(th, "Hall step high", -92.5, 52.5, 5, 5, 0, 3.5, T)
+		crate(th, "Hall step high top", -92.5, 52.5, 5, 5, 3.5, 3.5, T, 3)
+		crate(th, "Hall step low", -97.9, 52.4, 4.8, 4.8, 0, 3.5, T, -2)
+
+		-- shop block: cream render, shopfronts (dark glass) under sloped awnings in the side's paint, a flat roof
+		local sh = folder(blocks, "Shops" .. h.tag)
+		local sx0, sx1, sz0, sz1 = 57.5, 87.5, 32.5, 57.5
+		col(
+			"Shops" .. h.tag,
+			(sx0 + sx1) / 2,
+			(sz0 + sz1) / 2,
+			sx1 - sx0,
+			sz1 - sz0,
+			10,
+			0,
+			T,
+			Enum.Material.Concrete
+		)
+		-- v2: stone base, rendered walls, stone pilasters at the corners and between bays, a dark fascia over the
+		-- shopfronts, framed shop windows (mullions + transom), awnings under the fascia, a stepped cornice
+		box(
+			sh,
+			"Base",
+			Vector3.new(sx0 - 0.3, 0, sz0 - 0.3),
+			Vector3.new(sx1 + 0.3, 1, sz1 + 0.3),
+			L.brickBase,
+			false,
+			T
+		)
+		box(sh, "Walls", Vector3.new(sx0, 1, sz0), Vector3.new(sx1, 9.3, sz1), L.render, false, T)
+		box(
+			sh,
+			"Cornice",
+			Vector3.new(sx0 - 0.45, 9.3, sz0 - 0.45),
+			Vector3.new(sx1 + 0.45, 9.7, sz1 + 0.45),
+			L.stone,
+			false,
+			T
+		)
+		box(
+			sh,
+			"Cornice top",
+			Vector3.new(sx0 - 0.25, 9.7, sz0 - 0.25),
+			Vector3.new(sx1 + 0.25, 10, sz1 + 0.25),
+			L.stone,
+			false,
+			T
+		)
+		local fasciaLook = look(hex("3F3D3A"))
+		box(
+			sh,
+			"Fascia",
+			Vector3.new(sx0 + 1.2, 6.8, sz0 - 0.3),
+			Vector3.new(sx1 - 1.2, 7.8, sz0),
+			fasciaLook,
+			false,
+			T
+		)
+		box(
+			sh,
+			"Fascia",
+			Vector3.new(sx0 - 0.3, 6.8, sz0 + 1.2),
+			Vector3.new(sx0, 7.8, sz1 - 1.2),
+			fasciaLook,
+			false,
+			T
+		)
+		for _, px in { sx0, 71, sx1 } do
+			local a0, a1 = px - 0.6, px + 0.6
+			local zb = sz0 + 0.02
+			if px == sx0 then
+				a0, a1 = sx0 - 0.4, sx0 + 1.2
+				zb = sz0 + 1.2 -- the corner block wraps onto the west face
+			elseif px == sx1 then
+				a0, a1 = sx1 - 1.2, sx1 + 0.4
+			end
+			box(
+				sh,
+				"Pilaster",
+				Vector3.new(a0, 1, sz0 - 0.4),
+				Vector3.new(a1, 9.3, zb),
+				L.stone,
+				false,
+				T
+			)
+		end
+		for _, pz in { 45.5, sz1 - 0.6 } do
+			box(
+				sh,
+				"Pilaster",
+				Vector3.new(sx0 - 0.4, 1, pz - 0.6),
+				Vector3.new(sx0 + 0.02, 9.3, pz + 0.6),
+				L.stone,
+				false,
+				T
+			)
+		end
+		local function shopfront(a0: number, a1: number, alongZ: boolean)
+			local function r(
+				u0: number,
+				u1: number,
+				ya: number,
+				yb: number,
+				d0: number,
+				d1: number,
+				lk: Look
+			)
+				if alongZ then
+					box(
+						sh,
+						"Shopfront",
+						Vector3.new(sx0 - d1, ya, u0),
+						Vector3.new(sx0 - d0, yb, u1),
+						lk,
+						false,
+						T
+					)
+				else
+					box(
+						sh,
+						"Shopfront",
+						Vector3.new(u0, ya, sz0 - d1),
+						Vector3.new(u1, yb, sz0 - d0),
+						lk,
+						false,
+						T
+					)
+				end
+			end
+			r(a0, a1, 1.4, 6.6, -0.02, 0.06, L.glass)
+			r(a0 + 0.05, a1 - 0.05, 5.2, 5.45, -0.02, 0.16, fasciaLook) -- transom
+			r(a0, a1, 1.0, 1.4, -0.02, 0.2, fasciaLook) -- stall riser
+			local n = math.max(2, math.floor((a1 - a0) / 3.5))
+			for k = 1, n - 1 do
+				local u = a0 + (a1 - a0) * k / n
+				r(u - 0.12, u + 0.12, 1.45, 6.55, -0.02, 0.14, fasciaLook) -- mullions
+			end
+		end
+		shopfront(59.2, 69.8, false)
+		shopfront(72.2, 86.2, false)
+		shopfront(34.4, 44.3, true)
+		shopfront(46.7, 55.6, true)
+		wedge(
+			sh,
+			"Awning",
+			Vector3.new(10.4, 0.9, 1.8),
+			T * CFrame.new(64.5, 6.35, sz0 - 1.2),
+			paint
+		)
+		wedge(
+			sh,
+			"Awning",
+			Vector3.new(9, 0.9, 1.8),
+			T * CFrame.new(sx0 - 1.2, 6.35, 39.35) * CFrame.Angles(0, math.pi / 2, 0),
+			paintDark
+		)
+		wedge(
+			sh,
+			"Awning",
+			Vector3.new(8.6, 0.9, 1.8),
+			T * CFrame.new(sx0 - 1.2, 6.35, 51.15) * CFrame.Angles(0, math.pi / 2, 0),
+			paint
+		)
+		-- kiosk (spawn screen): a counter body in the side's paint, a canopy, a menu panel (no text)
+		local ki = folder(blocks, "Kiosk" .. h.tag)
+		col("Kiosk" .. h.tag, 0, 77.5, 20, 6, 10, 0, T, Enum.Material.Wood)
+		box(
+			ki,
+			"Plinth",
+			Vector3.new(-10.25, 0, 74.25),
+			Vector3.new(10.25, 0.6, 80.75),
+			L.brickBase,
+			false,
+			T
+		)
+		box(ki, "Body", Vector3.new(-10, 0.6, 74.5), Vector3.new(10, 7.5, 80.5), paint, false, T)
+		box(
+			ki,
+			"Counter",
+			Vector3.new(-8, 3.2, 74.2),
+			Vector3.new(8, 3.6, 74.6),
+			L.plankDark,
+			false,
+			T
+		)
+		box(ki, "Hatch", Vector3.new(-7, 3.6, 74.4), Vector3.new(7, 6.6, 74.52), L.glass, false, T)
+		box(
+			ki,
+			"Upper",
+			Vector3.new(-10, 7.5, 74.5),
+			Vector3.new(10, 9.4, 80.5),
+			L.render,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Canopy",
+			Vector3.new(-10.5, 9.4, 73.8),
+			Vector3.new(10.5, 9.8, 81.2),
+			paintDark,
+			false,
+			T
+		)
+		-- carved canopy edges (chamfers along the long sides) and a stone plinth
+		wedge(ki, "Canopy edge", Vector3.new(21, 0.4, 0.6), T * CFrame.new(0, 10, 74.1), paintDark)
+		wedge(
+			ki,
+			"Canopy edge",
+			Vector3.new(21, 0.4, 0.6),
+			T * CFrame.new(0, 10, 80.9) * CFrame.Angles(0, math.pi, 0),
+			paintDark
+		)
+		box(
+			ki,
+			"Back door",
+			Vector3.new(-6, 0.3, 80.5),
+			Vector3.new(-2, 6.8, 80.62),
+			paintDark,
+			false,
+			T
+		)
+		box(
+			ki,
+			"Back vent",
+			Vector3.new(2, 4.5, 80.5),
+			Vector3.new(7, 6.5, 80.6),
+			L.steelLight,
+			false,
+			T
+		)
+		-- (no kick strip: the plinth is the foot)
+		-- vending pairs (one red, one in the side's paint), benches, gates, planter, crates, luggage cart
+		local pr = folder(secProps, "Concourse" .. h.tag)
+		for _, v in { { -15, 30, false }, { 75, 31, true } } do
+			col("Vending", v[1], v[2], 6, 3, 9, 0, T, Enum.Material.Metal)
+			for i, dx in { -1.5, 1.5 } do
+				local body = if i == 1 then look(hex("9C4A3F")) else paint
+				box(
+					pr,
+					"Vending",
+					Vector3.new(v[1] + dx - 1.45, 0, v[2] - 1.5),
+					Vector3.new(v[1] + dx + 1.45, 9, v[2] + 1.5),
+					body,
+					false,
+					T
+				)
+				local face = if v[3] then v[2] - 1.5 else v[2] - 1.5
+				box(
+					pr,
+					"Vending glass",
+					Vector3.new(v[1] + dx - 1.1, 3, face - 0.1),
+					Vector3.new(v[1] + dx + 1.1, 8, face),
+					L.glass,
+					false,
+					T
+				)
+				box(
+					pr,
+					"Vending tray",
+					Vector3.new(v[1] + dx - 1.1, 1, face - 0.2),
+					Vector3.new(v[1] + dx + 1.1, 2, face),
+					L.rubber,
+					false,
+					T
+				)
+			end
+		end
+		for _, bx in { -45, 45 } do
+			col("Bench", bx, 30, 10, 2.5, 3, 0, T, Enum.Material.Wood)
+			-- v2: slatted seat and back on two steel end frames (carved: the frames taper to their feet)
+			for k, zz in { 29.0, 29.9 } do
+				box(
+					pr,
+					"Seat slat",
+					Vector3.new(bx - 4.8, 1.5, zz - 0.4),
+					Vector3.new(bx + 4.8, 1.8, zz + 0.4),
+					L.plank,
+					false,
+					T
+				)
+				local _ = k
+			end
+			for _, yy in { 2.2, 2.75 } do
+				box(
+					pr,
+					"Back slat",
+					Vector3.new(bx - 4.4, yy - 0.2, 30.55),
+					Vector3.new(bx + 4.4, yy + 0.2, 30.85),
+					L.plank,
+					false,
+					T
+				)
+			end
+			for _, lx in { bx - 4.4, bx + 4.4 } do
+				box(
+					pr,
+					"End frame",
+					Vector3.new(lx - 0.15, 0.4, 28.7),
+					Vector3.new(lx + 0.15, 1.5, 30.4),
+					L.steel,
+					false,
+					T
+				)
+				box(
+					pr,
+					"End frame",
+					Vector3.new(lx - 0.15, 0.4, 30.4),
+					Vector3.new(lx + 0.15, 3.1, 30.95),
+					L.steel,
+					false,
+					T
+				)
+				box(
+					pr,
+					"Foot",
+					Vector3.new(lx - 0.3, 0, 28.6),
+					Vector3.new(lx + 0.3, 0.4, 31.05),
+					L.steel,
+					false,
+					T
+				)
+			end
+		end
+		col("Ticket gates", -35, 45, 15, 3, 3.5, 0, T, Enum.Material.Metal)
+		for gx = -41.5, -28.5, 4.33 do
+			box(
+				pr,
+				"Gate",
+				Vector3.new(gx - 0.6, 0, 43.5),
+				Vector3.new(gx + 0.6, 3.5, 46.5),
+				L.steelLight,
+				false,
+				T
+			)
+			box(
+				pr,
+				"Gate top",
+				Vector3.new(gx - 0.7, 3.2, 43.4),
+				Vector3.new(gx + 0.7, 3.55, 46.6),
+				paint,
+				false,
+				T
+			)
+		end
+		for gx = -39.3, -30.6, 4.33 do
+			box(
+				pr,
+				"Paddle",
+				Vector3.new(gx - 1.5, 1.5, 44.9),
+				Vector3.new(gx + 1.5, 3, 45.1),
+				paint,
+				false,
+				T
+			)
+		end
+		col("Planter", 30, 75, 10, 10, 3.5, 0, T, Enum.Material.Concrete)
+		box(
+			pr,
+			"Planter wall",
+			Vector3.new(25, 0, 70),
+			Vector3.new(35, 3.5, 70.8),
+			L.concrete,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Planter wall",
+			Vector3.new(25, 0, 79.2),
+			Vector3.new(35, 3.5, 80),
+			L.concrete,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Planter wall",
+			Vector3.new(25, 0, 70.8),
+			Vector3.new(25.8, 3.4, 79.2),
+			L.concrete,
+			false,
+			T
+		)
+		box(
+			pr,
+			"Planter wall",
+			Vector3.new(34.2, 0, 70.8),
+			Vector3.new(35, 3.4, 79.2),
+			L.concrete,
+			false,
+			T
+		)
+		box(pr, "Soil", Vector3.new(25.8, 0, 70.8), Vector3.new(34.2, 2.9, 79.2), L.soil, false, T)
+		for i, b in { { 28, 73, 4, 20 }, { 31.5, 76.5, 4.6, 55 }, { 29, 77.5, 3.2, 35 } } do
+			part(
+				pr,
+				"Bush",
+				Vector3.new(b[3], b[3] * 0.8, b[3]),
+				T
+					* CFrame.new(b[1], 2.9 + b[3] * 0.25, b[2])
+					* CFrame.Angles(math.rad(12), math.rad(b[4]), math.rad(-9)),
+				if i == 2 then L.bushDark else L.bush
+			)
+		end
+		crate(pr, "Crate stack", -25, 50, 5, 10, 0, 6, T)
+		crate(pr, "Crate stack top", -25, 50, 5, 10, 6, 6, T, 2) -- 12: not climbable from the gates
+		crate(pr, "Crate stack 2", 35, 45, 5, 10, 0, 6, T, -1)
+		crate(pr, "Crate stack 2 top", 35, 45, 5, 10, 6, 6, T, 3)
+		crate(pr, "Crates", 15, 52.5, 10, 5, 0, 3.5, T)
+		crate(pr, "Shop crates", 45, 65, 5, 10, 0, 3.5, T, 2)
+		crate(pr, "Back crates", -65, 92.5, 10, 5, 0, 3.5, T, -2)
+		-- luggage cart: a low platform with suitcases in mixed colours
+		col("Luggage cart", -40, 90, 10, 5, 3.5, 0, T, Enum.Material.Metal)
+		box(
+			pr,
+			"Cart deck",
+			Vector3.new(-45, 0.6, 87.5),
+			Vector3.new(-35, 1.1, 92.5),
+			L.steelLight,
+			false,
+			T
+		)
+		for _, w in { { -44, 88 }, { -36, 88 }, { -44, 92 }, { -36, 92 } } do
+			box(
+				pr,
+				"Cart wheel",
+				Vector3.new(w[1] - 0.4, 0, w[2] - 0.4),
+				Vector3.new(w[1] + 0.4, 0.6, w[2] + 0.4),
+				L.rubber,
+				false,
+				T
+			)
+		end
+		for i, s in
+			{
+				{ -42.5, 89.5, 4, 2.4, "8C4A3F" },
+				{ -38, 89.6, 3.4, 2, "A88A4E" },
+				{ -41, 91.4, 3.2, 1.9, "4A6E9A" },
+				{ -37.2, 91.6, 2.6, 2.3, "8E6A4A" },
+			}
+		do
+			local hgt = s[4]
+			box(
+				pr,
+				"Suitcase",
+				Vector3.new(s[1] - s[3] / 2, 1.1, s[2] - 0.9),
+				Vector3.new(s[1] + s[3] / 2, 1.1 + hgt, s[2] + 0.9),
+				look(hex(s[5])),
+				false,
+				T
+			)
+			local _ = i
+		end
+	end
+	task.wait()
+
+	---------------------------------------------------------------------------------------------- world
+	local city = folder(secWorld, "City")
+	local rnd = Random.new(20261121)
+	-- v2 (owner: v1 buildings "dull, not professional"; RIVALS' buildings are layered, muted, trimmed): each near
+	-- building is a stone base storey with shop glass, a string course, a framed-window facade (Metro_Facade2,
+	-- 8 studs a storey), corner pilasters, a stepped cornice, a parapet with coping and roof plant. Muted colours.
+	local facades =
+		{ "C9BBA0", "B8826A", "9AA3AD", "D8CFBF", "A26D5A", "A3AE98", "BFB2A4", "C2A88A" }
+	local stoneLook = look(hex("8E877C"), "Wharf_Concrete", Enum.Material.Concrete)
+	local creamLook = look(hex("D6CCB8"), "Wharf_Concrete", Enum.Material.Concrete)
+	local glassLook = look(hex("2E343C"))
+	local function building2(
+		x: number,
+		z: number,
+		w: number,
+		d: number,
+		floors: number,
+		full: boolean
+	)
+		local c = hex(facades[rnd:NextInteger(1, #facades)])
+		local hw, hd = w / 2, d / 2
+		local H = 8 + 8 * floors
+		box(
+			city,
+			"Base storey",
+			Vector3.new(x - hw - 0.3, 0, z - hd - 0.3),
+			Vector3.new(x + hw + 0.3, 8, z + hd + 0.3),
+			stoneLook
+		)
+		if full then
+			box(
+				city,
+				"Shop glass",
+				Vector3.new(x - hw + 2, 1.2, z - hd - 0.42),
+				Vector3.new(x + hw - 2, 6.2, z - hd - 0.3),
+				glassLook
+			)
+			box(
+				city,
+				"Shop glass",
+				Vector3.new(x - hw + 2, 1.2, z + hd + 0.3),
+				Vector3.new(x + hw - 2, 6.2, z + hd + 0.42),
+				glassLook
+			)
+			box(
+				city,
+				"Shop glass",
+				Vector3.new(x - hw - 0.42, 1.2, z - hd + 2),
+				Vector3.new(x - hw - 0.3, 6.2, z + hd - 2),
+				glassLook
+			)
+			box(
+				city,
+				"Shop glass",
+				Vector3.new(x + hw + 0.3, 1.2, z - hd + 2),
+				Vector3.new(x + hw + 0.42, 6.2, z + hd - 2),
+				glassLook
+			)
+		end
+		box(
+			city,
+			"String course",
+			Vector3.new(x - hw - 0.5, 8, z - hd - 0.5),
+			Vector3.new(x + hw + 0.5, 8.8, z + hd + 0.5),
+			creamLook
+		)
+		local body = box(
+			city,
+			"Facade",
+			Vector3.new(x - hw, 8.8, z - hd),
+			Vector3.new(x + hw, H, z + hd),
+			look(c, "Metro_Facade2", Enum.Material.Concrete)
+		)
+		body.CastShadow = H > 40
+		local trim =
+			look(c:Lerp(Color3.new(0, 0, 0), 0.22), "Wharf_Concrete", Enum.Material.Concrete)
+		if full then
+			for _, sx in { -1, 1 } do
+				for _, sz in { -1, 1 } do
+					local ax, bx =
+						if sx < 0 then x - hw - 0.25 else x + hw - 1.6,
+						if sx < 0 then x - hw + 1.6 else x + hw + 0.25
+					local az, bz =
+						if sz < 0 then z - hd - 0.25 else z + hd - 1.6,
+						if sz < 0 then z - hd + 1.6 else z + hd + 0.25
+					box(city, "Pilaster", Vector3.new(ax, 8.8, az), Vector3.new(bx, H, bz), trim)
+				end
+			end
+		end
+		box(
+			city,
+			"Cornice",
+			Vector3.new(x - hw - 0.6, H, z - hd - 0.6),
+			Vector3.new(x + hw + 0.6, H + 0.8, z + hd + 0.6),
+			creamLook
+		)
+		-- the roof: a dark roof slab inside a parapet; the coping is a ring on the parapet only (a full cream cap read
+		-- like snow from above)
+		box(
+			city,
+			"Parapet",
+			Vector3.new(x - hw, H + 0.8, z - hd),
+			Vector3.new(x + hw, H + 2.6, z + hd),
+			trim
+		)
+		box(
+			city,
+			"Roof",
+			Vector3.new(x - hw + 0.8, H + 2.6, z - hd + 0.8),
+			Vector3.new(x + hw - 0.8, H + 2.62, z + hd - 0.8),
+			look(hex("5F5C57"))
+		)
+		box(
+			city,
+			"Coping",
+			Vector3.new(x - hw - 0.2, H + 2.6, z - hd - 0.2),
+			Vector3.new(x + hw + 0.2, H + 2.9, z - hd + 0.8),
+			creamLook
+		)
+		box(
+			city,
+			"Coping",
+			Vector3.new(x - hw - 0.2, H + 2.6, z + hd - 0.8),
+			Vector3.new(x + hw + 0.2, H + 2.9, z + hd + 0.2),
+			creamLook
+		)
+		box(
+			city,
+			"Coping",
+			Vector3.new(x - hw - 0.2, H + 2.6, z - hd + 0.8),
+			Vector3.new(x - hw + 0.8, H + 2.9, z + hd - 0.8),
+			creamLook
+		)
+		box(
+			city,
+			"Coping",
+			Vector3.new(x + hw - 0.8, H + 2.6, z - hd + 0.8),
+			Vector3.new(x + hw + 0.2, H + 2.9, z + hd - 0.8),
+			creamLook
+		)
+		if full then
+			local px, pz = x + rnd:NextNumber(-hw / 3, hw / 3), z + rnd:NextNumber(-hd / 3, hd / 3)
+			box(
+				city,
+				"Roof plant",
+				Vector3.new(px - 4, H + 2.62, pz - 3),
+				Vector3.new(px + 4, H + 6.4, pz + 3),
+				L.concreteDark
+			)
+			box(
+				city,
+				"Plant cap",
+				Vector3.new(px - 4.3, H + 6.4, pz - 3.3),
+				Vector3.new(px + 4.3, H + 6.8, pz + 3.3),
+				L.steelLight
+			)
+		end
+	end
+	for _, s in { -1, 1 } do
+		-- the row across the street from the hall (full detail), and a taller row behind it (simpler)
+		for x = -320, 320, 58 do
+			building2(
+				x + rnd:NextNumber(-3, 3),
+				s * 205,
+				rnd:NextInteger(9, 10) * 5,
+				40,
+				rnd:NextInteger(3, 6),
+				true
+			)
+			building2(
+				x + 29 + rnd:NextNumber(-3, 3),
+				s * 272,
+				rnd:NextInteger(8, 10) * 5,
+				50,
+				rnd:NextInteger(7, 12),
+				false
+			)
+		end
+		-- along the cutting beyond the hall ends (kept clear of the tracks)
+		for x = 150, 390, 60 do
+			for _, zz in { 72, -72 } do
+				building2(
+					s * (x + rnd:NextNumber(-3, 3)),
+					zz,
+					rnd:NextInteger(7, 9) * 5,
+					34,
+					rnd:NextInteger(2, 5),
+					true
+				)
+			end
+		end
+	end
+	-- far towers in the haze (silhouettes)
+	for _, s in { -1, 1 } do
+		for x = -420, 420, 84 do
+			building2(
+				x + rnd:NextNumber(-10, 10),
+				s * rnd:NextNumber(380, 430),
+				rnd:NextInteger(8, 11) * 5,
+				45,
+				rnd:NextInteger(10, 16),
+				false
+			)
+		end
+	end
+	task.wait()
+	-- tunnel portals where the tracks leave (a faceted concrete portal with a dark mouth)
+	for _, s in { -1, 1 } do
+		local x = s * 420
+		box(
+			city,
+			"Portal wall",
+			Vector3.new(x - 4, -4.8, -45),
+			Vector3.new(x + 4, 34, -14),
+			L.concrete
+		)
+		box(
+			city,
+			"Portal wall",
+			Vector3.new(x - 4, -4.8, 14),
+			Vector3.new(x + 4, 34, 45),
+			L.concrete
+		)
+		box(
+			city,
+			"Portal lintel",
+			Vector3.new(x - 4, 14, -14),
+			Vector3.new(x + 4, 34, 14),
+			L.concrete
+		)
+		box(
+			city,
+			"Portal mouth",
+			Vector3.new(x + s * 4, -5, -14),
+			Vector3.new(x + s * 4.2, 14, 14),
+			look(hex("1C1F24"))
+		)
+		box(
+			city,
+			"Portal coping",
+			Vector3.new(x - 5, 34, -46),
+			Vector3.new(x + 5, 36, 46),
+			L.concreteDark
+		)
+		for _, zz in { -13, 13 } do
+			box(
+				city,
+				"Mouth chamfer",
+				Vector3.new(x - 3.9, 12.5, zz - 1),
+				Vector3.new(x + 3.9, 13.9, zz + 1),
+				L.concreteDark
+			)
+		end
+		box(
+			city,
+			"Hill over portal",
+			Vector3.new(x + s * 4.2, -5, -260),
+			Vector3.new(x + s * 260, 40, 260),
+			look(C.land)
+		)
+	end
+	-- mountains (two depth layers)
+	local hills = folder(secWorld, "Mountains")
+	kit(
+		"Wharf",
+		"MountainA",
+		hills,
+		CFrame.new(-500, -10, -1500) * CFrame.Angles(0, 0.5, 0),
+		"MountainA"
+	)
+	kit(
+		"Wharf",
+		"MountainB",
+		hills,
+		CFrame.new(600, -10, -1300) * CFrame.Angles(0, -0.4, 0),
+		"MountainB"
+	)
+	kit(
+		"Wharf",
+		"MountainA",
+		hills,
+		CFrame.new(400, -10, 1600) * CFrame.Angles(0, 2.1, 0),
+		"MountainA north"
+	)
+	kit(
+		"Wharf",
+		"MountainB",
+		hills,
+		CFrame.new(-700, -10, 1350) * CFrame.Angles(0, 2.9, 0),
+		"MountainB north"
+	)
+	kit(
+		"Wharf",
+		"MountainC",
+		hills,
+		CFrame.new(1500, -10, 200) * CFrame.Angles(0, 1.2, 0),
+		"MountainC east"
+	)
+	kit(
+		"Wharf",
+		"MountainC",
+		hills,
+		CFrame.new(-1500, -10, -150) * CFrame.Angles(0, -1.2, 0),
+		"MountainC west"
+	)
+	for _, d in hills:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.CastShadow = false
+			if d.Name:match("_R_Grass$") then
+				d.Color = hex("6E8A58")
+			elseif d.Name:match("_R_RockDark$") then
+				d.Color = hex("6C706B")
+			elseif d.Name:match("_R_Rock$") then
+				d.Color = hex("858880")
+			end
+		end
+	end
+	-- the land under the far world (so nothing floats): one wide green plain round the city
+	for i = -1, 1 do
+		for j = -1, 1 do
+			local p = part(
+				secWorld,
+				"Land",
+				Vector3.new(2048, 1, 2048),
+				CFrame.new(i * 2048, -10.5, j * 2048),
+				look(C.land)
+			)
+			p.CastShadow = false
+		end
+	end
+	task.wait()
+
+	--------------------------------------------------------------------------------- spawns, bounds, stage
+	local SPAWNS = { { -12, 98 }, { 0, 100 }, { 12, 98 }, { -6, 93 }, { 6, 93 } }
+	for team, h in halves do
+		local letter = if team == 1 then "A" else "B"
+		for i, s in SPAWNS do
+			local sp = Instance.new("SpawnLocation")
+			sp.Name = "Spawn_" .. letter .. i
+			sp.Size = Vector3.new(4, 0.2, 4)
+			sp.CFrame = ORIGIN * h.T * CFrame.new(s[1], 0.1, s[2])
+			sp.Anchored = true
+			sp.Transparency = 1
+			sp.CanCollide = false
+			sp.CanQuery = false
+			sp.CanTouch = false
+			sp.Neutral = true
+			sp.Enabled = false
+			sp.Duration = 0
+			sp:ClearAllChildren()
+			CollectionService:AddTag(sp, "ArenaSpawn_" .. letter)
+			sp.Parent = secSpawns
+		end
+	end
+	local function bound(a: Vector3, b: Vector3)
+		local p = box(secBounds, "Bound", a, b, { color = C.concrete }, true)
+		p.Transparency = 1
+		p.CanQuery = false
+		p.CastShadow = false
+	end
+	bound(Vector3.new(115, -6, -105), Vector3.new(117, 25, 105)) -- east end (open)
+	bound(Vector3.new(-117, -6, -105), Vector3.new(-115, 25, 105)) -- west end (open)
+	bound(Vector3.new(-117, -6, 104.4), Vector3.new(117, 25, 106.4)) -- north wall line
+	bound(Vector3.new(-117, -6, -106.4), Vector3.new(117, 25, -104.4)) -- south wall line
+	bound(Vector3.new(-117, 25, -106.4), Vector3.new(117, 27, 106.4)) -- ceiling under the roof
+	-- winners' stage: on A's platform between two columns, the blue train behind them
+	local stage = part(
+		map,
+		"WinnerStage",
+		Vector3.new(4, 0.2, 4),
+		CFrame.new(-75, 0.1, 22) * CFrame.Angles(0, math.pi, 0),
+		{ color = C.tile }
+	)
+	stage.Transparency = 1
+	stage.CastShadow = false
+	CollectionService:AddTag(stage, "WinnerStage")
+
+	------------------------------------------------------------------------------------------- lighting
+	local light = Instance.new("Configuration")
+	light.Name = "Lighting"
+	CollectionService:AddTag(light, "GGAsset_MatchMaps_414")
+	CollectionService:AddTag(light, "GauntletAuthoredData")
+	light.Parent = map
+	local fx = folder(map, "LightingFx")
+	local atm = Instance.new("Atmosphere")
+	atm.Density = 0.3
+	atm.Offset = 0.1
+	atm.Haze = 1.4
+	atm.Glare = 0.1
+	atm.Color = Color3.fromRGB(212, 220, 230)
+	atm.Decay = Color3.fromRGB(160, 170, 192)
+	atm.Parent = fx
+	local cc = Instance.new("ColorCorrectionEffect")
+	cc.Name = "Grade"
+	cc.Contrast = 0.05
+	cc.Saturation = -0.05
+	cc.TintColor = Color3.fromRGB(255, 251, 244)
+	cc.Parent = fx
+
+	map.Parent = workspace
+	return string.format("Metro4 built: %d parts", count)
+end

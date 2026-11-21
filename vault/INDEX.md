@@ -48,6 +48,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Maps/Jump Audit 2026-11-13.md` (8): every map checked against the 4.4 jump (measured reach: ledge 7.5, gap 9 at sprint); owner chose keep the jump, fix the maps: Dockyard got 4 step crates, nothing else was a designed loss
 - `01 Design/Maps/Map Quality Standard.md` (22): the bar for every map rebuild: pipeline, hard rules, audits, blind score ≥ 8.5
 - `01 Design/Maps/Arena.md` (6): Arena + Big Arena (redesign batch 1): owner calls, v2 build (plain parts, 5-stud module, two greys, grid tile), layout checks vs RIVALS, playtest, test list
+- `01 Design/Maps/Metro4.md` (12): Metro rebuilt as a large map from RIVALS Big Station's flow: Station / Big Station measurements, layout checks, v1 → v2 after the owner's notes (muted, build rules, professional city), audits, reach + balance, playtest, what to test
 - `01 Design/Maps/Wharf.md` (18): new regular map (1v1-2v2) after RIVALS Docks: Docks measurements, layout checks, build log, palette v2, audits (z-fight 0, floating 0), reach + spawn balance, playtest walk, what to test
 - `01 Design/Maps/Pier and Dockyard.md` (11): redesign batch 2: port kit module, layout checks, greybox builder, container kit test, the see-through container fix (2026-11-20), ChatGPT concept prompts, test list
 - `01 Design/Spawn Hold.md` (2): pre-round ghost hold at open-floor markers (no spawn nooks), why, build plan

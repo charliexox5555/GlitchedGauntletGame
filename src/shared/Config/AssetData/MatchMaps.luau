@@ -415,4 +415,6 @@ return {
 	GGAsset_MatchMaps_410 = { ["UpTransparency"] = 0.59999999999999998 }, -- Workspace.OldTown.Barriers.BarrierB_E
 	GGAsset_MatchMaps_411 = { ["KillDepth"] = 6, ["LayoutVersion"] = "v1 2026-11-20 RIVALS Docks flow" }, -- Workspace.Wharf
 	GGAsset_MatchMaps_412 = { ["Ambient"] = Color3.fromRGB(122, 128, 142), ["Brightness"] = 3, ["ClockTime"] = 10.5, ["ColorShift_Top"] = Color3.fromRGB(255, 240, 220), ["EnvironmentDiffuseScale"] = 0.45, ["EnvironmentSpecularScale"] = 0.1, ["ExposureCompensation"] = 0.2, ["GeographicLatitude"] = 30, ["OutdoorAmbient"] = Color3.fromRGB(160, 170, 190), ["ShadowSoftness"] = 0.2 }, -- Workspace.Wharf.Lighting
+	GGAsset_MatchMaps_413 = { ["KillDepth"] = 20, ["LayoutVersion"] = "v1 2026-11-20 RIVALS Big Station flow" }, -- Workspace.Metro4
+	GGAsset_MatchMaps_414 = { ["Ambient"] = Color3.fromRGB(124, 128, 138), ["Brightness"] = 3, ["ClockTime"] = 14.5, ["ColorShift_Top"] = Color3.fromRGB(255, 242, 224), ["EnvironmentDiffuseScale"] = 0.45, ["EnvironmentSpecularScale"] = 0.1, ["ExposureCompensation"] = 0.05, ["GeographicLatitude"] = 35, ["OutdoorAmbient"] = Color3.fromRGB(164, 172, 188), ["ShadowSoftness"] = 0.2 }, -- Workspace.Metro4.Lighting
 }

@@ -58,6 +58,15 @@ local MAPS: { [string]: Map } = {
 			{ id = "sfx:AmbWind", volume = 0.26 },
 		},
 	},
+	-- Metro4 (2026-11-20): the glazed station hall in the city, hall 230 x 210 at (6000, 200, 12500). Beds only.
+	Metro4 = {
+		center = Vector3.new(6000, 215, 12500),
+		size = Vector3.new(260, 80, 240),
+		beds = {
+			{ id = "sfx:AmbCity", volume = 0.4 },
+			{ id = "sfx:AmbWind", volume = 0.14 },
+		},
+	},
 	-- The older maps: beds only (a hook; no emitters or rooms placed yet). Boxes
 	-- are 300 x 220 x 360 around each map's world origin (maps sit 1500 apart).
 	Dockyard = {
