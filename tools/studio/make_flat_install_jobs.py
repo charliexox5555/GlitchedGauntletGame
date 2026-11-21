@@ -32,6 +32,7 @@ LATEST = {"Moltframe/Vandal": "v05"}
 KEPT = {  # Vandal installs keep the round-two stock finish on unreplaced parts
     "Giltfold": ("26252D", "SmoothPlastic"), "Sealwork": ("D2A04A", "Metal"), "Payload": ("20262E", "SmoothPlastic"),
     "Inkshift": ("1D2431", "SmoothPlastic"), "Moltframe": ("5A6170", "Metal"),
+    "TempestStrike": ("1D2433", "SmoothPlastic"),
 }
 
 
