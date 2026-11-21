@@ -16,6 +16,8 @@ Active Lobby and Match assets now get authored fields from the shared AssetData 
 
 ## Weapons
 
+**Slipframe Guardian r05 (2026-11-21).** The Epic-direction hero now has a seated one-piece front sight and a slimmer rear hood. The 3,838-triangle model preserves the Guardian v05 rig, locators and actions. Its flat FBX passed the one-sided re-import check. [Rework ledger, captures and Epic effect proposal](../02%20Art/Skins/Slipframe/Rework%20Ledger.md)
+
 **Tempest-Strike line, Blender (2026-11-22).** Stinger s02x (6,143 tris), Marshal s02x (4,432 + stock lens), Bucky s02x (6,018) and Sheriff s02x (5,158) built on the stock RemasterV2 v05 models, graded 9/10, flat-exported with `TS_Rig` bones for the moving plates, crescents and gate (`art-source/weapons/Skins/TempestStrike/<Gun>/s02x/`). Kunai-Katana Knife s04x (2,464 tris, `TS_Katana` / `TS_Ring` bones) rebuilt from the owner's sheet (bigger kunai root, katana growing out of it), graded 9/10. Not uploaded; the Vandal session ports them and does the VFX. [Line Build Ledger](../02%20Art/Skins/TempestStrike/Line%20Build%20Ledger.md)
 
 **Shadow Mist magazine and Reaver review (2026-11-18).** Vandal v07, Guardian v15, Spectre v10, Operator v10, Ghost v10 and Ruined Reaver v09 are staged for the owner's Match Studio review. [Model IDs and verification](../02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#meshy-review-and-loaded-cartridge-pass)
