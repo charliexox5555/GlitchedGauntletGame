@@ -1,0 +1,190 @@
+{
+ "variant": "TempestStrike Knife s02x (flat-material export)",
+ "joints": [
+  {
+   "name": "TS_Katana",
+   "parent": "Root",
+   "c0": [
+    0.82,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "TS_Ring",
+   "parent": "Root",
+   "c0": [
+    -0.385,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  }
+ ],
+ "date": "2026-11-14",
+ "gun": "Knife",
+ "source_blend": "Knife_TempestStrike_s02x.blend",
+ "fbx": "Knife_TempestStrike_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Root_01": {
+   "color": "0C111C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Dark",
+   "triangles": 330,
+   "size": [
+    1.032,
+    0.116,
+    0.128
+   ],
+   "center": [
+    0.304,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_02": {
+   "color": "4A3328",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Grip",
+   "triangles": 154,
+   "size": [
+    0.542,
+    0.116,
+    0.128
+   ],
+   "center": [
+    0.027,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_03": {
+   "color": "7A8491",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Metal",
+   "triangles": 160,
+   "size": [
+    0.626,
+    0.2589,
+    0.2589
+   ],
+   "center": [
+    0.013,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_04": {
+   "color": "5FE6E0",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Neon",
+   "triangles": 108,
+   "size": [
+    0.345,
+    0.0498,
+    0.0147
+   ],
+   "center": [
+    0.5325,
+    0.0,
+    0.0003
+   ]
+  },
+  "SK_Root_05": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Panel",
+   "triangles": 84,
+   "size": [
+    0.515,
+    0.1739,
+    0.1739
+   ],
+   "center": [
+    0.5655,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_TS_Katana_01": {
+   "color": "40F5D4",
+   "material": "SmoothPlastic",
+   "reflectance": 0.12,
+   "pattern": null,
+   "bone": "TS_Katana",
+   "blender_material": "TS Water",
+   "triangles": 60,
+   "size": [
+    1.47,
+    0.028,
+    0.1023
+   ],
+   "center": [
+    1.435,
+    0.0,
+    0.0059
+   ]
+  },
+  "SK_TS_Ring_01": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "TS_Ring",
+   "blender_material": "TS Panel",
+   "triangles": 192,
+   "size": [
+    0.197,
+    0.044,
+    0.197
+   ],
+   "center": [
+    -0.385,
+    0.0,
+    0.0
+   ]
+  }
+ }
+}

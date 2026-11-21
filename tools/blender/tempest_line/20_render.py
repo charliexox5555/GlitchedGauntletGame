@@ -121,6 +121,9 @@ for v in VIEWS:
 		else:
 			aim((x + 0.3 * d, 0.45 * d, z - d), (x, 0, z))
 		shoot(v, lens=50, res=(1200, 800))
+	elif v == "fpk":
+		# knife first-person angle (owner's sheet): behind and right of the hilt, blade rising away to the upper left
+		aim((-1.35, -1.05, 0.80), (0.62, 0.10, 0.06)); shoot(v, lens=32, res=(1600, 900))
 	elif v == "fp":
 		# rough first-person hip framing: eye behind/above the grip, looking down the barrel
 		aim((lo.x + 0.30 * LEN, -0.42, hi.z + 0.10), (hi.x + 0.3, 0.25, CEN.z + 0.05)); shoot(v, lens=24, res=(1600, 900))
