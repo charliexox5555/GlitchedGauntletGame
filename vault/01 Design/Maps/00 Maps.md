@@ -6,6 +6,8 @@ The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valoran
 
 **Test one map (2026-11-21):** in Studio, type the map into the **Workspace attribute `LockMap`** (its id like `Snowpeak4` or its vote name like `Snowpeak`, any case). Every match then plays that map and the map vote is skipped; clear it to vote again. Studio only, so a value left in the saved place never pins live servers. A name that matches no installed map warns in Output and the vote runs as usual (`MatchService.pickMap`).
 
+**Next maps (owner, 2026-11-21):** Rooftops, Greenhouse, Foundry, Canyon Outpost (regular) and Castle (large, 3v3 only), Rooftops first: [Map Lineup 2026-11-21](Map%20Lineup%202026-11-21.md).
+
 **Rotation (owner, 2026-11-20):** only **Arena, Pier, Wharf, Snowpeak4 (shown as SNOWPEAK)** (1v1-2v2) and **Big Arena, Dockyard, Metro4 (shown as METRO), OldTown4 (shown as OLD TOWN)** (2v2-3v3) play (`Config/Match` MAPS, default map Arena). Pulled from rotation and the vote, models kept in the place (ForceMap still loads them): Rooftops3, Courtyard, Bunker3, Foundry, Snowpeak3, ModelKit, OldTown3, Metro3, Greenhouse3 (owner: curved shapes, plain ground, no world round them, not RIVALS/Valorant-like), plus the old Whitebox, BigWhitebox, Rooftops, Bunker, Metro, OldTown, Greenhouse, Snowpeak and Dockyard2. New: **[Wharf](Wharf.md)**, a regular map with RIVALS Docks' flow, built 2026-11-20. Pier and Dockyard containers fixed the same day ([Pier and Dockyard](Pier%20and%20Dockyard.md) → Container fix).
 
 ## Release roster (redesign, 2026-11-16)
