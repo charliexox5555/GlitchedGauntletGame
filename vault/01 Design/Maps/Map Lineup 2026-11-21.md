@@ -72,3 +72,7 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
   - From Foundry on, each map starts with a written RIVALS build study: their Museum map plus a few others; mesh style, materials, colours, joins, prop scale.
   - Then build to that stylised standard. RIVALS meshes may be taken (no logos, no scripts).
   - Greenhouse4 got a polish pass for its list.
+- **RIVALS textures (owner, 2026-11-21):** "Their textures are insane and really good and nice ... that's really what's I think driving their game." The owner pasted RIVALS' MaterialVariants into the match place under `MaterialService.ExtraTextures`: 241 variants, mostly weapon-skin patterns. The map ones sit on Brick, Concrete, Pavement, Slate, Wood / WoodPlanks, Metal, Grass, Ground, Sand and more.
+  - New maps use the variants the RIVALS maps themselves use, checked on their parts, after a render test (permissions, folder).
+  - Foundry4 goes first.
+  - The four new maps (Rooftops4, Greenhouse4, OldTown4 and others) may be retextured once Foundry shows the result.
