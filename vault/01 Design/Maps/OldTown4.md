@@ -223,4 +223,16 @@ Close-ups: `vault/02 Art/References/maps/oldtown4/kit-*.png`. The float audit fo
 - play it, especially the loggia terrace and the hill fights;
 - **save the match place.**
 
+### Final check and texture pass (2026-11-21, after the owner's look)
+The owner asked for a last check for out-of-place things, too much texture, and overlapping, glitching or floating parts.
+- **Audits:** the place still matches the clean build (6,708 parts): 0 overlap / 0 floating / 0 coincident slopes. The new vine parts were checked against their neighbours: 28 touching pairs, 0 shared planes.
+- **Too much texture, fixed with two soft MaterialVariants (no normal map):**
+  - `OT4_Cobble` replaces `OT2_Cobble` on the streets: the same pattern, 10 studs a tile, without the deep bevelled relief;
+  - `OT4_Stone` goes on every plain Limestone surface (string courses, cornices, copings, quoins, borders) and on the kit's stonework: soft dressed stone instead of Roblox's pitted Limestone.
+  - Kept as they are, because they read clean: ashlar, paving, stucco, terracotta.
+- **Out of place, fixed:**
+  - the pergola posts, beams and rafters were plank-textured (they read as stacked boards), now plain timber (`Wood`);
+  - the vine was one thick leafy slab (it read as a carpet), now four runs laid across the rafters.
+- **Left as is:** the LeafyGrass hedges and pot bushes (the RIVALS hedge recipe) show the material's leaf texture.
+
 Studio's own Lighting properties (ClockTime etc.) were changed for preview captures. Every map applies its own lighting on load, so match play doesn't use them.

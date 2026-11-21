@@ -67,6 +67,9 @@ local VARIANTS = {
 	OT2_Plank = { "WoodPlanks", 6, "103283221566373", "79445504335406" },
 	OT2_Stucco = { "Plaster", 12, "73274454631456", "83978894951341" },
 	OT2_Terracotta = { "ClayRoofTiles", 4, "72153638601772", "83433689734180" },
+	-- soft versions (owner 2026-11-21: not too much texture): no normal map, a calmer cobble and dressed stone
+	OT4_Cobble = { "Cobblestone", 10, "75509828854751" },
+	OT4_Stone = { "Limestone", 10, "73274454631456" },
 }
 
 type Look = { color: Color3, mat: Enum.Material?, variant: string? }
@@ -83,12 +86,12 @@ local L = {
 	sienna = stucco(C.sienna),
 	yellow = stucco(C.yellow),
 	ashlar = look(C.ashlar, "OT2_Ashlar", Enum.Material.Limestone),
-	stone = look(C.stone, nil, Enum.Material.Limestone),
-	stoneDark = look(C.stoneDark, nil, Enum.Material.Limestone),
+	stone = look(C.stone, "OT4_Stone", Enum.Material.Limestone),
+	stoneDark = look(C.stoneDark, "OT4_Stone", Enum.Material.Limestone),
 	brick = look(C.brick, nil, Enum.Material.Brick),
 	roof = look(C.terracotta, "OT2_Terracotta", Enum.Material.ClayRoofTiles),
 	roofDark = look(C.terraDark, nil, Enum.Material.ClayRoofTiles),
-	cobble = look(C.cobble, "OT2_Cobble", Enum.Material.Cobblestone),
+	cobble = look(C.cobble, "OT4_Cobble", Enum.Material.Cobblestone),
 	paving = look(C.paving, "OT2_Paving", Enum.Material.Limestone),
 	wood = look(C.wood, "OT2_Plank", Enum.Material.WoodPlanks),
 	woodDark = look(C.woodDark, nil, Enum.Material.WoodPlanks),
@@ -114,7 +117,9 @@ local function ensureVariants()
 			mv.BaseMaterial = (Enum.Material :: any)[v[1]]
 			mv.StudsPerTile = v[2]
 			mv.ColorMap = "rbxassetid://" .. v[3]
-			mv.NormalMap = "rbxassetid://" .. v[4]
+			if v[4] then
+				mv.NormalMap = "rbxassetid://" .. v[4]
+			end
 			mv.MaterialPattern = Enum.MaterialPattern.Regular
 			mv.Parent = MaterialService
 		end
@@ -306,6 +311,9 @@ return function(): string
 				d.CanCollide = false
 				d.CanQuery = false
 				d.CanTouch = false
+				if d.Material == Enum.Material.Limestone and d.MaterialVariant == "" then
+					d.MaterialVariant = "OT4_Stone" -- the kit's stone in the same soft finish as the Parts
+				end
 				if side then
 					if string.find(d.Name, "Paint") then
 						d.Color = side.paint
@@ -1613,7 +1621,9 @@ return function(): string
 			jit = 0.06,
 			parent = lg,
 		}, T, side)
-		-- pergola with a vine over the middle of the terrace
+		-- pergola with a vine over the middle of the terrace (plain timber: the plank texture read as stacked boards)
+		local TIMBER: Look = { color = C.wood, mat = Enum.Material.Wood }
+		local TIMBER_DARK: Look = { color = C.woodDark, mat = Enum.Material.Wood }
 		for _, x in { -65.5, -56.5 } do
 			for _, z in { 38.5, 45.5 } do
 				box(
@@ -1621,7 +1631,7 @@ return function(): string
 					"Pergola post",
 					V(x - 0.3, 11.95, z - 0.3),
 					V(x + 0.3, 16.6, z + 0.3),
-					L.wood,
+					TIMBER,
 					false,
 					T
 				)
@@ -1633,7 +1643,7 @@ return function(): string
 				"Pergola beam",
 				V(-66.3, 16.3, z - 0.25),
 				V(-55.7, 16.9, z + 0.25),
-				L.woodDark,
+				TIMBER_DARK,
 				false,
 				T
 			)
@@ -1645,27 +1655,23 @@ return function(): string
 				"Pergola rafter",
 				V(x - 0.15, 16.85, 38.3),
 				V(x + 0.15, 17.22, 45.7),
-				L.wood,
+				TIMBER,
 				false,
 				T
 			)
 		end
-		local vine1 = part(
-			lg,
-			"Vine",
-			V(10.2, 0.32, 8.2),
-			T * CFrame.new(-61, 17.36, 42) * CFrame.Angles(0, math.rad(3), 0),
-			L.leaf
-		)
-		local vine2 = part(
-			lg,
-			"Vine",
-			V(7.5, 0.3, 6.4),
-			T * CFrame.new(-60.2, 17.55, 41.4) * CFrame.Angles(0, math.rad(-4), 0),
-			L.leafDark
-		)
-		vine1:SetAttribute("AllowFloat", true) -- foliage draped on the rafters
-		vine2:SetAttribute("AllowFloat", true)
+		-- the vine: runs draped across the rafters (a single leafy slab read as a carpet)
+		for k = 0, 3 do
+			local x = -63.875 + k * 2.25
+			local run = part(
+				lg,
+				"Vine",
+				V(2.4, 0.22, if k % 2 == 0 then 7.0 else 6.2),
+				T * CFrame.new(x, 17.2 + (k % 2) * 0.04, 42 + (k % 2) * 0.3),
+				if k % 2 == 0 then L.leaf else L.leafDark
+			)
+			run:SetAttribute("AllowFloat", true) -- foliage laid over the rafters
+		end
 		kit("CafeSet", props, T * CFrame.new(-51, 11.97, 52.5) * CFrame.Angles(0, 0.4, 0), 1, side)
 		kit(
 			"CafeSet",
@@ -2075,9 +2081,7 @@ return function(): string
 				town,
 				"Field",
 				V(w, 0.2, d),
-				T
-					* CFrame.new(fx, -26.42 + k * 0.025, fz)
-					* CFrame.Angles(0, rnd() * 0.6 - 0.3, 0),
+				T * CFrame.new(fx, -26.42 + k * 0.025, fz) * CFrame.Angles(0, rnd() * 0.6 - 0.3, 0),
 				{ color = FIELD[1 + (k % #FIELD)], mat = Enum.Material.Grass }
 			)
 			fp.CastShadow = false
