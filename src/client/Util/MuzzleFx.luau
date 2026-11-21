@@ -18,6 +18,7 @@ local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local Kit = require(script.Parent.ShotFxKit)
 
 type WeaponConfig = Types.WeaponConfig
+type FlashStyle = "Slipframe"
 
 local MuzzleFx = {}
 
@@ -26,6 +27,8 @@ local FIRE = Kit.FIRE
 local EMBER = Color3.fromHex("FFC070")
 local SMOKE = Color3.fromHex("C9C7C2")
 local PUFF = Color3.fromHex("EEEDEA") -- suppressed / muzzle-device puff: light, reads on grey floors
+local SLIPFRAME_ICE = Color3.fromHex("E2F3FF")
+local SLIPFRAME_BLUE = Color3.fromHex("77C5FF")
 
 local LIGHT_TIME = 0.05
 -- The flash sprites' Brightness: over 1 so they hold their colour against a
@@ -83,6 +86,7 @@ type MuzzleRig = {
 	side: ParticleEmitter?,
 	core: ParticleEmitter?,
 	darkFlame: ParticleEmitter?,
+	forks: { ParticleEmitter }?,
 	embers: ParticleEmitter?,
 	smoke: ParticleEmitter,
 	wisp: ParticleEmitter,
@@ -109,12 +113,51 @@ local function flashSize(config: WeaponConfig): number
 	return 1
 end
 
+local function slipframeFlash(
+	holder: Attachment,
+	scale: number
+): (ParticleEmitter, { ParticleEmitter })
+	local core = emitter(holder, VFX.GLOW, SLIPFRAME_ICE)
+	core.Name = "SlipframeFlashCore"
+	fire(core)
+	core.Brightness = 1.58
+	core.LockedToPart = true
+	core.Lifetime = NumberRange.new(0.052)
+	core.Size = curve({ 0, 0.48 * scale, 0.20, 0.56 * scale, 1, 0.19 * scale })
+	core.Transparency = curve({ 0, 0.03, 0.4, 0.24, 1, 1 })
+	core.Rotation = NumberRange.new(0)
+	core.ZOffset = 0.07 * scale
+
+	local forks = {}
+	for _, side in { -1, 1 } do
+		local anchor = Instance.new("Attachment")
+		anchor.Name = "SlipframeFlashEdge"
+		anchor.CFrame = holder.CFrame
+			* CFrame.new(side * 0.105 * scale, 0.046 * scale, -0.05 * scale)
+		anchor.Parent = holder.Parent
+		local flare = emitter(anchor, VFX.SPARK, SLIPFRAME_BLUE)
+		fire(flare)
+		flare.Color = ColorSequence.new(SLIPFRAME_ICE, SLIPFRAME_BLUE)
+		flare.LightEmission = 0.86
+		flare.Brightness = 1.75
+		flare.LockedToPart = true
+		flare.Rotation = NumberRange.new(-side * 36)
+		flare.Lifetime = NumberRange.new(0.068)
+		flare.Size = curve({ 0, 0.43 * scale, 0.25, 0.58 * scale, 1, 0.19 * scale })
+		flare.Transparency = curve({ 0, 0, 0.52, 0.15, 1, 1 })
+		flare.ZOffset = 0.045 * scale
+		table.insert(forks, flare)
+	end
+	return core, forks
+end
+
 local function buildRig(
 	muzzle: Attachment,
 	config: WeaponConfig,
 	scale: number,
 	firstPerson: boolean,
-	spectral: Color3?
+	spectral: Color3?,
+	style: FlashStyle?
 ): MuzzleRig?
 	local parent = muzzle.Parent
 	if not parent or not parent:IsA("BasePart") then
@@ -122,6 +165,7 @@ local function buildRig(
 	end
 	local suppressed = config.suppressed == true
 	local puff = suppressed or config.muzzleDevice == true
+	local coolFlash = firstPerson and style == "Slipframe" and not puff
 	local s = scale * flashSize(config) * (if suppressed then 0.6 else 1)
 
 	-- The flash is a billboard: centred on the opening, the barrel (or a
@@ -137,7 +181,10 @@ local function buildRig(
 
 	local front: ParticleEmitter
 	local core: ParticleEmitter? = nil
-	if puff then
+	local forks: { ParticleEmitter }? = nil
+	if coolFlash then
+		front, forks = slipframeFlash(holder, s)
+	elseif puff then
 		-- A quick grey puff out of the can or brake, no flame.
 		front = emitter(holder, VFX.SMOKE_2x2, PUFF)
 		flipbook(front)
@@ -186,7 +233,7 @@ local function buildRig(
 	local side: ParticleEmitter? = nil
 	local embers: ParticleEmitter? = nil
 	local darkFlame: ParticleEmitter? = nil
-	if not puff then
+	if not puff and not coolFlash then
 		local sideSize = (if firstPerson then 0.8 else 1.15) * s
 		-- The side flame's texture starts at its bottom edge, so it sits half
 		-- its size ahead of the muzzle.
@@ -242,10 +289,15 @@ local function buildRig(
 	end
 
 	-- One grey puff per shot, drifting forward and up.
-	local smokeColor = if spectral then Color3.fromRGB(109, 161, 153) else SMOKE
+	local smokeColor = if coolFlash
+		then Color3.fromHex("BBCBDA")
+		elseif spectral then Color3.fromRGB(109, 161, 153)
+		else SMOKE
 	local smoke = emitter(holder, VFX.SMOKE_2x2, smokeColor)
 	flipbook(smoke)
-	smoke.Lifetime = if spectral then NumberRange.new(0.21, 0.43) else NumberRange.new(0.6, 1.1)
+	smoke.Lifetime = if coolFlash or spectral
+		then NumberRange.new(0.21, 0.43)
+		else NumberRange.new(0.6, 1.1)
 	smoke.Speed = NumberRange.new(2 * s, 5 * s)
 	smoke.SpreadAngle = Vector2.new(18, 18)
 	smoke.EmissionDirection = Enum.NormalId.Front
@@ -272,8 +324,8 @@ local function buildRig(
 	wisp.Transparency = curve({ 0, 1, 0.2, 0.86, 1, 1 })
 
 	local light = Instance.new("PointLight")
-	light.Color = spectral or FIRE
-	light.Range = if spectral then 4.4 elseif puff then 4 else 10
+	light.Color = if coolFlash then SLIPFRAME_BLUE else spectral or FIRE
+	light.Range = if coolFlash or spectral then 4.4 elseif puff then 4 else 10
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = holder
@@ -283,13 +335,15 @@ local function buildRig(
 		side = side,
 		core = core,
 		darkFlame = darkFlame,
+		forks = forks,
 		embers = embers,
 		smoke = smoke,
 		wisp = wisp,
 		light = light,
 		-- Fast guns pop a dimmer light, or the room strobes.
-		brightness = if spectral
-			then 2.4
+		brightness = if coolFlash
+			then 1.65
+			elseif spectral then 2.4
 			elseif puff then (if suppressed then 0 else 0.5)
 			elseif config.fireInterval < 0.1 then 1.6
 			else 2.4,
@@ -311,12 +365,13 @@ function MuzzleFx.flash(
 	config: WeaponConfig,
 	firstPerson: boolean,
 	smoke: boolean?,
-	spectral: Color3?
+	spectral: Color3?,
+	style: FlashStyle?
 )
 	local scale = if firstPerson
 		then (config.viewmodelScale or ViewmodelConfig.SCALE) * FP_FLASH
 		else 1
-	local rig = rigs[muzzle] or buildRig(muzzle, config, scale, firstPerson, spectral)
+	local rig = rigs[muzzle] or buildRig(muzzle, config, scale, firstPerson, spectral, style)
 	if not rig then
 		return
 	end
@@ -324,6 +379,11 @@ function MuzzleFx.flash(
 		rig.darkFlame:Emit(1)
 	end
 	rig.front:Emit(1)
+	if rig.forks then
+		for _, flare in rig.forks do
+			flare:Emit(1)
+		end
+	end
 	if rig.core then
 		rig.core:Emit(1)
 	end

@@ -92,25 +92,27 @@ function EffectsController.ejectShell(
 	ShellFx.eject(eject, config, scale, inherit)
 end
 
--- `own`: our own shot (a little fainter: it runs straight away from the eye;
--- fainter still from a suppressed gun, which shows enemies no tracer at all).
-local function shadowShot(config: WeaponConfig): Color3?
+local function cameraSkinLine(): string?
 	local cam = Workspace.CurrentCamera
 	local model = cam and cam:FindFirstChild("Viewmodel")
+	local line = model and StateValues.get(model, "SkinLine")
+	return if typeof(line) == "string" then line else nil
+end
+
+local function shadowShot(config: WeaponConfig): Color3?
 	return if RuinBlightedPresentation[config.id] ~= nil
-			and model
-			and StateValues.get(model, "SkinLine") == ShadowMist.LINE
+			and cameraSkinLine() == ShadowMist.LINE
 		then ShadowMist.SHOT_TINT
 		else nil
 end
 
 -- Our own camera gun wears the Tempest-Strike line (first-person shot effects).
 local function tempestShot(): boolean
-	local cam = Workspace.CurrentCamera
-	local model = cam and cam:FindFirstChild("Viewmodel")
-	return model ~= nil and StateValues.get(model, "SkinLine") == Tempest.LINE
+	return cameraSkinLine() == Tempest.LINE
 end
 
+-- `own`: our own shot (a little fainter: it runs straight away from the eye;
+-- fainter still from a suppressed gun, which shows enemies no tracer at all).
 function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
 	local tempest = own == true and tempestShot()
 	local tint = if own then (if tempest then Tempest.SHOT_TINT else shadowShot(config)) else nil
@@ -244,8 +246,11 @@ function EffectsController.localShot(config: WeaponConfig, side: string?, muzzle
 	local scale = config.viewmodelScale or ViewmodelConfig.SCALE
 	local muzzle = viewmodelPoint(side, muzzleName or "Muzzle")
 	if muzzle then
-		if tempestShot() then
+		local line = cameraSkinLine()
+		if line == Tempest.LINE then
 			TempestFx.flash(muzzle, scale)
+		elseif line == "Slipframe" and config.id == "Guardian" then
+			MuzzleFx.flash(muzzle, config, true, nil, nil, "Slipframe")
 		else
 			MuzzleFx.flash(muzzle, config, true, nil, shadowShot(config))
 		end

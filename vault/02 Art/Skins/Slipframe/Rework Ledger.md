@@ -74,6 +74,18 @@ The owner asked for the Guardian effects and model in game before proceeding wit
 - Team Create saved Match **v990** and Lobby **v897**. The review is in Studio. The game's published versions are separate.
 - Studio preview is enabled for the hero. The remaining guns, case catalog, and custom audio follow the owner's review.
 
+### Owner review and effects revision
+
+The owner found the previous receiver glint hard to see at gameplay size and asked for a distinct muzzle flash and a more purposeful inspect. The revision is in the repository. Studio was in use, so the existing place saves remain the record for the first pass.
+
+| Cue | Revised first-person presentation |
+| --- | --- |
+| Fire | A compact cool-white muzzle core and two angled blue flares last about 50 to 70 ms. On the gun, the receiver seam lights up, a broad pulse washes across the blue fore-end, and a thin highlight travels toward the muzzle for a 170 ms total cue. ADS reduces intensity. |
+| Inspect | The camera pose holds the player-facing shoulder in view for the reveal. The blue panel lifts clear of its pocket and slides rearward. Three recessed contacts illuminate in order and send one sweep down the blue fore-end. The panel then slides forward and seats as the gun rolls back into the hold. |
+| Magazine seat | A brief receiver flash and low blue light mark the existing mag-in beat. |
+
+The camera clone uses the existing Guardian r05fx panel, inlay and blue fore-end MeshParts. The standard world gun, tracers, hit effects and audio retain their current presentation. The [VFX Design Playbook](../../../LihFolk/07%20Lighting%20VFX%20and%20Audio/VFX%20Design%20Playbook.md) informed the white core, blue edge and short falloff. Offline Luau checks covered the inspect sequence and reset, fire and reload fades, ADS attenuation, hiding, and the muzzle recipe and its stock and Shadow Mist fallbacks. In-game appearance remains open for owner review.
+
 ## Review and install gates
 
 1. Capture matched stock and candidate hero, left, right, top, underside, join details, first-person and ADS views for every version. Check Fire, Reload, ReloadEmpty and Inspect poses where the stock source provides them.

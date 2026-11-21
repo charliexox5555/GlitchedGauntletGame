@@ -1049,7 +1049,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	gun.reaver = RuinedReaver.new(m, scale)
 	gun.shadowMist = if gun.reaver then nil else ShadowMistIdle.new(m, scale)
 	gun.tempest = TempestIdle.new(m, scale)
-	if StateValues.get(m, "SkinLine") == "Slipframe" then
+	if templateId == "Guardian" and StateValues.get(m, "SkinLine") == "Slipframe" then
 		gun.slipframe = SlipframeEffects.new(m, scale)
 	end
 	gun.kunai = TempestKunai.new(m, scale)
@@ -2048,6 +2048,7 @@ function ViewmodelController.inspect(): boolean
 		elseif
 			guns.Right.tempest and TempestIdle.track(guns.Right.tempest, "inspect")
 		then TempestIdle.track(guns.Right.tempest, "inspect") :: string
+		elseif guns.Right.slipframe then "InspectSlipframe"
 		elseif guns.Right.fan then "InspectFan"
 		elseif c.fireMode == "Melee" then "InspectMelee"
 		else VM.INSPECT_TRACK[c.id] or "Inspect"

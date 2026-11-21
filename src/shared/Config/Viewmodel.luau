@@ -2203,6 +2203,36 @@ return table.freeze({
 		-- hold has a look in it (a tilt up to show the top, then back); the
 		-- gun comes home past the hold and bounces.
 		Inspect = inspectTrack(),
+		-- Hold the Slipframe's left shoulder toward the eye through the contact
+		-- sequence, then roll across the glow and seat it on the way home.
+		InspectSlipframe = {
+			length = 2.65,
+			pivot = "Center",
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.06, Vector3.new(0.02, -0.04, 0.02), Vector3.new(-4, -7, 4)),
+				key(
+					0.175,
+					Vector3.new(-0.34, 0.19, -0.22),
+					Vector3.new(8, 68, -19),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(0.29, Vector3.new(-0.32, 0.17, -0.23), Vector3.new(6, 63, -15)),
+				key(0.45, Vector3.new(-0.34, 0.185, -0.22), Vector3.new(11, 61, -18)),
+				key(0.60, Vector3.new(-0.35, 0.21, -0.23), Vector3.new(14, 68, -24)),
+				key(0.73, Vector3.new(-0.31, 0.17, -0.22), Vector3.new(4, 60, -12)),
+				key(0.805, Vector3.new(-0.27, 0.145, -0.18), Vector3.new(3, 53, -10)),
+				key(
+					0.94,
+					Vector3.new(0.016, -0.024, 0.015),
+					Vector3.new(-3, -3.5, 2),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(1, ZERO, ZERO),
+			},
+		},
 		InspectRuinGuardian = ruinInspect(
 			4.4,
 			Vector3.new(-0.42, 0.24, -0.98),
