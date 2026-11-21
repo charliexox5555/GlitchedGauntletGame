@@ -58,17 +58,17 @@ METRO4 = Plan(
 		Box("Hall step low", -97.5, 52.5, 5, 5, 3.5, 0, "plinth"),
 		# shop block (east half), full cover
 		Box("Shops", 72.5, 45, 30, 25, 10),
-		Box("Shop crates", 45, 65, 5, 10, 3.5, 0, "low"),
-		Box("Crate stack 2", 35, 45, 5, 10, 12),
+		Box("Shop delivery", 45, 65, 5, 10, 3.5, 0, "low"),
+		Box("Stair house", 35, 45, 5, 10, 12),  # the underpass stair
 		# near the spawn: kiosk baffle, planter, crates
 		Box("Kiosk", 0, 77.5, 20, 6, 10, 0, "baffle"),
 		Box("Planter", 30, 75, 10, 10, 3.5, 0, "low"),
-		Box("Ticket gates", -35, 45, 15, 3, 3.5, 0, "low"),
+		Box("Ticket gates", -42.5, 45, 15, 3, 3.5, 0, "low"),  # v4: built off the ticket hall
 		Box("Vending 2", 75, 31, 6, 3, 9),  # against the shop front
-		Box("Back crates", -65, 92.5, 10, 5, 3.5, 0, "low"),
-		Box("Crate stack", -25, 50, 5, 10, 12),
-		Box("Crates", 15, 52.5, 10, 5, 3.5, 0, "low"),
-		Box("Luggage cart", -40, 90, 10, 5, 3.5, 0, "low"),
+		Box("Back benches", -65, 92.5, 10, 5, 3.5, 0, "low"),
+		Box("Lift tower", -25, 50, 5, 10, 12),
+		Box("Bench island", 15, 52.5, 10, 5, 3.5, 0, "low"),
+		Box("Back benches 2", -40, 92.5, 10, 5, 3.5, 0, "low"),  # v4: seating along the back
 	],
 	spawns_a=[(-12, 98), (0, 100), (12, 98), (-6, 93), (6, 93)],
 	duel=False,

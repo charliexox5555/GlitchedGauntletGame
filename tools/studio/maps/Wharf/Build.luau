@@ -1200,7 +1200,7 @@ return function(): string
 		for i = 1, nx do
 			for j = 1, nz do
 				crateN += 1
-				local style = if (crateN * 5 + i + j) % 3 == 0 then "B" else "A"
+				local style = "A" -- one style, one orientation (owner 2026-11-20: crates must look consistent)
 				kit(
 					"Props",
 					"Crate" .. style .. "_" .. key,
@@ -1211,7 +1211,7 @@ return function(): string
 							y0,
 							cz - sz / 2 + (j - 0.5) * uz + (j - (nz + 1) / 2) * 0.06
 						)
-						* CFrame.Angles(0, math.rad(90 * ((crateN + i) % 4)), 0),
+						* CFrame.Angles(0, 0, 0),
 					"Crate"
 				)
 			end

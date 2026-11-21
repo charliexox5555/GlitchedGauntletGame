@@ -81,6 +81,20 @@ Plan image: `vault/02 Art/References/maps/metro4/metro4-layout.png` (+ SVG).
    - Audits **0 z-fighting / 0 floating** (from 9 / 0 after the first v3 build: touching crate units, the cab's paint band and anti-climber sharing the joint plane). Reach unchanged: bed centre 94, enemy spawn 195, footbridge 105, own hall deck 69; train roofs, kiosk and crate stacks still unreachable. 2,913 parts.
    - Captures: `metro4-v2-bridge-before.jpg`, `metro4-v3-bridge / -kiosk / -gates / -planter.jpg`.
 
+6. **Owner notes on v3 (2026-11-20):** (1) **holes in the glass and its connection** at the roof edge over the long walls; (2) **inconsistent crates and boxes** ("that look I am trying to avoid"); (3) props **just placed, not fitting**: the luggage cart doesn't fit, the **ticket gates stand out in the open**; "structure it like a real map". → v4: close the eave (beam + glass to it), one crate style square to the grid, and every footprint given a station job (gate line built off the ticket hall, lift tower, underpass stair house, seating along the back wall, bench island, shop deliveries on pallets, vending built into a stone surround).
+
+7. **v4 (2026-11-20, for those notes):**
+   - **Glass:** the wall glazing stopped at 25.8 and the roof glass started about 26.8, so every eave had an open slot. An **eave beam** (with a cap plate and a gutter lip) now runs along both wall heads; the wall glass, mullions and pilasters run up into it and the roof glass edge lands in it. Purlins stop past the end trusses' chords.
+   - **Crates:** one style (A, braced), all facing the same way, on Metro and Wharf. Crates now only appear where goods would be (the shop delivery; Wharf's yard and dock).
+   - **Every piece has a job (a real station):**
+     - The **gate line** runs from the ticket hall's east wall (x -50) to an end post under a steel portal frame with a light strip.
+     - The 12-high crate towers became a **lift tower** (steel frame, panelled base, glazed shaft, roof and motor room, doors and call panel facing the gates) and an **underpass stair house** (brick, stone quoins and band, glazed clerestory, stone-framed stairwell facing the platform).
+     - The loose crates became a **bench island** (two benches back to back round a hedge strip), and the back crates plus the luggage cart became **benches with bins along the back** (both rows now on one line, z 92.5).
+     - The free-standing vending pair is **built in** (stone cheeks, back wall, steel canopy); the shop-front pair has cheeks and a canopy.
+     - The west steps up to the hall deck are a **brick terrace** in the hall's own materials.
+   - Layout: same footprints except the gate line (x -35 → -42.5) and the back benches (z 90 → 92.5): longest 243, 0 pinches, first sight 3.8 s, 0.4% of the enemy half sees a spawn. Reach unchanged (94 / 195 / 105 / 69). Audits **0 / 0** (after fixing 8 pairs and a floating call panel from the first v4 build). 3,012 parts.
+   - Captures: `metro4-v3-eave-before.jpg`, `metro4-v4-eave / -gates / -concourse.jpg`.
+
 ## Checks (v2, 2026-11-20)
 | Check | Result |
 |---|---|
