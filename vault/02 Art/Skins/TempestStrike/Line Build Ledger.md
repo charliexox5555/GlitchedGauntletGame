@@ -61,6 +61,12 @@ Blender-only build of the rest of the Tempest-Strike line, per the [Line Blender
   - Audit: 0 floating, 0 z-fight, 0 open edges, 0 inverted.
   - **Grade 9/10**: silhouette 9 · crispness 9 · layering 9 · connections 9 · ADS n/a · palette 9 · budget 10 (2,396 ≤ 3.5K) · contract 10.
 - **Export s03x** (supersedes s02x) · `art-source/weapons/Skins/TempestStrike/Knife/s03x/Knife_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 7 MeshParts, **2,396 tris**, bones Root + **TS_Katana** (pivot at the kunai tip, x 0.832) and **TS_Ring** (pivot at the ring centre, x -0.392). One-sided check: no holes, no flipped faces.
+- **s04** (owner on s03: "a lot better; the kunai part should be bigger, the root, and the katana should come out of it like the reference; the connection is too thin there"; a transparent hologram look will help) (`tempest_kunai/13_s04.py`) · [sheet](out/Knife_s04_review.png) · [close-ups](out/Knife_s04_closeups.png) · **2,464 tris**, 23 parts.
+  - **Bigger kunai root:** shoulder half-height 0.074 -> 0.088, tip x 0.832 -> 0.935, thicker spine; the lightning crack runs the length of the solid part.
+  - **Katana grows out of the kunai:** the water blade starts as a fuller kunai-shaped sleeve over the kunai's front (x 0.76; the kunai stays solid black from the guard to there), bursts out to the full katana width within 0.1 stud (half-height 0.061), then runs to the tip at x 2.33 with a gentle upward curve. Its root is as broad as the kunai, no thin neck; the kunai's point continues inside it.
+  - **Hologram preview (review only):** the review renders draw `TS Water` translucent (alpha 0.55) so the kunai shows through, the way it will look once Studio makes it water. The flat export still carries plain cyan 40F5D4 SmoothPlastic; transparency, lighting and ribbons are the Studio VFX pass.
+  - Audit: 0 floating, 0 z-fight, 0 open edges, 0 inverted. **Grade 9/10** (as s03; connection and proportion now follow the sheet).
+- **Export s04x** (supersedes s03x) · `art-source/weapons/Skins/TempestStrike/Knife/s04x/Knife_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 7 MeshParts, **2,464 tris**, bones Root + **TS_Katana** (pivot where the blade leaves the kunai, x 0.76, so the extension grows out of it) and **TS_Ring** (ring centre, x -0.392). One-sided check: no holes, no flipped faces.
 
 ## Hand-back summary (2026-11-22)
 | Item | Grade | Tris | Review sheet | Export |
@@ -69,6 +75,6 @@ Blender-only build of the rest of the Tempest-Strike line, per the [Line Blender
 | Marshal | 9 | 4,432 (+92 stock lens) | [s02](out/Marshal_s02_review.png) | `Marshal/s02x/` (TS_ScopeRingRear/Front, TS_Gate; Lever stock) |
 | Bucky | 9 | 6,018 | [s02](out/Bucky_s02_review.png) | `Bucky/s02x/` (TS_PlateL/R; Pump stock) |
 | Sheriff | 9 | 5,158 | [s02](out/Sheriff_s02_review.png) | `Sheriff/s02x/` (TS_SidePlateL/R; Cylinder, Hammer stock) |
-| Kunai-Katana | 9 | 2,396 | [s03](out/Knife_s03_review.png) | `Knife/s03x/` (TS_Katana, TS_Ring) |
+| Kunai-Katana | 9 | 2,464 | [s04](out/Knife_s04_review.png) | `Knife/s04x/` (TS_Katana, TS_Ring) |
 
 Nothing uploaded or installed. Review PNGs in `out/` are git-ignored (local only), like the Vandal's. Grades are self-grades against the handoff rubric (no blind reviewers this round).
