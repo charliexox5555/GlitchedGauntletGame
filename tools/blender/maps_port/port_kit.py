@@ -60,6 +60,20 @@ def corrugated_wall(M, mat, x0, x1, y_face, sign, z0, z1, depth=0.32, skin=0.18)
 	M.prism(poly if sign > 0 else list(reversed(poly)), z0, z1, mat)
 
 
+def corrugated_end(M, mat, y0, y1, x_face, z0, z1, depth=0.32, skin=0.18):
+	"""The blind end's wall: trapezoid ribs between y0 and y1, outer face at x_face (the -X end), ribs pressed
+	`depth` in toward +X. One closed prism, so there are no gaps between ribs."""
+	n = max(2, round((y1 - y0) / PITCH))
+	p = (y1 - y0) / n
+	out = []
+	for i in range(n):
+		a = y0 + i * p
+		out += [(x_face, a), (x_face, a + p * 0.38), (x_face + depth, a + p * 0.5), (x_face + depth, a + p * 0.88)]
+	out.append((x_face, y1))
+	back = x_face + depth + skin
+	M.prism(out + [(back, y1), (back, y0)], z0, z1, mat)
+
+
 def container(name, body="C_Red", frame="C_RedDark", collection=None, doors=True, length=L):
 	"""10 x 10 x `length` shipping container: chamfered corner posts, top and bottom rails, corrugated long sides
 	and blind end, a two-leaf door end with four lock bars, corner castings. Fills its box exactly."""
@@ -95,23 +109,19 @@ def container(name, body="C_Red", frame="C_RedDark", collection=None, doors=True
 	M.prism(A.cham(-hx + 0.6, hx - 0.6, -hy + 0.6, hy - 0.6, 0.05), H - RAIL, H - 0.25, B)
 	for xr in (-hx / 2, hx / 2):
 		M.prism(A.cham(xr - 0.4, xr + 0.4, -hy + 0.6, hy - 0.6, 0.08), H - 0.25, H - 0.1, B)
-	# blind end (-X): vertical corrugation, written in the YZ plane by swapping axes through a rotated prism
-	n = max(2, round((W - 2 * POST) / PITCH))
-	p = (W - 2 * POST) / n
-	xf = -hx + 0.08
-	for i in range(n):
-		y = -hy + POST + i * p
-		M.loft(
-			[
-				[(xf, y, RAIL), (xf, y + p * 0.4, RAIL), (xf + 0.32, y + p * 0.52, RAIL), (xf + 0.32, y + p * 0.9, RAIL), (xf + 0.5, y + p * 0.9, RAIL), (xf + 0.5, y, RAIL)],
-				[(xf, y, H - RAIL), (xf, y + p * 0.4, H - RAIL), (xf + 0.32, y + p * 0.52, H - RAIL), (xf + 0.32, y + p * 0.9, H - RAIL), (xf + 0.5, y + p * 0.9, H - RAIL), (xf + 0.5, y, H - RAIL)],
-			],
-			B,
-		)
+	# blind end (-X): vertical corrugation as ONE closed wall (rib profile outside, flat skin behind), post to post.
+	# Fix 2026-11-20: it used to be five separate ribs with a 0.16-stud slit between each, so you could see
+	# through the end of every container (Pier + Dockyard).
+	corrugated_end(M, B, -hy + POST, hy - POST, -hx + 0.08, RAIL, H - RAIL)
 	if doors:
 		# door end (+X): two leaves, each with three inset panels, four lock bars (6-sided), hinge blocks
 		xo = hx - 0.06
 		gap = 0.08
+		# door seal: a backing plate behind both leaves, post to post, so the leaf gap shows a dark seal, not the
+		# hollow inside (fix 2026-11-20)
+		# (its ends sit 0.05 inside the leaves' outer edges and 0.05 into the rails: no shared faces)
+		ys = hy - POST - 0.05
+		M.prism([(xo - 0.5, -ys), (xo - 0.3, -ys), (xo - 0.3, ys), (xo - 0.5, ys)], RAIL - 0.05, H - RAIL + 0.05, Bar)
 		for sy in (-1, 1):
 			ya, yb = (gap / 2, hy - POST) if sy > 0 else (-hy + POST, -gap / 2)
 			M.prism([(xo - 0.35, ya), (xo, ya), (xo, yb), (xo - 0.35, yb)], RAIL, H - RAIL, B)

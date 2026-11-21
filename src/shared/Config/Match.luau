@@ -14,7 +14,7 @@ export type Phase = {
 export type MapEntry = { id: string, minTeam: number, maxTeam: number, name: string?, image: string? }
 
 return table.freeze({
-	MAP = "Whitebox", -- the default map: a Model in ServerStorage.Maps (or still in Workspace)
+	MAP = "Arena", -- the default map: a Model in ServerStorage.Maps (or still in Workspace)
 	-- The map pool (vault/01 Design/Maps/00 Maps.md → Roster): before each match one
 	-- installed map is picked at random among those that fit the bigger team
 	-- (minTeam..maxTeam players), not the last one when there's a choice. Big
@@ -24,16 +24,15 @@ return table.freeze({
 	-- Studio 2026-11-16, uploaded with tools/opencloud/upload_asset.py; these are the Image ids
 	-- behind the uploaded Decals, resolved with InsertService).
 	MAPS = {
-		{ id = "Whitebox", minTeam = 1, maxTeam = 2, image = "rbxassetid://113699614092356" },
-		{ id = "Rooftops", minTeam = 1, maxTeam = 2, image = "rbxassetid://108512318108524" },
-		{ id = "Bunker", minTeam = 1, maxTeam = 3, image = "rbxassetid://96494315728991" },
-		{ id = "Dockyard", minTeam = 1, maxTeam = 4, image = "rbxassetid://127177914979763" },
-		{ id = "Metro", minTeam = 2, maxTeam = 4, image = "rbxassetid://93727633957094" },
-		{ id = "OldTown", minTeam = 2, maxTeam = 4, image = "rbxassetid://96459699112891" },
-		{ id = "BigWhitebox", minTeam = 3, maxTeam = 4, image = "rbxassetid://121999397106265" },
-		{ id = "Greenhouse", minTeam = 2, maxTeam = 4, image = "rbxassetid://114783178030455" },
-		{ id = "Snowpeak", minTeam = 1, maxTeam = 3, image = "rbxassetid://103440518160817" },
-		-- Dockyard2 (redesign, 2026-11-05) is installed but left out on purpose: ForceMap only until approved.
+		-- Owner 2026-11-20: only the simple maps play (vault/04 Tech/Prompts/2026-11-20 Docks Map Build.md).
+		-- Every other map stays installed in the place (ForceMap still loads it) but is out of the rotation
+		-- and the vote: Whitebox, BigWhitebox, Rooftops(2/3), Courtyard, Bunker(2/3), Foundry, Snowpeak(2/3),
+		-- ModelKit, OldTown(2/3), Metro(2/3), Greenhouse(2/3), Dockyard2.
+		{ id = "Arena", minTeam = 1, maxTeam = 2 },
+		{ id = "Pier", minTeam = 1, maxTeam = 2 },
+		{ id = "Wharf", minTeam = 1, maxTeam = 2 }, -- 2026-11-20, vault/01 Design/Maps/Wharf.md
+		{ id = "BigArena", name = "Big Arena", minTeam = 2, maxTeam = 3 },
+		{ id = "Dockyard", minTeam = 2, maxTeam = 3 },
 	} :: { MapEntry },
 
 	-- The map vote before round 1 (vault/02 Art/UI Match Overhaul.md, after
