@@ -463,6 +463,96 @@ local function cameraAt(r: Run, t: number): (CFrame, number)
 	return cf, fov
 end
 
+-- The look into the lens ------------------------------------------------------------
+
+-- A Motor6D's own Transform as the clip left it this frame (the Animator
+-- writes it before we do; when it didn't, our last write is still there,
+-- so the clip's value is the one we kept).
+type Look = { motor: Motor6D, base: CFrame, wrote: CFrame? }
+local looks: { [Motor6D]: Look } = setmetatable({}, { __mode = "k" }) :: any
+
+local function baseOf(motor: Motor6D): Look
+	local l = looks[motor]
+	if not l then
+		l = { motor = motor, base = motor.Transform, wrote = nil }
+		looks[motor] = l
+	end
+	if l.wrote == nil or motor.Transform ~= l.wrote then
+		l.base = motor.Transform
+	end
+	return l
+end
+
+-- Turns `motor`'s child so its look swings `share` of the way toward `to`
+-- (capped at `max` degrees), from the clip's own pose: `parent` is the world
+-- frame of Part0 as it is now (with any turn we gave it this frame), the
+-- forward is the child's from the clip's Transform, never from what was
+-- drawn last frame (that already has our turn in it, so it would flicker).
+-- `aboutVertical` = turn about the vertical only. Returns the child's new world frame.
+local function turnToward(
+	motor: Motor6D,
+	parent: CFrame,
+	to: Vector3,
+	share: number,
+	max: number,
+	aboutVertical: boolean
+): CFrame
+	local l = baseOf(motor)
+	local joint = parent * motor.C0
+	local c1 = motor.C1:Inverse()
+	local forward = (joint * l.base * c1).LookVector
+	local aim = to
+	if aboutVertical then
+		forward = Vector3.new(forward.X, 0, forward.Z)
+		aim = Vector3.new(to.X, 0, to.Z)
+		if forward.Magnitude < 1e-3 or aim.Magnitude < 1e-3 then
+			return joint * l.base * c1
+		end
+		forward, aim = forward.Unit, aim.Unit
+	end
+	local axis = forward:Cross(aim)
+	local angle = math.acos(math.clamp(forward:Dot(aim), -1, 1))
+	local t = l.base
+	if axis.Magnitude > 1e-4 and angle > 1e-3 then
+		angle = math.min(angle, math.rad(max)) * share
+		local turn = CFrame.fromAxisAngle(axis.Unit, angle)
+		-- the world turn about the joint, in the joint's own frame
+		local rot = joint.Rotation
+		t = (rot:Inverse() * turn * rot) * l.base
+	end
+	motor.Transform = t
+	l.wrote = t
+	return joint * t * c1
+end
+
+local function lookAtCamera(r: Run, t: number, eye: Vector3)
+	local cfg = Config.LOOK
+	if t <= cfg.from then
+		return
+	end
+	local u = math.clamp((t - cfg.from) / (cfg.full - cfg.from), 0, 1)
+	local w = u * u * (3 - 2 * u)
+	for _, a in r.actors do
+		local head = a.copy:FindFirstChild("Head")
+		local upper = a.copy:FindFirstChild("UpperTorso")
+		local lower = a.copy:FindFirstChild("LowerTorso")
+		if not (head and head:IsA("BasePart") and upper and upper:IsA("BasePart")) then
+			continue
+		end
+		local toEye = (eye - head.Position).Unit
+		local waist = upper:FindFirstChild("Waist")
+		local chest = upper.CFrame
+		if waist and waist:IsA("Motor6D") and lower and lower:IsA("BasePart") then
+			-- the chest turns a little, about the vertical (no bow to the lens)
+			chest = turnToward(waist, lower.CFrame, toEye, w * cfg.chest, cfg.max, true)
+		end
+		local neck = head:FindFirstChild("Neck")
+		if neck and neck:IsA("Motor6D") then
+			turnToward(neck, chest, toEye, w, cfg.max, false)
+		end
+	end
+end
+
 -- The overlay (flash, bars) and grade ---------------------------------------------
 
 local function overlay(): (ScreenGui, Frame, { Frame })
@@ -701,6 +791,7 @@ local function step(r: Run, cam: Camera, dt: number)
 	-- the camera
 	local cf, fov = cameraAt(r, t)
 	cam.CFrame = cf
+	lookAtCamera(r, t, cf.Position)
 	CameraController.setOverrideFov(fov)
 	-- flashes
 	local white = 0

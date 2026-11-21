@@ -393,6 +393,12 @@ return table.freeze({
 	SKIP_TO = 6.6,
 	-- The clip → its hold loop crossfade, and the fade into the first clip.
 	HOLD_FADE = 0.3,
+	-- On the final pose every winner looks down into the camera (owner
+	-- 2026-11-20: "that's going to sell it"): the head turns to the lens on
+	-- top of the clip, eased in from `from` to `full` (song time), at most
+	-- `max` degrees from where the clip has it (so a head never spins), the
+	-- neck taking it all but `chest` of it (the chest turns a little too).
+	LOOK = table.freeze({ from = 6.3, full = 6.75, max = 70, chest = 0.25 }),
 	-- The held final shot also floats a little (studs, camera space; periods
 	-- in seconds) once the last key is reached: the "slight sway" on the pose.
 	HOLD_FLOAT = table.freeze({ x = 0.06, xPeriod = 5.1, y = 0.05, yPeriod = 3.9, fadeIn = 1.2 }),

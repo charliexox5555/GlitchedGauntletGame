@@ -89,6 +89,12 @@ Owner: "work on 2, 3, 4 and 5 player editions, get everybody to do stuff, the en
 - More than 5 winners: scene 5 plays and the rest stand in `EXTRA_SLOTS` on the lead's clip.
 - Owner's 2-player reference (a RIVALS end screen, git-ignored, not committed): the pair close, #2 lower, the camera very low; a stat plate under each winner and a crown on the best (UI, see What to test).
 
+### Round 5: everyone looks down into the lens
+Owner: "the players need to be looking at the camera at the end, looking down at the camera together; that's going to sell it."
+- `WinCutscene` turns each winner's head (and a little of the chest, about the vertical) toward the camera on top of the clip, every frame of the final shot: eased in from 6.30 to 6.75 (just after the pose lands), capped at 70 degrees from the clip's own head so nothing spins; the hold's breath stays underneath. Numbers: `Config/WinCutscene` `LOOK`.
+- It works from the clip's Transform each frame (the Neck / Waist Motor6Ds of the kinematic copy), not from the drawn head, which already has last frame's turn in it (that version flickered on and off in a dry run). Measured stable frame to frame.
+- Captures: the 5-player final and the solo final in Captures above now show the look.
+
 ### Results UI: winner cards (round 4)
 Owner: "our normal current ending UI shows up at that last scene; add cards and MVP cards for the winning players; maybe we don't need the leaderboard bottom left if it doesn't fit."
 - **The cards** (`ReplicatedStorage.UiTemplates.MatchEnd.Card`, Studio-owned, backup builder `tools/studio/BuildWinnerCard.luau`; filled by `Util/MatchEndScreen.cards`, data from `MatchEndController.showCards`): one per winner in a row along the bottom, each under its winner in the final shot (projected, then pushed apart so none overlap and kept left of the right column). Same look as the rest of the screen: a charcoal plate, the team-colour name block with its slanted cap and the player's headshot, E / D / A cells, damage dealt and taken; Rubik.
@@ -182,6 +188,7 @@ Measured in a play test: the clip and the song stay within 0.02 s of each other 
 - [ ] At a low frame rate (Studio ~15 fps) the cuts still land on the hits and the camera moves smoothly.
 - [ ] The winner holds a pistol or the knife: the hand poses still read (the clips are keyed on the rifle grip).
 - [ ] Each winner holds the gun they got the most eliminations with (a skin shows only if that's the gun they were holding at the end).
+- [ ] On the final pose every winner turns to look down into the camera (from about 6.3 s), and it holds steady (no flicker, no head spinning on the far ones).
 - [ ] The transition: high over the coil, a beat of stillness, the slam to the floor on the 6.14 hit, a small overshoot, the settle.
 - [ ] 2v2 to 5v5: the best performer (MVP, then eliminations, damage) is in the middle; the others stand spread out and each does their own moves; the camera stays on the best one until the final, where everyone is in view. Preview with `PreviewWinCutsceneCount`.
 - [ ] No hand or gun goes through a body or head; hands don't look twisted on the gun.
