@@ -911,6 +911,45 @@ No code yet: bots don't react and the bins don't open anything.
 - the Season Pass prompt is now unreachable in the world;
 - move the prop clusters as you like (`Hub.Dressing.Props`).
 
+## Range v3 (2026-11-21)
+
+**Owner's review:** "the shooting range is pretty boring. it needs more like structure ... not over the top ... the signs you have for markers are pretty bad. I want jump pads to be made in blender to look nice ... study the rivals shooting range so you actually understand the build".
+
+**Study:** [Maps and Lobby → Shooting range study](../03%20Research/Rivals%20Reference/Maps%20and%20Lobby.md#shooting-range-study-2026-11-21-workspaceshootingrangerivals-in-our-lobby-place-read-only). What the RIVALS range does:
+- structure comes from height and massing (50-high thick walls with doorways and windows, walkable roofs, bridges crossing overhead);
+- one material with a grid;
+- colour only on the lane floor and the gameplay objects;
+- distance as big text on the lane walls;
+- a modelled glowing jump pad.
+
+**Built** (`BuildRangeV3.luau`, place saved v883). Our layout, sized "not over the top". The yard's walls are now 45 high. Structures:
+- **Hangar** (hollow, 25 high): two doors, windows, a roof with parapets, a ladder.
+- **Long hall:** two 25-high walls with doorways and windows, beams across the top, walkable wall tops.
+- **Tower:** 40 high.
+- **Lookout:** 25 high, with parkour posts at 5 / 10 / 15 / 20 up its face.
+- **Bunker:** 15 high, with a ramp.
+- **Bridges at 25:** hangar roof → long hall, long hall → lookout, both on piers.
+- **Ground cover:** three U-walls and ten blocks.
+
+**Lane:**
+- A walled 55 × 210 corridor (walls 45 high).
+- Floor bands every 25 in our area colours: orange, yellow, teal, cyan, purple, slate, charcoal, grey.
+- **The distance numbers are on both lane walls** (25 … 200, white Rubik Heavy with a dark stroke, a band-coloured bar, "STUDS").
+- The bots stand on the 25-stud lines; their old post signs are gone.
+
+**Jump pads:**
+- Modelled in Blender (`tools/blender/lobby_v5/v5_jumppad.py`, asset 103017656207012, `V5Kit.JumpPad`; render `23`). Our own design: a clipped-square base, a notched rim, a recessed deck, a teal glow ring around a dark bezel and glowing core, four launch chevrons, and steel corner clamps.
+- Four of them, one onto each roof. `LobbyJumpPads` launches you.
+- **Tested in play: all four land on their roof.** In the air the humanoid caps sideways speed, so the pads sit about 7 from the wall and launch high.
+
+Audits: no overlaps, no floating parts, no flicker. Captures `20`–`23`.
+
+**Next / to check:**
+- walk it with several players;
+- tightropes / ziplines between the tower and the hangar (RIVALS has them; they need code);
+- loadout bin GUI;
+- Rojo reconnect (`RangeService`, `LobbyJumpPads` were added in Studio with the same source).
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).

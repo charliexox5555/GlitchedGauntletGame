@@ -154,3 +154,25 @@ Read from the RIVALS file (`Workspace.Lobby.Hub`, read-only: property reads and 
 22. **Show-off spots:** the dais, the lit pad squares, the Weapons room's gun tables. Your skin is seen most while you wait on a pad.
 23. **Things to do while waiting:** walk to the range, read the boards, the arcade cabinet, slide down the long aisle.
    *For us:* a range window in the hub, a stage to stand on, a slide run (the Duels walk), live boards.
+
+## Shooting range study (2026-11-21, `Workspace.ShootingRangeRivals` in our Lobby place, read-only)
+For [our range](../../02%20Art/Lobby%20V5%20Plan.md#range-v3-2026-11-21). Captures kept out of git (third-party).
+- **Size and levels.** About 250 × 250 open-roof yard plus a 55 × 180 lane. Ground at +0; a **rooftop level at +50**: 10-wide, 2.5-thick walkways with 2.5 × 5 × 20 parapets run between building tops. Spawn and exit portals are in the middle at ground level.
+- **Massing is the structure.** Thick (5) walls 50 high and solid 20 × 50 × 20 / 25 × 50 × 25 blocks make "buildings" and corridors. Walls have doorways and windows cut through, U-shaped walls, and pointed-gable arches under the walkways. Tall pillars (10 × 80-100 × 10) carry the tightropes high above. You always see structure overhead (bridges cross over the ground routes), and that's what reads as "a place", not a floor with boxes.
+- **Parkour steps.** Clusters of 5 × 5 posts at 5 / 10 / 15 / 25 high climb to the walls. TrussPart ladders (2 × 51) run up building sides. Jump pads on the ground launch you to the roofs.
+- **One material.** Plastic `#9799A3` with a grid texture whose 5-stud crossings show as "+" marks, everywhere. Only the lane floor, jump pads (neon blue), loadout bins (red) and the green/magenta "green screen" room are coloured.
+- **The lane.** A walled corridor 55 wide, walls 55 high, 180 long. The floor is bands 25 deep in strong colours: red, orange, yellow, green, blue, purple, black. **Distance markers are text on both lane walls** at every 25: an invisible part with a SurfaceGui, "100" in white Rubik Heavy over a small italic "studs away", with a dark UIStroke, about 5 high, at eye height. No floor plates.
+- **Jump pad** (3 MeshParts + a 11 × 3 × 11 trigger):
+  - a square base plate 10.7 wide with clipped corners;
+  - four raised corner blocks;
+  - a dark deck;
+  - a neon centre octagon and four neon bracket arcs pointing inward, separated by dark triangles.
+  - It reads from far away because it's the only glowing thing on the floor.
+- **Loadout bins:** red metal trash cans (3 × 3.5) with a lid that opens (Open/Close animations) and a ProximityPrompt.
+- **For us:**
+  - Build height and overhead structure, not just more floor clutter.
+  - Keep one material with our grid.
+  - Put colour on the lane floor and on the gameplay objects only.
+  - Distance numbers big on the lane walls.
+  - Jump pads modelled, glowing, readable at range.
+  - Make our own layout and our own pad design (study, don't copy).
