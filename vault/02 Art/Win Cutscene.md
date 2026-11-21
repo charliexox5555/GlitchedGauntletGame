@@ -89,6 +89,18 @@ Owner: "work on 2, 3, 4 and 5 player editions, get everybody to do stuff, the en
 - More than 5 winners: scene 5 plays and the rest stand in `EXTRA_SLOTS` on the lead's clip.
 - Owner's 2-player reference (a RIVALS end screen, git-ignored, not committed): the pair close, #2 lower, the camera very low; a stat plate under each winner and a crown on the best (UI, see What to test).
 
+### Results UI: winner cards (round 4)
+Owner: "our normal current ending UI shows up at that last scene; add cards and MVP cards for the winning players; maybe we don't need the leaderboard bottom left if it doesn't fit."
+- **The cards** (`ReplicatedStorage.UiTemplates.MatchEnd.Card`, Studio-owned, backup builder `tools/studio/BuildWinnerCard.luau`; filled by `Util/MatchEndScreen.cards`, data from `MatchEndController.showCards`): one per winner in a row along the bottom, each under its winner in the final shot (projected, then pushed apart so none overlap and kept left of the right column). Same look as the rest of the screen: a charcoal plate, the team-colour name block with its slanted cap and the player's headshot, E / D / A cells, damage dealt and taken; Rubik.
+- **The MVP card:** the best of the winners gets the bigger card (1.14x); when they are the match MVP it turns gold with the MVP badge (shard + MVP) above it.
+- **The rest of the screen stays:** VICTORY / DEFEAT and the score on top, the round history, your build, PLAY AGAIN / REMATCH / LEAVE. The scoreboard (bottom left) is hidden while the cards show: it doesn't fit next to them (`CARDS_KEEP_BOARD` turns it back on). Without the cutscene (phones), the old name plates show.
+- Everything comes in together in the same 0.45 s Quint Out beat (the cards rise 14 px and fade in).
+- **Save the match place** after pulling: the Card template lives in Studio.
+
+| | |
+|---|---|
+| ![5 cards](Win%20Cutscene/UI%205P%20cards.jpg) 5 winners: the MVP's gold card in the middle (preview data) | ![1 card](Win%20Cutscene/UI%201P%20card.jpg) 1 winner: the MVP card under them |
+
 ### Round 4: the final pose and its transition, everyone's own gun
 Owner: "the transition into the final pose should be more professional; the final pose closer to the camera, posed into the camera like RIVALS, closer together, some kneeling on the sides, more centred; they shouldn't all hold the same gun: the gun they got the most kills with that game."
 - **Final spots** (`RANKS[i].final`): on the cut into the final shot (5.80, hidden by the cut) the group closes up: the MVP in front, #2 and #3 on one knee at their sides (2.7 out, 1.1 back; #3 now kneels too, mirroring #2), #4 and #5 standing behind on the outside (5.8 out, 2.3 back), each turned to face the camera. While they move they still stand spread out.
@@ -124,7 +136,7 @@ Match place, Play, then in the **Client** command bar:
 require(game.ReplicatedStorage.Shared.StateValues).set(workspace, "PreviewWinCutscene", os.clock())
 ```
 
-It plays the cutscene with you as the winner (no results screen). Run it again to restart; `false` as the last argument stops it. For a group, first set how many winners (copies of you), 1 to 5:
+It plays the cutscene with you as the winner. Add the results screen with made-up stats (and the winner cards) with `require(game.ReplicatedStorage.Shared.StateValues).set(workspace, "PreviewWinCutsceneScreen", true)`. Run it again to restart; `false` as the last argument stops it. For a group, first set how many winners (copies of you), 1 to 5:
 
 ```lua
 require(game.ReplicatedStorage.Shared.StateValues).set(workspace, "PreviewWinCutsceneCount", 5)
@@ -173,6 +185,6 @@ Measured in a play test: the clip and the song stay within 0.02 s of each other 
 - [ ] The transition: high over the coil, a beat of stillness, the slam to the floor on the 6.14 hit, a small overshoot, the settle.
 - [ ] 2v2 to 5v5: the best performer (MVP, then eliminations, damage) is in the middle; the others stand spread out and each does their own moves; the camera stays on the best one until the final, where everyone is in view. Preview with `PreviewWinCutsceneCount`.
 - [ ] No hand or gun goes through a body or head; hands don't look twisted on the gun.
-- [ ] (UI, owner's reference) a stat plate under each winner and a crown on the best: not built yet (the results screen still has the scoreboard on the left).
+- [ ] The winner cards: one under each winner, the best one's bigger, gold with the MVP badge when they're the match MVP; headshots and stats right; no overlap with the right column at 5 winners; the scoreboard hidden; the cards come in with the rest of the screen.
 - [ ] Rematch / Play Again: the cutscene cleans up (no copies, bars, grade or flash left; camera back to normal).
 - [ ] A map with a `WinnerStage` part: it plays there, facing the part's front.

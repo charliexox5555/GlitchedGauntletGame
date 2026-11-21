@@ -501,6 +501,48 @@ local function showPlates(winner: number)
 	MatchEndScreen.plates(list)
 end
 
+local function portraitOf(line: Line?): string
+	local id = line and (line.portraitUserId or line.userId)
+	if id and id > 0 then
+		return string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", id)
+	end
+	return BOT_HEAD
+end
+
+-- A card under each winner in the cutscene's final shot (owner 2026-11-20),
+-- the best one's bigger; built from their results lines.
+local function cardOf(
+	copy: Model,
+	body: Model,
+	line: Line?,
+	ally: boolean,
+	lead: boolean
+): MatchEndScreen.CardData
+	local owner = Players:GetPlayerFromCharacter(body)
+	return {
+		model = copy,
+		name = if owner then owner.DisplayName else (if line then line.name else body.Name),
+		portrait = portraitOf(line),
+		ally = ally,
+		lead = lead,
+		mvp = line ~= nil and line.mvp == true,
+		eliminations = if line then line.eliminations else 0,
+		deaths = if line then line.deaths else 0,
+		assists = if line then line.assists else 0,
+		dealt = if line then line.dealt else 0,
+		taken = if line then line.taken else 0,
+	}
+end
+
+local function showCards(winner: number)
+	local ally = winner == Teams.of(player)
+	local list: { MatchEndScreen.CardData } = {}
+	for i, pair in WinCutscene.copies() do
+		table.insert(list, cardOf(pair.copy, pair.body, lineOf(pair.body), ally, i == 1))
+	end
+	MatchEndScreen.cards(list)
+end
+
 local function refreshScreen()
 	if MatchEndScreen.active() then
 		MatchEndScreen.refresh(
@@ -616,7 +658,12 @@ local function begin()
 		if MatchEndScreen.active() then
 			picked = nil
 			MatchEndScreen.show(screenData(data), choose)
-			showPlates(winner)
+			-- the winners' cards under them (the cutscene's copies), else name plates
+			if #WinCutscene.copies() > 0 then
+				showCards(winner)
+			else
+				showPlates(winner)
+			end
 			refreshScreen()
 		else
 			buildScreen(winner, data.score1, data.score2) -- phones: the old code-built screen
@@ -672,6 +719,7 @@ local PREVIEW_FIELD = "PreviewWinCutscene"
 -- (and "PreviewWinCutsceneAt" = song time holds it on that frame, for captures)
 local PREVIEW_AT = "PreviewWinCutsceneAt"
 local PREVIEW_COUNT = "PreviewWinCutsceneCount"
+local PREVIEW_SCREEN = "PreviewWinCutsceneScreen"
 local previewing = false
 
 local function stopPreview()
@@ -679,6 +727,7 @@ local function stopPreview()
 		return
 	end
 	previewing = false
+	MatchEndScreen.hide()
 	WinCutscene.stop()
 	CameraController.setOverride(nil)
 	WeaponController.setSpectating(false)
@@ -700,6 +749,65 @@ local function stopPreview()
 	if cam then
 		cam.CameraType = Enum.CameraType.Custom
 	end
+end
+
+-- Studio preview of the results screen over the cutscene ("PreviewWinCutsceneScreen"
+-- = true): made-up lines for the copies (you first) and two losers.
+local function previewScreen(n: number)
+	if not MatchEndScreen.active() then
+		return
+	end
+	local team = Teams.of(player) or 1
+	local lines: { Line } = {}
+	for i = 1, n do
+		table.insert(lines, {
+			id = if i == 1 then "p" .. player.UserId else "b" .. i,
+			name = if i == 1 then player.DisplayName else "Winner " .. i,
+			userId = if i == 1 then player.UserId else nil,
+			team = team,
+			eliminations = 16 - 3 * i,
+			deaths = 2 + i,
+			assists = i,
+			dealt = 2400 - 330 * i,
+			taken = 800 + 90 * i,
+			mvp = i == 1,
+		})
+	end
+	for i = 1, 2 do
+		table.insert(lines, {
+			id = "e" .. i,
+			name = "Enemy " .. i,
+			team = 3 - team,
+			eliminations = 4 - i,
+			deaths = 9,
+			assists = 1,
+			dealt = 900,
+			taken = 2000,
+		})
+	end
+	summary = lines
+	local results: Results = {
+		winner = team,
+		lines = lines,
+		score1 = if team == 1 then 5 else 3,
+		score2 = if team == 1 then 3 else 5,
+		rounds = {
+			"1:Sidearm",
+			"2:Sidearm",
+			"1:Primary",
+			"1:Primary",
+			"2:Primary",
+			"2:Power",
+			"1:Power",
+			"1:Power",
+		},
+	}
+	MatchEndScreen.show(screenData(results), function() end)
+	local list: { MatchEndScreen.CardData } = {}
+	for i, pair in WinCutscene.copies() do
+		table.insert(list, cardOf(pair.copy, pair.body, lines[i], true, i == 1))
+	end
+	MatchEndScreen.cards(list)
 end
 
 local function preview()
@@ -736,6 +844,11 @@ local function preview()
 	end
 	WinCutscene.play(winners, {
 		guns = guns,
+		onScreen = function()
+			if StateValues.get(Workspace, PREVIEW_SCREEN) == true then
+				previewScreen(n)
+			end
+		end,
 		onFrame = function()
 			for _, d in character:GetDescendants() do
 				if d:IsA("BasePart") or d:IsA("Decal") then

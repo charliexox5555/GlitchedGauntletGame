@@ -42,6 +42,22 @@ export type Data = {
 }
 
 export type PlateData = { model: Model, name: string, ally: boolean, mvp: boolean }
+-- A winner's card (owner 2026-11-20: a card with stats under each winning
+-- player, a bigger MVP card): `lead` = the best of the winners (the big card),
+-- `mvp` = the match MVP (the badge).
+export type CardData = {
+	model: Model,
+	name: string,
+	portrait: string,
+	ally: boolean,
+	lead: boolean,
+	mvp: boolean,
+	eliminations: number,
+	deaths: number,
+	assists: number,
+	dealt: number,
+	taken: number,
+}
 
 local DESIGN = Vector2.new(1920, 1080)
 local NAVY, NAVY_HI = Color3.fromHex("262629"), Color3.fromHex("39393C")
@@ -72,6 +88,7 @@ type State = {
 	onChoice: ((name: string) -> ())?,
 	plates: { Instance },
 	plateConn: RBXScriptConnection?,
+	cards: { Instance },
 	token: number,
 }
 
@@ -360,6 +377,7 @@ local function bind(gui: ScreenGui)
 		onChoice = nil,
 		plates = {},
 		plateConn = nil,
+		cards = {},
 		token = 0,
 	}
 	local function refit()
@@ -565,6 +583,133 @@ function MatchEndScreen.hide()
 		p:Destroy()
 	end
 	table.clear(s.plates)
+	for _, c in s.cards do
+		c:Destroy()
+	end
+	table.clear(s.cards)
+	s.board.Visible = true
+	local boardShadow = s.canvas:FindFirstChild("BoardShadow")
+	if boardShadow and boardShadow:IsA("GuiObject") then
+		boardShadow.Visible = true
+	end
+end
+
+-- The winners' cards, in a row along the bottom, each under its winner (the
+-- copies in the win cutscene's final shot), the best one's bigger with the
+-- MVP badge when they are the match MVP; pushed apart so none overlap and
+-- kept left of the right column. The scoreboard makes room (CARDS_KEEP_BOARD).
+-- They come in with the rest of the screen: one beat, Quint, no overshoot.
+local CARD_W, CARD_GAP, LEAD_SCALE = 260, 18, 1.14
+local CARD_BOTTOM = 1036 -- design px
+local CARD_LEFT, CARD_RIGHT = 40, 1436 -- the zone (the right column starts at 1460)
+local CARDS_KEEP_BOARD = false
+
+local function number(n: number): string
+	local str = tostring(math.floor(n + 0.5))
+	local out = str:reverse():gsub("(%d%d%d)", "%1,"):reverse()
+	return (out:gsub("^,", ""))
+end
+
+function MatchEndScreen.cards(list: { CardData })
+	local s = state
+	if not s then
+		return
+	end
+	local template = s.templates:FindFirstChild("Card")
+	local cam = Workspace.CurrentCamera
+	if not template or not template:IsA("GuiObject") or not cam or #list == 0 then
+		return
+	end
+	for _, c in s.cards do
+		c:Destroy()
+	end
+	table.clear(s.cards)
+	-- where each winner is on the screen, in the canvas's design pixels
+	local size = s.gui.AbsoluteSize
+	local fit = s.fit.Scale
+	local ox = (size.X - DESIGN.X * fit) / 2
+	type Slot = { data: CardData, x: number, w: number }
+	local slots: { Slot } = {}
+	for _, d in list do
+		local root = d.model:FindFirstChild("HumanoidRootPart")
+		local x = DESIGN.X / 2
+		if root and root:IsA("BasePart") then
+			local p = cam:WorldToViewportPoint(root.Position)
+			x = (p.X - ox) / fit
+		end
+		table.insert(slots, { data = d, x = x, w = CARD_W * (if d.lead then LEAD_SCALE else 1) })
+	end
+	table.sort(slots, function(a, b)
+		return a.x < b.x
+	end)
+	-- pushed apart, then the row moved into the zone
+	for i = 2, #slots do
+		local a, b = slots[i - 1], slots[i]
+		b.x = math.max(b.x, a.x + (a.w + b.w) / 2 + CARD_GAP)
+	end
+	local left = slots[1].x - slots[1].w / 2
+	local right = slots[#slots].x + slots[#slots].w / 2
+	local shift = 0
+	if right > CARD_RIGHT then
+		shift = CARD_RIGHT - right
+	end
+	if left + shift < CARD_LEFT then
+		shift = CARD_LEFT - left
+	end
+	local layer = s.canvas:FindFirstChild("Cards")
+	if not layer then
+		local f = Instance.new("Frame")
+		f.Name = "Cards"
+		f.Size = UDim2.fromScale(1, 1)
+		f.BackgroundTransparency = 1
+		f.ZIndex = 2
+		f.Parent = s.canvas
+		layer = f
+	end
+	for _, slot in slots do
+		local d = slot.data
+		local card = template:Clone() :: Frame
+		local body = child(card, "Body") :: CanvasGroup
+		local top = child(body, "Top") :: Frame
+		local team = child(top, "Team") :: Frame
+		local cap = child(top, "Cap") :: ImageLabel
+		local color = if d.lead and d.mvp then GOLD elseif d.ally then ALLY else ENEMY
+		team.BackgroundColor3 = color
+		cap.ImageColor3 = color
+		local nameLabel = child(team, "Name") :: TextLabel
+		nameLabel.Text = string.upper(d.name)
+		local portrait = child(team, "Portrait") :: ImageLabel
+		portrait.Image = d.portrait
+		local stats = child(body, "Stats") :: Frame
+		for i, v in { d.eliminations, d.deaths, d.assists } do
+			local value = child(child(stats, "Cell" .. i) :: Frame, "Value") :: TextLabel
+			value.Text = number(v)
+		end
+		local dmg = child(body, "Damage") :: Frame
+		local dealt = child(child(dmg, "Dealt") :: Frame, "Value") :: TextLabel
+		dealt.Text = number(d.dealt)
+		local taken = child(child(dmg, "Taken") :: Frame, "Value") :: TextLabel
+		taken.Text = number(d.taken)
+		local badge = child(card, "Badge") :: CanvasGroup
+		badge.Visible = d.mvp
+		local home = UDim2.fromOffset(slot.x + shift, CARD_BOTTOM)
+		card.Position = home + UDim2.fromOffset(0, ENTER_RISE)
+		local pop = child(card, "Pop") :: UIScale
+		pop.Scale = (if d.lead then LEAD_SCALE else 1) * ENTER_FROM
+		body.GroupTransparency = 1
+		badge.GroupTransparency = 1
+		card.Parent = layer
+		table.insert(s.cards, card)
+		tween(card, ENTER, { Position = home })
+		tween(pop, ENTER, { Scale = if d.lead then LEAD_SCALE else 1 })
+		tween(body, ENTER, { GroupTransparency = 0 })
+		tween(badge, ENTER, { GroupTransparency = 0 })
+	end
+	s.board.Visible = CARDS_KEEP_BOARD
+	local boardShadow = s.canvas:FindFirstChild("BoardShadow")
+	if boardShadow and boardShadow:IsA("GuiObject") then
+		boardShadow.Visible = CARDS_KEEP_BOARD
+	end
 end
 
 return MatchEndScreen
