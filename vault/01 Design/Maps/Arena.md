@@ -63,6 +63,9 @@ v2: Arena aerial, Arena spawn view (two-tone screen with the grid lining up into
 6. Look: grid tile strength (Texture transparency 0.75), the two colours; does it read like the RIVALS Arena?
 7. Before publishing: delete `Workspace.ScaleDummies`.
 
+## v3: more levels (2026-11-21, owner playtest)
+"Good, but it needs more levels (high ground)" for both maps. Each cover block became a +7 platform with a 3-high parapet on its enemy side and a +3.5 step on its own side (5-stud grid, the maps' own parts cloned so the colours and the grid texture match): Arena's side block (one per team), Big Arena's left and right blocks (two per team, alongside the +7 deck and the +14 tower). Script `tools/studio/maps/Arena/HighGround.luau`; plan rows in `tools/maps/arena_layout.py` (v3). Layout: 0 pinches, spawns hidden, first sight unchanged. Big Arena's 21 old overlaps (12-gon wall mitres, walls on the floor, pylon in the plinth) fixed; both maps 0 / 0 / 0. ScaleDummies removed. **Save the match place** (these maps live only in it).
+
 ## Next
 - Owner review of this batch (layouts + look). Then: add `{ id = "Arena", minTeam = 1, maxTeam = 2 }` and `{ id = "BigArena", minTeam = 2, maxTeam = 3 }` to `Config/Match` MAPS, plus `Ambience` / `MapLife` entries, and retire Whitebox / BigWhitebox.
 - ~~Build the Spawn Hold code~~ **done 2026-11-16** ([Spawn Hold](../Spawn%20Hold.md)): players and bots stand still and show as ghosts through the select, checked on Arena with a bot.

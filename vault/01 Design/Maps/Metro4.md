@@ -95,6 +95,8 @@ Plan image: `vault/02 Art/References/maps/metro4/metro4-layout.png` (+ SVG).
    - Layout: same footprints except the gate line (x -35 → -42.5) and the back benches (z 90 → 92.5): longest 243, 0 pinches, first sight 3.8 s, 0.4% of the enemy half sees a spawn. Reach unchanged (94 / 195 / 105 / 69). Audits **0 / 0** (after fixing 8 pairs and a floating call panel from the first v4 build). 3,012 parts.
    - Captures: `metro4-v3-eave-before.jpg`, `metro4-v4-eave / -gates / -concourse.jpg`.
 
+8. **v5 (2026-11-21, owner playtest: "this railing isn't attached"):** the footbridge and hall stair handrails run newel to newel (top newels against the bridge parapet's end / on the top tread, bottom newels on the floor), posts reach the rail. Audits 0 / 0, slopes 0. [Map Playtest 2026-11-21](../../05%20Production/Playtests/2026-11-21%20Map%20Playtest.md).
+
 ## Checks (v2, 2026-11-20)
 | Check | Result |
 |---|---|

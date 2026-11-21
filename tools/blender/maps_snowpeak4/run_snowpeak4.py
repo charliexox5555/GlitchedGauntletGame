@@ -19,7 +19,7 @@ for m in (A, K, S):
 	importlib.reload(m)
 
 for c in bpy.data.collections:
-	if c.name in ("PortKit", "WharfKit", "Metro4Kit", "Port_Sheet", "Arena_Test", "Port_Test"):
+	if c.name in ("PortKit", "WharfKit", "Metro4Kit", "Port_Sheet", "Arena_Test", "Port_Test", "Collection"):
 		c.hide_render = True
 		c.hide_viewport = True
 tris = S.build_all()
@@ -58,7 +58,7 @@ def frame(name, path, d=(0.75, 1.0, 0.5), k=3.2):
 	bpy.ops.render.render(write_still=True)
 
 
-for n in ("Snowcat", "PineA", "GondolaCabin", "Bullwheel", "Outcrop", "BoulderB"):
+for n in ("Snowcat", "SkiRack", "Sled", "LampPost", "TrailSign", "Bench", "FirePit"):
 	frame(n, OUT + "/kit-" + n.lower() + ".png")
 frame("Snowcat", OUT + "/kit-snowcat-side.png", d=(1.0, -0.2, 0.25))
 frame("MountainA", OUT + "/kit-mountain-a.png", d=(0.2, 1.0, 0.25), k=2.2)

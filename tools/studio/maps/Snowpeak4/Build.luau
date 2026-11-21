@@ -1543,78 +1543,199 @@ return function(): string
 		crate(lc, "Supply crates", 22, 56, 10, 5, 0, 3.5, T)
 		crate(lc, "Crate stack", 60, 60, 5, 5, 0, 6, T)
 		crate(lc, "Crate stack top", 60, 60, 5, 5, 6, 6, T)
+		-- ski rack and sleds (owner playtest 2026-11-21: the coloured-brick skis "ruin the map"): the modelled kit
+		-- pieces (timber rack with skis, bindings and poles; wooden toboggans stacked crosswise)
 		col("Ski rack", -1, 44, 9, 2, 3.5, 0, T, Enum.Material.Wood)
-		box(
-			lc,
-			"Rack base",
-			Vector3.new(-5.5, 0, 43.4),
-			Vector3.new(3.5, 0.5, 44.6),
-			L.timberDark,
-			false,
-			T
-		)
-		box(
-			lc,
-			"Rack bar",
-			Vector3.new(-5.5, 2.8, 43.9),
-			Vector3.new(3.5, 3.1, 44.1),
-			L.timberDark,
-			false,
-			T
-		)
-		for _, x in { -5.2, 3.2 } do
-			box(
-				lc,
-				"Rack post",
-				Vector3.new(x - 0.15, 0.5, 43.85),
-				Vector3.new(x + 0.15, 3.0, 44.15),
-				L.timberDark,
-				false,
-				T
-			)
-		end
-		local skiCols = { C.red, h.side.paint, hex("2F5D8A"), hex("D9D4C8") }
-		for k = 0, 7 do
-			local x = -4.4 + k * 1.0
-			part(
-				lc,
-				"Ski",
-				Vector3.new(0.35, 4.2, 0.12),
-				T * CFrame.new(x, 2.1, 43.7) * CFrame.Angles(math.rad(12), 0, 0),
-				look(skiCols[k % 4 + 1])
-			)
-		end
+		kit("Snowpeak4", "SkiRack", lc, T * CFrame.new(-1, 0, 44.2))
 		col("Sled stack", 47, 84, 6, 3, 3.5, 0, T, Enum.Material.Wood)
 		for k = 0, 3 do
-			local y = k * 0.55
-			box(
-				lc,
+			kit(
+				"Snowpeak4",
 				"Sled",
-				Vector3.new(44.4, y + 0.3, 82.8),
-				Vector3.new(49.6, y + 0.55, 85.2),
-				if k % 2 == 0 then L.red else paint,
-				false,
-				T
-			)
-			box(
 				lc,
-				"Runner",
-				Vector3.new(44.2, y, 82.9),
-				Vector3.new(49.8, y + 0.3, 83.2),
-				L.steelDark,
-				false,
 				T
-			)
-			box(
-				lc,
-				"Runner",
-				Vector3.new(44.2, y, 84.8),
-				Vector3.new(49.8, y + 0.3, 85.1),
-				L.steelDark,
-				false,
-				T
+					* CFrame.new(47 + (k % 2) * 0.25, k * 0.66, 84)
+					* CFrame.Angles(0, math.pi / 2 + math.rad(if k % 2 == 0 then 3 else -4), 0)
 			)
 		end
+
+		-- CHARACTER (owner playtest 2026-11-21: "it needs more character")
+		local ch = folder(f, "Character")
+		-- lantern posts on the routes (warm lit cores), the trail sign by the spawn (run icons, no text)
+		for _, lp in { { 8, 58, 0.3 }, { -21, 60, 1.1 }, { 44, 64, 2.2 } } do
+			col("Lamp", lp[1], lp[2], 0.9, 0.9, 9.6, 0, T, Enum.Material.Metal)
+			local m = kit(
+				"Snowpeak4",
+				"LampPost",
+				ch,
+				T * CFrame.new(lp[1], 0, lp[2]) * CFrame.Angles(0, lp[3], 0)
+			)
+			for _, d in m:GetDescendants() do
+				if d:IsA("BasePart") and string.find(d.Name, "LampGlow") then
+					d.Material = Enum.Material.Neon
+				end
+			end
+		end
+		col("Trail sign", -36, 86, 0.8, 0.8, 7.5, 0, T, Enum.Material.Wood)
+		kit("Snowpeak4", "TrailSign", ch, T * CFrame.new(-36, 0, 86) * CFrame.Angles(0, math.pi, 0))
+		-- the fire pit west of the lodge porch, with smoke and a warm light
+		col("Fire pit", -50, 71, 4.6, 4.6, 1.0, 0, T, Enum.Material.Slate)
+		local fp = kit("Snowpeak4", "FirePit", ch, T * CFrame.new(-50, 0, 71))
+		for _, d in fp:GetDescendants() do
+			if d:IsA("BasePart") and string.find(d.Name, "Glow") then
+				d.Material = Enum.Material.Neon
+				local pl = Instance.new("PointLight")
+				pl.Color = Color3.fromRGB(255, 150, 80)
+				pl.Range = 14
+				pl.Brightness = 1.2
+				pl.Parent = d
+				-- the flames: a fire ParticleEmitter over the embers (the logs stand round it), then smoke above
+				local fire = Instance.new("ParticleEmitter")
+				fire.Name = "Flames"
+				fire.Texture = "rbxasset://textures/particles/fire_main.dds"
+				fire.Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 214, 120)),
+					ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 140, 50)),
+					ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 60, 30)),
+				})
+				fire.LightEmission = 0.9
+				fire.Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0.2),
+					NumberSequenceKeypoint.new(0.7, 0.45),
+					NumberSequenceKeypoint.new(1, 1),
+				})
+				fire.Size = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1.1),
+					NumberSequenceKeypoint.new(1, 0.25),
+				})
+				fire.Lifetime = NumberRange.new(0.5, 0.9)
+				fire.Rate = 26
+				fire.Speed = NumberRange.new(1.6, 2.8)
+				fire.SpreadAngle = Vector2.new(8, 8)
+				fire.RotSpeed = NumberRange.new(-40, 40)
+				fire.Rotation = NumberRange.new(0, 360)
+				fire.EmissionDirection = Enum.NormalId.Top
+				fire.Parent = d
+				local sm = Instance.new("ParticleEmitter")
+				sm.Name = "Smoke"
+				sm.Texture = "rbxasset://textures/particles/smoke_main.dds"
+				sm.Color = ColorSequence.new(Color3.fromRGB(120, 118, 115))
+				sm.Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0.6),
+					NumberSequenceKeypoint.new(1, 1),
+				})
+				sm.Size = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1.2),
+					NumberSequenceKeypoint.new(1, 4.5),
+				})
+				sm.Lifetime = NumberRange.new(3, 5)
+				sm.Rate = 4
+				sm.Speed = NumberRange.new(4, 6)
+				sm.SpreadAngle = Vector2.new(12, 12)
+				sm.EmissionDirection = Enum.NormalId.Top
+				sm.Parent = d
+			end
+		end
+		-- benches on the lodge deck against the wall, facing the middle
+		for _, bz in { 44, 56 } do
+			kit(
+				"Snowpeak4",
+				"Bench",
+				ch,
+				T * CFrame.new(-37.6, 10, bz) * CFrame.Angles(0, -math.pi / 2, 0)
+			)
+		end
+		-- icicles under the lodge's long eaves and the warming hut's (pairs of wedges pointing down)
+		local ice = { color = hex("C9DDEA"), mat = Enum.Material.Ice }
+		local function icicles(x0: number, x1: number, z: number, y: number, seed: number)
+			local rnd = Random.new(seed)
+			local x = x0 + 0.4
+			while x < x1 - 0.4 do
+				local len = rnd:NextNumber(0.5, 1.7)
+				local w = rnd:NextNumber(0.22, 0.34)
+				for _, s2 in { -1, 1 } do
+					local c = Vector3.new(x + s2 * w / 4, y - len / 2, z)
+					local p = part(
+						ch,
+						"Icicle",
+						Vector3.new(0.14, len, w / 2),
+						T
+							* CFrame.new(c)
+							* CFrame.Angles(
+								0,
+								if s2 > 0 then math.pi / 2 else -math.pi / 2,
+								math.pi
+							),
+						ice,
+						false,
+						"WedgePart"
+					)
+					p.Transparency = 0.15
+					p.CastShadow = false
+				end
+				x += rnd:NextNumber(0.6, 1.1)
+			end
+		end
+		local lodgeFascia = 10 - 1.6 * math.tan(math.atan2(10, 12)) - 0.75
+		icicles(-66.4, -37.6, 36.4 - 0.15 + 0.3, lodgeFascia + 0.02, 11)
+		icicles(-66.4, -37.6, 63.6 + 0.15 - 0.3, lodgeFascia + 0.02, 12)
+		local hutFascia = 6.6 - 1.0 * math.tan(math.atan2(3.4, 4.5)) - 0.75
+		icicles(-27.8, -14.2, 12.5 - 0.15 + 0.3, hutFascia + 0.02, 13)
+		-- string lights along the lodge deck railing and over the porch: a dark cable with warm bulbs
+		local wire = { color = hex("2A2724") }
+		local bulbCols = { hex("F2C46A"), hex("E8875A"), hex("F2C46A"), hex("9CC8E6") }
+		local function lights(a: Vector3, b: Vector3, sag: number)
+			local n = math.max(2, math.floor((b - a).Magnitude / 1.3))
+			local prev = a
+			for i = 1, n do
+				local t = i / n
+				local q = a:Lerp(b, t) - Vector3.new(0, sag * 4 * t * (1 - t), 0)
+				beam(ch, "Light wire", prev, q, 0.06, 0.06, wire, T)
+				if i < n then
+					local bulb = part(
+						ch,
+						"Light bulb",
+						Vector3.new(0.22, 0.3, 0.22),
+						T * CFrame.new(q - Vector3.new(0, 0.2, 0)),
+						{ color = bulbCols[i % 4 + 1], mat = Enum.Material.Neon }
+					)
+					bulb.CastShadow = false
+				end
+				prev = q
+			end
+		end
+		lights(Vector3.new(-29.1, 13.3, 38.2), Vector3.new(-29.1, 13.3, 50), 0.5)
+		lights(Vector3.new(-29.1, 13.3, 50), Vector3.new(-29.1, 13.3, 61.8), 0.5)
+		lights(Vector3.new(-55.2, 8.55, 64.75), Vector3.new(-48.8, 8.55, 64.75), 0.35)
+		-- trodden snow: paths from the spawn to the lodge porch, the lodge stair and the station stair
+		local trod = { color = hex("D4DCE6"), variant = "Snow2_Snow", mat = Enum.Material.Snow }
+		local pathN = 0
+		local function path(pts: { Vector3 }, w: number)
+			for i = 1, #pts - 1 do
+				pathN += 1 -- each segment a hair higher than the last: overlapping joints never share a plane
+				local a2, b2 = pts[i], pts[i + 1]
+				local mid = (a2 + b2) / 2
+				local len = (b2 - a2).Magnitude + w * 0.6
+				part(
+					ch,
+					"Trodden snow",
+					Vector3.new(w, 0.05, len),
+					T * CFrame.lookAt(mid, b2) * CFrame.new(0, 0, 0)
+						+ Vector3.new(0, 0.003 + pathN * 0.012, 0),
+					trod
+				).CastShadow =
+					false
+			end
+		end
+		path({
+			Vector3.new(-6, 0, 82),
+			Vector3.new(-20, 0, 76),
+			Vector3.new(-30, 0, 70),
+			Vector3.new(-48, 0, 66),
+		}, 3.6)
+		path({ Vector3.new(-20, 0, 76), Vector3.new(-34, 0, 79) }, 3.0)
+		path({ Vector3.new(6, 0, 82), Vector3.new(22, 0, 76), Vector3.new(36.5, 0, 61) }, 3.6)
+		task.wait()
 		task.wait()
 
 		-- the ridge behind the spawns and the slopes below the fence: pines (no collision, out of reach)
@@ -1661,6 +1782,56 @@ return function(): string
 		end
 		task.wait()
 	end
+
+	-- smoke from the chimneys and gentle snowfall (map life, cheap rates)
+	local life = folder(secWorld, "Life")
+	for _, h in halves do
+		for _, c in { { Vector3.new(-58.5, 23.8, 44.5), 4 }, { Vector3.new(-24, 11.6, 19.5), 2 } } do
+			local src = part(
+				life,
+				"Smoke source",
+				Vector3.new(0.4, 0.4, 0.4),
+				h.T * CFrame.new(c[1]),
+				{ color = C.stone }
+			)
+			src.Transparency = 1
+			src.CastShadow = false
+			local sm = Instance.new("ParticleEmitter")
+			sm.Texture = "rbxasset://textures/particles/smoke_main.dds"
+			sm.Color = ColorSequence.new(Color3.fromRGB(196, 198, 204))
+			sm.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.45),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+			sm.Size = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 1.5),
+				NumberSequenceKeypoint.new(1, 7),
+			})
+			sm.Lifetime = NumberRange.new(5, 8)
+			sm.Rate = c[2]
+			sm.Speed = NumberRange.new(3, 5)
+			sm.Acceleration = Vector3.new(1.5, 0.4, 0)
+			sm.SpreadAngle = Vector2.new(10, 10)
+			sm.EmissionDirection = Enum.NormalId.Top
+			sm.Parent = src
+		end
+	end
+	local sky =
+		part(life, "Snowfall", Vector3.new(170, 1, 210), CFrame.new(0, 55, 0), { color = C.snow })
+	sky.Transparency = 1
+	sky.CastShadow = false
+	local snow = Instance.new("ParticleEmitter")
+	snow.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	snow.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255))
+	snow.LightEmission = 0.2
+	snow.Size = NumberSequence.new(0.18)
+	snow.Lifetime = NumberRange.new(14, 18)
+	snow.Rate = 45
+	snow.Speed = NumberRange.new(3, 4.5)
+	snow.SpreadAngle = Vector2.new(18, 18)
+	snow.Acceleration = Vector3.new(0.6, 0, 0.3)
+	snow.EmissionDirection = Enum.NormalId.Bottom
+	snow.Parent = sky
 
 	------------------------------------------------------------------------------------------------ mountains
 	local mtn = folder(secWorld, "Mountains")

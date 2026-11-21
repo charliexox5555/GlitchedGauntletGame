@@ -386,6 +386,7 @@ def mountain(name, collection, rx, ry, peak, seed, n=22, ridge=0.0, sink=40.0):
 PIECES = (
 	"Snowcat", "PineA", "PineB", "GondolaCabin", "Bullwheel", "Outcrop", "BoulderA", "BoulderB",
 	"MountainA", "MountainB", "MountainC",
+	"SkiRack", "Sled", "LampPost", "TrailSign", "Bench", "FirePit",
 )
 
 
@@ -410,6 +411,10 @@ def build_all():
 
 	importlib.reload(SC)
 	made = list(SC.build(C("Snowcat")))  # the modelled snowcat (snowcat_model.py); snowcat() above is the rejected v1
+	import snowpeak4_props as SPP
+
+	importlib.reload(SPP)
+	made += SPP.build(C)  # character props (2026-11-21): ski rack, sled, lamp post, trail sign, bench, fire pit
 	made += pine("PineA", C("PineA"), 24.0, 9, 3)
 	made += pine("PineB", C("PineB"), 17.0, 7, 8)
 	made += [

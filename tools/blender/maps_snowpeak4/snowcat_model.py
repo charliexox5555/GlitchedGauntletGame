@@ -31,6 +31,7 @@ def m(name):
 
 def new_obj(name, bm, mats, coll):
 	me = bpy.data.meshes.new(name)
+	bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])  # every solid faces out (Roblox meshes are one-sided)
 	bm.to_mesh(me)
 	bm.free()
 	for mt in mats:
@@ -411,6 +412,7 @@ def finalize(objs, coll, name="Snowcat"):
 	for o in objs:
 		ev = o.evaluated_get(dg)
 		me = bpy.data.meshes.new_from_object(ev)
+		me.transform(o.matrix_world)  # bake the object's placement (props pose their parts by transform)
 		bm = bmesh.new()
 		bm.from_mesh(me)
 		for f in bm.faces:

@@ -910,21 +910,63 @@ return function(): string
 				h.T * CFrame.new(17, 7 - 0.3, zz) * CFrame.Angles(0, 0, -ang),
 				L.yellowDark
 			)
-			part(
+			-- v5 (owner playtest 2026-11-21: "this railing isn't attached"): the handrail runs newel to newel. The top
+			-- newel stands against the bridge parapet's end (the south side) or the end parapet (the north side), the
+			-- bottom one on the floor at the stair foot; both rail ends are buried in them, posts reach the rail.
+			local zn0, zn1 = if zz < 35 then 32.03 else 37.45, if zz < 35 then 32.4 else 37.85
+			box(
+				bridge,
+				"Newel",
+				Vector3.new(2.95, 13.6, zn0),
+				Vector3.new(3.45, 17.75, zn1),
+				L.yellowDark,
+				false,
+				h.T
+			)
+			box(
+				bridge,
+				"Newel cap",
+				Vector3.new(2.85, 17.75, zn0 - 0.05),
+				Vector3.new(3.55, 18.0, zn1 + 0.05),
+				L.yellowDark,
+				false,
+				h.T
+			)
+			box(
+				bridge,
+				"Newel",
+				Vector3.new(30.4, 0, zz - 0.2),
+				Vector3.new(30.92, 3.75, zz + 0.2),
+				L.yellowDark,
+				false,
+				h.T
+			)
+			box(
+				bridge,
+				"Newel cap",
+				Vector3.new(30.4, 3.75, zz - 0.25),
+				Vector3.new(31.1, 4.0, zz + 0.25),
+				L.yellowDark,
+				false,
+				h.T
+			)
+			beam(
 				bridge,
 				"Handrail",
-				Vector3.new(slen - 0.8, 0.3, 0.24),
-				h.T * CFrame.new(17, 7 + 3.3, zz) * CFrame.Angles(0, 0, -ang),
+				h.T * Vector3.new(30.75, 3.45, zz),
+				h.T * Vector3.new(3.2, 17.25, zz),
+				0.24,
+				0.3,
 				L.yellowDark
 			)
 			for k = 0, 3 do
-				local xx = 29.5 - k * 8.5
+				local xx = 26.5 - k * 7.5
 				local yy = (31 - xx) / 2
 				box(
 					bridge,
 					"Handrail post",
-					Vector3.new(xx - 0.1, yy, zz - 0.1),
-					Vector3.new(xx + 0.1, yy + 3.2, zz + 0.1),
+					Vector3.new(xx - 0.1, yy - 0.4, zz - 0.1),
+					Vector3.new(xx + 0.1, yy + 3.3, zz + 0.1),
 					L.yellowDark,
 					false,
 					h.T
@@ -1414,21 +1456,60 @@ return function(): string
 				L.steel
 			)
 		end
-		part(
+		-- the handrail runs newel to newel: the bottom newel on the floor, the top one on the top tread (v5)
+		box(
+			th,
+			"Newel",
+			Vector3.new(-45.4, 0, 59.95),
+			Vector3.new(-44.9, 3.75, 60.4),
+			L.yellowDark,
+			false,
+			T
+		)
+		box(
+			th,
+			"Newel cap",
+			Vector3.new(-45.5, 3.75, 59.9),
+			Vector3.new(-44.8, 4.0, 60.55),
+			L.yellowDark,
+			false,
+			T
+		)
+		box(
+			th,
+			"Newel",
+			Vector3.new(-45.4, 9.55, 79.55),
+			Vector3.new(-44.9, 13.75, 79.96),
+			L.yellowDark,
+			false,
+			T
+		)
+		box(
+			th,
+			"Newel cap",
+			Vector3.new(-45.5, 13.75, 79.45),
+			Vector3.new(-44.8, 14.0, 80.1),
+			L.yellowDark,
+			false,
+			T
+		)
+		beam(
 			th,
 			"Handrail",
-			Vector3.new(0.24, 0.3, slen - 0.8),
-			T * CFrame.new(-45.15, 8.2, 70) * CFrame.Angles(-ang, 0, 0),
+			T * Vector3.new(-45.15, 3.45, 60.2),
+			T * Vector3.new(-45.15, 13.4, 79.8),
+			0.24,
+			0.3,
 			L.yellowDark
 		)
 		for k = 0, 3 do
-			local zz = 61 + k * 6
+			local zz = 64 + k * 4.2
 			local yy = (zz - 60) / 2
 			box(
 				th,
 				"Handrail post",
-				Vector3.new(-45.25, yy, zz - 0.1),
-				Vector3.new(-45.05, yy + 3.4, zz + 0.1),
+				Vector3.new(-45.25, yy - 0.4, zz - 0.1),
+				Vector3.new(-45.05, yy + 3.35, zz + 0.1),
 				L.yellowDark,
 				false,
 				T

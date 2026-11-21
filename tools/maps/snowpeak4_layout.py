@@ -59,6 +59,13 @@ SNOWPEAK4 = Plan(
 		Box("Pines 2", 31, 80, 12, 10, 25),
 		Box("Woodshed", -71.5, 74, 7, 12, 9),  # against the west fence, beside the lodge
 		Box("Sled stack", 47, 84, 6, 3, 3.5, 0, "low"),
+		# character pass (owner playtest 2026-11-21): lantern posts on the routes, the trail sign by the spawn, the fire
+		# pit west of the lodge porch
+		Box("Lamp", 8, 58, 1, 1, 9.6, 0, "pillar"),
+		Box("Lamp", -21, 60, 1, 1, 9.6, 0, "pillar"),
+		Box("Lamp", 44, 64, 1, 1, 9.6, 0, "pillar"),
+		Box("Trail sign", -36, 86, 1, 1, 7.5, 0, "pillar"),
+		Box("Fire pit", -50, 71, 5, 5, 1.0, 0, "low"),
 	],
 	spawns_a=[(-12, 89), (0, 91), (12, 89), (-6, 85), (6, 85)],
 	duel=False,

@@ -2,6 +2,14 @@
  "group": "Kit",
  "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
  "pieces": {
+  "Bench": {
+   "props": {},
+   "parts": [
+    "Bench_SP_Wood",
+    "Bench_SP_WoodDark",
+    "Bench_SP_Snow"
+   ]
+  },
   "BoulderA": {
    "props": {},
    "parts": [
@@ -26,6 +34,18 @@
     "Bullwheel_S_SteelLight"
    ]
   },
+  "FirePit": {
+   "props": {},
+   "parts": [
+    "FirePit_SP_Stone",
+    "FirePit_SP_Bark",
+    "FirePit_SP_WoodLight",
+    "FirePit_SP_FireGlow",
+    "FirePit_SP_Ash",
+    "FirePit_SP_Snow",
+    "FirePit_SP_Char"
+   ]
+  },
   "GondolaCabin": {
    "props": {},
    "parts": [
@@ -34,6 +54,13 @@
     "GondolaCabin_S_Glass",
     "GondolaCabin_S_Steel",
     "GondolaCabin_S_SteelLight"
+   ]
+  },
+  "LampPost": {
+   "props": {},
+   "parts": [
+    "LampPost_SP_Iron",
+    "LampPost_SP_LampGlow"
    ]
   },
   "MountainA": {
@@ -87,6 +114,35 @@
     "PineB_Snow"
    ]
   },
+  "SkiRack": {
+   "props": {},
+   "parts": [
+    "SkiRack_Frame_SP_Wood",
+    "SkiRack_Frame_SP_WoodDark",
+    "SkiRack_Skis0_SP_SkiRed",
+    "SkiRack_Skis0_SP_Black",
+    "SkiRack_Skis0_SP_SkiWhite",
+    "SkiRack_Skis1_SP_SkiBlue",
+    "SkiRack_Skis1_SP_Black",
+    "SkiRack_Skis1_SP_SkiWhite",
+    "SkiRack_Skis2_SP_SkiYellow",
+    "SkiRack_Skis2_SP_Black",
+    "SkiRack_Skis2_SP_SkiWhite",
+    "SkiRack_Skis3_SP_SkiWhite",
+    "SkiRack_Skis3_SP_Black",
+    "SkiRack_Skis3_SP_SkiRed",
+    "SkiRack_Poles_SP_Steel",
+    "SkiRack_Poles_SP_Black"
+   ]
+  },
+  "Sled": {
+   "props": {},
+   "parts": [
+    "Sled_SP_WoodLight",
+    "Sled_SP_WoodDark",
+    "Sled_SP_Rope"
+   ]
+  },
   "Snowcat": {
    "props": {},
    "parts": [
@@ -116,9 +172,82 @@
     "Snowcat_Tiller_S_Steel",
     "Snowcat_Tiller_S_Rubber"
    ]
+  },
+  "TrailSign": {
+   "props": {},
+   "parts": [
+    "TrailSign_SP_WoodDark",
+    "TrailSign_SP_WoodLight",
+    "TrailSign_SP_Green",
+    "TrailSign_SP_Blue",
+    "TrailSign_SP_Black"
+   ]
   }
  },
  "parts": [
+  {
+   "piece": "Bench",
+   "name": "Bench_SP_Wood",
+   "material": "SP_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A5E3C"
+   },
+   "glow": false,
+   "tris": 220,
+   "center": [
+    0.0,
+    0.08,
+    2.16
+   ],
+   "size": [
+    6.0,
+    1.56,
+    1.32
+   ]
+  },
+  {
+   "piece": "Bench",
+   "name": "Bench_SP_WoodDark",
+   "material": "SP_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A3C28"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    0.05821,
+    1.58342
+   ],
+   "size": [
+    5.9,
+    1.72357,
+    3.19315
+   ]
+  },
+  {
+   "piece": "Bench",
+   "name": "Bench_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "E4EBF2"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.225,
+    2.505
+   ],
+   "size": [
+    5.6,
+    1.35,
+    1.65
+   ]
+  },
   {
    "piece": "BoulderA",
    "name": "BoulderA_S_Rock",
@@ -309,6 +438,153 @@
    ]
   },
   {
+   "piece": "FirePit",
+   "name": "FirePit_SP_Stone",
+   "material": "SP_Stone",
+   "look": {
+    "material": "Slate",
+    "color": "8A8478"
+   },
+   "glow": false,
+   "tris": 918,
+   "center": [
+    0.02305,
+    -0.00661,
+    0.18758
+   ],
+   "size": [
+    4.53823,
+    4.4629,
+    0.61515
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_SP_Bark",
+   "material": "SP_Bark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A3526"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    0.86312
+   ],
+   "size": [
+    2.26679,
+    2.25542,
+    1.74122
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_SP_WoodLight",
+   "material": "SP_WoodLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8805A"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    0.86312
+   ],
+   "size": [
+    2.26804,
+    2.25626,
+    1.76218
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_SP_FireGlow",
+   "material": "SP_FireGlow",
+   "look": {
+    "material": "Neon",
+    "color": "E0702C"
+   },
+   "glow": false,
+   "tris": 180,
+   "center": [
+    -0.04775,
+    0.07386,
+    0.08
+   ],
+   "size": [
+    1.22437,
+    1.13972,
+    0.16
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_SP_Ash",
+   "material": "SP_Ash",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3633"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    0.005
+   ],
+   "size": [
+    3.43275,
+    3.43275,
+    0.11
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "E4EBF2"
+   },
+   "glow": false,
+   "tris": 202,
+   "center": [
+    0.00546,
+    -0.01259,
+    0.39894
+   ],
+   "size": [
+    4.37769,
+    4.35901,
+    0.23289
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_SP_Char",
+   "material": "SP_Char",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26211D"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    0.18
+   ],
+   "size": [
+    1.59168,
+    1.50023,
+    0.24
+   ]
+  },
+  {
    "piece": "GondolaCabin",
    "name": "GondolaCabin_S_PaintDark",
    "material": "S_PaintDark",
@@ -412,6 +688,48 @@
     0.7,
     0.8,
     0.7
+   ]
+  },
+  {
+   "piece": "LampPost",
+   "name": "LampPost_SP_Iron",
+   "material": "SP_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2E3135"
+   },
+   "glow": false,
+   "tris": 868,
+   "center": [
+    0.0,
+    0.0,
+    4.8
+   ],
+   "size": [
+    1.14561,
+    1.14561,
+    9.6
+   ]
+  },
+  {
+   "piece": "LampPost",
+   "name": "LampPost_SP_LampGlow",
+   "material": "SP_LampGlow",
+   "look": {
+    "material": "Neon",
+    "color": "E0A85A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    8.3
+   ],
+   "size": [
+    0.50912,
+    0.50912,
+    0.9
    ]
   },
   {
@@ -853,6 +1171,405 @@
     6.61787,
     6.65081,
     13.4082
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Frame_SP_Wood",
+   "material": "SP_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A5E3C"
+   },
+   "glow": false,
+   "tris": 216,
+   "center": [
+    0.0,
+    0.345,
+    1.715
+   ],
+   "size": [
+    9.2,
+    1.01,
+    3.27
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Frame_SP_WoodDark",
+   "material": "SP_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A3C28"
+   },
+   "glow": false,
+   "tris": 1620,
+   "center": [
+    0.0,
+    0.0,
+    1.69511
+   ],
+   "size": [
+    8.88,
+    2.0533,
+    3.44978
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis0_SP_SkiRed",
+   "material": "SP_SkiRed",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B02A30"
+   },
+   "glow": false,
+   "tris": 344,
+   "center": [
+    -3.15,
+    0.45643,
+    2.37697
+   ],
+   "size": [
+    0.78,
+    0.97949,
+    4.76383
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis0_SP_Black",
+   "material": "SP_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222326"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    -3.15,
+    0.54098,
+    2.05237
+   ],
+   "size": [
+    0.74,
+    0.35665,
+    1.0626
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis0_SP_SkiWhite",
+   "material": "SP_SkiWhite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E4DA"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    -3.15,
+    0.44341,
+    2.25162
+   ],
+   "size": [
+    0.56,
+    0.8743,
+    3.70261
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis1_SP_SkiBlue",
+   "material": "SP_SkiBlue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F5D8A"
+   },
+   "glow": false,
+   "tris": 344,
+   "center": [
+    -1.35,
+    0.45643,
+    2.37697
+   ],
+   "size": [
+    0.78,
+    0.97949,
+    4.76383
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis1_SP_Black",
+   "material": "SP_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222326"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    -1.35,
+    0.54098,
+    2.05237
+   ],
+   "size": [
+    0.74,
+    0.35665,
+    1.0626
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis1_SP_SkiWhite",
+   "material": "SP_SkiWhite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E4DA"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    -1.35,
+    0.44341,
+    2.25162
+   ],
+   "size": [
+    0.56,
+    0.8743,
+    3.70261
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis2_SP_SkiYellow",
+   "material": "SP_SkiYellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D6A93A"
+   },
+   "glow": false,
+   "tris": 344,
+   "center": [
+    0.45,
+    0.45643,
+    2.37697
+   ],
+   "size": [
+    0.78,
+    0.97949,
+    4.76383
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis2_SP_Black",
+   "material": "SP_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222326"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.45,
+    0.54098,
+    2.05237
+   ],
+   "size": [
+    0.74,
+    0.35665,
+    1.0626
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis2_SP_SkiWhite",
+   "material": "SP_SkiWhite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E4DA"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.45,
+    0.44341,
+    2.25162
+   ],
+   "size": [
+    0.56,
+    0.8743,
+    3.70261
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis3_SP_SkiWhite",
+   "material": "SP_SkiWhite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E4DA"
+   },
+   "glow": false,
+   "tris": 344,
+   "center": [
+    2.25,
+    0.45643,
+    2.37697
+   ],
+   "size": [
+    0.78,
+    0.97949,
+    4.76383
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis3_SP_Black",
+   "material": "SP_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222326"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    2.25,
+    0.54098,
+    2.05237
+   ],
+   "size": [
+    0.74,
+    0.35665,
+    1.0626
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis3_SP_SkiRed",
+   "material": "SP_SkiRed",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B02A30"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    2.25,
+    0.44341,
+    2.25162
+   ],
+   "size": [
+    0.56,
+    0.8743,
+    3.70261
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Poles_SP_Steel",
+   "material": "SP_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    3.825,
+    0.5,
+    1.95
+   ],
+   "size": [
+    0.63999,
+    0.9877,
+    3.92024
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Poles_SP_Black",
+   "material": "SP_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222326"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    3.84532,
+    0.53785,
+    2.12575
+   ],
+   "size": [
+    1.02058,
+    1.17358,
+    3.68641
+   ]
+  },
+  {
+   "piece": "Sled",
+   "name": "Sled_SP_WoodLight",
+   "material": "SP_WoodLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8805A"
+   },
+   "glow": false,
+   "tris": 468,
+   "center": [
+    0.0,
+    0.02736,
+    0.90286
+   ],
+   "size": [
+    1.44,
+    5.25473,
+    1.23572
+   ]
+  },
+  {
+   "piece": "Sled",
+   "name": "Sled_SP_WoodDark",
+   "material": "SP_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A3C28"
+   },
+   "glow": false,
+   "tris": 548,
+   "center": [
+    0.0,
+    -0.06584,
+    0.23866
+   ],
+   "size": [
+    1.4,
+    4.86832,
+    0.47731
+   ]
+  },
+  {
+   "piece": "Sled",
+   "name": "Sled_SP_Rope",
+   "material": "SP_Rope",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B49A6A"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    -0.4,
+    0.45
+   ],
+   "size": [
+    1.62,
+    3.85,
+    0.26
    ]
   },
   {
@@ -1380,7 +2097,112 @@
     0.95,
     0.1
    ]
+  },
+  {
+   "piece": "TrailSign",
+   "name": "TrailSign_SP_WoodDark",
+   "material": "SP_WoodDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A3C28"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    3.525
+   ],
+   "size": [
+    0.6,
+    0.6,
+    8.05
+   ]
+  },
+  {
+   "piece": "TrailSign",
+   "name": "TrailSign_SP_WoodLight",
+   "material": "SP_WoodLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8805A"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.0,
+    0.29,
+    5.3
+   ],
+   "size": [
+    6.4701,
+    0.14,
+    3.0
+   ]
+  },
+  {
+   "piece": "TrailSign",
+   "name": "TrailSign_SP_Green",
+   "material": "SP_Green",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E8A4A"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    1.5,
+    0.39,
+    6.4
+   ],
+   "size": [
+    0.54,
+    0.06,
+    0.54
+   ]
+  },
+  {
+   "piece": "TrailSign",
+   "name": "TrailSign_SP_Blue",
+   "material": "SP_Blue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F5D8A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.5,
+    0.39,
+    5.3
+   ],
+   "size": [
+    0.48,
+    0.06,
+    0.48
+   ]
+  },
+  {
+   "piece": "TrailSign",
+   "name": "TrailSign_SP_Black",
+   "material": "SP_Black",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222326"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.5,
+    0.39,
+    4.2
+   ],
+   "size": [
+    0.57264,
+    0.06,
+    0.61082
+   ]
   }
  ],
- "tris": 30624
+ "tris": 40980
 }

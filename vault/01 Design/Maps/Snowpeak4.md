@@ -83,6 +83,9 @@ Plan image: `vault/02 Art/References/maps/snowpeak4/snowpeak4-layout.png`.
 
 Captures (`vault/02 Art/References/maps/snowpeak4/`): `snowpeak4-v1-overview / -middle / -lodge / -spawn.jpg`, kit renders `kit-*.png`.
 
+## Character pass (2026-11-21)
+After the owner's playtest ("needs more character"; "the skis are placeholder bricks"): a ski rack with modelled skis and poles, toboggans, lantern posts, a trail sign with run icons, benches on the lodge deck, a fire pit (v2 after the owner's note), icicles, string lights, trodden paths, chimney smoke and snowfall. Details and captures: [Map Playtest 2026-11-21](../../05%20Production/Playtests/2026-11-21%20Map%20Playtest.md) → Results. Layout: lamp posts and the trail sign are 1 × 1 pillars, the fire pit low cover (rows in `snowpeak4_layout.py`); still 0 pinches, first sight 3.1 s; audits 0 / 0 / 0 (slopes).
+
 ## What to test (owner)
 1. Save the match place (the map, the kit and the Snow2 MaterialVariants live in it).
 2. `ForceMap = Snowpeak4`, `TestMode = false`, Play (1v1 / 2v2 bots); put both back after.
