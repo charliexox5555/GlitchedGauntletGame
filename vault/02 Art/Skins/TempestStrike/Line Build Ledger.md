@@ -78,3 +78,20 @@ Blender-only build of the rest of the Tempest-Strike line, per the [Line Blender
 | Kunai-Katana | 9 | 2,464 | [s04](out/Knife_s04_review.png) | `Knife/s04x/` (TS_Katana, TS_Ring) |
 
 Nothing uploaded or installed. Review PNGs in `out/` are git-ignored (local only), like the Vandal's. Grades are self-grades against the handoff rubric (no blind reviewers this round).
+
+## Studio port (2026-11-22, Vandal session; Edit only, no playtest)
+Owner: get the line into Studio and start VFX and animations in code and keyframes without playtests (another lane is building maps in the match place); the owner checks it later.
+
+| Item | Model asset | AssetData row | Moving parts driven | Tracks | Reload / handling effects |
+|---|---|---|---|---|---|
+| Stinger | 82106922208698 | MatchSkins_342 | TS_VentL/R flare, TS_Crescent spins in / locks on aim-in | DrawTempest, ReloadTempestLite, InspectTempest | mag bursts into water, water mag forms with converging beads, seat flare (the Vandal's) |
+| Marshal | 132022368929959 (stock ScopeLens kept) | MatchSkins_343 | TS_ScopeRingRear/Front spin, TS_Gate flicks open per round | DrawTempest, stock reload, InspectTempest | each round in: water burst at the side gate, gate kick, vents; lever rack: arcs |
+| Bucky | 129693168590851 | MatchSkins_344 | TS_PlateL/R flare | DrawTempest, stock reload, InspectTempest | each shell in: water burst at the loading port; pump rack: arcs, plate kick |
+| Sheriff | 121745976081432 | MatchSkins_345 | TS_SidePlateL/R flare | DrawTempest, stock reload, stock InspectSheriff (its twirl at 0.44-0.64) | cylinder open / eject: water burst, rounds in: splashes, close: flare and pop |
+| Kunai-Katana | 70851918723184 | MatchSkins_346 | TS_Katana slides out / in, TS_Ring twirls on the draw | stock knife tracks | see below |
+
+- **Shared:** every gun gets the Vandal's runtime from its own profile (`Config/TempestProfiles`): water helices on its fore-end, vent arcs, rim light, the per-shot pulse ring down its barrel, the draw and inspect rings and water sweep, the water coat (draw, water mag), shuriken muzzle flash with port jets and the muzzle ring, water tracer, cyan impacts (no orange), hydro-core casings, foley on every beat. Crescent sight lightning on aim for the Stinger and Sheriff (tips scaled from the Vandal's crescent); none on the scoped Marshal or the no-ADS Bucky.
+- **Kunai-Katana (`Util/TempestKunai`):** the water katana is Glass at 0.5 transparency with a shimmering ForceField skin, so the black kunai shows through (the owner's hologram look). Starts as the compact kunai; Inspect toggles at 30 % of the inspect: the blade springs out of the kunai with water rings running to the tip, or bursts back into falling droplets. Katana form: two water helices round the blade, white-cyan lightning flickering along it, a soft light; kunai form: arcs at the etched crack. Swings leave water trails (kunai edge, plus the katana when out); the heavy surges the blade white while winding up and throws a wide water-and-arc crescent on contact. The draw twirls the ring pommel two turns with water spinning off. Owner's concept items not done yet: reverse-grip / sword stances and new combo keyframes (the knife keeps its stock moves), gameplay effect of the two forms, chromas.
+- **Positions are from the stock contracts and measured cross-sections, not seen in play:** the owner's check may need tuning in `Config/TempestProfiles` (helix radii, crescent tips, ring sizes) and `SkinPreview.TEMPEST.KUNAI`.
+- **Studio:** Rojo's Studio plugin was disconnected, so the code changes are in the repo but not yet in Studio; the installs and the MatchSkins rows are in Studio. **Reconnect Rojo before testing.** The match place needs a save (left to the map lane / owner so their work isn't saved mid-build).
+- Not done (owner's call): the Shop bundle still lists only the Vandal, and TempestStrike has no tier in `Config/Skins` (it is a Studio preview line).
