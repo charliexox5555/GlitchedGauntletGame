@@ -28,6 +28,8 @@ local Workspace = game:GetService("Workspace")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Config = require(ReplicatedStorage.Shared.Config.WinCutscene)
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 
 local CameraController = require(script.Parent.Parent.Controllers.CameraController)
@@ -38,6 +40,7 @@ local WinCutscene = {}
 
 export type Options = {
 	onScreen: (() -> ())?,
+	guns: { [number]: string }?, -- per winner: the weapon id to hold (their top-kills gun)
 	onFrame: (() -> ())?,
 }
 
@@ -49,7 +52,9 @@ type Actor = {
 	holdKey: string,
 	clipLength: number,
 	base: CFrame, -- the copy's pivot on the stage
+	finalBase: CFrame?, -- its pivot for the final shot (moved on the cut)
 	root: { Config.RootKey }?,
+	placedFinal: boolean?,
 	holding: boolean,
 }
 
@@ -185,7 +190,73 @@ local function load(animator: Animator, key: string, looped: boolean): Animation
 	return track
 end
 
-local function place(r: Run, body: Model, slot: Config.Slot, pos: Vector3)
+-- Puts gun `id` in the copy's hand (the winner's top-kills gun, owner
+-- 2026-11-20), the way the server's Weapon/WorldModel holds it. The gun the
+-- copy already holds is kept when it's the same one (it keeps its skin).
+local function arm(copy: Model, id: string?)
+	if not id then
+		return
+	end
+	local held = copy:FindFirstChild("WorldWeapon")
+	if held and StateValues.get(held, "WeaponId") == id then
+		return
+	end
+	local config = Weapons.get(id)
+	local folder = ReplicatedStorage:FindFirstChild("Weapons")
+	if not config or config.fireMode == "Melee" or not folder then
+		return
+	end
+	local function hold(templateId: string, handName: string, name: string, grip: CFrame)
+		local template = folder:FindFirstChild(templateId)
+		local hand = copy:FindFirstChild(handName)
+		if not (template and template:IsA("Model") and hand and hand:IsA("BasePart")) then
+			return
+		end
+		local model = template:Clone()
+		local handle = model.PrimaryPart
+		if not handle then
+			model:Destroy()
+			return
+		end
+		for _, d in model:GetDescendants() do
+			if d:IsA("BasePart") then
+				d.Anchored = false
+				d.CanCollide = false
+				d.CanQuery = false
+				d.CanTouch = false
+				d.Massless = true
+			elseif d:IsA("LuaSourceContainer") or d:IsA("Sound") then
+				d:Destroy()
+			end
+		end
+		model.Name = name
+		local motor = Instance.new("Motor6D")
+		motor.Name = "WeaponGrip"
+		motor.Part0 = hand
+		motor.Part1 = handle
+		motor.C0 = grip
+		motor.Parent = handle
+		handle.CFrame = hand.CFrame * grip
+		StateValues.set(model, "WeaponId", id)
+		model.Parent = copy
+	end
+	for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
+		local old = copy:FindFirstChild(name)
+		if old then
+			old:Destroy()
+		end
+	end
+	local models = (config :: any).models -- akimbo: { right, left } (Weapon/WorldModel)
+	local grip = if config.class == "Sidearm"
+		then Animations.GUN_WORLD_GRIP_SIDEARM
+		else Animations.GUN_WORLD_GRIP
+	hold(if models then models.right else id, "RightHand", "WorldWeapon", grip)
+	if models and models.left then
+		hold(models.left, "LeftHand", "WorldWeaponLeft", grip)
+	end
+end
+
+local function place(r: Run, body: Model, slot: Config.Slot, pos: Vector3, gun: string?)
 	local copy = BodyClone.copy(body, "root")
 	if not copy then
 		return
@@ -193,15 +264,21 @@ local function place(r: Run, body: Model, slot: Config.Slot, pos: Vector3)
 	-- Kinematic: the joints pose straight from the clip (no physics lag at a
 	-- low frame rate) with the root anchored on the stage.
 	BodyClone.kinematic(copy)
+	arm(copy, gun)
 	local root = copy:FindFirstChild("HumanoidRootPart")
 	local humanoid = copy:FindFirstChildOfClass("Humanoid")
 	local hip = 3
 	if root and root:IsA("BasePart") and humanoid then
 		hip = humanoid.HipHeight + root.Size.Y / 2
 	end
-	local at = world(r.stage, pos) + Vector3.new(0, hip, 0)
-	local facing = r.stage * CFrame.Angles(0, math.rad(slot.yaw), 0)
-	copy:PivotTo(CFrame.lookAt(at, at + facing.LookVector))
+	local function spot(p: Vector3, yaw: number): CFrame
+		local at = world(r.stage, p) + Vector3.new(0, hip, 0)
+		local facing = r.stage * CFrame.Angles(0, math.rad(yaw), 0)
+		return CFrame.lookAt(at, at + facing.LookVector)
+	end
+	copy:PivotTo(spot(pos, slot.yaw))
+	local final = slot.final
+	local finalBase = if final then spot(final.pos, final.yaw) else nil
 	copy.Parent = r.folder
 	local actor: Actor = {
 		copy = copy,
@@ -211,6 +288,7 @@ local function place(r: Run, body: Model, slot: Config.Slot, pos: Vector3)
 		holdKey = slot.hold,
 		clipLength = 0,
 		base = copy:GetPivot(),
+		finalBase = finalBase,
 		root = slot.root,
 		holding = false,
 	}
@@ -276,6 +354,9 @@ local function curve(shot: Config.Shot, t: number, pick: (Config.Key) -> Vector3
 		return pick(keys[n])
 	end
 	local function tangent(i: number): Vector3
+		if keys[i].still then
+			return Vector3.zero
+		end
 		if i == 1 then
 			if shot.startStill then
 				return Vector3.zero
@@ -602,12 +683,19 @@ local function step(r: Run, cam: Camera, dt: number)
 			end
 		end
 	end
-	-- whole-body root moves (a spin, a hop)
+	-- whole-body root moves (a spin, a hop), and the move to the final spot
+	-- on the cut into the final shot (hidden by the cut)
+	local finalAt = r.scene.shots[#r.scene.shots].from
 	for _, a in r.actors do
 		local keys = a.root
-		if keys then
+		local inFinal = t >= finalAt and a.finalBase ~= nil
+		local base = if inFinal then a.finalBase :: CFrame else a.base
+		if keys and not inFinal then
 			local yaw, lift = rootAt(keys, t)
-			a.copy:PivotTo(a.base * CFrame.new(0, lift, 0) * CFrame.Angles(0, math.rad(yaw), 0))
+			a.copy:PivotTo(base * CFrame.new(0, lift, 0) * CFrame.Angles(0, math.rad(yaw), 0))
+		elseif inFinal ~= (a.placedFinal == true) then
+			a.placedFinal = inFinal
+			a.copy:PivotTo(base)
 		end
 	end
 	-- the camera
@@ -714,14 +802,15 @@ function WinCutscene.play(winners: { Model }, opts: Options): boolean
 	-- (in the DataModel before the clips load: a track loaded on a copy
 	-- outside it never loads its asset)
 	folder.Parent = Workspace
+	local guns = opts.guns or {}
 	for i, body in winners do
 		local slot = scene.slots[i]
 		if slot then
-			place(r, body, slot, slot.pos)
+			place(r, body, slot, slot.pos, guns[i])
 		else
 			local extra = Config.EXTRA_SLOTS[i - #scene.slots]
 			if extra then
-				place(r, body, scene.slots[1], extra)
+				place(r, body, scene.slots[1], extra, guns[i])
 			end
 		end
 	end

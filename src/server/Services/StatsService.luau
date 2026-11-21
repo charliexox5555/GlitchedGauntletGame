@@ -21,6 +21,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Pawns = require(ReplicatedStorage.Shared.Simulation.Pawns)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
+local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local HealthService = require(script.Parent.HealthService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -41,6 +42,9 @@ export type Line = {
 	taken: number,
 	mvp: boolean?,
 	kit: { string }?, -- "id:level" per filled Mod slot
+	-- the gun this fighter got the most eliminations with (else the one in
+	-- their hand at the end): the win cutscene puts it in their copy's hand
+	weapon: string?,
 }
 
 type Entry = {
@@ -56,6 +60,8 @@ type Entry = {
 	dealt: number,
 	taken: number,
 	hurtBy: { [string]: number }, -- attacker id → last hit time
+	gunKills: { [string]: number }, -- weapon id → eliminations with it
+	lastGun: string?, -- the gun of their latest hit
 }
 
 local entries: { [string]: Entry } = {}
@@ -145,6 +151,7 @@ local function entryOf(x: Instance): Entry?
 			dealt = 0,
 			taken = 0,
 			hurtBy = {},
+			gunKills = {},
 		}
 		entries[id] = e
 	end
@@ -153,6 +160,37 @@ local function entryOf(x: Instance): Entry?
 		e.team = team -- a seat can change hands (a bot takes a leaver's place)
 	end
 	return e
+end
+
+-- The gun in a fighter's hand (WorldModel keeps the id on the Player, or
+-- on a bot's model), nil for the knife or nothing.
+local function heldGun(x: Instance): string?
+	local owner: Player? = if x:IsA("Player")
+		then x
+		elseif x:IsA("Model") then Players:GetPlayerFromCharacter(x)
+		else nil
+	local id = StateValues.get(owner or x, "WeaponId")
+	if typeof(id) ~= "string" then
+		return nil
+	end
+	local config = Weapons.get(id)
+	if not config or config.fireMode == "Melee" then
+		return nil
+	end
+	return id
+end
+
+-- The gun with the most eliminations (ties: the latest one used), else the
+-- gun of their latest hit.
+local function topGun(e: Entry): string?
+	local best = e.lastGun
+	local count = if best then (e.gunKills[best] or 0) else 0
+	for id, n in e.gunKills do
+		if n > count then
+			best, count = id, n
+		end
+	end
+	return best
 end
 
 local function onHit(attacker: Instance, victim: Model, dealt: number, killed: boolean): { number }?
@@ -170,6 +208,7 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 	end
 	a.dealt += dealt
 	if dealt > 0 then
+		a.lastGun = heldGun(attacker) or a.lastGun
 		v.hurtBy[a.id] = now
 		local row = pair[a.id]
 		if not row then
@@ -187,6 +226,10 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 			Net.event("CombatReport"):FireClient(owner, math.round(dealtTo), math.round(takenFrom))
 		end
 		a.eliminations += 1
+		local gun = heldGun(attacker)
+		if gun then
+			a.gunKills[gun] = (a.gunKills[gun] or 0) + 1
+		end
 		local assists: { number } = {}
 		for id, at in v.hurtBy do
 			local helper = entries[id]
@@ -238,6 +281,7 @@ function StatsService.summary(): { Line }
 			dealt = math.round(e.dealt),
 			taken = math.round(e.taken),
 			kit = kitOf(e.id),
+			weapon = topGun(e),
 		}
 		table.insert(out, line)
 		if

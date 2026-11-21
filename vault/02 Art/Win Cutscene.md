@@ -89,6 +89,12 @@ Owner: "work on 2, 3, 4 and 5 player editions, get everybody to do stuff, the en
 - More than 5 winners: scene 5 plays and the rest stand in `EXTRA_SLOTS` on the lead's clip.
 - Owner's 2-player reference (a RIVALS end screen, git-ignored, not committed): the pair close, #2 lower, the camera very low; a stat plate under each winner and a crown on the best (UI, see What to test).
 
+### Round 4: the final pose and its transition, everyone's own gun
+Owner: "the transition into the final pose should be more professional; the final pose closer to the camera, posed into the camera like RIVALS, closer together, some kneeling on the sides, more centred; they shouldn't all hold the same gun: the gun they got the most kills with that game."
+- **Final spots** (`RANKS[i].final`): on the cut into the final shot (5.80, hidden by the cut) the group closes up: the MVP in front, #2 and #3 on one knee at their sides (2.7 out, 1.1 back; #3 now kneels too, mirroring #2), #4 and #5 standing behind on the outside (5.8 out, 2.3 back), each turned to face the camera. While they move they still stand spread out.
+- **Transition** (`FINAL_KEYS`, used by every scene): the cut finds them coiled from high above (they look up into it); the camera eases up and back and stops (anticipation, a `still` key); on the 6.14 hit it slams down to the floor right in front of them as they snap into the pose, goes a hair past its mark (6.26), settles (6.62) and creeps in through the ring-out. Bigger FOV punch and shake as it lands. The solo final is closer (4.4 studs, lens 70); a group's opens with its width and sits a touch higher so the kneelers don't stack.
+- **Guns:** `StatsService` counts each fighter's eliminations per gun (the knife doesn't count) and puts the top one in their results line (`weapon`; no kills: the gun of their latest hit). The cutscene puts that gun in their copy's hand (`WinCutscene` `arm`, the same grip as the server's Weapon/WorldModel); the gun they already hold is kept when it's the same one, so it keeps its skin. A swapped-in gun shows its default look. The preview gives each copy a different random gun.
+
 ### Clipping and turned hands (round 3)
 Owner: "the way the hands are kind of turned, and a lot of times they clip through the body". Two causes, both measured on the rig:
 - **Turned hands:** the right fist is locked to the gun, so a canted gun twists the forearm (up to 70 degrees). The skinned forearm doesn't show twist, so the hand block looks turned against it.
@@ -139,8 +145,8 @@ Frozen frames from the preview (`PreviewWinCutsceneAt`); the bars are the cutsce
 
 | | |
 |---|---|
-| ![2P](Win%20Cutscene/2P%20final.jpg) 2 winners, final: the lead in front, #2 down on one knee (after the owner's 2-player reference) | ![5P](Win%20Cutscene/5P%20final.jpg) 5 winners, final: the lead big in the middle, the others spread out, each in their own pose |
-| ![5P B](Win%20Cutscene/5P%20B%20flex%202.20.jpg) 5 winners at 2.20: the camera stays on the lead (the flex); the others do their own moves at the edges | |
+| ![2P](Win%20Cutscene/2P%20final.jpg) 2 winners, final: the lead in front, #2 down on one knee (after the owner's 2-player reference) | ![5P](Win%20Cutscene/5P%20final.jpg) 5 winners, final (round 4): a pose for the camera, the MVP in front, #2 and #3 on one knee, #4 and #5 standing behind on the outside, each with their own top-kills gun |
+| ![5P B](Win%20Cutscene/5P%20B%20flex%202.20.jpg) 5 winners at 2.20: the camera stays on the lead (the flex); the others do their own moves at the edges | ![5P coil](Win%20Cutscene/5P%20E%20coil%206.00.jpg) 6.00: the cut finds them coiled from high above, before the slam to the floor |
 
 Measured in a play test: the clip and the song stay within 0.02 s of each other the whole way (60 fps); the hold loop takes over at 7.0 s; the screen comes in at 6.95; a click after 0.8 s jumps to the final pose and pulls the bars out.
 
@@ -163,6 +169,8 @@ Measured in a play test: the clip and the song stay within 0.02 s of each other 
 - [ ] Click or press a key after the first second: it jumps to the final pose and the screen comes in.
 - [ ] At a low frame rate (Studio ~15 fps) the cuts still land on the hits and the camera moves smoothly.
 - [ ] The winner holds a pistol or the knife: the hand poses still read (the clips are keyed on the rifle grip).
+- [ ] Each winner holds the gun they got the most eliminations with (a skin shows only if that's the gun they were holding at the end).
+- [ ] The transition: high over the coil, a beat of stillness, the slam to the floor on the 6.14 hit, a small overshoot, the settle.
 - [ ] 2v2 to 5v5: the best performer (MVP, then eliminations, damage) is in the middle; the others stand spread out and each does their own moves; the camera stays on the best one until the final, where everyone is in view. Preview with `PreviewWinCutsceneCount`.
 - [ ] No hand or gun goes through a body or head; hands don't look twisted on the gun.
 - [ ] (UI, owner's reference) a stat plate under each winner and a crown on the best: not built yet (the results screen still has the scoreboard on the left).

@@ -54,6 +54,7 @@ type Line = {
 	dealt: number,
 	taken: number,
 	mvp: boolean?,
+	weapon: string?, -- the gun they got the most eliminations with (StatsService)
 }
 
 type Results = {
@@ -623,7 +624,16 @@ local function begin()
 	end
 	-- one positive ending song for everyone, winner or not (owner
 	-- 2026-11-20): the cutscene starts it and runs on its clock
-	local played = WinCutscene.play(winnersOf(winner), {
+	local winners = winnersOf(winner)
+	local guns: { [number]: string } = {}
+	for i, body in winners do
+		local line = lineOf(body)
+		if line and line.weapon then
+			guns[i] = line.weapon
+		end
+	end
+	local played = WinCutscene.play(winners, {
+		guns = guns,
 		onScreen = screen,
 		onFrame = function()
 			for _, d in hidden do
@@ -717,7 +727,15 @@ local function preview()
 	for _ = 1, n do
 		table.insert(winners, character)
 	end
+	-- (each copy a different gun, as real winners would have)
+	local pool =
+		{ "Vandal", "Phantom", "Operator", "Spectre", "Bulldog", "Judge", "Odin", "Sheriff" }
+	local guns: { [number]: string } = {}
+	for i = 1, n do
+		guns[i] = table.remove(pool, math.random(1, #pool)) :: string
+	end
 	WinCutscene.play(winners, {
+		guns = guns,
 		onFrame = function()
 			for _, d in character:GetDescendants() do
 				if d:IsA("BasePart") or d:IsA("Decal") then

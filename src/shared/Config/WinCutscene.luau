@@ -27,7 +27,15 @@ local function v(x: number, y: number, z: number): Vector3
 	return Vector3.new(x, y, z)
 end
 
-export type Key = { t: number, eye: Vector3, at: Vector3, fov: number, roll: number? }
+-- `still`: the camera stops on this key (a beat of anticipation, a settle)
+export type Key = {
+	t: number,
+	eye: Vector3,
+	at: Vector3,
+	fov: number,
+	roll: number?,
+	still: boolean?,
+}
 export type Shot = {
 	name: string,
 	from: number,
@@ -50,6 +58,9 @@ export type Slot = {
 	clip: string, -- Config/Animations WIN key (the one-shot, ends on the pose)
 	hold: string, -- the loop that holds the pose
 	root: { RootKey }?, -- whole-body moves the clip can't do (it's keyed about a fixed root)
+	-- where it stands for the final shot (moved on the cut into it, so the
+	-- group closes up for the pose); nil = stays put
+	final: { pos: Vector3, yaw: number }?,
 }
 -- A designed sound accent under the song (owner 2026-11-20: an impact or
 -- whoosh-hit when a strong angle slams in). It starts early so the loudest
@@ -77,7 +88,7 @@ local KICKS: { Kick } = {
 	{ t = 4.02, shake = 0.2, decay = 0.25 },
 	{ t = 4.16, fov = -2, decay = 0.3 },
 	{ t = 5.36, fov = -2, decay = 0.35 },
-	{ t = 6.14, fov = -3, shake = 0.35, decay = 0.45 },
+	{ t = 6.2, fov = -4, shake = 0.45, decay = 0.45 }, -- the slam lands
 	{ t = 6.8, fov = -1.5, shake = 0.15, decay = 0.4 },
 }
 
@@ -95,6 +106,51 @@ local FLASHES: { Flash } = {
 	{ t = 1.46, peak = 0.18, decay = 0.2 },
 	{ t = 6.12, peak = 0.22, decay = 0.3 },
 }
+
+-- The final shot's camera (solo and groups): `wide` opens it for a group
+-- (how far the outermost winner stands to the side in the final spots),
+-- `back` = how far back their back row stands, `cx` the group's middle.
+local function FINAL_KEYS(wide: number, back: number, cx: number): { Key }
+	local z = 4.4 + 0.5 * wide -- the held distance
+	local low = 0.4 + 0.12 * wide -- the camera height (a group: up a touch, so the kneelers don't stack)
+	local lens = 70 - 0.4 * wide
+	local aim = v(-0.1 + 0.15 * cx, 4.05 - 0.05 * wide, -0.25 * back)
+	return {
+		-- the cut: high over the coil
+		{
+			t = 5.8,
+			eye = v(0.9, 7.2 + 0.3 * wide, 6.4 + 0.5 * wide),
+			at = v(0.1 * cx, 2.6, -0.3 * back),
+			fov = 46 + wide,
+		},
+		-- the anticipation: eases up and back, and stops
+		{
+			t = 6.08,
+			eye = v(0.8, 7.7 + 0.3 * wide, 7.0 + 0.5 * wide),
+			at = v(0.1 * cx, 2.8, -0.3 * back),
+			fov = 46 + wide,
+			still = true,
+		},
+		-- 6.14: the slam down to the floor, a hair past its mark
+		{
+			t = 6.26,
+			eye = v(0.45, low - 0.12, z - 0.45),
+			at = aim + v(0, -0.15, 0),
+			fov = lens + 2,
+			roll = 2.5,
+		},
+		-- settles
+		{ t = 6.62, eye = v(0.55, low, z), at = aim, fov = lens, roll = 1.5, still = true },
+		-- creeps in through the ring-out
+		{
+			t = 8.15,
+			eye = v(0.5, low - 0.03, z - 0.2),
+			at = aim + v(0, 0.05, 0),
+			fov = lens,
+			roll = 1.2,
+		},
+	}
+end
 
 local SCENES: { [number]: Scene } = {
 	-- 1 winner. Shots on the song's accents (measured 2026-11-20): 0.14 slam,
@@ -187,33 +243,19 @@ local SCENES: { [number]: Scene } = {
 				finishStill = false,
 			},
 			-- E: the final pose, after the owner's reference (a RIVALS winner
-			-- shot, studied not copied): starts at eye level on the coil, then
-			-- drops fast to the floor right in front of them as they snap the
-			-- gun up on 6.14 (the camera falls while they rise; the lens opens
-			-- wide on the way), and holds very low and close, looking up past
-			-- the raised gun, a little to their right so the raised gun spreads
-			-- out beside the face (from their left it hid behind the head). HOLD_FLOAT sways it on the pose.
+			-- shot, studied not copied). Round 4 (owner: the transition into
+			-- the pose more professional, the pose closer to the camera): the
+			-- cut finds them coiled from high above; the camera eases up a
+			-- touch (the anticipation), then on the 6.14 hit slams down to the
+			-- floor right in front of them as they snap into the pose, passes
+			-- its mark, settles, and creeps in through the ring-out, very low
+			-- and close, a little to their right so the raised gun spreads out
+			-- beside the face. HOLD_FLOAT sways it on the pose.
 			{
 				name = "E low hero",
 				from = 5.8,
 				to = 8.15,
-				keys = {
-					{ t = 5.8, eye = v(1.0, 3.6, 7.6), at = v(0, 3.3, 0), fov = 46, roll = 0 },
-					{
-						t = 6.3,
-						eye = v(0.6, 0.55, 5.4),
-						at = v(-0.1, 4.0, 0),
-						fov = 64,
-						roll = 2,
-					},
-					{
-						t = 8.15,
-						eye = v(0.55, 0.4, 4.9),
-						at = v(-0.1, 4.15, 0),
-						fov = 66,
-						roll = 1.5,
-					},
-				},
+				keys = FINAL_KEYS(0, 0, 0),
 			},
 		},
 		kicks = KICKS,
@@ -223,19 +265,20 @@ local SCENES: { [number]: Scene } = {
 }
 
 -- 2 to 5 winners (owner 2026-11-20: everybody does something, in order of
--- performance, the best in front; the same kind of shots, with the others
--- in view). Slot 1 (the best) plays the solo clip; slots 2-5 each have
--- their own (tools/anim/win_group.py) and their own hop or spin.
--- The spots by rank: 1 front and centre, then right, left, far right, far
--- left, each a step further back and turned a little toward the middle;
--- tight together (owner's 2-player reference: the pair shoulder to
--- shoulder, #2 a step back and down on one knee).
+-- performance, the best in front). Slot 1 (the best) plays the solo clip;
+-- slots 2-5 each have their own (tools/anim/win_group.py).
+-- While they move they stand spread out (the owner: the best one is the
+-- main subject, the others off to the sides). On the cut into the final
+-- shot they close up into a pose for the camera (round 4, after RIVALS'
+-- end shot, studied not copied): the best in front, #2 and #3 down on one
+-- knee at their sides, #4 and #5 standing behind on the outside, everyone
+-- turned to face the camera.
 local RANKS = {
-	{ pos = v(0, 0, 0), yaw = 0, clip = "Win1_1" },
-	{ pos = v(4.2, 0, -2.6), yaw = 12, clip = "WinS2" },
-	{ pos = v(-4.2, 0, -2.6), yaw = -12, clip = "WinS3" },
-	{ pos = v(9.0, 0, -4.0), yaw = 22, clip = "WinS4" },
-	{ pos = v(-9.0, 0, -4.0), yaw = -22, clip = "WinS5" },
+	{ pos = v(0, 0, 0), yaw = 0, clip = "Win1_1", final = v(0, 0, 0) },
+	{ pos = v(4.2, 0, -2.6), yaw = 12, clip = "WinS2", final = v(2.7, 0, -1.1) },
+	{ pos = v(-4.2, 0, -2.6), yaw = -12, clip = "WinS3", final = v(-2.7, 0, -1.1) },
+	{ pos = v(9.0, 0, -4.0), yaw = 22, clip = "WinS4", final = v(5.8, 0, -2.3) },
+	{ pos = v(-9.0, 0, -4.0), yaw = -22, clip = "WinS5", final = v(-5.8, 0, -2.3) },
 }
 -- Hops and spins by rank (only some: the others do grounded moves on 5.36)
 local HOPS: { [number]: { RootKey } } = {
@@ -252,12 +295,10 @@ local HOPS: { [number]: { RootKey } } = {
 	}, -- a big hop
 }
 
--- The group's shots: A-D are the solo shots on the best player (the others
--- at the edges), the final shot takes everyone in: `w` = how far the
--- outermost winner stands to the side, `d` how far back the back row is,
--- `cx` the group's middle. The final shot is the solo's low angle centred between
--- the lead and the group (owner's 2-player reference), the lens a little
--- wider and further back, so the others stand in it.
+-- The group's shots: A-D are the solo shots on the best player, pulled round
+-- toward the front, a touch higher and in (the others at the edges; the wide
+-- orbit had put #3 as big as the lead); the final shot is the solo's, opened
+-- for the group's final spots.
 local FRONT_PULL = 0.45 -- the side cameras' sideways offset, scaled
 local FRONT_LIFT = 0.8 -- and lifted (studs)
 local FRONT_NEAR = 0.85 -- and brought in toward the lead
@@ -267,22 +308,23 @@ local function group(n: number): Scene
 	local cx, w, d = 0, 0, 0
 	for i = 1, n do
 		local r = RANKS[i]
-		table.insert(
-			slots,
-			{ pos = r.pos, yaw = r.yaw, clip = r.clip, hold = r.clip .. "Hold", root = HOPS[i] }
-		)
-		cx += r.pos.X / n
-		w = math.max(w, math.abs(r.pos.X))
-		d = math.max(d, -r.pos.Z)
+		local f = r.final
+		-- turned to face the final camera (about 5 in front, on the middle)
+		local face = math.deg(math.atan2(f.X, 5.6 - f.Z))
+		table.insert(slots, {
+			pos = r.pos,
+			yaw = r.yaw,
+			clip = r.clip,
+			hold = r.clip .. "Hold",
+			root = HOPS[i],
+			final = if i > 1 then { pos = f, yaw = face } else nil,
+		})
+		cx += f.X / n
+		w = math.max(w, math.abs(f.X))
+		d = math.max(d, -f.Z)
 	end
-	-- (owner 2026-11-20: while they move, the camera stays on the best
-	-- player and the others are only seen round the edges; everyone is in
-	-- full view in the final shot. So A-D are the solo shots.)
 	local shots: { Shot } = {}
 	for i = 1, 4 do
-		-- the solo shot with its camera pulled round toward the front and a
-		-- touch higher, so the side cameras don't pass right by a flanker
-		-- (2026-11-20: the wide orbit put #3 as big as the lead)
 		local solo = SCENES[1].shots[i]
 		local keys: { Key } = {}
 		for _, key in solo.keys do
@@ -290,7 +332,7 @@ local function group(n: number): Scene
 			local front = e.Z > 0
 			local eye = if front then v(e.X * FRONT_PULL, e.Y + FRONT_LIFT, e.Z) else e
 			if front then
-				eye = key.at + (eye - key.at) * FRONT_NEAR -- in a little on the lead
+				eye = key.at + (eye - key.at) * FRONT_NEAR
 			end
 			table.insert(
 				keys,
@@ -306,35 +348,7 @@ local function group(n: number): Scene
 			finishStill = solo.finishStill,
 		})
 	end
-	local final: Shot = {
-		name = "E low hero",
-		from = 5.8,
-		to = 8.15,
-		keys = {
-			{
-				t = 5.8,
-				eye = v(1.0, 3.6, 7.6 + 0.4 * w),
-				at = v(0.2 * cx, 3.3, -0.2 * d),
-				fov = 46 + w,
-				roll = 0,
-			},
-			{
-				t = 6.3,
-				eye = v(0.3, 0.55 + 0.06 * w, 5.4 + 0.25 * w),
-				at = v(-0.1, 3.8 - 0.05 * w, -0.3 * d),
-				fov = 64 + 0.9 * w,
-				roll = 2,
-			},
-			{
-				t = 8.15,
-				eye = v(0.25, 0.4 + 0.06 * w, 4.9 + 0.25 * w),
-				at = v(-0.1, 3.95 - 0.05 * w, -0.3 * d),
-				fov = 66 + 0.9 * w,
-				roll = 1.5,
-			},
-		},
-	}
-	table.insert(shots, final)
+	table.insert(shots, { name = "E low hero", from = 5.8, to = 8.15, keys = FINAL_KEYS(w, d, cx) })
 	return {
 		length = 8.15,
 		slots = slots,

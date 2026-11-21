@@ -404,8 +404,8 @@ return table.freeze({
 		-- slots 2-5 in the 2-5 player scenes (tools/anim/win_group.py)
 		WinS2 = id(72681296384469), -- the showman: arms wide, fist pumps, beckons, a hop, down on one knee
 		WinS2Hold = id(123751947911029),
-		WinS3 = id(112657946063082), -- the cool one: finger gun, the gun to the sky, leaning back
-		WinS3Hold = id(105314075981764),
+		WinS3 = id(114906106837218), -- the cool one: finger gun, the gun to the sky, down on one knee
+		WinS3Hold = id(122667225125155),
 		WinS4 = id(113819442314250), -- the hype one: both arms up, a sideways aim, a big hop, a V
 		WinS4Hold = id(110977103612982),
 		WinS5 = id(100674335372888), -- the chill one: a salute, a lazy shrug, points at the sky

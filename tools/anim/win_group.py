@@ -132,7 +132,11 @@ S3B = dict(STANCE, hr=(0, 4, 0))
 SHOULDER = dict(gun=(74, -8, -14, -0.1))
 # (v2: the gun hangs down along the right leg; pointed down in front it hit
 # the legs and the clip fixer had to twist it up to the face)
-COOLFIN = dict(WIDE, hy=-0.04, hr=(-3, 6, 0), ch=(10, 6, 3), hd=(6, -6, 6), gun=(-62, -30, 0, 0.2), **HIP_L)
+# (round 4: the final is a pose for the camera, the group closed up; #3
+# kneels on the left knee, mirroring #2, gun easy by the side, hand on the
+# hip, chin up. Earlier: standing, leaning back.)
+KNEE_L = dict(rf=(0.65, 0, -0.8, -8), lf=(-0.7, 0, 1.05, 10))
+COOLFIN = dict(KNEE_L, hy=-1.0, hr=(10, 6, 0), ch=(-2, 6, 2), hd=(10, -4, 5), gun=(-50, -34, 0, 0.25), **HIP_L)
 S3 = [
 	k(0.00, S3B, hy=-0.04, ch=(2, 4, 2), hd=(4, 14, 6), **LOW, **{}),
 	k(0.68, S3B, hy=-0.04, ch=(2, 4, 2), hd=(4, 14, 6), **LOW),
@@ -158,14 +162,14 @@ S3 = [
 	k(5.44, WIDE, hy=-0.02, hr=(-3, 6, 0), ch=(12, 4, 2), hd=(10, -2, 4), gun=(82, -12, -12, 0.25), **HIP_L),
 	k(5.70, WIDE, hy=-0.06, hr=(-2, 6, 0), ch=(9, 4, 2), hd=(6, -2, 4), gun=(70, -10, -10, 0.2), **HIP_L),
 	k(5.92, WIDE, **COIL),
-	k(6.10, WIDE, **dict(COIL, hy=-0.46)),
-	# lean back, gun pointed down in front, hand on the hip, chin up
-	k(6.26, COOLFIN, hy=0.04, ch=(13, 6, 3), hd=(9, -6, 6), gun=(-56, -26, 0, 0.15)),
-	k(6.36, COOLFIN, hy=0.01, ch=(15, 7, 4), hd=(11, -7, 7), gun=(-66, -32, 0, 0.25)),
+	k(6.10, dict(KNEE_L, lf=(-0.7, 0.1, 0.8, 10)), **dict(COIL, hy=-0.6)),
+	# down on one knee (mirroring #2), gun easy, hand on the hip, chin up
+	k(6.26, COOLFIN, hy=-1.08, ch=(-6, 6, 2), hd=(6, -4, 5)),  # drops to the knee
+	k(6.36, COOLFIN, hy=-1.03, ch=(1, 7, 3), hd=(12, -5, 6)),
 	k(6.58, COOLFIN),
-	k(6.76, COOLFIN, hy=-0.08),
-	k(6.88, COOLFIN, hy=-0.02, ch=(12, 6, 3), hd=(2, -6, 6)),  # 6.80 a slow nod
-	k(7.06, COOLFIN, hd=(5, -6, 6)),
+	k(6.76, COOLFIN, hy=-1.06),
+	k(6.88, COOLFIN, hy=-0.98, ch=(1, 6, 2), hd=(4, -4, 5)),  # 6.80 a slow nod
+	k(7.06, COOLFIN, hd=(8, -4, 5)),
 	k(7.30, COOLFIN),
 ]
 group_clip("WinS3", S3)
