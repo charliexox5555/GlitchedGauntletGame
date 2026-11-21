@@ -43,7 +43,7 @@
 
 - **Ruin-Blighted roster review (2026-11-18).** Rebuilt Vandal, Spectre, Operator and Ghost using the approved Guardian v11 method. All five guns are staged in Match Studio. [Versions, renders and clearance checks](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#full-shadow-mist-roster-review).
 
-- **Tempest-Strike brief ready (2026-11-18).** The revised Kuronami-inspired Vandal sheet, owner research and structural design are archived. The next build starts with the elite Vandal hero and its motion preparation. [Concept](02%20Art/Skins/TempestStrike/concept.md) · [Build handoff](02%20Art/Skins/TempestStrike/Build%20Handoff.md)
+- **Tempest-Strike Vandal restarted (2026-11-21; waiting on the owner's look review).** The 11-18 attempt (v01-v20) was rejected and is not reused. New plan + concept check, then an **r01 design pass** in live Blender (port 9999): lofted receiver with brushed-silver cowls, fluted octagonal shroud, ported brake, open crescent sight, leather-wrapped grip and mag, triangular stock; stock Vandal footprint kept; 9,950 tris (over the 5K rule, needs the owner's OK); self-grade 7/10 with a listed finish pass. [Plan + log](02%20Art/Skins/TempestStrike/Vandal%20Hero%20Plan.md) · [r01 sheet](02%20Art/Skins/TempestStrike/out/Vandal_r01_review.png)
 
 - **Ruin-Blighted final review (2026-11-18).** All five gun masters passed the live Blender MCP check. Match Studio has the five new draws, cleaner Guardian and Spectre inspects, and Ruined Reaver v06 with a thinner blade, a rebuilt hilt and contact-timed heavy strikes. Blender masters, renders and checks are in the [expansion ledger](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md).
 
