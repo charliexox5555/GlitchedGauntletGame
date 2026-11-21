@@ -245,4 +245,5 @@ return {
 	GGAsset_LobbySkins_240 = { ["MoltframeFlowLayer"] = 1 }, -- ReplicatedStorage.WeaponSkins.Moltframe.Ares.SK_Mag_06.Pattern
 	GGAsset_LobbySkins_241 = { ["PreviewMeleeModel"] = "Bat", ["SkinLine"] = "PopCircuit", ["SkinReady"] = true, ["SkinVersion"] = "v01", ["WeaponId"] = "Knife" }, -- ReplicatedStorage.WeaponSkins.PopCircuit.Bat
 	GGAsset_LobbySkins_242 = { ["SkinMeshPatch"] = true }, -- ReplicatedStorage.WeaponSkins.Prism.Bulldog.Bolt
+	GGAsset_LobbySkins_243 = { ["Length"] = 4.324, ["PreviewGeometry"] = "Slipframe_Guardian_r05fx", ["SkinItem"] = "Guardian", ["SkinLine"] = "Slipframe", ["SkinReady"] = true, ["SkinSourceAsset"] = 122077047011165, ["SkinVersion"] = "r05fx", ["SourceAsset"] = 137898490233748, ["WeaponId"] = "Guardian" }, -- ReplicatedStorage.WeaponSkins.Slipframe.Guardian
 }

@@ -448,13 +448,16 @@ def export_flat(objs, out_dir, item, line, prefix="SK"):
         # material group vanished on aim, with the rest of that group (owner
         # 2026-11-14: "sights disappear on ADS").
         sight = "sight" in o.name.lower()
+        # Explicit groups let an individually animated mesh keep its stock weld
+        # and palette without merging into the rest of that bone's material.
+        flat_group = o.get("flat_group", "")
         for p in o.data.polygons:
             m = o.data.materials[p.material_index] if p.material_index < len(o.data.materials) else None
-            key = (bone, m.name if m else "_none", sight)
+            key = (bone, m.name if m else "_none", sight, flat_group)
             groups.setdefault(key, []).append((o, p.index))
     made, report = [], {}
     counter = {}
-    for (bone, mname, sight), faces in sorted(groups.items()):
+    for (bone, mname, sight, flat_group), faces in sorted(groups.items()):
         bm = bmesh.new()
         uvl = bm.loops.layers.uv.new("UVMap")
         cache = {}
@@ -487,8 +490,12 @@ def export_flat(objs, out_dir, item, line, prefix="SK"):
         bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.calc_area() < 1e-9], context="FACES")
         if not bm.faces:
             bm.free(); continue
-        counter[bone] = counter.get(bone, 0) + 1
-        name = f"{prefix}_{bone}_{'Sight_' if sight else ''}{counter[bone]:02d}"
+        if flat_group:
+            name = f"{prefix}_{bone}_{'Sight_' if sight else ''}{flat_group}"
+            assert name not in report, f"Multiple materials share flat group {name}"
+        else:
+            counter[bone] = counter.get(bone, 0) + 1
+            name = f"{prefix}_{bone}_{'Sight_' if sight else ''}{counter[bone]:02d}"
         me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
         for p in me.polygons:
             p.use_smooth = False

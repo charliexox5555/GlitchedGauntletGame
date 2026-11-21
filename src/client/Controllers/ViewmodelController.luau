@@ -48,6 +48,7 @@ local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local ShadowMistIdle = require(script.Parent.Parent.Util.ShadowMistIdle)
 local TempestIdle = require(script.Parent.Parent.Util.TempestIdle)
 local TempestKunai = require(script.Parent.Parent.Util.TempestKunai)
+local SlipframeEffects = require(script.Parent.Parent.Util.SlipframeEffects)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
@@ -140,6 +141,7 @@ type Gun = {
 	fan: FanMotion.Fan?, -- the Giltfold Fan's ribs (Util/FanMotion)
 	shadowMist: ShadowMistIdle.State?,
 	tempest: TempestIdle.State?,
+	slipframe: SlipframeEffects.State?,
 	kunai: TempestKunai.State?, -- the Tempest-Strike Kunai-Katana (knife slot)
 	shadowActions: ShadowMistActions.State?,
 	cosmeticInspect: CosmeticInspect.State?,
@@ -1047,6 +1049,9 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	gun.reaver = RuinedReaver.new(m, scale)
 	gun.shadowMist = if gun.reaver then nil else ShadowMistIdle.new(m, scale)
 	gun.tempest = TempestIdle.new(m, scale)
+	if StateValues.get(m, "SkinLine") == "Slipframe" then
+		gun.slipframe = SlipframeEffects.new(m, scale)
+	end
 	gun.kunai = TempestKunai.new(m, scale)
 	gun.shadowActions = ShadowMistActions.new(m, scale, weapon.id)
 	gun.cosmeticInspect = CosmeticInspect.new(m)
@@ -1419,6 +1424,9 @@ local function bump(kind: string)
 	if right and right.tempest then
 		TempestIdle.beat(right.tempest, kind)
 	end
+	if right and right.slipframe and kind == "MagIn" then
+		SlipframeEffects.pulse(right.slipframe, "Seat")
+	end
 	local b = VM.HANDLE_BUMPS[kind]
 	if not b then
 		return
@@ -1695,6 +1703,9 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 	end
 	if gun.tempest then
 		TempestIdle.fire(gun.tempest)
+	end
+	if gun.slipframe then
+		SlipframeEffects.pulse(gun.slipframe, "Fire")
 	end
 	gun.lockPending = empty == true
 		and config ~= nil
@@ -2836,6 +2847,16 @@ local function update(dt: number)
 			end
 			local clipName = gun.animator.clipName
 			local visible = not hidden and lowerT < 0.9
+			if gun.slipframe then
+				local inspect = playing.Inspect
+				SlipframeEffects.step(
+					gun.slipframe,
+					dt,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					adsAlpha,
+					visible
+				)
+			end
 			local action: ShadowMistActions.Frame? = nil
 			if gun.shadowActions then
 				local draw = playing.Equip

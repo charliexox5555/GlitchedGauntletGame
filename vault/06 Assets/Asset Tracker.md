@@ -16,7 +16,7 @@ Active Lobby and Match assets now get authored fields from the shared AssetData 
 
 ## Weapons
 
-**Slipframe Guardian r05 (2026-11-21).** The Epic-direction hero now has a seated one-piece front sight and a slimmer rear hood. The 3,838-triangle model preserves the Guardian v05 rig, locators and actions. Its flat FBX passed the one-sided re-import check. [Rework ledger, captures and Epic effect proposal](../02%20Art/Skins/Slipframe/Rework%20Ledger.md)
+**Slipframe Guardian r05fx (2026-11-21).** Group model `122077047011165` is installed in Lobby and Match Studio for Epic hero review. The 3,838-triangle Guardian r05 design keeps the stock rig, locators and actions. The Studio pass adds the first-person panel slide, seam sweep, shot pulse and magazine-seat light. [Rework ledger and captures](../02%20Art/Skins/Slipframe/Rework%20Ledger.md)
 
 **Tempest-Strike line, Blender (2026-11-22).** Stinger s02x (6,143 tris), Marshal s02x (4,432 + stock lens), Bucky s02x (6,018) and Sheriff s02x (5,158) built on the stock RemasterV2 v05 models, graded 9/10, flat-exported with `TS_Rig` bones for the moving plates, crescents and gate (`art-source/weapons/Skins/TempestStrike/<Gun>/s02x/`). Kunai-Katana Knife s04x (2,464 tris, `TS_Katana` / `TS_Ring` bones) rebuilt from the owner's sheet (bigger kunai root, katana growing out of it), graded 9/10. Not uploaded; the Vandal session ports them and does the VFX. [Line Build Ledger](../02%20Art/Skins/TempestStrike/Line%20Build%20Ledger.md)
 

@@ -10,8 +10,9 @@ master = Path(bpy.data.filepath)
 assert master.name.startswith("Guardian_Slipframe_r") and not master.stem.endswith("x"), master
 root = master.parents[6]
 version = master.stem.split("_")[-1]
-directory = master.parent.with_name(version + "x")
-copy = directory / f"{master.stem}x.blend"
+export_version = version + "fx"
+directory = master.parent.with_name(export_version)
+copy = directory / f"Guardian_Slipframe_{export_version}.blend"
 assert not copy.exists(), copy
 
 directory.mkdir(parents=True, exist_ok=True)
@@ -25,17 +26,19 @@ for group in ("Guardian", "COL_Slipframe"):
         mesh = bpy.data.meshes.new_from_object(obj.evaluated_get(depsgraph), depsgraph=depsgraph)
         obj.modifiers.clear()
         obj.data = mesh
+bpy.data.objects["SF_InspectSlidingPanel_Left"]["flat_group"] = "SFInspectPanel"
+bpy.data.objects["SF_SeamInlay_Left"]["flat_group"] = "SFSeam"
 bpy.ops.wm.save_as_mainfile(filepath=str(copy))
 
 tools = root / "tools/blender"
-exporter = {"ITEMS": [("Slipframe", "Guardian", version + "x")]}
+exporter = {"ITEMS": [("Slipframe", "Guardian", export_version)]}
 exec((tools / "export_skin_items_flat.py").read_text(encoding="utf-8"), exporter)
 manifest = directory / "manifest_flat.json"
 model = directory / "Guardian_Slipframe_RobloxFlat.fbx"
 assert manifest.is_file() and model.is_file(), exporter.get("result")
 
-evidence = root / f"vault/02 Art/Skins/Slipframe/out/Guardian_{version}_flat_check"
-check = {"FBXS": [(f"Guardian_{version}", str(model), str(manifest))], "OUT": str(evidence)}
+evidence = root / f"vault/02 Art/Skins/Slipframe/out/Guardian_{export_version}_flat_check"
+check = {"FBXS": [(f"Guardian_{export_version}", str(model), str(manifest))], "OUT": str(evidence)}
 exec((tools / "check_flat_export.py").read_text(encoding="utf-8"), check)
 (evidence / "reimport.json").write_text(json.dumps(check["result"], indent=2), encoding="utf-8")
 bpy.ops.wm.open_mainfile(filepath=str(master))

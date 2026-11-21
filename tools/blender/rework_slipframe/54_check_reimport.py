@@ -8,8 +8,8 @@ import bpy
 
 
 master = Path(bpy.data.filepath)
-version = master.stem.split("_")[-1]
-directory = master.parent.with_name(version + "x")
+version = master.stem.split("_")[-1] + "fx"
+directory = master.parent.with_name(version)
 root = master.parents[6]
 fbx = directory / "Guardian_Slipframe_RobloxFlat.fbx"
 target = root / f"vault/02 Art/Skins/Slipframe/out/Guardian_{version}_flat_check/reimport_topology.json"
@@ -54,4 +54,4 @@ bpy.ops.wm.open_mainfile(filepath=str(master))
 result = {"evidence": str(target), "objects": len(report),
           "inverted_closed": [n for n, values in report.items() if values["inverted_closed"]],
           "inconsistent_edges": [n for n, values in report.items() if values["inconsistent_edges"]],
-          "sight_partition": report["SK_Root_Sight_04"]}
+          "slipframe_parts": {n: report[n] for n in ("SK_Root_SFInspectPanel", "SK_Root_SFSeam")}}

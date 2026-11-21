@@ -34,6 +34,7 @@ local lines = {
 if RunService:IsStudio() then
 	table.insert(lines, shadowMistLine)
 	table.insert(lines, "TempestStrike") -- elite line in progress (Vandal, Stinger, Marshal, Bucky, Sheriff, Kunai-Katana), Studio preview
+	table.insert(lines, "Slipframe") -- Guardian hero review
 end
 
 return table.freeze({

@@ -17,7 +17,7 @@
 | `SF Seam` | `#B9E0EF` | Ice-white metal inlay |
 | `SF Grip` | `#343B43` | Matte graphite polymer |
 
-The current silhouette uses one straight lower rail, two sharply raked shoulders, a triangular stock opening, and flat chamfers around a chisel-shaped nose. The receiver trim brings the blue treatment into the held camera. `SF_InspectSlidingPanel_Left`, `SF_SeamInlay_Left`, `SF_ShellPanel_Left`, `SF_ShellPanel_Right`, and `SF_RearSight_Hood` remain individually editable. The current export groups the static flat materials by stock bone. Giving the Epic pieces independent motion in Studio requires a dedicated export and runtime pass.
+The current silhouette uses one straight lower rail, two sharply raked shoulders, a triangular stock opening, and flat chamfers around a chisel-shaped nose. The receiver trim brings the blue treatment into the held camera. `SF_InspectSlidingPanel_Left`, `SF_SeamInlay_Left`, `SF_ShellPanel_Left`, `SF_ShellPanel_Right`, and `SF_RearSight_Hood` remain individually editable. The r05fx export keeps the moving insert and seam separate with their stock Root welds intact.
 
 ## Guardian version record
 
@@ -62,7 +62,17 @@ One recessed channel on the player-facing shoulder carries the effect. The blue 
 | Magazine seat | One brief point of light appears at the rear of the seam as the new magazine seats. | A close, dry latch click on the existing mag-in cue. |
 | Inspect | The insert shifts and the full seam glint appears once, then the panel follows the stock return to its seat. | Three synchronized accents for unlock, travel, and seat. |
 
-Carry the same treatment across the line and shorten the stroke for the compact guns. The effects and foley are first-person only under the [locked presentation decision](../../../00%20Home.md#-locked-decisions). This is the behavior and audio proposal. The model pass prepared the named pieces for a later runtime pass.
+Carry the same treatment across the line after hero approval and shorten the stroke for the compact guns. The effects and foley are first-person only under the [locked presentation decision](../../../00%20Home.md#-locked-decisions). The sound column remains the proposal for a later pass.
+
+## Guardian r05fx Studio review
+
+The owner asked for the Guardian effects and model in game before proceeding with the rest of the roster. The [r05fx export](../../../../art-source/weapons/Skins/Slipframe/Guardian/r05fx/manifest_flat.json) packages the r05 silhouette into 20 MeshParts. Both receiver insert and seam passed the [one-sided re-import and topology check](out/Guardian_r05fx_flat_check/reimport_topology.json). The live 9000 Blender window had unsaved changes, so the export copy was made from the saved r05 file in the separate live Blender instance on `127.0.0.1:9897`.
+
+- Group model `122077047011165` is installed at `ReplicatedStorage.WeaponSkins.Slipframe.Guardian` in Lobby and Match. The asset rows are `GGAsset_LobbySkins_243` and `GGAsset_MatchSkins_347`.
+- `SlipframeEffects` creates one moving insert joint and one glint on the first-person clone. The insert floats out of the recess before sliding upward, then reseats. The sweep uses the left-facing hold of the existing inspect track. Fire flashes along the short rear section and dims in ADS. The normal `MagIn` beat flashes a stationary point. The third-person model uses static geometry and stock animation.
+- Match Studio Solo Play passed hold, clear ADS, inspect, firing, mag-in, ADS interrupt, Stock fallback and the third-person check. [Playtest and captures](../../../05%20Production/Playtests/2026-11-21%20Slipframe%20Guardian.md)
+- Team Create saved Match **v990** and Lobby **v897**. The review is in Studio. The game's published versions are separate.
+- Studio preview is enabled for the hero. The remaining guns, case catalog, and custom audio follow the owner's review.
 
 ## Review and install gates
 

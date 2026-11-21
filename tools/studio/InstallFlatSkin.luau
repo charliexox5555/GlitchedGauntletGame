@@ -117,8 +117,10 @@ end
 
 local function install(args: { [string]: any }): (Model, { string })
 	assert(
-		RunService:IsStudio() and not RunService:IsRunning() and game.PlaceId == 133387545285290,
-		"Gauntlet gameplay Studio Edit only"
+		RunService:IsStudio()
+			and not RunService:IsRunning()
+			and (game.PlaceId == 133387545285290 or game.PlaceId == 71551303511506),
+		"Gauntlet Lobby or Match Studio Edit only"
 	)
 	local lineName: string = args.line
 	local gun: string = args.gun
