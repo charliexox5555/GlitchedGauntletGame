@@ -57,3 +57,9 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
 **How the last four maps were built** (copy this pipeline):
 - [OldTown4](OldTown4.md#build-v1-2026-11-21) (newest, most complete);
 - [Snowpeak4](Snowpeak4.md), [Metro4](Metro4.md), [Wharf](Wharf.md).
+
+## Owner feedback during the run (2026-11-21, after a look at Rooftops4)
+- **Railings are jumpable:** "you can't really jump over the railings like when you go up on a building, which I think should be, so it's easier to walk around." No invisible rail guards over railings or parapets; keep rails low enough to hop (3-3.5). A blocker only where a perch would put players on a roof that must stay out of play.
+- **Build checks only:** "I don't really want you to do all these checks on the map like walkability and stuff, because that just takes up a lot of usage ... We're mainly just working on building. Obviously check the build." So from now on:
+  - **run:** z-fight (`Audit.luau`), floating (`FloatAudit.luau`), slopes (`SlopeAudit.luau`), and captures to judge the look;
+  - **skip:** ReachCheck, route / sightline sims, LockMap playtests, quality-score grading rounds. The owner tests walkability later.
