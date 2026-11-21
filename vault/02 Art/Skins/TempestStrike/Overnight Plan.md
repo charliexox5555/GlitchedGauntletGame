@@ -55,3 +55,12 @@ Owner: "not cool enough. Moving parts. Shooting: more feedback and VFX. Reload: 
 - **Studio sync note:** the Rojo plugin dropped its connection this session; the changed modules were pushed into Studio by a generated patch with the same file contents (sizes checked against disk). Reconnect Rojo before the next lane syncs.
 - **Checks:** fire, ADS + fire, reload (partial), inspect, re-equip: no script errors; moving-part timing logged against the ring (crescent turn starts at inspect 0.48). Match place saved (v962).
 - **Self-grade: 9 / 10** for VFX and motion. Open: the owner's look in motion (stills only), the skin's own gunshot, foley levels.
+
+## Round 4 (2026-11-22): shot pulse, no whole-gun flash, smoother inspect
+Owner: "cooler, better VFX and animations; still no VFX pulse on the shooting (not a whole-gun colour change, but something on it); the inspect looks a little clunky and I don't like how the whole gun flashes, it would be cooler if it goes over time; keep the orange headshot flare."
+- **Shot pulse:** every shot fires a crisp ring of light (`MOD_RING`, cyan) down the barrel from the front of the receiver to the muzzle in 0.085 s (a particle with VelocityPerpendicular, locked to the gun); 30 % of shots add the crackling `STIM_RING`. The conduits flare harder per shot (BOOST_SHOT 0.6), so full auto keeps them charged. The whole-gun coat flicker per shot is gone.
+- **No whole-gun flashes:** the coat no longer pops on the inspect roll or the reload spin. The draw still starts as water but solidifies gradually over 60 % of the draw. Only the mag (water mag) and the sight shimmer use the coat now.
+- **Sweep ("goes over time"):** a band of cyan water rings travels along the gun: muzzle -> receiver while the right side shows, receiver -> muzzle on the left side, and down the barrel with the draw ring. Sized to the gun's girth at each point.
+- **Inspect flow:** no stop in the middle any more. The gun swings from the right side to the left in one move and passes muzzle-up (pitch 50) for the barrel roll, so the stock never comes into the face (the first try through yaw 0 filled the screen with the butt). Roll 0.44-0.62.
+- Headshot flare stays orange (owner confirmed).
+- Checks: hip and ADS fire (pulse hidden under the window at ADS), inspect captures at the sweep and mid-roll, no script errors. Match place saved.

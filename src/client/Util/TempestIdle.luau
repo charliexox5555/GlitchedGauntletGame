@@ -48,6 +48,8 @@ export type State = {
 	aimed: boolean,
 	coat: TempestCoat.Coat,
 	moving: Moving,
+	pulse: { ring: ParticleEmitter, arcs: ParticleEmitter }?,
+	sweep: { at: Attachment, rings: ParticleEmitter }?,
 	former: ParticleEmitter?, -- water beads converging on the new magazine
 	trails: { Trail }, -- water trails off the muzzle and stock (inspect, reload spin)
 	sight: {
@@ -341,6 +343,8 @@ function TempestIdle.new(model: Model, scale: number): State?
 		aimed = false,
 		coat = nil :: any,
 		moving = nil :: any,
+		pulse = nil,
+		sweep = nil,
 		former = nil,
 		trails = {},
 		sight = nil :: any,
@@ -425,6 +429,89 @@ function TempestIdle.new(model: Model, scale: number): State?
 		vent = { x = 1, v = 0 }, -- drawn in open
 		cres = { x = Style.CRESCENT_DRAW, v = 0 }, -- and the crescent turned away
 	}
+	-- the shot pulse: rings shot down the bore from the front of the receiver
+	-- (attachment facing the muzzle; VelocityPerpendicular lays each ring round the bore)
+	do
+		local from = state.toBody:PointToWorldSpace(bl(1.05, 0, 0.3) * scale)
+		local dir = state.toBody:VectorToWorldSpace(bl(1, 0, 0))
+		local at = Instance.new("Attachment")
+		at.Name = "TempestPulse"
+		at.CFrame = CFrame.lookAt(from, from + dir)
+		at.Parent = body
+		local function ringEmitter(
+			name: string,
+			texture: string,
+			brightness: number
+		): ParticleEmitter
+			local e = Instance.new("ParticleEmitter")
+			e.Name = name
+			e.Texture = texture
+			e.Color = ColorSequence.new(Style.WATER_EDGE, Style.WATER)
+			e.LightEmission = 1
+			e.LightInfluence = 0
+			e.Brightness = brightness
+			e.Rate = 0
+			e.Lifetime = NumberRange.new(Style.PULSE_TIME)
+			e.Speed = NumberRange.new(1.55 * scale / Style.PULSE_TIME)
+			e.EmissionDirection = Enum.NormalId.Front
+			e.SpreadAngle = Vector2.zero
+			e.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+			e.Rotation = NumberRange.new(0, 360)
+			e.Size = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, Style.PULSE_SIZE[1] * scale),
+				NumberSequenceKeypoint.new(
+					0.45,
+					(Style.PULSE_SIZE[1] + Style.PULSE_SIZE[2]) / 2 * scale
+				),
+				NumberSequenceKeypoint.new(1, Style.PULSE_SIZE[2] * scale),
+			})
+			e.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.5),
+				NumberSequenceKeypoint.new(0.15, 0),
+				NumberSequenceKeypoint.new(0.8, 0.1),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+			e.LockedToPart = true
+			e.Enabled = false
+			e.Parent = at
+			return e
+		end
+		state.pulse = {
+			ring = ringEmitter("TempestPulseRing", Style.PULSE_RING, Style.PULSE_BRIGHTNESS),
+			arcs = ringEmitter(
+				"TempestPulseArcs",
+				Style.PULSE_ARC_RING,
+				Style.PULSE_BRIGHTNESS * 0.9
+			),
+		}
+		-- the sweep: a band of rings dropped behind a point moving along the gun
+		local sat = Instance.new("Attachment")
+		sat.Name = "TempestSweep"
+		sat.CFrame = CFrame.lookAt(from, from + dir)
+		sat.Parent = body
+		local rings = Instance.new("ParticleEmitter")
+		rings.Name = "TempestSweepRings"
+		rings.Texture = Style.PULSE_RING
+		rings.Color = ColorSequence.new(Style.WATER)
+		rings.LightEmission = 0.6
+		rings.LightInfluence = 0
+		rings.Brightness = 1.05
+		rings.Rate = 0
+		rings.Lifetime = NumberRange.new(Style.SWEEP_LIFE)
+		rings.Speed = NumberRange.new(0.02)
+		rings.EmissionDirection = Enum.NormalId.Front
+		rings.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+		rings.Rotation = NumberRange.new(0, 360)
+		rings.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.05),
+			NumberSequenceKeypoint.new(0.5, 0.45),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		rings.LockedToPart = true
+		rings.Enabled = false
+		rings.Parent = sat
+		state.sweep = { at = sat, rings = rings }
+	end
 	-- the forming magazine: a ball welded to the magazine (before ViewmodelRig, so the
 	-- rig carries it) whose surface throws water beads inward
 	local magPart: BasePart? = nil
@@ -605,6 +692,13 @@ function TempestIdle.fire(state: State)
 	state.shotAge = 0
 	state.shotSign = -state.shotSign
 	state.boost = math.max(state.boost, Style.BOOST_SHOT)
+	local pulse = state.pulse
+	if pulse and state.visible then
+		pulse.ring:Emit(1)
+		if not UiMotion.reduced() and math.random() < Style.PULSE_ARC_CHANCE then
+			pulse.arcs:Emit(1)
+		end
+	end
 	-- an arc snaps off the receiver now and then (not while aiming: the sight stays clean)
 	if
 		state.aimed == false
@@ -984,6 +1078,38 @@ function TempestIdle.step(
 			tr.Enabled = trailsOn
 		end
 	end
+	-- the sweep: a band of water rings runs along the gun (inspect: muzzle to
+	-- receiver while the right side shows, back to the muzzle on the left side;
+	-- draw: down the barrel with the ring)
+	local sweep = state.sweep
+	if sweep then
+		local x: number? = nil
+		if inspectP then
+			if inspectP > 0.15 and inspectP < 0.38 then
+				x = 2.5 + (0.0 - 2.5) * smooth(0.15, 0.38, inspectP)
+			elseif inspectP > 0.64 and inspectP < 0.86 then
+				x = 0.0 + (2.5 - 0.0) * smooth(0.64, 0.86, inspectP)
+			end
+		elseif drawP and drawP < Style.DRAW_RING then
+			x = 2.55 + (0.9 - 2.55) * smooth(0, Style.DRAW_RING, drawP)
+		end
+		local active = x ~= nil and visible and not reduced
+		if active and x then
+			local r = if x < 1.05 then 0.25 elseif x < 1.9 then 0.18 else 0.11
+			local zc = if x < 1.05 then 0.26 else 0.3
+			local p = state.toBody:PointToWorldSpace(bl(x, 0, zc) * k)
+			local d = state.toBody:VectorToWorldSpace(bl(1, 0, 0))
+			sweep.at.CFrame = CFrame.lookAt(p, p + d)
+			sweep.rings.Size = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, r * 2.3 * k),
+				NumberSequenceKeypoint.new(1, r * 2.8 * k),
+			})
+		end
+		sweep.rings.Rate = if active then Style.SWEEP_RATE else 0
+		if sweep.rings.Enabled ~= active then
+			sweep.rings.Enabled = active
+		end
+	end
 	-- ADS: lightning snaps over the crescent at random beats while you aim
 	local sight = state.sight
 	local adsOn = visible and aim > 0.7 and not reduced
@@ -1019,10 +1145,8 @@ function TempestIdle.step(
 	state.sightFlash = math.max(0, state.sightFlash - s / Style.SIGHT_FLASH_TIME)
 	local body = 0
 	if drawP then
-		body = 1 - smooth(0.06, Style.DRAW_RING + 0.04, drawP)
-	elseif inspectP then
-		body = 0.75 * smooth(0.42, 0.48, inspectP) * (1 - smooth(0.6, 0.7, inspectP))
-			+ 0.4 * smooth(0.1, 0.16, inspectP) * (1 - smooth(0.2, 0.3, inspectP))
+		-- solidifies gradually behind the ring (owner: no sudden whole-gun flash)
+		body = 0.85 * (1 - smooth(0.04, 0.6, drawP))
 	end
 	body = math.max(body, 0.35 * surge, Style.SHOT_COAT * math.exp(-state.shotAge * 30) * (1 - aim))
 	coat.alpha.body = body
@@ -1030,12 +1154,6 @@ function TempestIdle.step(
 	local mag, free = 0, false
 	if timing and state.reloadPrev >= 0 then
 		local t = state.reloadPrev
-		coat.alpha.body = math.max(
-			coat.alpha.body,
-			0.6
-				* smooth(timing.seat + 0.03, timing.seat + 0.07, t)
-				* (1 - smooth(timing.seat + 0.16, timing.seat + 0.26, t))
-		)
 		local solid = TempestIdle.solidAt(timing.inAt, timing.seat)
 		if t >= timing.outAt and t < timing.outAt + 0.08 then
 			mag, free = 0.9 * (1 - (t - timing.outAt) / 0.08), true -- the old one, a fading ghost

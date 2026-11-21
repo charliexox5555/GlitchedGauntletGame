@@ -126,13 +126,23 @@ return table.freeze({
 		CRESCENT_ADS_KICK = 420, -- degrees / s twist entering ADS (it springs back and locks)
 		CRESCENT_SHOT_KICK = 60, -- a small tick per hip shot, alternating
 		FORM_SOLID = 0.5, -- share of MagIn -> seat the new magazine stays water
-		SHOT_COAT = 0.22, -- a flicker of the coat per hip shot
+		SHOT_COAT = 0, -- no whole-gun flicker per shot (owner 2026-11-22); the pulse ring is the shot's mark
 		SIGHT_FLASH = 0.8, -- the sight's shimmer entering ADS...
 		SIGHT_FLASH_TIME = 0.35, -- ...fading over this
+		-- the shot pulse: a ring of light shot down the barrel, receiver to muzzle
+		PULSE_RING = VFX.MOD_RING,
+		PULSE_ARC_RING = VFX.STIM_RING, -- now and then the ring crackles
+		PULSE_TIME = 0.085, -- seconds receiver -> muzzle
+		PULSE_SIZE = { 0.38, 0.18 }, -- ring size at the receiver and at the muzzle (model studs)
+		PULSE_BRIGHTNESS = 1.6,
+		PULSE_ARC_CHANCE = 0.3,
+		-- the sweep: a band of water rings travelling along the gun (inspect, draw)
+		SWEEP_RATE = 75, -- rings per second while sweeping
+		SWEEP_LIFE = 0.16,
 		SHOT_PULSE = 2.4, -- extra helix brightness in the per-shot pulse
 		SHOT_PULSE_TIME = 0.1, -- seconds for the pulse to run receiver to muzzle
 		SHOT_ARC_CHANCE = 0.45,
-		BOOST_SHOT = 0.35, -- conduit flare per shot (0..1, decays at BOOST_DECAY / s)
+		BOOST_SHOT = 0.6, -- conduit flare per shot (0..1, decays at BOOST_DECAY / s)
 		BOOST_SEAT = 0.9, -- flare when the new magazine seats or the draw locks
 		BOOST_DECAY = 3.5,
 		RELOAD_DRAIN = 0.75, -- how far the conduits dim while the magazine is out
@@ -142,8 +152,8 @@ return table.freeze({
 		RING_BRIGHTNESS = 1.15,
 		RING_SPIN = 5, -- radians per second
 		DRAW_RING = 0.4, -- the ring reaches the receiver (DrawTempest snaps level at 0.34)
-		INSPECT_ROLL_IN = 0.465, -- InspectTempest toss: the barrel roll starts...
-		INSPECT_CATCH = 0.61, -- ...and the hands catch it
+		INSPECT_ROLL_IN = 0.44, -- InspectTempest toss: the barrel roll starts...
+		INSPECT_CATCH = 0.59, -- ...and the hands catch it
 		INSPECT_RING_X = 1.2, -- the roll ring: round the middle of the gun (Blender x)
 		INSPECT_RING_R = 0.34,
 		INSPECT_SPARKS = 3, -- arc rate multiplier while inspecting
