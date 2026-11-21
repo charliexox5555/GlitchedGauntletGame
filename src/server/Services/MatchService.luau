@@ -907,8 +907,55 @@ end
 -- players vote among every installed map in Config.MAPS that fits the bigger
 -- team (MapVoteService). One map that fits, or nobody here: no vote. In Studio
 -- the Workspace attribute ForceMap wins. nil keeps the current map.
+--
+-- LockMap (Studio only, 2026-11-21): the easy test switch. Type a map into the Workspace attribute `LockMap`
+-- (a map id like "Snowpeak4" or its vote name like "Snowpeak", any case) and every match plays that map with
+-- no vote; clear it to vote again. Studio only, so a value left in the saved place can't pin live servers.
 local lastMap: string? = nil
+local lockWarned: string? = nil
+local function lockedMap(): string?
+	if not RunService:IsStudio() then
+		return nil
+	end
+	local raw = workspace:GetAttribute("LockMap")
+	if typeof(raw) ~= "string" then
+		return nil
+	end
+	local want = string.lower((string.gsub(raw, "^%s*(.-)%s*$", "%1")))
+	if want == "" then
+		return nil
+	end
+	local found: string? = nil
+	for _, entry in Config.MAPS do
+		if string.lower(entry.id) == want or (entry.name and string.lower(entry.name) == want) then
+			found = entry.id
+			break
+		end
+	end
+	if not found and MapService.has(raw) then
+		found = raw -- an installed map outside the rotation (an old one, a work in progress)
+	end
+	if found and MapService.has(found) then
+		return found
+	end
+	if lockWarned ~= raw then
+		lockWarned = raw
+		warn(
+			string.format(
+				"[MatchService] LockMap %q matches no installed map; voting as usual",
+				raw
+			)
+		)
+	end
+	return nil
+end
+
 local function pickMap(): string?
+	local locked = lockedMap()
+	if locked then
+		print(string.format("[MatchService] LockMap: %s (map vote skipped)", locked))
+		return locked
+	end
 	local forced = StateValues.get(workspace, "ForceMap")
 	if RunService:IsStudio() and typeof(forced) == "string" and MapService.has(forced) then
 		return forced

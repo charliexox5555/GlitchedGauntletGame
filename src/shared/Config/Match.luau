@@ -19,7 +19,9 @@ return table.freeze({
 	-- installed map is picked at random among those that fit the bigger team
 	-- (minTeam..maxTeam players), not the last one when there's a choice. Big
 	-- maps take over from 3v3 (like RIVALS). In Studio the Workspace attribute
-	-- "ForceMap" (a map id) overrides the pick, to test one map.
+	-- "LockMap" (a map id or its vote name, any case: "Snowpeak", "metro") plays
+	-- that map every match with no vote; clear it to vote again. "ForceMap"
+	-- (GauntletState, an exact id) still works too.
 	-- `image`: the map vote card's picture (art-source/ui/mapvote, captured in
 	-- Studio 2026-11-16, uploaded with tools/opencloud/upload_asset.py; these are the Image ids
 	-- behind the uploaded Decals, resolved with InsertService).

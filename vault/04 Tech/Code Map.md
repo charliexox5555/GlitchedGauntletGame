@@ -86,7 +86,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | Module | Owns · remotes · attributes |
 |---|---|
 | `init.server.luau` | two-phase bootstrap: `init()` all, then `start()` all |
-| `Services/MatchService` (~880 l) | the match loop: Waiting → Draft (the select, with the 3-2-1 inside) → Countdown → Live → SuddenDeath → RoundEnd, then Replay → MatchEnd; each round in its own `xpcall` (an error replays it, `MAX_ROUND_ERRORS`); combat open through RoundEnd (`closeRound`); spawns with `LoadCharacterAsync`; scores; writes `MatchState`; sends `Replay`; seats and teams |
+| `Services/MatchService` (~880 l) | the match loop: Waiting → Draft (the select, with the 3-2-1 inside) → Countdown → Live → SuddenDeath → RoundEnd, then Replay → MatchEnd; each round in its own `xpcall` (an error replays it, `MAX_ROUND_ERRORS`); combat open through RoundEnd (`closeRound`); spawns with `LoadCharacterAsync`; scores; writes `MatchState`; sends `Replay`; seats and teams; picks the map (`pickMap`: Studio Workspace attr `LockMap` = map id or vote name skips the vote, then `ForceMap`, then the vote) |
 | `Services/MatchEndService` | results snapshot (`MatchState.Results`), Rematch / Play Again / Leave votes (`MatchChoice`), teleports out |
 | `Services/MapVoteService` | the map vote before round 1 (`MapVote` remote, Player attr `MapVote`, `Match` attrs `VoteOptions` / `VoteTeamSize` / `VoteChosen`, Phase `Vote`); `MatchService.pickMap` calls `run(pool, size)`; numbers `Config/Match VOTE` |
 | `Services/DeviceService` | validates the client's `Device` remote, sets Player attr `Device` (label only; `Config/PlayerTags`) |
