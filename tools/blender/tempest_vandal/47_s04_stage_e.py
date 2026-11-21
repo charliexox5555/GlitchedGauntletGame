@@ -24,11 +24,11 @@ STOCK_REAR = [(0.098, 0.211), (0.098, 0.380), (0.066, 0.412), (-0.066, 0.412), (
 	(-0.058, 0.170), (0.058, 0.170)]
 HG = [ring_x(1.046, STOCK_REAR), ring_x(1.110, STOCK_REAR),
 	ring_x(1.480, hg_sec(0.090, 0.408, 0.374, 0.214, 0.170, 0.64, 0.52)),
-	ring_x(1.700, hg_sec(0.076, 0.402, 0.368, 0.236, 0.196, 0.60, 0.48)),
-	ring_x(1.800, hg_sec(0.066, 0.400, 0.366, 0.246, 0.214, 0.58, 0.46))]
-# raked blade nose: top cut back, chin runs forward under the barrel
-nose = hg_sec(0.058, 0.398, 0.364, 0.252, 0.226, 0.56, 0.42)
-HG.append([(1.840 + 0.075 * (1 - (z - 0.226) / 0.172), y, z) for y, z in nose])
+	ring_x(1.640, hg_sec(0.082, 0.405, 0.371, 0.226, 0.184, 0.62, 0.50)),
+	ring_x(1.770, hg_sec(0.062, 0.398, 0.381, 0.241, 0.220, 0.76, 0.70))]
+# the nose ends on EXACTLY the fluted sleeve's outline (hw 0.050, z 0.236-0.392, 16% corners), so the
+# handguard tapers seamlessly into the barrel sleeve instead of stepping down onto it
+HG.append(ring_x(1.866, hg_sec(0.050, 0.392, 0.384, 0.244, 0.236, 0.84, 0.84)))
 hgo = new_obj("TSE_Handguard", loft(HG), "Body", like="Vandal_Handguard", bevel=0.0012)
 # raked vent slots in the upper side band (dark liner = boolean faces take the cutter's Dark material)
 for s in (1, -1):
@@ -61,10 +61,19 @@ if sh:
 			v.co = sh.matrix_world.inverted() @ w
 
 # ================= SKELETAL STOCK =================
-JOINT = [(0.050, 0.231), (0.050, 0.359), (0.034, 0.375), (-0.034, 0.375), (-0.050, 0.359), (-0.050, 0.231),
-	(-0.034, 0.215), (0.034, 0.215)]
-col = [ring_x(-0.168, JOINT), ring_x(-0.230, JOINT), ring_x(-0.262, [(y * 0.92, 0.295 + (z - 0.295) * 0.96) for y, z in JOINT])]
-new_obj("TSE_StockCollar", loft(col), "Body", like="Vandal_Stock")
+# yoke: one swept piece from the receiver's stock joint (covers the stock joint section y +-0.050,
+# z 0.215-0.375) into the top bar and the strut, with the frame's V-notch cut into it; it narrows in Y
+# from 0.052 to 0.032 so it meets the bars at their own width
+YOKE = [(-0.168, 0.379), (-0.420, 0.382), (-0.482, 0.350), (-0.305, 0.334), (-0.284, 0.302), (-0.302, 0.268),
+	(-0.442, 0.206), (-0.484, 0.150), (-0.168, 0.205)]
+bm = prism_xz(YOKE, -0.052, 0.052)
+for v in bm.verts:
+	f = max(0.0, min(1.0, (-v.co.x - 0.168) / 0.316))
+	v.co.y *= 1.0 - 0.385 * f
+new_obj("TSE_StockYoke", bm, "Body", like="Vandal_Stock", bevel=0.0015)
+for s_ in (1, -1):
+	surface_plate("TSE_StockYoke", "TSE_YokePlate%+d" % s_,
+		[(-0.186, 0.371), (-0.400, 0.373), (-0.456, 0.352), (-0.402, 0.341), (-0.186, 0.337)], s_, lift=0.0008, thick=0.0045)
 def bar(p0, p1, hw, hh, k=0.55):
 	"""Faceted bar (8-pt section: flat sides, lean-in top and bottom planes) between two XZ points."""
 	a, b = Vector((p0[0], 0, p0[1])), Vector((p1[0], 0, p1[1]))
@@ -85,7 +94,7 @@ for s in (1, -1):         # silver side plate on the butt, pointed toe
 	y0 = s * 0.056
 	new_obj("TSE_ButtPlate%+d" % s, prism_xz(bp, min(y0, y0 + s * 0.004), max(y0, y0 + s * 0.004)), "Panel", like="Vandal_Stock")
 # silver blade along the top bar, water-ring hub near the butt
-tb = [(-0.300, 0.381), (-1.150, 0.399), (-1.180, 0.395), (-1.150, 0.390), (-0.330, 0.374)]
+tb = [(-0.470, 0.384), (-1.150, 0.399), (-1.180, 0.395), (-1.150, 0.390), (-0.492, 0.377)]
 new_obj("TSE_StockTopBlade", prism_xz(tb, -0.0185, 0.0185), "Panel", like="Vandal_Stock")
 hub = [ring_x(x, octo(0.040, 0.036, c=0.3, cz=0.371)) for x in (-1.010, -0.996, -0.974, -0.960)]
 new_obj("TSE_StockHub", loft(hub), "Panel", like="Vandal_Stock")

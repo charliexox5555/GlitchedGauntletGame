@@ -37,9 +37,11 @@ sleeve("TSC_ShroudFwd", [(2.098, 0.048, 0.334, 0.236), (2.115, 0.048, 0.334, 0.2
 
 # ---------- front sight: clamp collar + swept blade post + cyan dot ----------
 replaced("Vandal_FrontSight")
-new_obj("TSC_Sight_FrontCollar", loft([ring_x(1.946, octo(0.054, 0.084, c=0.22, cz=0.314)),
-	ring_x(1.960, octo(0.058, 0.088, c=0.22, cz=0.314)), ring_x(2.086, octo(0.058, 0.088, c=0.22, cz=0.314)),
-	ring_x(2.102, octo(0.052, 0.082, c=0.22, cz=0.314))]), "Panel")
+new_obj("TSC_Sight_FrontCollar", loft([ring_x(1.938, octo(0.050, 0.080, c=0.16, cz=0.314)),
+	ring_x(1.962, octo(0.057, 0.087, c=0.16, cz=0.314)), ring_x(2.080, octo(0.057, 0.087, c=0.16, cz=0.314)),
+	ring_x(2.118, octo(0.049, 0.074, c=0.16, cz=0.306))]), "Body")
+new_obj("TSC_Sight_FrontBand", loft([ring_x(1.966, octo(0.0585, 0.0885, c=0.16, cz=0.314)),
+	ring_x(1.980, octo(0.0585, 0.0885, c=0.16, cz=0.314))]), "Panel")
 post = [(1.962, 0.396), (2.094, 0.396), (2.064, 0.432), (2.036, 0.560), (2.028, 0.594), (2.018, 0.594),
 	(2.008, 0.540), (1.990, 0.448)]
 new_obj("TSC_Sight_FrontPost", prism_xz(post, -0.010, 0.010), "Body")
