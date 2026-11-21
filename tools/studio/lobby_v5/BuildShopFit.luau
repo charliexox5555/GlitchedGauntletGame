@@ -198,16 +198,13 @@ for _, b in BAYS do
 			5.4,
 			20
 		)
-		board(
-			scr,
-			{
-				title = "FEATURED",
-				sub = "IN THE SHOP TODAY",
-				foot = "BAY 01  ·  SHOP",
-				col = GOLD,
-				icon = K.AREA.shop.icon,
-			}
-		)
+		board(scr, {
+			title = "FEATURED",
+			sub = "IN THE SHOP TODAY",
+			foot = "BAY 01  ·  SHOP",
+			col = GOLD,
+			icon = K.AREA.shop.icon,
+		})
 	elseif b.kind == "SEASON" then
 		local items = { { -4.6, 2, 1.6 }, { 0, 3, 2.4 }, { 4.6, 4, 1.6 } }
 		for _, it in items do
@@ -228,16 +225,13 @@ for _, b in BAYS do
 			crate(FB, pl, tier, V(x, 1.25 + h, -5.2), V(0, 0, 1), if tier == 4 then 2.2 else 1.25)
 		end
 		ghostMount(FB, m, "SeasonShowcase", V(-7, 1.2, -8.5), V(7, 8, -1.5))
-		board(
-			scr,
-			{
-				title = "SEASON 1",
-				sub = "EARN REWARDS AS YOU PLAY",
-				foot = "BAY 02  ·  SEASON PASS",
-				col = PASS,
-				icon = K.AREA.pass.icon,
-			}
-		)
+		board(scr, {
+			title = "SEASON 1",
+			sub = "EARN REWARDS AS YOU PLAY",
+			foot = "BAY 02  ·  SEASON PASS",
+			col = PASS,
+			icon = K.AREA.pass.icon,
+		})
 	elseif b.kind == "NEWIN" then
 		for i, gun in { "Phantom", "Spectre", "Sheriff" } do
 			local x = (i - 2) * 5
@@ -255,16 +249,13 @@ for _, b in BAYS do
 				3.6
 			)
 		end
-		board(
-			scr,
-			{
-				title = "NEW IN",
-				sub = "FRESH SKINS IN THE DAILY SHOP",
-				foot = "BAY 03  ·  SHOP",
-				col = GOLD,
-				icon = K.AREA.shop.icon,
-			}
-		)
+		board(scr, {
+			title = "NEW IN",
+			sub = "FRESH SKINS IN THE DAILY SHOP",
+			foot = "BAY 03  ·  SHOP",
+			col = GOLD,
+			icon = K.AREA.shop.icon,
+		})
 	elseif b.kind == "CASES" then
 		box(FB, m, "RiserFront", V(-7.4, 1.1, -4.4), V(7.4, 1.6, -1.8), L.dark)
 		box(FB, m, "RiserBack", V(-7.6, 1.1, -8.4), V(7.6, 2.9, -4.6), L.dark)
@@ -275,16 +266,13 @@ for _, b in BAYS do
 		crate(FB, m, 3, V(0, 3.05, -6.5), V(1, 0, 0), 1.25)
 		crate(FB, m, 4, V(-5.6, 3.05, -6.5), V(1, 0, 0), 2.1)
 		crate(FB, m, 4, V(5.6, 3.05, -6.5), V(1, 0, 0), 2.1)
-		board(
-			scr,
-			{
-				title = "CASES",
-				sub = "OPEN ONE IN THE SHOP",
-				foot = "BAY 04  ·  SHOP",
-				col = GOLD,
-				icon = K.AREA.shop.icon,
-			}
-		)
+		board(scr, {
+			title = "CASES",
+			sub = "OPEN ONE IN THE SHOP",
+			foot = "BAY 04  ·  SHOP",
+			col = GOLD,
+			icon = K.AREA.shop.icon,
+		})
 	end
 	-- the bay's sign on the wall above it, and the keep-clear dashes on the hall floor in front
 	W.sign(FB * CFrame.new(0, 20.4, 0.75), m, {
@@ -310,16 +298,13 @@ local PZ = -88
 box(F, ft, "Bezel", V(-7.6, 4.8, -97), V(7.6, 14.4, -96.7), L.dark)
 local scr = box(F, ft, "Screen", V(-7.1, 5.3, -96.7), V(7.1, 13.9, -96.64), L.plate)
 scr.CastShadow = false
-board(
-	scr,
-	{
-		title = "DAILY SHOP",
-		sub = "NEW ITEMS EVERY DAY",
-		foot = "THE DEEP MARKET  ·  ZONE S-03",
-		col = GOLD,
-		icon = K.AREA.shop.icon,
-	}
-)
+board(scr, {
+	title = "DAILY SHOP",
+	sub = "NEW ITEMS EVERY DAY",
+	foot = "THE DEEP MARKET  ·  ZONE S-03",
+	col = GOLD,
+	icon = K.AREA.shop.icon,
+})
 local hood = K.model(ft, "Hood")
 box(F, hood, "Top", V(-8.0, 14.4, -97), V(8.0, 15.1, -95.0), L.dark)
 box(F, hood, "Lip", V(-8.0, 14.0, -95.2), V(8.0, 14.4, -95.0), L.steel)
@@ -410,16 +395,13 @@ for _, sd in { -1, 1 } do
 	box(Fc, bm, "Bezel", V(-3.6, 4.6, 0), V(3.6, 10.4, 0.3), L.dark)
 	local s2 = box(Fc, bm, "Screen", V(-3.3, 4.9, 0.3), V(3.3, 10.1, 0.36), L.plate)
 	s2.CastShadow = false
-	board(
-		s2,
-		{
-			title = (sd < 0 and "ITEMS" or "PASS") .. " »",
-			sub = wd.sub,
-			foot = wd.word,
-			col = wd.col,
-			icon = wd.icon,
-		}
-	)
+	board(s2, {
+		title = (sd < 0 and "ITEMS" or "PASS") .. " »",
+		sub = wd.sub,
+		foot = wd.word,
+		col = wd.col,
+		icon = wd.icon,
+	})
 	local lamp = box(Fc, bm, "Lamp", V(-1.2, 10.9, 0.3), V(1.2, 11.3, 1.4), L.dark)
 	box(Fc, bm, "LampArm", V(-0.1, 10.95, 0), V(0.1, 11.15, 0.3), L.steel)
 	K.spot(bm, lamp, Enum.NormalId.Bottom, K.WARM, 0.9, 9, 90)

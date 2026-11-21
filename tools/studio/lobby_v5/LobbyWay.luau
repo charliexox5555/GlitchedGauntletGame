@@ -163,7 +163,7 @@ function W.sign(Fh, parent, s)
 	W.cutPlate(Fs, m, "Rim", Wd + 0.3, H + 0.3, c + 0.12, -0.62, -0.12, K.L.steel)
 	W.cutPlate(Fs, m, "Cabinet", Wd, H, c, -0.5, 0, K.L.plate)
 	for _, p in
-		{ V(-hw + 0.22, hh - 0.22, 0), V(-hw + 0.22, -hh + 0.22, 0), V(hw - 0.22, -hh + 0.22, 0) }
+		{ V(hw - c - 0.3, hh - 0.22, 0), V(hw - 0.22, -hh + 0.22, 0) } -- clear of the accent tile
 	do
 		K.lpart(Fs, m, "Bolt", p - V(0.09, 0.09, 0), p + V(0.09, 0.09, 0.06), K.L.steel)
 	end

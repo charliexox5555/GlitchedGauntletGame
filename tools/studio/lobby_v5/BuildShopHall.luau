@@ -444,9 +444,9 @@ local function bayShell(sd, zc, kind)
 	K.ghost(box(FB, m, "StepLight", V(-7.6, 0.45, -1.0), V(7.6, 0.6, -0.95), goldGlow))
 	-- proscenium: jambs, head, cut top corners through the bay
 	for _, x in { -1, 1 } do
-		box(FB, m, "Jamb", V(x * 8, 0, 0), V(x * 9, 14, 0.6), L.dark)
+		box(FB, m, "Jamb", V(x * 8, 0, 0), V(x * 9.6, 14, 0.6), L.dark)
 	end
-	box(FB, m, "Head", V(-9, 14, 0), V(9, 15.2, 0.6), L.dark)
+	box(FB, m, "Head", V(-9.6, 14, 0), V(9.6, 15.2, 0.6), L.dark)
 	tunnelCuts(FB, m, 8, 14, 1.5, -9, 0, LK.bay)
 	tunnelCuts(FB, m, 8, 14, 1.5, 0, 0.6, L.dark)
 	-- backdrop screen in a bezel (BuildShopFit fills its SurfaceGui)
