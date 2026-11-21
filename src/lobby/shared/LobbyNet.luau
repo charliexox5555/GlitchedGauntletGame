@@ -8,6 +8,8 @@
 --   ("decline", userId) | ("leave")
 -- PartyEvent (server -> one client): PartyEventPayload below
 -- LockerRequest (client -> server): ("equip", gunId, line) (Services/LockerService)
+-- ShopRequest (client -> server): ("buyCase", caseId) | ("devCoins") (Services/ShopService)
+-- ShopEvent (server -> one client): ShopEventPayload below
 --
 -- Live state is on attributes the server owns:
 --   Player:  QueueStatus ("idle" | "searching" | "found" | "teleporting"),
@@ -35,8 +37,23 @@ export type PartyEventPayload = {
 	text: string?, -- "info": a short message
 }
 
+export type ShopEventPayload = {
+	kind: "bought" | "coins" | "failed",
+	item: string?, -- "bought": the Config/Inventory item id added
+	count: number?, -- "bought": how many
+	text: string?, -- the item's name, or a short message
+}
+
 local FOLDER_NAME = "LobbyRemotes"
-local EVENTS = { "QueueRequest", "QueueEvent", "PartyRequest", "PartyEvent", "LockerRequest" }
+local EVENTS = {
+	"QueueRequest",
+	"QueueEvent",
+	"PartyRequest",
+	"PartyEvent",
+	"LockerRequest",
+	"ShopRequest",
+	"ShopEvent",
+}
 
 local folder: Instance
 if RunService:IsServer() then

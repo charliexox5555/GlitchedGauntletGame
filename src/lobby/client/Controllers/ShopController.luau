@@ -31,6 +31,9 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
+local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local RunService = game:GetService("RunService")
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
@@ -479,12 +482,38 @@ local function openCasePopup(case: ShopCatalog.Case)
 	showPanel(casePanel)
 end
 
-local function buyCase()
+-- The server checks everything again (Services/ShopService); these checks only
+-- save a round trip and say why. One purchase in flight at a time.
+local buying = false
+local function buyCase(how: string)
+	local case = openCase
+	if not case then
+		return
+	end
 	if casesRestricted then
 		LobbyHud.toast("Cases aren't available where you are", "error")
 		return
 	end
-	soon("Buying cases")
+	if how ~= "BuyCoins" then
+		soon("Buying with Robux")
+		return
+	end
+	if buying then
+		return
+	end
+	if not PlayerData.ready(player) then
+		LobbyHud.toast("Your save is still loading", "info")
+		return
+	end
+	if PlayerData.coins(player) < case.coins then
+		LobbyHud.toast("Not enough coins", "error")
+		return
+	end
+	buying = true
+	LobbyNet.event("ShopRequest"):FireServer("buyCase", case.id)
+	task.delay(8, function() -- no answer: let them try again
+		buying = false
+	end)
 end
 
 --------------------------------------------------------------------------------
@@ -931,7 +960,18 @@ function ShopController.init()
 	end
 	soonOn("Offer", "Special offers")
 	for i = 1, 6 do
-		soonOn("Pack" .. i, "Buying coins")
+		if RunService:IsStudio() then
+			-- Studio test coins until coin packs are sold (Services/ShopService)
+			local holder = scroll:FindFirstChild("Pack" .. i, true)
+			local card = holder and holder:FindFirstChild("Card")
+			if card and card:IsA("GuiButton") then
+				card.Activated:Connect(function()
+					LobbyNet.event("ShopRequest"):FireServer("devCoins")
+				end)
+			end
+		else
+			soonOn("Pack" .. i, "Buying coins")
+		end
 	end
 	for i = 1, 8 do
 		soonOn("Item" .. i, "The daily shop")
@@ -985,7 +1025,7 @@ function ShopController.init()
 		end)
 		b.Activated:Connect(function()
 			press(sc)
-			buyCase()
+			buyCase(n)
 		end)
 	end
 	-- a click anywhere off a bundle's cells hides the item card
@@ -1077,6 +1117,19 @@ function ShopController.start()
 		return
 	end
 	StateValues.changed(player, "Coins"):Connect(placeCounter)
+	LobbyNet.event("ShopEvent").OnClientEvent:Connect(function(p: LobbyNet.ShopEventPayload)
+		if typeof(p) ~= "table" then
+			return
+		end
+		buying = false
+		if p.kind == "bought" then
+			LobbyHud.toast(`{p.text or "Item"} added to your Backpack`, "success")
+		elseif p.kind == "coins" then
+			LobbyHud.toast(p.text or "Coins added", "success")
+		else
+			LobbyHud.toast(p.text or "Purchase failed", "error")
+		end
+	end)
 	Router.onChanged(function()
 		placeCounter()
 	end)
