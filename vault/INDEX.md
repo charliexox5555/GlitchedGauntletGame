@@ -183,3 +183,4 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Templates and folder guides
 - `Templates/Daily Log.md`, `Playtest.md`, `Gun Spec.md`, `Mod Spec.md`: note templates
 - `05 Production/Daily Log/README.md`, `05 Production/Playtests/README.md`: how those folders are used
+- [2026-11-21 Tempest-Strike Vandal Hold](05%20Production/Playtests/2026-11-21%20Tempest-Strike%20Vandal%20Hold.md): first-person hold, ADS and inspect check of the installed hero; AssetData row fix
