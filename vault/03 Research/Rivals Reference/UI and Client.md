@@ -62,3 +62,6 @@ Paths below are in the RIVALS file. `UI.` = `StarterPlayer.StarterPlayerScripts.
 
 ## Map vote (2026-11-16)
 - `DuelInterface.Voting`: wide 2.2:1 map cards in a grid (3 per row, 2 x 2 for four, featured + small above six), voters as square team-coloured headshot tiles, your pick = white foot. No vote timer of its own (the top-bar timer grows). No springs: cards open 0.25 → 1 scale Quint Out over `sqrt(i)*0.1+0.1` s, blur 24; votes redraw instantly; the winner flies to the centre (0.75 s Quint Out), holds 1.25 s. Full numbers and our plan: [Match Fixes Round 1](../../05%20Production/Playtests/2026-11-16%20Match%20Fixes%20Round%201.md) → 7.
+
+## Case opening (2026-11-20)
+`StarterPlayerScripts.Modules.Functions.LootboxEffect` + `Assets.Lootboxes` (read only): the box is tossed ~7 studs out over 2 s (eased glide, ~1.5 decaying bounces), plays its own clip (`Animation` attributes `Duration` / `RevealDelay`: skin case 4.85 / 2.0, weapon crate 5.55 / 2.25, chests 8-9 / ~4), the reward card (10-stud BillboardGui, ~8 studs up) grows in 0.5 s Quint Out with a rarity-coloured trail and a rarity stinger, holds 4 s, shrinks (Back In) and flies into the player (1.9 s Quint In) into collect particles. Everyone sees it; others at half volume. Our build: [Case Opening](../../01%20Design/Case%20Opening.md).

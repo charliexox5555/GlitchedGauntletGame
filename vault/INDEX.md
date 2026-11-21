@@ -38,6 +38,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Third Person Overhaul.md` (19): 2026-11-12, built: why players weren't posed (Server Authority off), the block body and how its clothing is drawn, the accessory rule, the 40 re-authored clips and the `tools/anim` rig, per-gun findings; §7 second pass: research links, Toolbox findings, the jitter measurement, rifle stance, spring recoil, self-grade, what is not verified
 - `01 Design/Match HUD.md` (22): match HUD layout, v1 revert, phone arrangement
 - `01 Design/Lobby.md` (14): Lobby place design (Sunwell Bunker, compact, wings, queue)
+- `01 Design/Case Opening.md` (5): **in-world case opening** (RIVALS study numbers, our sequence: toss, shakes, latches, lid burst, skin rise + card, fly-in; CaseShow for others; tests; open sound picks)
 - `01 Design/Skin Tiers and Cases.md` (7): **skin tiers** (Common reskin / Rare shape / Epic animated / Legendary / Exclusive bundles), lines per tier (provisional), case tier odds, owned skins per gun, case opening flow and tests
 - `01 Design/Inventory and Crates.md` (7): **Inventory + crates**: coins and item stacks in `PlayerDataV1` (atomic UpdateAsync per change), buying cases for coins, crate ChatGPT prompts, crate model (Blender, rigged, tiers, icons), Backpack screen (replaced the Battle Pass on the bar), backpack icon prompt, Robux next
 - `01 Design/Lobby UI and Queue.md` (59): Lobby HUD, Play menu, queue rules, Figma frames; grep sections

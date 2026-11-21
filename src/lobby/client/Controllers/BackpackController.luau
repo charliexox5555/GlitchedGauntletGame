@@ -25,6 +25,7 @@ local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
+local CaseOpening = require(script.Parent.Parent.Util.CaseOpening)
 local LobbyHud = require(script.Parent.LobbyHud)
 local Router = require(script.Parent.Parent.Util.Router)
 
@@ -94,6 +95,7 @@ function BackpackController.init()
 	local lastOpen = -math.huge -- answers within LATE_OK of an opening are ours, even slow ones
 	local LATE_OK = 30
 	local got: { gun: string, line: string }? = nil
+	local crate: CaseOpening.Handle? = nil -- the in-world opening in progress
 
 	local showItem: (def: Inventory.ItemDef, count: number) -> ()
 
@@ -184,6 +186,26 @@ function BackpackController.init()
 		emblem.Image = Locker.EMBLEMS[line] or ""
 		emblem.ImageColor3 = Locker.COLORS[line] or tier.color
 		emblem.Visible = pic == nil
+		-- no picture and no emblem yet: the line's initial in its colour
+		local letter = reveal:FindFirstChild("Letter")
+		if not letter then
+			local l = Instance.new("TextLabel")
+			l.Name = "Letter"
+			l.BackgroundTransparency = 1
+			l.AnchorPoint = Vector2.new(0.5, 0.5)
+			l.Position = emblem.Position
+			l.Size = emblem.Size
+			l.FontFace = (child(reveal, "Name") :: TextLabel).FontFace
+			l.TextScaled = true
+			l.ZIndex = emblem.ZIndex
+			l.Parent = reveal
+			letter = l
+		end
+		if letter and letter:IsA("TextLabel") then
+			letter.Text = string.sub(string.upper(line), 1, 1)
+			letter.TextColor3 = Locker.COLORS[line] or tier.color
+			letter.Visible = pic == nil and Locker.EMBLEMS[line] == nil
+		end
 		local title = child(reveal, "Name") :: TextLabel
 		title.Text = name
 		title.TextColor3 = tier.color
@@ -241,6 +263,11 @@ function BackpackController.init()
 		hideItem()
 		opening = true
 		lastOpen = os.clock()
+		-- the crate is tossed out in the world right away (it covers the round trip);
+		-- the menu steps aside so you watch it (Util/CaseOpening)
+		local def = Inventory.ITEMS[picked]
+		Router.close()
+		crate = CaseOpening.start(player, if def then def.tier else 1, true)
 		LobbyNet.event("ShopRequest"):FireServer("openCase", picked)
 		task.delay(8, function() -- no answer: let them try again
 			opening = false
@@ -276,25 +303,57 @@ function BackpackController.init()
 		if not ours then
 			return -- not an opening started here
 		end
+		local h = crate
 		if p.kind == "opened" then
 			opening = false
 			lastOpen = -math.huge
+			local text = p.text or ""
 			if typeof(p.gun) == "string" and typeof(p.line) == "string" then
 				got = { gun = p.gun, line = p.line }
-				fillReveal(p.gun, p.line, p.tier, p.text or "")
+				fillReveal(p.gun, p.line, p.tier, text)
 			else
 				got = nil
 			end
-			UiSfx.cue("MatchFound")
-			showReveal(true)
+			-- back in the Backpack with EQUIP / NICE once the skin has flown into you
+			local function finish()
+				crate = nil
+				if Router.current() ~= "Backpack" then
+					Router.open("Backpack")
+				end
+				task.defer(function()
+					UiSfx.cue("Confirm")
+					showReveal(true)
+				end)
+			end
+			if h and not h:isDead() and got then
+				h:reveal({
+					gun = (got :: any).gun,
+					line = (got :: any).line,
+					tier = if typeof(p.tier) == "string" then p.tier else "Common",
+					name = text,
+				}, finish)
+			else
+				if h then
+					h:abort()
+				end
+				finish()
+			end
 		elseif p.kind == "refunded" then
 			opening = false
 			lastOpen = -math.huge
+			if h then
+				h:abort()
+				crate = nil
+			end
 			UiSfx.cue("Confirm")
 			LobbyHud.toast(p.text or "Coins back", "success")
 		elseif p.kind == "failed" then
 			opening = false
 			lastOpen = -math.huge
+			if h then
+				h:abort()
+				crate = nil
+			end
 			UiSfx.cue("PurchaseDenied")
 			LobbyHud.toast(p.text or "Couldn't open it", "error")
 		end

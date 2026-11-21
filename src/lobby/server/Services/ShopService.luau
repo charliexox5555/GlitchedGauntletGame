@@ -39,6 +39,7 @@ local limiter = RateLimit.new(Config.RATE)
 local rejects: { [string]: number } = {}
 local restricted: { [Player]: boolean } = {}
 local shopEvent: RemoteEvent
+local caseShow: RemoteEvent
 
 local REASON_TEXT: { [string]: string } = {
 	coins = "Not enough coins",
@@ -211,6 +212,22 @@ local function openCase(player: Player, itemId: string)
 		return
 	end
 	local pair = got
+	-- everyone else in the lobby sees it open at this player (Controllers/CaseShowController)
+	if pair then
+		local show: LobbyNet.CaseShowPayload = {
+			userId = player.UserId,
+			crate = def.tier,
+			gun = pair.gun,
+			line = pair.line,
+			tier = pair.tier,
+			text = SkinCases.name(pair.gun, pair.line),
+		}
+		for _, other in Players:GetPlayers() do
+			if other ~= player then
+				caseShow:FireClient(other, show)
+			end
+		end
+	end
 	send(player, {
 		kind = "opened",
 		item = itemId,
@@ -311,6 +328,7 @@ function ShopService.init() end
 
 function ShopService.start()
 	shopEvent = LobbyNet.event("ShopEvent")
+	caseShow = LobbyNet.event("CaseShow")
 	LobbyNet.event("ShopRequest").OnServerEvent:Connect(onRequest)
 	Players.PlayerRemoving:Connect(function(p)
 		limiter:forget(p)

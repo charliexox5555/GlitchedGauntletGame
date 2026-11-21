@@ -48,6 +48,16 @@ export type ShopEventPayload = {
 	text: string?, -- the item's name, or a short message
 }
 
+-- CaseShow (server -> each OTHER player): someone opened a case; play it at them
+export type CaseShowPayload = {
+	userId: number, -- the opener
+	crate: number, -- Config/Inventory tier of the case (the crate's colours)
+	gun: string,
+	line: string,
+	tier: string, -- Config/Skins tier id
+	text: string, -- the skin's name
+}
+
 local FOLDER_NAME = "LobbyRemotes"
 local EVENTS = {
 	"QueueRequest",
@@ -57,6 +67,7 @@ local EVENTS = {
 	"LockerRequest",
 	"ShopRequest",
 	"ShopEvent",
+	"CaseShow",
 }
 
 local folder: Instance
