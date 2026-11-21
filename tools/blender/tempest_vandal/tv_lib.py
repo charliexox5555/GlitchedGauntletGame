@@ -199,7 +199,7 @@ def finish(o, w=0.006, segs=1, angle=30, wn=True):
 	me = o.data
 	for p in me.polygons:
 		p.use_smooth = False
-	w = min(w, 0.0025)
+	w = min(w, 0.0012)
 	if w > 0:
 		b = o.modifiers.new("Chamfer", "BEVEL")
 		b.width = w

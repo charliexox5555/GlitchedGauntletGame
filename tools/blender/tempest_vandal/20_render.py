@@ -14,7 +14,7 @@ sc.render.resolution_x, sc.render.resolution_y = 1600, 800
 sc.render.film_transparent = False
 sc.view_settings.view_transform = "AgX"
 try:
-	sc.view_settings.look = "AgX - Medium High Contrast"
+	sc.view_settings.look = "AgX - High Contrast"
 except TypeError:
 	pass
 w = sc.world or bpy.data.worlds.new("World")
@@ -53,8 +53,8 @@ def light(name, kind, loc, rot, energy, size=1.0, color=(1, 1, 1)):
 	o = bpy.data.objects.new(name, ld); L.objects.link(o)
 	o.location = loc; o.rotation_euler = [math.radians(a) for a in rot]
 	return o
-light("LGT_Key", "AREA", (0.6, 3.0, 2.6), (-48, 0, 180), 260, 3.0)
-light("LGT_Fill", "AREA", (0.6, -3.0, 1.2), (70, 0, 0), 90, 3.0, (0.85, 0.9, 1.0))
+light("LGT_Key", "AREA", (0.6, 3.0, 2.6), (-48, 0, 180), 230, 0.9)
+light("LGT_Fill", "AREA", (0.6, -3.0, 1.2), (70, 0, 0), 70, 1.5, (0.85, 0.9, 1.0))
 light("LGT_Rim", "AREA", (-2.5, 0.5, 2.5), (0, -45, 0), 160, 2.0)
 light("LGT_Top", "AREA", (0.7, 0, 3.5), (0, 0, 0), 120, 3.0)
 for o in bpy.data.objects:
