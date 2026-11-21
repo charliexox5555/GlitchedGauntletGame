@@ -429,10 +429,17 @@ return function(): string
 			T
 		)
 		ring(parent, name .. "Base", x0, x1, z0, z1, y0 - 0.05, y0 + 0.55, 0.1, L.stoneDark, T)
+		-- nobody stands on a hut roof (rails and parapets are jumpable now, so a rail top could lift a jump onto it)
+		blocker(
+			name .. "RoofGuard",
+			V(x0 - 0.3, y0 + h, z0 - 0.3),
+			V(x1 + 0.3, y0 + h + 8, z1 + 0.3),
+			T
+		)
 		return m
 	end
-	-- a steel guard rail along a line at floor y (posts, top and mid rail), with an invisible guard (shots pass); the
-	-- guard stands 9 tall so its own top is out of jump reach
+	-- a steel guard rail along a line at floor y (posts, top and mid rail) with an invisible collision strip as tall
+	-- as the rail (shots pass): you can hop over it (owner 2026-11-21: railings jumpable, easier to walk around)
 	local postSeen: { [string]: boolean } = {}
 	local function rail(parent: Instance, a: Vector3, b: Vector3, T: CFrame)
 		local d = b - a
@@ -478,8 +485,8 @@ return function(): string
 		local g = part(
 			secCollision,
 			"RailGuard",
-			V(0.4, 9, len + 0.2),
-			T * cf * CFrame.new(0, 4.45, 0),
+			V(0.4, 3.45, len + 0.2),
+			T * cf * CFrame.new(0, 1.7, 0),
 			L.none,
 			true
 		)
@@ -576,8 +583,7 @@ return function(): string
 			L.stone,
 			true,
 			T
-		) -- nobody stands on the coping (it would lift a jump onto the roof plant)
-		blocker("ParapetGuard", V(x0, h, zIn - s * 0.2), V(x1, h + 14, zOut + s * 0.2), T)
+		)
 	end
 	local function parapetZ(
 		parent: Instance,
@@ -600,7 +606,6 @@ return function(): string
 			true,
 			T
 		)
-		blocker("ParapetGuard", V(xIn - s * 0.2, h - 0.02, z0), V(xOut + s * 0.2, h + 14, z1), T)
 	end
 
 	-- a wooden crate (low cover): a body, corner battens and two bands, nothing sharing the body's planes
@@ -846,6 +851,7 @@ return function(): string
 		local shedLk = look(hex("66756C"), nil, Enum.Material.Metal)
 		box(f, "Shed", V(-11.95, -0.05, 49.1), V(6, 9.6, 56), shedLk, true, T)
 		box(f, "ShedRoof", V(-12.25, 9.5, 48.8), V(6.3, 9.92, 56.3), L.steel, true, T)
+		blocker("ShedRoofGuard", V(-12.55, 9.92, 48.5), V(6.6, 17.92, 56.6), T)
 		for x = -11, 5, 2 do
 			box(f, "Rib", V(x - 0.12, 0, 48.95), V(x + 0.12, 9.55, 49.15), shedLk, false, T)
 			if x ~= -3 then -- the door
@@ -894,6 +900,7 @@ return function(): string
 			box(f, "VentSeam", V(61.88, y, 48.98), V(68.9, y + 0.25, 57.12), L.steelLight, false, T)
 		end
 		box(f, "VentHood", V(61.7, 9.15, 48.8), V(68.9, 10.0, 57.3), L.steel, true, T)
+		blocker("VentRoofGuard", V(61.4, 10.0, 48.5), V(69.2, 18.0, 57.6), T)
 		kit("R4Gooseneck", pf, T * CFrame.new(64, 9.98, 54))
 
 		-- fire-escape deck (+8) at the west, its stair from the back, a cabinet as the step
@@ -1107,6 +1114,7 @@ return function(): string
 			)
 		end
 		box(f, "TowerTop", V(52.7, 8.75, 70.7), V(59.3, 10.0, 77.3), L.steel, true, T)
+		blocker("TowerRoofGuard", V(52.4, 10.0, 70.4), V(59.6, 18.0, 77.6), T)
 		kit("R4Condenser", pf, T * CFrame.new(56, 9.98, 74), 1.2)
 		kit("R4Vent", pf, T * CFrame.new(-8, 0.0, 92.5))
 		kit("R4Gooseneck", pf, T * CFrame.new(20, 0.0, 93) * CFrame.Angles(0, math.pi, 0))
@@ -1149,12 +1157,12 @@ return function(): string
 		kit("R4Plank6", pf, T * CFrame.new(-46, 0.0, 43))
 		box(secCollision, "BridgeDeck", V(-49, -0.3, 36.5), V(-43, 0.15, 49.5), L.none, true, T).Transparency =
 			1
-		blocker("PlankGuard", V(-43.65, 0.15, 37), V(-43.15, 9.3, 49), T) -- over the pipe rail (+X side)
+		blocker("PlankGuard", V(-43.65, 0.15, 37), V(-43.15, 3.45, 49), T) -- the pipe rail's collision, hop-over height
 		kit("R4Catwalk8", pf, T * CFrame.new(14, 0.0, 43))
 		box(secCollision, "BridgeDeck", V(10, -0.3, 36.5), V(18, 0.12, 49.5), L.none, true, T).Transparency =
 			1
-		blocker("CatwalkGuard", V(9.6, 0.12, 37), V(10.1, 9.3, 49), T)
-		blocker("CatwalkGuard", V(17.9, 0.12, 37), V(18.4, 9.3, 49), T)
+		blocker("CatwalkGuard", V(9.6, 0.12, 37), V(10.1, 3.45, 49), T)
+		blocker("CatwalkGuard", V(17.9, 0.12, 37), V(18.4, 3.45, 49), T)
 		local fe = kit("R4Catwalk6", pf, T * CFrame.new(58, 0.0, 43))
 		for _, d in fe:GetDescendants() do
 			if d:IsA("BasePart") and string.find(d.Name, "_R4_Steel") then
@@ -1199,8 +1207,8 @@ return function(): string
 		end
 		box(secCollision, "BridgeDeck", V(55, -0.3, 36.5), V(61, 0.12, 49.5), L.none, true, T).Transparency =
 			1
-		blocker("FireBridgeGuard", V(54.6, 0.12, 37), V(55.1, 9.3, 49), T)
-		blocker("FireBridgeGuard", V(60.9, 0.12, 37), V(61.4, 9.3, 49), T)
+		blocker("FireBridgeGuard", V(54.6, 0.12, 37), V(55.1, 3.45, 49), T)
+		blocker("FireBridgeGuard", V(60.9, 0.12, 37), V(61.4, 3.45, 49), T)
 		for _, c in secCollision:GetChildren() do
 			if c.Name == "BridgeDeck" and c:IsA("BasePart") then
 				c.CastShadow = false

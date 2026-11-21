@@ -8,6 +8,11 @@
 | **The games court (-6)** | **From the +8 billboard deck** | **Plank bridge over the alley** |
 | ![court](../../02%20Art/References/maps/rooftops4/build-court-from-deck.jpg) | ![deck](../../02%20Art/References/maps/rooftops4/build-billboard-deck.jpg) | ![plank](../../02%20Art/References/maps/rooftops4/build-plank-bridge.jpg) |
 
+## Owner feedback (2026-11-21, after a look)
+"A rooftop looks good right now." Two changes, both applied:
+1. **Railings and parapets are jumpable** ("so it's easier to walk around"). The invisible rail guards (9 tall) are now collision strips as tall as the rail (3.45; the jump clears 7.5), the bridge-rail guards the same, the parapet guards are gone. To keep players off roofs they must never reach, each hut, the shed, the vent stack and the cooling tower carry an invisible roof guard instead (from the roof up 8, `MapBlockers`, shots pass). Kept: the billboard catwalk, glass lantern, court bulkhead, fan housing and pump-house roof guards.
+2. **No walkability checks from now on** ("that just takes up a lot of usage, and I can do that later. We're mainly just working on building"). No ReachCheck, route or sightline sims, LockMap playtests or quality-score rounds; only build checks (z-fight `Audit.luau`, `FloatAudit.luau`, `SlopeAudit.luau`) and captures to judge the look. The reach and grade results below are from before this note. The guard change touched invisible collision only, so the visible build and its 0 / 0 / 0 audits are unchanged.
+
 ## What the old maps taught (owner verdicts)
 - **Rooftops2** was "the weakest map, with no levels and no character": big flat roof floors, a dark pit, AC stacks blocking routes, blocky signs, props off scale, floating bits ([Rooftops2](Rooftops2.md)). **Rooftops** (the first) met at 1.7 s, far too soon ([Rooftops](Rooftops.md) §3).
 - **Rooftops3** was pulled 2026-11-20 with the overnight maps: curved shapes, plain ground, no world round it.
