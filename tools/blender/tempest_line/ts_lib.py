@@ -124,7 +124,7 @@ def bake_bm(bm):
 
 def new_obj(name, bm, mat, like=None, bevel=0.0010):
 	"""World-space bmesh -> object parented like stock part `like` (same bone), flat-shaded."""
-	ref = bpy.data.objects[like or G("Receiver")]
+	ref = bpy.data.objects[like or (G("Receiver") if G("Receiver") in bpy.data.objects else G("Frame"))]
 	bake_bm(bm)
 	me = bpy.data.meshes.new(name)
 	bm.to_mesh(me); bm.free()

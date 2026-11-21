@@ -56,7 +56,7 @@ def light(name, kind, loc, rot, energy, size=1.0, color=(1, 1, 1)):
 objs = visible_model()
 ws = [o.matrix_world @ Vector(c) for o in objs for c in o.bound_box]
 lo = Vector([min(p[i] for p in ws) for i in range(3)]); hi = Vector([max(p[i] for p in ws) for i in range(3)])
-CEN = (lo + hi) / 2; LEN = hi.x - lo.x; S = max(1.0, LEN / 3.9)
+CEN = (lo + hi) / 2; LEN = hi.x - lo.x; S = max(1.0, LEN / 3.9); LF = max(1.0, 2.6 / LEN)   # short guns: pull the perspective views back
 light("LGT_Key", "AREA", (CEN.x - 0.1, 3.0 * S, 2.6 * S), (-48, 0, 180), 230 * S * S, 0.9 * S)
 light("LGT_Fill", "AREA", (CEN.x - 0.1, -3.0 * S, 1.2 * S), (70, 0, 0), 70 * S * S, 1.5 * S, (0.85, 0.9, 1.0))
 light("LGT_Rim", "AREA", (CEN.x - 3.2 * S, 0.5, 2.5 * S), (0, -45, 0), 160 * S * S, 2.0 * S)
@@ -97,9 +97,9 @@ for v in VIEWS:
 	elif v == "under":
 		aim((CEN.x, 0, -6 * S), CEN); cam.rotation_euler = (math.pi, 0, 0); shoot(v, ortho=OS, res=(1600, 500))
 	elif v == "hero":
-		aim((CEN.x + 0.95 * LEN, 1.10 * LEN, CEN.z + 0.47 * LEN), CEN); shoot(v, lens=55)
+		aim((CEN.x + 0.95 * LEN * LF, 1.10 * LEN * LF, CEN.z + 0.47 * LEN * LF), CEN); shoot(v, lens=55)
 	elif v == "rear34":
-		aim((CEN.x - 1.06 * LEN, -0.93 * LEN, CEN.z + 0.44 * LEN), CEN); shoot(v, lens=55)
+		aim((CEN.x - 1.06 * LEN * LF, -0.93 * LEN * LF, CEN.z + 0.44 * LEN * LF), CEN); shoot(v, lens=55)
 	elif v == "stockcmp":
 		for o in stock_hidden:
 			o.hide_render = False
