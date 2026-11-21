@@ -11,6 +11,8 @@
 -- ShopRequest (client -> server): ("buyCase", caseId) | ("openCase", itemId) | ("devCoins") |
 --   ("devSkins") (Services/ShopService)
 -- ShopEvent (server -> one client): ShopEventPayload below
+-- SettingsRequest (client -> server): ("save", values) (Services/SettingsService;
+--   the saved values come back in the player's "Settings" StringValue)
 --
 -- Live state is on attributes the server owns:
 --   Player:  QueueStatus ("idle" | "searching" | "found" | "teleporting"),
@@ -68,6 +70,7 @@ local EVENTS = {
 	"ShopRequest",
 	"ShopEvent",
 	"CaseShow",
+	"SettingsRequest",
 }
 
 local folder: Instance

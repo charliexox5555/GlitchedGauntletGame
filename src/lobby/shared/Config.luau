@@ -83,6 +83,7 @@ return table.freeze({
 		LockerRequest = { 4, 10 }, -- equips (quick clicking through skins)
 		ShopRequest = { 0.5, 3 }, -- purchase clicks
 		ShopWrite = { 1 / 6, 5 }, -- DataStore writes from the Shop (about 10 a minute)
+		SettingsRequest = { 1, 4 }, -- the client sends 1.5 s after the last change, and on close
 	},
 
 	-- In-game party invites (Services/PartyService): biggest party (the

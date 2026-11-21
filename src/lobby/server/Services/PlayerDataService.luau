@@ -34,6 +34,8 @@ export type Change = (data: Data) -> (boolean, string?)
 type Record = {
 	data: Data?, -- the last loaded or written copy (nil until the load lands)
 	busy: boolean, -- one change at a time per player
+	settings: any, -- the save's raw `settings` field (SettingsService cleans it)
+	settingsSeen: boolean, -- a load or a change has read the stored value
 }
 
 local PlayerDataService = {}
@@ -106,10 +108,12 @@ function PlayerDataService.transact(
 
 	local result: Data? = nil
 	local refused: string? = nil
+	local seenSettings: any = nil
 	local ok = retry("change " .. player.UserId, function()
 		return store:UpdateAsync(PlayerData.key(player.UserId), function(old: any)
 			-- runs again on every internal retry: reset what it reports
 			result, refused = nil, nil
+			seenSettings = if typeof(old) == "table" then old.settings else nil
 			if PlayerData.newer(old) then
 				refused = "update"
 				return nil
@@ -158,6 +162,9 @@ function PlayerDataService.transact(
 	inFlight -= 1
 	rec.busy = false
 	if ok and result and records[player] == rec then
+		if not rec.settingsSeen then
+			rec.settings, rec.settingsSeen = seenSettings, true
+		end
 		rec.data = result
 		PlayerData.publish(player, result)
 		changedEvent:Fire(player)
@@ -171,10 +178,64 @@ function PlayerDataService.transact(
 	return true
 end
 
+-- Settings (vault/02 Art/UI Settings.md, Lobby SettingsService): the save's
+-- raw `settings` field once the load landed (loaded = false before that).
+function PlayerDataService.loadedSettings(player: Player): (boolean, any)
+	local rec = records[player]
+	if not (rec and rec.settingsSeen) then
+		return false, nil
+	end
+	return true, rec.settings
+end
+
+-- Merges `changes` (cleaned rows changed this session) into the stored
+-- `settings` field in one UpdateAsync: other fields (coins, items, skins),
+-- rows not changed here (maybe saved by a newer session) and rows a newer
+-- build added all stay. A save made by a newer build is left alone and
+-- reported as not written. Works by userId, so it also runs after the player
+-- left. Yields.
+function PlayerDataService.writeSettings(userId: number, changes: { [string]: any }): boolean
+	inFlight += 1
+	local skipped = false
+	local ok = retry("settings " .. userId, function()
+		return store:UpdateAsync(PlayerData.key(userId), function(old: any)
+			skipped = false
+			if PlayerData.newer(old) then
+				skipped = true
+				return nil
+			end
+			local out: { [string]: any }
+			if typeof(old) == "table" then
+				out = table.clone(old)
+			else
+				-- no save yet: start a full one (the starting coins too)
+				local data = PlayerData.clean(nil)
+				out = {
+					v = data.v,
+					coins = data.coins,
+					items = data.items,
+					tx = data.tx,
+					skins = data.skins,
+				}
+			end
+			local merged: { [string]: any } = if typeof(out.settings) == "table"
+				then table.clone(out.settings)
+				else {}
+			for id, v in changes do
+				merged[id] = v
+			end
+			out.settings = merged
+			return out, { userId }
+		end)
+	end)
+	inFlight -= 1
+	return ok and not skipped
+end
+
 -- Loads with backoff until it lands or the player leaves (the Shop waits for
 -- DataReady, so a failed load must not lock it for the whole session).
 local function load(player: Player)
-	local rec: Record = { data = nil, busy = false }
+	local rec: Record = { data = nil, busy = false, settings = nil, settingsSeen = false }
 	records[player] = rec
 	PlayerData.publish(player, nil)
 	local pause = 10
@@ -186,6 +247,8 @@ local function load(player: Player)
 			return -- left while loading, or a change already published fresher data
 		end
 		if ok then
+			rec.settings = if typeof(raw) == "table" then (raw :: any).settings else nil
+			rec.settingsSeen = true
 			rec.data = PlayerData.clean(raw, true)
 			PlayerData.publish(player, rec.data)
 			changedEvent:Fire(player)

@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Settings screen v2 (2026-11-21; save the Lobby place).** Five tabs (VIDEO, AUDIO, GAMEPLAY, CROSSHAIR, KEYBINDS) with sections, sub-rows, dropdowns, a colour-wheel picker, rebindable keys and RESET TAB, all from `Config/Settings`. Saved in the player's `PlayerDataV1` save (`settings`), checked by the new `SettingsService`; tested in Studio (save, rejoin, reset). Only reduced motion and UI sounds do anything yet; the rest is edit-and-save until each system reads it. Hitmarker style ORIGINAL = the match's current marker. [UI Settings](02%20Art/UI%20Settings.md)
+
 - **OldTown4 concepts (2026-11-21).** Both Collina views, the Canale overview and the shared prop sheet are ready for art review. [Concept PNGs](01%20Design/Maps/OldTown4.md#concept-pngs-2026-11-21)
 
 - **Maps: playtest round fixed (2026-11-21; save the match place).** Your notes on Wharf, Snowpeak, Metro, Arena and Big Arena: a new slope / rotated-face audit; every played map at 0 z-fight / 0 floating / 0 coincident slopes. Big Arena had 21 real overlaps the old check missed (now fixed). Metro's stair railings now run newel to newel. Snowpeak got a character pass (modelled ski rack, toboggans, lanterns, trail sign, benches, a fire pit with real fire, icicles, string lights, paths, smoke, snowfall). Arena and Big Arena got +7 platforms (more high ground). Leftover scale dummies removed. [Map Playtest 2026-11-21](05%20Production/Playtests/2026-11-21%20Map%20Playtest.md). Next: a new Old Town from OldTown2.
@@ -40,8 +42,6 @@
 - **Ruin-Blighted Reaver and ammunition review (2026-11-18).** Meshy-informed Ruined Reaver v09 and all five magazine cartridges are staged in Match Studio. Ejection uses the shared hollow case. [Art and verification](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#meshy-review-and-loaded-cartridge-pass) · [Sound production list](02%20Art/Skins/RuinBlighted/Expansion%20Sound%20Queue.md).
 
 - **Full release roadmap (2026-11-18).** The owner's playtest backlog is scheduled for launch across nine phases. The [Release Roadmap](05%20Production/Release%20Roadmap.md) has the checklist, test matrix and features to defer first if the deadline moves.
-
-- **Ruin-Blighted fit and Reaver review (2026-11-18).** All five charm mounts are seated. The Spectre magazine fit, new Shadow Mist round and Ruined Reaver v08 are staged in Match Studio. [Art, asset IDs and playtest](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#fit-round-and-reaver-rebuild).
 
 - **Ruin-Blighted roster review (2026-11-18).** Rebuilt Vandal, Spectre, Operator and Ghost using the approved Guardian v11 method. All five guns are staged in Match Studio. [Versions, renders and clearance checks](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#full-shadow-mist-roster-review).
 
