@@ -729,6 +729,36 @@ Owner: "a lot of the support pins aren't connecting to anything ... the other su
 - The hologram is static.
 - The range itself, a talk line for the Broker, and the colour/prop pass wait for later.
 
+## Shop V2: the market hall (plan, 2026-11-21)
+
+Owner: "we're starting to lose some professionality ... make sure you're good on quality"; the shop "doesn't really look good"; "I want the same idea that Rivals has ... that big hallway splitting off into other two sections ... look good ... fun ... leads to more stuff just to explore". Picks: the wings are **Item Shop (left) + Season Pass (right)**; the hall is lined with **display bays both sides**; **redo the entrance**; **build it all, review at the end**. The lobby pause is lifted for the shop only.
+
+**RIVALS Market, measured read-only (`Workspace.Lobby.Hub.Extra.Market`, rays from the corridor axis):** a 30-wide door, then a 32-wide, 27-high corridor about 60 long with one stage bay on each side (UGC SHOP, SEASON 3: stage lighting truss, a backdrop, a display, a slanted label tag on the pier, a KEEP CLEAR stencil). It then steps down 3 into a room that fans out to about 128 wide round a central block, and the walk splits left and right into passages ("WEST GATE", "CARGO ELEVATOR" floor stencils). What makes it work: compress then release, the destination visible down the axis, life only in the bays, and labels on everything. We take the structure and numbers, in our own look (The Deep: concrete, steel, warm white light, one accent per room).
+
+**Layout** (shop frame F: origin on the hub floor at the old gate face, world x -40; x = right as seen from the hub; z toward the hub):
+
+| Piece | Size | Notes |
+|---|---|---|
+| Portal | opening 20 x 15, piers 4.5, 12 deep, cornice 20.5 | The `K.gateway` family (Duels, Locker), bigger; the SHOP sign on outriggers; the hall's lit axis and the central feature are visible from the hub. Kept under the hub's rock above (Above_W, bottom y 18). |
+| Hall | 30 wide, 22 high, z -13 to -61 | Compress, then release. A dark aisle between the hub's gold lines (x ±6.4) carried on; pilasters with bar lamps; steel beams on capitals; a raised coffer down the middle. |
+| Display bays | 4, each 16 wide, 9 deep, 14 high, stage 1.2 up | FEATURED (gun on a turntable) and NEW IN (three guns) on the left; SEASON 1 (pass screen and reward cases) and CASES (the real crate models, every tier) on the right. Each has a lighting truss with spots, a backdrop screen (SurfaceGui), a slanted label tag and a bay number. |
+| Junction | 48 wide, 26 high, z -61 to -95 | The walls flare at 45 degrees out of the hall. At the back sits the central feature: a DAILY SHOP screen over a tiered plinth with the featured gun turning (the `ShopWindow` season mount). The two back corners are cut at 45 degrees and hold the passages. |
+| Passages | 12 x 14, 14 long, at 45 degrees | Compress again, each under its hanging sign: ITEM SHOP (bag, gold) and SEASON PASS (rank, purple). |
+| Item Shop wing | 32 x 30, 18 high | The Broker behind the counter (`LobbyShop`, now also a Talk line that opens the Shop), the MARKET sign over the slat wall, the gun wall (`LobbyGunDisplay`), crate shelves, and a closed STOCKROOM shutter (a future door). |
+| Season Pass wing | 32 x 30, 18 high, purple accent | A pass screen with a tier track, a stepped reward stage with the cases (`LobbyBattlePass`), season banners, and a closed NEXT SEASON shutter (a future door). |
+
+Walk from the spawn: portal about 40, junction about 120, wing counters about 165 (about 10 s; RIVALS' market is about 137).
+
+**Quality bar for this pass** (from `gauntlet-build-style`, the owner's notes in memory, and the RIVALS study):
+- Every fixture is built the way it would be made: housing, lens set back, guard, a real light beside it; trusses bolted to the bay heads; beams bearing on capitals.
+- No plain boxes for displays; the props are real models (guns, crate meshes, the Broker).
+- Every joint gets a transition: pilasters hide the 45-degree corners; plinths sit under walls; shadow gaps.
+- One accent per room: the hall and Item Shop gold, the Season Pass purple.
+- Check sightlines from the hub and from the junction; run an overlap audit and a rock check; play-walk it.
+- Hooks are kept: `LobbyShop`, `LobbyBattlePass`, `LobbyGunDisplay`, `LobbyNPC` (Broker), and `SeasonMount` slots `ShopWindow`, `SeasonShowcase` and `PassHero`.
+
+Scripts: `BuildShopHall.luau` (the shell: portal, hall, bays, junction, passages, wings, structure, light) and `BuildShopFit.luau` (displays, the feature, the wings' fit-out, signs, plates, stencils).
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).

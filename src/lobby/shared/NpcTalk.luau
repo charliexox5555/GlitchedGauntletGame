@@ -38,6 +38,28 @@ local NpcTalk: { [string]: Npc } = {
 			},
 		},
 	},
+	-- the Broker behind the Item Shop counter (Lobby V5 shop, tools/studio/lobby_v5/BuildShopWings.luau)
+	broker = {
+		name = "BROKER",
+		start = "hello",
+		lines = {
+			hello = {
+				say = "Welcome to the Market. Everything down here is fresh off the lift.",
+				replies = {
+					{ text = "Open the Shop", open = "Shop", primary = true },
+					{ text = "What's good today?", go = "deals" },
+					{ text = "Goodbye", close = true },
+				},
+			},
+			deals = {
+				say = "The Daily Shop turns over every day. Cases show their odds before you buy.",
+				replies = {
+					{ text = "Let me look", open = "Shop", primary = true },
+					{ text = "Goodbye", close = true },
+				},
+			},
+		},
+	},
 }
 
 return table.freeze(NpcTalk)
