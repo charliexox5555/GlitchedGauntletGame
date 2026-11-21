@@ -705,6 +705,30 @@ The Duels season screen went up 5 to clear the outriggers.
 - The hologram is static (no spinner code).
 - The place is **not saved**.
 
+## Final touches and pause (2026-11-20)
+
+Owner: "a lot of the support pins aren't connecting to anything ... the other support beams are just not fully connected"; "a little bit of overlap in the walls and the entrances, such as the shop entrance"; redo the bay signs. Then **stop work on the lobby** until more of the game's functionality is built (the range will add to the bay later).
+
+**Supports now connect:**
+- The lift truss spans to the towers' yokes (x ±20.2). Its end plates bear on the yokes and span post to post, bolted; it used to end 2.8 short.
+- The three column caps reach 3 studs back under the cable trays they carry, on knee braces. They stood 1.5 in front of the trays.
+- The RANGE sign stands 2.85 forward on posts that follow its 10° tilt from foot plates on the girder up its back, with two clamps each. The vertical posts only touched its top edge.
+
+**Rock overlaps** (a raycast scan from the hub at 0.5 spacing across each entrance face, looking for rock in front of the frame):
+- **Duels:** the side rock walls stood in front of the outer 2 studs. Every frame piece past |x| 21.3 is trimmed back to it and the plates moved in.
+- **Shop:** the corner rock cut across the outer 4 studs of both wings, half of the south window. The wings now end at |x| 17.2 with the windows moved in (4 wide, pedestal guns at fill 3.4).
+- Locker and Range were clean. All four now scan clear.
+
+**Queue bay signs v2** (`BuildBaySigns.luau`):
+- Each of the 8 bays has a hanging v2 sign: the mode word, and a medallion with two clashing chevrons in the team colours (gold against cyan).
+- A STEP IN TO QUEUE status strip, a pad light under it, and rods to the gantry runway beam (Runway_F) they always hung from.
+- Util/MatchLift's contract is kept: `Sign`, then `Face`, then the SurfaceGui's first Frame, holding a right-aligned label. Playtested: standing on a 1v1 square, MATCH FOUND flashed the strip gold at 5.5 s.
+
+**State at the pause:**
+- Everything is built in the Lobby place, but the place is **not saved**.
+- The hologram is static.
+- The range itself, a talk line for the Broker, and the colour/prop pass wait for later.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).

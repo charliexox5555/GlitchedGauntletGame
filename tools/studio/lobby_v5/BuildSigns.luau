@@ -99,6 +99,76 @@ for _, n in { "Conduit", "JunctionBox" } do
 	end
 end
 
+-- the rock walls beside the Duels portal stand in front of its outer 2 studs (raycast scan): trim every frame piece
+-- past |x| = 21.3 back to it (pieces wholly past it go), move the two plates inward
+do
+	local g = gates.Gateway_Duels
+	local F = K.frame(V(0, 0, -42), V(0, 0, 1))
+	local CLIP, right = 21.3, F.RightVector
+	local function span(p)
+		local cf, s = p.CFrame, p.Size
+		local hx = math.abs(cf.RightVector:Dot(right)) * s.X / 2
+			+ math.abs(cf.UpVector:Dot(right)) * s.Y / 2
+			+ math.abs(cf.LookVector:Dot(right)) * s.Z / 2
+		local cx = F:PointToObjectSpace(cf.Position).X
+		return cx - hx, cx + hx
+	end
+	local function cutAlongX(p, newLen, shift)
+		local cf = p.CFrame
+		for _, ax in { { "X", cf.RightVector }, { "Y", cf.UpVector }, { "Z", cf.LookVector } } do
+			if math.abs(ax[2]:Dot(right)) > 0.99 then
+				local s = p.Size
+				p.Size = V(
+					if ax[1] == "X" then newLen(s.X) else s.X,
+					if ax[1] == "Y" then newLen(s.Y) else s.Y,
+					if ax[1] == "Z" then newLen(s.Z) else s.Z
+				)
+				p.CFrame = cf + right * shift
+				return
+			end
+		end
+	end
+	for _, d in g:GetDescendants() do
+		if
+			d:IsA("BasePart")
+			and d.Transparency < 1
+			and not d:FindFirstAncestor("Sign_DUELS")
+			and d.Parent
+		then
+			local lo, hi = span(d)
+			if lo < -CLIP - 0.01 and hi > CLIP + 0.01 then
+				local cx = F:PointToObjectSpace(d.Position).X
+				cutAlongX(d, function()
+					return 2 * CLIP
+				end, -cx)
+			else
+				for _, sd in { 1, -1 } do
+					local a, b = if sd > 0 then lo else -hi, if sd > 0 then hi else -lo
+					if b > CLIP + 0.01 then
+						if a >= CLIP - 0.05 then
+							d:Destroy()
+						elseif a > 0 then
+							local cut = b - CLIP
+							cutAlongX(d, function(l)
+								return l - cut
+							end, -sd * cut / 2)
+						end
+						break
+					end
+				end
+			end
+		end
+	end
+	for _, n in { "Caution", "GateId" } do
+		local m = g.Steel:FindFirstChild(n)
+		if m then
+			local piv = m:GetPivot()
+			local cx = F:PointToObjectSpace(piv.Position).X
+			m:PivotTo(piv - right * (cx - math.sign(cx) * 19.4))
+		end
+	end
+end
+
 -- the season screen over the Duels gateway goes up, clear of the sign's outriggers
 local scr = Shell.Hub.Dressing.Screens:FindFirstChild("Screen_N")
 if scr and not scr:GetAttribute("RaisedForSign") then

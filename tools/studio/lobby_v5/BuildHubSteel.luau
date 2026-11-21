@@ -85,7 +85,19 @@ for j = 1, 4 do
 		K.lpart(F, c, "FlangeF", V(-0.8, 0, 0.5), V(0.8, top - 0.3, 0.75), colLk)
 		K.lpart(F, c, "FlangeB", V(-0.8, 0, -0.75), V(0.8, top - 0.3, -0.5), colLk)
 		K.lpart(F, c, "Web", V(-0.15, 0, -0.5), V(0.15, top - 0.3, 0.5), colLk)
-		K.lpart(F, c, "TrayCap", V(-1.0, top - 0.3, -1.0), V(1.0, top, 1.0), plateLk)
+		-- the cap reaches back under the tray (it stands 1.5 behind the column), on a knee brace
+		K.lpart(F, c, "TrayCap", V(-1.0, top - 0.3, -3.0), V(1.0, top, 1.0), plateLk)
+		S.bar(
+			F * CFrame.new(0, top - 0.3, 0) * CFrame.Angles(0, math.rad(-90), 0),
+			c,
+			"CapBrace",
+			V(0.75, -1.9, 0),
+			V(2.7, -0.15, 0),
+			0.28,
+			-0.12,
+			0.12,
+			colLk
+		)
 	end
 	K.lpart(F, c, "Base", V(-1.4, 0, -1.4), V(1.4, 0.3, 1.4), plateLk)
 	for _, x in { -1.05, 1.05 } do
@@ -135,19 +147,27 @@ for j = 1, 4 do
 	end
 end
 
--- 2. lighting truss between the lift towers (tower inner faces at x = +-18, centred z = -17)
+-- 2. lighting truss between the lift towers: it spans to the towers' yokes (x = +-20.2), its end plates bearing on
+-- the yokes and spanning post to post (z -19.2..-14.8), bolted
 local tr = K.model(steel, "LiftTruss")
-local X0, X1, Y0, Y1, Z0, Z1 = -18, 18, 27, 29.4, -18.2, -15.8
+local X0, X1, Y0, Y1, Z0, Z1 = -20.2, 20.2, 27, 29.4, -18.2, -15.8
 local F = CFrame.new(K.O)
 for _, y in { Y0, Y1 } do
 	for _, z in { Z0, Z1 } do
-		K.lpart(F, tr, "Chord", V(X0, y - 0.15, z - 0.15), V(X1, y + 0.15, z + 0.15), colLk)
+		K.lpart(
+			F,
+			tr,
+			"Chord",
+			V(X0 + 0.25, y - 0.15, z - 0.15),
+			V(X1 - 0.25, y + 0.15, z + 0.15),
+			colLk
+		)
 	end
 end
-local n = 15
-local step = (X1 - X0) / n
+local n = 16
+local step = (X1 - X0 - 0.5) / n
 for i = 0, n do
-	local x = X0 + i * step
+	local x = X0 + 0.25 + i * step
 	for _, z in { Z0, Z1 } do
 		K.lpart(F, tr, "Post", V(x - 0.08, Y0, z - 0.08), V(x + 0.08, Y1, z + 0.08), plateLk)
 	end
@@ -155,15 +175,14 @@ for i = 0, n do
 		K.lpart(F, tr, "Rung", V(x - 0.08, y - 0.08, Z0), V(x + 0.08, y + 0.08, Z1), plateLk)
 	end
 	if i < n then
-		local sgn = if i % 2 == 0 then 1 else -1
-		for _, z in { Z0, Z1 } do -- diagonals on the two long faces
-			local Fz = F * CFrame.new(0, 0, z)
+		local up = i % 2 == 0
+		for _, z in { Z0, Z1 } do
 			S.bar(
-				Fz,
+				F * CFrame.new(0, 0, z),
 				tr,
 				"Diagonal",
-				V(x, if sgn > 0 then Y0 else Y1, 0),
-				V(x + step, if sgn > 0 then Y1 else Y0, 0),
+				V(x, if up then Y0 else Y1, 0),
+				V(x + step, if up then Y1 else Y0, 0),
 				0.12,
 				-0.06,
 				0.06,
@@ -172,16 +191,19 @@ for i = 0, n do
 		end
 	end
 end
-for _, x in { X0, X1 } do
-	local sx = if x < 0 then -1 else 1
-	K.lpart(
-		F,
-		tr,
-		"EndPlate",
-		V(x - 0.1 * sx, Y0 - 0.6, Z0 - 0.6),
-		V(x + 0.15 * sx, Y1 + 0.6, Z1 + 0.6),
-		plateLk
-	)
+for _, sx in { -1, 1 } do
+	local xf = sx * 20.2
+	K.lpart(F, tr, "EndPlate", V(xf, Y0 - 0.6, -19.2), V(xf - sx * 0.25, Y1 + 0.1, -14.8), plateLk)
+	for _, z in { -18.6, -15.4 } do
+		K.lpart(
+			F,
+			tr,
+			"Bolt",
+			V(xf - sx * 0.25, Y0 - 0.2, z - 0.15),
+			V(xf - sx * 0.4, Y0 + 0.1, z + 0.15),
+			K.L.dark
+		)
+	end
 end
 for _, x in { -13.5, -4.5, 4.5, 13.5 } do
 	local l = K.model(tr, "SpotLamp")

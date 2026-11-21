@@ -42,83 +42,80 @@ local shop = K.model(shell, "Shop")
 
 -- 1. STOREFRONT: wings either side of the gateway, each with a lit display window ---------------------------------
 local front = K.model(shop, "Storefront")
+-- the wings stop at |x| = 17.2: past it the hub's corner rock stands in front of them (owner 2026-11-20 screenshot)
+local XI, XO, WX0, WX1 = 11, 17.2, 12.2, 16.2
+local WC = (WX0 + WX1) / 2
 for _, sd in { -1, 1 } do
 	local wing = K.model(front, sd > 0 and "Wing_N" or "Wing_S")
 	local z0, z1 = -5.5, -0.6
-	P(wing, "Low", V(sd * 11, 0, z0), V(sd * 21.5, 2.5, z1), L.wains)
-	P(wing, "High", V(sd * 11, 12, z0), V(sd * 21.5, 18, z1), L.trim)
-	P(wing, "SideIn", V(sd * 11, 2.5, z0), V(sd * 13.5, 12, z1), L.trim)
-	P(wing, "SideOut", V(sd * 19.5, 2.5, z0), V(sd * 21.5, 12, z1), L.trim)
-	P(wing, "Coping", V(sd * 11, 17.3, z1), V(sd * 21.5, 18, 0.2), cornice)
+	P(wing, "Low", V(sd * XI, 0, z0), V(sd * XO, 2.5, z1), L.wains)
+	P(wing, "High", V(sd * XI, 12, z0), V(sd * XO, 18, z1), L.trim)
+	P(wing, "SideIn", V(sd * XI, 2.5, z0), V(sd * WX0, 12, z1), L.trim)
+	P(wing, "SideOut", V(sd * WX1, 2.5, z0), V(sd * XO, 12, z1), L.trim)
+	P(wing, "Coping", V(sd * XI, 17.3, z1), V(sd * XO, 18, 0.2), cornice)
 	W(
 		wing,
 		"CopingCap",
-		V(sd * 16.25, 18, z1),
+		V(sd * (XI + XO) / 2, 18, z1),
 		V(0, 1, 0),
 		0.5,
 		V(0, 0, 1),
 		0.8,
 		V(1, 0, 0),
-		10.5,
+		XO - XI,
 		cornice
 	)
-	-- the window: dark back, lined reveal, a steel casing and sill, glass, a top light and a gold uplight
 	local win = K.model(wing, "Window")
-	P(
-		win,
-		"Back",
-		V(sd * 13.5, 3, z0),
-		V(sd * 19.5, 12, -3.6),
-		K.paint(Color3.fromRGB(104, 100, 92))
-	) -- a light display backdrop
-	P(win, "Sill", V(sd * 12.8, 2.5, -3.6), V(sd * 20.2, 3, 0.3), L.steel)
-	P(win, "LinerTop", V(sd * 13.5, 11.86, -3.6), V(sd * 19.5, 12, -0.95), L.dark)
-	P(win, "LinerL", V(sd * 13.5, 3, -3.6), V(sd * 13.64, 11.86, -0.95), L.dark)
-	P(win, "LinerR", V(sd * 19.36, 3, -3.6), V(sd * 19.5, 11.86, -0.95), L.dark)
-	P(win, "CasingTop", V(sd * 13.0, 12, z1), V(sd * 20.0, 12.6, -0.2), L.steel)
-	P(win, "CasingL", V(sd * 13.0, 3, z1), V(sd * 13.5, 12, -0.2), L.steel)
-	P(win, "CasingR", V(sd * 19.5, 3, z1), V(sd * 20.0, 12, -0.2), L.steel)
-	local glass = P(win, "Glass", V(sd * 13.64, 3, -0.95), V(sd * 19.36, 11.86, -0.87), L.glass)
+	P(win, "Back", V(sd * WX0, 3, z0), V(sd * WX1, 12, -3.6), K.paint(Color3.fromRGB(104, 100, 92))) -- a light display backdrop
+	P(win, "Sill", V(sd * (WX0 - 0.7), 2.5, -3.6), V(sd * (WX1 + 0.5), 3, 0.3), L.steel)
+	P(win, "LinerTop", V(sd * WX0, 11.86, -3.6), V(sd * WX1, 12, -0.95), L.dark)
+	P(win, "LinerL", V(sd * WX0, 3, -3.6), V(sd * (WX0 + 0.14), 11.86, -0.95), L.dark)
+	P(win, "LinerR", V(sd * (WX1 - 0.14), 3, -3.6), V(sd * WX1, 11.86, -0.95), L.dark)
+	P(win, "CasingTop", V(sd * (WX0 - 0.5), 12, z1), V(sd * (WX1 + 0.5), 12.6, -0.2), L.steel)
+	P(win, "CasingL", V(sd * (WX0 - 0.5), 3, z1), V(sd * WX0, 12, -0.2), L.steel)
+	P(win, "CasingR", V(sd * WX1, 3, z1), V(sd * (WX1 + 0.5), 12, -0.2), L.steel)
+	local glass =
+		P(win, "Glass", V(sd * (WX0 + 0.14), 3, -0.95), V(sd * (WX1 - 0.14), 11.86, -0.87), L.glass)
 	glass.Transparency = 0.82
 	glass.Reflectance = 0.08
 	glass.CastShadow = false
-	local lens =
-		K.ghost(P(win, "Lens", V(sd * 14.2, 11.74, -3.2), V(sd * 18.8, 11.86, -2.2), L.white))
+	local lens = K.ghost(
+		P(win, "Lens", V(sd * (WX0 + 0.5), 11.74, -3.2), V(sd * (WX1 - 0.5), 11.86, -2.2), L.white)
+	)
 	K.spot(win, lens, Enum.NormalId.Bottom, K.WHITE, 1.8, 11, 95)
-	K.ghost(P(win, "Uplight", V(sd * 13.8, 3, -3.6), V(sd * 19.2, 3.1, -3.35), gold))
-	-- pedestal and a gun standing in the window
-	P(win, "Pedestal", V(sd * 15.0, 3, -3.2), V(sd * 18.0, 3.7, -1.4), L.dark)
+	K.ghost(P(win, "Uplight", V(sd * (WX0 + 0.3), 3, -3.6), V(sd * (WX1 - 0.3), 3.1, -3.35), gold))
+	P(win, "Pedestal", V(sd * (WC - 1.2), 3, -3.2), V(sd * (WC + 1.2), 3.7, -1.4), L.dark)
 	W(
 		win,
 		"PedestalSlope",
-		V(sd * 16.5, 3, -1.4),
+		V(sd * WC, 3, -1.4),
 		V(0, 1, 0),
 		0.7,
 		V(0, 0, 1),
 		0.3,
 		V(1, 0, 0),
-		3,
+		2.4,
 		L.dark
 	)
-	P(win, "PedestalTop", V(sd * 15.15, 3.7, -3.05), V(sd * 17.85, 3.8, -1.55), L.steel)
+	P(win, "PedestalTop", V(sd * (WC - 1.05), 3.7, -3.05), V(sd * (WC + 1.05), 3.8, -1.55), L.steel)
 	K.gunAnchor(
 		win,
 		sd > 0 and "Stand_Vandal" or "Stand_Phantom",
-		hub(V(sd * 16.5, 6.4, -2.3)),
+		hub(V(sd * WC, 6.4, -2.3)),
 		sd > 0 and "Vandal" or "Phantom",
 		"Stand",
 		dirW(V(-1, 0, 0)),
 		dirW(V(0, 0, 1)),
 		2.2,
-		4.6
+		3.4
 	)
 	if sd < 0 then
 		local mount = K.ghost(
 			P(
 				win,
 				"ShopWindow",
-				V(sd * 13.8, 3.2, -3.4),
-				V(sd * 19.2, 11.6, -1.1),
+				V(sd * (WX0 + 0.3), 3.2, -3.4),
+				V(sd * (WX1 - 0.3), 11.6, -1.1),
 				K.paint(Color3.new(0, 1, 0))
 			)
 		)
@@ -553,7 +550,7 @@ if src then
 	npc.Parent = shop
 	-- the V4 vest was a loose 5.7-stud box (read as a purple block): fit it and the sash to the torso
 	local ut = npc.UpperTorso
-	local function refit(p, size, relPos)
+	local function refit(p, newSize, relPos)
 		local welds = {}
 		for _, c in npc:GetDescendants() do
 			if c:IsA("WeldConstraint") and (c.Part0 == p or c.Part1 == p) then
@@ -562,7 +559,7 @@ if src then
 			end
 		end
 		local rel = ut.CFrame:ToObjectSpace(p.CFrame)
-		p.Size = size
+		p.Size = newSize
 		p.CFrame = ut.CFrame * (CFrame.new(relPos) * rel.Rotation)
 		for _, w in welds do
 			w.Enabled = true

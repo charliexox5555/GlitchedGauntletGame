@@ -180,9 +180,10 @@ for _, sd in { -1, 1 } do
 end
 P(doors, "GuideChannel", V(-HW, 0.06, -3.2), V(HW, 0.14, -1.4), K.L.dark)
 
--- 3. THE SIGN standing on the girder on two posts ------------------------------------------------------------
-local signTop = 27.4
-local sign, sw, rods = S.sign(F * CFrame.new(0, signTop, 0.9), bay, {
+-- 3. THE SIGN stands on two posts that follow its tilt down to foot plates on the girder, clamped to its back
+local TOP, TILT, GY = 28.6, math.rad(10), 19.6
+local Fh = F * CFrame.new(0, TOP, 2.85)
+local _, _, rods = S.sign(Fh, bay, {
 	word = "RANGE",
 	sub = "SIMULATION BAY",
 	col = GREEN,
@@ -191,9 +192,29 @@ local sign, sw, rods = S.sign(F * CFrame.new(0, signTop, 0.9), bay, {
 	hang = 0,
 	tilt = 10,
 })
+local Ft = Fh * CFrame.Angles(TILT, 0, 0)
+local postL = (TOP - GY) / math.cos(TILT) - 0.7 * math.tan(TILT) + 0.15
 for _, x in rods do
-	P(bay, "SignPost", V(x - 0.22, 19.6, 0.35), V(x + 0.22, signTop - 0.6, 0.75), K.L.dark)
-	P(bay, "PostFoot", V(x - 0.45, 19.6, 0.31), V(x + 0.45, 19.85, 1.05), steel)
+	K.lpart(Ft, bay, "SignPost", V(x - 0.22, -postL, -0.92), V(x + 0.22, -0.15, -0.48), K.L.dark)
+	for _, yy in { -2.2, -5.2 } do
+		K.lpart(
+			Ft,
+			bay,
+			"PostClamp",
+			V(x - 0.4, yy - 0.25, -1.0),
+			V(x + 0.4, yy + 0.25, -0.45),
+			steel
+		)
+	end
+	local lf = F:PointToObjectSpace(Ft * V(x, -postL, -0.7))
+	K.lpart(
+		F,
+		bay,
+		"PostFoot",
+		V(x - 0.5, GY, lf.Z - 0.45),
+		V(x + 0.5, GY + 0.25, lf.Z + 0.45),
+		steel
+	)
 end
 local scr = hub.Dressing.Screens:FindFirstChild("Screen_S")
 if scr and not scr:GetAttribute("RaisedForSign") then
@@ -293,30 +314,30 @@ for y = 0.3, 15.2, 2.3 do
 	)
 end
 ghostHolo(P(cur, "Pane", V(-11.5, 0.3, CZ - 0.01), V(11.5, 15.2, CZ + 0.01), holo), 0.94)
-local Ft = F * CFrame.new(0, 10.2, CZ + 0.05)
+-- the text sits in the 12-wide gap between the parked leaves, high enough to clear the landmark behind it
 S.textStack(
-	Ft,
+	F * CFrame.new(0, 13.4, CZ + 0.05),
 	cur,
 	"Title",
-	"LIVE FIRE SIM",
+	"LIVE FIRE",
 	K.RUBIK_HI,
-	60,
-	23,
-	3.0,
+	50,
+	11.6,
+	2.4,
 	Color3.fromRGB(196, 255, 238),
 	K.dim(HOLO, 0.35),
 	0,
 	2
 )
 S.textStack(
-	F * CFrame.new(0, 7.4, CZ + 0.05),
+	F * CFrame.new(0, 11.8, CZ + 0.05),
 	cur,
 	"Status",
 	"»  COMING SOON",
 	K.RUBIK_B,
-	40,
-	16,
-	1.8,
+	30,
+	11.6,
+	1.4,
 	HOLO,
 	K.dim(HOLO, 0.5),
 	0,
