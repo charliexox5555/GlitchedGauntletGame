@@ -94,6 +94,14 @@ local function sound(spec: any, parent: Instance, gain: number)
 	snd.RollOffMaxDistance = Cfg.ROLLOFF.Y
 	snd.Parent = parent
 	snd:Play()
+	local cut = spec.cut
+	if cut then -- a slice of a longer recording: fade it out after `cut` seconds
+		task.delay(cut, function()
+			if snd.Parent then
+				TweenService:Create(snd, TweenInfo.new(0.1), { Volume = 0 }):Play()
+			end
+		end)
+	end
 	Debris:AddItem(snd, 8)
 end
 
@@ -684,6 +692,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 				lastShake = k
 				shakes += 1
 				sound(Cfg.SOUNDS.Shake, root, gain)
+				sound(Cfg.SOUNDS.Rattle, root, gain)
 				if result and shakes >= targetShakes() - 1 then
 					tease()
 				end
@@ -756,6 +765,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 					tierOrder = tier.order
 					sound(Cfg.SOUNDS.Lid, root, gain)
 					sound(Cfg.SOUNDS.Burst, root, gain)
+					sound(Cfg.SOUNDS.LidBoom, root, gain)
 					sound(Cfg.SOUNDS.Swell, root, gain)
 					sound(Cfg.REVEAL[r.tier] or Cfg.REVEAL.Common, root, gain)
 					for _, extra in fx.extra do

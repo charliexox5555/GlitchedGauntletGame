@@ -260,6 +260,14 @@ function BackpackController.init()
 		if opening or not picked then
 			return
 		end
+		-- one opening at a time: the server answers in a moment, but the crate plays
+		-- on for several seconds (owner 2026-11-20: a second OPEN mid-animation broke)
+		local busy = crate
+		if busy and not busy:isDead() then
+			UiSfx.cue("PurchaseDenied")
+			LobbyHud.toast("Wait for this case to finish opening", "info")
+			return
+		end
 		hideItem()
 		opening = true
 		lastOpen = os.clock()

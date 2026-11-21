@@ -42,8 +42,23 @@ Owner: "people are going to be paying money for these cases, it needs to be sati
 |---|---|---|---|---|---|---|---|
 | Common | none | 30 | 1 | none | 0.6 | none | — |
 | Rare | 0.15 s | 50 | 1 | 0.8x | 0.85 | none | — |
-| Epic | 0.45 s, trembling, glow ramps, riser | 75 (+1 wave) | 2 | 1.2x | 1.15 | 35 % | APM Universal Flip |
-| Legendary / Exclusive | 0.8 s | 110 (+2 waves) | 3 | 1.6x | 1.5 | 50 % | APM Victory Slam + Get Up And Go |
+| Epic | 0.45 s, trembling, glow ramps, riser | 75 (+1 wave) | 2 | 1.2x | 1.15 | 35 % | — |
+| Legendary / Exclusive | 0.8 s | 110 (+2 waves) | 3 | 1.6x | 1.5 | 50 % | PSE Tailgate boom (low) + GUI Notification High (up) |
+
+## Round 4: sound picks (owner, 2026-11-20)
+| Moment | Sound | Status |
+|---|---|---|
+| Case lands, latches, collect | as before (PSE Plastic Cooler Hits 3, PSE Plastic Switch 14, GUI Equip + Notification High) | picked |
+| Each shake | old thump + a 0.4 s slice of PSE "Metal Lid Movements Over Box 6" (`SOUNDS.Rattle`, `cut`) | new, on F4 → SHAKE |
+| Lid burst | old whoosh + hit + swell, plus APM "Deep Boom 06" (`SOUNDS.LidBoom`) for more umph | new, on F4 → LID BURST |
+| Reveal: Common | Roblox GUI Equip | picked |
+| Reveal: Rare | APM Universal Flip - Hit | picked |
+| Reveal: Epic | APM Get Up And Go - Hit | picked |
+| Reveal: Legendary / Exclusive | short build: Roblox UI Tonal Stinger (1.5 s) + PSE Tailgate boom + Notification High | new, on F4 → REVEAL: LEGENDARY |
+
+The F4 CASE tab now only holds the three open rows. A sound spec takes `cut` (seconds, then a 0.1 s fade) so a slice of a longer recording can be used.
+
+**Bug fixed:** opening a second case while the first was still animating broke it (the server's reply cleared the lock while the crate played on). OPEN now refuses while a crate is alive ("Wait for this case to finish opening" toast + the denied sound). Tested: Apex opening, second OPEN on Standard refused and kept, then it opened fine after.
 
 ## Tested (2026-11-20, Lobby place)
 - Apex at full speed: tossed, opened, Playback Ares (Epic), back in the Backpack with the result, no errors.
@@ -53,7 +68,7 @@ Owner: "people are going to be paying money for these cases, it needs to be sati
 - Not tested: two real players (Studio MCP runs one client); video capture isn't available in this Studio.
 
 ## Open (owner)
-- **Sounds are placeholders** from our licensed sets (`Config/CaseOpening.SOUNDS` / `REVEAL`): audition and pick (land, shake, latches, lid, swell, one stinger per tier, collect).
+- **Sounds:** pick on F4 → CASE: SHAKE, LID BURST, REVEAL: LEGENDARY (button 1 is what plays now).
 - Feel: toss length, shake count, hold time, flash strength per tier; higher tiers could get a longer build-up (RIVALS chests run 8 s).
 - Pictures for every skin (renders, not viewports) so the result panel never falls back to a letter.
 - **Save the Lobby place.**

@@ -6,11 +6,13 @@
 -- 2.0 s after landing, ~4.9 s total, 7 studs out, card ~8 studs up) and rebuilt with
 -- our crate (Shared/CrateLook) and effects. Numbers only; Util/CaseOpening plays it.
 
-local function s(id: number, volume: number, pitch: number?)
+-- cut = play only this many seconds, then fade out (a slice of a longer recording)
+local function s(id: number, volume: number, pitch: number?, cut: number?)
 	return table.freeze({
 		id = "rbxassetid://" .. tostring(id),
 		volume = volume,
 		pitch = pitch or 1,
+		cut = cut,
 	})
 end
 
@@ -72,14 +74,18 @@ return table.freeze({
 	-- the card: the portrait on its tier tile beside the name
 	CARD_TILE = 0.32, -- of the card's width
 
-	-- Licensed sounds (Pro Sound Effects, Roblox UI packs, APM). PROVISIONAL:
-	-- auditioned by the owner next.
+	-- Licensed sounds (Pro Sound Effects, Roblox UI packs, APM). Owner picks 2026-11-20
+	-- (F4 board, CASE tab): Land, Latch, Lid and Collect kept; the lid got a boom under it
+	-- ("more umph") and each shake a rattle ("a nice feel of opening a case").
 	SOUNDS = table.freeze({
 		Toss = s(15675028888, 0.25, 1.2), -- Roblox Whoosh_02
 		Land = s(9117456325, 0.6), -- PSE "Plastic Cooler Hits 3": a hollow hard case
 		Shake = s(9117456325, 0.35, 1.25),
+		-- PSE "Metal Lid Movements Over Box 6", a short slice: the case rattles in your hands
+		Rattle = s(9116822963, 0.4, 1.1, 0.4),
 		Latch = s(9119727934, 0.9), -- PSE "Plastic Switch 14"
 		Lid = s(15675028888, 0.45, 0.9),
+		LidBoom = s(1837830213, 0.5), -- APM "Deep Boom 06": weight under the burst
 		Swell = s(9043336050, 0.3), -- APM "SWELL 22"
 		Collect = s(17208323435, 0.6), -- Roblox "GUI - Equip"
 		CollectSpark = s(17208361335, 0.25, 1.25), -- Roblox "GUI - Notification High", up a little
@@ -88,13 +94,13 @@ return table.freeze({
 		Tease = s(9043336050, 0.18, 1.3), -- the swell, short: the seams light up
 		Sink = s(15675046931, 0.2, 0.9), -- Roblox Sweep
 	}),
-	-- one reveal stinger per tier
+	-- one reveal stinger per tier (owner picks 2026-11-20; Legendary must be short)
 	REVEAL = table.freeze({
-		Common = s(17208396156, 0.45), -- Roblox "GUI - Select"
-		Rare = s(17208361335, 0.4), -- Roblox "GUI - Notification High"
-		Epic = s(9042542887, 0.35), -- APM "Universal Flip - Hit"
-		Legendary = s(9043151109, 0.35), -- APM "Get Up And Go - Hit"
-		Exclusive = s(9043151109, 0.35),
+		Common = s(17208323435, 0.6), -- Roblox "GUI - Equip"
+		Rare = s(9042542887, 0.35), -- APM "Universal Flip - Hit"
+		Epic = s(9043151109, 0.35), -- APM "Get Up And Go - Hit"
+		Legendary = s(15675043410, 0.6), -- Roblox "UI Tonal Stinger" (1.5 s), layered below
+		Exclusive = s(15675043410, 0.6),
 	}),
 	-- How hard each tier hits (owner 2026-11-20: "more intense sounds + VFX for a higher
 	-- rarity"). hold = s the lid strains (trembling, glow ramping, a riser) before it
@@ -130,7 +136,7 @@ return table.freeze({
 			beam = 1.2,
 			kick = 1.15,
 			flash = 0.35,
-			extra = { s(9042542887, 0.35) }, -- APM "Universal Flip - Hit"
+			extra = {},
 		}),
 		Legendary = table.freeze({
 			hold = 0.8,
@@ -140,7 +146,9 @@ return table.freeze({
 			beam = 1.6,
 			kick = 1.5,
 			flash = 0.5,
-			extra = { s(9042702890, 0.35), s(9043151109, 0.3, 0.9) }, -- APM "Victory Slam" + "Get Up And Go"
+			-- the Legendary sting, built short: a booming hit (PSE "Truck Tailgate 1", low)
+			-- and a bright sparkle (Roblox "GUI - Notification High", up) on the stinger
+			extra = { s(9113433423, 0.5, 0.85), s(17208361335, 0.3, 1.2) },
 		}),
 		Exclusive = table.freeze({
 			hold = 0.8,
@@ -150,7 +158,7 @@ return table.freeze({
 			beam = 1.6,
 			kick = 1.5,
 			flash = 0.5,
-			extra = { s(9042702890, 0.35), s(9043151109, 0.3, 0.9) },
+			extra = { s(9113433423, 0.5, 0.85), s(17208361335, 0.3, 1.2) },
 		}),
 	}),
 	RISER = s(9043336050, 0.35, 1.5), -- the swell, up: plays through the held beat
