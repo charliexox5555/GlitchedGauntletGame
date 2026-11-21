@@ -950,6 +950,46 @@ Audits: no overlaps, no floating parts, no flicker. Captures `20`–`23`.
 - loadout bin GUI;
 - Rojo reconnect (`RangeService`, `LobbyJumpPads` were added in Studio with the same source).
 
+## Range v4, Locker v3, Duels banners (2026-11-21, evening)
+
+**Owner's notes on the range:**
+- The entrance should be "a bigger area and maybe like an indent in the wall"; walking back into it returns you to the lobby.
+- The distance dummies copy RIVALS "a bit too much ... just the colors".
+- Put dummies around the map, plus two special ones: one that never falls and counts your damage up; the second was left to me.
+- The loadout shouldn't be a bin. It should be something else, made properly in Blender.
+- The jump pad had overlapping parts; remake it.
+
+**Owner's notes elsewhere:**
+- **Locker:** now too empty; make it bigger with areas, put the Armorer somewhere better, and add a circle of guns like RIVALS.
+- **Duels:** unclear about the screens on the bulkhead.
+- **Shop:** fine as it is. Icons will come later.
+
+**Built** (place saved v886):
+- **Range kit v2** (`tools/blender/lobby_v5/v5_rangekit.py`, asset 132467899685396, renders `29`):
+  - **Jump pad v2:** no two pieces overlap. A base, a rim frame sitting on it with vent notches and corner pockets (steel inserts set into them), a deck filling the rim, and the glow ring, core and chevrons set into grooves cut in the deck.
+  - **Loadout terminal:** replaces the bins. A plinth, a tall body with a recessed lit bay, side grooves and a drawer seam, and a screen head ("LOADOUT" with the locker icon).
+- **Range** (`BuildRangeV4.luau`):
+  - **Entrance:** the spawn deck is gone. An **alcove cut into the south wall** (40 wide, 25 deep, roofed and lit, a gunmetal casing with a teal glow line). You arrive in it facing the yard. The **return gate** is at its back: a teal field, a floor glow line and "« BACK TO THE LOBBY" (`24`).
+  - **Our colours:** the lane bands run a teal-to-navy gradient. The dummies wear teal and charcoal, and the pad rings are teal (no RIVALS yellow).
+  - **Ten dummies around the yard:** on the hangar, lookout, tower and bunker roofs, inside the hangar and the long hall, in a U-wall, and behind blocks.
+  - **Damage dummy** (`25`): orange, on an octagonal stage with a glow ring. A board behind it reads "DAMAGE / 0 / DPS 0 · HITS 0 / THIS ONE NEVER FALLS". Tag `RangeDamageDummy`, `Unkillable`; the board labels are named `Total` / `Rate` for the merge.
+  - **Moving dummy** (my pick for the second special) (`26`): purple, on a carriage riding a 36-stud rail (sleepers, two rails, hazard buffers) for tracking practice. Tag `RangeMovingDummy` with `From` / `To` / `Speed`.
+  - **Six loadout terminals:** two beside the alcove, the hangar front, the lookout, the bunker, and the lane entrance. Tag `RangeLoadout` on the body.
+  - The new pads replace the old ones; the triggers and launch values are kept.
+- **Locker v3** (`BuildLockerV3.luau`, `27`): the room grows 30 east (x 54..134; floor, walls, soffit, belts, beams and ducts extended, two more ceiling lights).
+  - **Lockers:** the rows plus the hero plinth on an inlay ring (the loadout spot).
+  - **Gun circle** (RIVALS-like, our build): a floor medallion with two teal rings and **eight lit pedestals in a ring**, each turning your skin of Vandal, Operator, Spectre, Bucky, Odin, Phantom, Sheriff or the knife.
+  - **Weapon wall** moved to the new back wall.
+  - **Armory counter** on the north wall: the Armorer behind a service counter with a lit rack of two guns behind him.
+  - **Supplies** along the south wall. The v2 corner props moved to the new back corners.
+- **Duels:** the four how-to screens are now **hanging team banners** (gold / blue cloth with stripes and the duels emblem, on steel rods) (`28`).
+- Audits: no flicker in the locker, range or Duels. The north wall belt is split behind the new rack. Nothing floating.
+
+**Next / to check:**
+- your walk-through and polish;
+- the special dummies' mechanics and the terminals' menu (the merge);
+- the shop icons (later).
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
