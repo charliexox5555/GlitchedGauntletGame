@@ -1,0 +1,465 @@
+{
+ "variant": "TempestStrike Bucky s02x (flat-material export)",
+ "joints": [
+  {
+   "name": "TS_PlateL",
+   "parent": "Root",
+   "c0": [
+    0.03,
+    0.078,
+    0.046,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "TS_PlateR",
+   "parent": "Root",
+   "c0": [
+    0.03,
+    -0.078,
+    0.046,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  }
+ ],
+ "date": "2026-11-14",
+ "gun": "Bucky",
+ "source_blend": "Bucky_TempestStrike_s02x.blend",
+ "fbx": "Bucky_TempestStrike_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "Bolt",
+  "CharmLoop",
+  "Grip",
+  "Neon",
+  "Pins",
+  "Pump",
+  "Receiver",
+  "Shell",
+  "Sights",
+  "Stock",
+  "Trigger"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Bolt_01": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Bolt",
+   "blender_material": "TS Panel",
+   "triangles": 44,
+   "size": [
+    0.294,
+    0.022,
+    0.086
+   ],
+   "center": [
+    0.594,
+    -0.063,
+    0.305
+   ]
+  },
+  "SK_Pump_01": {
+   "color": "1D2433",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Pump",
+   "blender_material": "TS Body",
+   "triangles": 332,
+   "size": [
+    0.89,
+    0.16,
+    0.216
+   ],
+   "center": [
+    1.681,
+    0.0,
+    0.2055
+   ]
+  },
+  "SK_Pump_02": {
+   "color": "4A3328",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Pump",
+   "blender_material": "TS Grip",
+   "triangles": 112,
+   "size": [
+    0.7025,
+    0.1708,
+    0.2268
+   ],
+   "center": [
+    1.6478,
+    0.0,
+    0.2055
+   ]
+  },
+  "SK_Pump_03": {
+   "color": "7A8491",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Pump",
+   "blender_material": "TS Metal",
+   "triangles": 88,
+   "size": [
+    0.294,
+    0.108,
+    0.03
+   ],
+   "center": [
+    1.098,
+    0.0,
+    0.261
+   ]
+  },
+  "SK_Pump_04": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Pump",
+   "blender_material": "TS Panel",
+   "triangles": 56,
+   "size": [
+    0.861,
+    0.1648,
+    0.2208
+   ],
+   "center": [
+    1.6635,
+    0.0,
+    0.2055
+   ]
+  },
+  "SK_Root_01": {
+   "color": "3E6580",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Accent",
+   "triangles": 368,
+   "size": [
+    0.2631,
+    0.0351,
+    0.102
+   ],
+   "center": [
+    0.284,
+    0.0975,
+    0.321
+   ]
+  },
+  "SK_Root_02": {
+   "color": "1D2433",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Body",
+   "triangles": 1050,
+   "size": [
+    3.783,
+    0.168,
+    0.723
+   ],
+   "center": [
+    0.9405,
+    -0.006,
+    0.0695
+   ]
+  },
+  "SK_Root_Sight_03": {
+   "color": "1D2433",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Body",
+   "triangles": 460,
+   "size": [
+    2.4034,
+    0.096,
+    0.0922
+   ],
+   "center": [
+    1.4977,
+    0.0,
+    0.4601
+   ]
+  },
+  "SK_Root_04": {
+   "color": "A8844E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Brass",
+   "triangles": 368,
+   "size": [
+    0.2659,
+    0.0379,
+    0.014
+   ],
+   "center": [
+    0.284,
+    0.0975,
+    0.379
+   ]
+  },
+  "SK_Root_05": {
+   "color": "0C111C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Dark",
+   "triangles": 815,
+   "size": [
+    3.798,
+    0.2015,
+    0.7107
+   ],
+   "center": [
+    0.933,
+    0.0227,
+    0.0757
+   ]
+  },
+  "SK_Root_06": {
+   "color": "4A3328",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Grip",
+   "triangles": 112,
+   "size": [
+    0.3536,
+    0.1356,
+    0.3326
+   ],
+   "center": [
+    -0.0342,
+    0.0,
+    -0.066
+   ]
+  },
+  "SK_Root_07": {
+   "color": "7A8491",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Metal",
+   "triangles": 660,
+   "size": [
+    2.9903,
+    0.1662,
+    0.2909
+   ],
+   "center": [
+    1.3148,
+    0.0011,
+    0.2736
+   ]
+  },
+  "SK_Root_08": {
+   "color": "5FE6E0",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Neon",
+   "triangles": 201,
+   "size": [
+    3.5644,
+    0.156,
+    0.6086
+   ],
+   "center": [
+    1.0433,
+    0.0,
+    0.1309
+   ]
+  },
+  "SK_Root_Sight_09": {
+   "color": "5FE6E0",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Neon",
+   "triangles": 24,
+   "size": [
+    0.019,
+    0.061,
+    0.0086
+   ],
+   "center": [
+    0.331,
+    0.0,
+    0.5068
+   ]
+  },
+  "SK_Root_10": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Panel",
+   "triangles": 848,
+   "size": [
+    3.553,
+    0.1585,
+    0.734
+   ],
+   "center": [
+    0.8335,
+    -0.0002,
+    0.067
+   ]
+  },
+  "SK_Root_Sight_11": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "TS Panel",
+   "triangles": 172,
+   "size": [
+    0.002,
+    0.093,
+    0.0831
+   ],
+   "center": [
+    0.3218,
+    0.0,
+    0.4631
+   ]
+  },
+  "SK_Shell_01": {
+   "color": "A8844E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Shell",
+   "blender_material": "TS Brass",
+   "triangles": 64,
+   "size": [
+    0.046,
+    0.0612,
+    0.0612
+   ],
+   "center": [
+    0.68,
+    0.0,
+    0.154
+   ]
+  },
+  "SK_Shell_02": {
+   "color": "0C111C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Shell",
+   "blender_material": "TS Dark",
+   "triangles": 48,
+   "size": [
+    0.1932,
+    0.0544,
+    0.0544
+   ],
+   "center": [
+    0.7536,
+    0.0,
+    0.154
+   ]
+  },
+  "SK_TS_PlateL_01": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "TS_PlateL",
+   "blender_material": "TS Panel",
+   "triangles": 44,
+   "size": [
+    0.91,
+    0.01,
+    0.061
+   ],
+   "center": [
+    0.475,
+    0.0765,
+    0.1965
+   ]
+  },
+  "SK_TS_PlateR_01": {
+   "color": "DCE1E6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "TS_PlateR",
+   "blender_material": "TS Panel",
+   "triangles": 44,
+   "size": [
+    0.91,
+    0.01,
+    0.061
+   ],
+   "center": [
+    0.475,
+    -0.0765,
+    0.1965
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "7A8491",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "TS Metal",
+   "triangles": 108,
+   "size": [
+    0.0389,
+    0.022,
+    0.0787
+   ],
+   "center": [
+    0.2536,
+    0.0,
+    0.1106
+   ]
+  }
+ }
+}
