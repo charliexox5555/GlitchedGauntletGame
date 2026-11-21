@@ -41,12 +41,12 @@ The owner approved Claude's proposal ("Yes, build it"). Before this (round 3), t
 | Standard (400) | guns | 85 % | 15 % | — | — | Common 10.6 %, Rare 2.1 % |
 | Elite (900) | guns | 50 % | 40 % | 10 % | — | Common 6.3 %, Rare 5.7 %, Epic 5 % |
 | Apex (2,000) | guns 97 %, knives 3 % | — | 65 % | 30 % | 5 % | no Legendary line yet, so it drops out: guns Rare 66.4 % (9.5 % per line), Epic 30.6 % (15.3 %); knives Rare 2.1 %, Epic 0.9 % |
-| **Knife (2,500)** | knives | — | 70 % | 30 % | later | Rare 35 % each (only 2 Rare knives), Epic 3.3 % each (9) |
+| **Knife (2,500)** | knives | 50 % | 35 % | 15 % | later | Common 25 % each (2), Rare 8.75 % each (4), Epic 3 % each (5) |
 
 - **Apex has no Commons** (owner's idea): a 2,000-coin case never gives a reskin the 400 case gives. Apex keeps a 3 % knife slot, so a knife can still drop from a gun case.
 - **Knife case** (`Inventory.CaseKnife`, crate tier 4, `ShopCatalog` id `Knife`, 2,500 coins, Robux 499 / 1,249 as "soon" placeholders): knives only. Crate look: dark green with bright steel and a green glow (`Config/Crates` tier 4, `render_icons.py` "knife"); pictures `crate_knife_card.png` (image 140470533134784, the Shop card and Backpack icon) and `crate_knife_wide.png` (99120082357595, the case popup). The Shop's Home row now holds four cases (cards cloned in Studio, `BuildShop.luau` matches; the Season Pass card narrowed to 568).
 - **CONTENTS:** section (chance, "a tier is rolled first, then a skin line / knife in it") → tier rows (name in its colour, chance, "N skin lines · each the same chance") → line rows as before.
-- **Flag for the owner:** the Knife case has only 2 Rare knives (the reskin lines' knives) against 9 Epic ones, so each Rare knife is a 35 % drop and they're gone after a couple of openings. More knife reskins, or a 50 / 50 split, would even it out.
+- **Round 6 (owner): knives use their line's tier like any gun.** The old knife floor (reskin = Rare, shape = Epic) is gone because knives have their own case now; the animated knives keep their per-gun Epic (the Bat, Leafblade, the fan). Knives today: Common Prism, Redline; Rare Breakwater, Inkshift, Moltframe, Sealwork; Epic Giltfold, Playback, PopCircuit (Bat), Rootglass, Sundial. So the Knife case got a Common tier (50 / 35 / 15; 20,000 rolls matched), and Apex's 3 % knife slot only holds Rare and Epic knives. The new Knife case model is in design ([Inventory and Crates](Inventory%20and%20Crates.md) → Knife case).
 - **Tested (Lobby play):** every case's odds add to 100 %; 20,000 Apex rolls matched (guns Rare 66.0 / Epic 30.9, knives 3.0); Shop row, Knife popup and CONTENTS captured; a Knife case bought (2,500), opened from the Backpack (tier-4 crate in the world), case used, knife granted, no errors.
 - Open for the owner: which line sits in which tier (still provisional), the exact percentages, the Knife price.
 

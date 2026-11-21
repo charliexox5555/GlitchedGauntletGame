@@ -23,19 +23,14 @@ export type Entry = Pair & { odds: number } -- odds in % before re-rolls
 
 local SkinCases = {}
 
--- The tier of one skin (the line's, or its per-gun override, raised to the knife
--- minimum for knives), or nil if the line has no tier yet.
+-- The tier of one skin (the line's, or its per-gun override), or nil if the line has
+-- no tier yet. Knives follow their line like any gun (owner 2026-11-20, round 6).
 function SkinCases.tierOf(gunId: string, line: string): Skins.TierId?
 	local def = Skins.LINES[line]
 	if not def then
 		return nil
 	end
-	local tier: Skins.TierId = if def.guns and def.guns[gunId] then def.guns[gunId] else def.tier
-	local floor = if gunId == "Knife" then Skins.KNIFE_MIN[def.kind] else nil
-	if floor and Skins.TIERS[floor].order > Skins.TIERS[tier].order then
-		tier = floor
-	end
-	return tier
+	return if def.guns and def.guns[gunId] then def.guns[gunId] else def.tier
 end
 
 -- Which section of a case a skin is in.

@@ -85,13 +85,8 @@ local LINES: { [string]: Line } = {
 	RuinBlighted = { tier = "Exclusive", kind = "animated" },
 }
 
--- Knives sit higher (owner 2026-11-20): a knife reskin is at least Rare, a knife
--- that changes shape (or animates) at least Epic. SkinCases.tierOf applies it.
-local KNIFE_MIN: { [string]: TierId } = {
-	reskin = "Rare",
-	shape = "Epic",
-	animated = "Epic",
-}
+-- Knives use their line's tier like any gun (owner 2026-11-20, round 6: knives have their
+-- own case now, so the old "a knife is at least Rare / Epic" floor is gone).
 
 -- What each case holds and how it rolls (owner 2026-11-20, round 5: "tier first"; vault
 -- Skin Tiers and Cases → Proposal). The roll: a SECTION by its chance (gun skins, knife
@@ -113,7 +108,8 @@ local CASES: { [string]: Case } = {
 	Elite = { tiers = { Common = 50, Rare = 40, Epic = 10 }, sections = { Guns = 100 } },
 	-- Legendary drops out (and Rare / Epic scale up) until a Legendary line exists
 	Apex = { tiers = { Rare = 65, Epic = 30, Legendary = 5 }, sections = { Guns = 97, Knives = 3 } },
-	Knife = { tiers = { Rare = 70, Epic = 30 }, sections = { Knives = 100 } }, -- Legendary knives later
+	-- knives follow their line's tier now (round 6), so the Knife case has its own ladder
+	Knife = { tiers = { Common = 50, Rare = 35, Epic = 15 }, sections = { Knives = 100 } },
 }
 
 return table.freeze({
@@ -121,6 +117,5 @@ return table.freeze({
 	LINES = LINES,
 	CASES = CASES,
 	SECTIONS = SECTIONS,
-	KNIFE_MIN = KNIFE_MIN,
 	ORDER = { "Common", "Rare", "Epic", "Legendary", "Exclusive" } :: { TierId },
 })
