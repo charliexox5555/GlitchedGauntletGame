@@ -7,7 +7,7 @@ local SoundAudition = require(ReplicatedStorage.Shared.SoundAudition)
 local SoundAuditionController = {}
 
 function SoundAuditionController.start()
-	SoundAudition.start({ "SHARED", "HITS", "CASE" }) -- CASE: the case opening (lobby only)
+	SoundAudition.start({ "SHARED", "HITS" }) -- CASE rows all picked (owner 2026-11-20)
 end
 
 return SoundAuditionController

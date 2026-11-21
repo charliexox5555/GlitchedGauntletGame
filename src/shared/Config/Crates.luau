@@ -10,6 +10,8 @@ export type Tier = {
 	name: string,
 	accent: Color3, -- UI and effects colour for this tier
 	roles: { [Role]: Look },
+	template: string?, -- the model in ReplicatedStorage.Crates (default TEMPLATE, the big crate)
+	scale: number?, -- the in-world opening's scale (default Config/CaseOpening.SCALE)
 }
 
 local function look(hex: string, material: Enum.Material?): Look
@@ -57,6 +59,11 @@ local TIERS: { [number]: Tier } = {
 	-- skin tier uses green, so it reads apart from the gun cases)
 	[4] = {
 		name = "Knife",
+		-- its own, smaller model (owner 2026-11-20: "shorter, smaller, more like for knives"):
+		-- tools/blender/crates/build_knife_case.py, 1.64 studs long, opened at 2x (3.3 studs;
+		-- the big crate opens at 5)
+		template = "KnifeCase",
+		scale = 2.0,
 		accent = Color3.fromHex("5BE35A"),
 		roles = {
 			Body = look("26402A"),

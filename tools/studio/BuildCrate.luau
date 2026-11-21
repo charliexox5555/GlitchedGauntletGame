@@ -1,10 +1,13 @@
 --!strict
--- Builds the animation-ready crate template ReplicatedStorage.Crates.Crate from the uploaded
--- mesh (vault/01 Design/Inventory and Crates.md). Run in the Lobby place's edit DataModel
--- (Studio MCP execute_luau, or the command bar); re-run after a re-upload. Save the place after.
+-- Builds an animation-ready crate template in ReplicatedStorage.Crates from its uploaded mesh
+-- (vault/01 Design/Inventory and Crates.md). Run in the Lobby place's edit DataModel (Studio
+-- MCP execute_luau, or the command bar) with WHICH set; re-run after a re-upload. Save the
+-- place after.
 --
--- Source: tools/blender/crates/build_crate.py -> art-source/lobby/Exports/Crate.fbx
--- -> asset ASSET (art-source/lobby/Exports/assets.json "Crate"). Blender to Roblox axes:
+-- Sources (art-source/lobby/Exports/assets.json):
+--   Crate      tools/blender/crates/build_crate.py      -> Crate.fbx      (Standard, Elite, Apex)
+--   KnifeCase  tools/blender/crates/build_knife_case.py -> KnifeCase.fbx  (the Knife case)
+-- Both have the same part names and rig, only sizes differ. Blender to Roblox axes:
 -- Roblox (x, y, z) = Blender (-x, z, y), 1 unit = 1 stud; the front faces -Z.
 --
 -- Rig (Motor6D, so the Animation Editor and code can both drive it):
@@ -20,19 +23,48 @@
 -- Attachments for effects: Base_Body.Burst (inside, the loot reveal), Base_Body.Seam (front of
 -- the lid seam), Base_Light.Glow, Gem_Gem.GemFx. Colours come from Shared/CrateLook per tier.
 
-local ASSET = 134857131915909
+local WHICH = "Crate" -- or "KnifeCase"
+
+type Target = {
+	asset: number,
+	pivots: { [string]: Vector3 }, -- Blender studs (the build script's PIVOTS)
+	burst: Vector3, -- Roblox studs, model at the origin
+	seam: Vector3,
+}
+local TARGETS: { [string]: Target } = {
+	Crate = {
+		asset = 134857131915909,
+		pivots = {
+			Lid = Vector3.new(0, 0.57, 0.63),
+			LatchL = Vector3.new(-0.66, -0.575, 0.38),
+			LatchR = Vector3.new(0.66, -0.575, 0.38),
+			Handle = Vector3.new(0, -0.585, 0.31),
+			Gem = Vector3.new(0, 0, 1.02),
+		},
+		burst = Vector3.new(0, 0.45, 0),
+		seam = Vector3.new(0, 0.63, -0.6),
+	},
+	KnifeCase = {
+		asset = 134286984339849,
+		pivots = {
+			Lid = Vector3.new(0, 0.33, 0.316),
+			LatchL = Vector3.new(-0.33, -0.315, 0.19),
+			LatchR = Vector3.new(0.33, -0.315, 0.19),
+			Handle = Vector3.new(0, -0.32, 0.16),
+			Gem = Vector3.new(0, 0, 0.535),
+		},
+		burst = Vector3.new(0, 0.25, 0),
+		seam = Vector3.new(0, 0.316, -0.31),
+	},
+}
+local target = TARGETS[WHICH]
+assert(target, "unknown WHICH " .. WHICH)
+local ASSET = target.asset
 
 local InsertService = game:GetService("InsertService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- pivots in Blender studs (build_crate.py PIVOTS), converted below
-local PIVOTS: { [string]: Vector3 } = {
-	Lid = Vector3.new(0, 0.57, 0.63),
-	LatchL = Vector3.new(-0.66, -0.575, 0.38),
-	LatchR = Vector3.new(0.66, -0.575, 0.38),
-	Handle = Vector3.new(0, -0.585, 0.31),
-	Gem = Vector3.new(0, 0, 1.02),
-}
+local PIVOTS = target.pivots
 local function rbx(b: Vector3): Vector3
 	return Vector3.new(-b.X, b.Z, b.Y)
 end
@@ -41,7 +73,7 @@ local loaded = InsertService:LoadAsset(ASSET)
 local src = loaded:FindFirstChildWhichIsA("Model") or loaded
 
 local model = Instance.new("Model")
-model.Name = "Crate"
+model.Name = WHICH
 
 local root = Instance.new("Part")
 root.Name = "Root"
@@ -112,8 +144,8 @@ local function attach(name: string, part: BasePart, world: Vector3)
 	a.CFrame = part.CFrame:ToObjectSpace(CFrame.new(world))
 	a.Parent = part
 end
-attach("Burst", base, Vector3.new(0, 0.45, 0))
-attach("Seam", base, Vector3.new(0, 0.63, -0.6))
+attach("Burst", base, target.burst)
+attach("Seam", base, target.seam)
 attach("Glow", need("Base_Light"), need("Base_Light").Position)
 attach("GemFx", gem, gem.Position)
 
@@ -122,7 +154,7 @@ local animator = Instance.new("Animator")
 animator.Parent = ac
 ac.Parent = model
 
-model:SetAttribute("Tier", 1)
+model:SetAttribute("Tier", if WHICH == "KnifeCase" then 4 else 1)
 model:SetAttribute("Source", "tools/studio/BuildCrate.luau, asset " .. ASSET)
 
 local folder = ReplicatedStorage:FindFirstChild("Crates")
@@ -131,9 +163,9 @@ if not folder then
 	folder.Name = "Crates"
 	folder.Parent = ReplicatedStorage
 end
-local old = folder:FindFirstChild("Crate")
+local old = folder:FindFirstChild(WHICH)
 if old then
 	old:Destroy()
 end
 model.Parent = folder
-return `built Crates.Crate: {#model:GetChildren()} children`
+return `built Crates.{WHICH}: {#model:GetChildren()} children`

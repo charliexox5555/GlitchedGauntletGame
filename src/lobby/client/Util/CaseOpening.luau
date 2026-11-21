@@ -457,8 +457,10 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		return nil
 	end
 	local gain = if isLocal then 1 else Cfg.OTHERS_VOLUME
+	-- the tier's model decides its size (the Knife case is smaller: Config/Crates)
+	local scale = CrateLook.scale(crateTier) or Cfg.SCALE
 	model.Name = "CaseOpening_" .. owner.UserId
-	model:ScaleTo(Cfg.SCALE)
+	model:ScaleTo(scale)
 	local root = model.PrimaryPart :: BasePart
 	local joints: { [string]: Motor6D } = {}
 	for _, n in { "Base", "Lid", "Gem", "LatchL", "LatchR", "Handle" } do
@@ -586,7 +588,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		if not r then
 			return
 		end
-		local top = land.Position + Vector3.new(0, 1.0 * Cfg.SCALE, 0)
+		local top = land.Position + Vector3.new(0, 1.0 * scale, 0)
 		local src = Locker.skinModel(r.gun, r.line)
 		if src then
 			local m = ItemStage.presentable(src)
@@ -661,8 +663,10 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 	end
 
 	conn = RunService.RenderStepped:Connect(function(dt: number)
-		local scale = StateValues.get(workspace, "CaseTimeScale")
-		clock += dt * (if typeof(scale) == "number" and RunService:IsStudio() then scale else 1)
+		local timeScale = StateValues.get(workspace, "CaseTimeScale")
+		clock += dt * (if typeof(timeScale) == "number" and RunService:IsStudio()
+			then timeScale
+			else 1)
 		local now = clock
 		if phase == "toss" then
 			local u = clamp01((now - t0) / Cfg.TOSS)
@@ -710,10 +714,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 				local amp = Cfg.SHAKE_ANGLES[math.min(shakes, #Cfg.SHAKE_ANGLES)]
 				local env = 1 - since / 0.32
 				local rz = math.rad(amp) * math.sin(since * math.pi * 2 * 3.2) * env
-				local hop = math.sin(clamp01(since / 0.2) * math.pi)
-					* 0.05
-					* Cfg.SCALE
-					* (shakes - 1)
+				local hop = math.sin(clamp01(since / 0.2) * math.pi) * 0.05 * scale * (shakes - 1)
 				setJoint("Base", CFrame.new(0, hop, 0) * CFrame.Angles(0, 0, rz))
 				setJoint(
 					"Handle",
@@ -751,7 +752,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 			local tremble = if tau < lidAt and held > 0
 				then CFrame.Angles(0, 0, math.rad(math.sin(tau * 70) * 2.5 * held))
 				else CFrame.new()
-			setJoint("Base", CFrame.new(0, -0.06 * Cfg.SCALE * dip, 0) * tremble)
+			setJoint("Base", CFrame.new(0, -0.06 * scale * dip, 0) * tremble)
 			local pl0 = light
 			if pl0 and tau < lidAt and held > 0 then
 				pl0.Brightness = Cfg.TEASE_GLOW * (1 + 2 * held)
@@ -954,7 +955,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		end
 		if phase == "sink" then
 			local p = quadIn(clamp01((now - sinkAt) / Cfg.SINK_TIME))
-			model:PivotTo(land * CFrame.new(0, -1.6 * Cfg.SCALE * p, 0))
+			model:PivotTo(land * CFrame.new(0, -1.6 * scale * p, 0))
 			if p >= 1 then
 				cleanup()
 			end

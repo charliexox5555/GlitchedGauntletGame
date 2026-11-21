@@ -54,9 +54,9 @@ Owner: "people are going to be paying money for these cases, it needs to be sati
 | Reveal: Common | Roblox GUI Equip | picked |
 | Reveal: Rare | APM Universal Flip - Hit | picked |
 | Reveal: Epic | APM Get Up And Go - Hit | picked |
-| Reveal: Legendary / Exclusive | APM "Hustler Sting 2" (4.4 s, sports brass) + PSE Tailgate boom. The short build was rejected ("we can't have a sound that is less than the Epic one… it needs to be a stinger like that"). | on F4 → REVEAL: LEGENDARY, 5 APM stingers (2.7-4.7 s) with the boom, plus Epic to compare |
+| Reveal: Legendary / Exclusive | APM "Hustler Sting 2" (4.4 s, sports brass) + PSE Tailgate boom. The short build was rejected ("we can't have a sound that is less than the Epic one… it needs to be a stinger like that"). | picked (owner 2026-11-20: "#1"); the CASE tab is off F4 now |
 
-The F4 CASE tab now only holds the Legendary row. A sound spec takes `cut` (seconds, then a 0.1 s fade) so a slice of a longer recording can be used.
+The F4 CASE tab is gone (every case sound picked). A sound spec takes `cut` (seconds, then a 0.1 s fade) so a slice of a longer recording can be used.
 
 **Bug fixed:** opening a second case while the first was still animating broke it (the server's reply cleared the lock while the crate played on). OPEN now refuses while a crate is alive ("Wait for this case to finish opening" toast + the denied sound). Tested: Apex opening, second OPEN on Standard refused and kept, then it opened fine after.
 
@@ -68,7 +68,7 @@ The F4 CASE tab now only holds the Legendary row. A sound spec takes `cut` (seco
 - Not tested: two real players (Studio MCP runs one client); video capture isn't available in this Studio.
 
 ## Open (owner)
-- **Sounds:** pick the Legendary stinger on F4 → CASE (button 1 is what plays now).
+- **Sounds:** all picked (2026-11-20).
 - Feel: toss length, shake count, hold time, flash strength per tier; higher tiers could get a longer build-up (RIVALS chests run 8 s).
 - Pictures for every skin (renders, not viewports) so the result panel never falls back to a letter.
 - **Save the Lobby place.**

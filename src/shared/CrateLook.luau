@@ -1,5 +1,6 @@
 --!strict
--- A crate for a tier: a copy of ReplicatedStorage.Crates.Crate painted with Config/Crates.
+-- A crate for a tier: a copy of its template in ReplicatedStorage.Crates (the big Crate, or
+-- the tier's own model, e.g. the KnifeCase) painted with Config/Crates.
 -- Used by the Backpack's stage, the Shop and (later) the opening sequence.
 --
 --   local crate = CrateLook.make(2)        -- an Elite crate (nil if the template is missing)
@@ -13,10 +14,20 @@ local Crates = require(ReplicatedStorage.Shared.Config.Crates)
 
 local CrateLook = {}
 
-function CrateLook.template(): Model?
+function CrateLook.template(tier: number?): Model?
+	local def = if tier then Crates.TIERS[tier] else nil
 	local folder = ReplicatedStorage:FindFirstChild(Crates.FOLDER)
-	local t = folder and folder:FindFirstChild(Crates.TEMPLATE)
+	local t = folder and folder:FindFirstChild(def and def.template or Crates.TEMPLATE)
+	if not (t and t:IsA("Model")) and def and def.template and folder then
+		t = folder:FindFirstChild(Crates.TEMPLATE) -- its own model isn't there: the big crate
+	end
 	return if t and t:IsA("Model") then t else nil
+end
+
+-- the in-world opening's scale for a tier's model, or nil for the default
+function CrateLook.scale(tier: number): number?
+	local def = Crates.TIERS[tier]
+	return def and def.scale
 end
 
 function CrateLook.paint(model: Model, tier: number)
@@ -35,7 +46,7 @@ function CrateLook.paint(model: Model, tier: number)
 end
 
 function CrateLook.make(tier: number): Model?
-	local t = CrateLook.template()
+	local t = CrateLook.template(tier)
 	if not t then
 		return nil
 	end

@@ -95,7 +95,7 @@ return table.freeze({
 		Sink = s(15675046931, 0.2, 0.9), -- Roblox Sweep
 	}),
 	-- one reveal stinger per tier (owner picks 2026-11-20). Legendary must be a music
-	-- stinger like Epic's but bigger, never less (owner): picked on F4 → REVEAL: LEGENDARY
+	-- stinger like Epic's but bigger, never less (owner); Hustler Sting 2 picked
 	REVEAL = table.freeze({
 		Common = s(17208323435, 0.6), -- Roblox "GUI - Equip"
 		Rare = s(9042542887, 0.35), -- APM "Universal Flip - Hit"

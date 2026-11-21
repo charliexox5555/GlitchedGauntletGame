@@ -154,6 +154,9 @@ Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ (testers in published test-mode
 
 ## VFX, UI and audio
 
+**Knife case concept A (2026-11-20).** Owner selected the compact tactical case. [Concept comparison](../../art-source/ui/shop/crates/knife_case_concepts.png) and [six-view model sheet](../../art-source/ui/shop/crates/knife_case_sheet.png) are saved, including the open lid and empty knife-shaped foam recess. **Built 2026-11-20:** `build_knife_case.py` → `KnifeCase.blend`, 1.64 studs, 5,140 tris, asset 134286984339849, rigged `ReplicatedStorage.Crates.KnifeCase` (`BuildCrate.luau` WHICH), opens at 2x; renders card 111410900647363 / wide 75937518028942. Waiting: place save.
+
+
 | Asset | Status | Notes |
 |---|---|---|
 | Shop crate (4 looks: Standard, Elite, Apex, Knife) + Backpack | 🟡 | 2026-11-20: Knife crate added (dark green + steel, `render_icons.py` "knife", `CRATE_TIERS=knife` renders just it; images card 140470533134784, wide 99120082357595). Rifle-case crate from the owner's sheet, `tools/blender/crates/build_crate.py` → `art-source/lobby/crates/Crate.blend`, 3.1 studs, 13 parts, 5.7K tris, asset 134857131915909; rigged template `ReplicatedStorage.Crates.Crate` (Lobby place, `tools/studio/BuildCrate.luau`), tiers `Config/Crates`. Renders: Backpack/card end-on `art-source/ui/shop/crates/crate_<tier>_card.png` (`render_cards.py`), wide `crate_<tier>_wide.png` (popup), square icons `art-source/ui/backpack/`. Shop cards, popup, Season Pass and Backpack use them. Backpack icon `art-source/ui/lobby-icons/backpack_v2_bar.png`. Waiting: place save, the old Starter Bundle banner still shows the flat case. [Plan](../01%20Design/Inventory%20and%20Crates.md) |

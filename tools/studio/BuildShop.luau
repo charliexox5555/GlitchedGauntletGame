@@ -55,7 +55,7 @@ local ART = {
 		Standard = "rbxassetid://133624978874225", -- 3D crate card renders, end-on (crates/crate_*_card.png, 2026-11-20)
 		Elite = "rbxassetid://103320622297328",
 		Apex = "rbxassetid://93123564652737",
-		Knife = "rbxassetid://140470533134784",
+		Knife = "rbxassetid://111410900647363",
 	},
 	tab = {
 		HOME = "rbxassetid://86144101123567",

@@ -59,7 +59,7 @@ local ITEMS: { [string]: ItemDef } = {
 		tier = 4,
 		case = "Knife",
 		maxStack = 999,
-		icon = "rbxassetid://140470533134784",
+		icon = "rbxassetid://111410900647363",
 	},
 }
 

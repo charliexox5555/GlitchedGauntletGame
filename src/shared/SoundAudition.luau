@@ -130,52 +130,6 @@ local ROWS: { Row } = {
 			},
 		},
 	},
-	-- CASE (lobby, 2026-11-20): the in-world case opening (Config/CaseOpening). Lands,
-	-- latches, shake, lid burst, Common / Rare / Epic reveals and Collect are picked
-	-- (owner 2026-11-20).
-	-- Volumes are the config's; button 1 is what the opening plays now.
-	{
-		section = "CASE",
-		name = "REVEAL: LEGENDARY (bigger than Epic)",
-		list = {
-			{
-				note = "now: APM Hustler Sting 2 (4.4 s, sports brass) + boom",
-				layers = {
-					{ id = 9047100306, vol = 0.4, delay = 0, pitch = 1 },
-					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
-				},
-			},
-			{
-				note = "APM Move to the Finish Line b (4.6 s, bold brass) + boom",
-				layers = {
-					{ id = 9043512647, vol = 0.4, delay = 0, pitch = 1 },
-					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
-				},
-			},
-			{
-				note = "APM 1812 Overture d (4.7 s, rousing) + boom",
-				layers = {
-					{ id = 9045751388, vol = 0.4, delay = 0, pitch = 1 },
-					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
-				},
-			},
-			{
-				note = "APM All It Takes Sting 2 (3.5 s) + boom",
-				layers = {
-					{ id = 9047103106, vol = 0.4, delay = 0, pitch = 1 },
-					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
-				},
-			},
-			{
-				note = "APM Run Forth b (2.7 s, drums) + boom",
-				layers = {
-					{ id = 9043511963, vol = 0.4, delay = 0, pitch = 1 },
-					{ id = 9113433423, vol = 0.5, delay = 0, pitch = 0.85 },
-				},
-			},
-			{ id = 9043151109, vol = 0.35, note = "Epic now, to compare: Get Up And Go - Hit" },
-		},
-	},
 	{
 		section = "SHARED",
 		name = "PAGE OPEN (soft whoosh)",
