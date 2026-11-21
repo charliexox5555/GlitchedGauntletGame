@@ -19,6 +19,11 @@ local AudioController = require(script.Parent.Parent.Controllers.AudioController
 
 type Ribbon = { beam: Beam, speed: number, body: boolean, at: number } -- at: 0 receiver .. 1 muzzle end
 type Glow = { part: BasePart, color: Color3 }
+-- A sprung value (animation oomph: snaps, overshoots, settles).
+type Spring = { x: number, v: number }
+-- The s08 moving parts (Rig.Motors TS_VentL / TS_VentR / TS_Crescent, joint axes
+-- = the Root part's = Blender's: X down the bore, Y to the gun's left, Z up).
+type Moving = { ventL: Motor6D?, ventR: Motor6D?, crescent: Motor6D?, vent: Spring, cres: Spring }
 type Ring = { points: { Attachment }, beams: { Beam }, cores: { Beam } }
 export type State = {
 	frame: Frame,
@@ -42,6 +47,7 @@ export type State = {
 	flourish: number, -- which idle flourish (1 wrist turn, 2 sight check)
 	aimed: boolean,
 	coat: TempestCoat.Coat,
+	moving: Moving,
 	former: ParticleEmitter?, -- water beads converging on the new magazine
 	trails: { Trail }, -- water trails off the muzzle and stock (inspect, reload spin)
 	sight: {
@@ -234,6 +240,17 @@ local function placeRing(
 	end
 end
 
+local function spring(s: Spring, goal: number, freq: number, damp: number, dt: number)
+	-- semi-implicit damped spring, stepped in small slices so a hitch can't blow it up
+	local steps = math.max(1, math.ceil(dt / (1 / 120)))
+	local h = dt / steps
+	local w = 2 * math.pi * freq
+	for _ = 1, steps do
+		s.v += (w * w * (goal - s.x) - 2 * damp * w * s.v) * h
+		s.x += s.v * h
+	end
+end
+
 local function smooth(a: number, b: number, x: number): number
 	local t = math.clamp((x - a) / (b - a), 0, 1)
 	return t * t * (3 - 2 * t)
@@ -323,6 +340,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 		flourish = 1,
 		aimed = false,
 		coat = nil :: any,
+		moving = nil :: any,
 		former = nil,
 		trails = {},
 		sight = nil :: any,
@@ -394,6 +412,19 @@ function TempestIdle.new(model: Model, scale: number): State?
 	state.light = light
 	state.ring = makeRing(state, Style.RING_POINTS, w * 0.9)
 	state.coat = TempestCoat.new(model, scale)
+	local motors = model:FindFirstChild("Rig")
+	motors = motors and motors:FindFirstChild("Motors")
+	local function motor(name: string): Motor6D?
+		local m = motors and motors:FindFirstChild(name)
+		return if m and m:IsA("Motor6D") then m else nil
+	end
+	state.moving = {
+		ventL = motor("TS_VentL"),
+		ventR = motor("TS_VentR"),
+		crescent = motor("TS_Crescent"),
+		vent = { x = 1, v = 0 }, -- drawn in open
+		cres = { x = Style.CRESCENT_DRAW, v = 0 }, -- and the crescent turned away
+	}
 	-- the forming magazine: a ball welded to the magazine (before ViewmodelRig, so the
 	-- rig carries it) whose surface throws water beads inward
 	local magPart: BasePart? = nil
@@ -564,6 +595,13 @@ end
 
 -- One shot (first person): a small skin kick on top of the stock recoil and a conduit flare.
 function TempestIdle.fire(state: State)
+	local mv = state.moving
+	if mv then
+		mv.vent.v += Style.VENT_SHOT_KICK * (if state.aimed then 0.4 else 1)
+		if not state.aimed then
+			mv.cres.v += Style.CRESCENT_SHOT_KICK * state.shotSign
+		end
+	end
 	state.shotAge = 0
 	state.shotSign = -state.shotSign
 	state.boost = math.max(state.boost, Style.BOOST_SHOT)
@@ -720,6 +758,9 @@ function TempestIdle.step(
 	if aimed and not state.aimed and visible then
 		state.sightFlash = 1
 		state.sight.next = 0 -- crackle across the crescent straight away
+		if state.moving then
+			state.moving.cres.v += Style.CRESCENT_ADS_KICK
+		end
 		for _, e in state.sight.tips do
 			e:Emit(2)
 		end
@@ -1007,6 +1048,50 @@ function TempestIdle.step(
 	coat.alpha.mag = math.max(mag, body)
 	coat.free.mag = free
 	TempestCoat.step(coat, visible)
+	-- the moving parts: vents flare like gills, the crescent turns about the bore
+	local mv = state.moving
+	if mv and (mv.ventL or mv.crescent) then
+		local ventGoal, cresGoal = 0, 0
+		if drawP then
+			-- drawn in open and turned away; they lock as the water ring lands
+			local lock = smooth(Style.DRAW_RING - 0.1, Style.DRAW_RING, drawP)
+			ventGoal = 1 - lock
+			cresGoal = Style.CRESCENT_DRAW * (1 - lock)
+		elseif inspectP then
+			ventGoal = 0.5 * smooth(0.12, 0.2, inspectP) * (1 - smooth(0.38, 0.45, inspectP))
+				+ smooth(0.42, 0.47, inspectP) * (1 - smooth(0.6, 0.64, inspectP))
+				+ 0.35 * smooth(0.7, 0.76, inspectP) * (1 - smooth(0.86, 0.92, inspectP))
+			-- the crescent turns the other way round while the gun rolls
+			cresGoal = 360 * smooth(Style.INSPECT_ROLL_IN, Style.INSPECT_CATCH + 0.02, inspectP)
+		elseif timing and state.reloadPrev >= 0 then
+			local t = state.reloadPrev
+			ventGoal = 0.7
+					* smooth(timing.inAt - 0.1, timing.inAt, t)
+					* (1 - smooth(timing.seat - 0.02, timing.seat, t))
+				+ 0.6
+					* smooth(timing.seat + 0.03, timing.seat + 0.07, t)
+					* (1 - smooth(timing.seat + 0.16, timing.seat + 0.24, t))
+			cresGoal = 360 * smooth(timing.seat + 0.045, timing.seat + 0.21, t)
+		end
+		ventGoal = math.max(ventGoal, 0.4 * surge) * (1 - 0.8 * aim)
+		-- a full turn is home again: wrap so the next action doesn't unwind it
+		if cresGoal == 0 and math.abs(mv.cres.x) > 300 then
+			mv.cres.x -= 360 * math.sign(mv.cres.x)
+		end
+		spring(mv.vent, ventGoal, Style.VENT_FREQ, Style.VENT_DAMP, s)
+		spring(mv.cres, cresGoal, Style.CRESCENT_FREQ, Style.CRESCENT_DAMP, s)
+		local open = math.rad(Style.VENT_ANGLE) * mv.vent.x
+		local lift = math.rad(Style.VENT_ROLL) * mv.vent.x
+		if mv.ventL then
+			mv.ventL.Transform = CFrame.Angles(-lift, 0, open)
+		end
+		if mv.ventR then
+			mv.ventR.Transform = CFrame.Angles(lift, 0, -open)
+		end
+		if mv.crescent then
+			mv.crescent.Transform = CFrame.Angles(math.rad(mv.cres.x), 0, 0)
+		end
+	end
 end
 
 return TempestIdle

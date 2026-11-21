@@ -343,5 +343,5 @@ return {
 	GGAsset_MatchSkins_338 = { ["SkinLoadedRound"] = true }, -- ReplicatedStorage.WeaponSkins.RuinBlighted.Spectre.SK_Mag_11
 	GGAsset_MatchSkins_339 = { ["SkinMeshPatch"] = true }, -- ReplicatedStorage.WeaponSkins.Prism.Bulldog.Bolt
 	GGAsset_MatchSkins_340 = { ["SkinSourceAsset"] = 79903139659193, ["SkinVersion"] = "v01" }, -- ReplicatedStorage.WeaponSkins.ShadowMistRound
-	GGAsset_MatchSkins_341 = { ["Length"] = 3.98, ["PreviewGeometry"] = "TempestStrike_Vandal_s07", ["SkinAdsDistance"] = 0.36, ["SkinItem"] = "Vandal", ["SkinLine"] = "TempestStrike", ["SkinReady"] = true, ["SkinSourceAsset"] = 83574942668717, ["SkinVersion"] = "s07", ["SourceAsset"] = 123991644913328, ["WeaponId"] = "Vandal" }, -- ReplicatedStorage.WeaponSkins.TempestStrike.Vandal
+	GGAsset_MatchSkins_341 = { ["Length"] = 3.98, ["PreviewGeometry"] = "TempestStrike_Vandal_s08", ["SkinAdsDistance"] = 0.36, ["SkinItem"] = "Vandal", ["SkinLine"] = "TempestStrike", ["SkinReady"] = true, ["SkinSourceAsset"] = 125238445190132, ["SkinVersion"] = "s08", ["SourceAsset"] = 123991644913328, ["WeaponId"] = "Vandal" }, -- ReplicatedStorage.WeaponSkins.TempestStrike.Vandal
 }

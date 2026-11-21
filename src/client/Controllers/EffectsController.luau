@@ -167,6 +167,20 @@ function EffectsController.impact(
 	ImpactFx.impact(position, normal, hit, material, size, noHole, spectral)
 end
 
+-- Our own shot passing through or into something on its path (penetration hits,
+-- bodies): a Tempest-Strike shot draws its own strike there too, never the
+-- orange flash.
+function EffectsController.ownImpact(position: Vector3, normal: Vector3, hit: Instance?)
+	local tempest = tempestShot()
+	ImpactFx.impact(position, normal, hit, nil, nil, false, false, tempest)
+	if tempest and hit and hit:IsA("BasePart") then
+		local model = hit:FindFirstAncestorOfClass("Model")
+		if not (model and model:FindFirstChildOfClass("Humanoid")) then
+			TempestFx.splash(position, normal) -- a wall, not a body (bodies keep the hit puff)
+		end
+	end
+end
+
 function EffectsController.localWallImpact(
 	config: WeaponConfig,
 	position: Vector3,

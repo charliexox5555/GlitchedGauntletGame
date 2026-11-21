@@ -720,7 +720,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 			if h.part.Name == "Head" then
 				predictedHead = true
 			end
-			EffectsController.impact(h.position, -dir, h.part)
+			EffectsController.ownImpact(h.position, -dir, h.part)
 		end
 		table.insert(ends, result.finish)
 		if result.impact then

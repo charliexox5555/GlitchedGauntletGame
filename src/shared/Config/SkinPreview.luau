@@ -114,6 +114,17 @@ return table.freeze({
 		SIGHT_ARC_GAP = { 0.35, 1.1 }, -- ...and the random gap between them
 		SIGHT_SPARK = 0.035,
 		SIGHT_ARC_BRIGHTNESS = 2.6,
+		-- moving parts (s08 rig joints, Util/TempestIdle): springs, degrees
+		VENT_ANGLE = 13, -- the handguard vents' full flare (yaw out about the rear hinge)
+		VENT_ROLL = 6, -- and how far they tip out
+		VENT_FREQ = 7, -- spring frequency (Hz) and damping (<1 overshoots)
+		VENT_DAMP = 0.45,
+		VENT_SHOT_KICK = 9, -- opening speed added per shot (open / s)
+		CRESCENT_DRAW = -180, -- the crescent comes in turned half round
+		CRESCENT_FREQ = 4.5,
+		CRESCENT_DAMP = 0.5,
+		CRESCENT_ADS_KICK = 420, -- degrees / s twist entering ADS (it springs back and locks)
+		CRESCENT_SHOT_KICK = 60, -- a small tick per hip shot, alternating
 		FORM_SOLID = 0.5, -- share of MagIn -> seat the new magazine stays water
 		SHOT_COAT = 0.22, -- a flicker of the coat per hip shot
 		SIGHT_FLASH = 0.8, -- the sight's shimmer entering ADS...
