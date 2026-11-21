@@ -52,6 +52,15 @@ Blender-only build of the rest of the Tempest-Strike line, per the [Line Blender
   - Audit: 0 floating, 0 z-fight, 0 open edges, 0 inverted. Ring pommel clear of the hand (ring centre x -0.385, grip -0.24–0.30 round the hand origin). Retracted: the kunai stands alone with a clean pointed tip; extended: the water blade starts inside the kunai, nothing floats between them.
   - **Grade 9/10**: silhouette 9 (reads as the sheet: ring, collar, diamond-wrapped grip, disc guard, black kunai, long water blade) · crispness 9 · layering 9 · connections 9 · ADS n/a · palette 9 (sheet roles: steel ring, collar and guard, leather grip, black blade with silver edges, cyan crack, cyan water) · budget 10 (1,088 vs the sheet's 2,140) · contract 10.
 - **Export s02x** · `art-source/weapons/Skins/TempestStrike/Knife/s02x/Knife_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 7 MeshParts, **1,088 tris**, bones Root + **TS_Katana** (water blade; pivot at the kunai tip x 0.82, for the extension) and **TS_Ring** (pommel ring; pivot at its centre, for the draw twirl), same orientation as Root. `TS Water` exports as SmoothPlastic 40F5D4 (Studio makes it translucent water). One-sided check: no holes, no flipped faces.
+- **s03, full rebuild** (owner on s02: "does not look good; high quality, nice clean shapes; it looks unpolished and unprofessional") (`tempest_kunai/12_s03.py`, opens the stock Knife fresh) · [sheet](out/Knife_s03_review.png) (extended, retracted, first-person) · [close-ups](out/Knife_s03_closeups.png) · **2,396 tris**, 23 parts. What was crude in s02 and what replaced it:
+  - **Grip:** a box with diamond holes punched in it -> a real tsuka-maki: dark core (slightly widening toward the guard) wrapped in alternating 45-degree leather bands (tilted sleeves of the grip section) that cross on each side face; the gaps between crossings are the diamond windows. "Over" bands stand 0.0022 proud of "under" bands, so every crossing is layered. (A groove-lattice try read as scratches and was dropped.)
+  - **Ring and cap:** a thick square 12-gon ring -> a slimmer 16-facet ring with a chamfered section on a short neck into a stepped kashira cap with a silver band; a matching fuchi ferrule at the guard end. Both ferrules stand proud of the bands so the band ends tuck under them.
+  - **Guard stack:** a plain disc -> silver seppa washer, 16-facet tsuba with chamfered rims and a silver rim band, front seppa, and a habaki collar hugging the blade root.
+  - **Kunai blade:** a 5-station diamond that read as a fat spindle -> narrow neck, sharp angled shoulder, dead-straight edges to a true point (apex vertex), centre spine, and the silver edge bevels as their own faces on the same mesh (two materials, no crossing meshes); a tapered etched lightning crack along the spine.
+  - **Water blade:** now stays inside the kunai until its point and flares out of the tip (it broke out through the kunai's flats), 13 stations, gentle upward curve, true point.
+  - Audit: 0 floating, 0 z-fight, 0 open edges, 0 inverted.
+  - **Grade 9/10**: silhouette 9 · crispness 9 · layering 9 · connections 9 · ADS n/a · palette 9 · budget 10 (2,396 ≤ 3.5K) · contract 10.
+- **Export s03x** (supersedes s02x) · `art-source/weapons/Skins/TempestStrike/Knife/s03x/Knife_TempestStrike_RobloxFlat.fbx` + `manifest_flat.json`: 7 MeshParts, **2,396 tris**, bones Root + **TS_Katana** (pivot at the kunai tip, x 0.832) and **TS_Ring** (pivot at the ring centre, x -0.392). One-sided check: no holes, no flipped faces.
 
 ## Hand-back summary (2026-11-22)
 | Item | Grade | Tris | Review sheet | Export |
@@ -60,6 +69,6 @@ Blender-only build of the rest of the Tempest-Strike line, per the [Line Blender
 | Marshal | 9 | 4,432 (+92 stock lens) | [s02](out/Marshal_s02_review.png) | `Marshal/s02x/` (TS_ScopeRingRear/Front, TS_Gate; Lever stock) |
 | Bucky | 9 | 6,018 | [s02](out/Bucky_s02_review.png) | `Bucky/s02x/` (TS_PlateL/R; Pump stock) |
 | Sheriff | 9 | 5,158 | [s02](out/Sheriff_s02_review.png) | `Sheriff/s02x/` (TS_SidePlateL/R; Cylinder, Hammer stock) |
-| Kunai-Katana | 9 | 1,088 | [s02](out/Knife_s02_review.png) | `Knife/s02x/` (TS_Katana, TS_Ring) |
+| Kunai-Katana | 9 | 2,396 | [s03](out/Knife_s03_review.png) | `Knife/s03x/` (TS_Katana, TS_Ring) |
 
 Nothing uploaded or installed. Review PNGs in `out/` are git-ignored (local only), like the Vandal's. Grades are self-grades against the handoff rubric (no blind reviewers this round).
