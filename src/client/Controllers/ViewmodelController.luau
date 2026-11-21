@@ -46,6 +46,7 @@ local MagDrop = require(script.Parent.Parent.Util.MagDrop)
 local FanMotion = require(script.Parent.Parent.Util.FanMotion)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local ShadowMistIdle = require(script.Parent.Parent.Util.ShadowMistIdle)
+local TempestIdle = require(script.Parent.Parent.Util.TempestIdle)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
@@ -137,6 +138,7 @@ type Gun = {
 	batTrails: { Trail }?,
 	fan: FanMotion.Fan?, -- the Giltfold Fan's ribs (Util/FanMotion)
 	shadowMist: ShadowMistIdle.State?,
+	tempest: TempestIdle.State?,
 	shadowActions: ShadowMistActions.State?,
 	cosmeticInspect: CosmeticInspect.State?,
 }
@@ -1042,6 +1044,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	gun.fan = FanMotion.new(m)
 	gun.reaver = RuinedReaver.new(m, scale)
 	gun.shadowMist = if gun.reaver then nil else ShadowMistIdle.new(m, scale)
+	gun.tempest = TempestIdle.new(m, scale)
 	gun.shadowActions = ShadowMistActions.new(m, scale, weapon.id)
 	gun.cosmeticInspect = CosmeticInspect.new(m)
 	local rg, lg = gun.rightGrip, gun.leftGrip
@@ -2815,6 +2818,15 @@ local function update(dt: number)
 			if gun.shadowActions then
 				ShadowMistActions.stepDrop(gun.shadowActions, dt)
 				ShadowMistActions.stepFx(gun.shadowActions, adsAlpha)
+			end
+			if gun.tempest then
+				TempestIdle.step(
+					gun.tempest,
+					dt,
+					visible,
+					(clipName == nil or clipName == "Fire") and not playing.Inspect and lowerT < 0.1,
+					adsAlpha
+				)
 			end
 			if gun.shadowMist then
 				ShadowMistIdle.step(

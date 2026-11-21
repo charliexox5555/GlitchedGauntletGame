@@ -45,6 +45,29 @@ return table.freeze({
 	REMOTE = "PreviewSkinLine",
 	RATE = table.freeze({ 1, 3 }), -- requests per second, burst (Util/RateLimit): a few quick presses, then 1 / s
 	LINES = table.freeze(lines),
+	-- Tempest-Strike idle (Util/TempestIdle): laminar water ribbons along the fore-end,
+	-- a circulating ring at the stock hub, sparse vent sparks. First person only.
+	TEMPEST = table.freeze({
+		LINE = "TempestStrike",
+		WATER = Color3.fromRGB(95, 230, 224),
+		WATER_EDGE = Color3.fromRGB(214, 255, 252),
+		RIBBON_WIDTH = 0.022, -- model studs, scaled with the viewmodel
+		RIBBON_SPEED = 1.2, -- flow scroll (Beam.TextureSpeed)
+		RIBBON_BODY = 0.45, -- transparency of the continuous water line
+		FLOW_TILE = 0.25, -- flow streak texture length (studs, scaled)
+		HELIX_LIFT = 0.02, -- clearance off the fore-end surface
+		HELIX_TURNS = 1.25, -- wraps around the fore-end
+		HELIX_POINTS = 14,
+		RING_SPEED = 1.4,
+		RING_RADIUS = 0.058,
+		SPARK_RATE = 5, -- per arc emitter (two on the handguard top)
+		SPARK_SIZE = 0.05,
+		SPARK_LIFE = NumberRange.new(0.10, 0.17),
+		LIGHT_BRIGHTNESS = 0.9,
+		LIGHT_RANGE = 1.1,
+		ADS_RIBBON = 0.35, -- ribbon opacity kept at full ADS
+		ADS_SPARK_CUTOFF = 0.5, -- sparks stop above this aim weight
+	}),
 	SHADOW_MIST = table.freeze({
 		LINE = shadowMistLine,
 		PERIOD = 3.35,

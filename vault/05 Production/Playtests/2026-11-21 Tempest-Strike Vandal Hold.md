@@ -16,3 +16,13 @@ The viewmodel kept showing the stock Vandal. Model data now comes from tagged As
 - Owner look in play: is the silver too white under the sun? (Option: Panel colour a step darker or SmoothPlastic + reflectance instead of Metal.)
 - Reload after firing a few shots (magazine leaves and returns with its wraps).
 - Then the idle VFX pass (water ribbons, vent sparks), the fire pass and the actions.
+
+## Idle VFX pass 1 (2026-11-21)
+`src/client/Util/TempestIdle.luau` (hooked into `ViewmodelController` next to the Ruin-Blighted idle; first person only), numbers in `Config/SkinPreview.luau` → `TEMPEST`. Reuses existing VFX textures (no uploads yet).
+- **Water:** two helices half a turn apart wrap the fore-end 1.25 times (handguard into the fluted sleeve, 14 points each, 0.02 off the surface): a continuous thin cyan line (transparency 0.45) with bright flow streaks scrolling along it (`RECON_TRAIL`, speed 1.2). A six-span ring circulates around the stock hub (seen in inspect).
+- **Arcs:** two low-rate white-cyan spark emitters on the handguard top (rate 5, life 0.10-0.17 s, `SPARK`).
+- **Light:** soft cyan point light at the fore-end, gently flickering.
+- **ADS:** ribbons ease to 35%, sparks stop above 50% aim; captured: crescent and aim centre clear, only a faint glint on the front collar.
+- **Reduced motion:** flow scroll and sparks stop. Hidden gun: everything off.
+- Tried and dropped: ribbons along the handguard flanks (the first-person camera barely sees the flanks), the stroke texture alone (read as faint dashes).
+- **Open:** owner look in motion (stills can't show the flow), spark visibility, a dedicated water-ribbon texture if the flow should look more like water than light, low-graphics check.
