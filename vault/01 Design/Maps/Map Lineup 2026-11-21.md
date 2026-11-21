@@ -76,3 +76,4 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
   - New maps use the variants the RIVALS maps themselves use, checked on their parts, after a render test (permissions, folder).
   - Foundry4 goes first.
   - The four new maps (Rooftops4, Greenhouse4, OldTown4 and others) may be retextured once Foundry shows the result.
+  - **Decided (owner, 2026-11-21): yes, retexture after Foundry.** Once Foundry4 shows which RIVALS variants render and look right, the built rotation maps get a RIVALS texture pass: OldTown4, Rooftops4, Greenhouse4, and Wharf / Snowpeak4 / Metro4 where it fits (Arena / Big Arena stay plain by design). It runs in its own session, before Canyon Outpost.
