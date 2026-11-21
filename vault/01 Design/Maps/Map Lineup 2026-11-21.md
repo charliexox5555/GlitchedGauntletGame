@@ -68,3 +68,7 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
   - capture it close at player height from several angles;
   - fix every visible overlap, gap, misalignment, floating prop or inconsistent size before the next chunk.
   Simple decorations (lamps, posts, planters) may be Parts ("those can be built with bricks") when that reads cleaner than a Blender piece: one design per kind, reused everywhere. Textures not over the top. The background outside the bounds matters less. Rooftops4 got a chunk-by-chunk polish pass for this.
+- **RIVALS look, less realism (after a look at Greenhouse4):** "a really good looking map, but there's still those inconsistencies" (a doorstep and the bench's iron handles not lining up, bushes over gaps, a bush texture "a little bit too realistic for the game", some weak models). "I don't really want too realistic in maps." For the next maps: "really take inspiration from the museum ... look how Rivals maps are built and the look of them and the feel of them and the meshes ... we're not really hitting those standards right now."
+  - From Foundry on, each map starts with a written RIVALS build study: their Museum map plus a few others; mesh style, materials, colours, joins, prop scale.
+  - Then build to that stylised standard. RIVALS meshes may be taken (no logos, no scripts).
+  - Greenhouse4 got a polish pass for its list.
