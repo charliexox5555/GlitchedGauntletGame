@@ -524,6 +524,89 @@ Built by `tools/studio/lobby_v5/BuildLocker.luau` into `Workspace.LobbyV5.Shell.
 - The duels bulkhead foot, head and wainscot slopes (34) and the queue-pad dais slopes (32) were built facing the wrong way (small overhangs instead of ramps). Turned in Studio and fixed in `BuildDuels` / `BuildQueueBays`; the pad slope now runs from y -0.46 at the rim to -0.94 at the platform.
 - The coplanar scan of the Locker shows only hidden joints inside the mesh cages.
 
+## Entrances and the shop (2026-11-20)
+
+Owner: the locker "is kind of boring ... add on to it"; the entrances to Duels, Locker, Range and Shop "all need to look better", signs "more professional", "the shop sign is floating", the shop should be "an entrance similar to Rivals", not "one little area"; entrances "like Rivals and have different logos ... not as neon-y ... extravagant".
+
+**RIVALS studied (read-only, one capture):** the MARKET entrance is a chunky light pier frame with a dark lit tunnel behind; the logo is a big badge on the frame face (word plus swoosh in a neon outline on a dark backing mesh, self-lit SurfaceGui images at Brightness 3 to 3.5); yellow accent bands and a floor stripe lead in. We took the structure (portal + badge + lead-in), not the look.
+
+**Kit:** `tools/studio/lobby_v5/LobbyKit.luau`, installed in the place as the ModuleScript `ServerStorage.V5Kit.LobbyKit` (build scripts `require` a fresh clone; game code never touches it).
+- `K.badge`: the area logo. Dark gunmetal plate with two cut corners (top-left, bottom-right), a soft accent rim behind it, and a self-lit SurfaceGui face (LightInfluence 0, Brightness 1.15). Face: the HUD icon in black on an accent tile, the word in Rubik Heavy Italic, and a `»` subtitle in Rubik Bold. The plate is sized to its text (TextService). It stands off its wall on brackets and has a small accent light.
+- `K.gateway`: the entrance frame:
+  - Concrete piers and header the full depth of the doorway, with a fascia over the rock gap.
+  - Proud pilasters on plinths, each with a sloped cap and an inset panel.
+  - A cornice with a sloped cap.
+  - A soft accent light line in a dark channel beside each pilaster, and a lit reveal ring set back in the opening.
+  - Cut top corners, a lintel beam with downlights, and a diamond-plate threshold.
+  - The badge on stand-offs, washed by two small lamps under the cornice.
+  - Neon is the accent at 42% darker, so it glows without shouting.
+- Area colours and icons are the lobby HUD's tags:
+
+  | Area | Colour | Icon |
+  |---|---|---|
+  | Locker | `3fe0f2` | locker |
+  | Shop | `ffc83d` | bag |
+  | Pass | `b58cff` | chevron shield |
+  | Range | `2bd9a8` | target |
+  | Duels | `ff6248` (new, red-orange) | the Play mark |
+
+**Built** (`BuildGateways.luau`, 177 pieces):
+
+| Gateway | Opening | Badge |
+|---|---|---|
+| Duels | 34 x 18 | DUELS » 1V1 · 2V2 · 3V3 |
+| Locker | 14 x 13 | LOCKER » LOADOUT · SKINS |
+| Range | 16 x 12, still shuttered | RANGE » COMING SOON |
+| Shop | 14 x 12.5 | SHOP » ITEM SHOP · BATTLE PASS |
+
+Also in this script:
+- The old jambs, lintels, the shop counter facade, its canopy sign (the floating one) and the four flat signs are removed. The duels buttresses and the range back stay.
+- The range shutter is now a ribbed roller door in guide rails.
+- The hub's floor lane lines lead into each opening, 0.6 inside the edge. The Locker's carry on inside at the same spacing.
+
+**Shop** (`BuildShop.luau`, 287 pieces, gold accent, `Workspace.LobbyV5.Shell.Shop`):
+- **Storefront:** concrete wings either side of the gateway. Each has a lit display window: light backdrop, steel casing and sill, glass, a gold uplight, and a pedestal with a standing gun (Vandal / Phantom). The S window carries the `ShopWindow` SeasonMount.
+- **Vestibule:** mirrors the locker's.
+- **Room:** 44 x 48, height 18, charcoal board walls, a soffit with a warm cove, and 4 ceiling lights.
+- **Featured podium:** chamfered tiers, a turntable with a turning Operator, a narrow spot, and a gold floor diamond. Gold lane lines lead to it from the door.
+- **Gun wall:** 3 x 2 backlit bays with hoods, downlights and tag plates, showing each player's own skins.
+- **Battle Pass bay:** a framed purple panel with a BATTLE PASS badge, three plinths with cases and a purple glow, and the `LobbyBattlePass` prompt.
+- **Counter:** a leaning front, a steel top, a gold lip, and a terminal screen with the shop icon. The `LobbyShop` prompt is in front.
+- **Back wall:** a steel slat wall over gold-lit slots, carrying a MARKET » OPEN NOW badge, with stock shelves of cases either side.
+- **The Broker** (from `LobbyV4Staging`), scaled 1.5 and placed clear of the badge. His V4 "vest" was a loose 5.7-stud box that read as a purple block; it and his sash are now fitted to the torso.
+
+**Locker polish** (`PolishLocker.luau`, cyan accent):
+- The yellow floor lines turned cyan; the workbench keeps its hazard stripes.
+- A painted floor emblem at the entry: the locker icon in a cut-corner outline.
+- A cyan belt line on the N and S walls, with painted labels "BAY A · 01–18" and "BAY B · 19–36" over the lockers.
+- Three steel I-beams and two octagonal air ducts, with flanges, clamps and vents.
+- Kit bags and a helmet on the benches, and box stacks in the corners. The locker tops are sloped crowns, so nothing sits on them.
+- The gun wall's lightbox is replaced by the LOCKER badge on the soffit face.
+
+**Checks:**
+- **Captures:** all four gateways from the hub, the shop front and room, the locker before and after, a wide hub shot, and play-mode shots of the shop and locker.
+- **Exact overlap audit (GetPartsInPart) of every new part.** What remains is deliberate seats:
+  - each badge's rim behind its plate;
+  - thresholds and the shutter in the floor;
+  - window sills into the wing sides;
+  - the BP rim into its wall;
+  - the bag straps on the bench pads;
+  - the duct clamps into the beam flanges.
+  - The diagonal duels buttresses still run through the new piers, as they did through the old pillars.
+- **Fixed during the checks:**
+  - gear sunk in the locker crowns;
+  - the Broker into the badge and the counter;
+  - a range rail into the cut;
+  - lane lines that ran into plinths.
+- **Playtest:** prompts live (Open Shop / Market, Battle Pass / Season 1, Open Locker, Talk to the Armorer). Wall and stand guns show the player's skins. No new console errors.
+- White outfits blew out under the ceiling spots, so the locker and shop ceiling spots went from 2.3 / 2.2 to 1.7, fill from 0.8 to 1.0, and the podium spot from 2.6 to 1.5.
+
+**Open:**
+- The Broker has no Talk line (no `Talk` attribute in V4).
+- The Range is still shut.
+- The colour and prop pass is still to come.
+- The place is **not saved**.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
