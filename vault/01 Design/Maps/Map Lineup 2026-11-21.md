@@ -5,7 +5,7 @@ The rotation after OldTown4 has four regular maps (Arena, Pier, Wharf, Snowpeak;
 | # | Map | Size / teams | From | Idea | Gap it fills |
 |---|---|---|---|---|---|
 | 1 | **Rooftops** ✅ built 2026-11-21 as [Rooftops4](Rooftops4.md), in rotation | regular, 1v1-2v2 | old Rooftops 1-3 | a city block at blue hour / night: team roofs over a sunken pit, a water-tank tower, plank bridges and catwalks, neon icon signs (no text) | night, verticality |
-| 2 | **Greenhouse** | regular, 1v1-2v2 | old Greenhouse 1-3 | a Victorian iron-and-glass conservatory: planting beds as cover, a lily pond, an iron gallery at +10. Plants are RIVALS plant meshes + LeafyGrass hedges (never low-poly trees) | green, glass interior |
+| 2 | **Greenhouse** ✅ built 2026-11-21 as [Greenhouse4](Greenhouse4.md), in rotation | regular, 1v1-2v2 | old Greenhouse 1-3 | a Victorian iron-and-glass conservatory: planting beds as cover, a lily pond, an iron gallery at +10. Plants are RIVALS plant meshes + LeafyGrass hedges (never low-poly trees) | green, glass interior |
 | 3 | **Foundry** | regular, 1v1-2v2 | old Foundry | a steel works at night: a glowing molten channel down the middle, a ladle cart, the furnace as the landmark, catwalks, a gantry crane | warm industrial interior |
 | 4 | **Canyon Outpost** | regular, 1v1-2v2 | new (2026-11-03 idea list) | a sun-baked mining outpost in a red canyon: water tower, trading post, mine-cart track; cliffs are the bounds | hot palette |
 | 5 | **Castle** | large, **3v3 only** (owner) | new | a hilltop fortress: an inner courtyard, curtain walls with ramparts (high ground), a keep as the landmark, a gatehouse a side, forest past the bounds | new theme, verticality |

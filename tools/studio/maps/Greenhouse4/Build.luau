@@ -56,7 +56,7 @@ end
 local L = {
 	lawn = look(hex("7FA05A"), "G4_Lawn", Enum.Material.Grass),
 	lawnPark = look(hex("789A55"), "G4_Lawn", Enum.Material.Grass),
-	gravel = look(hex("D6CBB2"), "G4_Gravel", Enum.Material.Ground),
+	gravel = look(hex("C2AE8A"), "G4_Gravel", Enum.Material.Ground), -- warmer than the paving so paths read
 	tile = look(hex("C27456"), "G4_Tile", Enum.Material.Slate),
 	paving = look(hex("CDC3AE"), "G4_Paving", Enum.Material.Limestone),
 	stone = look(hex("D9CAAA"), "G4_Stone", Enum.Material.Limestone),
@@ -666,6 +666,26 @@ return function(): string
 		end
 	end
 	-- a flower border: a low stone kerb with LeafyGrass foliage and a flowering top in the side colour
+	-- a RIVALS shrub mesh stretched to a box (flowering patches in the borders)
+	local function shrub(parent: Instance, size: Vector3, cf: CFrame, colour: Color3)
+		local src = ServerStorage.MapKit.Greenhouse4Rivals.G4R_Bush01c:FindFirstChildWhichIsA(
+			"MeshPart",
+			true
+		)
+		assert(src, "missing G4R_Bush01c mesh")
+		local p = src:Clone()
+		p.Size = size
+		p.CFrame = ORIGIN * cf
+		p.Color = colour
+		p.Anchored = true
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CanTouch = false
+		p.CastShadow = false
+		p.Parent = parent
+		count += 1
+	end
+	-- a flower border: a low stone kerb, soil, and a row of flowering shrub patches (every third one green)
 	local function flowers(
 		parent: Instance,
 		x0: number,
@@ -678,33 +698,35 @@ return function(): string
 		ring(parent, "BorderKerb", x0, x1, z0, z1, -0.15, 0.32, 0.15, L.stone, T)
 		box(
 			parent,
-			"BorderLeaves",
+			"BorderSoil",
 			V(x0 + 0.1, 0.0, z0 + 0.1),
-			V(x1 - 0.1, 0.6, z1 - 0.1),
-			L.leafy,
-			true,
+			V(x1 - 0.1, 0.28, z1 - 0.1),
+			L.soil,
+			false,
 			T
 		)
-		local n = math.max(2, math.floor((x1 - x0) / 1.6))
-		for i = 0, n - 1 do
-			local a = x0 + 0.3 + (x1 - x0 - 0.6) * i / n
-			local b = a + (x1 - x0 - 0.6) / n - 0.25
-			local zz0 = z0 + 0.3 + rng:NextNumber() * 0.2
-			local zz1 = z1 - 0.3 - rng:NextNumber() * 0.2
-			local top = 0.85 + rng:NextNumber() * 0.25
-			box(
+		col("BorderCol", V(x0, 0, z0), V(x1, 0.9, z1), T)
+		-- one continuous green bed, flowering clumps of varied width on top
+		shrub(
+			parent,
+			V(x1 - x0 - 0.3, 0.55, z1 - z0 - 0.3),
+			T * CFrame.new((x0 + x1) / 2, 0.47, (z0 + z1) / 2),
+			L.leafy.color
+		)
+		local x = x0 + 0.5
+		while x < x1 - 1.2 do
+			local w = 1.2 + rng:NextNumber() * 1.4
+			local x2 = math.min(x + w, x1 - 0.4)
+			local h = 0.3 + rng:NextNumber() * 0.15
+			local dz = (rng:NextNumber() - 0.5) * 0.3
+			local c = colour:Lerp(hex("F2E2D6"), rng:NextNumber() * 0.3)
+			shrub(
 				parent,
-				"Flowers",
-				V(a, 0.5, zz0),
-				V(b, top, zz1),
-				look(
-					colour:Lerp(hex("F5E6D8"), rng:NextNumber() * 0.25),
-					nil,
-					Enum.Material.LeafyGrass
-				),
-				false,
-				T
+				V(x2 - x, h, z1 - z0 - 0.75),
+				T * CFrame.new((x + x2) / 2, 0.62 + h / 2, (z0 + z1) / 2 + dz),
+				c
 			)
+			x = x2 + 0.35 + rng:NextNumber() * 0.5
 		end
 	end
 	-- a kit rail run along a line at floor y (posts at every joint) with a hop-over collision strip
@@ -759,6 +781,7 @@ return function(): string
 		local m = kit("G4LampPost", parent, T * CFrame.new(x, -0.02, z))
 		for _, d in m:GetDescendants() do
 			if d:IsA("BasePart") and string.find(d.Name, "_G4_Lamp") then
+				d.Color = hex("B09270") -- a warm glow (lighter lenses clip to white)
 				light(d, 14, 0.8, hex("FFD9A0"))
 			end
 		end
@@ -1092,16 +1115,21 @@ return function(): string
 		box(f, "BoilerFlue", V(50.9, 28.0, 27.1), V(52.3, 29.4, 28.5), L.ironDark, false, T)
 		door(f, V(50, 0, 36.5), V(0, 0, 1), 3.4, 6.8, sd.door, T)
 		window(pf, V(54.5, 3, 31), V(1, 0, 0), T)
+		window(pf, V(48.4, 3, 25.5), V(0, 0, -1), T)
 		-- the garden shed (painted timber, slate roof)
 		house(f, "Shed", CFrame.new(66, 0, 10) * yaw(90), 12, 8, 8.4, 2.2, L.shed, T)
 		door(f, V(62, 0, 10), V(-1, 0, 0), 3.2, 6.4, sd.door, T)
 		window(pf, V(62, 2.6, 5.4), V(-1, 0, 0), T)
 		window(pf, V(62, 2.6, 14.6), V(-1, 0, 0), T)
 		-- the yew alcove with a bench
-		hedge(f, 62, 70.3, 25, 35, 0.03, 8.5, L.yew, T, true)
-		bench(pf, 60.1, 30, -90, T)
+		hedge(f, 66.5, 70.3, 25, 35, 0.03, 8.5, L.yew, T, true) -- a U of clipped yew round a bench
+		hedge(f, 62, 66.6, 25.1, 27.6, 0.03, 8.4, L.yew, T, true)
+		hedge(f, 62, 66.6, 32.4, 34.9, 0.03, 8.4, L.yew, T, true)
+		bench(pf, 64.6, 30, -90, T)
 		-- the rock garden (+4): ashlar mass, coping, gravel top, rails, steps on its south side
 		box(f, "RockGarden", V(54, -0.18, 51), V(70.3, 3.7, 73), L.stone, true, T)
+		ring(f, "RockGardenBase", 54, 70.3, 51, 73, -0.18, 0.7, 0.15, L.stoneDark, T)
+		ring(f, "RockGardenBand", 54, 70.3, 51, 73, 2.3, 2.62, 0.1, L.stoneDark, T)
 		ring(f, "RockGardenCoping", 54.4, 70.3, 51.4, 72.6, 3.65, 4.05, 0.55, L.stoneDark, T, true)
 		skin(f, "RockGardenTop", 54.6, 70.2, 51.6, 72.4, 4.0, L.gravel, T)
 		for k = 0, 7 do
@@ -1264,7 +1292,7 @@ return function(): string
 					T
 						* CFrame.new(x, -0.1, 116 + rng:NextNumber() * 8)
 						* yaw(rng:NextNumber() * 360),
-					0.55 + rng:NextNumber() * 0.2
+					0.42 + rng:NextNumber() * 0.15
 				)
 			end
 			plant(
@@ -1282,7 +1310,7 @@ return function(): string
 				"G4R_Pine",
 				wf,
 				T * CFrame.new(86 + rng:NextNumber() * 8, -0.13, z) * yaw(rng:NextNumber() * 360),
-				0.5 + rng:NextNumber() * 0.2
+				0.42 + rng:NextNumber() * 0.15
 			)
 			plant(
 				"G4R_PineFar",

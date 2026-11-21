@@ -73,6 +73,13 @@ local MAPS: { [string]: Map } = {
 		size = Vector3.new(260, 120, 300),
 		beds = { { id = "sfx:AmbCity", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.2 } },
 	},
+	-- Greenhouse4 (2026-11-21): the Victorian conservatory in a walled garden, 140 x 196 at (6000, 200, 40000); the box
+	-- takes in the garden walls. Beds only.
+	Greenhouse4 = {
+		center = Vector3.new(6000, 210, 40000),
+		size = Vector3.new(200, 80, 240),
+		beds = { { id = "sfx:AmbWind", volume = 0.16 } },
+	},
 	-- Rooftops4 (2026-11-21): the city block at blue hour, 140 x 192 at (6000, 200, 33000); the box takes in the
 	-- alleys and the street below. Beds only.
 	Rooftops4 = {

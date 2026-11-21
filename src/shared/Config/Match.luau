@@ -35,6 +35,7 @@ return table.freeze({
 		{ id = "Wharf", minTeam = 1, maxTeam = 2 }, -- 2026-11-20, vault/01 Design/Maps/Wharf.md
 		{ id = "Snowpeak4", name = "Snowpeak", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/Snowpeak4.md
 		{ id = "Rooftops4", name = "Rooftops", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/Rooftops4.md
+		{ id = "Greenhouse4", name = "Greenhouse", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/Greenhouse4.md
 		{ id = "BigArena", name = "Big Arena", minTeam = 2, maxTeam = 3 },
 		{ id = "Dockyard", minTeam = 2, maxTeam = 3 },
 		{ id = "Metro4", name = "Metro", minTeam = 2, maxTeam = 3 }, -- 2026-11-20, vault/01 Design/Maps/Metro4.md
