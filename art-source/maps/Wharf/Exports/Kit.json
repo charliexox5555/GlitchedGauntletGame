@@ -1,0 +1,474 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "MountainA": {
+   "props": {},
+   "parts": [
+    "MountainA_R_RockDark",
+    "MountainA_R_Grass",
+    "MountainA_R_Rock"
+   ]
+  },
+  "MountainB": {
+   "props": {},
+   "parts": [
+    "MountainB_R_RockDark",
+    "MountainB_R_Grass",
+    "MountainB_R_Rock"
+   ]
+  },
+  "MountainC": {
+   "props": {},
+   "parts": [
+    "MountainC_R_RockDark",
+    "MountainC_R_Grass",
+    "MountainC_R_Rock"
+   ]
+  },
+  "QuayCrane": {
+   "props": {},
+   "parts": [
+    "QuayCrane_K_Steel",
+    "QuayCrane_Y_CraneDark",
+    "QuayCrane_Y_Crane",
+    "QuayCrane_K_House",
+    "QuayCrane_K_Glass"
+   ]
+  },
+  "Ship": {
+   "props": {},
+   "parts": [
+    "Ship_S_HullRed",
+    "Ship_S_Hull",
+    "Ship_S_Deck",
+    "Ship_S_BoxA",
+    "Ship_S_BoxB",
+    "Ship_S_BoxC"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "MountainA",
+   "name": "MountainA_R_RockDark",
+   "material": "R_RockDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E716C"
+   },
+   "glow": false,
+   "tris": 417,
+   "center": [
+    0.0,
+    0.0,
+    137.72473
+   ],
+   "size": [
+    660.0,
+    600.0,
+    299.44946
+   ]
+  },
+  {
+   "piece": "MountainA",
+   "name": "MountainA_R_Grass",
+   "material": "R_Grass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "71875C"
+   },
+   "glow": false,
+   "tris": 262,
+   "center": [
+    0.0,
+    0.0,
+    80.26761
+   ],
+   "size": [
+    660.0,
+    600.0,
+    184.53522
+   ]
+  },
+  {
+   "piece": "MountainA",
+   "name": "MountainA_R_Rock",
+   "material": "R_Rock",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A8C86"
+   },
+   "glow": false,
+   "tris": 137,
+   "center": [
+    0.0,
+    0.0,
+    137.72473
+   ],
+   "size": [
+    660.0,
+    600.0,
+    299.44946
+   ]
+  },
+  {
+   "piece": "MountainB",
+   "name": "MountainB_R_RockDark",
+   "material": "R_RockDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E716C"
+   },
+   "glow": false,
+   "tris": 302,
+   "center": [
+    0.0,
+    0.0,
+    61.45602
+   ],
+   "size": [
+    840.0,
+    400.0,
+    146.91203
+   ]
+  },
+  {
+   "piece": "MountainB",
+   "name": "MountainB_R_Grass",
+   "material": "R_Grass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "71875C"
+   },
+   "glow": false,
+   "tris": 377,
+   "center": [
+    0.0,
+    0.0,
+    63.6022
+   ],
+   "size": [
+    840.0,
+    400.0,
+    151.20441
+   ]
+  },
+  {
+   "piece": "MountainB",
+   "name": "MountainB_R_Rock",
+   "material": "R_Rock",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A8C86"
+   },
+   "glow": false,
+   "tris": 133,
+   "center": [
+    0.0,
+    0.0,
+    63.6022
+   ],
+   "size": [
+    840.0,
+    400.0,
+    151.20441
+   ]
+  },
+  {
+   "piece": "MountainC",
+   "name": "MountainC_R_RockDark",
+   "material": "R_RockDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E716C"
+   },
+   "glow": false,
+   "tris": 164,
+   "center": [
+    0.0,
+    0.0,
+    20.91273
+   ],
+   "size": [
+    400.0,
+    360.0,
+    65.82546
+   ]
+  },
+  {
+   "piece": "MountainC",
+   "name": "MountainC_R_Grass",
+   "material": "R_Grass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "71875C"
+   },
+   "glow": false,
+   "tris": 261,
+   "center": [
+    0.0,
+    0.0,
+    26.7383
+   ],
+   "size": [
+    400.0,
+    360.0,
+    77.4766
+   ]
+  },
+  {
+   "piece": "MountainC",
+   "name": "MountainC_R_Rock",
+   "material": "R_Rock",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A8C86"
+   },
+   "glow": false,
+   "tris": 15,
+   "center": [
+    0.0,
+    0.0,
+    24.18234
+   ],
+   "size": [
+    400.0,
+    360.0,
+    72.36468
+   ]
+  },
+  {
+   "piece": "QuayCrane",
+   "name": "QuayCrane_K_Steel",
+   "material": "K_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4B5058"
+   },
+   "glow": false,
+   "tris": 332,
+   "center": [
+    16.95394,
+    0.0,
+    38.60632
+   ],
+   "size": [
+    106.28592,
+    31.0,
+    77.21264
+   ]
+  },
+  {
+   "piece": "QuayCrane",
+   "name": "QuayCrane_Y_CraneDark",
+   "material": "Y_CraneDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A9802F"
+   },
+   "glow": false,
+   "tris": 768,
+   "center": [
+    13.95,
+    0.0,
+    40.5
+   ],
+   "size": [
+    100.7,
+    29.0,
+    78.2
+   ]
+  },
+  {
+   "piece": "QuayCrane",
+   "name": "QuayCrane_Y_Crane",
+   "material": "Y_Crane",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9A73E"
+   },
+   "glow": false,
+   "tris": 448,
+   "center": [
+    17.0,
+    0.0,
+    40.99026
+   ],
+   "size": [
+    110.0,
+    26.0,
+    74.78052
+   ]
+  },
+  {
+   "piece": "QuayCrane",
+   "name": "QuayCrane_K_House",
+   "material": "K_House",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B7B9BC"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.3,
+    0.0,
+    45.65
+   ],
+   "size": [
+    72.6,
+    11.0,
+    16.1
+   ]
+  },
+  {
+   "piece": "QuayCrane",
+   "name": "QuayCrane_K_Glass",
+   "material": "K_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2E3440"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    1.85,
+    0.0,
+    44.7
+   ],
+   "size": [
+    69.7,
+    11.36,
+    13.0
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_S_HullRed",
+   "material": "S_HullRed",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8C4438"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    -2.0
+   ],
+   "size": [
+    150.0,
+    22.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_S_Hull",
+   "material": "S_Hull",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F4A57"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    15.0
+   ],
+   "size": [
+    150.0,
+    22.0,
+    30.0
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_S_Deck",
+   "material": "S_Deck",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9C6BE"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    -65.0,
+    0.0,
+    16.5
+   ],
+   "size": [
+    12.0,
+    25.0,
+    15.0
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_S_BoxA",
+   "material": "S_BoxA",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9AA0A8"
+   },
+   "glow": false,
+   "tris": 896,
+   "center": [
+    -0.8,
+    0.0,
+    14.125
+   ],
+   "size": [
+    108.4,
+    21.0,
+    10.25
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_S_BoxB",
+   "material": "S_BoxB",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B8873A"
+   },
+   "glow": false,
+   "tris": 812,
+   "center": [
+    -0.8,
+    0.0,
+    14.125
+   ],
+   "size": [
+    108.4,
+    21.0,
+    10.25
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_S_BoxC",
+   "material": "S_BoxC",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E7F8F"
+   },
+   "glow": false,
+   "tris": 952,
+   "center": [
+    -0.8,
+    0.0,
+    14.125
+   ],
+   "size": [
+    108.4,
+    21.0,
+    10.25
+   ]
+  }
+ ],
+ "tris": 6532
+}

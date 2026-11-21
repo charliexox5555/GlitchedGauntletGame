@@ -48,7 +48,8 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Maps/Jump Audit 2026-11-13.md` (8): every map checked against the 4.4 jump (measured reach: ledge 7.5, gap 9 at sprint); owner chose keep the jump, fix the maps: Dockyard got 4 step crates, nothing else was a designed loss
 - `01 Design/Maps/Map Quality Standard.md` (22): the bar for every map rebuild: pipeline, hard rules, audits, blind score ≥ 8.5
 - `01 Design/Maps/Arena.md` (6): Arena + Big Arena (redesign batch 1): owner calls, v2 build (plain parts, 5-stud module, two greys, grid tile), layout checks vs RIVALS, playtest, test list
-- `01 Design/Maps/Pier and Dockyard.md` (6): redesign batch 2: port kit module, layout checks, greybox builder, container kit test, ChatGPT concept prompts, test list
+- `01 Design/Maps/Wharf.md` (18): new regular map (1v1-2v2) after RIVALS Docks: Docks measurements, layout checks, build log, palette v2, audits (z-fight 0, floating 0), reach + spawn balance, playtest walk, what to test
+- `01 Design/Maps/Pier and Dockyard.md` (11): redesign batch 2: port kit module, layout checks, greybox builder, container kit test, the see-through container fix (2026-11-20), ChatGPT concept prompts, test list
 - `01 Design/Spawn Hold.md` (2): pre-round ghost hold at open-floor markers (no spawn nooks), why, build plan
 - `01 Design/Maps/Overnight Run 2026-11-16.md` (6): all 13 release maps built overnight: method, origins, incident and repair, status table (layout, greybox, kit, grade), checks, builder additions
 - `01 Design/Maps/Map Lineup Brainstorm 2026-11-16.md` (7): why RIVALS maps work (10 points with numbers), our extra needs (slide, Mods), a 12-map proposed lineup with duel/big pairs and a launch set of 6, owner questions
@@ -150,6 +151,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Daily Log/YYYY-MM-DD.md`: one note per work day (only 2026-10-26 so far)
 - `05 Production/Playtests/2026-11-14 Full-Length Gun Audio.md`: match-range roster checks, full Vandal tail and 70-shot positional overlap, hit and metallic headshot playback.
 - `05 Production/Playtests/2026-11-15 Gunplay Feel RIVALS.md`: RIVALS-style hit marker (kite blades, shrink spring), faceted headshot crown burst, crosshair slide tilt / air / Dash / bloom / ADS collapse, springy slide roll, RIVALS tracer timing; RIVALS numbers, grades, test list, parked calls.
+- `04 Tech/Prompts/2026-11-20 Docks Map Build.md` (4): owner calls + prompt for the new RIVALS-Docks-style regular map, the Pier/Dockyard see-through container fix, and pulling the 9 rejected overnight maps from rotation
 - `04 Tech/Prompts/2026-11-17 New Abilities (Free Pack).md`: **locked spec** for three new free Mods (Roller bot, Flash, Shock Dart): every level's numbers, the owner's 8 decisions, build order and per-Mod steps. Not built yet.
 - `05 Production/Handoff - New Abilities.md`: paste-to-start handoff for building those three Mods: phases (Shock Dart, Flash, Roller, finish), rules, gotchas from the rework.
 - `05 Production/Playtests/2026-11-17 Free Pack Build.md`: Shock Dart, Flash and Roller built and checked in Play at their levels; the fixes found in the test, grades, what still needs the 2-client test.

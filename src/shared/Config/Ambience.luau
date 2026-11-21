@@ -48,6 +48,16 @@ local MAPS: { [string]: Map } = {
 		},
 		room = { id = "sfx:AmbRoom", volume = 0.55 }, -- inside the sheds
 	},
+	-- Wharf (2026-11-20): the morning container wharf, pier 130 x 185 at (6000, 200, 6000); the box takes in
+	-- the berth, the crane and the water round the pier. Beds only (no emitters placed yet).
+	Wharf = {
+		center = Vector3.new(6010, 215, 6000),
+		size = Vector3.new(360, 160, 420),
+		beds = {
+			{ id = "sfx:AmbHarbour", volume = 0.45 },
+			{ id = "sfx:AmbWind", volume = 0.26 },
+		},
+	},
 	-- The older maps: beds only (a hook; no emitters or rooms placed yet). Boxes
 	-- are 300 x 220 x 360 around each map's world origin (maps sit 1500 apart).
 	Dockyard = {

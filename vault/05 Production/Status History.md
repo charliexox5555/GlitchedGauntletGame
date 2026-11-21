@@ -1,5 +1,29 @@
 # Status History
 
+<!-- moved from Home 2026-11-20 (maps: Wharf) -->
+- **Animation pass (2026-11-20 to 21, three rounds, done; feel grades provisional until the owner plays).**
+  - **First person, guns:**
+    - Sniper lens no longer shows in ADS.
+    - The slide and ADS roll the gun, crosshair and reticle together.
+    - Gun clips run on splines.
+    - The Marshal hammer pop is fixed.
+    - Ruin-Blighted Operator bolt: no arm through the gun.
+    - Stinger and Outlaw reloads are clear; the Outlaw got a steeper barrel roll (owner's pick).
+  - **Melee:**
+    - Reaver follow-throughs are about 2.5x longer (score 9.3).
+    - Bat heavy no longer reads sideways.
+    - Fan inspect is now a low, long fanning from the wrist.
+    - The knife idle never freezes.
+  - **Mods:**
+    - First-person score 5.3 → **9.3**: held items sit at RIVALS' numbers, the throw coil is bigger, and the throw leaves at the hand's release (`Config/Mods THROW_RELEASE`, owner's pick).
+    - Third-person Mod clips are at 8.5-9.
+  - **Third person:**
+    - Clips re-keyed on splines; the knee floor limit is in the crouch walks.
+    - **TpIk stays off** (the clips look the same, and IK had hidden bot and swap issues); its better look-down head is now in the clips.
+    - **Save the match place** to keep the cleared TpIk attribute.
+  - **Skin rule locked:** third-person motion and sound are the same for every skin.
+  - **Git:** all committed locally, not pushed.
+
 <!-- moved from Home 2026-11-20 (UI polish pass) -->
 - **Results crash and state migration (2026-11-19).** The results screen handled a six-fighter snapshot over 1,024 bytes in Studio. A 2v2 bot run reached results and rematched. Lobby and Match gameplay use state values and shared asset configuration. The scene migrations are staged in both open Studio places. [State contract and test results](../04%20Tech/State%20Values%20and%20Asset%20Data.md)
 - **Gun and round balance (2026-11-19).** Operator body hits leave full-health fighters standing. Odin has a slower spin-up and thin-cover penetration. Gun lineups rotate each round, Sheriff is offered in round two, and Mod cards vary by seat. [Balance sheet](../01%20Design/Gun%20Balance.md) · [Studio playtest](Playtests/2026-11-19%20Gun%20and%20Round%20Balance.md)

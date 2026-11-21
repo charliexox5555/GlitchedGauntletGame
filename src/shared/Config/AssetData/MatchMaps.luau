@@ -413,4 +413,6 @@ return {
 	GGAsset_MatchMaps_408 = { ["Team"] = "Blue" }, -- Workspace.Whitebox.Spawns.Spawn_Blue4
 	GGAsset_MatchMaps_409 = { ["Team"] = "Yellow" }, -- Workspace.Whitebox.Spawns.Spawn_Yellow3
 	GGAsset_MatchMaps_410 = { ["UpTransparency"] = 0.59999999999999998 }, -- Workspace.OldTown.Barriers.BarrierB_E
+	GGAsset_MatchMaps_411 = { ["KillDepth"] = 6, ["LayoutVersion"] = "v1 2026-11-20 RIVALS Docks flow" }, -- Workspace.Wharf
+	GGAsset_MatchMaps_412 = { ["Ambient"] = Color3.fromRGB(122, 128, 142), ["Brightness"] = 3, ["ClockTime"] = 10.5, ["ColorShift_Top"] = Color3.fromRGB(255, 240, 220), ["EnvironmentDiffuseScale"] = 0.45, ["EnvironmentSpecularScale"] = 0.1, ["ExposureCompensation"] = 0.2, ["GeographicLatitude"] = 30, ["OutdoorAmbient"] = Color3.fromRGB(160, 170, 190), ["ShadowSoftness"] = 0.2 }, -- Workspace.Wharf.Lighting
 }
