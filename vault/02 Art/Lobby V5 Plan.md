@@ -607,6 +607,104 @@ Also in this script:
 - The colour and prop pass is still to come.
 - The place is **not saved**.
 
+## Character pass plan (2026-11-20)
+
+Owner, after the entrances pass: the badges "look too generic ... don't fit the theme ... not much character"; liked the V4 signs more (not to copy); the locker floor logo goes; entrances "still need a little improving" ("Rivals ... cool entrances"); the Range entrance "very similar to Rivals": a big bay door opening, then a hologram mini of the range, and a themed landmark at the back (a placeholder for now; the range itself is not built); "intricate designs ... support beams and all those aspects ... that really brings it together".
+
+**What gives RIVALS and V4 their character (studied):**
+- RIVALS: neon-outline words with arrows or icons that break the sign's outline, tilted down at the spawn; small slanted label tags ("UGC SHOP", "SEASON 3 / FAME"); stencilled wall text ("HOLOBAY 01"); caution plates; crates with logos; yellow accent bands; chunky capsule lamps; heavy ribbed frames.
+- RIVALS range: two giant dark bay-door leaves parked open, a cyan holo grid curtain over a miniature simulated range, neon SHOOTING RANGE letters with a target for the O, a floor stencil ("LARGE SCALE SIMULATION") and warning plates by the door.
+- V4 (our own): a sculpted sign in layers (dark plate, steel trim, glowing outline, white letters) shaped like an arrow, with a 3D emblem (crossed swords) breaking out of its left end.
+
+**Plan:**
+1. **Sign kit v2 (K.sign):** a hanging sign in layers built from Parts, tilted down at the hub:
+   - a slanted plate with a steel frame and an accent inlay line;
+   - a faceted medallion with a 3D emblem per area breaking out of the left end:
+     - Duels: clashing chevrons
+     - Locker: padlock
+     - Shop: bag
+     - Range: crosshair
+     - Pass: star chevron
+   - extruded letters: stacked Rubik Heavy Italic layers;
+   - a slanted sub-tag;
+   - hangers, bolts and its own lamps.
+   It replaces every badge (gateways, MARKET, BATTLE PASS, LOCKER). The locker floor emblem is removed.
+2. **Entrances v2:** steel added to each gateway: a header I-beam with knee braces, column caps and bolts, hazard kick plates, a gate ID stencil, a caution plate, a status lamp, conduit to a junction box, and floor chevrons into the door.
+3. **Range bay entrance:** a 22 x 15 bay door frame with two ribbed leaves parked open on a top rail, beacons, caution plates and a sim bay behind it (about 46 x 30), containing:
+   - a holo projector plinth with a translucent neon miniature range (lanes, targets, cover, towers) and projection beams;
+   - a holo grid screen with neon RANGE letters;
+   - a lattice landmark frame at the back as a season mount (placeholder);
+   - a floor stencil.
+4. **Structure:** steel columns at the hub's octagon corners up to a ring beam, with knee braces, base plates and cable trays, set clear of the doors, lamps and pipes.
+5. Captures, overlap audit, playtest, then this note.
+
+## Character pass built (2026-11-20)
+
+**Signs v2** (`tools/studio/lobby_v5/LobbySigns.luau` → module `ServerStorage.V5Kit.LobbySigns`; placed by `BuildSigns.luau`). Each sign is a hanging, layered Part sign, tilted down at the viewer:
+- a slanted dark plate in a steel frame, with accent inlay lines top and bottom;
+- a faceted octagon medallion that breaks out of the left end: a steel back, an accent ring, a dark face and a 3D emblem in the area colour;
+- extruded letters: three dark layers behind a bright Rubik Heavy Italic face with a thin ink stroke;
+- a slanted accent sub-tag under the right end;
+- hanger rods, clamps and bolts.
+
+Rubik isn't installed locally, so the letters are stacked SurfaceGui layers, not meshes; they keep the game font exactly.
+
+| Sign | Emblem | Where |
+|---|---|---|
+| Duels | `versus` (two chevrons facing, a spark) | gateway |
+| Locker | `padlock` | gateway, and hung over the gun wall |
+| Shop | `bag` | gateway; MARKET hangs over the counter |
+| Battle Pass | `rank` (stacked chevrons and a gem) | on its panel |
+| Range | `crosshair` | stands on the bay girder |
+
+The old badges and wash lamps are gone, and so is the locker floor emblem.
+
+**Entrance steel** (`S.gatewaySteel`) on Duels, Locker and Shop:
+- two I-beam outriggers on bearing pads over the cornice, with knee braces, carrying the sign;
+- steel capitals with bolts on the pilasters;
+- hazard kick plates in the jambs;
+- a gate ID plate (D-01, L-02, S-03) and a caution or notice plate: "FIGHTERS ONLY", "GEAR UP BEFORE DUELS", "NO REFUNDS";
+- a green status lamp, and a conduit with a junction box (Locker only: Duels has buttresses there, Shop's piers are too narrow);
+- three floor chevrons into each door.
+
+The Duels season screen went up 5 to clear the outriggers.
+
+**Range bay** (`BuildRangeBay.luau`, `Hub.RangeBay`, 333 pieces). It replaces the shuttered gateway; the range itself is not built.
+- **Frame:** a 24 x 16 opening with steel-clad piers, rivets and hazard bands; a stiffened girder; two amber beacons; corner gussets; a fascia and coping; R-04, warning and caution plates.
+- **Doors:** two ribbed leaves on a track, parked open with hazard edges, trolleys and a floor guide channel. The passage between them is 12 wide.
+- **RANGE sign:** stands on posts on the girder. The south screen went up 6.
+- **Sim bay:** 24 x 30 x 18, with steel H-columns and knee braces, I-beams across, ceiling lights and a "SIMULATION BAY 04" floor stencil. It contains:
+  - a walk-through holo grid curtain just inside the doors, reading "LIVE FIRE » COMING SOON";
+  - a faceted projector plinth throwing a translucent miniature range: grid platform, 3 lanes, a firing line, targets, cover and towers, with projection beams;
+  - on the back wall, a steel truss landmark with standalone letters "THE DEEP", lit by two uplights. It is a `SeasonMount` (Slot `RangeLandmark`) for the season's landmark (RIVALS' Rivalwood idea, ours as a placeholder).
+
+**Hub steel** (`BuildHubSteel.luau`, `Hub.Steel`):
+- Four steel H-columns in the rock corners beside the Locker and the Range.
+  - They are placed by raycasts 1.15 in front of the nearest rock or pipe run (the runs pass behind them).
+  - Each has a bolted base plate, a hazard sleeve, collars and tie-backs to the rock at heights clear of pipes.
+  - Three end in caps that carry the cable trays; one runs up into the rock.
+- A box lighting truss between the lift towers at y 27-29.4, with four hanging spot lamps.
+- Two first tries failed and were fixed:
+  - Header beams over the door sides were buried (the upper rock leans in to about 34 from the centre at y 33), so they were dropped.
+  - Columns at R 51 were inside the jagged rock corners (41 to 50 from the centre), so they are placed by raycast instead.
+  - The Shop corners were skipped: columns there block the display windows.
+
+**Checks:**
+- **Captures:** Duels front and side, Locker, Range bay (two angles), the hub's SE corner, and the shop's interior signs.
+- **Exact overlap audit** of every new part (rock excluded). Fixed:
+  - the locker sign's medallion into an I-beam (it hangs lower now);
+  - MARKET into the soffit band (moved 0.6 forward);
+  - the Duels conduit into its buttress (removed);
+  - range rivets under the door plates (removed);
+  - the columns through the pipe runs and trays.
+  - What remains is deliberate seats: mount plates bolted into ceilings, plate edges set into panels, capitals over the pilaster tops, chevrons on the floor.
+- **Playtest:** walked from the hub into the range bay through the curtain; 4 prompts live; no new console errors.
+
+**Open:**
+- The queue bay lightbox signs in the Duels hall are still the old style (MatchLift flashes them, so a restyle must keep their Sign / Face / SurfaceGui contract).
+- The hologram is static (no spinner code).
+- The place is **not saved**.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).

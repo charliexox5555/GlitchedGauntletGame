@@ -2,7 +2,7 @@
 -- Lobby V5 LOCKER polish (vault/02 Art/Lobby V5 Plan.md, "Entrances and the shop"). ONE-TIME placement record run
 -- through the Studio MCP after BuildLocker.luau and BuildGateways.luau. Owner 2026-11-20: "it's just kind of boring
 -- and we should add on to it, but it does look pretty good". Adds, without moving what is there: the room's accent
--- (cyan, the HUD's Locker colour) on the floor lines; a painted floor emblem at the entry; a belt line and painted
+-- (cyan, the HUD's Locker colour) on the floor lines; a belt line and painted
 -- bay labels over the lockers; steel I-beams and two octagonal air ducts under the ceiling; kit bags, helmets and
 -- boxes on the benches and in the corners; and the gun wall's lightbox replaced by the area badge.
 
@@ -33,60 +33,7 @@ for _, p in locker:GetDescendants() do
 	end
 end
 
--- 2. painted floor emblem at the entry: the Locker icon in a cut-corner square outline
-local em = K.model(pol, "FloorEmblem")
-local EX = 62.5
-local face = K.part(
-	em,
-	"Paint",
-	V(4.6, 0.02, 4.6),
-	CFrame.lookAt(K.O + V(EX, 0.03, 0), K.O + V(EX + 1, 0.03, 0)),
-	K.paint(Color3.new(0, 0, 0))
-)
-face.Transparency = 1
-K.ghost(face)
-local g = Instance.new("SurfaceGui")
-g.Face = Enum.NormalId.Top
-g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-g.PixelsPerStud = 50
-g.LightInfluence = 1
-g.Parent = face
-local img = Instance.new("ImageLabel")
-img.BackgroundTransparency = 1
-img.Size = UDim2.fromScale(1, 1)
-img.Image = K.AREA.locker.icon
-img.ImageColor3 = cyanPaint.col
-img.ImageTransparency = 0.15
-img.Parent = g
-local S, C, T = 3.4, 1.0, 0.3 -- outline half size, corner cut, bar width
-for _, b in
-	{
-		{ V(EX - S + C, 0, -S), V(EX + S - C, 0, -S + T) },
-		{ V(EX - S + C, 0, S - T), V(EX + S - C, 0, S) },
-		{ V(EX - S, 0, -S + C), V(EX - S + T, 0, S - C) },
-		{ V(EX + S - T, 0, -S + C), V(EX + S, 0, S - C) },
-	}
-do
-	K.box(em, "Bar", b[1], b[2] + V(0, 0.04, 0), cyanPaint)
-end
-for _, sx in { -1, 1 } do
-	for _, sz in { -1, 1 } do
-		local a = V(EX + sx * (S - C), 0.02, sz * S)
-		local b = V(EX + sx * S, 0.02, sz * (S - C))
-		local d = (b - a)
-		local n = V(-d.Z, 0, d.X).Unit
-		if n:Dot(V(EX, 0, 0) - (a + b) / 2) < 0 then
-			n = -n
-		end
-		K.part(
-			em,
-			"Bar",
-			V(d.Magnitude + 0.25, 0.04, T),
-			CFrame.fromMatrix(K.O + (a + b) / 2 + n * T / 2, d.Unit, K.UP),
-			cyanPaint
-		)
-	end
-end
+-- 2. (a painted floor emblem stood at the entry; the owner did not like it, removed 2026-11-20)
 
 -- 3. belt line and painted bay labels on the north and south walls over the lockers
 for _, w in { { "N", -RZ, 1, "BAY A  ·  01–18" }, { "S", RZ, -1, "BAY B  ·  19–36" } } do
