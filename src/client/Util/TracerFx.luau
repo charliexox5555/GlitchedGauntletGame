@@ -213,7 +213,8 @@ function TracerFx.tracer(
 	to: Vector3,
 	config: WeaponConfig,
 	own: boolean?,
-	colorOverride: Color3?
+	colorOverride: Color3?,
+	wake: string? -- a skin's own wake texture (Tempest-Strike: a water streak)
 )
 	local offset = to - from
 	local dist = offset.Magnitude
@@ -291,8 +292,8 @@ function TracerFx.tracer(
 	t.glow.Transparency = NumberSequence.new(style.glowFade)
 	-- Suppressed rounds leave no trail.
 	t.trailBase = if suppressed then 1 else style.trail
-	t.trail.Texture = if spectral then VFX.FROST_VAPOR else VFX.TRACER_WAKE
-	t.trail.TextureSpeed = if spectral then 0.8 else 0
+	t.trail.Texture = if spectral then (wake or VFX.FROST_VAPOR) else VFX.TRACER_WAKE
+	t.trail.TextureSpeed = if spectral then (if wake then 1.6 else 0.8) else 0
 	t.trail.Width0 = style.trailWidth * 0.5
 	t.trail.Width1 = style.trailWidth
 	t.length = math.min(style.length, dist * 0.6)

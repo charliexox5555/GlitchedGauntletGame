@@ -75,6 +75,7 @@ return table.freeze({
 		ADS_SPARK_CUTOFF = 0.5, -- sparks stop above this aim weight
 		-- shot (Util/TempestFx): shuriken flash, port mist, light pop, splash impacts
 		SHOT_TINT = Color3.fromRGB(120, 240, 236), -- tracer colour
+		TRACER_WAKE = VFX.TEMPEST_WATER_TRACER, -- the tracer's trail: a scrolling water streak
 		FLASH_CORE = Color3.fromRGB(236, 255, 255),
 		FLASH_TIME = 0.055, -- about three frames at 60 fps
 		FLASH_FRONT = VFX.TEMPEST_FLASH_FRONT_2x2,
@@ -90,6 +91,9 @@ return table.freeze({
 		FLASH_LIGHT_RANGE = 8,
 		FLASH_BRIGHTNESS = 1.6, -- under the place Bloom threshold (2)
 		FLASH_LIGHT_TIME = 0.06,
+		MUZZLE_RING_TIME = 0.13, -- the water ring round the bore per shot
+		MUZZLE_RING_SPEED = 2.2,
+		MUZZLE_RING_SIZE = 0.42,
 		-- actions (Util/TempestIdle): draw ring, reload dissolve + gather, inspect float
 		BOOST_SHOT = 0.35, -- conduit flare per shot (0..1, decays at BOOST_DECAY / s)
 		BOOST_SEAT = 0.9, -- flare when the new magazine seats or the draw locks
@@ -112,6 +116,8 @@ return table.freeze({
 		KICK_TIME = 0.24,
 		SEAT_POP = 0.012,
 		HOVER = 0.003,
+		FLOURISH_AFTER = { 7, 11 }, -- seconds standing still before an idle flourish
+		FLOURISH_TIME = 1.8,
 	}),
 	SHADOW_MIST = table.freeze({
 		LINE = shadowMistLine,

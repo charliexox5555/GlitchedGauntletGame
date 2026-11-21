@@ -6,6 +6,7 @@
 -- -Blender X) in the Handle's rest frame, scaled with the viewmodel, and parented to
 -- the part the rig's Root motor drives: recoil, reload and inspect move that part,
 -- not the Handle, so effects on the Handle were left behind (owner 2026-11-21).
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage.Shared
 local StateValues = require(Shared.StateValues)
@@ -36,6 +37,10 @@ export type State = {
 	drawPrev: number?,
 	inspectPrev: number?,
 	cues: { [string]: () -> () },
+	still: number, -- seconds standing idle (no aim, move, shot or action)
+	nextFlourish: number,
+	flourishAge: number,
+	flourish: number, -- which idle flourish (1 wrist turn, 2 sight check)
 	glows: { Glow },
 	ribbons: { Ribbon },
 	sparks: { ParticleEmitter },
@@ -279,6 +284,10 @@ function TempestIdle.new(model: Model, scale: number): State?
 		drawPrev = nil,
 		inspectPrev = nil,
 		cues = {},
+		still = 0,
+		nextFlourish = 0,
+		flourishAge = math.huge,
+		flourish = 1,
 		glows = {},
 		ribbons = {},
 		sparks = {},
@@ -441,6 +450,46 @@ function TempestIdle.step(
 	state.shotAge += s
 	state.popAge += s
 	state.boost = math.max(0, state.boost - s * Style.BOOST_DECAY)
+	-- idle flourishes: after standing still a while the gun turns in the hand
+	-- (a wrist turn or a look down the sight) while the water surges
+	state.flourishAge += s
+	local character = Players.LocalPlayer.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local moving = humanoid ~= nil and humanoid.MoveDirection.Magnitude > 0.1
+	local calm = visible
+		and idle
+		and not reduced
+		and aim < 0.05
+		and not moving
+		and drawP == nil
+		and inspectP == nil
+		and state.timing == nil
+		and state.shotAge > 1.5
+	if calm then
+		state.still += s
+		if state.nextFlourish <= 0 then
+			state.nextFlourish = Style.FLOURISH_AFTER[1]
+				+ math.random() * (Style.FLOURISH_AFTER[2] - Style.FLOURISH_AFTER[1])
+		end
+		if state.still >= state.nextFlourish and state.flourishAge > Style.FLOURISH_TIME then
+			state.flourishAge = 0
+			state.flourish = state.flourish % 2 + 1
+			state.still = 0
+			state.nextFlourish = 0
+			TempestIdle.cue(state, "idleSurge")
+		end
+	else
+		state.still = 0
+		if state.flourishAge < Style.FLOURISH_TIME then
+			-- cut short: let it ease out from where it is over the next 0.25 s
+			state.flourishAge = math.max(state.flourishAge, Style.FLOURISH_TIME - 0.25)
+		end
+	end
+	local fa = state.flourishAge
+	local surge = if fa < Style.FLOURISH_TIME
+		then smooth(0, 0.3, fa) * (1 - smooth(Style.FLOURISH_TIME - 0.5, Style.FLOURISH_TIME, fa))
+		else 0
+	state.boost = math.max(state.boost, 0.45 * surge)
 	local on = visible and state.weight > 0.01
 	-- reload: conduits drain while the magazine is gone, refill as the new one forms
 	local timing = state.timing
@@ -465,7 +514,9 @@ function TempestIdle.step(
 	end
 	local inspecting = inspectP ~= nil
 	local sparksOn = on and not reduced and aim < Style.ADS_SPARK_CUTOFF and state.drain < 0.5
-	local rate = Style.SPARK_RATE * (if inspecting then Style.INSPECT_SPARKS else 1)
+	local rate = Style.SPARK_RATE
+		* (if inspecting then Style.INSPECT_SPARKS else 1)
+		* (1 + 2 * surge)
 	for _, e in state.sparks do
 		e.Rate = rate
 		if e.Enabled ~= sparksOn then
@@ -600,6 +651,26 @@ function TempestIdle.step(
 		-- idle: a faint hover
 		if not reduced and idle then
 			pose *= CFrame.new(0, Style.HOVER * k * math.sin(state.clock * 1.7) * (1 - aim), 0)
+		end
+		-- idle flourish: coil the other way, turn past the pose, settle back
+		if surge > 0 then
+			local coil = smooth(0, 0.12, fa) * (1 - smooth(0.12, 0.3, fa))
+			local w = surge - 0.25 * coil
+			if state.flourish == 1 then
+				-- wrist turn: roll the plates toward the eye, muzzle a touch left
+				pose *= CFrame.new(0, 0.012 * k * w, 0) * CFrame.Angles(
+					math.rad(3) * w,
+					math.rad(-5) * w,
+					math.rad(14) * w
+				)
+			else
+				-- sight check: lift the muzzle and tip it in to look along the top
+				pose *= CFrame.new(0, 0.018 * k * w, 0) * CFrame.Angles(
+					math.rad(8) * w,
+					math.rad(4) * w,
+					math.rad(-6) * w
+				)
+			end
 		end
 	end
 	state.pose = pose

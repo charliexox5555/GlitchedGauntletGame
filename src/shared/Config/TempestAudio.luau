@@ -28,6 +28,7 @@ return table.freeze({
 		draw = cue("draw", 0.55, { 0.97, 1.03 }),
 		drawLock = cue("drawLock", 0.42, { 0.96, 1.04 }),
 		inspect = cue("inspect", 0.5),
+		idleSurge = cue("inspect", 0.22, { 1.05, 1.12 }), -- the idle flourish: the swirl, softer and higher
 		inspectRoll = cue("inspectRoll", 0.6),
 		inspectCatch = cue("inspectCatch", 0.55),
 		magOut = cue("magOut", 0.6, { 0.95, 1.05 }),

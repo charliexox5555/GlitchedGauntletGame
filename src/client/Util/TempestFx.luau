@@ -16,6 +16,7 @@ type Rig = {
 	front: ParticleEmitter,
 	side: ParticleEmitter,
 	mist: ParticleEmitter,
+	ring: ParticleEmitter,
 	light: PointLight,
 	lit: number,
 }
@@ -91,6 +92,22 @@ local function build(muzzle: Attachment, scale: number): Rig
 	mist.Size = seq({ { 0, 0.05 * scale }, { 1, 0.11 * scale } })
 	mist.Transparency = seq({ { 0, 0.2 }, { 0.5, 0.45 }, { 1, 1 } })
 	mist.LockedToPart = false
+	-- ring: a water ring bursting round the bore (the splash sheet, facing down the barrel)
+	local ring = emitter(muzzle, "TempestMuzzleRing", Style.SPLASH)
+	if Style.SPLASH_FLIPBOOK then
+		ring.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+		ring.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+	end
+	ring.Color = ColorSequence.new(Style.WATER_EDGE, rim)
+	ring.LightEmission = 0.8
+	ring.Brightness = Style.FLASH_BRIGHTNESS * 0.8
+	ring.Lifetime = NumberRange.new(Style.MUZZLE_RING_TIME)
+	ring.Speed = NumberRange.new(Style.MUZZLE_RING_SPEED * scale)
+	ring.EmissionDirection = Enum.NormalId.Front
+	ring.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+	ring.Rotation = NumberRange.new(0, 360)
+	ring.Size = seq({ { 0, 0.12 * scale }, { 1, Style.MUZZLE_RING_SIZE * scale } })
+	ring.Transparency = seq({ { 0, 0.1 }, { 0.6, 0.35 }, { 1, 1 } })
 	local light = Instance.new("PointLight")
 	light.Name = "TempestFlashLight"
 	light.Color = rim
@@ -99,7 +116,8 @@ local function build(muzzle: Attachment, scale: number): Rig
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = muzzle
-	local rig: Rig = { front = front, side = side, mist = mist, light = light, lit = -1 }
+	local rig: Rig =
+		{ front = front, side = side, mist = mist, ring = ring, light = light, lit = -1 }
 	rigs[muzzle] = rig
 	return rig
 end
@@ -111,6 +129,7 @@ function TempestFx.flash(muzzle: Attachment, scale: number)
 	rig.side:Emit(1)
 	if not UiMotion.reduced() then
 		rig.mist:Emit(math.random(4, 6))
+		rig.ring:Emit(1)
 	end
 	rig.light.Brightness = Style.FLASH_LIGHT
 	rig.light.Enabled = true

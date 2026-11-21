@@ -112,10 +112,9 @@ local function tempestShot(): boolean
 end
 
 function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
-	local tint = if own
-		then (if tempestShot() then Tempest.SHOT_TINT else shadowShot(config))
-		else nil
-	TracerFx.tracer(from, to, config, own, tint)
+	local tempest = own == true and tempestShot()
+	local tint = if own then (if tempest then Tempest.SHOT_TINT else shadowShot(config)) else nil
+	TracerFx.tracer(from, to, config, own, tint, if tempest then Tempest.TRACER_WAKE else nil)
 end
 
 -- A knife strike on the world: a long thin gouge along `along`, a short wide
