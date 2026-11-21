@@ -47,6 +47,9 @@ local VARIANTS = {
 	G4_Paving = { "Limestone", 10, "130608433991662" },
 	G4_Slate = { "Slate", 8, "132940063953152" },
 	G4_Plate = { "DiamondPlate", 5, "116955307704363" },
+	-- stylised foliage: the RIVALS maps' PineFoliage_01a maps (map textures allowed, owner 2026-11-21; polish pass:
+	-- the plain LeafyGrass leaf litter read too realistic)
+	G4_Foliage = { "LeafyGrass", 10, "88927716299506", "128869074617524" },
 }
 
 type Look = { color: Color3, mat: Enum.Material?, variant: string?, alpha: number? }
@@ -69,9 +72,9 @@ local L = {
 	glass = look(hex("CFE3D8"), nil, Enum.Material.Glass, 0.6),
 	plate = look(hex("6C7468"), "G4_Plate", Enum.Material.DiamondPlate),
 	soil = look(hex("4A3A2C"), nil, Enum.Material.Ground),
-	hedge = look(hex("3F6132"), nil, Enum.Material.LeafyGrass),
-	yew = look(hex("2F4A28"), nil, Enum.Material.LeafyGrass),
-	leafy = look(hex("4C7A38"), nil, Enum.Material.LeafyGrass),
+	hedge = look(hex("4E7A3C"), "G4_Foliage", Enum.Material.LeafyGrass),
+	yew = look(hex("3C6232"), "G4_Foliage", Enum.Material.LeafyGrass),
+	leafy = look(hex("5A8A42"), "G4_Foliage", Enum.Material.LeafyGrass),
 	wood = look(hex("8C6845"), nil, Enum.Material.Wood),
 	shed = look(hex("7E8F6A"), nil, Enum.Material.WoodPlanks),
 	cream = look(hex("EDE6D6"), nil, Enum.Material.Fabric),
@@ -100,6 +103,9 @@ local function ensureVariants()
 			mv.BaseMaterial = (Enum.Material :: any)[v[1]]
 			mv.StudsPerTile = v[2]
 			mv.ColorMap = "rbxassetid://" .. v[3]
+			if v[4] then
+				mv.NormalMap = "rbxassetid://" .. v[4]
+			end
 			mv.MaterialPattern = Enum.MaterialPattern.Regular
 			mv.Parent = MaterialService
 		end
@@ -231,6 +237,10 @@ return function(): string
 		for _, d in m:GetDescendants() do
 			if d:IsA("BasePart") then
 				d.CastShadow = true
+				if d.Material == Enum.Material.LeafyGrass or d.Material == Enum.Material.Grass then
+					d.Material = Enum.Material.LeafyGrass
+					d.MaterialVariant = "G4_Foliage"
+				end
 			end
 		end
 		return m
@@ -365,7 +375,7 @@ return function(): string
 			seg("Jamb", u1, u1 + 0.6, -0.12, H + 0.02, 0.8, L.iron, true)
 			seg("DoorHead", u0 - 0.7, u1 + 0.7, head + lift, head + 0.6 + lift, 0.9, L.iron, true)
 			seg("Glass", u0 - 0.3, u1 + 0.3, head + 0.55 + lift, H - 0.05, 0.2, L.glass, true)
-			seg("Threshold", u0 - 0.1, u1 + 0.1, -0.2, 0.17 + lift, 1.7, L.stone, true)
+			seg("Threshold", u0 - 0.62, u1 + 0.62, -0.2, 0.2 + lift, 1.56, L.stone, true)
 		end
 		for _, y in transoms do
 			seg("Transom", 0, len, y + lift, y + 0.32 + lift, 0.5, L.iron)
@@ -524,17 +534,17 @@ return function(): string
 				lk
 			)
 		end
-		b("DoorSurround", -w / 2 - 0.5, -w / 2 + 0.02, 0.1, h + 0.5, -0.05, 0.3, L.stone)
-		b("DoorSurround", w / 2 - 0.02, w / 2 + 0.5, 0.1, h + 0.5, -0.05, 0.3, L.stone)
+		b("DoorSurround", -w / 2 - 0.5, -w / 2 + 0.02, 0.22, h + 0.5, -0.05, 0.3, L.stone)
+		b("DoorSurround", w / 2 - 0.02, w / 2 + 0.5, 0.22, h + 0.5, -0.05, 0.3, L.stone)
 		b("DoorLintel", -w / 2 - 0.65, w / 2 + 0.65, h + 0.45, h + 1.05, -0.05, 0.37, L.stone)
 		b(
 			"DoorLeaf",
 			-w / 2 + 0.01,
 			w / 2 - 0.01,
-			0.15,
+			0.22,
 			h + 0.48,
 			-0.1,
-			0.12,
+			0.22,
 			look(paint, nil, Enum.Material.WoodPlanks)
 		)
 		b(
@@ -543,11 +553,11 @@ return function(): string
 			w / 2 - 0.05,
 			h * 0.45,
 			h * 0.45 + 0.3,
-			0.1,
 			0.2,
+			0.28,
 			look(paint, nil, Enum.Material.Wood)
 		)
-		b("DoorStep", -w / 2 - 0.4, w / 2 + 0.4, -0.15, 0.22, -0.05, 0.75, L.stone)
+		b("DoorStep", -w / 2 - 0.52, w / 2 + 0.52, -0.15, 0.25, -0.05, 0.8, L.stone)
 	end
 	-- a striped canvas awning on brackets over a door (stripes alternate the side colour and cream)
 	local function awning(
@@ -677,6 +687,7 @@ return function(): string
 		p.Size = size
 		p.CFrame = ORIGIN * cf
 		p.Color = colour
+		p.MaterialVariant = "G4_Foliage"
 		p.Anchored = true
 		p.CanCollide = false
 		p.CanQuery = false
@@ -800,9 +811,44 @@ return function(): string
 			blocker("UrnGuard", V(x - 0.9, y + 3.7, z - 0.9), V(x + 0.9, y + 12, z + 0.9), T)
 		end
 	end
-	local function bench(parent: Instance, x: number, z: number, facing: number, T: CFrame)
-		kit("G4Bench", parent, T * CFrame.new(x, -0.02, z) * yaw(facing))
-		col("BenchCol", V(-3, 0, -1.2), V(3, 1.7, 1.2), T * CFrame.new(x, 0, z) * yaw(facing))
+	-- a garden bench from Parts (polish pass: the kit bench's iron arms didn't line up): two cast-iron end frames
+	-- (front leg into the arm post, back post, seat rail, a wide armrest), wood slats over them. Faces +Z.
+	local function bench(
+		parent: Instance,
+		x: number,
+		z: number,
+		facing: number,
+		T: CFrame,
+		y: number?
+	)
+		local cf = T * CFrame.new(x, y or 0, z) * yaw(facing)
+		local function b(name: string, a: Vector3, c: Vector3, lk: Look)
+			box(parent, name, a, c, lk, false, cf)
+		end
+		for _, s in { -1, 1 } do
+			local x0, x1 = math.min(s * 2.63, s * 2.87), math.max(s * 2.63, s * 2.87)
+			b("BenchLeg", V(x0, 0, 0.62), V(x1, 2.32, 0.86), L.ironDark)
+			b("BenchPost", V(x0, 0, -0.86), V(x1, 3.25, -0.62), L.ironDark)
+			b("BenchRail", V(x0 + 0.02, 1.35, -0.84), V(x1 - 0.02, 1.55, 0.84), L.ironDark)
+			b("BenchArm", V(x0 - 0.03, 2.3, -0.84), V(x1 + 0.03, 2.48, 1.02), L.ironDark)
+			b("BenchFoot", V(x0 - 0.04, 0, 0.56), V(x1 + 0.04, 0.14, 0.92), L.ironDark)
+			b("BenchFoot", V(x0 - 0.04, 0, -0.92), V(x1 + 0.04, 0.14, -0.56), L.ironDark)
+		end
+		b("BenchRail", V(-0.1, 1.35, -0.84), V(0.1, 1.55, 0.84), L.ironDark)
+		for k = 0, 4 do
+			local zc = -0.66 + k * 0.33
+			b(
+				"BenchSlat",
+				V(-2.95, 1.53, zc - 0.13),
+				V(2.95, 1.68 + (k % 2) * 0.01, zc + 0.13),
+				L.wood
+			)
+		end
+		for k = 0, 2 do
+			local y = 1.95 + k * 0.42
+			b("BenchBack", V(-2.75, y, -0.64), V(2.75, y + 0.26, -0.52), L.wood) -- ends inside the posts
+		end
+		col("BenchCol", V(-3, 0, -1), V(3, 1.7, 1.05), cf)
 	end
 
 	--------------------------------------------------------------------------------------------- the middle (both halves)
@@ -829,8 +875,8 @@ return function(): string
 		plant(
 			"G4R_Hedge03a",
 			secPlants,
-			yaw(45 + 99 * k) * CFrame.new(0, 0.42 - 0.04 * k, -2.0 - 0.12 * k) * yaw(90),
-			0.85
+			yaw(45 + 90 * k) * CFrame.new(0, 0.42 - 0.04 * k, -1.75 - 0.03 * k) * yaw(90),
+			0.58
 		)
 	end
 	col("IslandFerns", V(-2.6, 0.5, -2.6), V(2.6, 4.2, 2.6), yaw(45))
@@ -1052,8 +1098,8 @@ return function(): string
 			box(
 				pf,
 				"TopiaryPlinth",
-				V(s * 12 - 1.4, -0.1, 54.6),
-				V(s * 12 + 1.4, 0.9, 57.4),
+				V(s * 12 - 1.7, -0.1, 54.3),
+				V(s * 12 + 1.7, 0.9, 57.7),
 				L.stone,
 				true,
 				T
@@ -1062,7 +1108,7 @@ return function(): string
 				"G4R_Topiary",
 				secPlants,
 				T * CFrame.new(s * 12, 0.88, 56) * yaw(rng:NextNumber() * 90),
-				1.3
+				1.1
 			)
 			col("TopiaryCol", V(s * 12 - 1.3, 0.9, 54.7), V(s * 12 + 1.3, 9, 57.3), T)
 			blocker("TopiaryGuard", V(s * 12 - 1.6, 9, 54.4), V(s * 12 + 1.6, 18, 57.6), T)
@@ -1159,11 +1205,11 @@ return function(): string
 		railRun(pf, V(54.3, 4.0, 72.7), V(70, 4.0, 72.7), T)
 		railRun(pf, V(54.3, 4.0, 51.5), V(57.3, 4.0, 51.5), T)
 		railRun(pf, V(66.7, 4.0, 51.5), V(70, 4.0, 51.5), T)
-		for _, b in { { 58, 64, 0 }, { 66, 58, 70 } } do
+		for _, b in { { 59.5, 64, 0 }, { 65.5, 58, 70 } } do
 			plant("G4R_Bush01c", secPlants, T * CFrame.new(b[1], 4.0, b[2]) * yaw(b[3]), 0.42)
 		end
 		urn(pf, 66, 4.0, 68, T, true)
-		bench(pf, 68.2, 61, -90, T)
+		bench(pf, 68.2, 61, -90, T, 4.0)
 		lampPost(pf, 56.4, 76, T)
 
 		------------------------------------------------------------------------- west flank: the Fern House

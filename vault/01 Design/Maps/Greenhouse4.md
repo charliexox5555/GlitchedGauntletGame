@@ -90,6 +90,14 @@ After the owner's look at Rooftops4 ("go in chunks ... so we don't have to fix t
 | 4. Fern House, west flank | [Fern House](../../02%20Art/References/maps/greenhouse4/chunk4-fern-house.jpg) | Clean (tile floor, beds, staging bench with pots, doors). |
 | 5. Edges, background | [overview](../../02%20Art/References/maps/greenhouse4/build-overview.jpg) | Garden wall and gates clean. Park pines were too big and crowded the walls: scaled down (0.42-0.57). Background stays simple (owner: lower priority). |
 
+## Polish pass (2026-11-21, owner feedback)
+Owner: "it's good ... a really good looking map", but some parts don't line up (the doorstep), the bench's iron arms don't line up, some bushes sit over gaps, and the bush texture is "a little bit too realistic". Fixed:
+- **Foliage:** the RIVALS bushes use a stylised foliage MaterialVariant (`PineFoliage_01a`) that our place didn't have, so they fell back to Roblox's realistic LeafyGrass leaf litter. Its maps are now our `G4_Foliage` (LeafyGrass base); every plant mesh, LeafyGrass hedge, yew and flower bed uses it: soft, calm green, like RIVALS. ([foliage](../../02%20Art/References/maps/greenhouse4/polish-foliage.jpg))
+- **Doorsteps:** each house door's step is as wide as its stone surround, and the leaf and surround stand on it, proud of the base course (the base course used to cross the bottom of the door). The Palm House thresholds run jamb to jamb, as deep as the base course. ([door](../../02%20Art/References/maps/greenhouse4/polish-door-step.jpg), [threshold](../../02%20Art/References/maps/greenhouse4/polish-threshold.jpg))
+- **Bench:** rebuilt from Parts (one design everywhere): square cast-iron end frames (the front leg runs into the arm post, a wide armrest, the back post), a centre rail, wood slats that end inside the frames. The kit `G4Bench` is no longer used. The rock-garden bench now stands on the terrace (+4). ([bench](../../02%20Art/References/maps/greenhouse4/polish-bench.jpg))
+- **Bushes over gaps:** the island planting sits inside the island kerb ([island](../../02%20Art/References/maps/greenhouse4/polish-island.jpg)); the topiary plinths are as wide as the topiary; the rock-garden shrubs moved off the rail line.
+- Audits after the pass: **0 / 0 / 0**.
+
 ## Checks (owner 2026-11-21: build checks only)
 | Check | Result |
 |---|---|
