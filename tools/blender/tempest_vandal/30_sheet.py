@@ -3,8 +3,8 @@ exec(open(r"C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/tools/ble
 import numpy as np
 ROOT = r"C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/"
 TAG = globals().get("TAG", "r01")
-bpy.ops.wm.save_as_mainfile(filepath=ROOT + "art-source/weapons/Skins/TempestStrike/Vandal/%s/Vandal_TempestStrike_%s.blend" % (TAG, TAG))
-names = [["hero", "rear34"], ["left", "right"], ["fp", "stock_left"]]
+bpy.ops.wm.save_as_mainfile(filepath=ROOT + "art-source/weapons/Skins/TempestStrike/Vandal/%s/Vandal_TempestStrike_%s.blend" % (TAG, TAG)) if not globals().get("NOSAVE") else bpy.ops.wm.save_mainfile()
+names = globals().get("NAMES", [["hero", "rear34"], ["left", "right"], ["fp", "stock_left"]])
 TW, TH = 800, 400
 sheet = np.zeros((TH * 3, TW * 2, 4), dtype=np.float32); sheet[..., 3] = 1
 for r, row in enumerate(names):
@@ -15,11 +15,14 @@ for r, row in enumerate(names):
 		h, w = a.shape[:2]
 		y0 = (h - TH) // 2
 		a = a[y0:y0 + TH, :TW]
-		sheet[(2 - r) * TH:(3 - r) * TH, c * TW:(c + 1) * TW] = a
+		t = np.zeros((TH, TW, 4), dtype=np.float32); t[..., :3] = 0.42; t[..., 3] = 1
+		x0 = (TW - a.shape[1]) // 2
+		t[:a.shape[0], x0:x0 + a.shape[1]] = a
+		sheet[(2 - r) * TH:(3 - r) * TH, c * TW:(c + 1) * TW] = t
 		bpy.data.images.remove(im)
 img = bpy.data.images.new("sheet", TW * 2, TH * 3, alpha=True)
 img.pixels[:] = sheet.ravel()
 out = ROOT + "vault/02 Art/Skins/TempestStrike/out/Vandal_%s_review.png" % TAG
 img.filepath_raw = out; img.file_format = "PNG"; img.save()
 bpy.data.images.remove(img)
-result = {"sheet": out, "blend": bpy.data.filepath, "tris": tris(list(bpy.data.collections["COL_Model"].all_objects))}
+result = {"sheet": out, "blend": bpy.data.filepath, "tris": tris([o for c in globals().get("TRIS_COLLS", ["COL_Model"]) for o in bpy.data.collections[c].all_objects if not o.get("ts_replaced")])}

@@ -58,7 +58,7 @@ light("LGT_Fill", "AREA", (0.6, -3.0, 1.2), (70, 0, 0), 70, 1.5, (0.85, 0.9, 1.0
 light("LGT_Rim", "AREA", (-2.5, 0.5, 2.5), (0, -45, 0), 160, 2.0)
 light("LGT_Top", "AREA", (0.7, 0, 3.5), (0, 0, 0), 120, 3.0)
 for o in bpy.data.objects:
-	if o.name in ("Light",):
+	if o.name in ("Light",) or o.name.startswith(("Range", "Target")) or (o.type == "LIGHT" and not o.name.startswith("LGT_")):
 		o.hide_render = True
 
 cam_d = bpy.data.cameras.get("CAM_Review") or bpy.data.cameras.new("CAM_Review")
@@ -73,12 +73,21 @@ def aim(loc, tgt):
 	cam.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 ref = bpy.data.collections.get("REF_Stock")
-model = bpy.data.collections.get("COL_Model")
+class _Multi:
+	def __init__(self, cs): self.cs = [c for c in cs if c]
+	@property
+	def all_objects(self): return [o for c in self.cs for o in c.all_objects]
+	@property
+	def hide_render(self): return False
+	@hide_render.setter
+	def hide_render(self, v):
+		for c in self.cs: c.hide_render = v
+model = _Multi([bpy.data.collections.get(n) for n in globals().get("MODEL", "COL_Model").split(",")])
 def show(c, on):
 	if c:
 		c.hide_render = not on
 		for o in c.all_objects:
-			if o is not None and o.type == "MESH" and not o.name.startswith("CUT_"):
+			if o is not None and o.type == "MESH" and not o.name.startswith(("CUT_", "TS_CUT_")) and not o.get("ts_replaced"):
 				o.hide_render = not on
 out = []
 def shoot(name, ortho=None, lens=50, res=(1600, 800)):
