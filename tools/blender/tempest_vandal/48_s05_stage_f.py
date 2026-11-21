@@ -37,7 +37,7 @@ for n, (hx, r, mt) in FIN.items():
 # ---------- handle: clean faceted shell in the stock hand envelope, leather bands + cyan conduits ----------
 hide(["Vandal_Grip", "TS_WrapGrip0", "TS_WrapGrip1", "TS_WrapGrip2", "TS_WrapGrip3"])
 # horizontal sections down the raked grip: (z, front x, back x, half width)
-GS = [(0.150, 0.128, -0.082, 0.052), (0.060, 0.112, -0.090, 0.054), (-0.060, 0.072, -0.122, 0.055),
+GS = [(0.196, 0.134, -0.104, 0.046), (0.150, 0.128, -0.098, 0.052), (0.060, 0.112, -0.094, 0.054), (-0.060, 0.072, -0.122, 0.055),
 	(-0.200, 0.028, -0.150, 0.054), (-0.290, -0.006, -0.156, 0.050), (-0.302, -0.010, -0.150, 0.046)]
 def gsec(z, xf, xb, hw):
 	cx, hd = (xf + xb) / 2, (xf - xb) / 2
@@ -64,7 +64,7 @@ def band(name, lo, hi, tilt, mat, lift, thick):
 	p.modifiers.move(p.modifiers.find("Thick"), 0)
 	return p
 # grip-axis offsets (17 deg rake): bands from just under the receiver to the cap, alternating tilt
-B = [(-0.040, 0.010, 8), (0.022, 0.072, -8), (0.084, 0.134, 8), (0.146, 0.196, -8), (0.208, 0.258, 8)]
+B = [(-0.040, 0.010, 6), (0.022, 0.072, 6), (0.084, 0.134, 6), (0.146, 0.196, 6), (0.208, 0.258, 6)]
 for i, (lo, hi, t) in enumerate(B):
 	band("TSF_GripWrap%d" % i, lo, hi, t, "Grip", 0.0010, 0.0055)
 	if i < len(B) - 1:
@@ -88,7 +88,7 @@ def gband(path, th):
 			k = 1.0 / max(0.45, Vector((-t0.y, t0.x)).dot(n))
 		left.append(tuple(p + n * th * 0.5 * k)); right.append(tuple(p - n * th * 0.5 * k))
 	return left + right[::-1]
-path = [(0.105, 0.040), (0.150, 0.004), (0.360, 0.004), (0.405, 0.036), (0.424, 0.094)]
+path = [(0.078, 0.062), (0.150, 0.004), (0.360, 0.004), (0.405, 0.036), (0.424, 0.094)]
 new_obj("TSF_TriggerGuard", prism_xz(gband(path, 0.015), -0.013, 0.013), "Body", like="Vandal_Grip", bevel=0.0012)
 spur = [(0.360, -0.004), (0.430, 0.010), (0.442, 0.020), (0.404, 0.030), (0.372, 0.008)]
 new_obj("TSF_GuardSpur", prism_xz(spur, -0.009, 0.009), "Panel", like="Vandal_Grip", bevel=0.0008)
@@ -96,8 +96,29 @@ under = [(0.165, -0.0045), (0.355, -0.0045), (0.348, 0.0005), (0.172, 0.0005)]
 new_obj("TSF_GuardPlate", prism_xz(under, -0.010, 0.010), "Panel", like="Vandal_Grip", bevel=0)
 
 # ---------- blade trigger (rides the Trigger bone) ----------
-trig = [(0.198, 0.150), (0.226, 0.150), (0.224, 0.120), (0.231, 0.096), (0.247, 0.066), (0.238, 0.060), (0.216, 0.086), (0.205, 0.116)]
+trig = [(0.198, 0.176), (0.226, 0.176), (0.224, 0.120), (0.231, 0.096), (0.247, 0.066), (0.238, 0.060), (0.216, 0.086), (0.205, 0.116)]
 new_obj("TSF_Trigger", prism_xz(trig, -0.0075, 0.0075), "Panel", like="Vandal_Trigger", bevel=0.0008)
 hide(["Vandal_Trigger"])
+
+# ---------- pins: drop stock pin heads under the new plates or on replaced parts ----------
+pins = dup("Vandal_Pins", "TSF_Pins")
+bm = bmesh.new(); bm.from_mesh(pins.data); mw = pins.matrix_world; bm.transform(mw)
+seen = set(); dead = []
+for v in bm.verts:
+	if v in seen:
+		continue
+	isl = []; st = [v]
+	while st:
+		a = st.pop()
+		if a in seen:
+			continue
+		seen.add(a); isl.append(a); st += [e.other_vert(a) for e in a.link_edges]
+	c = sum((x.co for x in isl), Vector()) / len(isl)
+	under_plate = 0.0 <= c.x <= 1.06 and 0.345 <= c.z <= 0.41
+	replaced_area = c.x > 1.04 or c.x < -0.17
+	if under_plate or replaced_area:
+		dead += isl
+bmesh.ops.delete(bm, geom=dead, context="VERTS")
+bm.transform(mw.inverted()); bm.to_mesh(pins.data); bm.free()
 bpy.ops.wm.save_mainfile()
 result = {"made": sorted(o.name for o in TS.objects if o.name.startswith("TSF_"))}

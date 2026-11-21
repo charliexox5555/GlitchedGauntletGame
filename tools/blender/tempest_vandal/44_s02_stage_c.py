@@ -54,6 +54,9 @@ bmesh.ops.delete(bm, geom=ring, context="FACES")
 bnd = [e for e in bm.edges if e.is_boundary]
 if bnd:
 	bmesh.ops.holes_fill(bm, edges=bnd, sides=0)
+bnd = [e for e in bm.edges if e.is_boundary]
+if bnd:
+	bmesh.ops.triangle_fill(bm, use_beauty=True, use_dissolve=False, edges=bnd)
 bm.transform(mw.inverted()); bm.to_mesh(base.data); bm.free()
 def crescent(ro, ri, off, gap, n=22):
 	a0, a1 = math.radians(90 + gap), math.radians(90 - gap + 360)
@@ -139,8 +142,8 @@ if not st.get("slim"):
 
 # ---------- hydro inlays + stock blade ----------
 for s in (1, -1):
-	surface_plate("Vandal_Receiver", "TSC_HydroRec%+d" % s, [(0.06, 0.3455), (1.00, 0.3455), (1.02, 0.3485), (1.00, 0.3515), (0.06, 0.3515), (0.04, 0.3485)],
-		s, lift=0.0004, thick=0.0016, mat="Neon")
+	surface_plate("Vandal_Receiver", "TSC_HydroRec%+d" % s, [(0.09, 0.3455), (0.97, 0.3455), (0.99, 0.3485), (0.97, 0.3515), (0.09, 0.3515), (0.07, 0.3485)],
+		s, lift=0.0009, thick=0.0016, mat="Neon")
 	surface_plate("Vandal_Stock", "TSC_StockBlade%+d" % s, [(-0.300, 0.405), (-1.000, 0.405), (-1.085, 0.390), (-1.010, 0.358), (-0.360, 0.358)],
 		s, lift=0.0008, thick=0.0045, mat="Panel")
 bpy.ops.wm.save_mainfile()

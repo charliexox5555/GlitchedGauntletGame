@@ -175,7 +175,7 @@ def surface_plate(src, name, outline, side, lift=0.0008, thick=0.0055, mat="Pane
 	keep = set()
 	for f in bm.faces:
 		cc = f.calc_center_median()
-		if f.normal.y * side > 0.55 and inside(cc.x, cc.z):
+		if f.normal.y * side > 0.55 and cc.y * side > 0.02 and inside(cc.x, cc.z):
 			keep.add(f)
 	bmesh.ops.delete(bm, geom=[f for f in bm.faces if f not in keep], context="FACES")
 	bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(1.0), verts=bm.verts[:], edges=bm.edges[:])
@@ -187,7 +187,7 @@ def surface_plate(src, name, outline, side, lift=0.0008, thick=0.0055, mat="Pane
 	p.parent = o.parent; p.parent_type = o.parent_type; p.parent_bone = o.parent_bone
 	p.matrix_parent_inverse = o.matrix_parent_inverse.copy(); p.matrix_basis = o.matrix_basis.copy()
 	me.materials.append(bpy.data.materials[mat])
-	so = p.modifiers.new("Thick", "SOLIDIFY"); so.thickness = thick; so.offset = 1.0 if side > 0 else -1.0
+	so = p.modifiers.new("Thick", "SOLIDIFY"); so.thickness = thick; so.offset = 1.0
 	so.use_even_offset = True; so.use_rim = True
 	finish_like_stock(p, w=0)
 	return p
