@@ -1,4 +1,6 @@
-# OldTown4 (Old Town remade): concept round
+# OldTown4 (Old Town remade)
+
+**Status (2026-11-21): built v1 and in rotation** (shown as **OLD TOWN**, 2v2-3v3). The owner picked Collina; the build is below in [Build v1](#build-v1-2026-11-21). **Save the match place.** The concept round that led here follows the build section.
 
 The owner's next map after the 2026-11-21 playtest round: **"a new Old Town, similar type but remade with our ideas, based on OldTown2"**. Concept first (owner, 2026-11-21): this note, two layout directions and the concept-image prompts; nothing is built until the owner picks. Map id `OldTown4`, shown as **OLD TOWN**. The old `OldTown`, `OldTown2` and `OldTown3` stay in the place untouched.
 
@@ -93,6 +95,17 @@ Our concept-image workflow: ChatGPT makes the concept images from these prompts,
 3. **Canale, overview:** "A bird's-eye concept of an Italian canal town designed as a competitive shooter map. A canal crosses the middle; at its centre a covered stone bridge with arches (you can walk on it and under it), two smaller flat bridges at the sides. Each side has a piazza with a fountain, an arcade house with a roof terrace, a cafe with tables and umbrellas, market stalls, quay houses with boats tied up. The canal continues beyond the map between houses toward a lagoon. Cream, ochre and rose stucco, stone, terracotta roofs, blue and green shutters. Golden hour. Stylised, clean, readable, not cartoony. No text, logos or people."
 4. **Props sheet (either option):** "A clean prop sheet for a stylised Italian old town shooter map: a stone fountain with a basin and a carved column, a market stall with a striped awning and crates of fruit, a stone well with a small roof and crank, a cafe table set with chairs and a parasol, a wooden hand cart, terracotta planters with clipped shrubs, a wall lantern, a wooden door with iron studs, shuttered windows with stone frames. Consistent warm palette, golden-hour lighting, white background. No text or logos."
 
+### Concept PNGs (2026-11-21)
+
+| View | Concept |
+|---|---|
+| Collina overview | [collina-overview.png](../../../art-source/maps/OldTown4/concepts/collina-overview.png) |
+| Collina player view | [collina-player-view.png](../../../art-source/maps/OldTown4/concepts/collina-player-view.png) |
+| Canale overview | [canale-overview.png](../../../art-source/maps/OldTown4/concepts/canale-overview.png) |
+| Shared prop kit | [old-town-props-sheet.png](../../../art-source/maps/OldTown4/concepts/old-town-props-sheet.png) |
+
+Original generated concepts. The Collina views share the tower, loggia, fountain and market palette. Use the Collina v2 layout below for exact route positions and elevations, which vary between the renders. The Canale image shows all three bridges across the main canal. The props sheet groups the nine requested prop types. Ready for the owner's art review.
+
 ## Owner pick (2026-11-21)
 **Collina (the hill town).** Canale is parked. Next: the Collina layout iterated to the standard (below), then concept images (prompts above) approved before any build.
 
@@ -127,7 +140,87 @@ Same plan image, iterated: `vault/02 Art/References/maps/oldtown4/oldtown4-hill-
 - "stone steps up the side of the loggia";
 - "a well and a kiosk in the lower streets".
 
-## Owner decisions needed
-1. **Direction:** A (Canale) or B (Collina), or a mix (for example the hill with a bridge).
-2. **Size:** large 2v2-3v3 (planned) or regular 1v1-2v2.
-3. **Concept images:** run the prompts above (or have me adjust them first), then approve one image per view before the build.
+## Owner decisions (resolved 2026-11-21)
+1. **Direction:** Collina (Canale parked).
+2. **Size:** large 2v2-3v3.
+3. **Concept images:** in (above). Owner: "pretty realistic looking, but it's all right. Let's go ahead and build it. Don't have to build to the T the images ... use good judgment."
+
+## Build v1 (2026-11-21)
+Built in the match place at **(6000, 200, 26000)** (`Workspace.OldTown4`) by `tools/studio/maps/OldTown4/Build.luau` (run: copy to `src/shared/_DevBuild/`, `require(<clone>)()`). Parts carry OldTown2's own MaterialVariants (`OT2_Stucco / Ashlar / Paving / Cobble / Terracotta / Plank`). The props and details come from a new Blender kit, `tools/blender/maps_oldtown4/` (`oldtown4_pieces.py`, `run_oldtown4.py` renders, `run_oldtown4_export.py`), uploaded as asset 100833762894900 and installed as `ServerStorage.MapKit.OldTown4`. 6,708 parts.
+
+| Overview | From the lower street | Hill piazza |
+|---|---|---|
+| ![overview](../../02%20Art/References/maps/oldtown4/build-overview.jpg) | ![street](../../02%20Art/References/maps/oldtown4/build-street.jpg) | ![piazza](../../02%20Art/References/maps/oldtown4/build-piazza.jpg) |
+| **House bridge over the east alley** | **Spawn terrace view** | |
+| ![bridge](../../02%20Art/References/maps/oldtown4/build-bridge.jpg) | ![vista](../../02%20Art/References/maps/oldtown4/build-spawn-vista.jpg) | |
+
+**What's built.** Layout v2 rows, with the A half turned 180° for B.
+
+**The middle:**
+- the +7 hill piazza: ashlar retaining walls with pilasters, a stone coping, paving bands, a wall fountain on the flank;
+- a brick **clock tower** (40) on an ashlar plinth, with stone quoins, string courses, slit windows, four kit clock faces and the kit belfry (bell, tiled pyramid roof).
+
+**Each half:**
+- **Climbs:**
+  - a 14-step stone **stepped street** between ashlar cheek walls with potted newels;
+  - a cobbled **ramp** with stone cordonata edges.
+- **On the hill:** a planter with a clipped LeafyGrass hedge, a high-backed stone bench, the edge balustrade, the kit pavilion.
+- **Lower street:**
+  - the kit fountain on a bordered paving square;
+  - the market stall (side-coloured stripes);
+  - the well, a hand cart with a crate;
+  - a kiosk shop;
+  - a votive shrine (a painted niche with lit candles).
+- **Loggia house:**
+  - a five-bay kit arcade portico with a timbered ceiling;
+  - a +12 roof terrace with kit balustrades, a pergola with a vine, cafe sets, a roof hut;
+  - a stone stair with a landing on the east side;
+  - stone steps up the west side (3.5 → 7 → 12);
+  - a cafe front on the north street.
+- **Long house:** three storeys, shops with striped awnings, a balcony, a garden wall and a garden.
+- **House bridges over both flank alleys:** an ashlar pier, stone lintels, a timber ceiling, a lantern.
+- **Town gate:** brick with merlons, a voussoir arch, closed doors, lanterns. It stays a baffle in front of the spawn.
+- **Corner houses** round the spawn terrace, which ends in a balustrade over the drop.
+- **Washing lines** across both alleys.
+
+**Facades** come from one `house()` routine:
+- a rusticated ground storey or base course, a string course, a two-step cornice;
+- long/short stone quoins on the dressed corners;
+- kit windows with side-coloured shutters (A green, B blue), kit doors with doorsteps, shop fronts with awnings, lanterns, balconies;
+- terracotta gable roofs with ridge rolls and chimneys.
+
+**The world past the bounds:** row houses face the flank alleys (dressed fronts). The town stands on an ashlar plinth above a valley: a lower town of simple houses 26 below the spawn terraces, fields, kit cypress lines, and a ring of faceted kit hills (allowed for far shapes). Golden hour (authored data 417 / 418) with a warm haze (`LightingFx`).
+
+**Judgment calls against the concepts / layout v2:**
+- **Loggia stair:** its landing sits at z 31-35.5, so you arrive on the terrace facing the middle. The stair moved 1.5 toward the spawn.
+- **House bridges:** each got a 2.5 x 10 pier on the alley's inner side to carry it.
+- **Town gate:** kept closed (a blind gate) so it stays a baffle.
+- **Loggia stair's outer wall:** ashlar, 2.3 above the steps. A tall pink wall read as a blank wedge from the piazza.
+- **Roof hut:** 8.4 tall, so its roof is out of jump reach.
+- **Cypress:** used only past the bounds (the kit cypress is lumpy up close; no low-poly greenery in play). Hedges are LeafyGrass Parts.
+
+**Kit (22 pieces, 46.7k tris):**
+- Fountain, Well, MarketStall, Cart, CafeSet, PlanterBox, PotBush;
+- WallLantern, WindowUnit, DoorUnit, ArcadeBay, Balustrade5, BalPost;
+- BelfryTop, ClockFace, Pavilion;
+- CypressA/B, Bush, HillA/B/C.
+
+Close-ups: `vault/02 Art/References/maps/oldtown4/kit-*.png`. The float audit found the belfry, pavilion and well roofs resting on nothing. Fixed in the kit: a hidden roof core under the tile courses, king posts and gable rafters on the well, and a bell beam carried into the piers.
+
+**From the RIVALS maps:** nothing used. The own kit covered every need; the candidates above stay available.
+
+| Check | Result |
+|---|---|
+| Z-fight (`Audit.luau`) | **0** (from 1,104 on the first build: cornice rings and gable ends sharing planes, stacked bands, neighbours at equal heights) |
+| Floating (`FloatAudit.luau`) | **0** |
+| Coincident slopes (`SlopeAudit.luau`) | **0** |
+| Reach (`ReachCheck.luau`) | spawn → own hill piazza 91 studs (4.3 s), own terrace 88 (4.2 s), enemy terrace 181, enemy spawn 214 (10.2 s), A and B alike. Nothing above the terrace landing walls (+15) is reachable. |
+| Roofs out of play | The first check found a route: loggia stair → terrace balustrade → roof hut → house bridges → every roof. Fixed with: rail guards (invisible, shots pass) over the terrace balustrades, the roof hut raised, a blocker over the kiosk roof and one on the fountain's top. |
+| Playtest | `LockMap = OldTown4`: loads in a 2v2 with bots, lighting applied, no errors |
+| Layout numbers | as layout v2 (0 pinches, first sight 3.8 s, longest line 224) |
+
+**Waiting on the owner:**
+- play it, especially the loggia terrace and the hill fights;
+- **save the match place.**
+
+Studio's own Lighting properties (ClockTime etc.) were changed for preview captures. Every map applies its own lighting on load, so match play doesn't use them.

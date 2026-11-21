@@ -1,5 +1,8 @@
 # Status History
 
+<!-- moved from Home 2026-11-21 (maps: OldTown4) -->
+- **Ruin-Blighted Reaver and ammunition review (2026-11-18).** Meshy-informed Ruined Reaver v09 and all five magazine cartridges are staged in Match Studio. Ejection uses the shared hollow case. [Art and verification](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#meshy-review-and-loaded-cartridge-pass) · [Sound production list](02%20Art/Skins/RuinBlighted/Expansion%20Sound%20Queue.md).
+- **Full release roadmap (2026-11-18).** The owner's playtest backlog is scheduled for launch across nine phases. The [Release Roadmap](05%20Production/Release%20Roadmap.md) has the checklist, test matrix and features to defer first if the deadline moves.
 <!-- moved from Home 2026-11-21 (Settings v2) -->
 - **Ruin-Blighted fit and Reaver review (2026-11-18).** All five charm mounts are seated. The Spectre magazine fit, new Shadow Mist round and Ruined Reaver v08 are staged in Match Studio. [Art, asset IDs and playtest](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#fit-round-and-reaver-rebuild).
 <!-- moved from Home 2026-11-20 (maps: Wharf) -->

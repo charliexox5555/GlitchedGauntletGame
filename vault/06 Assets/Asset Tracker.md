@@ -6,6 +6,8 @@ Status of every asset from model to in-game. Update it whenever something moves 
 
 Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
+**OldTown4 (2026-11-21).** Built v1 in the match place (`Workspace.OldTown4`, builder `tools/studio/maps/OldTown4/Build.luau`); Blender kit of 22 pieces uploaded (asset 100833762894900, `ServerStorage.MapKit.OldTown4`); audits 0 / 0 / 0; concepts and kit close-ups in the note. Place not saved yet. [OldTown4](../01%20Design/Maps/OldTown4.md#build-v1-2026-11-21)
+
 **Combat feedback audio (2026-11-20).** Four audition masters cover standard headshots and eliminations. The Vandal comparison reels include the current cues and the two new pairs. [WAVs and credits](../02%20Art/Combat%20Feedback%20Audio.md)
 
 **Overtime zone (2026-11-19).** Match Studio has the Blender curtain, ground trace and drift meshes staged with the v02 sky curtain texture and a 320-stud wall. [Source, asset IDs and Studio setup](../02%20Art/Overtime%20Zone.md)

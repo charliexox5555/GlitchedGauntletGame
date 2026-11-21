@@ -67,6 +67,12 @@ local MAPS: { [string]: Map } = {
 			{ id = "sfx:AmbWind", volume = 0.14 },
 		},
 	},
+	-- OldTown4 (2026-11-21): the Collina hill town, 200 x 220 at (6000, 200, 26000). Beds only.
+	OldTown4 = {
+		center = Vector3.new(6000, 215, 26000),
+		size = Vector3.new(260, 120, 300),
+		beds = { { id = "sfx:AmbCity", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.2 } },
+	},
 	-- Snowpeak4 (2026-11-21): the ski saddle, 150 x 190 at (6000, 200, 19000); the box takes in the slopes. Beds only.
 	Snowpeak4 = {
 		center = Vector3.new(6000, 210, 19000),
