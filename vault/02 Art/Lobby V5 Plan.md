@@ -849,6 +849,68 @@ No code yet: bots don't react and the bins don't open anything.
 - walking the range (ladders, towers, bins);
 - the Armorer's white outfit still blows out under the lights (an old issue).
 
+## Hub 9/10 pass (2026-11-21, afternoon)
+
+**Owner's review of the overnight pass:**
+- Target: hub quality 9–10/10.
+- Hub decor was not good. The kiosks and misplaced benches go. Wanted instead: real decorations built in Blender — cases (not the gun cases), boxes, barrels — that the owner will then move around.
+- Shop: glitching parts; display lighting; the Item Shop was cluttered (cases in the middle); needs more character. The second wing should be closed, "under construction or something cool".
+- Locker: cluttered, needs room and detail like RIVALS. Its gun stands didn't show much, and there were floating and unaligned parts. The part-built kitbags looked unprofessional. Remove the benches.
+- Too many signs and labels.
+- Duels: a little more character, nothing over the top.
+- Range: like RIVALS — a small hologram you touch to enter, no dummies visible from the hub. The real range is built far away, much bigger, open, with levels, for many players.
+
+**Built (place saved, version 880):**
+- **Decor props** (`tools/blender/lobby_v5/v5_props.py`, asset 90719517602535, `ServerStorage.V5Kit.Props`, placed with `BuildProps.luau`):
+  - The set: WeaponCrate, FlatCase, CargoBox, Drum, Pallet, AmmoCan, CableSpool, ToolChest, PowerBox.
+  - Colour schemes: Charcoal, Olive, Hazard, Slate.
+  - v1 was rejected during the pass: "rounded low poly shapes that do not connect well" (only the drum passed). v2 is crisp: small bevels, details cut in with booleans or bands that wrap, attachments seated in pockets. Rule saved in memory `props-crisp-connected`. Sheet: `Lobby V5/2026-11-21/19 Props v2 sheet.jpg`.
+- **Hub:** the kiosks, benches and part-built stacks are gone. Four prop clusters sit in the rock corners (`Hub.Dressing.Props.Cluster_*`), for the owner to move. Captures: `10`, `11`.
+- **Shop:**
+  - Flicker fix (`FlickerFix.luau`): 112 coplanar pairs down to 4 hidden ones.
+  - Item Shop decluttered: no case table, pendant, crate shelves, racking or bundles board. It now has a story: a delivery pallet by the stockroom shutter, drums and a case behind the counter, a tool chest, a counter mat, and one case for sale on the counter (`12`).
+  - Display bays: lighter drape, a warm ceiling wash in every bay, stronger and tighter spots with shadows, light plinth tops, and cases 1.35× bigger (`14`).
+  - **Season Pass wing closed** (`BuildSeasonClosed.luau`): a sealed blast door with a hazard band, a red lock lamp and a spinning amber beacon. In front: a "COMING SOON · SEASON PASS · AREA UNDER CONSTRUCTION" board on posts, and building materials (`13`). The wing's battle-pass prompt is now unreachable; the menu button still opens it.
+- **Locker rebuilt** (`BuildLockerV2.luau`):
+  - Cleared: the workbench (the LockerZone was kept), consoles, the melee vitrine, the corner cages, the kitbags and helmets, and the benches.
+  - **One weapon wall** across the back: long guns on top (SNIPERS | RIFLES | HEAVY), short guns and the knife below (SMGS | SHOTGUNS | SIDEARMS | MELEE). Guns hang big on a lit pegboard, a lens strip runs over each tier, and small class labels sit on the bands.
+  - An octagonal hero plinth in the middle turns your rifle.
+  - Supply props in the back corners; the Armorer is moved to the south corner. In play the guns read clearly (`15`).
+- **Fewer labels:** gone are the caution/notice/gate-ID plates (gateways and range frame), the bay number signs, both junction wayboards, the hanging wing signs and the shutter signs. Kept: the area signs, queue-bay signs, screens, the Duels how-to boards and MARKET.
+- **Floating fixes:**
+  - the Duels deck's front panel row hung 0.1 over the under-plate;
+  - the lift counterweight blocks had 0.1 gaps between them;
+  - both shutter handles floated.
+  - Flicker fix also run on the Hub (112→4), Duels (94→0), Locker and Range.
+- **Duels:** small prop sets only — crates with ammo cans at x ±92, a power cabinet and drum at ±28, and drums at both deck ends.
+- **Range** (`BuildRangeV2.luau`, `src/lobby/server/Services/RangeService.luau`):
+  - **Hub side:** the sim bay is closed again and the grid curtain is gone. The spinning hologram range on the projector is the way in (`RangeEntry`), with a "STEP IN » LIVE FIRE" caption (`16`).
+  - **The range** is a sunlit "simulation yard" at world (0, 0, 2600), 270 × 250, in arena bricks with 30-high walls:
+    - a spawn deck with an exit hologram (`RangeExit`), 4 spawn points (`RangeSpawn`) and the 6 loadout bins;
+    - three firing lanes with 25-stud bands, floor distance numbers, booths and the 9 bots;
+    - an open arena: four 10-high bastions with ramps and ladders, a two-level plateau, catwalks on posts joining everything, 17 cover blocks, two tall walls, and 5 jump pads (`RangeJumpPad`, no code yet);
+    - THE DEEP on the north wall (`17`, `18`).
+  - **Teleports tested in play** both ways (entry → deck, exit → in front of the hub hologram).
+  - Rojo was not connected, so RangeService was added in Studio with the same source; reconnect Rojo to sync the file.
+
+**Self-grade** (honest; my grades have run 2–3 high before, so the owner's review decides):
+
+| Area | Grade | Note |
+|---|---|---|
+| Props | 8 | |
+| Hub decor | 8 | Clusters are a first layout. |
+| Shop | 8.5 | |
+| Locker | 8.5 | |
+| Duels | 8 | |
+| Range | 8 | Plain arena bricks; it could use colour zones and more height variety. |
+
+**To check / next:**
+- walk the range with several players (ladders, catwalk edges, jump pads need code);
+- reconnect Rojo so `RangeService.luau` syncs;
+- the Range HUD panel still says it "opens in the next lobby phase";
+- the Season Pass prompt is now unreachable in the world;
+- move the prop clusters as you like (`Hub.Dressing.Props`).
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
