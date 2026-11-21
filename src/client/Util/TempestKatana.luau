@@ -390,15 +390,15 @@ function TempestKatana.new(model: Model, scale: number): State?
 	state.trails.arc.Brightness = Style.ARC_TRAIL_BRIGHTNESS
 	state.trails.static.Color = ColorSequence.new(Tempest.ARC_CORE, Tempest.WATER_EDGE)
 	state.trails.static.Lifetime = Style.TRAIL_LIFE * 0.6
-	-- motes: small sparkles shed off the blade (world space, so they hang in
-	-- the air behind a cut), and water dripping off the tip
+	-- motes: small sparkles shed off the blade, and water dripping off the tip
+	-- (both locked to the blade so they follow it)
 	for i, t in Style.MOTE_AT do
 		local x, ez = blade(t)
 		local at = anchor(state, "TempestKatanaMote" .. i, bl(x, 0, ez))
 		local e = emitter(at, "TempestKatanaMotes", VFX.MOD_SPARKLE)
 		e.Color = ColorSequence.new(Tempest.ARC_CORE, Tempest.WATER)
-		e.Brightness = 2
-		e.LockedToPart = false
+		e.Brightness = 1.6
+		e.LockedToPart = true -- ride the blade (world-space motes trailed off it as the view turned)
 		e.Lifetime = NumberRange.new(0.5, 0.9)
 		e.Speed = NumberRange.new(0.12 * scale, 0.35 * scale)
 		e.SpreadAngle = Vector2.new(180, 180)
@@ -419,7 +419,7 @@ function TempestKatana.new(model: Model, scale: number): State?
 		local e = emitter(at, "TempestKatanaDrips", VFX.TEMPEST_DROPLETS_2x2)
 		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
 		e.FlipbookMode = Enum.ParticleFlipbookMode.Random
-		e.LockedToPart = false
+		e.LockedToPart = true
 		e.Lifetime = NumberRange.new(0.4, 0.6)
 		e.Speed = NumberRange.new(0.05 * scale)
 		e.SpreadAngle = Vector2.new(20, 20)
@@ -719,7 +719,7 @@ function TempestKatana.step(
 	end
 	for _, l in state.lights do
 		l.Enabled = visible
-		l.Brightness = Style.LIGHT * pulse + Style.LIGHT_SURGE * hot + 1.2 * state.flare
+		l.Brightness = Style.LIGHT * pulse + Style.LIGHT_SURGE * hot + 0.6 * state.flare
 	end
 	-- lightning: random flickers along the spine (constant in a surge or a wave)
 	local boltOn = false

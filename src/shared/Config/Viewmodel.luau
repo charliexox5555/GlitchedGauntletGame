@@ -327,10 +327,12 @@ local function inspectTrack(toss: { Key }?, tossPivot: Vector3?): Track
 	}
 end
 
--- Tempest-Strike shell reload, Start part: tilt to the port (the right side for
--- the Marshal's side gate), the gun rolling once about the bore on the way
--- (`toss`, about `tossPivot` in the gun's handle space).
-local function shellStart(tossPivot: Vector3, rightSide: boolean): Track
+-- Tempest-Strike shell reload, Start part: a smooth tilt toward the port (the
+-- right side for the Marshal's side gate) on top of the clip's own turn into
+-- the loading pose, settling to nothing as the clip holds it. 2026-11-22 v2
+-- (owner: the Bucky and Marshal reloads were "very glitchy and choppy"): no
+-- barrel roll any more (it fought the clip's turn), and no per-shell push.
+local function shellStart(rightSide: boolean): Track
 	local side = if rightSide then -1 else 1
 	return {
 		length = 1,
@@ -338,43 +340,8 @@ local function shellStart(tossPivot: Vector3, rightSide: boolean): Track
 		smooth = true,
 		keys = {
 			key(0, ZERO, ZERO),
-			key(0.14, Vector3.new(0.01, -0.02, 0.01), Vector3.new(-3, -2, 4 * side)),
-			key(0.45, Vector3.new(-0.03, 0.05, -0.03), Vector3.new(6, 4 * side, -10 * side)),
-			key(0.7, Vector3.new(-0.02, 0.03, -0.02), Vector3.new(4, 3 * side, -7 * side)),
-			key(0.88, Vector3.new(0.004, -0.006, 0.003), Vector3.new(-1, 0, 1 * side)),
-			key(1, ZERO, ZERO),
-		},
-		toss = {
-			key(0, ZERO, ZERO),
-			key(0.16, ZERO, ZERO),
-			key(0.26, Vector3.new(0, 0.045, 0), Vector3.new(0, 0, -95)),
-			key(0.38, Vector3.new(0, 0.07, 0), Vector3.new(0, 0, -220)),
-			key(0.5, Vector3.new(0, 0.04, 0), Vector3.new(0, 0, -335)),
-			key(0.56, Vector3.new(0, -0.005, 0), Vector3.new(0, 0, -363)),
-			key(0.62, ZERO, Vector3.new(0, 0, -360)),
-			key(1, ZERO, Vector3.new(0, 0, -360)),
-		},
-		tossPivot = tossPivot,
-	}
-end
-
--- ...Insert part: the push as the round seats at `seat` (the clip's ShellIn).
-local function shellInsert(seat: number): Track
-	return {
-		length = 1,
-		pivot = "Center",
-		smooth = true,
-		keys = {
-			key(0, ZERO, ZERO),
-			key(0.3, Vector3.new(-0.01, 0.015, -0.01), Vector3.new(2, 1, -3)),
-			key(seat - 0.06, Vector3.new(-0.012, 0.008, -0.012), Vector3.new(0.5, 1, -4.5)), -- brace
-			key(seat + 0.01, Vector3.new(-0.006, -0.022, 0.004), Vector3.new(-4, 0, 3)), -- pushed in
-			key(
-				math.min(seat + 0.11, 0.9),
-				Vector3.new(-0.008, 0.008, -0.006),
-				Vector3.new(1.5, 0.5, -2)
-			),
-			key(0.95, ZERO, Vector3.new(0.3, 0, -0.3)),
+			key(0.35, Vector3.new(-0.015, 0.025, -0.015), Vector3.new(3, 2 * side, -5 * side)),
+			key(0.75, Vector3.new(-0.006, 0.01, -0.006), Vector3.new(1.2, 0.8 * side, -2 * side)),
 			key(1, ZERO, ZERO),
 		},
 	}
@@ -2537,25 +2504,21 @@ return table.freeze({
 				key(1, ZERO, ZERO),
 			},
 		},
-		-- Shell guns (Bucky, Marshal), each part over its own clip. Start: the gun
-		-- rolls once about the bore as it turns to the loading port (the Vandal's
-		-- reload spin, which the owner liked); Insert: the thumb's push as each round
-		-- seats (a water burst at the port); End: a wrist flick back to the hold.
-		ReloadStartTempestBucky = shellStart(Vector3.new(0, 0.29, -1.0), false),
-		ReloadStartTempestMarshal = shellStart(Vector3.new(0, 0.15, -1.0), true),
-		ReloadInsertTempestBucky = shellInsert(0.688),
-		ReloadInsertTempestMarshal = shellInsert(0.625),
+		-- Shell guns (Bucky, Marshal), over their own clips: a smooth tilt toward
+		-- the port on Start, a wrist flick on End (water bursts at the port per
+		-- round come from Util/TempestIdle; no track per shell).
+		ReloadStartTempestBucky = shellStart(false),
+		ReloadStartTempestMarshal = shellStart(true),
 		ReloadEndTempest = {
 			length = 1,
 			pivot = "Center",
 			smooth = true,
 			keys = {
 				key(0, ZERO, ZERO),
-				key(0.12, Vector3.new(0.01, -0.02, 0.012), Vector3.new(-3, -2, 5)),
-				key(0.3, Vector3.new(-0.02, 0.055, -0.03), Vector3.new(10, -3, -12)), -- flick
-				key(0.45, Vector3.new(-0.01, 0.02, -0.01), Vector3.new(3, -1, -3)),
-				key(0.6, Vector3.new(0.006, -0.01, 0.004), Vector3.new(-1.6, 0.4, 1.2)),
-				key(0.8, Vector3.new(0, 0.003, 0), Vector3.new(0.4, 0, -0.3)),
+				key(0.2, Vector3.new(0.006, -0.012, 0.006), Vector3.new(-1.5, -1, 2.5)),
+				key(0.42, Vector3.new(-0.012, 0.03, -0.016), Vector3.new(5, -1.5, -6)), -- flick
+				key(0.66, Vector3.new(0.003, -0.006, 0.002), Vector3.new(-1, 0.2, 0.8)),
+				key(0.85, ZERO, Vector3.new(0.2, 0, -0.15)),
 				key(1, ZERO, ZERO),
 			},
 		},

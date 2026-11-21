@@ -129,3 +129,24 @@ The ring pommel spins as the hand closes on it.
 - **Motes and drips:** sparkle motes drift off the blade (more of them in a surge), and water drips from the tip.
 - **Hit flare:** every hit flares the blade, the core and the lights.
 
+## Round 3: the owner's check of the line (2026-11-22, relayed by the Blender lane)
+**Owner's notes:**
+- **Katana:** the effects cover the knife body, and the lighting "didn't follow the knife" (the owner likes the look).
+- **Bucky and Marshal:** the reloads are "very glitchy and choppy", and the sounds don't gel.
+- **Stinger:** the front loops of energy are too much and block vision.
+- **Sheriff:** good.
+- **Next:** Vandal sounds from the Pro Sound library.
+
+**Changes:**
+- **Katana:**
+  - The sheath is slimmer (0.075–0.1, down from 0.2–0.28, against a blade 0.14 tall) and fainter.
+  - Thinner core and ribbons, a weaker ForceField skin, dimmer lights and a smaller hit flare. The edge Neon is darker.
+  - Motes and drips are now locked to the blade; in world space they were left behind as the view turned.
+- **Bucky and Marshal:**
+  - The barrel roll on Start is gone; it fought the clip's own turn into the loading pose.
+  - The per-shell push track is gone, as is the second Tempest shell-in sound on every round (`shellCue = false`).
+  - What remains is a small, smooth tilt on Start and a soft wrist flick on End. The water bursts per round stay.
+- **Stinger:**
+  - The fore-end helix is at 0.6 width and clears the sight while aiming (`adsHide`).
+  - The shot ring fires every third shot and not while aiming (`pulseEvery = 3`).
+

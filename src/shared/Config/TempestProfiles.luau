@@ -61,6 +61,10 @@ export type Profile = {
 	},
 	reloadSpin: boolean,
 	fit: boolean,
+	helixWidth: number?, -- the fore-end helix's width (x the Vandal's)
+	adsHide: boolean?, -- the helix and shot rings clear the sight while aiming
+	pulseEvery: number?, -- a shot ring every Nth shot (fast guns)
+	shellCue: boolean?, -- the Tempest shell-in cue per round (default on)
 }
 
 local function v(x: number, y: number, z: number): Station
@@ -153,6 +157,10 @@ local profiles: { [string]: Profile } = {
 		},
 		reloadSpin = false,
 		fit = true,
+		-- owner 2026-11-22: the front loops of energy were "a bit too much" and blocked vision
+		helixWidth = 0.6,
+		adsHide = true,
+		pulseEvery = 3,
 	},
 	-- Lever-action scoped rifle: receiver + scope 0.2-1.13, wood forend to 1.9, barrel over a tube
 	-- magazine (0.077-0.24) to the crown at 3.2 (bore 0.205); rounds go in at the side gate.
@@ -195,12 +203,12 @@ local profiles: { [string]: Profile } = {
 			draw = "DrawTempest",
 			inspect = "InspectTempestMarshal",
 			reloadStart = "ReloadStartTempestMarshal",
-			reloadInsert = "ReloadInsertTempestMarshal",
 			reloadEnd = "ReloadEndTempest",
 			cycle = "CycleTempestMarshal",
 		},
 		reloadSpin = false,
 		fit = true,
+		shellCue = false, -- the stock shell sound only (a second cue per round read as choppy)
 	},
 	-- Pump shotgun: receiver to 0.95, barrel over a tube magazine (0.164-0.42), pump 1.3-2.05,
 	-- muzzle at 2.83 (bore 0.369); shells in at the loading port. No ADS.
@@ -246,11 +254,11 @@ local profiles: { [string]: Profile } = {
 			draw = "DrawTempest",
 			inspect = "InspectTempestBucky",
 			reloadStart = "ReloadStartTempestBucky",
-			reloadInsert = "ReloadInsertTempestBucky",
 			reloadEnd = "ReloadEndTempest",
 		},
 		reloadSpin = false,
 		fit = true,
+		shellCue = false, -- the stock shell sound only (a second cue per round read as choppy)
 	},
 	-- Revolver (two-handed): frame and 12-sided cylinder 0.3-0.6, barrel with a top rib over an
 	-- underlug to 1.2, bare barrel to the muzzle at 1.5 (bore 0.278), side plates.

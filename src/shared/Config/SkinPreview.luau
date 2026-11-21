@@ -112,21 +112,24 @@ return table.freeze({
 			},
 			EDGE_LIFT = 0.012, -- the band's middle above the edge line
 			EXPORT_WATER = Color3.fromRGB(64, 245, 212), -- TS Water as the flat export carries it
-			EDGE_COLOR = Color3.fromRGB(90, 215, 210), -- the edge burns water cyan (Neon)...
+			EDGE_COLOR = Color3.fromRGB(70, 185, 182), -- the edge burns water cyan (Neon)...
 			SKIN_PAD = 0.014, -- ...under a shimmering ForceField skin
-			SKIN_OPACITY = 0.5,
+			SKIN_OPACITY = 0.3,
 			SEGMENTS = 12, -- beam segments guard -> tip
-			HALO_WIDTH = { 0.2, 0.28 }, -- the glowing sheath over the edge (glow band), guard -> tip
-			HALO_BRIGHTNESS = 1.8,
-			HALO_TRANSPARENCY = 0.15,
-			CORE_WIDTH = 0.05, -- the white-hot line down its middle
-			CORE_BRIGHTNESS = 1.4,
+			-- owner 2026-11-22: the glow "kind of covers up the knife body" and "didn't
+			-- follow the knife": a slimmer sheath that hugs the edge (the blade is 0.14
+			-- tall), everything locked to the blade
+			HALO_WIDTH = { 0.075, 0.1 }, -- the glowing sheath over the edge (glow band), guard -> tip
+			HALO_BRIGHTNESS = 1.3,
+			HALO_TRANSPARENCY = 0.3,
+			CORE_WIDTH = 0.022, -- the white-hot line down its middle
+			CORE_BRIGHTNESS = 1.1,
 			MOTE_AT = { 0.35, 0.6, 0.85 }, -- blade stations shedding sparkle motes...
-			MOTE_RATE = 2.5, -- ...per second each
+			MOTE_RATE = 1.2, -- ...per second each
 			DRIP_RATE = 1.2, -- water drips off the tip, per second
-			ARC_TRAIL_BRIGHTNESS = 3, -- the bright arc the outer blade cuts
+			ARC_TRAIL_BRIGHTNESS = 2.4, -- the bright arc the outer blade cuts
 			FLARE_DECAY = 7, -- the hit flare fades at this rate (1/s)
-			RIBBON_WIDTH = 0.03,
+			RIBBON_WIDTH = 0.018,
 			RIBBON_OFFSET = 0.026, -- off the blade's centre plane, each side (at the guard)
 			BOLT_POINTS = 7,
 			BOLT_LIFT = 0.015, -- above the spine
@@ -135,11 +138,11 @@ return table.freeze({
 			ARC_JITTER = 0.03,
 			TRAIL_LIFE = 0.16,
 			CLEAVE_SIZE = 4.2, -- the Cleave's crescent flash (studs, scaled)
-			SURGE_GAIN = 1.6,
+			SURGE_GAIN = 1.0,
 			LIGHT_AT = { 0.4, 0.85 }, -- blade stations of the two lights
-			LIGHT = 1.1,
-			LIGHT_SURGE = 2.2,
-			LIGHT_RANGE = 3,
+			LIGHT = 0.55,
+			LIGHT_SURGE = 1.4,
+			LIGHT_RANGE = 2.2,
 			RING_TURNS = 1, -- the pommel ring spins once into the palm on the draw...
 			RING_SPIN_END = 0.2, -- ...by this much of the draw
 			RING_AXIS = Vector3.yAxis, -- the ring hole's axis (bone space)

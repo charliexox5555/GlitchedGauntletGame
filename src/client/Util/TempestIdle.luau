@@ -45,6 +45,7 @@ export type State = {
 	timing: { outAt: number, inAt: number, seat: number }?,
 	shotAge: number,
 	shotSign: number,
+	shots: number, -- shots fired (pulseEvery)
 	popAge: number, -- seconds since the new magazine seated
 	boost: number, -- conduit flare (shots, seat), decays
 	drain: number, -- conduits dimmed while the magazine is out
@@ -392,6 +393,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 		timing = nil,
 		shotAge = math.huge,
 		shotSign = 1,
+		shots = 0,
 		popAge = math.huge,
 		boost = 0,
 		drain = 0,
@@ -425,7 +427,7 @@ function TempestIdle.new(model: Model, scale: number): State?
 			table.insert(state.glows, { part = d, color = d.Color })
 		end
 	end
-	local w = Style.RIBBON_WIDTH * scale
+	local w = Style.RIBBON_WIDTH * scale * (p.helixWidth or 1)
 	-- fore-end: two helices (half a turn apart) wrap the handguard and the fluted sleeve,
 	-- passing over the top where the first-person camera looks
 	local N = Style.HELIX_POINTS
@@ -772,7 +774,10 @@ function TempestIdle.fire(state: State)
 	state.shotSign = -state.shotSign
 	state.boost = math.max(state.boost, Style.BOOST_SHOT)
 	local pulse = state.pulse
-	if pulse and state.visible then
+	state.shots += 1
+	local every = state.p.pulseEvery or 1
+	local ringOk = state.shots % every == 0 and not (state.p.adsHide and state.aimed)
+	if pulse and state.visible and ringOk then
 		pulse.ring:Emit(1)
 		if not UiMotion.reduced() and math.random() < Style.PULSE_ARC_CHANCE then
 			pulse.arcs:Emit(1)
@@ -875,7 +880,9 @@ function TempestIdle.beat(state: State, kind: string)
 			mv.gateS.v += Style.GATE_KICK
 			mv.vent.v += Style.VENT_SHOT_KICK * 0.6
 		end
-		TempestIdle.cue(state, "shellIn")
+		if p.shellCue ~= false then
+			TempestIdle.cue(state, "shellIn")
+		end
 	elseif kind == "Open" or kind == "Eject" then
 		if p.load then
 			burst(state, "Load", 10, bl(p.load[1], p.load[2], p.load[3]))
@@ -1012,19 +1019,25 @@ function TempestIdle.step(
 	local life = 1 - Style.RELOAD_DRAIN * state.drain
 	-- ribbons: visible fade-in, thinned while aiming; reduced motion stops the scroll
 	local opacity = state.weight * (1 - (1 - Style.ADS_RIBBON) * aim) * life
+	-- guns whose fore-end helix sits near the aim line clear it out of the sight
+	local helixOpacity = if state.p.adsHide
+		then state.weight * (1 - math.clamp(aim / 0.6, 0, 1)) * life
+		else opacity
 	-- each shot sends a bright pulse down the helices, receiver to muzzle
 	local pa = state.shotAge
 	local pulseOn = pa < Style.SHOT_PULSE_TIME + 0.06
 	local pulseAt = pa / Style.SHOT_PULSE_TIME
 	local pulseFade = math.clamp(1 - pa / (Style.SHOT_PULSE_TIME + 0.06), 0, 1) * (1 - 0.6 * aim)
 	for _, r in state.ribbons do
-		r.beam.Enabled = on
-		if on then
+		local o = if r.body then opacity else helixOpacity
+		local show = on and o > 0.02
+		r.beam.Enabled = show
+		if show then
 			local pulse = if pulseOn
 				then Style.SHOT_PULSE * pulseFade * math.exp(-((r.at - pulseAt) / 0.16) ^ 2)
 				else 0
 			r.beam.Brightness = (if r.body then 1.3 else Style.RIBBON_BRIGHTNESS)
-					* (opacity + 0.35 * state.boost)
+					* (o + 0.35 * state.boost * (if r.body then 1 else o))
 				+ 0.15 * math.sin(state.clock * 2.1)
 				+ pulse
 			r.beam.TextureSpeed = if reduced then 0 else r.speed * (1 + 1.5 * state.boost)
