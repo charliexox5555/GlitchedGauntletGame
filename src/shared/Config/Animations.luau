@@ -396,19 +396,20 @@ return table.freeze({
 	-- Win<team size>_<slot> is keyed to the ending song and ends on the final
 	-- pose, its Hold loops that pose with a breath (tools/anim/win_clips.py).
 	WIN = table.freeze({
-		-- v10 2026-11-20 (round 3): every key cleared of clipping and big wrist
+		-- v11 2026-11-20 (round 5): planted feet level on the floor (flat_feet);
+		-- v10 (round 3): every key cleared of clipping and big wrist
 		-- twists (tools/anim/win_fix.py); earlier Win1_1 v1-v9 up to 138336403992094,
 		-- hold up to 110107132585954 (vault Win Cutscene → Review rounds)
-		Win1_1 = id(106929085431227), -- slot 1, the best player: the solo performance
-		Win1_1Hold = id(104387787932719),
+		Win1_1 = id(125566128219870), -- slot 1, the best player: the solo performance
+		Win1_1Hold = id(88811158558200),
 		-- slots 2-5 in the 2-5 player scenes (tools/anim/win_group.py)
-		WinS2 = id(72681296384469), -- the showman: arms wide, fist pumps, beckons, a hop, down on one knee
-		WinS2Hold = id(123751947911029),
-		WinS3 = id(114906106837218), -- the cool one: finger gun, the gun to the sky, down on one knee
-		WinS3Hold = id(122667225125155),
-		WinS4 = id(113819442314250), -- the hype one: both arms up, a sideways aim, a big hop, a V
-		WinS4Hold = id(110977103612982),
-		WinS5 = id(100674335372888), -- the chill one: a salute, a lazy shrug, points at the sky
-		WinS5Hold = id(135062579610102),
+		WinS2 = id(98757018615877), -- the showman: arms wide, fist pumps, beckons, a hop, down on one knee
+		WinS2Hold = id(97857170259717),
+		WinS3 = id(101241638083930), -- the cool one: finger gun, the gun to the sky, down on one knee
+		WinS3Hold = id(84465251905108),
+		WinS4 = id(116978102537739), -- the hype one: both arms up, a sideways aim, a big hop, a V
+		WinS4Hold = id(130775236976834),
+		WinS5 = id(122496091204019), -- the chill one: a salute, a lazy shrug, points at the sky
+		WinS5Hold = id(83482984368760),
 	} :: { [string]: string }),
 })

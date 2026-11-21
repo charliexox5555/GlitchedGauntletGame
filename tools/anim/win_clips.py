@@ -79,6 +79,68 @@ def gun_grip(ctrl):
 	return tuple(g[:3, 3] + g[:3, :3] @ v3(LONG_GRIP))
 
 
+ANKLE = 0.5472  # the shin's ankle joint below its centre (tp_rig JOINTS)
+FOOT_DROP = 0.1019 + 0.15  # ankle to the sole of a level foot
+
+
+def _level(r):
+	"""Rotation `r` with only its turn about the vertical kept."""
+	f = np.array([r[0][2], 0.0, r[2][2]])
+	n = float(np.linalg.norm(f))
+	if n < 1e-6:
+		return np.eye(3)
+	f = f / n
+	up = np.array([0.0, 1.0, 0.0])
+	return np.column_stack([np.cross(up, f), up, f])
+
+
+def flat_feet(ctrl, solver=None):
+	"""solve_grounded, then every foot on the floor turned level (its facing
+	kept) and its target lowered so the level sole sits on the floor
+	(owner 2026-11-20: "the feet are kind of floating"). The rig's foot is
+	rigid on the shin, so a leaning shin tilted the sole and only one edge
+	touched; the game bends the cutscene copies' legs at the ankle
+	(MatchBody.setTipBend), so the Foot part's turn shows."""
+	from tp_check import sole_corners
+	from tp_rig import FLOOR, cf, fk, solve
+
+	ctrl = dict(ctrl)
+	pose = tp_clips.solve_grounded(ctrl)
+	for _ in range(6):
+		world = fk(pose)
+		moved = False
+		for side in ("Right", "Left"):
+			key = side.lower() + "_foot"
+			spec = ctrl.get(key)
+			if not spec:
+				continue
+			low = min(p[1] for p in sole_corners(world, side)) + FLOOR
+			if low > 0.08:
+				continue  # in the air
+			shin = world[side + "LowerLeg"]
+			ankle = (shin @ cf((0, -ANKLE, 0)))[:3, 3]
+			sole = float(ankle[1]) - FOOT_DROP + FLOOR
+			if abs(sole) > 0.003:
+				spec = dict(spec)
+				x, y, z = spec["pos"]
+				spec["pos"] = (x, y - sole, z)
+				spec["clamp"] = False
+				ctrl[key] = spec
+				moved = True
+		if not moved:
+			break
+		pose = solve(ctrl)
+	world = fk(pose)
+	for side in ("Right", "Left"):
+		if side.lower() + "_foot" not in ctrl:
+			continue
+		if min(p[1] for p in sole_corners(world, side)) + FLOOR > 0.08:
+			continue
+		r = world[side + "LowerLeg"][:3, :3]
+		pose[side + "Foot"] = cf(rot=r.T @ _level(r))
+	return pose
+
+
 def two_handed(track, windows):
 	"""The track on splines, with the left fist carried onto the gun's grip
 	over `windows` [(t_on0, t_on1, t_off0, t_off1)]: eased on between the first
@@ -118,7 +180,7 @@ def two_handed(track, windows):
 				# straight line went through the chest, 2026-11-20)
 				arc = v3(0, 0, -0.55) * (4 * w * (1 - w))
 				ctrl["left_arm"] = {"tip": tuple(tip + (v3(grip) - tip) * w + arc)}
-		return tp_clips.solve_grounded(ctrl)
+		return flat_feet(ctrl)
 
 	return pose
 
@@ -255,7 +317,7 @@ def win1_hold(t):
 		lt=(tip[0], tip[1] + 0.03 * b, tip[2]),
 	)
 	ctrl["left_pole"] = base["left_pole"]
-	return tp_clips.solve_grounded(ctrl)
+	return flat_feet(ctrl)
 
 
 win(Clip("Win1_1Hold", "Action4", win1_hold, ALL, length=3.2, loop=True, step=1 / 30))

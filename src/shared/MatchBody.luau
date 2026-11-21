@@ -304,6 +304,14 @@ end
 
 local MID = Avatar.LIMB_SKIN.mid
 local TIP = Avatar.LIMB_SKIN.tip
+-- Limb meshes whose end (hand / foot) bends with its own part even though
+-- LIMB_SKIN.tip is off: the win cutscene's copies' legs, so a planted foot
+-- can sit flat on the floor while the shin leans (Util/WinCutscene).
+local tipBend: { [MeshPart]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
+function MatchBody.setTipBend(made: MeshPart, on: boolean)
+	tipBend[made] = if on then true else nil
+end
 local REST = CFrame.new()
 
 -- `d` (a joint's move in the mesh frame, a turn about `pivot`) without its
@@ -339,7 +347,7 @@ function MatchBody.skinLimb(limb: Limb)
 		b.Hip.Transform = ri.Hip * dr * r.Hip
 		b.HipMid.Transform = REST:Lerp(ri.HipMid * dr * r.HipMid, MID)
 	end
-	local dt = if TIP
+	local dt = if TIP or tipBend[limb.made]
 		then limb.weldInv * (u:ToObjectSpace(limb.tip.CFrame) * limb.restTip) * limb.weld
 		else dl
 	b.Lower.Transform = ri.Lower * dl * r.Lower

@@ -27,7 +27,9 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Config = require(ReplicatedStorage.Shared.Config.WinCutscene)
+local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
@@ -265,6 +267,14 @@ local function place(r: Run, body: Model, slot: Config.Slot, pos: Vector3, gun: 
 	-- low frame rate) with the root anchored on the stage.
 	BodyClone.kinematic(copy)
 	arm(copy, gun)
+	-- the legs bend at the ankle, so the clips' level feet sit flat
+	for _, name in { "RightUpperLeg", "LeftUpperLeg" } do
+		local part = copy:FindFirstChild(name)
+		local link = part and part:FindFirstChild(Avatar.LIMB_LINK)
+		if link and link:IsA("ObjectValue") and link.Value and link.Value:IsA("MeshPart") then
+			MatchBody.setTipBend(link.Value, true)
+		end
+	end
 	local root = copy:FindFirstChild("HumanoidRootPart")
 	local humanoid = copy:FindFirstChildOfClass("Humanoid")
 	local hip = 3
@@ -465,30 +475,19 @@ end
 
 -- The look into the lens ------------------------------------------------------------
 
--- A Motor6D's own Transform as the clip left it this frame (the Animator
--- writes it before we do; when it didn't, our last write is still there,
--- so the clip's value is the one we kept).
-type Look = { motor: Motor6D, base: CFrame, wrote: CFrame? }
-local looks: { [Motor6D]: Look } = setmetatable({}, { __mode = "k" }) :: any
-
-local function baseOf(motor: Motor6D): Look
-	local l = looks[motor]
-	if not l then
-		l = { motor = motor, base = motor.Transform, wrote = nil }
-		looks[motor] = l
-	end
-	if l.wrote == nil or motor.Transform ~= l.wrote then
-		l.base = motor.Transform
-	end
-	return l
-end
+-- The turn goes on the joint's C0, never its Transform: the Animator rewrites
+-- Transform while it simulates the frame, so a script's write there never
+-- shows (measured 2026-11-20: a 90-degree Transform write moved the head 0
+-- degrees, in RenderStepped, PreSimulation, Stepped or Heartbeat; the same
+-- turn on C0 moved it 57). C0 stacks under the clip's Transform.
+local restC0: { [Motor6D]: CFrame } = setmetatable({}, { __mode = "k" }) :: any
 
 -- Turns `motor`'s child so its look swings `share` of the way toward `to`
--- (capped at `max` degrees), from the clip's own pose: `parent` is the world
--- frame of Part0 as it is now (with any turn we gave it this frame), the
--- forward is the child's from the clip's Transform, never from what was
--- drawn last frame (that already has our turn in it, so it would flicker).
--- `aboutVertical` = turn about the vertical only. Returns the child's new world frame.
+-- (capped at `max` degrees) from where the clip has it: `parent` is the
+-- world frame of Part0 with any turn we gave it this frame, and the forward
+-- comes from the clip's Transform (never from what was drawn, which has
+-- our last turn in it). `aboutVertical` = turn about the vertical only.
+-- Returns the child's new world frame.
 local function turnToward(
 	motor: Motor6D,
 	parent: CFrame,
@@ -497,32 +496,36 @@ local function turnToward(
 	max: number,
 	aboutVertical: boolean
 ): CFrame
-	local l = baseOf(motor)
-	local joint = parent * motor.C0
+	local rest = restC0[motor]
+	if not rest then
+		rest = motor.C0
+		restC0[motor] = rest
+	end
+	local joint = parent * rest
+	local base = motor.Transform
 	local c1 = motor.C1:Inverse()
-	local forward = (joint * l.base * c1).LookVector
+	local forward = (joint * base * c1).LookVector
 	local aim = to
 	if aboutVertical then
 		forward = Vector3.new(forward.X, 0, forward.Z)
 		aim = Vector3.new(to.X, 0, to.Z)
 		if forward.Magnitude < 1e-3 or aim.Magnitude < 1e-3 then
-			return joint * l.base * c1
+			motor.C0 = rest
+			return joint * base * c1
 		end
 		forward, aim = forward.Unit, aim.Unit
 	end
 	local axis = forward:Cross(aim)
 	local angle = math.acos(math.clamp(forward:Dot(aim), -1, 1))
-	local t = l.base
+	local here = CFrame.identity
 	if axis.Magnitude > 1e-4 and angle > 1e-3 then
 		angle = math.min(angle, math.rad(max)) * share
-		local turn = CFrame.fromAxisAngle(axis.Unit, angle)
-		-- the world turn about the joint, in the joint's own frame
 		local rot = joint.Rotation
-		t = (rot:Inverse() * turn * rot) * l.base
+		-- the world turn about the joint, in the joint's own frame
+		here = rot:Inverse() * CFrame.fromAxisAngle(axis.Unit, angle) * rot
 	end
-	motor.Transform = t
-	l.wrote = t
-	return joint * t * c1
+	motor.C0 = rest * here
+	return joint * here * base * c1
 end
 
 local function lookAtCamera(r: Run, t: number, eye: Vector3)

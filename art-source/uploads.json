@@ -732,64 +732,64 @@
   "uploaded": "2026-11-13 01:45:34"
  },
  "art-source/animations/GG_Win1_1.rbxm": {
-  "assetId": 106929085431227,
+  "assetId": 125566128219870,
   "name": "GG Win1_1",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:03:40"
+  "uploaded": "2026-11-20 20:17:01"
  },
  "art-source/animations/GG_Win1_1Hold.rbxm": {
-  "assetId": 104387787932719,
+  "assetId": 88811158558200,
   "name": "GG Win1_1Hold",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:03:43"
+  "uploaded": "2026-11-20 20:17:04"
  },
  "art-source/animations/GG_WinS2.rbxm": {
-  "assetId": 72681296384469,
+  "assetId": 98757018615877,
   "name": "GG WinS2",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:16:01"
+  "uploaded": "2026-11-20 20:17:08"
  },
  "art-source/animations/GG_WinS2Hold.rbxm": {
-  "assetId": 123751947911029,
+  "assetId": 97857170259717,
   "name": "GG WinS2Hold",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:16:04"
+  "uploaded": "2026-11-20 20:17:11"
  },
  "art-source/animations/GG_WinS3.rbxm": {
-  "assetId": 114906106837218,
+  "assetId": 101241638083930,
   "name": "GG WinS3",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:39:50"
+  "uploaded": "2026-11-20 20:17:14"
  },
  "art-source/animations/GG_WinS3Hold.rbxm": {
-  "assetId": 122667225125155,
+  "assetId": 84465251905108,
   "name": "GG WinS3Hold",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:39:53"
+  "uploaded": "2026-11-20 20:17:17"
  },
  "art-source/animations/GG_WinS4.rbxm": {
-  "assetId": 113819442314250,
+  "assetId": 116978102537739,
   "name": "GG WinS4",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:16:14"
+  "uploaded": "2026-11-20 20:17:21"
  },
  "art-source/animations/GG_WinS4Hold.rbxm": {
-  "assetId": 110977103612982,
+  "assetId": 130775236976834,
   "name": "GG WinS4Hold",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:16:17"
+  "uploaded": "2026-11-20 20:17:24"
  },
  "art-source/animations/GG_WinS5.rbxm": {
-  "assetId": 100674335372888,
+  "assetId": 122496091204019,
   "name": "GG WinS5",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:16:20"
+  "uploaded": "2026-11-20 20:17:27"
  },
  "art-source/animations/GG_WinS5Hold.rbxm": {
-  "assetId": 135062579610102,
+  "assetId": 83482984368760,
   "name": "GG WinS5Hold",
   "type": "Animation",
-  "uploaded": "2026-11-20 19:16:23"
+  "uploaded": "2026-11-20 20:17:30"
  },
  "art-source/audio/GameAtlas.flac": {
   "assetId": 136994389000525,

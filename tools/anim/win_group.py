@@ -27,7 +27,7 @@ import tp_clips
 import win_fix
 from tp_clips import Clip
 from tp_rig import ALL
-from win_clips import TAU, key, two_handed, win
+from win_clips import TAU, flat_feet, key, two_handed, win
 
 STANCE = dict(rf=(0.66, 0, 0.1, -10), lf=(-0.62, 0, -0.14, 8))
 WIDE = dict(rf=(0.9, 0, 0.12, -16), lf=(-0.88, 0, -0.18, 12))
@@ -62,7 +62,7 @@ def hold_of(track, period=3.2, amp=1.0):
 		base["left_arm"] = {"tip": (tip[0], tip[1] + 0.03 * amp * b, tip[2])}
 		hd = base["head"]
 		base["head"] = (hd[0] - 0.8 * amp * b, hd[1] + 0.8 * amp * b2, hd[2])
-		return tp_clips.solve_grounded(base)
+		return flat_feet(base)
 
 	return pose
 
