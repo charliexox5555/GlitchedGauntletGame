@@ -470,8 +470,9 @@ KATANA_ATTACKS = {
 		(0.82, ("near", 0.0, 0.03, 3), None),
 		(0.92, ("near", 0.0, -0.01, -1), None),
 	]),
-	# Spinning forward thrust: pulled back low right, driven straight at the
-	# crosshair while the blade spins once about its length (the toss), drawn back.
+	# Forward thrust: pulled back low right, driven straight at the crosshair,
+	# drawn back. (2026-11-22 v2: no spin about the blade's length; a blade
+	# can't turn in a closed fist.)
 	"KatanaSlash3": (0.6, 0.29, [
 		(0.03, ("near", 0.04, 0.03, -8), None),
 		(0.1, ("fist", (0.55, -0.8, 1.3), -12), None),
@@ -503,65 +504,51 @@ KATANA_ATTACKS = {
 		(0.93, ("near", 0.0, -0.012, 2), None),
 	]),
 }
-# The thrust's spin: one turn about the blade's own length (handle -Z).
-KATANA_SLASH3_TOSS = [
-	(0.0, (0, 0, 0), (0, 0, 0)),
-	(0.24, (0, 0, 0), (0, 0, 0)),
-	(0.3, (0, 0, 0), (0, 0, -180)),
-	(0.36, (0, 0, 0), (0, 0, -360)),
-	(1.0, (0, 0, 0), (0, 0, -360)),
-]
-
-# Iaijutsu flash-draw: the fist comes up at the left hip with the blade still
-# pointing down and back (in the scabbard), creeps, then one rising cut out
-# through the middle to the upper right, and settles into the hold past the
-# pose. The ring pommel
-# spins (TS_Ring, Util/TempestKunai) as the hand closes on it.
+# Draw (2026-11-22 v2, owner: "the draw should be better"): the wheel-up. The
+# fist rises from the low right with the blade hanging point-down behind it;
+# as the hand climbs, the forearm swings the blade up through the left (a
+# rising arc on screen, one rigid wrist, no spin in the fingers), it passes the
+# hold leaning right, drops back and settles. The ring pommel spins as the hand
+# closes on it (TS_Ring, Util/TempestKatana); the surge runs guard to tip on
+# the way up.
 KATANA_DRAW = (0.75, [
-	(0.0, ("fist", (0.2, -1.8, 1.2), 10), None),
-	(0.12, ("aim", (-0.25, -1.15, 1.15), (-0.9, -1.5, 1.4), "auto"), None),
-	(0.2, ("aim", (-0.18, -1.08, 1.12), (-0.85, -1.42, 1.42), "auto"), None),
-	(0.23, ("aim", (0.0, -0.9, 1.1), (-0.2, -0.6, 2.1), "auto"), None),
-	(0.245, ("aim", (0.15, -0.75, 1.1), (0.12, -0.2, 2.2), "auto"), None),
-	(0.26, ("aim", (0.3, -0.6, 1.1), (0.45, 0.1, 2.0), "auto"), None),
-	(0.3, ("aim", (0.6, -0.35, 1.15), (1.0, 0.7, 1.5), "auto"), None),
-	(0.42, ("blend", (0.55, -0.4, 1.3)), None),
-	(0.55, ("near", 0.0, 0.04, -4), None),
-	(0.7, ("near", 0.0, -0.012, 1.5), None),
+	(0.0, ("aim", (0.95, -1.9, 1.25), (0.8, -2.6, 1.2), "auto"), None),
+	(0.14, ("aim", (0.78, -1.2, 1.25), (0.35, -1.75, 1.35), "auto"), None),
+	(0.26, ("aim", (0.66, -0.78, 1.25), (-0.15, -0.95, 1.5), "auto"), None),
+	(0.36, ("aim", (0.56, -0.52, 1.25), (-0.3, -0.05, 1.55), "auto"), None),
+	(0.44, ("aim", (0.48, -0.4, 1.28), (0.05, 0.62, 1.5), "auto"), None),
+	(0.52, ("aim", (0.42, -0.36, 1.3), (0.52, 0.6, 1.5), "auto"), None),
+	(0.62, ("near", 0.0, -0.05, 4), None),
+	(0.74, ("near", 0.0, 0.02, -1.5), None),
+	(0.86, ("near", 0.0, -0.006, 0.5), None),
 ])
 
-# Inspect: the knife's (face to you, laid over), but the blade spins twice by
-# the ring pommel while it faces you (about the flat's normal, round the ring
-# behind the grip), then it is laid level with the flat up and the spine to you
-# for the water-and-lightning run along it (Util/TempestKunai), and snaps back.
+# Inspect (2026-11-22 v2, owner: the ring-spin "twirls the katana in like a
+# 360 without moving the hand and just looks really unnatural"). No toss and
+# no impossible turns: on block arms a rigid fist's forearm roll only swings
+# the blade round a cone, so the arm stays within ~20 degrees of the shoulder
+# line (the knife inspect's was 42) and the wrist does the rest. Laid level
+# across the view pointing left, face toward you (tilted ~45 so the arm stays
+# natural) while a water wave runs down it; a slow see-saw as if balanced; a
+# dip, then the wrist snaps it up tip-high in front for the second wave, past
+# and settle; back to the hold.
 KATANA_INSPECT = (3.4, [
-	(0.08, ("near", -0.06, 0.04, 10), None),
-	(0.15, ("aim", (0.12, -0.42, 1.15), (-0.34, 0.5, 1.4), (-1, -0.25, 0)), None),
-	(0.2, ("aim", (0.12, -0.42, 1.15), (-0.26, 0.5, 1.4), (-1, -0.2, 0)), None),
-	(0.27, ("aim", (0.11, -0.4, 1.14), (-0.29, 0.52, 1.4), (-1, -0.2, 0.05)), None),
-	(0.5, ("aim", (0.11, -0.44, 1.15), (-0.29, 0.48, 1.4), (-1, -0.2, 0.05)), None),
-	(0.55, ("aim", (0.11, -0.5, 1.15), (-0.29, 0.42, 1.4), (-1, -0.2, 0.05)), None),
-	(0.572, ("split", (0.11, -0.45, 1.15), 0.5, 0.0), None),
-	(0.59, ("split", (0.105, -0.43, 1.155), 0.94, 0.07), None),
-	(0.603, ("split", (0.1, -0.42, 1.16), 1.0, 0.42), None),
-	(0.616, ("split", (0.09, -0.4, 1.18), 1.0, 0.84), None),
-	(0.63, ("aim", (0.1, -0.4, 1.2), (-0.5, -0.42, 1.45), (0, 0, -1)), None),
-	(0.7, ("aim", (0.1, -0.41, 1.2), (-0.5, -0.44, 1.45), (0, 0, -1)), None),
-	(0.85, ("aim", (0.11, -0.43, 1.2), (-0.48, -0.47, 1.45), (0, 0, -1)), None),
-	(0.89, ("aim", (0.12, -0.44, 1.2), (-0.47, -0.5, 1.45), (0, -0.2, -1)), None),
-	(0.93, ("blend", (0.3, -0.58, 1.3)), None),
-	(0.97, ("near", 0.0, 0.02, 3), None),
+	(0.06, ("near", -0.05, 0.04, 8), None),
+	(0.13, ("aim", (0.22, -0.62, 1.15), (-0.62, -0.27, 1.45), (0, -0.7, -0.7)), None),
+	(0.19, ("aim", (0.25, -0.6, 1.15), (-0.6, -0.33, 1.45), (0, -0.7, -0.7)), None),
+	(0.3, ("aim", (0.25, -0.59, 1.15), (-0.6, -0.3, 1.45), (0, -0.7, -0.7)), None),
+	(0.38, ("aim", (0.26, -0.6, 1.15), (-0.6, -0.36, 1.45), (0, -0.7, -0.7)), None),
+	(0.45, ("aim", (0.25, -0.58, 1.15), (-0.6, -0.24, 1.45), (0, -0.7, -0.7)), None),
+	(0.53, ("aim", (0.25, -0.6, 1.15), (-0.6, -0.32, 1.45), (0, -0.7, -0.7)), None),
+	(0.64, ("aim", (0.26, -0.61, 1.15), (-0.6, -0.3, 1.45), (0, -0.7, -0.7)), None),
+	(0.68, ("aim", (0.28, -0.66, 1.15), (-0.62, -0.4, 1.45), (0, -0.7, -0.7)), None),
+	(0.73, ("aim", (0.2, -0.48, 1.2), (-0.05, 0.5, 1.55), "auto"), None),
+	(0.77, ("aim", (0.2, -0.46, 1.2), (0.08, 0.52, 1.55), "auto"), None),
+	(0.81, ("aim", (0.2, -0.48, 1.2), (0.02, 0.48, 1.55), "auto"), None),
+	(0.9, ("aim", (0.21, -0.49, 1.2), (0.04, 0.49, 1.55), "auto"), None),
+	(0.95, ("blend", (0.33, -0.45, 1.3)), None),
+	(0.98, ("near", 0.0, 0.015, 2), None),
 ])
-KATANA_INSPECT_TOSS = [
-	(0.0, (0, 0, 0), (0, 0, 0)),
-	(0.3, (0, 0, 0), (0, 0, 0)),
-	(0.34, (0, 0, 0), (180, 0, 0)),
-	(0.38, (0, 0, 0), (360, 0, 0)),
-	(0.42, (0, 0, 0), (540, 0, 0)),
-	(0.46, (0, 0, 0), (720, 0, 0)),
-	(1.0, (0, 0, 0), (720, 0, 0)),
-]
-KATANA_RING = (0, 0, 0.77)  # the ring pommel's centre in handle space (s05x: Blender x -0.77)
 
 
 def luau_v(v):
@@ -713,13 +700,9 @@ def emit_all(check):
 	toss.append(f"tossPivot = {luau_v(INSPECT_TOSS_PIVOT)},")
 	emit("InspectMelee", INSPECT[0], None, INSPECT[1], check, toss)
 	for name, (length, hit, keys) in KATANA_ATTACKS.items():
-		extra = ()
-		if name == "KatanaSlash3":
-			extra = tuple(_toss_lines(KATANA_SLASH3_TOSS, (0, 0, 0)))
-		emit(name, length, hit, keys, check, extra)
+		emit(name, length, hit, keys, check)
 	emit("KatanaDraw", KATANA_DRAW[0], None, KATANA_DRAW[1], check)
-	emit("KatanaInspect", KATANA_INSPECT[0], None, KATANA_INSPECT[1], check,
-		tuple(_toss_lines(KATANA_INSPECT_TOSS, KATANA_RING)))
+	emit("KatanaInspect", KATANA_INSPECT[0], None, KATANA_INSPECT[1], check)
 
 
 def _toss_lines(keys, pivot):

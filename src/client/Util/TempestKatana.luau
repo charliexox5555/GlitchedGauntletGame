@@ -11,8 +11,10 @@
 --   - every cut leaves a full-blade crescent of water with a static edge; the
 --     Tempest Cleave (heavy) flares the blade white while it coils, then throws
 --     a wide crescent of water and arcs;
+--   - a white-hot core line down the glowing sheath, motes shed off the blade,
+--     water dripping off the tip, a flare through blade and lights on every hit;
 --   - draw: the ring pommel spins once into the palm and a surge runs guard to
---     tip; inspect: a water-and-lightning wave runs down the level blade;
+--     tip as it wheels up; inspect: water-and-lightning waves down the blade;
 --   - the shuriken charm swings from the ring.
 -- Moves are Config/Viewmodel's Katana* tracks (ViewmodelController picks them).
 -- Points are Blender units of the export (X along the blade, origin at the hand);
@@ -38,10 +40,14 @@ export type State = {
 	charm: Motor6D?,
 	charmS: Spring,
 	halo: { Beam },
+	core: { Beam },
+	motes: { ParticleEmitter },
+	drip: ParticleEmitter,
+	flare: number, -- 0..: a cut landing, fading
 	ribbons: { Beam },
 	bolts: { Beam },
 	boltPoints: { Attachment },
-	trails: { wave: Trail, static: Trail },
+	trails: { body: Trail, arc: Trail, static: Trail },
 	band: { at: Attachment, rings: ParticleEmitter },
 	burst: ParticleEmitter,
 	burstAt: Attachment,
@@ -179,6 +185,10 @@ function TempestKatana.new(model: Model, scale: number): State?
 		charm = motor("TS_Charm"),
 		charmS = { x = 0, v = 0 },
 		halo = {},
+		core = {},
+		motes = {},
+		drip = nil :: any,
+		flare = 0,
 		ribbons = {},
 		bolts = {},
 		boltPoints = {},
@@ -236,12 +246,10 @@ function TempestKatana.new(model: Model, scale: number): State?
 	state.halo = chain(edgePts, function(_i, t0, t1)
 		local b = Instance.new("Beam")
 		b.Name = "TempestKatanaHalo"
-		-- the laminar band texture tiled slowly: a continuous glowing sheath (a
-		-- round glow stretched per segment would bead along the blade)
-		b.Texture = VFX.TEMPEST_WATER_RIBBON
-		b.TextureMode = Enum.TextureMode.Wrap
-		b.TextureLength = Tempest.RIBBON_TILE * 2 * scale
-		b.TextureSpeed = Style.HALO_SPEED
+		-- an even glow band (soft falloff across, a hot line in the middle), so the
+		-- sheath runs the whole blade without beading at the segment joins
+		b.Texture = VFX.TEMPEST_GLOW_BAND
+		b.TextureMode = Enum.TextureMode.Stretch
 		b.Color = ColorSequence.new(Tempest.WATER)
 		b.LightEmission = 1
 		b.LightInfluence = 0
@@ -251,6 +259,23 @@ function TempestKatana.new(model: Model, scale: number): State?
 		local w0 = Style.HALO_WIDTH[1] + (Style.HALO_WIDTH[2] - Style.HALO_WIDTH[1]) * t0
 		local w1 = Style.HALO_WIDTH[1] + (Style.HALO_WIDTH[2] - Style.HALO_WIDTH[1]) * t1
 		b.Width0, b.Width1 = w0 * scale, w1 * scale
+		b.Segments = 2
+		b.Enabled = false
+		return b
+	end)
+	-- the core: a thin white-hot line down the sheath (the lightsaber read)
+	state.core = chain(edgePts, function()
+		local b = Instance.new("Beam")
+		b.Name = "TempestKatanaCore"
+		b.Texture = VFX.TEMPEST_GLOW_BAND
+		b.TextureMode = Enum.TextureMode.Stretch
+		b.Color = ColorSequence.new(Tempest.ARC_CORE)
+		b.LightEmission = 1
+		b.LightInfluence = 0
+		b.Brightness = Style.CORE_BRIGHTNESS
+		b.FaceCamera = true
+		b.Width0, b.Width1 = Style.CORE_WIDTH * scale, Style.CORE_WIDTH * scale
+		b.ZOffset = 0.01
 		b.Segments = 2
 		b.Enabled = false
 		return b
@@ -344,12 +369,69 @@ function TempestKatana.new(model: Model, scale: number): State?
 	local gx, gez = blade(0)
 	local tx, tez = blade(1)
 	local mx, mez = blade(0.55)
+	local bx, bez = blade(0.3)
+	local ax, aez = blade(0.8)
+	-- body: a soft crescent of water the outer blade sweeps; arc: the bright
+	-- line its last fifth cuts (both the glow band, even across, so they read
+	-- the same whichever attachment leads); static: arcs off the edge
 	state.trails = {
-		wave = trail("TempestKatanaWave", bl(gx, 0, gez), bl(tx, 0, tez), VFX.TEMPEST_WATER_RIBBON),
+		body = trail("TempestKatanaBody", bl(bx, 0, bez), bl(tx, 0, tez), VFX.TEMPEST_GLOW_BAND),
+		arc = trail("TempestKatanaArcTrail", bl(ax, 0, aez), bl(tx, 0, tez), VFX.TEMPEST_GLOW_BAND),
 		static = trail("TempestKatanaStatic", bl(mx, 0, mez), bl(tx, 0, tez), VFX.TEMPEST_ARC_2x2),
 	}
+	state.trails.body.Color = ColorSequence.new(Tempest.WATER)
+	state.trails.body.Brightness = 1.2
+	state.trails.body.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.3),
+		NumberSequenceKeypoint.new(0.6, 0.75),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	state.trails.arc.Color = ColorSequence.new(Tempest.ARC_CORE, Tempest.WATER_EDGE)
+	state.trails.arc.Brightness = Style.ARC_TRAIL_BRIGHTNESS
 	state.trails.static.Color = ColorSequence.new(Tempest.ARC_CORE, Tempest.WATER_EDGE)
 	state.trails.static.Lifetime = Style.TRAIL_LIFE * 0.6
+	-- motes: small sparkles shed off the blade (world space, so they hang in
+	-- the air behind a cut), and water dripping off the tip
+	for i, t in Style.MOTE_AT do
+		local x, ez = blade(t)
+		local at = anchor(state, "TempestKatanaMote" .. i, bl(x, 0, ez))
+		local e = emitter(at, "TempestKatanaMotes", VFX.MOD_SPARKLE)
+		e.Color = ColorSequence.new(Tempest.ARC_CORE, Tempest.WATER)
+		e.Brightness = 2
+		e.LockedToPart = false
+		e.Lifetime = NumberRange.new(0.5, 0.9)
+		e.Speed = NumberRange.new(0.12 * scale, 0.35 * scale)
+		e.SpreadAngle = Vector2.new(180, 180)
+		e.Acceleration = Vector3.new(0, 0.4 * scale, 0)
+		e.Drag = 2
+		e.Rotation = NumberRange.new(0, 360)
+		e.RotSpeed = NumberRange.new(-90, 90)
+		e.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(0.2, 0.06 * scale),
+			NumberSequenceKeypoint.new(1, 0),
+		})
+		e.Rate = Style.MOTE_RATE
+		table.insert(state.motes, e)
+	end
+	do
+		local at = anchor(state, "TempestKatanaDrip", bl(tx, 0, tez))
+		local e = emitter(at, "TempestKatanaDrips", VFX.TEMPEST_DROPLETS_2x2)
+		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+		e.FlipbookMode = Enum.ParticleFlipbookMode.Random
+		e.LockedToPart = false
+		e.Lifetime = NumberRange.new(0.4, 0.6)
+		e.Speed = NumberRange.new(0.05 * scale)
+		e.SpreadAngle = Vector2.new(20, 20)
+		e.Acceleration = Vector3.new(0, -6 * scale, 0)
+		e.Size = NumberSequence.new(0.035 * scale)
+		e.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.1),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		e.Rate = Style.DRIP_RATE
+		state.drip = e
+	end
 	-- the band: water rings running along the blade (draw surge, inspect wave)
 	local bandAt = anchor(state, "TempestKatanaBand", bl(gx, 0, gez))
 	local rings = emitter(bandAt, "TempestKatanaBandRings", VFX.MOD_RING)
@@ -496,7 +578,8 @@ function TempestKatana.step(
 	if state.ring then
 		state.ring.Transform = CFrame.fromAxisAngle(Style.RING_AXIS, math.rad(ring))
 	end
-	-- inspect: the ring spin (the track's toss), then the wave down the level blade
+	-- inspect: a wave down the level blade, a balanced see-saw, then the wrist
+	-- snaps it up tip-high for a second wave with a splash off the tip
 	local prev = state.inspectPrev or 0
 	if inspectP then
 		if inspectP < prev then
@@ -505,20 +588,25 @@ function TempestKatana.step(
 		if prev < 0.02 and inspectP >= 0.02 then
 			cue(state, "inspect")
 		end
-		if prev < Style.INSPECT_SPIN and inspectP >= Style.INSPECT_SPIN then
+		if prev < Style.INSPECT_LIFT and inspectP >= Style.INSPECT_LIFT then
 			cue(state, "inspectRoll")
-			charmKick += 1.4
+			charmKick += 1.2
 		end
-		local w0, w1 = Style.INSPECT_WAVE[1], Style.INSPECT_WAVE[2]
-		if inspectP > w0 and inspectP < w1 then
-			band = smooth(w0, w1, inspectP)
-			surgeGoal = math.max(surgeGoal, 0.45)
-		end
-		if prev < w1 and inspectP >= w1 then
-			cue(state, "inspectCatch")
-			state.burstAt.Position =
-				state.toBody:PointToWorldSpace(bl(blade(1), 0, 0) * state.scale)
-			state.burst:Emit(if reduced then 4 else 12)
+		for i, w in Style.INSPECT_WAVES do
+			local w0, w1 = w[1], w[2]
+			if inspectP > w0 and inspectP < w1 then
+				band = smooth(w0, w1, inspectP)
+				surgeGoal = math.max(surgeGoal, 0.5)
+			end
+			if prev < w1 and inspectP >= w1 then
+				if i == #Style.INSPECT_WAVES then
+					cue(state, "inspectCatch")
+				end
+				state.flare = math.max(state.flare, 0.7)
+				state.burstAt.Position =
+					state.toBody:PointToWorldSpace(bl(blade(1), 0, 0) * state.scale)
+				state.burst:Emit(if reduced then 4 else 12)
+			end
 		end
 	end
 	state.inspectPrev = inspectP
@@ -537,6 +625,7 @@ function TempestKatana.step(
 			if not reduced then
 				state.tipArcs:Emit(if heavy then 4 else 2)
 			end
+			state.flare = math.max(state.flare, if heavy then 1.6 else 1)
 			if heavy then
 				state.cleave.flash:Emit(1)
 				if not reduced then
@@ -548,6 +637,7 @@ function TempestKatana.step(
 	end
 	state.swingPrev = swingP
 	state.surge += (surgeGoal - state.surge) * (1 - math.exp(-12 * s))
+	state.flare *= math.exp(-Style.FLARE_DECAY * s)
 	-- the charm swings from the ring (kicked by every move, settles)
 	if charmKick > 0 then
 		state.charmS.v += Style.CHARM_KICK * charmKick * (if math.random() < 0.5 then -1 else 1)
@@ -564,12 +654,28 @@ function TempestKatana.step(
 	end
 	-- trails while a move cuts
 	local cutting = swingP ~= nil and swingP > 0.06 and swingP < 0.75 and visible
-	if state.trails.wave.Enabled ~= cutting then
-		state.trails.wave.Enabled = cutting
+	-- the draw's wheel up into the hold leaves its arc too
+	local d0, d1 = Style.DRAW_SURGE[1], Style.DRAW_SURGE[2]
+	local drawCut = drawP ~= nil and drawP > d0 - 0.12 and drawP < d1 and visible
+	for _, tr in { state.trails.body, state.trails.arc } do
+		if tr.Enabled ~= (cutting or drawCut) then
+			tr.Enabled = cutting or drawCut
+		end
 	end
 	local staticOn = cutting and not reduced
 	if state.trails.static.Enabled ~= staticOn then
 		state.trails.static.Enabled = staticOn
+	end
+	for _, e in state.motes do
+		local on = visible and not reduced
+		if e.Enabled ~= on then
+			e.Enabled = on
+		end
+		e.Rate = Style.MOTE_RATE * (1 + 4 * math.max(state.surge, state.flare))
+	end
+	local dripOn = visible and not reduced
+	if state.drip.Enabled ~= dripOn then
+		state.drip.Enabled = dripOn
 	end
 	-- the band
 	local bandOn = band ~= nil and visible and not reduced
@@ -582,7 +688,7 @@ function TempestKatana.step(
 	end
 	-- edge, halo, ribbons and light; all brighter in a surge
 	local pulse = 0.92 + 0.08 * math.sin(state.clock * 4.2)
-	local hot = state.surge
+	local hot = math.clamp(math.max(state.surge, 0.5 * state.flare), 0, 1)
 	local edgeColor = Style.EDGE_COLOR:Lerp(Tempest.ARC_CORE, hot)
 	for _, p in state.edges do
 		if p.Color ~= edgeColor then
@@ -598,6 +704,12 @@ function TempestKatana.step(
 			b.Brightness = Style.HALO_BRIGHTNESS * pulse * (1 + Style.SURGE_GAIN * hot)
 		end
 	end
+	for _, b in state.core do
+		b.Enabled = visible
+		if visible then
+			b.Brightness = Style.CORE_BRIGHTNESS * pulse * (1 + hot)
+		end
+	end
 	for _, b in state.ribbons do
 		b.Enabled = visible
 		if visible then
@@ -607,7 +719,7 @@ function TempestKatana.step(
 	end
 	for _, l in state.lights do
 		l.Enabled = visible
-		l.Brightness = Style.LIGHT * pulse + Style.LIGHT_SURGE * hot
+		l.Brightness = Style.LIGHT * pulse + Style.LIGHT_SURGE * hot + 1.2 * state.flare
 	end
 	-- lightning: random flickers along the spine (constant in a surge or a wave)
 	local boltOn = false

@@ -112,14 +112,20 @@ return table.freeze({
 			},
 			EDGE_LIFT = 0.012, -- the band's middle above the edge line
 			EXPORT_WATER = Color3.fromRGB(64, 245, 212), -- TS Water as the flat export carries it
-			EDGE_COLOR = Color3.fromRGB(60, 160, 158), -- the edge burns water cyan (Neon: darker, or it blows out white)...
+			EDGE_COLOR = Color3.fromRGB(90, 215, 210), -- the edge burns water cyan (Neon)...
 			SKIN_PAD = 0.014, -- ...under a shimmering ForceField skin
 			SKIN_OPACITY = 0.5,
 			SEGMENTS = 12, -- beam segments guard -> tip
-			HALO_WIDTH = { 0.1, 0.16 }, -- the glowing sheath over the edge, guard -> tip
-			HALO_BRIGHTNESS = 1.5,
-			HALO_TRANSPARENCY = 0.45,
-			HALO_SPEED = 0.35,
+			HALO_WIDTH = { 0.2, 0.28 }, -- the glowing sheath over the edge (glow band), guard -> tip
+			HALO_BRIGHTNESS = 1.8,
+			HALO_TRANSPARENCY = 0.15,
+			CORE_WIDTH = 0.05, -- the white-hot line down its middle
+			CORE_BRIGHTNESS = 1.4,
+			MOTE_AT = { 0.35, 0.6, 0.85 }, -- blade stations shedding sparkle motes...
+			MOTE_RATE = 2.5, -- ...per second each
+			DRIP_RATE = 1.2, -- water drips off the tip, per second
+			ARC_TRAIL_BRIGHTNESS = 3, -- the bright arc the outer blade cuts
+			FLARE_DECAY = 7, -- the hit flare fades at this rate (1/s)
 			RIBBON_WIDTH = 0.03,
 			RIBBON_OFFSET = 0.026, -- off the blade's centre plane, each side (at the guard)
 			BOLT_POINTS = 7,
@@ -127,7 +133,7 @@ return table.freeze({
 			BOLT_WIDTH = 0.02,
 			ARC_GAP = { 0.6, 1.6 }, -- seconds between spine flickers
 			ARC_JITTER = 0.03,
-			TRAIL_LIFE = 0.13,
+			TRAIL_LIFE = 0.16,
 			CLEAVE_SIZE = 4.2, -- the Cleave's crescent flash (studs, scaled)
 			SURGE_GAIN = 1.6,
 			LIGHT_AT = { 0.4, 0.85 }, -- blade stations of the two lights
@@ -137,9 +143,9 @@ return table.freeze({
 			RING_TURNS = 1, -- the pommel ring spins once into the palm on the draw...
 			RING_SPIN_END = 0.2, -- ...by this much of the draw
 			RING_AXIS = Vector3.yAxis, -- the ring hole's axis (bone space)
-			DRAW_SURGE = { 0.22, 0.42 }, -- the surge runs guard -> tip (the flash cut)
-			INSPECT_SPIN = 0.3, -- KatanaInspect's ring spin starts
-			INSPECT_WAVE = { 0.64, 0.84 }, -- the wave down the level blade
+			DRAW_SURGE = { 0.3, 0.5 }, -- the surge runs guard -> tip (the wheel up into the hold)
+			INSPECT_LIFT = 0.7, -- KatanaInspect: the wrist snaps it up tip-high
+			INSPECT_WAVES = { { 0.18, 0.34 }, { 0.78, 0.9 } }, -- waves down the level blade, then the raised one
 			CHARM_AXIS = Vector3.new(1, 1, 0).Unit, -- the charm swings about this (bone space)
 			CHARM_HANG = 0.0638, -- the charm pivot sits this far under the ring centre (rides the ring spin)
 			CHARM_FREQ = 2.2,

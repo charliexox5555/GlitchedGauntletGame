@@ -97,3 +97,35 @@ The owner's first play of the line after the Studio port. Everything below was b
 - **Katana impacts** (cyan droplets plus a static slash mark on hit): the knife still uses the shared melee impact.
 - **Katana sounds:** they reuse the `tempest:` foley cues. The owner designs the sounds.
 - **Chromas:** none yet.
+
+## Round 2: the owner's katana check (2026-11-22, Rojo connected)
+
+**Owner's verdict:** "not bad, but … visual effects could be better, the draw should be better". The inspect "twirls the katana in like a 360 without moving the hand and just looks really unnatural". Sounds are a work in progress, so they are left as they are. The other guns are not checked yet.
+
+### Inspect
+The ring-spin toss is gone, and every turn now comes from the wrist and forearm. The knife solver's check keeps the arm within 16–18° of the shoulder line (the old knife inspect was at 42°).
+
+The new sequence:
+1. The blade is laid level across the view, pointing left with its face toward you, while a water wave runs down it.
+2. A slow see-saw, as if balanced.
+3. A dip, then the wrist snaps the blade up tip-high in front (0° off the shoulder) for a second wave and a splash.
+4. Back to the hold.
+
+### Thrust
+The thrust (Slash3) lost its spin about the blade's own length, for the same reason: a blade can't turn inside a closed fist.
+
+### Draw
+The new draw is a wheel-up:
+1. The fist rises from the low right with the blade hanging point-down.
+2. The forearm swings the blade up through the left as the hand climbs. It leaves an arc trail, and the surge runs guard to tip (draw 0.3–0.5).
+3. It passes the hold leaning right, drops back and settles.
+
+The ring pommel spins as the hand closes on it.
+
+### VFX
+- **New glow-band texture:** `tools/vfx/make_katana_vfx.py`, `TEMPEST_GLOW_BAND`.
+- **Sheath and core:** the edge glow is now an even sheath (width 0.2–0.28) with a white-hot core line down it. The edge Neon is brighter.
+- **Swing arcs:** each swing leaves a soft arc from the outer blade plus a bright arc off its last fifth, built from the symmetric glow band.
+- **Motes and drips:** sparkle motes drift off the blade (more of them in a surge), and water drips from the tip.
+- **Hit flare:** every hit flares the blade, the core and the lights.
+

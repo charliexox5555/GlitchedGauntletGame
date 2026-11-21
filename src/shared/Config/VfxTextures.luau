@@ -130,5 +130,6 @@ return table.freeze({
 	TEMPEST_ARC_2x2 = "rbxassetid://117194314082417", -- thin branching arcs, left to right, 4 shapes
 	TEMPEST_STATIC_MARK = "rbxassetid://99394363421524", -- crackle scorch decal
 	TEMPEST_WATER_RIBBON = "rbxassetid://107153772972177", -- laminar ribbon, tiles left to right
+	TEMPEST_GLOW_BAND = "rbxassetid://97366507211773", -- soft white band, hot core line, even along U (tools/vfx/make_katana_vfx.py; decal 83697426300765)
 	TEMPEST_WATER_TRACER = "rbxassetid://113759566097094", -- razor streak, head on the right, droplets trailing
 })
