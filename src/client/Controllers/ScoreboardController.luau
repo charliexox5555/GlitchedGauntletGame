@@ -10,6 +10,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -48,7 +49,10 @@ local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
 local ALLY_CELL, ENEMY_CELL = Color3.fromHex("0D5C7A"), Color3.fromHex("8A1C24")
 local BOT_HEAD = "rbxassetid://119185654291939"
 local ASK_EVERY = 1 -- seconds between refreshes while open
-local KEYS = { [Enum.KeyCode.Tab] = true, [Enum.KeyCode.ButtonSelect] = true }
+-- Settings OPEN SCOREBOARD (default Tab / Select)
+local function isKey(key: Enum.KeyCode): boolean
+	return key.Value ~= 0 and SettingsApply.keyIs("kScoreboard", key)
+end
 
 type State = {
 	gui: ScreenGui,
@@ -253,7 +257,7 @@ function ScoreboardController.start()
 			end
 		end)
 		UserInputService.InputBegan:Connect(function(input: InputObject)
-			if KEYS[input.KeyCode] and not UserInputService:GetFocusedTextBox() then
+			if isKey(input.KeyCode) and not UserInputService:GetFocusedTextBox() then
 				local phase = MatchState.phase()
 				if phase ~= "MatchEnd" and phase ~= "Waiting" and phase ~= "Vote" then
 					setOpen(true)
@@ -261,7 +265,7 @@ function ScoreboardController.start()
 			end
 		end)
 		UserInputService.InputEnded:Connect(function(input: InputObject)
-			if KEYS[input.KeyCode] then
+			if isKey(input.KeyCode) then
 				setOpen(false)
 			end
 		end)

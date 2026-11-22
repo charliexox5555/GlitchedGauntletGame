@@ -29,6 +29,7 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
 local InputMode = require(ReplicatedStorage.Shared.InputMode)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local TouchLayout = require(ReplicatedStorage.Shared.TouchLayout)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local TouchHud = require(script.Parent.Parent.Util.TouchHud)
@@ -470,10 +471,41 @@ local function visible(): boolean
 	return not (phase and HIDDEN_PHASES[phase]) and alive()
 end
 
+-- Settings DOUBLE TAP TO FIRE: the touch holding Fire (the second of two
+-- quick taps on the empty right half), and when the last such tap began.
+local tapFire: InputObject? = nil
+local lastTapAt = -math.huge
+
+local function endTapFire()
+	if tapFire then
+		tapFire = nil
+		-- (the FIRE button may still be held by another finger)
+		local firing = false
+		for _, name in touching do
+			firing = firing or name == "FireButton"
+		end
+		if not firing then
+			setAction("Fire", false)
+		end
+	end
+end
+
 local function releaseAll()
 	for input, name in touching do
 		touching[input] = nil
 		up(name)
+	end
+	endTapFire()
+end
+
+-- Settings CAMERA THROUGH BUTTONS (default on): off makes the buttons take
+-- their touches, so Roblox's camera skips a swipe that starts on one.
+local function applyCameraThrough()
+	local through = SettingsApply.get("touchCameraThrough") ~= false
+	for d in isButton do
+		if d:IsA("GuiButton") then
+			d.Interactable = not through
+		end
 	end
 end
 
@@ -549,7 +581,9 @@ function TouchController.start()
 			isButton[d] = true
 		end
 	end
-	UserInputService.InputBegan:Connect(function(input: InputObject)
+	applyCameraThrough()
+	SettingsApply.changed:Connect(applyCameraThrough)
+	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		local gg = gui
 		if not gg or not gg.Enabled or not isPointer(input) or touching[input] then
 			return
@@ -558,6 +592,28 @@ function TouchController.start()
 		if b then
 			touching[input] = b.Name
 			down(b.Name)
+			return
+		end
+		-- DOUBLE TAP TO FIRE: empty screen, right half, a menu didn't take it
+		local cam = Workspace.CurrentCamera
+		if
+			processed
+			or input.UserInputType ~= Enum.UserInputType.Touch
+			or SettingsApply.get("touchDoubleTap") ~= true
+			or not cam
+			or input.Position.X < cam.ViewportSize.X / 2
+			or tapFire
+		then
+			return
+		end
+		local now = os.clock()
+		local window = SettingsApply.get("touchDoubleTapWindow")
+		if now - lastTapAt <= (if typeof(window) == "number" then window else 0.25) then
+			lastTapAt = -math.huge
+			tapFire = input
+			setAction("Fire", true)
+		else
+			lastTapAt = now
 		end
 	end)
 	UserInputService.InputEnded:Connect(function(input: InputObject)
@@ -565,6 +621,9 @@ function TouchController.start()
 		if name then
 			touching[input] = nil
 			up(name)
+		end
+		if input == tapFire then
+			endTapFire()
 		end
 		if input == stickInput then
 			releaseStick()

@@ -26,6 +26,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local SettingsApply = require(game:GetService("ReplicatedStorage").Shared.SettingsApply)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
@@ -448,9 +449,9 @@ local function hookItem(s: State, b: TextButton)
 		end
 	end)
 	if b.Name == "Range" and not Release.RANGE_OPEN then
-			b.Visible = false -- closed for this update (shared/Config/Release)
-		end
-		s.items[b.Name] = b
+		b.Visible = false -- closed for this update (shared/Config/Release)
+	end
+	s.items[b.Name] = b
 end
 
 -- A hover lift for party circles (their ring's "Pop").
@@ -775,7 +776,12 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		end
 	end
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
-		if not processed and input.KeyCode == Enum.KeyCode.Tab then
+		-- Settings OPEN SCOREBOARD (default Tab)
+		if
+			not processed
+			and input.KeyCode.Value ~= 0
+			and SettingsApply.keyIs("kScoreboard", input.KeyCode)
+		then
 			toggleList()
 		end
 	end)

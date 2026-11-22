@@ -19,6 +19,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
 local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
@@ -64,6 +65,137 @@ end
 local function num(id: string): number
 	local v = SettingsApply.get(id)
 	return if typeof(v) == "number" then v else 0
+end
+
+-- KEYBINDS ---------------------------------------------------------------------------
+
+local function keysOf(id: string): { string }
+	local v = SettingsApply.get(id)
+	return if typeof(v) == "table" then v :: { string } else {}
+end
+
+-- `key` is one of the saved keys of keybind row `id` (keyboard, alt, controller).
+function SettingsApply.keyIs(id: string, key: Enum.KeyCode): boolean
+	return table.find(keysOf(id), key.Name) ~= nil
+end
+
+-- The row's keys differ from its default (a player rebound it).
+local function rebound(id: string): boolean
+	local have, base = keysOf(id), PlayerSettings.default(id) :: { string }
+	for i = 1, 3 do
+		if (have[i] or "") ~= (base[i] or "") then
+			return true
+		end
+	end
+	return false
+end
+
+-- A saved key of row `id` is held (keyboard and alt; `pad`: the controller
+-- button too; the movement rows' stick isn't rebindable).
+local function anyDown(id: string, pad: boolean?): boolean
+	for i = 1, if pad then 3 else 2 do
+		local name = keysOf(id)[i]
+		if name and name ~= "" then
+			local ok, code = pcall(function()
+				return (Enum.KeyCode :: any)[name]
+			end)
+			if ok and code then
+				local down = if i == 3
+					then UserInputService:IsGamepadButtonDown(Enum.UserInputType.Gamepad1, code)
+					else UserInputService:IsKeyDown(code)
+				if down then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+local MOVE_ROWS = { "kForward", "kBack", "kLeft", "kRight" }
+local function movesRebound(): boolean
+	for _, id in MOVE_ROWS do
+		if rebound(id) then
+			return true
+		end
+	end
+	return false
+end
+
+-- Rebound WALK / STRAFE keys (keyboard): the move from the saved keys, after
+-- Roblox's control module (which still reads WASD) each frame.
+local function keyboardMove(humanoid: Humanoid)
+	if InputMode.preferred() ~= Enum.PreferredInput.KeyboardAndMouse or not movesRebound() then
+		return
+	end
+	if UserInputService:GetFocusedTextBox() then
+		return
+	end
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return
+	end
+	local f = (if anyDown("kForward") then 1 else 0) - (if anyDown("kBack") then 1 else 0)
+	local r = (if anyDown("kRight") then 1 else 0) - (if anyDown("kLeft") then 1 else 0)
+	local look = cam.CFrame.LookVector * Vector3.new(1, 0, 1)
+	local right = cam.CFrame.RightVector * Vector3.new(1, 0, 1)
+	local dir = Vector3.zero
+	if look.Magnitude > 1e-3 then
+		dir += look.Unit * f
+	end
+	if right.Magnitude > 1e-3 then
+		dir += right.Unit * r
+	end
+	humanoid:Move(if dir.Magnitude > 1e-3 then dir.Unit else Vector3.zero, false)
+end
+
+-- Rebound JUMP: the saved keys jump; Space / ButtonA are sunk unless still bound.
+local JUMP_ACTION = "GGJumpKeys"
+local jumpBound = false
+local jumpKeys = ""
+local function applyJumpKeys()
+	local want = rebound("kJump")
+	local sig = table.concat(keysOf("kJump"), "|")
+	if want == jumpBound and sig == jumpKeys then
+		return
+	end
+	jumpBound, jumpKeys = want, sig
+	ContextActionService:UnbindAction(JUMP_ACTION)
+	if not want then
+		return
+	end
+	-- Space / A are only taken from Roblox when the player moved JUMP off them
+	-- (A also confirms in menus, so it stays untouched otherwise).
+	local codes: { Enum.KeyCode } = {}
+	for _, default in { Enum.KeyCode.Space, Enum.KeyCode.ButtonA } do
+		if not SettingsApply.keyIs("kJump", default) then
+			table.insert(codes, default)
+		end
+	end
+	for _, name in keysOf("kJump") do
+		local ok, code = pcall(function()
+			return (Enum.KeyCode :: any)[name]
+		end)
+		if ok and code and not table.find(codes, code) then
+			table.insert(codes, code)
+		end
+	end
+	ContextActionService:BindActionAtPriority(JUMP_ACTION, function(_, state, input)
+		if UserInputService:GetFocusedTextBox() then
+			return Enum.ContextActionResult.Pass
+		end
+		if SettingsApply.keyIs("kJump", input.KeyCode) then
+			if state == Enum.UserInputState.Begin then
+				local character = player.Character
+				local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid.Jump = true
+				end
+			end
+			return Enum.ContextActionResult.Sink
+		end
+		return Enum.ContextActionResult.Sink -- Space / A no longer jump
+	end, false, Enum.ContextActionPriority.High.Value, table.unpack(codes))
 end
 
 -- `fn` now and after every change.
@@ -441,6 +573,7 @@ local function applyAll()
 	applyGuis()
 	applyAudio()
 	InputMode.setForced(SettingsApply.get("forceControls"))
+	applyJumpKeys()
 	local character = player.Character
 	if character then
 		-- AUTO SPRINT off: the run needs Sprint (Simulation/Movement reads it)
@@ -486,12 +619,22 @@ function SettingsApply.start()
 		"GGSettingsDeadzone",
 		Enum.RenderPriority.Input.Value + 1,
 		function()
+			local character = player.Character
+			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+			if not humanoid then
+				return
+			end
 			if SettingsApply.stickDrift(Enum.KeyCode.Thumbstick1) then
-				local character = player.Character
-				local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-				if humanoid then
-					humanoid:Move(Vector3.zero, false)
-				end
+				humanoid:Move(Vector3.zero, false)
+			end
+			-- rebound WALK / STRAFE keys, and a held rebound JUMP repeats
+			keyboardMove(humanoid)
+			if
+				jumpBound
+				and not UserInputService:GetFocusedTextBox()
+				and anyDown("kJump", true)
+			then
+				humanoid.Jump = true
 			end
 		end
 	)
