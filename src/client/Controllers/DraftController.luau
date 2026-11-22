@@ -308,13 +308,19 @@ local function lock()
 end
 
 -- Keys: 1 / 2 / 3 pick a gun, Q / E / T a card in that column (pressing the
--- same key again steps through its cards), Enter locks in.
+-- same key again steps through its cards), Enter locks in. A gamepad moves
+-- between cards with the D-pad and picks with A; X locks in (the LOCK IN
+-- chip shows its glyph, Shared/InputGlyphs).
 local function onKey(input: InputObject)
 	if not isOpen or UserInputService:GetFocusedTextBox() then
 		return
 	end
 	local key = input.KeyCode
-	if key == Enum.KeyCode.Return or key == Enum.KeyCode.KeypadEnter then
+	if
+		key == Enum.KeyCode.Return
+		or key == Enum.KeyCode.KeypadEnter
+		or key == Enum.KeyCode.ButtonX
+	then
 		lock()
 		return
 	end

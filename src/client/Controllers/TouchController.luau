@@ -48,8 +48,8 @@ local LOCK_AHEAD = -0.9 -- ...(its direction's screen y at most this)...
 local LOCK_HOLD = 0.25 -- ...for this long locks sprint
 local UNLOCK_BACK = 0.35 -- pulling back past this (screen y) unlocks it
 local SLIDE_PRESS = 0.25 -- s: how long a slide tap holds Crouch
-local HIT = 1.2 -- a button's touch area: its circle × this (Soft Edge §7: +20%)
 local GAP = 8 -- px between Roblox's buttons and ours
+local ROW_TUCK = 4 -- px the row under Roblox's buttons tucks into the top bar's margin
 local HIDDEN_PHASES: { [string]: boolean } =
 	{ Vote = true, Draft = true, Replay = true, MatchEnd = true }
 
@@ -90,7 +90,6 @@ local aimOn, sprintOn, crouchOn = false, false, false
 local aimMode: "toggle" | "alt" | "none" = "toggle"
 local autoSprint = true
 
-local buttons: { GuiButton } = {}
 local refreshVisible: () -> () = function() end -- set in start (refresh)
 local touching: { [InputObject]: string } = {} -- a touch → the button it started on
 
@@ -349,21 +348,45 @@ local function shown(o: GuiObject): boolean
 	return node == g
 end
 
--- The button under a screen point: the nearest centre within its touch circle.
-local function buttonAt(p: Vector2): GuiButton?
-	local best: GuiButton? = nil
-	local bestD = math.huge
-	for _, b in buttons do
-		if shown(b) then
-			local size = b.AbsoluteSize
-			local c = b.AbsolutePosition + size / 2
-			local d = (p - c).Magnitude
-			if d <= math.min(size.X, size.Y) / 2 * HIT and d < bestD then
-				best, bestD = b, d
-			end
+-- The touch button a touch starts on, from Roblox's own hit-test:
+-- GetGuiObjectsAtPosition takes InputObject.Position as it is, so it lines
+-- up on every device (owner 2026-11-22: on a phone our own maths with
+-- GetGuiInset was off and taps missed). A visible button or an Active frame
+-- from another screen on top (a menu) wins.
+local isButton: { [Instance]: boolean } = {}
+local function ownerButton(o: Instance): GuiButton?
+	local node: Instance? = o
+	while node and node ~= gui do
+		if isButton[node] then
+			return node :: GuiButton
+		end
+		node = node.Parent
+	end
+	return nil
+end
+
+local function hitFor(input: InputObject): GuiButton?
+	local g = gui
+	local pg = player:FindFirstChildOfClass("PlayerGui")
+	if not g or not pg then
+		return nil
+	end
+	local ok, list = pcall(function()
+		return pg:GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)
+	end)
+	if not ok then
+		return nil
+	end
+	for _, o in list do
+		local mine = ownerButton(o)
+		if mine then
+			return if shown(mine) then mine else nil
+		end
+		if not o:IsDescendantOf(g) and o.Visible and (o.Active or o:IsA("GuiButton")) then
+			return nil -- another screen's control is on top
 		end
 	end
-	return best
+	return nil
 end
 
 local function isPointer(input: InputObject): boolean
@@ -455,7 +478,7 @@ local function layout()
 	place("SettingsButton", Vector2.new(inset.Min.X + GAP + d / 2, inset.Min.Y + inset.Height / 2))
 	-- The row under Roblox's buttons, from the safe area's left edge, skipping
 	-- hidden buttons.
-	local rowY = inset.Max.Y + GAP + d / 2
+	local rowY = inset.Max.Y + d / 2 - ROW_TUCK -- tucked up under the top bar (owner: "a bit too low")
 	local x = r.AbsolutePosition.X + GAP * 1.5 + d / 2
 	for _, name in { "ScoreboardButton", "InspectButton" } do
 		local b = topLeft:FindFirstChild(name)
@@ -546,18 +569,20 @@ function TouchController.start()
 	lock = if l and l:IsA("ImageLabel") then l else nil
 
 	-- The buttons let touches through to the camera; we hit-test them here.
+	-- Not gated on gameProcessed: a phone can flag a touch over our
+	-- (non-interactable) buttons as processed, which made taps miss.
 	for _, d in g:GetDescendants() do
 		if d:IsA("GuiButton") and d.Name ~= "StickZone" then
 			d.Interactable = false
-			table.insert(buttons, d)
+			isButton[d] = true
 		end
 	end
-	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
+	UserInputService.InputBegan:Connect(function(input: InputObject)
 		local gg = gui
-		if processed or not gg or not gg.Enabled or not isPointer(input) then
+		if not gg or not gg.Enabled or not isPointer(input) or touching[input] then
 			return
 		end
-		local b = buttonAt(guiPoint(input))
+		local b = hitFor(input)
 		if b then
 			touching[input] = b.Name
 			down(b.Name)
@@ -574,11 +599,21 @@ function TouchController.start()
 		end
 	end)
 
+	-- A touch can end without an InputEnded (a notification pulled down, the
+	-- app sent to the background): let go of everything so nothing sticks.
+	UserInputService.WindowFocusReleased:Connect(function()
+		releaseAll()
+		if stickInput then
+			releaseStick()
+		end
+	end)
+
 	-- The stick: touches that start in the zone (a button, so the camera skips them).
 	local zone = TouchHud.find("StickZone")
 	if zone then
 		zone.InputBegan:Connect(function(input: InputObject)
-			if stickInput or not isPointer(input) then
+			-- A tap on a button inside the zone (Sprint) is that button's, not the stick's.
+			if stickInput or not isPointer(input) or hitFor(input) then
 				return
 			end
 			stickInput = input

@@ -21,6 +21,7 @@ local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 
 local UiLayout = require(script.Parent.UiLayout)
+local InputGlyphs = require(script.Parent.InputGlyphs)
 
 local UiRoot = {}
 
@@ -119,6 +120,7 @@ function UiRoot.mount(group: Group, playerGui: Instance): { ScreenGui }
 		UiRoot.applyLayer(copy)
 		copy.Parent = playerGui
 		UiLayout.watch(copy) -- per-device overrides (Shared/UiLayout)
+		InputGlyphs.watch(copy) -- key hints follow the input (Shared/InputGlyphs)
 		table.insert(made, copy)
 	end
 	return made

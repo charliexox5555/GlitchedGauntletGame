@@ -14,6 +14,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Bindings = require(ReplicatedStorage.Shared.Config.Input)
+local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 local WaitGui = require(script.Parent.WaitGui)
 
@@ -532,14 +533,15 @@ local function bind(gui: ScreenGui)
 	local mods = root:WaitForChild("Mods") :: Frame
 	local loadoutRow = right:WaitForChild("Loadout") :: Frame
 	local hints = right:WaitForChild("Hints") :: Frame
-	-- The hint keycaps show the real bindings (Config/Input), not typed letters.
+	-- The hint keycaps show the real bindings (Config/Input) for the input in
+	-- use: a key name, a gamepad glyph, or nothing (Shared/InputGlyphs).
 	for _, pair in hints:GetChildren() do
-		local action = (Bindings :: any)[pair.Name]
 		local key = pair:FindFirstChild("Key")
-		local face = key and key:FindFirstChild("Face")
-		local label = face and face:FindFirstChild("Label")
-		if action and action.keys and action.keys[1] and label and label:IsA("TextLabel") then
-			label.Text = (action.keys[1] :: Enum.KeyCode).Name
+		if key and key:IsA("GuiObject") and (Bindings :: any)[pair.Name] then
+			if key:GetAttribute("KeyAction") == nil then
+				key:SetAttribute("KeyAction", pair.Name)
+			end
+			InputGlyphs.apply(key)
 		end
 	end
 	local loadout: { [string]: LoadoutCell } = {}

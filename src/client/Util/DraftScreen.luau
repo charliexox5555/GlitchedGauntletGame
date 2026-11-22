@@ -13,6 +13,7 @@ local TweenService = game:GetService("TweenService")
 local UiSound = require(script.Parent.UiSound)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 local WaitGui = require(script.Parent.WaitGui)
+local InputGlyphs = require(game:GetService("ReplicatedStorage").Shared.InputGlyphs) -- key chips follow the input
 
 local DraftScreen = {}
 
@@ -432,7 +433,7 @@ local function fillColumn(col: Column, v: ColumnView)
 		local sub = child(col.maxed, "Sub") :: TextLabel
 		sub.Text = v.maxed.sub
 	end
-	col.tab.Visible = v.new ~= nil or #paths > 0 or v.maxed ~= nil
+	col.tab.Visible = (v.new ~= nil or #paths > 0 or v.maxed ~= nil) and InputGlyphs.shows(col.tab)
 end
 
 local function fillEnemy(s: State, entries: { EnemyView })
@@ -541,7 +542,7 @@ function DraftScreen.refresh(
 	s.lockTitle.Text = if locked then "LOCKED IN" else "LOCK IN"
 	s.lockTitle.TextColor3 = INK
 	s.lockPicks.Text = picks
-	s.lockKey.Visible = not locked
+	s.lockKey.Visible = not locked and InputGlyphs.shows(s.lockKey) -- no shortcut chip on touch
 	-- A slow breathe while it's ready, so the eye finds it (from the centre).
 	if ready and not s.pulse then
 		local t = TweenService:Create(

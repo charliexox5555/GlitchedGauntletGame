@@ -555,7 +555,8 @@ end
 function MatchEndController.start()
 	MatchEndScreen.start()
 	WinCutscene.preload()
-	-- Keys: Enter = PLAY AGAIN, R = REMATCH.
+	-- Keys: Enter = PLAY AGAIN, R = REMATCH; a gamepad uses X and Y (the
+	-- chips show their glyphs, Shared/InputGlyphs).
 	UserInputService.InputBegan:Connect(function(input: InputObject)
 		if
 			not active
@@ -565,9 +566,14 @@ function MatchEndController.start()
 		then
 			return
 		end
-		if input.KeyCode == Enum.KeyCode.Return or input.KeyCode == Enum.KeyCode.KeypadEnter then
+		local key = input.KeyCode
+		if
+			key == Enum.KeyCode.Return
+			or key == Enum.KeyCode.KeypadEnter
+			or key == Enum.KeyCode.ButtonX
+		then
 			MatchEndScreen.press("PlayAgain")
-		elseif input.KeyCode == Enum.KeyCode.R then
+		elseif key == Enum.KeyCode.R or key == Enum.KeyCode.ButtonY then
 			MatchEndScreen.press("Rematch")
 		end
 	end)
