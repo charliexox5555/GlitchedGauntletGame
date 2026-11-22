@@ -64,7 +64,7 @@ tag.BackgroundColor3 = ORANGE
 tag.Size = UDim2.fromOffset(150, 28)
 recolour(tag, ORANGE)
 local tagLabel = tag:WaitForChild("Label") :: TextLabel
-tagLabel.Text = "SAVE WINSTREAK"
+tagLabel.Text = "SAVE  WINSTREAK" -- two spaces: Rubik Bold 14 draws one almost closed
 tagLabel.TextColor3 = INK
 local plate = item:WaitForChild("Plate") :: Frame
 plate.BackgroundColor3 = ORANGE

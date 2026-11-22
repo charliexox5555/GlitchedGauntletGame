@@ -92,3 +92,6 @@ LihFolk used: Session Locking and Profile Libraries; DataStore Fundamentals; Sav
 3. Lose a streak of 3+ and buy it back; let one run out (15 min) and check the button goes back to Settings.
 4. Leave a match early: streak breaks, no XP.
 5. Phone: the bar button and popup fit.
+
+## Bottom bar fits its buttons (owner, 2026-11-22)
+"Shorten it and remove the gap between backpack and settings... dynamic so it is the size for how many icons are there." `LobbyHudView.layoutBar`: the visible items (Locker, Shop, Backpack, Range, Settings / SaveStreak) keep their 140 px spacing, centred under PLAY, and the bar (90 px past the end items) and its shadow resize to match. It re-runs whenever an item shows or hides, so the closed Range leaves no gap and SAVE WINSTREAK takes Settings' slot. Checked in play: 4 items, bar 600 px (was 740). The SAVE WINSTREAK tag uses two spaces (Rubik Bold 14 nearly closes one).

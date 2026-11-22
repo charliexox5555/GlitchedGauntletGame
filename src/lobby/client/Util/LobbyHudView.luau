@@ -456,6 +456,48 @@ local function hookItem(s: State, b: TextButton)
 	s.items[b.Name] = b
 end
 
+-- The bar fits the buttons that are showing (owner 2026-11-22: no gap where the Range
+-- was, the bar as long as its icons). Items keep their order and spacing, centred on the
+-- bar's middle (under PLAY); the bar and its shadow grow or shrink to match. Re-runs when
+-- any item shows or hides (Range closed, SAVE WINSTREAK standing in for Settings).
+local BAR_ORDER = { "Locker", "Shop", "Backpack", "Range", "Settings", "SaveStreak" }
+local BAR_STEP = 140 -- px between item centres
+local BAR_PAD = 90 -- px from the bar's end to the first / last item centre
+local SHADOW_PAD = 30 -- the shadow reaches this far past each end
+local function layoutBar(s: State)
+	local bar = s.bottom:FindFirstChild("Bar")
+	if not (bar and bar:IsA("GuiObject")) then
+		return
+	end
+	local shown: { GuiObject } = {}
+	for _, name in BAR_ORDER do
+		local b = s.items[name] or s.bottom:FindFirstChild(name)
+		if b and b:IsA("GuiObject") and b.Visible then
+			table.insert(shown, b)
+		end
+	end
+	local mid = bar.Position.X.Offset + bar.Size.X.Offset / 2
+	local width = math.max(#shown - 1, 0) * BAR_STEP + BAR_PAD * 2
+	local left = mid - width / 2
+	bar.Size = UDim2.new(0, width, bar.Size.Y.Scale, bar.Size.Y.Offset)
+	bar.Position = UDim2.new(0, left, bar.Position.Y.Scale, bar.Position.Y.Offset)
+	local shadow = s.bottom:FindFirstChild("BarShadow")
+	if shadow and shadow:IsA("GuiObject") then
+		shadow.Size =
+			UDim2.new(0, width + SHADOW_PAD * 2, shadow.Size.Y.Scale, shadow.Size.Y.Offset)
+		shadow.Position =
+			UDim2.new(0, left - SHADOW_PAD, shadow.Position.Y.Scale, shadow.Position.Y.Offset)
+	end
+	for i, b in shown do
+		b.Position = UDim2.new(
+			0,
+			left + BAR_PAD + (i - 1) * BAR_STEP,
+			b.Position.Y.Scale,
+			b.Position.Y.Offset
+		)
+	end
+end
+
 -- A hover lift for party circles (their ring's "Pop").
 local function hoverLift(slot: GuiObject, pop: UIScale?)
 	if not pop then
@@ -679,6 +721,12 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	Pivot.centre(s.invite) -- the invite popup pops from its centre
 	for name in MENUS do
 		hookItem(s, child(bottom, name))
+	end
+	layoutBar(s)
+	for _, b in s.items do
+		b:GetPropertyChangedSignal("Visible"):Connect(function()
+			layoutBar(s)
+		end)
 	end
 	play.MouseEnter:Connect(function()
 		s.playHover = true
