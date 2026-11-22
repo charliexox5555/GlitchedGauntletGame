@@ -199,4 +199,5 @@ Save results in `art-source/ui/shop/` with the file names below; I upload and wi
 ## Owner's verdict on the shop look (2026-11-22)
 "The UI definitely needs work, especially the bundles. The colours I just don't like in the Shop and everything needs to be improved. We will render out and create professional images with Gemini or ChatGPT with your prompts once we get there for the bundles."
 - So: the flat card colours (teal / blue / green, gold coin cards) are **not liked**; the next look pass replaces them. Bundle banners will be **professional images from Gemini / ChatGPT** (prompts above), with our hero renders as the gun layer where the image needs the real skin.
+- Owner, same day: "the looking-at-bundle menu needs to look better and be larger of the screen" → the bundle page gets a bigger stage (the gun much larger, the page using the space the shop tabs leave) and a real design pass, not just the current re-layout.
 - Open for that pass: a new shop colour scheme (ask the owner with options before building), banner art in, then every tab polished.
