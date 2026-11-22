@@ -577,6 +577,11 @@ local function stepLegs(
 	end
 end
 
+-- followStride: beyond this share of a cycle the arms jump to the legs' phase;
+-- under it they are pulled in at STRIDE_PULL (speed change per cycle of drift).
+local STRIDE_SNAP = 0.3
+local STRIDE_PULL = 3
+
 -- Keeps arm swings on the heaviest leg cycle: the same share of a cycle, at
 -- the same cycle rate (the right foot lands at phase 0 in every one).
 local function followStride(animator: Animator, names: { string })
@@ -596,13 +601,18 @@ local function followStride(animator: Animator, names: { string })
 	for _, name in names do
 		local t = playing(animator, name)
 		if t and t.Length > 0 then
-			local want = cycles * t.Length
-			if math.abs(t.Speed - want) > 0.02 then
-				t:AdjustSpeed(want)
-			end
-			local drift = (t.TimePosition / t.Length - phase) % 1
-			if drift > 0.04 and drift < 0.96 then
+			-- Phase-locked, not snapped: a small drift (the lead switching
+			-- between directions or walk and run) is pulled in by running the
+			-- arms a little faster or slower, so the swing never pops. Only a
+			-- big jump (a fresh start) is snapped.
+			local drift = (t.TimePosition / t.Length - phase + 0.5) % 1 - 0.5 -- -0.5..0.5 cycles
+			if math.abs(drift) > STRIDE_SNAP then
 				t.TimePosition = phase * t.Length
+				drift = 0
+			end
+			local want = cycles * t.Length * (1 - math.clamp(drift * STRIDE_PULL, -0.5, 0.5))
+			if math.abs(t.Speed - want) > 0.01 then
+				t:AdjustSpeed(want)
 			end
 		end
 	end
@@ -951,11 +961,14 @@ end
 
 -- Call once on the server and once on each client.
 function PoseSim.initialize()
-	-- A copy of the match client that started it may have been destroyed
-	-- since (client/init.client.luau restarts it per PlayZone), which
-	-- disconnects this: bind again then.
-	if connection and connection.Connected then
-		return
+	-- The latest caller owns the step. On a client the match client is
+	-- restarted per PlayZone (client/init.client.luau): the new copy starts
+	-- before the old one's connections are gone, so a "still connected" check
+	-- could skip the bind and leave nothing stepping once the old copy died
+	-- (no sprint, Roblox's default walk in the range; owner 2026-11-21).
+	if connection then
+		connection:Disconnect()
+		connection = nil
 	end
 	-- Priority 4000 runs after the movement step (default 2000) has written
 	-- this tick's MoveState, like Animate.

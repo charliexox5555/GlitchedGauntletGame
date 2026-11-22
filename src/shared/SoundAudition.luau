@@ -601,12 +601,21 @@ local function build(sections: { string }): ScreenGui
 end
 
 -- sections: which tabs this place shows (default all three).
+-- One listener per client: since the place merge the lobby client and the
+-- match client both start the board, and two listeners toggled it twice per
+-- press (it never opened). A listener whose script was destroyed (the match
+-- client is restarted per PlayZone) is disconnected, so start binds again.
+local listener: RBXScriptConnection? = nil
+
 function SoundAudition.start(sections: { string }?)
 	if not RunService:IsStudio() then
 		return
 	end
+	if listener and listener.Connected then
+		return
+	end
 	local use = sections or SECTIONS
-	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
+	listener = UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		if processed or input.KeyCode ~= Enum.KeyCode.F4 then
 			return
 		end

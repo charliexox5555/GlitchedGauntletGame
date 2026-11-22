@@ -38,10 +38,10 @@ return table.freeze({
 		SprintKnife = id(123727434361000),
 		-- With nothing in hand (the lobby; tools/anim/tp_clips.py "Unarmed", 2026-11-21): the upper body
 		-- only, over the Core idle and the leg cycles. Walk / run follow the leg cycle's phase (Poses).
-		SprintUnarmed = id(134786443023027),
+		SprintUnarmed = id(92963018773267),
 		UnarmedIdle = id(87081146273969),
-		UnarmedWalk = id(86939525691218),
-		UnarmedRun = id(87231109134826),
+		UnarmedWalk = id(114914820909631),
+		UnarmedRun = id(133551232423687),
 		UnarmedCrouch = id(78467506175539), -- v2: arms loose and low (v1 107085367174883 read as a guard)
 		SlideUnarmed = id(134814931400718),
 		Crouch = id(79991946157030),

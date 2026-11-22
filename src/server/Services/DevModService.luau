@@ -26,6 +26,8 @@ local Globals =
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local CollectionService = game:GetService("CollectionService")
 local Players = Context.players
+-- The real service, for "is this player still in the server" (Players above is this match's stand-in, MatchKit/Context).
+local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -132,7 +134,7 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	-- That yielded: check the caps again (a burst of requests, or a respawn
 	-- after the spawner left), so the check and the insert below are one step.
 	if
-		by.Parent ~= Players
+		by.Parent ~= PlayersService
 		or dummiesOf(by) >= Config.DEV_MAX_DUMMIES
 		or #dummies >= Config.DEV_MAX_DUMMIES_TOTAL
 	then
@@ -179,7 +181,7 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 				table.remove(dummies, index)
 				spawnedBy[model] = nil
 				model:Destroy()
-				if by.Parent == Players then
+				if by.Parent == PlayersService then
 					spawnDummy(team, label, at, by)
 				end
 			end
@@ -294,7 +296,7 @@ end
 local function onPlayer(player: Player)
 	task.spawn(function()
 		local ok = isAllowed(player)
-		if player.Parent == Players then
+		if player.Parent == PlayersService then
 			allowed[player] = ok
 			StateValues.set(player, "DevMods", ok)
 		end

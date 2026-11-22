@@ -14,6 +14,8 @@
 
 local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
 local Players = Context.players
+-- The real service, for "is this player still in the server" (Players above is this match's stand-in, MatchKit/Context).
+local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
@@ -63,7 +65,7 @@ local function teleport(players: { Player }, data: LobbyReturn)
 	-- A pad duel in a lobby server (MatchKit/Context): back to the lobby here, no teleport.
 	if Context.padDuel then
 		for _, p in players do
-			if p.Parent == Players and Context.sendHome then
+			if p.Parent == PlayersService and Context.sendHome then
 				Context.sendHome(p)
 			end
 		end
@@ -71,7 +73,7 @@ local function teleport(players: { Player }, data: LobbyReturn)
 	end
 	local list: { Player } = {}
 	for _, p in players do
-		if p.Parent == Players then
+		if p.Parent == PlayersService then
 			outbound[p] = data
 			attempts[p] = (attempts[p] or 0) + 1
 			table.insert(list, p)
@@ -101,7 +103,7 @@ local function teleport(players: { Player }, data: LobbyReturn)
 			local tries = attempts[p] or 1
 			if tries < E.teleportAttempts then
 				task.delay(E.retryBackoff[tries] or 4, function()
-					if outbound[p] and p.Parent == Players then
+					if outbound[p] and p.Parent == PlayersService then
 						teleport({ p }, outbound[p])
 					end
 				end)
@@ -113,7 +115,7 @@ end
 local function countVotes(): (number, number)
 	local votes, needed = 0, 0
 	for player in voters do
-		if player.Parent == Players then
+		if player.Parent == PlayersService then
 			needed += 1
 			if choices[player] == "Rematch" then
 				votes += 1
@@ -214,7 +216,7 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 		while os.clock() < deadline do
 			-- Someone from the match left: no rematch with the same players.
 			for player in voters do
-				if player.Parent ~= Players then
+				if player.Parent ~= PlayersService then
 					rematchBroken = true
 				end
 			end
@@ -247,7 +249,7 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 	local rest: { Player } = {}
 	for player in present do
 		if
-			player.Parent == Players
+			player.Parent == PlayersService
 			and choices[player] ~= "PlayAgain"
 			and choices[player] ~= "Leave"
 		then
@@ -265,7 +267,7 @@ end
 -- while it waits for the server to empty).
 function MatchEndService.resendStranded()
 	for player, data in outbound do
-		if player.Parent == Players then
+		if player.Parent == PlayersService then
 			attempts[player] = 0
 			teleport({ player }, data)
 		end
@@ -283,7 +285,7 @@ function MatchEndService.init()
 			options: TeleportOptions?
 		)
 			local data = outbound[player]
-			if not data or player.Parent ~= Players then
+			if not data or player.Parent ~= PlayersService then
 				return
 			end
 			warn(`[MatchEnd] teleport failed for {player.Name} ({result.Name}): {message}`)
@@ -295,7 +297,7 @@ function MatchEndService.init()
 				return -- stays on the list; resendStranded tries again later
 			end
 			task.delay(if result == Enum.TeleportResult.Flooded then 10 else 2, function()
-				if outbound[player] and player.Parent == Players then
+				if outbound[player] and player.Parent == PlayersService then
 					attempts[player] = (attempts[player] or 0) + 1
 					local ok, err = pcall(
 						TeleportService.TeleportAsync,

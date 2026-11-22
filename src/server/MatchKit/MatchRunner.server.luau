@@ -50,9 +50,11 @@ Context.setup(spec.context)
 local MatchState = require(kit:WaitForChild("MatchState") :: ModuleScript) :: any
 MatchState.bind(spec.stateFolder)
 
+-- A practice context (the range) runs only some services (MatchHost PRACTICE_SERVICES).
+local only: { string }? = spec.only
 local loaded: { [string]: any } = {}
 for _, child in services:GetChildren() do
-	if child:IsA("ModuleScript") then
+	if child:IsA("ModuleScript") and (only == nil or table.find(only, child.Name) ~= nil) then
 		loaded[child.Name] = require(child) :: any
 	end
 end
@@ -70,5 +72,6 @@ MatchHost.started(runnerId, Context)
 print(
 	`[MatchRunner] match {runnerId} running ({if spec.context.ownsServer
 		then "whole server"
+		elseif only then "practice"
 		else "pad duel"})`
 )

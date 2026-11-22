@@ -10,6 +10,8 @@ local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Co
 local Globals =
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local Players = Context.players
+-- The real service, for "is this player still in the server" (Players above is this match's stand-in, MatchKit/Context).
+local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -180,7 +182,7 @@ local function spawnPlayer(player: Player, spawn: SpawnLocation?)
 				character:PivotTo(spawn.CFrame + Vector3.new(0, spawn.Size.Y / 2 + 3, 0))
 			end
 		end
-		if ok or player.Parent ~= Players then
+		if ok or player.Parent ~= PlayersService then
 			return
 		end
 		warn("[MatchService] couldn't spawn", player.Name, "try", attempt, err)
@@ -292,7 +294,7 @@ local function applyDraft(keys: { any })
 		if BotService.isBot(key) then
 			local seat = DraftService.seat(key)
 			BotService.applyDraft(key, matchLoadout(seat), seat.kit, seat.levels, true)
-		elseif typeof(key) == "Instance" and key:IsA("Player") and key.Parent == Players then
+		elseif typeof(key) == "Instance" and key:IsA("Player") and key.Parent == PlayersService then
 			local player = key
 			local seat = DraftService.seat(player)
 			WeaponService.setMatchLoadout(player, matchLoadout(seat))
@@ -427,7 +429,7 @@ end
 -- Late players whose stand-in kept their seat during the last fight.
 local function applyTakeovers()
 	for player, bot in pendingTakeovers do
-		if player.Parent == Players and BotService.isBot(bot) then
+		if player.Parent == PlayersService and BotService.isBot(bot) then
 			takeOver(player, bot)
 		end
 	end
@@ -441,7 +443,7 @@ local function spawnOne(player: Player)
 end
 
 local function onJoin(player: Player)
-	if player.Parent ~= Players then
+	if player.Parent ~= PlayersService then
 		return
 	end
 	local bot = standIns[player.UserId]

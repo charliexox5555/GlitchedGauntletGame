@@ -29,6 +29,8 @@ local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Co
 local Globals =
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local Players = Context.players
+-- The real service, for "is this player still in the server" (Players above is this match's stand-in, MatchKit/Context).
+local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -188,7 +190,7 @@ function ModRecall.teleport(player: Player, slot: number, stats: { [string]: any
 		local anchor = ModRecall.anchor(player)
 		local bodyRoot = body:FindFirstChild("HumanoidRootPart")
 		if
-			player.Parent ~= Players
+			player.Parent ~= PlayersService
 			or player.Character ~= body
 			or not humanoid
 			or not bodyRoot

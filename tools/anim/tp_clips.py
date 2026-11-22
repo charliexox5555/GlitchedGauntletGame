@@ -1502,14 +1502,16 @@ def unarmed_idle_ctrl(t):
 	)
 
 
-def _swing_clip(name, length, swing, back, bend_fwd, bend_back, twist, lean, out=7.0):
+def _swing_clip(name, length, swing, back, bend_fwd, bend_back, twist, lean, out=7.0, lag=0.0):
 	"""An arm swing in step with the legs: at phase 0 the left arm is fully
 	forward (`swing` degrees) and the right fully back (`back`), elbows bent
 	`bend_fwd` on the forward swing and `bend_back` behind; the chest
 	counter-turns `twist` degrees against the hips and leans `lean`."""
 
 	def at(t):
-		ph = t / length
+		# The arms trail the legs by `lag` of a cycle (they follow the hips'
+		# turn, they don't lead it): a step-locked swing reads mechanical.
+		ph = t / length - lag
 		c = math.cos(TAU * ph)  # 1: left arm forward, -1: right arm forward
 		# A swing spends more time at its ends than in the middle (pendulum),
 		# and the elbow folds as the arm comes forward.
@@ -1517,7 +1519,8 @@ def _swing_clip(name, length, swing, back, bend_fwd, bend_back, twist, lean, out
 			w = (fwd + 1) / 2  # 0 back .. 1 forward
 			pitch = -back + (swing + back) * w
 			bend = bend_back + (bend_fwd - bend_back) * w
-			return _arm(pitch, bend, out, 4 + 6 * w)
+			# The wrist trails the forearm a touch (follow-through).
+			return _arm(pitch, bend, out, 4 + 6 * w - 5 * math.sin(TAU * ph) * (1 if fwd == c else -1))
 
 		return solve(
 			_arms_ctrl(
@@ -1533,9 +1536,11 @@ def _swing_clip(name, length, swing, back, bend_fwd, bend_back, twist, lean, out
 
 add(Clip("UnarmedIdle", "Action", lambda t: solve(unarmed_idle_ctrl(t)), UPPER, length=IDLE_LENGTH, loop=True, step=0.1))
 # Walk: an easy swing; run: elbows bent, a full swing; sprint: pumping.
-_swing_clip("UnarmedWalk", WALK_LENGTH, swing=24, back=20, bend_fwd=26, bend_back=10, twist=4, lean=-1)
-_swing_clip("UnarmedRun", RUN_LENGTH, swing=48, back=38, bend_fwd=80, bend_back=45, twist=7, lean=-4)
-_swing_clip("SprintUnarmed", SPRINT_LENGTH, swing=62, back=50, bend_fwd=95, bend_back=60, twist=9, lean=-6)
+# (v2, owner 2026-11-21 "the walking ... looks a little too clunky": a smaller,
+# looser walk swing with soft elbows, the arms trailing the legs.)
+_swing_clip("UnarmedWalk", WALK_LENGTH, swing=17, back=13, bend_fwd=20, bend_back=9, twist=3, lean=0, out=6.0, lag=0.07)
+_swing_clip("UnarmedRun", RUN_LENGTH, swing=46, back=36, bend_fwd=78, bend_back=48, twist=6, lean=-4, lag=0.05)
+_swing_clip("SprintUnarmed", SPRINT_LENGTH, swing=62, back=50, bend_fwd=95, bend_back=60, twist=9, lean=-6, lag=0.04)
 # The sprint arms are an Action2 layer like the other sprint uppers (Poses SPRINT_SET).
 CLIPS["SprintUnarmed"].priority = "Action2"
 

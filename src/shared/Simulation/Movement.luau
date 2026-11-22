@@ -349,11 +349,14 @@ end
 
 -- Call once on the server and once on each client.
 function MovementSim.initialize()
-	-- A copy of the match client that started it may have been destroyed
-	-- since (client/init.client.luau restarts it per PlayZone), which
-	-- disconnects this: bind again then.
-	if connection and connection.Connected then
-		return
+	-- The latest caller owns the step. On a client the match client is
+	-- restarted per PlayZone (client/init.client.luau): the new copy starts
+	-- before the old one's connections are gone, so a "still connected" check
+	-- could skip the bind and leave nothing stepping once the old copy died
+	-- (no sprint, Roblox's default walk in the range; owner 2026-11-21).
+	if connection then
+		connection:Disconnect()
+		connection = nil
 	end
 	AbilitiesSim.initialize()
 	local ok, freq = pcall(function()

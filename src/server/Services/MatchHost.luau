@@ -41,6 +41,11 @@ MatchHost.KIT_SERVICES = {
 	"ZoneService",
 }
 
+-- The range's practice context (Lobby servers): the Mods and the F8 Mod dev
+-- panel's backend, no match loop. Range players join it on the way in.
+MatchHost.PRACTICE_ID = "range"
+MatchHost.PRACTICE_SERVICES = { "DevModService", "ModRecall", "ModService", "ModSim", "ModWalls" }
+
 local SLOT_SPACING = 20000 -- studs along X between pad duel maps (maps are up to ~6,200 across)
 local EMPTY_GRACE = 8 -- seconds a pad duel may have none of its players before it's ended
 
@@ -63,6 +68,7 @@ type Running = {
 	ownsServer: boolean,
 	ending: boolean,
 	emptySince: number?,
+	practice: boolean?,
 }
 
 local specs: { [string]: any } = {}
@@ -96,10 +102,21 @@ function MatchHost.takeSpec(id: string): any
 	return spec
 end
 
+-- Range players waiting for the practice context to start.
+local practiceWaiting: { [Player]: boolean } = {}
+
 function MatchHost.started(id: string, context: any)
 	local entry = running[id]
 	if entry then
 		entry.context = context
+	end
+	if id == MatchHost.PRACTICE_ID then
+		for player in practiceWaiting do
+			if player.Parent == Players and PlayZone.get(player) == "Range" then
+				context.addPlayer(player)
+			end
+		end
+		table.clear(practiceWaiting)
 	end
 end
 
@@ -248,6 +265,59 @@ function MatchHost.isRunning(id: string): boolean
 	return running[id] ~= nil
 end
 
+local function startPractice()
+	local id = MatchHost.PRACTICE_ID
+	local stateFolder = MatchState.createFolder(folder(ReplicatedStorage, MatchState.MATCHES), id)
+	local world = folder(folder(workspace, "Matches"), id)
+	local entry: Running = {
+		id = id,
+		runner = nil :: any,
+		stateFolder = stateFolder,
+		world = world,
+		slot = 0,
+		players = {},
+		context = nil,
+		ownsServer = false,
+		ending = false,
+		practice = true,
+	}
+	running[id] = entry
+	specs[id] = {
+		stateFolder = stateFolder,
+		only = MatchHost.PRACTICE_SERVICES,
+		context = {
+			id = id,
+			ownsServer = false,
+			padDuel = false,
+			offset = Vector3.zero,
+			world = world,
+			plan = nil,
+			players = {},
+			finish = nil,
+		},
+	}
+	-- In and out of the range: in and out of the practice context.
+	PlayZone.changed:Connect(function(player: Player, zone: string)
+		local context = entry.context
+		if zone == "Range" then
+			if context then
+				context.addPlayer(player)
+			else
+				practiceWaiting[player] = true
+			end
+		else
+			practiceWaiting[player] = nil
+			if context then
+				context.removePlayer(player)
+			end
+		end
+	end)
+	Players.PlayerRemoving:Connect(function(player)
+		practiceWaiting[player] = nil
+	end)
+	entry.runner = launchRunner(id)
+end
+
 function MatchHost.init()
 	folder(ReplicatedStorage, MatchState.MATCHES)
 end
@@ -284,12 +354,13 @@ function MatchHost.start()
 		running[id].runner = launchRunner(id)
 		return
 	end
+	startPractice()
 	-- Pad duels whose players have all gone end themselves.
 	while true do
 		task.wait(1)
 		local now = os.clock()
 		for _, entry in running do
-			if entry.ownsServer or entry.ending then
+			if entry.ownsServer or entry.ending or entry.practice then
 				continue
 			end
 			local anyone = false

@@ -38,6 +38,8 @@ local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Co
 local Globals =
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local Players = Context.players
+-- The real service, for "is this player still in the server" (Players above is this match's stand-in, MatchKit/Context).
+local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -1005,7 +1007,7 @@ local function onCharacter(player: Player, character: Model)
 	-- A new life: what the last one left in the world goes.
 	ModEntities.clear(player)
 	local humanoid = character:WaitForChild("Humanoid", 10)
-	if player.Parent ~= Players or player.Character ~= character then
+	if player.Parent ~= PlayersService or player.Character ~= character then
 		return -- left (or respawned) while we waited
 	end
 	if humanoid and humanoid:IsA("Humanoid") then

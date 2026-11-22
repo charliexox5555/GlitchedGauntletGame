@@ -11,6 +11,8 @@ local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Co
 local Globals =
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local Players = Context.players
+-- The real service, for "is this player still in the server" (Players above is this match's stand-in, MatchKit/Context).
+local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
@@ -43,7 +45,7 @@ end
 -- or one of our bots' models.
 local function bodyOf(target: Instance): Model?
 	if target:IsA("Player") then
-		return if target.Parent == Players then target.Character else nil
+		return if target.Parent == PlayersService then target.Character else nil
 	end
 	if target:IsA("Model") then
 		for _, key in BotService.keys() do

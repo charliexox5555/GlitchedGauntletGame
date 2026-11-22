@@ -20,6 +20,8 @@
 
 local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
 local Players = Context.players
+-- The real service, for "is this player still in the server" (Players above is this match's stand-in, MatchKit/Context).
+local PlayersService = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -367,7 +369,7 @@ local function step(dt: number)
 	for i = #walls, 1, -1 do
 		local wall = walls[i]
 		local present = if wall.owner:IsA("Player")
-			then wall.owner.Parent == Players
+			then wall.owner.Parent == PlayersService
 			else wall.owner:IsDescendantOf(workspace)
 		if not present then
 			remove(i) -- the caster left: their wall goes
