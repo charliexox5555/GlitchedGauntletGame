@@ -105,7 +105,7 @@ local function setTeleportGui()
 		mode.Text = string.format(LoadingConfig.modeLine, string.upper(id))
 		mode.Visible = true
 	end
-	local stage = canvas and canvas:FindFirstChild("Stage")
+	local stage = canvas and canvas:FindFirstChild("Stage", true)
 	if stage and stage:IsA("TextLabel") then
 		stage.Text = LoadingConfig.stages.connecting
 	end

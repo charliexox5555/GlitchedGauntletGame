@@ -28,14 +28,15 @@ return table.freeze({
 	homeLine = "BACK TO THE LOBBY", -- a teleport from a match to the lobby
 
 	-- Timing (seconds).
-	minHold = 2.2, -- the logo reveal (0.5 s) and a beat of the full title, at least (no skip button)
+	minHold = 4.5, -- from the reveal, at least (no skip button; 2.2 until the owner's "way too quick", 2026-11-22)
+	stepMin = 0.55, -- each stage shows at least this long, so the four segments fill one by one
 	assetWait = 3, -- longest wait for the logo images and this config before the reveal plays anyway
 	watchdogLobby = 30, -- closes whatever happens (LihFolk: Streaming Joins - Frozen Players ... Teardown, 25 s)
 	watchdogMatch = 120, -- a match server can wait for teleporting players (Config/Bots JOIN_GRACE + READY_TIMEOUT)
 	duelMin = 0.6, -- the pad-duel short version
 	duelMax = 4,
-	fadeOut = 0.45,
-	fill = 0.35, -- one progress step
+	fadeOut = 0.8, -- the close: words drop out, the title zooms through, the backdrop fades as the blur clears
+	fill = 0.4, -- one segment filling
 	blur = 24, -- the world behind blurs, then clears as the screen fades
 
 	-- Phones in landscape (screen height under phoneHeight px) get the canvas this much bigger.
@@ -45,11 +46,22 @@ return table.freeze({
 	phoneY = table.freeze({
 		Mode = 230,
 		Logo = 430,
-		Progress = 650,
+		Pips = 650,
 		Spinner = 650,
-		Stage = 692,
+		StageClip = 692,
 		Count = 728,
 		Tip = 905,
+	}),
+
+	-- Motion (v2.1): slash drift (screen widths a second), title float (fraction of its height), its speed, the
+	-- ticket's sway (degrees), one shine sweep (s), the working segment's breath (s a cycle).
+	motion = table.freeze({
+		stripeSpeed = 0.012,
+		floatAmp = 0.012,
+		floatSpeed = 1.5,
+		swayDeg = 1.2,
+		shine = 0.75,
+		pulse = 1.1,
 	}),
 
 	-- Sound, on SoundService.SettingsMusic (Settings MUSIC × MASTER). Licensed Creator Store audio (APMOfficial);

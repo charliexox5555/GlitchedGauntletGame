@@ -3,15 +3,18 @@
 -- vault/03 Research/Rivals Reference/Loading Screen.md). Runs first on every join, in both server roles:
 --  * Shows ReplicatedFirst.DuelsLoading (Studio-built, tools/studio/BuildDuelsLoading.luau), or takes over the copy
 --    Roblox showed during a teleport (MatchFoundController, or this script at a match's end) so nothing flashes.
---  * Plays the Draft Duels two-beat reveal (vault/02 Art/Draft Duels Logo.md → Title motion) with the sting, under
---    a quiet music bed; both on SoundService.SettingsMusic.
---  * The progress line follows real stages (no fake bar): Lobby = connected → data → fighter → lobby client;
---    Match = connected → data → match screens → every player in (the server leaves "Waiting").
---  * Holds at least Config/Loading.minHold (owner: no skip), closes with a fade and a blur that clears, and always
---    closes by the watchdog.
+--  * Motion (v2.1, owner 2026-11-22: "longer" and "improved animation"): the diagonal slashes drift the whole time;
+--    the brand band sweeps in; the Draft Duels two-beat reveal (vault/02 Art/Draft Duels Logo.md → Title motion)
+--    with the sting on the lock-in beat over a quiet music bed; a shine crosses the title; the title floats while
+--    it waits; the stage word slides up between stages; each of the four segments fills gold as its real stage
+--    finishes (the working one breathes); READY gets a second shine; the close zooms the title through and fades
+--    the backdrop while the blur clears.
+--  * Stages (no fake bar): Lobby = connected → data → fighter → lobby client; Match = connected → data → match
+--    screens → every player in (the server leaves "Waiting"). Each stage shows at least Config/Loading.stepMin.
+--  * Holds at least Config/Loading.minHold from the reveal (owner: no skip) and always closes by the watchdog.
 -- Clients mark their stages with local Player attributes (LobbyClientReady, MatchScreensReady); this script sets
--- LoadingScreen while it shows (LobbyMusic waits for it). No remotes.
--- Self-contained until Shared replicates: everything from Shared is waited for with a timeout.
+-- LoadingScreen while it shows (LobbyMusic waits for it). No remotes. Self-contained until Shared replicates:
+-- everything from Shared is waited for with a timeout. Reduced motion: no drift, float or shine; the title fades in.
 
 local ContentProvider = game:GetService("ContentProvider")
 local GuiService = game:GetService("GuiService")
@@ -26,30 +29,42 @@ local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local LoadingLayout = require(script.Parent:WaitForChild("LoadingLayout") :: ModuleScript)
 
 -- Only until Config/Loading arrives (or if it never does).
 local FALLBACK = {
-	minHold = 2.2,
+	minHold = 4.5,
+	stepMin = 0.55,
 	assetWait = 3,
 	watchdogLobby = 30,
 	watchdogMatch = 120,
-	fadeOut = 0.45,
-	fill = 0.35,
+	fadeOut = 0.8,
+	fill = 0.4,
 	blur = 24,
 	phoneHeight = 600,
 	phoneBoost = 1.3,
 	phoneY = {
 		Mode = 230,
 		Logo = 430,
-		Progress = 650,
+		Pips = 650,
 		Spinner = 650,
-		Stage = 692,
+		StageClip = 692,
 		Count = 728,
 		Tip = 905,
 	},
+	motion = {
+		stripeSpeed = 0.012,
+		floatAmp = 0.012,
+		floatSpeed = 1.5,
+		swayDeg = 1.2,
+		shine = 0.75,
+		pulse = 1.1,
+	},
 }
-local LoadingLayout = require(script.Parent:WaitForChild("LoadingLayout") :: ModuleScript)
-local QUINT_OUT = Enum.EasingStyle.Quint
+local QUINT = Enum.EasingStyle.Quint
+local OUT = Enum.EasingDirection.Out
+local IN = Enum.EasingDirection.In
+local SEGMENTS = 4
 
 -- The screen ------------------------------------------------------------------------
 
@@ -76,22 +91,51 @@ gui.Parent = playerGui
 ReplicatedFirst:RemoveDefaultLoadingScreen()
 player:SetAttribute("LoadingScreen", true)
 
-local canvas = gui:WaitForChild("Canvas") :: Frame
-local fit = canvas:WaitForChild("Fit") :: UIScale
-local logo = canvas:WaitForChild("Logo") :: Frame
-local ticket = logo:WaitForChild("Ticket") :: ImageLabel
-local duels = logo:WaitForChild("Duels") :: ImageLabel
-local full = logo:WaitForChild("Full") :: ImageLabel
-local fill = (canvas:WaitForChild("Progress") :: Frame):WaitForChild("Fill") :: Frame
-local stageLabel = canvas:WaitForChild("Stage") :: TextLabel
-local countLabel = canvas:WaitForChild("Count") :: TextLabel
-local tipLabel = canvas:WaitForChild("Tip") :: TextLabel
-local spinner = canvas:WaitForChild("Spinner") :: Frame
+local function need<T>(parent: Instance, name: string): T
+	return parent:WaitForChild(name, 5) :: any
+end
+
+local canvas = need(gui, "Canvas") :: Frame
+local logo = need(canvas, "Logo") :: Frame
+local logoPop = need(logo, "Pop") :: UIScale
+local ticket = need(logo, "Ticket") :: ImageLabel
+local duels = need(logo, "Duels") :: ImageLabel
+local full = need(logo, "Full") :: ImageLabel
+local shine = need(logo, "Shine") :: ImageLabel
+local shineBand = need(shine, "Band") :: UIGradient
+local slash = need(canvas, "Slash") :: Frame
+local slashWipe = need(slash, "Wipe") :: UIGradient
+local pips = need(canvas, "Pips") :: Frame
+local stageClip = need(canvas, "StageClip") :: Frame
+local stageLabel = need(stageClip, "Stage") :: TextLabel
+local countLabel = need(canvas, "Count") :: TextLabel
+local tipLabel = need(canvas, "Tip") :: TextLabel
+local spinner = need(canvas, "Spinner") :: Frame
+local stripes = gui:FindFirstChild("Stripes")
+local scroll = stripes and stripes:FindFirstChild("Scroll")
 local spinStroke = spinner:FindFirstChildWhichIsA("UIStroke")
 local turnFound = spinStroke and spinStroke:FindFirstChild("Turn")
 local turn: UIGradient? = if turnFound and turnFound:IsA("UIGradient") then turnFound else nil
 
+local pipFills: { Frame } = {}
+local pipPulses: { UIGradient } = {}
+for i = 1, SEGMENTS do
+	local pip = pips:FindFirstChild("Pip" .. i)
+	local f = pip and pip:FindFirstChild("Fill")
+	local p = pip and pip:FindFirstChild("Pulse")
+	if f and f:IsA("Frame") and p and p:IsA("UIGradient") then
+		pipFills[i] = f
+		pipPulses[i] = p
+	end
+end
+
 local cfg: any = FALLBACK
+local function motion(key: string): number
+	local m = cfg.motion
+	return if typeof(m) == "table" and typeof(m[key]) == "number"
+		then m[key]
+		else (FALLBACK.motion :: any)[key]
+end
 
 local function scaleCanvas()
 	LoadingLayout.fit(gui, cfg)
@@ -99,9 +143,45 @@ end
 scaleCanvas()
 gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(scaleCanvas)
 
+local reduced = false
+pcall(function()
+	reduced = (GuiService :: any).ReducedMotionEnabled == true
+end)
+
+-- Every frame: the spinner, the slash drift, the title float, the working segment's breath.
+local floating = false
+local floatFrom = 0
+local working = 0 -- the segment being worked on (0: none)
 local frame = RunService.RenderStepped:Connect(function(dt: number)
+	local now = os.clock()
 	if turn then
 		turn.Rotation = (turn.Rotation + dt * 300) % 360
+	end
+	if reduced then
+		return
+	end
+	if scroll and scroll:IsA("Frame") then
+		local bars = scroll:GetAttribute("Bars")
+		local gap = 1.25 / (if typeof(bars) == "number" and bars > 0 then bars else 30)
+		local x = (scroll.Position.X.Scale - dt * motion("stripeSpeed")) % -gap
+		scroll.Position = UDim2.fromScale(if x > 0 then x - gap else x, 0)
+	end
+	if floating then
+		local t = now - floatFrom
+		local y = 0.5 + math.sin(t * motion("floatSpeed")) * motion("floatAmp")
+		local rest = UDim2.fromScale(0.5, y)
+		ticket.Position = UDim2.fromScale(
+			0.5,
+			y - motion("floatAmp") * 0.35 * math.sin(t * motion("floatSpeed") * 0.7)
+		)
+		duels.Position = rest
+		shine.Position = rest
+		full.Position = rest
+		ticket.Rotation = math.sin(t * motion("floatSpeed") * 0.75) * motion("swayDeg")
+	end
+	local pulse = pipPulses[working]
+	if pulse then
+		pulse.Offset = Vector2.new(((now / motion("pulse")) % 1) * 2 - 1, 0)
 	end
 end)
 
@@ -168,7 +248,7 @@ local function sound(spec: any, looped: boolean): Sound?
 	return s
 end
 
--- The reveal (Draft Duels Logo → Title motion) ----------------------------------------
+-- Motion helpers ----------------------------------------------------------------------
 
 local function tween(
 	inst: Instance,
@@ -177,78 +257,158 @@ local function tween(
 	style: Enum.EasingStyle?,
 	dir: Enum.EasingDirection?
 ): Tween
-	local t = TweenService:Create(
-		inst,
-		TweenInfo.new(seconds, style or QUINT_OUT, dir or Enum.EasingDirection.Out),
-		goal
-	)
+	local t = TweenService:Create(inst, TweenInfo.new(seconds, style or QUINT, dir or OUT), goal)
 	t:Play()
 	return t
 end
 
 local REST = UDim2.fromScale(0.5, 0.5)
-local reduced = (GuiService :: any).ReducedMotionEnabled == true
+
+local function sweepShine()
+	if reduced then
+		return
+	end
+	shine.Visible = true
+	shineBand.Offset = Vector2.new(-1, 0)
+	tween(
+		shineBand,
+		motion("shine"),
+		{ Offset = Vector2.new(1, 0) },
+		Enum.EasingStyle.Quad,
+		Enum.EasingDirection.InOut
+	)
+end
 
 local function hideLogo()
+	shine.Visible = false
 	if reduced then
 		ticket.Visible, duels.Visible, full.Visible = false, false, true
 		full.ImageTransparency = 1
 	else
 		ticket.ImageTransparency, duels.ImageTransparency = 1, 1
+		slashWipe.Offset = Vector2.new(-1, 0)
 	end
 end
 
+-- The band sweeps in, then the two beats: DRAFT from the upper left (tilted, from 92%), the sting at the lock-in,
+-- DUELS rising with a 2.5% punch; the whole title settles from 96%; a shine; then it floats.
 local function reveal(sting: Sound?)
 	if reduced then
-		tween(full, 0.4, { ImageTransparency = 0 })
+		tween(full, 0.5, { ImageTransparency = 0 })
 		if sting then
 			sting:Play()
 		end
 		return
 	end
+	tween(slashWipe, 0.45, { Offset = Vector2.zero })
 	-- lihfolk-ignore: findfirstchild-chain (stored and nil-checked below)
 	local ticketPop = ticket:FindFirstChild("Pop") :: UIScale?
 	-- lihfolk-ignore: findfirstchild-chain (stored and nil-checked below)
 	local duelsPop = duels:FindFirstChild("Pop") :: UIScale?
-	-- DRAFT from the upper left, easing up from 95%.
-	ticket.Position = UDim2.fromScale(0.44, 0.42)
-	if ticketPop then
-		ticketPop.Scale = 0.95
-		tween(ticketPop, 0.23, { Scale = 1 })
-	end
-	tween(ticket, 0.23, { Position = REST, ImageTransparency = 0 })
-	task.delay(cfg.sting and cfg.sting.at or 0.21, function()
+	logoPop.Scale = 0.96
+	tween(logoPop, 0.9, { Scale = 1 })
+	task.delay(0.12, function()
+		ticket.Position = UDim2.fromScale(0.42, 0.38)
+		ticket.Rotation = -7
+		if ticketPop then
+			ticketPop.Scale = 0.92
+			tween(ticketPop, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+		end
+		tween(
+			ticket,
+			0.3,
+			{ Position = REST, ImageTransparency = 0, Rotation = 0 },
+			Enum.EasingStyle.Back
+		)
+	end)
+	task.delay(0.12 + (if cfg.sting then cfg.sting.at else 0.21), function()
 		if sting then
 			sting:Play()
 		end
 	end)
-	-- DUELS rises from 11% below at 215 ms, with a 2.5% punch around 360 ms.
-	duels.Position = UDim2.fromScale(0.5, 0.61)
-	task.delay(0.215, function()
-		tween(duels, 0.285, { Position = REST, ImageTransparency = 0 })
+	duels.Position = UDim2.fromScale(0.5, 0.63)
+	task.delay(0.12 + 0.215, function()
+		tween(duels, 0.34, { Position = REST, ImageTransparency = 0 })
 		if duelsPop then
-			duelsPop.Scale = 1
-			task.delay(0.12, function()
-				tween(duelsPop, 0.06, { Scale = 1.025 }, Enum.EasingStyle.Quad).Completed:Once(
+			duelsPop.Scale = 0.97
+			task.delay(0.14, function()
+				tween(duelsPop, 0.07, { Scale = 1.03 }, Enum.EasingStyle.Quad).Completed:Once(
 					function()
-						tween(duelsPop, 0.2, { Scale = 1 })
+						tween(duelsPop, 0.28, { Scale = 1 }, Enum.EasingStyle.Back)
 					end
 				)
 			end)
 		end
 	end)
+	task.delay(0.95, function()
+		sweepShine()
+		floatFrom = os.clock()
+		floating = true
+	end)
 end
 
 -- Stages ------------------------------------------------------------------------------
 
-local stepIndex, stepCount = 0, 1
+local stepIndex = 0
 local function stage(key: string, fallback: string)
 	local words = cfg.stages
-	stageLabel.Text = if words and typeof(words[key]) == "string" then words[key] else fallback
+	local text = if words and typeof(words[key]) == "string" then words[key] else fallback
+	if stageLabel.Text == text then
+		return
+	end
+	if reduced then
+		stageLabel.Text = text
+		return
+	end
+	-- The old word slides up and out, the new one comes up from below.
+	local outgoing = stageLabel:Clone()
+	outgoing.Parent = stageClip
+	tween(
+		outgoing,
+		0.22,
+		{ Position = UDim2.fromScale(0.5, -0.6), TextTransparency = 1 },
+		QUINT,
+		IN
+	).Completed:Once(function()
+		outgoing:Destroy()
+	end)
+	-- The new word waits until the old one is mostly out, so the two never overlap.
+	stageLabel.Text = text
+	stageLabel.Position = UDim2.fromScale(0.5, 1.6)
+	stageLabel.TextTransparency = 1
+	TweenService:Create(
+		stageLabel,
+		TweenInfo.new(0.3, QUINT, OUT, 0, false, 0.16),
+		{ Position = REST, TextTransparency = 0 }
+	):Play()
 end
+
+local function setWorking(i: number)
+	local old = pipPulses[working]
+	if old then
+		old.Enabled = false
+	end
+	working = i
+	local now = pipPulses[i]
+	if now and not reduced then
+		now.Enabled = true
+	end
+end
+
+local stepStarted = os.clock()
 local function advance()
+	-- Each stage is on screen at least stepMin, so the segments fill one by one.
+	local left = (cfg.stepMin or FALLBACK.stepMin) - (os.clock() - stepStarted)
+	if left > 0 then
+		task.wait(left)
+	end
 	stepIndex += 1
-	tween(fill, cfg.fill, { Size = UDim2.fromScale(math.clamp(stepIndex / stepCount, 0, 1), 1) })
+	local fillFrame = pipFills[stepIndex]
+	if fillFrame then
+		tween(fillFrame, cfg.fill or FALLBACK.fill, { Size = UDim2.fromScale(1, 1) })
+	end
+	setWorking(stepIndex + 1)
+	stepStarted = os.clock()
 end
 
 local function waitFor(check: () -> boolean, deadline: number): boolean
@@ -287,9 +447,17 @@ end
 
 -- Close -------------------------------------------------------------------------------
 
-local function close(bed: Sound?)
-	local fade = TweenInfo.new(cfg.fadeOut, QUINT_OUT, Enum.EasingDirection.In)
-	for _, d in gui:GetDescendants() do
+local function fadeAll(
+	root: Instance,
+	seconds: number,
+	delay: number,
+	skip: { [Instance]: boolean }
+)
+	local info = TweenInfo.new(seconds, QUINT, Enum.EasingDirection.InOut, 0, false, delay)
+	for _, d in root:GetDescendants() do
+		if skip[d] then
+			continue
+		end
 		if d:IsA("GuiObject") then
 			local goal: { [string]: any } = {}
 			if d.BackgroundTransparency < 1 then
@@ -301,30 +469,48 @@ local function close(bed: Sound?)
 				goal.ImageTransparency = 1
 			end
 			if next(goal) then
-				TweenService:Create(d, fade, goal):Play()
+				TweenService:Create(d, info, goal):Play()
 			end
 		elseif d:IsA("UIStroke") then
-			TweenService:Create(d, fade, { Transparency = 1 }):Play()
+			TweenService:Create(d, info, { Transparency = 1 }):Play()
 		end
 	end
-	tween(
-		fit,
-		cfg.fadeOut,
-		{ Scale = fit.Scale * 1.03 },
-		Enum.EasingStyle.Quint,
-		Enum.EasingDirection.In
-	)
-	tween(blur, cfg.fadeOut * 2, { Size = 0 })
+end
+
+-- The words and segments drop out first, the title zooms through and fades, then the backdrop goes while the
+-- blur clears.
+local function close(bed: Sound?)
+	local out = cfg.fadeOut or FALLBACK.fadeOut
+	floating = false
+	setWorking(0)
+	fadeAll(canvas, 0.25, 0, { [ticket] = true, [duels] = true, [full] = true, [shine] = true })
+	if not reduced then
+		tween(logoPop, out * 0.6, { Scale = 1.1 }, QUINT, OUT)
+	end
+	-- The title is gone before the backdrop, so it never hangs over the world.
+	for _, image in { ticket, duels, full, shine } do
+		tween(image, out * 0.55, { ImageTransparency = 1 }, Enum.EasingStyle.Quad, OUT)
+	end
+	if stripes then
+		fadeAll(stripes, out * 0.4, 0, {})
+	end
+	local backdropFade = TweenInfo.new(out, QUINT, Enum.EasingDirection.InOut, 0, false, out * 0.25)
+	for _, layer in gui:GetChildren() do
+		if layer:IsA("GuiObject") and layer ~= canvas and layer.BackgroundTransparency < 1 then
+			TweenService:Create(layer, backdropFade, { BackgroundTransparency = 1 }):Play()
+		end
+	end
+	tween(blur, out * 1.8, { Size = 0 })
 	if bed then
-		local out = typeof(cfg.bed) == "table" and cfg.bed.fadeOut or 0.6
-		tween(bed, out, { Volume = 0 }).Completed:Once(function()
+		local fadeBed = typeof(cfg.bed) == "table" and cfg.bed.fadeOut or 0.6
+		tween(bed, fadeBed, { Volume = 0 }).Completed:Once(function()
 			bed:Destroy()
 		end)
 	end
-	task.wait(cfg.fadeOut + 0.05)
+	task.wait(out * 1.35 + 0.05)
 	frame:Disconnect()
 	gui:Destroy()
-	task.delay(cfg.fadeOut, function()
+	task.delay(out, function()
 		blur:Destroy()
 	end)
 	player:SetAttribute("LoadingScreen", false)
@@ -336,12 +522,10 @@ local function armHomeTeleport()
 	if not (template and template:IsA("ScreenGui")) then
 		return
 	end
-	local armed = false
-	local function check()
-		if armed or matchValue("Phase") ~= '"MatchEnd"' then
-			return
+	task.spawn(function()
+		while matchValue("Phase") ~= '"MatchEnd"' do
+			task.wait(1)
 		end
-		armed = true
 		local copy = template:Clone()
 		local c = copy:FindFirstChild("Canvas")
 		local mode = c and c:FindFirstChild("Mode")
@@ -365,15 +549,6 @@ local function armHomeTeleport()
 		if not ok then
 			warn("[Loading] SetTeleportGui failed: " .. tostring(err))
 		end
-	end
-	task.spawn(function()
-		while true do
-			check()
-			if armed then
-				return
-			end
-			task.wait(1)
-		end
 	end)
 end
 
@@ -382,14 +557,17 @@ end
 local started = os.clock()
 local isMatch = role() == "Match"
 local deadline = started + (if isMatch then FALLBACK.watchdogMatch else FALLBACK.watchdogLobby)
-stepCount = 4
 
-if not revealed then
+if revealed then
+	floatFrom = os.clock()
+	floating = true
+else
 	hideLogo()
 end
--- The logo and the config first (capped), so the reveal and its sting land together.
+setWorking(1)
+-- The title and the config first (capped), so the reveal and its sting land together.
 task.spawn(function()
-	pcall(ContentProvider.PreloadAsync, ContentProvider, { ticket, duels, full })
+	pcall(ContentProvider.PreloadAsync, ContentProvider, { ticket, duels, full, shine })
 end)
 waitFor(function()
 	return configReady
@@ -408,11 +586,12 @@ if not revealed then
 	local sting = sound(cfg.sting, false)
 	reveal(sting)
 	if sting then
-		task.delay(6, function()
+		task.delay(8, function()
 			sting:Destroy()
 		end)
 	end
 end
+stepStarted = os.clock()
 
 local done = true
 stage("connecting", "CONNECTING")
@@ -459,10 +638,15 @@ else
 end
 
 countLabel.Text = ""
+setWorking(0)
 stage("ready", "READY")
+sweepShine()
 local hold = (cfg.minHold or FALLBACK.minHold) - (os.clock() - revealAt)
-if hold > 0 and not revealed then
+if not revealed then
+	hold = math.max(hold, motion("shine") + 0.2)
 	task.wait(hold)
+else
+	task.wait(motion("shine") + 0.2)
 end
 if not done then
 	warn(
@@ -474,11 +658,7 @@ if not done then
 	)
 else
 	print(
-		string.format(
-			"[Health] C loading screen done %s+%.1fs",
-			player.Name .. " ",
-			os.clock() - started
-		)
+		string.format("[Health] C loading screen done %s +%.1fs", player.Name, os.clock() - started)
 	)
 end
 close(bed)

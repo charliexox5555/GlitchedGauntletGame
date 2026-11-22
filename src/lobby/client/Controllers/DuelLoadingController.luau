@@ -19,7 +19,7 @@ local LoadingLayout =
 local DuelLoadingController = {}
 
 local player = Players.LocalPlayer
-local HIDDEN = { "Progress", "Count", "Tip", "Mode", "Slash" }
+local HIDDEN = { "Pips", "Count", "Tip", "Mode" }
 
 local showing: ScreenGui? = nil
 local token = 0
@@ -78,7 +78,7 @@ local function show(matchId: string)
 			item.Visible = false
 		end
 	end
-	local stage = canvas:FindFirstChild("Stage")
+	local stage = canvas:FindFirstChild("Stage", true)
 	if stage and stage:IsA("TextLabel") then
 		stage.Text = LoadingConfig.stages.duel
 	end
