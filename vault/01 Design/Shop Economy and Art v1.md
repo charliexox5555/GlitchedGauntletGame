@@ -201,3 +201,10 @@ Save results in `art-source/ui/shop/` with the file names below; I upload and wi
 - So: the flat card colours (teal / blue / green, gold coin cards) are **not liked**; the next look pass replaces them. Bundle banners will be **professional images from Gemini / ChatGPT** (prompts above), with our hero renders as the gun layer where the image needs the real skin.
 - Owner, same day: "the looking-at-bundle menu needs to look better and be larger of the screen" → the bundle page gets a bigger stage (the gun much larger, the page using the space the shop tabs leave) and a real design pass, not just the current re-layout.
 - Open for that pass: a new shop colour scheme (ask the owner with options before building), banner art in, then every tab polished.
+
+## Look pass: colour scheme options shown to the owner (2026-11-22)
+All three keep the dark look (the bright flat restyle was rejected before), drop the flat full-colour card fills, keep green for Robux and gold for coins, and show a skin's tier only on its small tag; banner art carries the bundles' colour.
+- **A · Night market** (closest to RIVALS): page #17132A, panels #241D40, inner #2F2752, active tab gold #FFC83D.
+- **B · Graphite and gold**: page #121418, panels #1E2128, inner #2A2E37, active tab gold.
+- **C · Deep navy and cyan**: page #0E1525, panels #18233D, inner #22304F, active tab cyan #2FD3E6.
+Waiting on the owner's pick.
