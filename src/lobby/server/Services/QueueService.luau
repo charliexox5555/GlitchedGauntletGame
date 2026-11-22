@@ -5,6 +5,11 @@
 -- goes with bots in the empty slots. The client only asks to join or leave;
 -- the queue publishes server-owned state values (see Lobby/LobbyNet).
 --
+-- Global (place merge 2026-11-21): groups are also written to the global
+-- queue (Matchmaking/GlobalQueue), which matches them with groups from every
+-- lobby server; a matched group teleports to the reserved server the match
+-- shares. If MemoryStore can't be reached, matching stays inside this server.
+--
 -- Parties (Matchmaking/Parties): a Roblox party here queues as one group on
 -- one team. Only its leader starts the queue (the whole party goes in that
 -- mode); anyone in it can cancel for all. A party change while searching
@@ -21,6 +26,7 @@ local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 
+local GlobalQueue = require(script.Parent.Parent.Matchmaking.GlobalQueue)
 local Launcher = require(script.Parent.Parent.Matchmaking.Launcher)
 local Matchmaker = require(script.Parent.Parent.Matchmaking.Matchmaker)
 local Parties = require(script.Parent.Parent.Matchmaking.Parties)
@@ -57,8 +63,14 @@ local function setState(player: Player, status: Status, mode: string?, matchId: 
 end
 
 local function updateCounts()
+	local global = if GlobalQueue.isOn() then GlobalQueue.counts() else nil
 	for mode, queue in queues do
-		StateValues.set(LobbyNet.folder, LobbyNet.countAttribute(mode), Matchmaker.count(queue))
+		-- Everyone searching in every server (at least this server's own).
+		local n = Matchmaker.count(queue)
+		if global then
+			n = math.max(n, global[mode] or 0)
+		end
+		StateValues.set(LobbyNet.folder, LobbyNet.countAttribute(mode), n)
 	end
 end
 
@@ -75,6 +87,11 @@ local function entryOf(player: Player): (Matchmaker.Entry?, string?)
 end
 
 local function removeEntry(entry: Matchmaker.Entry)
+	local ticket = entry.ticket
+	if ticket then
+		entry.ticket = nil
+		GlobalQueue.remove(ticket)
+	end
 	for _, queue in queues do
 		local i = table.find(queue, entry)
 		if i then
@@ -123,15 +140,17 @@ local function backToLobby(player: Player, matchId: string, text: string?)
 	end
 end
 
-local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
-	local matchId = HttpService:GenerateGUID(false)
-	local players: { Player } = {}
-	for _, entry in pick.entries do
-		removeEntry(entry)
-		for _, p in entry.players do
-			table.insert(players, p)
-		end
-	end
+-- Starts the match-found beat and the teleport for this server's `players`.
+-- `teams` lists every player in the match (other servers' too, for a global
+-- match); `reservedServerId` / `bots` come from the global matchmaker.
+local function startLaunch(
+	info: Config.ModeInfo,
+	players: { Player },
+	teams: { { number } },
+	matchId: string,
+	reservedServerId: string?,
+	bots: boolean?
+)
 	updateCounts()
 
 	-- save Locker equips now so the write lands before the teleport
@@ -139,13 +158,6 @@ local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
 		LockerService.flush(p)
 	end
 	local startsAtServer = serverNow() + Config.matchFoundDelay
-	local teams: { { number } } = {}
-	for t, team in pick.teams do
-		teams[t] = {}
-		for _, p in team do
-			table.insert(teams[t], p.UserId)
-		end
-	end
 	for _, p in players do
 		setState(p, "found", info.id, matchId)
 		StateValues.set(p, "QueueStartsAt", startsAtServer)
@@ -157,9 +169,7 @@ local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
 			startsAt = startsAtServer,
 		})
 	end
-	print(
-		`[Queue] match {matchId} found: {info.id}, {#players} player(s), bots {#players < info.teamSize * 2}`
-	)
+	print(`[Queue] match {matchId} found: {info.id}, {#players} player(s) here, bots {bots}`)
 
 	local match: Launcher.Match = {
 		id = matchId,
@@ -168,6 +178,8 @@ local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
 		players = players,
 		teams = teams,
 		startsAt = os.clock() + Config.matchFoundDelay,
+		reservedServerId = reservedServerId,
+		bots = bots,
 	}
 	local hooks: Launcher.Hooks = {
 		stillIn = function(p: Player): boolean
@@ -216,7 +228,85 @@ local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
 	end
 end
 
+-- A match inside this server (the fallback when the global queue is off).
+local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
+	local players: { Player } = {}
+	for _, entry in pick.entries do
+		removeEntry(entry)
+		for _, p in entry.players do
+			table.insert(players, p)
+		end
+	end
+	local teams: { { number } } = {}
+	for t, team in pick.teams do
+		teams[t] = {}
+		for _, p in team do
+			table.insert(teams[t], p.UserId)
+		end
+	end
+	startLaunch(
+		info,
+		players,
+		teams,
+		HttpService:GenerateGUID(false),
+		nil,
+		#players < info.teamSize * 2
+	)
+end
+
+-- The global matchmaker matched one of our groups.
+local function onGlobalMatch(ticket: string, match: GlobalQueue.MatchInfo)
+	local info = Config.MODE_BY_ID[match.mode]
+	local found: Matchmaker.Entry? = nil
+	for _, queue in queues do
+		for _, entry in queue do
+			if entry.ticket == ticket then
+				found = entry
+				break
+			end
+		end
+	end
+	if not info or not found then
+		return -- cancelled meanwhile: the match server gives the seat to a bot
+	end
+	removeEntry(found)
+	local players: { Player } = {}
+	for _, p in found.players do
+		if p.Parent == Players then
+			table.insert(players, p)
+		end
+	end
+	if #players > 0 then
+		startLaunch(info, players, match.teams, match.id, match.rsid, match.bots)
+	end
+end
+
+-- Writes a queued group's global ticket (yields; the group may be gone by then).
+local function writeTicket(mode: string, entry: Matchmaker.Entry)
+	if not GlobalQueue.isOn() then
+		return
+	end
+	local users: { number } = {}
+	for _, p in entry.players do
+		table.insert(users, p.UserId)
+	end
+	local ticket = GlobalQueue.add(mode, users, os.clock() - entry.since)
+	if not ticket then
+		return
+	end
+	local queue = queues[mode]
+	if queue and table.find(queue, entry) and not entry.ticket then
+		entry.ticket = ticket
+	else
+		GlobalQueue.remove(ticket)
+	end
+end
+
 local function tick()
+	if GlobalQueue.isOn() then
+		updateCounts() -- the global matchmaker does the matching
+		return
+	end
 	local now = os.clock()
 	for _, info in Config.MODES do
 		local pick = Matchmaker.pick(queues[info.id], info.teamSize, now, FILL_AFTER)
@@ -228,7 +318,9 @@ end
 
 -- Puts a group in a mode's queue (keeping `since` when it re-forms).
 local function enqueue(members: { Player }, info: Config.ModeInfo, since: number)
-	insertEntry(info.id, { players = members, since = since })
+	local entry: Matchmaker.Entry = { players = members, since = since }
+	insertEntry(info.id, entry)
+	task.spawn(writeTicket, info.id, entry)
 	local sinceServer = serverNow() - (os.clock() - since)
 	for _, m in members do
 		setState(m, "searching", info.id)
@@ -412,7 +504,10 @@ local function requeueFromMatch(player: Player)
 	if not ok or typeof(joinData) ~= "table" then
 		return
 	end
-	if (joinData :: any).SourcePlaceId ~= Config.MATCH_PLACE_ID then
+	-- From a match server: a reserved server of this place since the merge, or
+	-- the retired match place.
+	local source = (joinData :: any).SourcePlaceId
+	if source ~= game.PlaceId and source ~= Config.MATCH_PLACE_ID then
 		return
 	end
 	local data = (joinData :: any).TeleportData
@@ -459,6 +554,15 @@ function QueueService.start()
 	end)
 	Parties.onChanged(onPartyChanged)
 	Parties.start()
+	local rules = {}
+	for _, m in Config.MODES do
+		if m.enabled then
+			table.insert(rules, { id = m.id :: string, teamSize = m.teamSize })
+		end
+	end
+	GlobalQueue.onMatched(onGlobalMatch)
+	task.spawn(GlobalQueue.start, rules, FILL_AFTER)
+	game:BindToClose(GlobalQueue.releaseAll)
 	task.spawn(function()
 		while true do
 			task.wait(Config.rejectLogInterval)

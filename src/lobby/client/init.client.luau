@@ -7,6 +7,18 @@
 local ServerRole =
 	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("ServerRole"))
 if ServerRole.isMatch() then
+	-- StarterGui still copies the lobby's screens to everyone: keep them off.
+	local StarterGui = game:GetService("StarterGui")
+	local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+	local function off(gui: Instance)
+		if gui:IsA("ScreenGui") and StarterGui:FindFirstChild(gui.Name) then
+			gui.Enabled = false
+		end
+	end
+	for _, gui in playerGui:GetChildren() do
+		off(gui)
+	end
+	playerGui.ChildAdded:Connect(off)
 	return
 end
 

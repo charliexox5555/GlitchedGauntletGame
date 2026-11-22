@@ -2,6 +2,11 @@
 -- Sends a formed match to its own reserved Match server and carries the
 -- Lobby -> Match TeleportData contract (vault/05 Production/Overnight
 -- 2026-11-04.md). In Studio (no teleports) it logs and reports the payload.
+-- Since the place merge (2026-11-21) the match server is a reserved server of
+-- this same place (game.PlaceId; shared/ServerRole makes it a Match server),
+-- and a global-queue match (Matchmaking/GlobalQueue) brings the reserved
+-- server id every lobby server in it shares, with teams that list players
+-- from other servers too.
 --
 -- LihFolk (41 Multiplayer Services: Teleporting and Multi-Place Games;
 -- Reserved and Private Servers in Practice; TeleportService - Engine Reference
@@ -30,6 +35,8 @@ export type Match = {
 	players: { Player },
 	teams: { { number } }, -- split once when found, so the MATCH FOUND screen stays true
 	startsAt: number, -- os.clock() of the teleport
+	reservedServerId: string?, -- shared by every server in a global match; else a new one
+	bots: boolean?, -- decided by the global matchmaker; else from who is here
 }
 
 export type Hooks = {
@@ -81,28 +88,37 @@ local function backoff(attempt: number): number
 	return list[math.min(attempt, #list)]
 end
 
--- The match's teams with anyone who left removed; bots fill what's missing.
+-- The match's teams with this server's leavers removed (players from other
+-- servers stay listed); bots fill what's missing.
 function Launcher.buildData(match: Match, present: { Player }): TeleportData
 	local here: { [number]: boolean } = {}
 	for _, p in present do
 		here[p.UserId] = true
 	end
+	local left: { [number]: boolean } = {}
+	for _, p in match.players do
+		if not here[p.UserId] then
+			left[p.UserId] = true
+		end
+	end
 	local teams: { { number } } = {}
+	local total = 0
 	for t, team in match.teams do
 		local kept: { number } = {}
 		for _, id in team do
-			if here[id] then
+			if not left[id] then
 				table.insert(kept, id)
 			end
 		end
 		teams[t] = kept
+		total += #kept
 	end
 	return {
 		v = Config.TEAMDATA_VERSION,
 		matchId = match.id,
 		mode = match.mode,
 		teams = teams,
-		bots = #present < match.teamSize * 2,
+		bots = (match.bots == true) or total < match.teamSize * 2,
 	}
 end
 
@@ -133,7 +149,7 @@ local function retry(player: Player, entry: Pending, wait: number, options: Tele
 		local ok, err = pcall(
 			TeleportService.TeleportAsync,
 			TeleportService,
-			Config.MATCH_PLACE_ID,
+			game.PlaceId,
 			{ player },
 			entry.options
 		)
@@ -166,7 +182,7 @@ function Launcher.launch(match: Match, hooks: Hooks)
 
 	if IS_STUDIO then
 		print(
-			`[Queue] STUDIO: would teleport {#present} player(s) to place {Config.MATCH_PLACE_ID} with TeleportData {json}`
+			`[Queue] STUDIO: would teleport {#present} player(s) to place {game.PlaceId} with TeleportData {json}`
 		)
 		for _, p in present do
 			hooks.studio(p, json)
@@ -175,7 +191,8 @@ function Launcher.launch(match: Match, hooks: Hooks)
 	end
 
 	local options = Instance.new("TeleportOptions")
-	options.ReservedServerId = HttpService:GenerateGUID(false) -- one private server per match
+	-- One private server per match, shared by every lobby server in a global match.
+	options.ReservedServerId = match.reservedServerId or HttpService:GenerateGUID(false)
 	options:SetTeleportData(data)
 
 	for _, p in present do
@@ -190,13 +207,8 @@ function Launcher.launch(match: Match, hooks: Hooks)
 	end
 	print(`[Queue] teleporting {#present} player(s), match {match.id}: {json}`)
 
-	local ok, err = pcall(
-		TeleportService.TeleportAsync,
-		TeleportService,
-		Config.MATCH_PLACE_ID,
-		present,
-		options
-	)
+	local ok, err =
+		pcall(TeleportService.TeleportAsync, TeleportService, game.PlaceId, present, options)
 	if not ok then
 		-- Nothing is in flight after a throw, so each player retries on their own.
 		warn(`[Queue] TeleportAsync for match {match.id} threw: {err}`)

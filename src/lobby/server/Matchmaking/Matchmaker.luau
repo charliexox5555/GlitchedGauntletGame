@@ -7,6 +7,7 @@
 export type Entry = {
 	players: { Player }, -- leader first
 	since: number, -- os.clock() when the group joined this queue
+	ticket: string?, -- its global-queue ticket (Matchmaking/GlobalQueue), once written
 }
 
 export type Pick = {
