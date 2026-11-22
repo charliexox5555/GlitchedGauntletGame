@@ -26,10 +26,8 @@ return table.freeze({
 	-- Studio 2026-11-16, uploaded with tools/opencloud/upload_asset.py; these are the Image ids
 	-- behind the uploaded Decals, resolved with InsertService).
 	MAPS = {
-		-- Owner 2026-11-20: only the simple maps play (vault/04 Tech/Prompts/2026-11-20 Docks Map Build.md).
-		-- Every other map stays installed in the place (ForceMap still loads it) but is out of the rotation
-		-- and the vote: Whitebox, BigWhitebox, Rooftops(2/3), Courtyard, Bunker(2/3), Foundry, Snowpeak(2/3),
-		-- ModelKit, OldTown(2/3), Metro(2/3), Greenhouse(2/3), Dockyard2.
+		-- The release lineup (owner 2026-11-21). The legacy maps (Whitebox, Rooftops 1-3, Bunker 1-3, ...)
+		-- were deleted from the place on 2026-11-21 (vault/01 Design/Maps/Release Map Audit 2026-11-21.md).
 		{ id = "Arena", minTeam = 1, maxTeam = 2 },
 		{ id = "Pier", minTeam = 1, maxTeam = 2 },
 		{ id = "Wharf", minTeam = 1, maxTeam = 2 }, -- 2026-11-20, vault/01 Design/Maps/Wharf.md

@@ -101,6 +101,7 @@ local function make(
 	local p = Instance.new(class) :: BasePart
 	p.Name = name
 	p.Anchored = true
+	p.CanTouch = false -- nothing on a map uses Touched (release audit 2026-11-21)
 	p.Size = size
 	p.CFrame = W(cf)
 	p.Color = color

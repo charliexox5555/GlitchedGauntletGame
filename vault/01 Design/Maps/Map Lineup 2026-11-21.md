@@ -86,9 +86,9 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
 ## Release plan (owner, 2026-11-21)
 **Castle is on hold;** Canyon Outpost is the final new map. After it:
 1. **Review Canyon Outpost:** a final pass so everything is solid.
-2. **Audit all release maps:** part organisation, structure, textures, overall Studio quality.
-3. **Clean up legacy maps:** delete every old map that isn't in the release lineup; keep only the release ones.
-4. **SFX and VFX where fitting:** sounds from our pro library or other assets, and effects on select maps for polish, depth and character. Don't overdo it; some maps need none (Arena etc.).
+2. **Audit all release maps:** part organisation, structure, textures, overall Studio quality. ✅ Done 2026-11-21: [Release Map Audit](Release%20Map%20Audit%202026-11-21.md).
+3. **Clean up legacy maps:** delete every old map that isn't in the release lineup; keep only the release ones. ✅ Done 2026-11-21: [Release Map Audit](Release%20Map%20Audit%202026-11-21.md).
+4. **SFX and VFX where fitting:** sounds from our pro library or other assets, and effects on select maps for polish, depth and character. Don't overdo it; some maps need none (Arena etc.). ✅ Done 2026-11-21: [Release Map Audit](Release%20Map%20Audit%202026-11-21.md).
 5. **Prep and push:** finish the maps, make everything release-ready, and push. Then the owner playtests each map and gives feedback.
 
 **Release lineup:**

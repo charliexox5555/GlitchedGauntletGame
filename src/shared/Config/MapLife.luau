@@ -33,7 +33,7 @@
 -- attributes). The rules survive a rebuild of the art.
 -- LifeGull models may override FlapHz, FlapDeg (circling pigeons use them).
 -- LifePigeon models may override FlapHz, FlapDeg, Away, Rise, Sound, Volume
--- (perched gulls on Dockyard2 use the same take-off code as the pigeons).
+-- (perched gulls use the same take-off code as the pigeons).
 -- Wing parts are named WingL* / WingR* and hinge at the Model's HingeX
 -- (studs from the body's centre, along the body's right).
 

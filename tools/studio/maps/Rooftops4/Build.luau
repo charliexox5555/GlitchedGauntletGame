@@ -1001,6 +1001,7 @@ return function(): string
 		local sw = Instance.new("WedgePart")
 		sw.Name = "StairRamp"
 		sw.Anchored = true
+		sw.CanTouch = false
 		sw.Size = V(5, 8, 16)
 		sw.CFrame = ORIGIN * T * CFrame.new(-60, 4.04, 86) * CFrame.Angles(0, math.pi, 0) -- rises toward -Z
 		sw.Transparency = 1
@@ -1328,6 +1329,7 @@ return function(): string
 			local cheek = Instance.new("WedgePart")
 			cheek.Name = "StepCheekSlope"
 			cheek.Anchored = true
+			cheek.CanTouch = false
 			cheek.Size = V(0.6, 6.1, 10.3)
 			cheek.CFrame = ORIGIN * T * CFrame.new(x + 0.3, -5.2 + 3.05 - 0.02, 23.15) -- a wedge rises toward +Z, like the steps
 			cheek.Material = Enum.Material.Limestone
@@ -1348,6 +1350,7 @@ return function(): string
 		local w2 = Instance.new("WedgePart")
 		w2.Name = "StairRamp"
 		w2.Anchored = true
+		w2.CanTouch = false
 		w2.Size = V(5, 8, 16)
 		w2.CFrame = ORIGIN * T * CFrame.new(-33, 4.04, 22) * CFrame.Angles(0, math.pi, 0) -- rises toward -Z
 		w2.Transparency = 1

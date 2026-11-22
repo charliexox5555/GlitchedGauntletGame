@@ -15,7 +15,8 @@
 --   * Parts tagged TAG_INDOOR are rooms (invisible boxes). With the camera
 --     inside one, the outdoor ambience is muffled and turned down (INDOOR)
 --     and the map's `room` tone comes up.
--- Placed by tools/studio/maps/<Map>/Ambience.luau (Dockyard2 first).
+-- Emitters are tagged in Studio on the release maps (vault/01 Design/Maps/Release Map
+-- Audit 2026-11-21.md → SFX / VFX); the legacy maps that first used them are gone.
 -- Volumes are mix levels: every file sits at a common loudness (beds -22
 -- to -26 LUFS, one-shots about -24 LUFS momentary), well under the guns.
 
@@ -36,20 +37,8 @@ export type Map = {
 }
 
 local MAPS: { [string]: Map } = {
-	-- Dockyard2: a container pier over open water on a bright afternoon.
-	-- Playable deck 136 x 236 at world origin (-3000, 200, 0); the box takes
-	-- in the quay walls and the water around the deck.
-	Dockyard2 = {
-		center = Vector3.new(-3000, 225, 0),
-		size = Vector3.new(320, 160, 420),
-		beds = {
-			{ id = "sfx:AmbHarbour", volume = 0.45 }, -- distant harbour and industry
-			{ id = "sfx:AmbWind", volume = 0.28 }, -- wind
-		},
-		room = { id = "sfx:AmbRoom", volume = 0.55 }, -- inside the sheds
-	},
 	-- Wharf (2026-11-20): the morning container wharf, pier 130 x 185 at (6000, 200, 6000); the box takes in
-	-- the berth, the crane and the water round the pier. Beds only (no emitters placed yet).
+	-- the berth, the crane and the water round the pier. Emitters (2026-11-21): water at the berth, gulls, the crane hum, a far ship horn.
 	Wharf = {
 		center = Vector3.new(6010, 215, 6000),
 		size = Vector3.new(360, 160, 420),
@@ -58,7 +47,8 @@ local MAPS: { [string]: Map } = {
 			{ id = "sfx:AmbWind", volume = 0.26 },
 		},
 	},
-	-- Metro4 (2026-11-20): the glazed station hall in the city, hall 230 x 210 at (6000, 200, 12500). Beds only.
+	-- Metro4 (2026-11-20): the glazed station hall in the city, hall 230 x 210 at (6000, 200, 12500). Emitters
+	-- (2026-11-21): a low rail hum at each tunnel mouth.
 	Metro4 = {
 		center = Vector3.new(6000, 215, 12500),
 		size = Vector3.new(260, 80, 240),
@@ -67,101 +57,72 @@ local MAPS: { [string]: Map } = {
 			{ id = "sfx:AmbWind", volume = 0.14 },
 		},
 	},
-	-- OldTown4 (2026-11-21): the Collina hill town, 200 x 220 at (6000, 200, 26000). Beds only.
+	-- OldTown4 (2026-11-21): the Collina hill town, 200 x 220 at (6000, 200, 26000). Emitters
+	-- (2026-11-21): the two fountains, pigeons on the clock tower.
 	OldTown4 = {
 		center = Vector3.new(6000, 215, 26000),
 		size = Vector3.new(260, 120, 300),
 		beds = { { id = "sfx:AmbCity", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.2 } },
 	},
 	-- CanyonOutpost (2026-11-21): the mining outpost in a red canyon, 140 x 192 at (6000, 200, 54000); the box takes in
-	-- the cliffs round it. Beds only: canyon wind.
+	-- the cliffs round it. Bed: canyon wind. Emitter (2026-11-21): the water tower creaks.
 	CanyonOutpost = {
 		center = Vector3.new(6000, 215, 54000),
 		size = Vector3.new(200, 90, 250),
 		beds = { { id = "sfx:AmbWind", volume = 0.3 } },
 	},
 	-- Foundry4 (2026-11-21): the steel works at night, 150 x 192 at (6000, 200, 47000); the box takes in the mill sheds
-	-- and the stoves round it. Beds only: the plant hum and a little wind.
+	-- and the stoves round it. Beds: the plant hum and a little wind. Emitters (2026-11-21): the furnace
+	-- and the pour pit roar (Furnace).
 	Foundry4 = {
 		center = Vector3.new(6000, 212, 47000),
 		size = Vector3.new(220, 90, 250),
 		beds = { { id = "sfx:AmbHum", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.14 } },
 	},
 	-- Greenhouse4 (2026-11-21): the Victorian conservatory in a walled garden, 140 x 196 at (6000, 200, 40000); the box
-	-- takes in the garden walls. Beds only.
+	-- takes in the garden walls. Emitters (2026-11-21): the pond trickle, pigeons on the boiler chimneys.
 	Greenhouse4 = {
 		center = Vector3.new(6000, 210, 40000),
 		size = Vector3.new(200, 80, 240),
 		beds = { { id = "sfx:AmbWind", volume = 0.16 } },
 	},
 	-- Rooftops4 (2026-11-21): the city block at blue hour, 140 x 192 at (6000, 200, 33000); the box takes in the
-	-- alleys and the street below. Beds only.
+	-- alleys and the street below. Emitters (2026-11-21): AC units, pigeons, car horns below, a far siren.
 	Rooftops4 = {
 		center = Vector3.new(6000, 195, 33000),
 		size = Vector3.new(220, 110, 260),
 		beds = { { id = "sfx:AmbCity", volume = 0.45 }, { id = "sfx:AmbWind", volume = 0.18 } },
 	},
-	-- Snowpeak4 (2026-11-21): the ski saddle, 150 x 190 at (6000, 200, 19000); the box takes in the slopes. Beds only.
+	-- Snowpeak4 (2026-11-21): the ski saddle, 150 x 190 at (6000, 200, 19000); the box takes in the slopes. Beds only
+	-- (snowfall, smoke and fire are its effects).
 	Snowpeak4 = {
 		center = Vector3.new(6000, 210, 19000),
 		size = Vector3.new(260, 120, 300),
 		beds = { { id = "sfx:AmbWind", volume = 0.4 } },
 	},
-	-- The older maps: beds only (a hook; no emitters or rooms placed yet). Boxes
-	-- are 300 x 220 x 360 around each map's world origin (maps sit 1500 apart).
+	-- Pier (fixed 2026-11-21: it had no entry): the duel slice of the port, deck 90 x 150 at (5500, 200, 0).
+	Pier = {
+		center = Vector3.new(5500, 210, 0),
+		size = Vector3.new(240, 120, 300),
+		beds = {
+			{ id = "sfx:AmbHarbour", volume = 0.42 },
+			{ id = "sfx:AmbWind", volume = 0.26 },
+		},
+	},
+	-- Dockyard: the full container port, deck 200 x 230 at (5500, 200, -1500) (vault/01 Design/Maps/Pier and
+	-- Dockyard.md). Fixed 2026-11-21: the box sat at the old map's spot (-1500, 210, 0), so the beds never played.
 	Dockyard = {
-		center = Vector3.new(-1500, 210, 0),
-		size = Vector3.new(300, 220, 360),
+		center = Vector3.new(5500, 210, -1500),
+		size = Vector3.new(320, 140, 360),
 		beds = {
 			{ id = "sfx:AmbHarbour", volume = 0.45 },
 			{ id = "sfx:AmbWind", volume = 0.28 },
 		},
 	},
-	Rooftops = {
-		center = Vector3.new(1500, 200, 1500),
-		size = Vector3.new(300, 220, 360),
-		beds = { { id = "sfx:AmbCity", volume = 0.45 }, { id = "sfx:AmbWind", volume = 0.24 } },
-	},
-	OldTown = {
-		center = Vector3.new(0, 210, 1500),
-		size = Vector3.new(300, 220, 360),
-		beds = { { id = "sfx:AmbCity", volume = 0.3 }, { id = "sfx:AmbWind", volume = 0.2 } },
-	},
-	Snowpeak = {
-		center = Vector3.new(-1500, 210, -1500),
-		size = Vector3.new(300, 220, 360),
-		beds = { { id = "sfx:AmbWind", volume = 0.42 } },
-	},
-	Metro = { -- an underground station: the warehouse room tone as the bed
-		center = Vector3.new(1500, 200, 0),
-		size = Vector3.new(300, 220, 360),
-		beds = { { id = "sfx:AmbRoom", volume = 0.45 }, { id = "sfx:AmbHum", volume = 0.12 } },
-	},
-	Bunker = {
-		center = Vector3.new(-1500, 200, 1500),
-		size = Vector3.new(300, 220, 360),
-		beds = { { id = "sfx:AmbRoom", volume = 0.45 } },
-	},
-	Greenhouse = {
-		center = Vector3.new(1500, 210, -1500),
-		size = Vector3.new(300, 220, 360),
-		beds = { { id = "sfx:AmbWind", volume = 0.18 }, { id = "sfx:AmbRoom", volume = 0.2 } },
-	},
-	-- Rooftops2: a sunny city block, two team roofs over a sunken Pit. No
-	-- enterable rooms, so no room tone. Playable area about 97 x 161 at world
-	-- origin (3000, 200, 0); the box takes in the drop to the street.
-	Rooftops2 = {
-		center = Vector3.new(3000, 190, 0),
-		size = Vector3.new(300, 220, 360),
-		beds = {
-			{ id = "sfx:AmbCity", volume = 0.45 }, -- the city below: traffic, a train
-			{ id = "sfx:AmbWind", volume = 0.24 }, -- wind across the roofs
-		},
-	},
 }
 
 local SPOTS: { [string]: Spot } = {
-	-- Rooftops2 ------------------------------------------------------------
+	-- City (Rooftops4) ------------------------------------------------------
 	-- Rooftop air-conditioning units, a loop at each.
 	AC = { id = "sfx:AmbAC", volume = 0.55, range = 40, loop = true, pitch = { 1 } },
 	-- Pigeons cooing on the ledges and tank houses.
@@ -196,7 +157,14 @@ local SPOTS: { [string]: Spot } = {
 		pitch = { 0.97, 1.03 },
 		interval = { 35, 75 },
 	},
-	-- Dockyard2 ------------------------------------------------------------
+	-- Release maps (2026-11-21) ---------------------------------------------
+	-- Foundry4: the blast furnace and the pour pit, a deep roar (the plant hum recording played slow).
+	Furnace = { id = "sfx:AmbHum", volume = 0.5, range = 55, loop = true, pitch = { 0.45 } },
+	-- Greenhouse4's pond and OldTown4's fountains: a light trickle (the lapping recording played a little fast).
+	Fountain = { id = "sfx:AmbWater", volume = 0.4, range = 32, loop = true, pitch = { 1.18 } },
+	-- Metro4: a low rail hum at each tunnel mouth.
+	TrackHum = { id = "sfx:AmbHum", volume = 0.32, range = 60, loop = true, pitch = { 0.55 } },
+	-- Harbour (Wharf, Pier, Dockyard) ---------------------------------------
 	-- Water lapping against the pier: a loop at each quay edge emitter.
 	Water = { id = "sfx:AmbWater", volume = 0.7, range = 60, loop = true },
 	-- The crane's motor, a low hum (a real motor recording played slower).
