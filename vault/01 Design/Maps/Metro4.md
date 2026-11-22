@@ -114,3 +114,24 @@ Captures (`vault/02 Art/References/maps/metro4/`): v1 `metro4-v1-overview / -pla
 4. Your ticket hall deck (outside stair, or crates): the view over the platform.
 5. Look and feel: is the colour calm enough now, and do the buildings outside read as professional? Anything still "cartoony", say where.
 6. Bots near the kiosks (the one pathfinding stall above).
+
+## RIVALS texture pass (2026-11-21)
+The owner asked for RIVALS' textures on the built maps (they are in `MaterialService.ExtraTextures`; which ones RIVALS' maps use and how they render: [Foundry4](Foundry4.md#owner-fixes-2026-11-21-second-look)). Every surface look moved onto a RIVALS map variant; the part Material follows the variant's base. The builder applies it as a `RIVALS_REMAP` table ("Material|Variant" as built → RIVALS material and variant) right before the map is parented, so a rebuild matches the place. Glass, Neon, flat SmoothPlastic paint and LeafyGrass foliage stay as they were (no realistic foliage textures).
+
+| Surface | RIVALS variant (base) | Was |
+|---|---|---|
+| Platforms, walls, copings, ground, stone (concrete) | Concrete-01a (Concrete) | Wharf_Concrete, plain |
+| Brick | RV_Brick10 (Brick) | Metro_Brick |
+| Footbridge deck, plates | Diamond Plate 2022 (DiamondPlate) | Wharf_Plate |
+| Ribbed metal | Corrugated_01a (Metal) | Wharf_Ribbed |
+| Planks, pavement | WoodPlank01a, Paver_01b | Wharf_Plank, plain |
+
+`RV_Brick10` is our copy of RIVALS' `Brick 2022` (Roblox's 2022 brick) at 10 studs a tile instead of 20: at 20 the courses read about 1.5 studs tall on building walls. The builder creates it in MaterialService if missing.
+
+The footbridge crossheads were yellow diamond plate (the pattern showed on their sides); they are now flat paint like the columns, plate only on the deck. Facades (Metro_Facade2), platform tiles, asphalt and the trains stay.
+
+**Captures** (player height, the map's own lighting): [rivals-tex-footbridge.jpg](../../02%20Art/References/maps/metro4/rivals-tex-footbridge.jpg) (before the crosshead fix)
+
+**Checks** (run once after the pass): z-fight / floating / slopes **0 / 0 / 0**.
+
+**Grade: 8 / 10.** Platforms and brick read clean; the footbridge plate reads as a walking surface. Held back by the city facades, which keep their own window textures and look busier than the station.

@@ -107,6 +107,19 @@ local function ensureVariants()
 	end
 end
 
+-- RIVALS texture pass (2026-11-21, see the map note): every surface look onto RIVALS' map MaterialVariants
+-- (MaterialService.ExtraTextures, found by name), keyed by "Material|Variant" as built. Applied once the map is built.
+local RIVALS_REMAP: { [string]: { any } } = {
+	["Snow|Snow2_Snow"] = { Enum.Material.Snow, "Snow_01a" },
+	["Snow|"] = { Enum.Material.Snow, "Snow_01a" },
+	["Ice|"] = { Enum.Material.Ice, "Ice_01b" },
+	["WoodPlanks|Snow2_Timber"] = { Enum.Material.WoodPlanks, "WoodPlank01a_Big" },
+	["WoodPlanks|Snow2_Plank"] = { Enum.Material.WoodPlanks, "WoodPlank01a" },
+	["Wood|"] = { Enum.Material.Wood, "Wood01a" },
+	["Concrete|Wharf_Concrete"] = { Enum.Material.Concrete, "Concrete-01a" },
+	["DiamondPlate|Wharf_Plate"] = { Enum.Material.DiamondPlate, "Diamond Plate 2022" },
+}
+
 return function(): string
 	assert(game.PlaceId == 133387545285290, "Snowpeak4: not the match place")
 	ensureVariants()
@@ -1916,6 +1929,17 @@ return function(): string
 	cc.Saturation = 0.02
 	cc.TintColor = Color3.fromRGB(252, 252, 255)
 	cc.Parent = fx
+
+	-- RIVALS texture pass
+	for _, d in map:GetDescendants() do
+		if d:IsA("BasePart") then
+			local r = RIVALS_REMAP[d.Material.Name .. "|" .. d.MaterialVariant]
+			if r then
+				d.Material = r[1]
+				d.MaterialVariant = r[2]
+			end
+		end
+	end
 
 	map.Parent = workspace
 	return string.format("Snowpeak4 built: %d parts", count)

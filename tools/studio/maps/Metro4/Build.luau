@@ -131,6 +131,18 @@ local function ensureVariants()
 	end
 end
 
+-- RIVALS texture pass (2026-11-21, see the map note): every surface look onto RIVALS' map MaterialVariants
+-- (MaterialService.ExtraTextures, found by name), keyed by "Material|Variant" as built. Applied once the map is built.
+local RIVALS_REMAP: { [string]: { any } } = {
+	["Concrete|Wharf_Concrete"] = { Enum.Material.Concrete, "Concrete-01a" },
+	["Concrete|"] = { Enum.Material.Concrete, "Concrete-01a" },
+	["Brick|Metro_Brick"] = { Enum.Material.Brick, "RV_Brick10" },
+	["DiamondPlate|Wharf_Plate"] = { Enum.Material.DiamondPlate, "Diamond Plate 2022" },
+	["Metal|Wharf_Ribbed"] = { Enum.Material.Metal, "Corrugated_01a" },
+	["WoodPlanks|Wharf_Plank"] = { Enum.Material.WoodPlanks, "WoodPlank01a" },
+	["Pavement|"] = { Enum.Material.Pavement, "Paver_01b" },
+}
+
 return function(): string
 	assert(game.PlaceId == 133387545285290, "Metro4: not the match place")
 	ensureVariants()
@@ -819,7 +831,7 @@ return function(): string
 				"Crosshead",
 				Vector3.new(-3.4, 10.0, cz - r),
 				Vector3.new(3.4, 10.95, cz + r),
-				L.yellow,
+				L.yellowFlat, -- painted like the columns (diamond plate only on the deck)
 				false,
 				h.T
 			)
@@ -2885,6 +2897,29 @@ return function(): string
 	cc.Saturation = -0.05
 	cc.TintColor = Color3.fromRGB(255, 251, 244)
 	cc.Parent = fx
+
+	-- RIVALS texture pass
+	-- RV_Brick10: Roblox's 2022 brick (RIVALS' "Brick 2022") at 10 studs a tile, so courses read at building scale
+	if not MaterialService:FindFirstChild("RV_Brick10") then
+		local mv = Instance.new("MaterialVariant")
+		mv.Name = "RV_Brick10"
+		mv.BaseMaterial = Enum.Material.Brick
+		mv.StudsPerTile = 10
+		mv.ColorMap = "rbxassetid://9920482813"
+		mv.NormalMap = "rbxassetid://9438453152"
+		mv.RoughnessMap = "rbxassetid://9438453413"
+		mv.MaterialPattern = Enum.MaterialPattern.Regular
+		mv.Parent = MaterialService
+	end
+	for _, d in map:GetDescendants() do
+		if d:IsA("BasePart") then
+			local r = RIVALS_REMAP[d.Material.Name .. "|" .. d.MaterialVariant]
+			if r then
+				d.Material = r[1]
+				d.MaterialVariant = r[2]
+			end
+		end
+	end
 
 	map.Parent = workspace
 	return string.format("Metro4 built: %d parts", count)

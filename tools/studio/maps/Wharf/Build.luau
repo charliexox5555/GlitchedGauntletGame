@@ -127,6 +127,15 @@ local L = {
 	yellowDark = { color = C.yellowDark },
 }
 
+-- RIVALS texture pass (2026-11-21, see the map note): every surface look onto RIVALS' map MaterialVariants
+-- (MaterialService.ExtraTextures, found by name), keyed by "Material|Variant" as built. Applied once the map is built.
+local RIVALS_REMAP: { [string]: { any } } = {
+	["Concrete|Wharf_Concrete"] = { Enum.Material.Concrete, "Concrete-02a" },
+	["DiamondPlate|Wharf_Plate"] = { Enum.Material.DiamondPlate, "Diamond Plate 2022" },
+	["Metal|Wharf_Ribbed"] = { Enum.Material.Metal, "Corrugated_01a" },
+	["WoodPlanks|Wharf_Plank"] = { Enum.Material.WoodPlanks, "WoodPlank01a" },
+}
+
 return function(): string
 	assert(game.PlaceId == 133387545285290, "Wharf: not the match place")
 	ensureVariants()
@@ -1585,6 +1594,17 @@ return function(): string
 	cc.Saturation = 0.08
 	cc.TintColor = Color3.fromRGB(255, 252, 246)
 	cc.Parent = fx
+
+	-- RIVALS texture pass
+	for _, d in map:GetDescendants() do
+		if d:IsA("BasePart") then
+			local r = RIVALS_REMAP[d.Material.Name .. "|" .. d.MaterialVariant]
+			if r then
+				d.Material = r[1]
+				d.MaterialVariant = r[2]
+			end
+		end
+	end
 
 	map.Parent = workspace
 	return string.format("Wharf built: %d parts", count)

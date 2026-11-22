@@ -162,6 +162,26 @@ local function ensureVariants()
 	end
 end
 
+-- RIVALS texture pass (2026-11-21, see the map note): every surface look onto RIVALS' map MaterialVariants
+-- (MaterialService.ExtraTextures, found by name), keyed by "Material|Variant" as built. Applied once the map is built.
+local RIVALS_REMAP: { [string]: { any } } = {
+	["Brick|R4_Brick"] = { Enum.Material.Brick, "RV_Brick10" },
+	["Brick|"] = { Enum.Material.Brick, "RV_Brick10" },
+	["Concrete|R4_Concrete"] = { Enum.Material.Concrete, "ConcretePanels-02a" },
+	["Concrete|R4_Membrane"] = { Enum.Material.Concrete, "Concrete-01a" },
+	["Concrete|R4_Render"] = { Enum.Material.Concrete, "Concrete-02a" },
+	["Concrete|"] = { Enum.Material.Concrete, "Concrete-01a" },
+	["Limestone|R4_Stone"] = { Enum.Material.Concrete, "Concrete-01a" },
+	["Limestone|"] = { Enum.Material.Concrete, "Concrete-01a" },
+	["DiamondPlate|R4_Plate"] = { Enum.Material.DiamondPlate, "Diamond Plate 2022" },
+	["DiamondPlate|"] = { Enum.Material.DiamondPlate, "Diamond Plate 2022" },
+	["Metal|"] = { Enum.Material.Metal, "Metal 2022" },
+	["Wood|"] = { Enum.Material.Wood, "Wood01a" },
+	["WoodPlanks|"] = { Enum.Material.WoodPlanks, "WoodPlank01a" },
+	["Fabric|"] = { Enum.Material.Fabric, "Fabric2022" },
+	["Ground|"] = { Enum.Material.Ground, "Ground_01b" },
+}
+
 return function(): string
 	assert(game.PlaceId == 133387545285290, "Rooftops4: not the match place")
 	ensureVariants()
@@ -1900,6 +1920,29 @@ return function(): string
 	cc.Saturation = 0.12
 	cc.TintColor = Color3.fromRGB(252, 246, 255)
 	cc.Parent = fx
+
+	-- RIVALS texture pass
+	-- RV_Brick10: Roblox's 2022 brick (RIVALS' "Brick 2022") at 10 studs a tile, so courses read at building scale
+	if not MaterialService:FindFirstChild("RV_Brick10") then
+		local mv = Instance.new("MaterialVariant")
+		mv.Name = "RV_Brick10"
+		mv.BaseMaterial = Enum.Material.Brick
+		mv.StudsPerTile = 10
+		mv.ColorMap = "rbxassetid://9920482813"
+		mv.NormalMap = "rbxassetid://9438453152"
+		mv.RoughnessMap = "rbxassetid://9438453413"
+		mv.MaterialPattern = Enum.MaterialPattern.Regular
+		mv.Parent = MaterialService
+	end
+	for _, d in map:GetDescendants() do
+		if d:IsA("BasePart") then
+			local r = RIVALS_REMAP[d.Material.Name .. "|" .. d.MaterialVariant]
+			if r then
+				d.Material = r[1]
+				d.MaterialVariant = r[2]
+			end
+		end
+	end
 
 	map.Parent = workspace
 	return string.format("Rooftops4 built: %d parts", count)

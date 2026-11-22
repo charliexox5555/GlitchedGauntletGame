@@ -116,3 +116,27 @@ Owner: "it's good ... a really good looking map", but some parts don't line up (
 - Play it: the gallery fights, the pond, the grand doors, the Fern House lane, the rock garden.
 - **Save the match place** (it holds the map, both kit folders and the new MaterialVariants).
 - Rojo wasn't connected: the Studio copies of `Config/Match`, `Config/Ambience` and `AssetData/MatchMaps` were edited to match the repo.
+
+## RIVALS texture pass (2026-11-21)
+The owner asked for RIVALS' textures on the built maps (they are in `MaterialService.ExtraTextures`; which ones RIVALS' maps use and how they render: [Foundry4](Foundry4.md#owner-fixes-2026-11-21-second-look)). Every surface look moved onto a RIVALS map variant; the part Material follows the variant's base. The builder applies it as a `RIVALS_REMAP` table ("Material|Variant" as built → RIVALS material and variant) right before the map is parented, so a rebuild matches the place. Glass, Neon, flat SmoothPlastic paint and LeafyGrass foliage stay as they were (no realistic foliage textures).
+
+| Surface | RIVALS variant (base) | Was |
+|---|---|---|
+| Brick (potting house, boiler house, walls) | RV_Brick10 (Brick) | G4_Brick |
+| Stone dwarf walls, planters, copings, kit stone | Concrete-01a (Concrete) | G4_Stone (Limestone) |
+| Palm House and Fern House floor tiles | Paver_01b (Pavement) | G4_Tile (Slate) |
+| Paved aprons | Paver_01a (Pavement) | G4_Paving (Limestone) |
+| Slate roofs | Slate02c (Slate), as RIVALS Graveyard | G4_Slate |
+| Lawns | Grass_01b (Grass) | G4_Lawn |
+| Gravel paths | Sand_01b (Sand) | G4_Gravel (Ground) |
+| Iron, plates, wood, shed boards, cloth, soil | Metal 2022, Diamond Plate 2022, Wood01a, WoodSiding_01a, Fabric2022, Ground_01b | plain / G4_Plate |
+
+`RV_Brick10` is our copy of RIVALS' `Brick 2022` (Roblox's 2022 brick) at 10 studs a tile instead of 20: at 20 the courses read about 1.5 studs tall on building walls. The builder creates it in MaterialService if missing.
+
+Hedges and RIVALS plant meshes keep `G4_Foliage` (LeafyGrass): unchanged.
+
+**Captures** (player height, the map's own lighting): [rivals-tex-parterre.jpg](../../02%20Art/References/maps/greenhouse4/rivals-tex-parterre.jpg) · [rivals-tex-palmhouse.jpg](../../02%20Art/References/maps/greenhouse4/rivals-tex-palmhouse.jpg) (before the floor swap: fan setts, now pavers)
+
+**Checks** (run once after the pass): z-fight / floating / slopes **0 / 0 / 0**.
+
+**Grade: 8 / 10.** Clean, bright and RIVALS-like; the palm house floor and brick read well. Held back by plain lawns and gravel over big areas and smooth flat hedges.

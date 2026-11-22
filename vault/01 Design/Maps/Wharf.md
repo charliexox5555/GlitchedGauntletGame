@@ -125,3 +125,21 @@ Captures (`vault/02 Art/References/maps/wharf/`): `wharf-overview.jpg`, `wharf-s
 - Map vote picture (`image` in `Config/Match`) not made yet: the card shows the plain band.
 - MapLife (gulls, a drifting horizon ship, the crane's spreader sway) and Ambience emitters: only the Ambience beds are in.
 - More mid-size props and one more height (a +15 walkway between the sheds, like Docks' footbridge) if the owner wants more verticality.
+
+## RIVALS texture pass (2026-11-21)
+The owner asked for RIVALS' textures on the built maps (they are in `MaterialService.ExtraTextures`; which ones RIVALS' maps use and how they render: [Foundry4](Foundry4.md#owner-fixes-2026-11-21-second-look)). Every surface look moved onto a RIVALS map variant; the part Material follows the variant's base. The builder applies it as a `RIVALS_REMAP` table ("Material|Variant" as built → RIVALS material and variant) right before the map is parented, so a rebuild matches the place. Glass, Neon, flat SmoothPlastic paint and LeafyGrass foliage stay as they were (no realistic foliage textures).
+
+| Surface | RIVALS variant (base) | Was |
+|---|---|---|
+| Quays, plinths, concrete | Concrete-02a (Concrete) | Wharf_Concrete |
+| Shed walls and roofs (ribbed metal) | Corrugated_01a (Metal), as RIVALS Battleground | Wharf_Ribbed |
+| Plate decks, gangways | Diamond Plate 2022 (DiamondPlate) | Wharf_Plate |
+| Planks | WoodPlank01a (WoodPlanks) | Wharf_Plank |
+
+Asphalt (no RIVALS asphalt) and the flat SmoothPlastic containers / paint stay.
+
+**Captures** (player height, the map's own lighting): [rivals-tex-shed-roof.jpg](../../02%20Art/References/maps/wharf/rivals-tex-shed-roof.jpg)
+
+**Checks** (run once after the pass): z-fight / floating / slopes **0 / 0 / 0**.
+
+**Grade: 7.5 / 10.** The concrete and corrugated sheds now match RIVALS' docks. Held back by the layout, not the textures: most of the map is flat-painted containers and props, and corrugated roofs streak at grazing angles.

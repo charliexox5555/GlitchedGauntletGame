@@ -94,3 +94,17 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
 **Release lineup:**
 - regular (1v1-2v2): Arena, Pier, Wharf, Snowpeak4, Rooftops4, Greenhouse4, Foundry4, CanyonOutpost;
 - large (2v2-3v3): BigArena, Dockyard, Metro4, OldTown4.
+
+## RIVALS texture pass (2026-11-21)
+After Foundry4, the owner had the other built maps moved onto RIVALS' map textures (`MaterialService.ExtraTextures`), OldTown4 first. Each map note has a "RIVALS texture pass" section with the variant table, captures and grade; the builders apply it as a `RIVALS_REMAP` pass before parenting.
+
+| Map | Grade | What changed | What still holds it back |
+|---|---|---|---|
+| [OldTown4](OldTown4.md#rivals-texture-pass-2026-11-21) | 8.5 | OT2 stucco / ashlar / cobble / paving → Concrete-02a, Concrete-01a, StoneBlock_01a, Paver_01a/01b; Brick 2022 tower; roofs plain clay tiles; backdrop fields sunk into the valley | roofs a touch busier than the walls, pot-bush leaf texture |
+| [Rooftops4](Rooftops4.md#rivals-texture-pass-2026-11-21) | 8 | RV_Brick10 brick, Concrete-01a copings and tar, ConcretePanels-02a pavers, Diamond Plate 2022, Metal 2022 | dark tar roofs flat at blue hour, plain plant boxes |
+| [Greenhouse4](Greenhouse4.md#rivals-texture-pass-2026-11-21) | 8 | RV_Brick10, Concrete-01a stone, Paver_01b floors, Paver_01a aprons, Slate02c roofs, Grass_01b, Sand_01b gravel, WoodSiding_01a shed | plain lawns and gravel over big areas, smooth hedges |
+| [Wharf](Wharf.md#rivals-texture-pass-2026-11-21) | 7.5 | Concrete-02a quays, Corrugated_01a sheds, Diamond Plate 2022, WoodPlank01a | mostly flat-painted containers; corrugated streaks at grazing angles |
+| [Snowpeak4](Snowpeak4.md#rivals-texture-pass-2026-11-21) | 8.5 | Snow_01a, Ice_01b, WoodPlank01a_Big logs (RIVALS Village's set), Wood01a, Concrete-01a | plain stone base walls |
+| [Metro4](Metro4.md#rivals-texture-pass-2026-11-21) | 8 | Concrete-01a, RV_Brick10, Diamond Plate 2022 deck (crossheads now flat paint), Corrugated_01a, Paver_01b | busy facade textures (kept) |
+
+Audits after the pass: z-fight 0 / floating 0 / slopes 0 on all six. Next: Canyon Outpost.

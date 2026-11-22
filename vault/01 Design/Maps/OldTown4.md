@@ -239,3 +239,30 @@ The owner asked for a last check for out-of-place things, too much texture, and 
 The owner wants railings you can hop over "like when you go up on a building". The invisible rail guards over the loggia terrace balustrades are gone. The two roofs a hop or a drop from that railing now carry invisible blockers instead (shots pass): the roof hut and both house bridges. No reach check was run, per the owner's build-checks-only rule. The place is patched in Studio and matches the builder; save the match place.
 
 Studio's own Lighting properties (ClockTime etc.) were changed for preview captures. Every map applies its own lighting on load, so match play doesn't use them.
+
+## RIVALS texture pass (2026-11-21)
+The owner asked for RIVALS' textures on the built maps (they are in `MaterialService.ExtraTextures`; which ones RIVALS' maps use and how they render: [Foundry4](Foundry4.md#owner-fixes-2026-11-21-second-look)). Every surface look moved onto a RIVALS map variant; the part Material follows the variant's base. The builder applies it as a `RIVALS_REMAP` table ("Material|Variant" as built → RIVALS material and variant) right before the map is parented, so a rebuild matches the place. Glass, Neon, flat SmoothPlastic paint and LeafyGrass foliage stay as they were (no realistic foliage textures).
+
+| Surface | RIVALS variant (base) | Was |
+|---|---|---|
+| Stucco walls (cream, ochre, rose, sienna, yellow) | Concrete-02a (Concrete) | OT2_Stucco (Plaster) |
+| Dressed stone: cornices, string courses, quoins, steps, copings, the kit's stone | Concrete-01a (Concrete) | OT4_Stone (Limestone) |
+| Rusticated ground storeys, retaining walls, gate | StoneBlock_01a (Brick) | OT2_Ashlar (Limestone) |
+| Clock tower and brick | Brick 2022 (Brick) | plain Brick |
+| Streets | Paver_01a (Pavement), fan-laid setts | OT4_Cobble (Cobblestone) |
+| Squares, piazza, terraces, spawn paving | Paver_01b (Pavement) | OT2_Paving (Limestone) |
+| Roofs | Roblox ClayRoofTiles, no variant | OT2_Terracotta |
+| Doors, shutters, planks / timber | WoodPlank01a / Wood01a | OT2_Plank, plain |
+| Iron, grass, awnings | Metal 2022, Grass_01b, Fabric2022 | plain |
+
+**Roofs:** RIVALS has no roof-tile variant. Slate02c tinted terracotta was tried and read as swirls up close, so roofs keep Roblox's own clay tiles without the OT2 texture: clean tile rows at every distance.
+
+**Fix found while checking:** the 36 backdrop field plates were stacked 0.025 apart above the valley, up to 0.4 off it (the float audit flagged 11 groups). Each plate's bottom is now sunk into the valley, tops still staggered (builder and place).
+
+**Rebuild check:** the place's map was set aside and the builder run from source: every textured surface matched (material and variant counts equal); the original was put back.
+
+**Captures** (player height, the map's own lighting): [rivals-tex-fountain-square.jpg](../../02%20Art/References/maps/oldtown4/rivals-tex-fountain-square.jpg) · [rivals-tex-houses.jpg](../../02%20Art/References/maps/oldtown4/rivals-tex-houses.jpg) · [rivals-tex-stair-roofs.jpg](../../02%20Art/References/maps/oldtown4/rivals-tex-stair-roofs.jpg)
+
+**Checks** (run once after the pass): z-fight / floating / slopes **0 / 0 / 0**.
+
+**Grade: 8.5 / 10.** Reads like a RIVALS town now: soft clean render, crisp setts and pavers, a crisp brick tower. Held back by the roofs (Roblox clay tiles are a touch busier than the walls) and the pot bushes' leaf texture.

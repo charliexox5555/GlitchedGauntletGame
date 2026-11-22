@@ -7,7 +7,8 @@
 -- a cobbled ramp from each half. Each half has a fountain square with a market stall and a well, a loggia house with
 -- an arcade and a +12 roof terrace (stair + stone steps), a long house, a kiosk, a wall shrine, house bridges over the
 -- flank alleys, a town gate screening the spawn, and a spawn terrace that looks over the lower town to the hills.
--- Houses are Parts with OldTown2's own textures (OT2_*): rusticated ground storeys, string courses, cornices, quoins,
+-- Houses are Parts with RIVALS' map textures (MaterialService.ExtraTextures, pass of 2026-11-21): rusticated ground
+-- storeys, string courses, cornices, quoins,
 -- terracotta gable roofs, chimneys. Windows, doors, the arcade, balustrades, the belfry, the clock faces, the fountain,
 -- the well, the stall, the cart, cafe sets, planters, lanterns, cypress and the hills are Blender kit pieces
 -- (ServerStorage.MapKit.OldTown4, tools/blender/maps_oldtown4). No text signs.
@@ -59,17 +60,29 @@ local SIDE = {
 	B = { paint = hex("4A6F93"), cloth = hex("3C6A9C") }, -- blue shutters, blue awnings
 }
 type Side = { paint: Color3, cloth: Color3 }
--- OldTown2's own textures, re-created here if missing
-local VARIANTS = {
-	OT2_Ashlar = { "Limestone", 8, "91135123666290", "114086842361323" },
-	OT2_Cobble = { "Cobblestone", 8, "75509828854751", "119871129625203" },
-	OT2_Paving = { "Limestone", 8, "130608433991662", "79330650895421" },
-	OT2_Plank = { "WoodPlanks", 6, "103283221566373", "79445504335406" },
-	OT2_Stucco = { "Plaster", 12, "73274454631456", "83978894951341" },
-	OT2_Terracotta = { "ClayRoofTiles", 4, "72153638601772", "83433689734180" },
-	-- soft versions (owner 2026-11-21: not too much texture): no normal map, a calmer cobble and dressed stone
-	OT4_Cobble = { "Cobblestone", 10, "75509828854751" },
-	OT4_Stone = { "Limestone", 10, "73274454631456" },
+-- RIVALS' map MaterialVariants (MaterialService.ExtraTextures, found by name; texture pass 2026-11-21, see the map note)
+local RIVALS = {
+	render = "Concrete-02a", -- stucco walls
+	stone = "Concrete-01a", -- dressed stone: trims, cornices, quoins, steps, the kit's stone
+	ashlar = "StoneBlock_01a", -- rusticated ground storeys, retaining walls
+	brick = "Brick 2022",
+	cobble = "Paver_01a", -- the streets
+	paving = "Paver_01b", -- squares, piazza, terraces
+	plank = "WoodPlank01a",
+	timber = "Wood01a",
+	metal = "Metal 2022",
+	grass = "Grass_01b",
+	fabric = "Fabric2022",
+}
+-- everything else (kit meshes, inline looks) by material, applied once the map is built
+local REMAP: { [string]: { any } } = {
+	["Limestone|"] = { Enum.Material.Concrete, RIVALS.stone },
+	["Brick|"] = { Enum.Material.Brick, RIVALS.brick },
+	["WoodPlanks|"] = { Enum.Material.WoodPlanks, RIVALS.plank },
+	["Wood|"] = { Enum.Material.Wood, RIVALS.timber },
+	["Metal|"] = { Enum.Material.Metal, RIVALS.metal },
+	["Grass|"] = { Enum.Material.Grass, RIVALS.grass },
+	["Fabric|"] = { Enum.Material.Fabric, RIVALS.fabric },
 }
 
 type Look = { color: Color3, mat: Enum.Material?, variant: string? }
@@ -77,7 +90,7 @@ local function look(color: Color3, variant: string?, mat: Enum.Material?): Look
 	return { color = color, variant = variant, mat = mat }
 end
 local function stucco(c: Color3): Look
-	return look(c, "OT2_Stucco", Enum.Material.Plaster)
+	return look(c, RIVALS.render, Enum.Material.Concrete)
 end
 local L = {
 	cream = stucco(C.cream),
@@ -85,45 +98,37 @@ local L = {
 	rose = stucco(C.rose),
 	sienna = stucco(C.sienna),
 	yellow = stucco(C.yellow),
-	ashlar = look(C.ashlar, "OT2_Ashlar", Enum.Material.Limestone),
-	stone = look(C.stone, "OT4_Stone", Enum.Material.Limestone),
-	stoneDark = look(C.stoneDark, "OT4_Stone", Enum.Material.Limestone),
-	brick = look(C.brick, nil, Enum.Material.Brick),
-	roof = look(C.terracotta, "OT2_Terracotta", Enum.Material.ClayRoofTiles),
+	ashlar = look(C.ashlar, RIVALS.ashlar, Enum.Material.Brick),
+	stone = look(C.stone, RIVALS.stone, Enum.Material.Concrete),
+	stoneDark = look(C.stoneDark, RIVALS.stone, Enum.Material.Concrete),
+	brick = look(C.brick, RIVALS.brick, Enum.Material.Brick),
+	-- roofs keep Roblox's own clay tiles: RIVALS has no tile variant, and Slate02c read as swirls up close
+	roof = look(C.terracotta, nil, Enum.Material.ClayRoofTiles),
 	roofDark = look(C.terraDark, nil, Enum.Material.ClayRoofTiles),
-	cobble = look(C.cobble, "OT4_Cobble", Enum.Material.Cobblestone),
-	paving = look(C.paving, "OT2_Paving", Enum.Material.Limestone),
-	wood = look(C.wood, "OT2_Plank", Enum.Material.WoodPlanks),
-	woodDark = look(C.woodDark, nil, Enum.Material.WoodPlanks),
-	iron = look(C.iron, nil, Enum.Material.Metal),
+	cobble = look(C.cobble, RIVALS.cobble, Enum.Material.Pavement),
+	paving = look(C.paving, RIVALS.paving, Enum.Material.Pavement),
+	wood = look(C.wood, RIVALS.plank, Enum.Material.WoodPlanks),
+	woodDark = look(C.woodDark, RIVALS.plank, Enum.Material.WoodPlanks),
+	iron = look(C.iron, RIVALS.metal, Enum.Material.Metal),
 	leaf = look(C.leaf, nil, Enum.Material.LeafyGrass),
 	leafDark = look(C.leafDark, nil, Enum.Material.LeafyGrass),
-	grass = look(C.grass, nil, Enum.Material.Grass),
-	valley = look(C.valley, nil, Enum.Material.Grass),
+	grass = look(C.grass, RIVALS.grass, Enum.Material.Grass),
+	valley = look(C.valley, RIVALS.grass, Enum.Material.Grass),
 	glow = look(C.glow, nil, Enum.Material.Neon),
 	dark = look(C.dark),
 	niche = look(C.niche),
 	water = look(C.water, nil, Enum.Material.Glass),
-	rope = look(C.rope, nil, Enum.Material.Fabric),
-	cloth = look(C.cloth, nil, Enum.Material.Fabric),
+	rope = look(C.rope, RIVALS.fabric, Enum.Material.Fabric),
+	cloth = look(C.cloth, RIVALS.fabric, Enum.Material.Fabric),
 }
 local STUCCO = { L.cream, L.ochre, L.rose, L.sienna, L.yellow }
 
 local function ensureVariants()
-	for name, v in VARIANTS do
-		if not MaterialService:FindFirstChild(name) then
-			local mv = Instance.new("MaterialVariant")
-			mv.Name = name
-			mv.BaseMaterial = (Enum.Material :: any)[v[1]]
-			mv.StudsPerTile = v[2]
-			mv.ColorMap = "rbxassetid://" .. v[3]
-			if v[4] then
-				mv.NormalMap = "rbxassetid://" .. v[4]
-			end
-			mv.MaterialPattern = Enum.MaterialPattern.Regular
-			mv.Parent = MaterialService
-		end
-	end
+	local extra = MaterialService:FindFirstChild("ExtraTextures")
+	assert(
+		extra and extra:FindFirstChild(RIVALS.render, true),
+		"OldTown4: RIVALS textures missing (MaterialService.ExtraTextures)"
+	)
 end
 
 type Rect = { x0: number, x1: number, z0: number, z1: number }
@@ -311,9 +316,6 @@ return function(): string
 				d.CanCollide = false
 				d.CanQuery = false
 				d.CanTouch = false
-				if d.Material == Enum.Material.Limestone and d.MaterialVariant == "" then
-					d.MaterialVariant = "OT4_Stone" -- the kit's stone in the same soft finish as the Parts
-				end
 				if side then
 					if string.find(d.Name, "Paint") then
 						d.Color = side.paint
@@ -2080,11 +2082,13 @@ return function(): string
 			local fz = 250 + rnd() * 560
 			local w = 70 + rnd() * 110
 			local d = 50 + rnd() * 90
+			-- stacked tops (no shared plane); every bottom sunk into the valley so none floats
+			local top, bottom = -26.32 + k * 0.025, -26.6 - k * 0.01
 			local fp = part(
 				town,
 				"Field",
-				V(w, 0.2, d),
-				T * CFrame.new(fx, -26.42 + k * 0.025, fz) * CFrame.Angles(0, rnd() * 0.6 - 0.3, 0),
+				V(w, top - bottom, d),
+				T * CFrame.new(fx, (top + bottom) / 2, fz) * CFrame.Angles(0, rnd() * 0.6 - 0.3, 0),
 				{ color = FIELD[1 + (k % #FIELD)], mat = Enum.Material.Grass }
 			)
 			fp.CastShadow = false
@@ -2191,6 +2195,17 @@ return function(): string
 	cc.Saturation = 0.08
 	cc.TintColor = Color3.fromRGB(255, 248, 238)
 	cc.Parent = fx
+
+	-- RIVALS texture pass: kit meshes and inline looks onto the same variants as the Parts
+	for _, d in map:GetDescendants() do
+		if d:IsA("BasePart") then
+			local r = REMAP[d.Material.Name .. "|" .. d.MaterialVariant]
+			if r then
+				d.Material = r[1]
+				d.MaterialVariant = r[2]
+			end
+		end
+	end
 
 	map.Parent = workspace
 	return string.format("OldTown4 built: %d parts", count)

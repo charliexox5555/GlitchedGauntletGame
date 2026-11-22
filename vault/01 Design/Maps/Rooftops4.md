@@ -123,3 +123,25 @@ Hard gates: pass (0 overlaps, 0 floating, reach clean, spawn safe, anchored, ~4,
 - Play it: the court fights, the +8 decks, the three crossings, the fall.
 - **Save the match place** (it holds the map, the kit and the `MapBlockers` collision group).
 - Rojo wasn't connected during the build: the Studio copies of `Config/Match`, `Config/Ambience` and `AssetData/MatchMaps` were edited to match the repo; `CharacterService` / `Config/Collision` sync on the next Rojo connect.
+
+## RIVALS texture pass (2026-11-21)
+The owner asked for RIVALS' textures on the built maps (they are in `MaterialService.ExtraTextures`; which ones RIVALS' maps use and how they render: [Foundry4](Foundry4.md#owner-fixes-2026-11-21-second-look)). Every surface look moved onto a RIVALS map variant; the part Material follows the variant's base. The builder applies it as a `RIVALS_REMAP` table ("Material|Variant" as built → RIVALS material and variant) right before the map is parented, so a rebuild matches the place. Glass, Neon, flat SmoothPlastic paint and LeafyGrass foliage stay as they were (no realistic foliage textures).
+
+| Surface | RIVALS variant (base) | Was |
+|---|---|---|
+| Brick masses, chimneys, pump house | RV_Brick10 (Brick) | R4_Brick |
+| Stone copings and trims, kit stone | Concrete-01a (Concrete) | R4_Stone (Limestone) |
+| Tar roof skins | Concrete-01a (Concrete), dark tint | R4_Membrane |
+| Render walls | Concrete-02a (Concrete) | R4_Render |
+| Walkway pavers, court | ConcretePanels-02a (Concrete) | R4_Concrete |
+| Decks, catwalk, bridge treads | Diamond Plate 2022 (DiamondPlate) | R4_Plate, plain |
+| Steel, plant boxes, kit metal | Metal 2022 (Metal) | plain Metal |
+| Wood, planks, awnings, soil | Wood01a, WoodPlank01a, Fabric2022, Ground_01b | plain |
+
+`RV_Brick10` is our copy of RIVALS' `Brick 2022` (Roblox's 2022 brick) at 10 studs a tile instead of 20: at 20 the courses read about 1.5 studs tall on building walls. The builder creates it in MaterialService if missing.
+
+**Captures** (player height, the map's own lighting): [rivals-tex-bridge.jpg](../../02%20Art/References/maps/rooftops4/rivals-tex-bridge.jpg) · [rivals-tex-court.jpg](../../02%20Art/References/maps/rooftops4/rivals-tex-court.jpg)
+
+**Checks** (run once after the pass): z-fight / floating / slopes **0 / 0 / 0**.
+
+**Grade: 8 / 10.** Brick, plate and copings read clean and stylised at blue hour. Held back by large dark tar roofs that stay flat in the night light and the plain plant boxes.

@@ -93,3 +93,22 @@ After the owner's playtest ("needs more character"; "the skis are placeholder br
 4. The snowcat up close, the pines and the rock: still anything that reads low-poly?
 5. Your lodge deck (stair) and station deck (stair or steps 3.5 → 7): the views over the middle.
 6. Spawn: you stand in the open behind the patrol hut (no nook); is the first fight about 3 s after the hold?
+
+## RIVALS texture pass (2026-11-21)
+The owner asked for RIVALS' textures on the built maps (they are in `MaterialService.ExtraTextures`; which ones RIVALS' maps use and how they render: [Foundry4](Foundry4.md#owner-fixes-2026-11-21-second-look)). Every surface look moved onto a RIVALS map variant; the part Material follows the variant's base. The builder applies it as a `RIVALS_REMAP` table ("Material|Variant" as built → RIVALS material and variant) right before the map is parented, so a rebuild matches the place. Glass, Neon, flat SmoothPlastic paint and LeafyGrass foliage stay as they were (no realistic foliage textures).
+
+| Surface | RIVALS variant (base) | Was |
+|---|---|---|
+| Snow (parts and kit) | Snow_01a (Snow), as RIVALS Village | Snow2_Snow, plain |
+| Ice | Ice_01b (Ice), as RIVALS Village | plain Ice |
+| Log / timber walls | WoodPlank01a_Big (WoodPlanks), as RIVALS Village | Snow2_Timber |
+| Planks, kit wood | WoodPlank01a, Wood01a | Snow2_Plank, plain |
+| Concrete, plate | Concrete-01a, Diamond Plate 2022 | Wharf_Concrete, Wharf_Plate |
+
+Rock, stone (cobble), roof and paint stay.
+
+**Captures** (player height, the map's own lighting): [rivals-tex-village.jpg](../../02%20Art/References/maps/snowpeak4/rivals-tex-village.jpg)
+
+**Checks** (run once after the pass): z-fight / floating / slopes **0 / 0 / 0**.
+
+**Grade: 8.5 / 10.** Closest to RIVALS of all: the same snow, ice and log variants as RIVALS Village. Held back by the plain stone base walls (Snow2_Stone kept).
