@@ -19,6 +19,7 @@ local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local SimulationFields = require(ReplicatedStorage.Shared.Simulation.Fields)
 local HitboxHistory = require(script.Parent.HitboxHistory)
 local HealthService = require(script.Parent.HealthService)
@@ -246,12 +247,9 @@ function CharacterService.useOurAnimations(character: Model)
 end
 
 local function onCharacter(character: Model)
-	-- Lobby players keep their own avatar and Roblox's defaults (PlayZone):
-	-- only fighters (range, match) get the match body.
-	local owner = Players:GetPlayerFromCharacter(character)
-	if owner and not PlayZone.isArmed(owner) then
-		return
-	end
+	-- Everyone wears the match body, lobby players too (owner 2026-11-21: the
+	-- lobby runs and slides like a match); only armed players get guns
+	-- (WeaponService, PlayZone).
 	-- Non-solid to other bodies from the first frame (prepare runs later).
 	trackBody(character)
 	-- No name or health tags over players (owner, 2026-11-08); bots and
@@ -306,11 +304,24 @@ function CharacterService.init()
 	HealthService.onDowned(function(humanoid)
 		local character = humanoid.Parent
 		local player = character and Players:GetPlayerFromCharacter(character)
-		if not player or not Players.CharacterAutoLoads then
-			return -- a match respawns everyone at the next round
+		if not player then
+			return
 		end
-		if PlayZone.get(player) == "Match" and PlayZone.matchId(player) ~= nil then
-			return -- a pad duel in a lobby server: its match respawns them too
+		if ServerRole.isLobby() then
+			-- The lobby and the range bring a downed player straight back (a
+			-- fall into the void); a pad duel respawns its own at each round.
+			if PlayZone.get(player) == "Match" then
+				return
+			end
+			task.delay(Combat.RESPAWN_TIME, function()
+				if player.Parent == Players and player.Character == character then
+					CharacterService.spawn(player)
+				end
+			end)
+			return
+		end
+		if not Players.CharacterAutoLoads then
+			return -- a match respawns everyone at the next round
 		end
 		task.delay(Combat.RESPAWN_TIME, function()
 			if player.Parent == Players and player.Character == character then
@@ -320,13 +331,51 @@ function CharacterService.init()
 	end)
 end
 
+-- Spawns `player` in the match body, retrying a failed load a few times
+-- (lobby servers: everyone, on join and whenever they come back to the lobby).
+function CharacterService.spawn(player: Player)
+	-- The lobby's own spawn first (LobbySpawnService sets this when its spawn
+	-- is up), so nobody lands in an older lobby kept in the place.
+	local started = os.clock()
+	while
+		ServerRole.isLobby()
+		and ReplicatedStorage:GetAttribute("LobbySpawnReady") ~= true
+		and os.clock() - started < 5
+	do
+		task.wait(0.1)
+	end
+	for _ = 1, 3 do
+		if player.Parent ~= Players then
+			return
+		end
+		local ok, err = pcall(CharacterService.loadCharacter, player)
+		if ok then
+			return
+		end
+		warn("[CharacterService] couldn't spawn", player.Name, err)
+		task.wait(1)
+	end
+end
+
 function CharacterService.start()
-	Players.PlayerAdded:Connect(onPlayer)
+	-- A lobby server spawns everyone itself, already in the match body (no
+	-- flash of their own avatar first); a match server's MatchService does.
+	local lobby = ServerRole.isLobby()
+	if lobby then
+		Players.CharacterAutoLoads = false
+	end
+	local function joined(player: Player)
+		onPlayer(player)
+		if lobby and not player.Character then
+			task.spawn(CharacterService.spawn, player)
+		end
+	end
+	Players.PlayerAdded:Connect(joined)
 	Players.PlayerRemoving:Connect(function(player)
 		ownDescriptions[player] = nil
 	end)
 	for _, player in Players:GetPlayers() do
-		onPlayer(player)
+		joined(player)
 	end
 end
 

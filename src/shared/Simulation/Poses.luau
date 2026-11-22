@@ -886,7 +886,10 @@ end
 
 -- Call once on the server and once on each client.
 function PoseSim.initialize()
-	if connection then
+	-- A copy of the match client that started it may have been destroyed
+	-- since (client/init.client.luau restarts it per PlayZone), which
+	-- disconnects this: bind again then.
+	if connection and connection.Connected then
 		return
 	end
 	-- Priority 4000 runs after the movement step (default 2000) has written

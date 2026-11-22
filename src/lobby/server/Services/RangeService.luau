@@ -120,11 +120,12 @@ local function place(player: Player, character: Model, tag: string)
 end
 
 -- Reloads the character; the CharacterAdded hook stands it at `tag`.
-local function respawn(player: Player, tag: string, standardBody: boolean)
+local function respawn(player: Player, tag: string)
 	placeOnSpawn[player] = tag
 	task.spawn(function()
 		local ok, err = pcall(function()
-			if standardBody and match then
+			-- Everyone wears the match body now, lobby included (CharacterService).
+			if match then
 				match.Character.loadCharacter(player)
 			else
 				player:LoadCharacter()
@@ -146,7 +147,7 @@ local function join(player: Player, character: Model)
 		return
 	end
 	PlayZone.set(player, "Range")
-	respawn(player, "RangeSpawn", true)
+	respawn(player, "RangeSpawn")
 end
 
 local function leave(player: Player, character: Model)
@@ -160,7 +161,7 @@ local function leave(player: Player, character: Model)
 	if match then
 		match.Weapon.disarm(player)
 	end
-	respawn(player, "RangeReturn", false)
+	respawn(player, "RangeReturn")
 end
 
 local function onTouched(hit: BasePart, entering: boolean)

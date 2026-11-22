@@ -16,6 +16,7 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 
+local CharacterService = require(script.Parent.CharacterService)
 local WeaponService = require(script.Parent.WeaponService)
 local Spectated = require(script.Parent.Parent.Bots.Spectated)
 
@@ -118,11 +119,7 @@ local function sendHome(player: Player)
 	PlayZone.set(player, "Lobby")
 	WeaponService.disarm(player)
 	player.RespawnLocation = nil
-	task.spawn(function()
-		pcall(function()
-			player:LoadCharacter()
-		end)
-	end)
+	task.spawn(CharacterService.spawn, player)
 end
 
 -- Sends a pad duel's players back to the lobby and removes the duel.

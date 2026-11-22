@@ -3,10 +3,12 @@
 --
 -- One place, two roles (shared/ServerRole, vault/04 Tech/Place Merge Plan.md):
 --  * Match server: the controllers run from the start, for the whole session.
---  * Lobby server: this script is a host. While the player is armed
---    (shared/PlayZone: the range or a pad duel) it runs a copy of itself
---    marked as the runner, so every controller starts with fresh state; back
---    in the lobby it destroys that copy (Roblox stops its threads and
+--  * Lobby server: this script is a host. It always runs a copy of itself
+--    marked as the runner, fresh for each PlayZone. Armed (the range, a pad
+--    duel): every controller. In the lobby: only the movement set
+--    (LOBBY_CONTROLLERS: run, crouch, slide, the third-person poses, footsteps;
+--    owner 2026-11-21: "people in the lobby ... running and the sliding").
+--    Leaving an armed zone destroys that copy (Roblox stops its threads and
 --    connections) and undoes what the match client changed on screen.
 
 local Players = game:GetService("Players")
@@ -21,18 +23,30 @@ local MatchScreens = require(Shared:WaitForChild("MatchScreens") :: ModuleScript
 local MapLighting = require(Shared:WaitForChild("MapLighting") :: ModuleScript)
 
 local RUNNER = "MatchClientRunner"
+local LOBBY_MODE = "LobbyOnly" -- runner attribute: start only LOBBY_CONTROLLERS
+-- What runs for a player walking the lobby (their dependencies are loaded, not started).
+local LOBBY_CONTROLLERS: { [string]: boolean } = {
+	AudioController = true,
+	CharacterFxController = true,
+	FootstepController = true,
+	InputController = true,
+	MovementController = true,
+	PoseController = true,
+}
 local LOBBY_ZOOM = 12 -- studs: the lobby camera distance after leaving first person
 
-local function runControllers()
+local function runControllers(lobbyOnly: boolean)
 	-- The match's screens (ReplicatedStorage.MatchScreens in the merged place).
-	MatchScreens.install(Players.LocalPlayer:WaitForChild("PlayerGui"))
+	if not lobbyOnly then
+		MatchScreens.install(Players.LocalPlayer:WaitForChild("PlayerGui"))
+	end
 
 	local Controllers = script:FindFirstChild("Controllers")
 
 	local loaded: { [string]: any } = {}
 	if Controllers then
 		for _, child in Controllers:GetChildren() do
-			if child:IsA("ModuleScript") then
+			if child:IsA("ModuleScript") and (not lobbyOnly or LOBBY_CONTROLLERS[child.Name]) then
 				loaded[child.Name] = require(child) :: any
 			end
 		end
@@ -52,8 +66,9 @@ local function runControllers()
 end
 
 if ServerRole.isMatch() or script:GetAttribute(RUNNER) == true then
-	runControllers()
-	print("[GlitchedGauntletGame] client started")
+	local lobbyOnly = script:GetAttribute(LOBBY_MODE) == true
+	runControllers(lobbyOnly)
+	print(`[GlitchedGauntletGame] client started{if lobbyOnly then " (lobby movement)" else ""}`)
 	return
 end
 
@@ -63,6 +78,7 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 local runner: LocalScript? = nil
+local runnerArmed = false -- the running copy is a full match client (else the lobby set)
 local guisBefore: { [Instance]: boolean } = {}
 local lobbyLighting: MapLighting.Baseline? = nil -- the lobby's, while a pad duel lights this view
 
@@ -102,10 +118,15 @@ end
 
 local function stop()
 	local old = runner
+	local wasArmed = runnerArmed
 	runner = nil
+	runnerArmed = false
 	if old then
 		old:Destroy()
-		cleanUp()
+		-- The lobby set changes nothing on screen; only a match client is undone.
+		if wasArmed then
+			cleanUp()
+		end
 	end
 	if lobbyLighting then
 		MapLighting.restore(lobbyLighting)
@@ -113,19 +134,23 @@ local function stop()
 	end
 end
 
-local function start()
+local function start(armed: boolean)
 	stop()
-	table.clear(guisBefore)
-	for _, gui in playerGui:GetChildren() do
-		guisBefore[gui] = true
-	end
-	if not lobbyLighting then
-		lobbyLighting = MapLighting.capture()
+	if armed then
+		table.clear(guisBefore)
+		for _, gui in playerGui:GetChildren() do
+			guisBefore[gui] = true
+		end
+		if not lobbyLighting then
+			lobbyLighting = MapLighting.capture()
+		end
 	end
 	local copy = script:Clone()
 	copy.Name = "ClientRunner"
 	copy:SetAttribute(RUNNER, true)
+	copy:SetAttribute(LOBBY_MODE, not armed)
 	runner = copy
+	runnerArmed = armed
 	copy.Parent = script.Parent
 end
 
@@ -133,17 +158,13 @@ local zone: PlayZone.Zone = PlayZone.get(player)
 local function apply(newZone: PlayZone.Zone)
 	local previous = zone
 	zone = newZone
-	if newZone == "Lobby" then
-		stop()
-	elseif previous ~= newZone or not runner then
-		start()
+	if previous ~= newZone or not runner then
+		start(newZone ~= "Lobby")
 	end
 end
 
 PlayZone.onLocalChanged(apply)
-if zone ~= "Lobby" then
-	start()
-end
+start(zone ~= "Lobby")
 
 -- Studio check that the host is the only one of its kind.
 if RunService:IsStudio() then

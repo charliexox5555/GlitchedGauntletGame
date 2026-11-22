@@ -24,6 +24,7 @@ function LobbySpawnService.start()
 	local anchor = findAnchor()
 	if not root or not anchor then
 		warn("[LobbySpawn] LobbyV5 spawn anchor missing: keeping the place's own spawns")
+		game:GetService("ReplicatedStorage"):SetAttribute("LobbySpawnReady", true)
 		return
 	end
 	for _, d in workspace:GetDescendants() do
@@ -49,6 +50,8 @@ function LobbySpawnService.start()
 		decal:Destroy()
 	end
 	spawn.Parent = root
+	-- CharacterService waits for this before the first spawns.
+	game:GetService("ReplicatedStorage"):SetAttribute("LobbySpawnReady", true)
 end
 
 return LobbySpawnService
