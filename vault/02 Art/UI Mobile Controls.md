@@ -1,6 +1,6 @@
 # Mobile controls: concept (2026-11-22)
 
-**Status (2026-11-22):** mockup v1 built in Studio (phone, small phone and iPad captures below), waiting on the owner's review. Then the build (§7).
+**Status (2026-11-22):** mockup v2 built in Studio after the owner's review (compact firing cluster, real TopBar, new ammo readout, Inspect). Waiting on the owner's playtest notes, then the build (§7).
 **Owner brief (2026-11-22):** custom, good-looking touch UI with icons, similar to RIVALS (custom jump button and everything), changed where our game needs it. **On mobile, ADS and sprint are always toggles** (no hold option).
 
 Read first: [Rivals Mobile UI](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md) (video study + the 2026-11-22 Studio read of their editor), [UI Theme v4 Soft Edge](UI%20Theme%20v4%20Soft%20Edge.md) §6-7, [UI Architecture](../04%20Tech/UI%20Architecture.md) (layers, Touch layer), LihFolk *Mobile Button Layout Editor*, *Touch Gestures*, *Input - UserInputService and ContextActionService*.
@@ -107,6 +107,26 @@ The 43 / 41 px slots get the +20% invisible hit box (≈ 52 / 49 px). RIVALS' ta
 3. Do the icons read? Is anything off-taste?
 4. Sprint button placement (above-left of the stick).
 5. Should NetStats (top-right in the top-bar row) move on phones, since the weapon slots sit there now?
+
+## Mockup v2 (2026-11-22, after the owner's review: "looks good, I like it")
+Owner notes:
+1. More compact in the firing area (worried the Mods won't look good; will playtest).
+2. Don't change the UI too much: the top bar with score and timer should stay similar.
+3. The ammo count needs to look better.
+4. Add an inspect button next to settings and scoreboard. Then: keep settings at the top, and put the other two under the Roblox buttons.
+
+![](References/ui/touch/touch-mockup-v2-844x390.jpg)
+
+Changes:
+- **Firing cluster:** the three Mods sit on one arc round Fire (0.245 of the cluster from Fire's centre, at 196° / 244° / 292°). Reload, Slide and Aim moved in. The cluster now spans 0.21-0.96 of its width instead of 0.09-0.96, and its top is at 0.24 instead of 0.04. Every gap is at least 8 px at 390.
+- **Top bar:** the **real match TopBar** (`UI.Match.TopBar.Root`), not a placeholder.
+  - Phone fit = 11.5% of the height, capped so the bar clears Settings and the weapon slots: `min(0.115 H / 80, (W − 2 × (0.46 H + 8)) / barWidth)`. That gives 0.561 at 844×390 and 0.443 at 667×375 (2v2).
+  - On phones the "ROUND n · tier" line under the clock is hidden, because it drew at 7.3 / 5.5 px. The clock centres. Scores draw at 28 px and the clock at 19 px. The round still shows in the round banner.
+- **Ammo:** the desktop readout's look under the equipped slot (a big heavy count, a grey `/reserve`, a magazine bar on a dark plate). The other guns keep a small outlined count on their slot.
+- **Settings row:** Settings sits beside Roblox's buttons in the top-bar row; Scoreboard and the new **Inspect** (a faceted magnifier with a glint) sit in a row under Roblox's buttons, like RIVALS. The real controller places Settings from `GuiService.TopbarInset`.
+- Builder updated (`tools/studio/BuildTouchMockup.luau` rebuilds v2); inspect icon added to `make_touch_icons.py`.
+
+**For the build:** the TopBar's phone fit rule and the hidden info line belong in `TopBarController`; the Settings position comes from `TopbarInset`; tablets keep the 0.78 factor.
 
 ## 7. Build steps (after picks)
 1. Icon sheet (SVG) → owner review → upload.

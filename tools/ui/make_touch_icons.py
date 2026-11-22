@@ -194,6 +194,16 @@ def melee():
     return finish(img)
 
 
+def inspect():
+    """A faceted magnifier with a cut handle (Inspect the gun)."""
+    img, d = canvas()
+    poly(d, ngon(26, 26, 19, 16, 11.25))
+    poly(d, ngon(26, 26, 12.5, 16, 11.25), CLEAR)
+    poly(d, limb((38, 38), (56, 56), 10))
+    poly(d, [(26, 18), (29, 24), (35, 26), (29, 28), (26, 34), (23, 28), (17, 26), (23, 24)])  # a glint
+    return finish(img)
+
+
 ICONS = {
     "touch_fire": fire,
     "touch_aim": aim,
@@ -205,6 +215,7 @@ ICONS = {
     "touch_scoreboard": scoreboard,
     "touch_settings": settings,
     "touch_melee": melee,
+    "touch_inspect": inspect,
 }
 
 
