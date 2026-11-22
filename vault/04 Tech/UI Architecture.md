@@ -186,3 +186,63 @@ Owner list: the old phone HUD, kill feed, draft, spectate and ability hints are 
 - Dense menus (Draft, MatchEnd, Shop, Settings) fit on phones now, but at 1080p proportions the text is small. They need phone-specific positions and boosts per screen, tuned in the Device Emulator or on a phone.
 - ModHud still builds its old slot faces (always hidden now) and the Recon charge meter in code; no Studio replacement for the meter yet.
 - "Controls don't feel smooth": the stick-follow and look-through are in; touch camera sensitivity and aim assist come after the owner's playtest.
+
+### Part 5 (2026-11-22 overnight): phone fixes, key hints, controller, keybinds
+
+From the owner's phone test: stuck or unresponsive buttons, inspect and tab rows too low, LOCK IN showing "ENTER" on a phone, and the match end too small.
+
+**Touch fixes (TouchController):**
+- **Hit-testing** now uses `PlayerGui:GetGuiObjectsAtPosition`, which uses the same coordinates as the touches. A button from another screen drawn on top blocks the touch. The `processed` check is gone: Roblox marks touches over our non-interactable buttons as processed, and that ate presses.
+- **Focus loss:** when the window loses focus, every held button and the stick are released, so nothing stays stuck.
+- **The real cause of "too low":** `GuiService.TopbarInset` is in screen pixels, but `AbsolutePosition` is measured from below Roblox's 58 px bar. The scoreboard and inspect row was a whole bar lower than intended. It's converted with `GetGuiInset` now, so the row's top sits 4 px under Roblox's buttons.
+- **Test tools:** the GUNS, TEST and SKINS buttons (Studio and test mode only, code-built) used to cover the knife and fire buttons on a phone. They now form a row under the scoreboard and inspect pair. SKINS drops its `[;]` key there.
+
+**Key hints follow the device (`Shared/InputGlyphs`, new):**
+- **Tagging:** a key chip in a Studio screen carries `KeyAction` (an input action, e.g. `Mod1`), or `KeyText` (a keyboard-only shortcut such as `ENTER`) plus an optional `KeyGamepad` (a KeyCode name).
+- **By input:** on keyboard the chip shows the key, on a gamepad the button glyph (`GetImageForKeyCode`, so Xbox and PlayStation each get their own), on touch nothing. `UiRoot.mount` watches every screen.
+- **Who uses it:** the BottomHud hints and the draft's LOCK IN and column chips go through it. Screens that switch a chip themselves ask `InputGlyphs.shows(chip)` first.
+- **Tagged in Studio:**
+  - Draft: Gun 1-3, columns Q/E/T, LOCK IN.
+  - MatchEnd: PLAY AGAIN, REMATCH.
+  - Play menu: modes 1/2/3.
+  - BottomHud: Mods, Loadout, Hints.
+- **Gamepad shortcuts:**
+  - Draft: X locks in (the D-pad moves between cards, A picks).
+  - Match end: X is PLAY AGAIN, Y is REMATCH.
+
+**Match end on phones:**
+- **Size:** canvas `PhoneBoost` is 1.6 and `TabletBoost` 1.15.
+- **Position:** `Right` has PhonePosition (0.969, 0.935), so its bottom lines up with the cards.
+- **Code fix:** the winner cards had a fixed y of 1036 design px and fell off a boosted (shorter) canvas. They now sit `CARD_LIFT` above the canvas bottom and stop at the right column wherever it is.
+- **Checked:** in the phone emulator (749×381) with 4 winners. Every number and label is readable, and nothing overlaps.
+
+**Controller (Console family, `Shared/UiLayout`):**
+- **TV-safe margin:** important UI stays out of the outer 5% (`CONSOLE_SAFE`, from LihFolk *Gamepad and Console UX* and RIVALS' padded HUD corners).
+  - Fit canvases and Fit scales shrink into that box, and full-bleed backdrops still cover the screen.
+  - `SafePad = true` pads a frame by the margin (set on BottomHud.Root and KillFeed.Canvas).
+  - The top, bottom and corner groups of the match and lobby HUDs have `ConsolePosition` attributes moved into the box.
+- **Bigger on TV:** `CONSOLE_BOOST` 1.15 is the default boost when a screen has no `ConsoleBoost` of its own.
+- **Menu focus:** the lobby `Router` takes an optional `screen`.
+  - Shop, Battle Pass, Locker, Party and Play now select their first button on a gamepad.
+  - An open menu traps the selection (SelectionGroup + Stop).
+  - Picking up a controller with a menu open gives it a selection.
+  - Match end selects PLAY AGAIN.
+  - B already backed out of lobby menus.
+
+**Keybinds:**
+- **Settings rows:** each rebindable action in `Config/Input` names its Settings KEYBINDS row (`setting`).
+- **Server:** `InputContextService` puts the player's saved { keyboard, alt, controller } keys into their PlayContext, and again whenever the published Settings value changes. It also runs in match servers, because SettingsService does.
+- **Hints:** InputGlyphs reads the live bindings back, so the hints redraw when the keys change.
+- **Tested:** setting Reload to G on the server moved the binding and the hint source, and setting it back restored R.
+- **Not covered:**
+  - walking and jumping (Roblox's own controls);
+  - the scoreboard key (ScoreboardController reads Tab / Select directly);
+  - FREE MOUSE on a gamepad.
+
+**Still open after part 5:**
+- **Needs a real device:**
+  - touch feel on a real phone (the owner's next playtest);
+  - gamepad glyphs and focus with a real controller. The emulator was on phone, so the gamepad mode couldn't be driven in Studio; console layout was checked with `UiDeviceSheet` and the `ForceLayout` switch.
+- **Console nit:** the lobby `LobbyTopbar` buttons are close to the player list in console layout on small screens.
+- **Next build steps:** the touch layout editor (§9 step 7), the Range placeholder menu, and aim assist (after the playtest).
+- **Studio warnings:** `rbxassetid://203785492` ("asset type does not match") and "EditableImage is not accessible" print at start. Both were there before this work and don't come from `src`.

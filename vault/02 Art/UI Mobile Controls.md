@@ -193,6 +193,20 @@ Owner: "yes go ahead"; health = "the simple bar like in the mockup" (the old pan
 - **Health:** the simple bar is the touch screen's own; the old v1 panel is deleted.
 - **Not yet:** touch camera sensitivity and aim assist (after the owner's playtest).
 
+## Fixes after the second phone test (2026-11-22 overnight)
+The owner reported buttons that felt unresponsive or stuck, the inspect and tab row too low, "ENTER" on LOCK IN on a phone, and a tiny match end.
+- **Hit-test:**
+  - The touch now asks `PlayerGui:GetGuiObjectsAtPosition`, which uses the same coordinates as the touch, so the hit areas line up with what is drawn.
+  - Another screen's button or panel on top wins.
+  - The old `processed` gate is gone: Roblox flags touches over our buttons as processed, which dropped presses.
+- **Stuck buttons:** if the window loses focus (a notification, the home bar), every held button and the stick let go.
+- **Inspect / tab row:**
+  - `TopbarInset` is in screen pixels, while GUI positions start below Roblox's 58 px bar. The row was a whole bar too low.
+  - It's converted with `GetGuiInset` now, so its top tucks 4 px under Roblox's buttons.
+- **Test tools:** GUNS, TEST and SKINS (Studio and test mode only) sit in a row under it, away from the knife and fire buttons.
+- **Key chips:** no keyboard hints on touch anywhere (`Shared/InputGlyphs`).
+- **Match end:** 1.6× on phones, with the winner cards placed from the real canvas.
+
 ## 7. Build steps (after picks)
 1. Icon sheet (SVG) → owner review → upload.
 2. Studio mockup of the Touch screen in `StarterPlayerScripts.UI/Touch` at 844×390 and 667×375 (device sheet capture) → owner edits it in Studio.
