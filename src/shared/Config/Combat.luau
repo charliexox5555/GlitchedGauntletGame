@@ -68,6 +68,9 @@ return table.freeze({
 	ARM_HIT_EXTRA_TOLERANCE = 3,
 	DIRECTION_TOLERANCE = 1.5, -- degrees between a hit and its server-recomputed pellet ray
 	FIRE_JITTER = 0.05, -- seconds of network jitter forgiven per shot
+	-- A shot packet arriving up to this late keeps the fire-rate schedule, so the on-time shot after a delayed one
+	-- isn't rejected as too fast (WeaponService; the average rate stays capped).
+	FIRE_CATCHUP = 0.2,
 	HEAVY_WINDUP_MIN = 0.20,
 	HEAVY_WINDUP_MAX = 0.85,
 	RELOAD_LEAD = 0.1, -- reloads (and each shell of a shell-by-shell one) count this much early
@@ -104,6 +107,9 @@ return table.freeze({
 	-- Only these parts of a character count as hitboxes (R15, plus R6 names).
 	BODY_PARTS = {
 		Head = true,
+		-- Everyone's standard head hitbox (shared/MatchBody; the visible head has CanQuery off). Missing here, every
+		-- headshot was rejected after the S15 body went in: a hit marker with no damage (owner playtest 2026-11-22).
+		HitboxHead = true,
 		UpperTorso = true,
 		LowerTorso = true,
 		HumanoidRootPart = true,

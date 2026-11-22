@@ -88,7 +88,7 @@ type PlayerState = {
 	equipReadyAt: number,
 	worldModel: Model?,
 	seedBase: number, -- server-issued: spread seeds can't be chosen by the client
-	shotIndex: number, -- last accepted shot counter
+	shotIndex: number, -- last shot counter used (accepted or not)
 }
 
 local SLOTS: { Slot } = { "Primary", "Secondary", "Melee" }
@@ -769,6 +769,11 @@ local function onFire(player: Player, payload: unknown)
 		end
 		return
 	end
+	-- The counter is used up even if a check below rejects this shot: the
+	-- client has spent it. (Only accepted shots used to move it, so three
+	-- rejections in a row put every later shot "ahead" until a resync, and a
+	-- shot or two lost to lag snowballed into a string of no-registers.)
+	state.shotIndex = shot
 
 	-- Weapon state.
 	if now < state.equipReadyAt then
@@ -852,7 +857,6 @@ local function onFire(player: Player, payload: unknown)
 	-- Accept the shot. Dash Focus: the first shot after a dash, inside its
 	-- window (the server saw the dash itself; the client never claims it).
 	local focus = Motion.takeFocus(player, now, Hits.networkPing(player))
-	state.shotIndex = shot
 	slot.heatLow = heatLow + altRounds
 	slot.heatHigh = heatHigh + altRounds
 	slot.lastShotAt = now
@@ -876,7 +880,12 @@ local function onFire(player: Player, payload: unknown)
 			slot.meleeStep = 1
 		end
 	end
-	slot.lastFire = math.max(fireAt, slot.lastFire + interval)
+	-- The fire-rate clock. A shot that arrives within FIRE_CATCHUP of when it
+	-- was due keeps the schedule (a late packet in a spray doesn't make the
+	-- next, on-time one "too fast"); after a real pause the clock restarts
+	-- at the arrival (no early follow-up shot for semi-autos and snipers).
+	local due = slot.lastFire + interval
+	slot.lastFire = if fireAt <= due + Combat.FIRE_CATCHUP then due else fireAt
 	if config.magSize > 0 then
 		slot.ammo -= altRounds
 		publishAmmo(player, state)

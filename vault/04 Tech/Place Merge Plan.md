@@ -76,6 +76,11 @@ The owner's call: **the Lobby and the match become one place.** Everything runs 
     - Unused texture and theme ids, possibly planned UI or VFX.
     - Files with another lane's uncommitted edits: Viewmodel/WeaponController, Config/Viewmodel, Config/SkinPreview.
 
+### Owner test round 3 (2026-11-22): "half the shots don't register" (hit markers, no damage)
+- **Main cause: headshots never counted.** Since the S15 body every fighter carries an invisible `HitboxHead` (the visible head has CanQuery off), but `Config/Combat.BODY_PARTS` didn't list it. The client hit it and drew the marker; the server rejected it as "not a live tracked hitbox". Added. Checked in Studio: `Targets.hitboxOwner(HitboxHead)` finds the fighter and `Hits.validate` accepts a HitboxHead hit. Bots can land headshots again too (BotGun reads the same list).
+- **Online: a late packet cost the next shot.** The fire-rate clock jumped to a late shot's arrival time, so the next, on-time shot looked too fast. A shot arriving within `Combat.FIRE_CATCHUP` (0.2 s) of its due time now keeps the schedule; after a real pause the clock restarts at arrival. Simulated 30-shot Vandal sprays: old 90% / 80% accepted at 80 / 150 ms jitter, new 100% / 99%. Instant spam on a 1 s gun still gets one shot.
+- **Online: rejections snowballed.** The shot counter only moved on accepted shots, so three rejections in a row put every later shot "ahead" until a resync. The counter is now used up once the shot passes the counter check, accepted or not.
+
 ### What to test (owner)
 1. Lobby Studio: Play. You spawn in the LobbyV5 hub.
 2. Walk into the range hologram: first person, your guns, P for the gun picker, shoot the training bots (they come back). Walk out through the exit gate: your avatar, lobby UI.
