@@ -49,6 +49,9 @@ local Plates = require(script.Parent.Parent.Util.Plates)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Router = require(script.Parent.Parent.Util.Router)
 local Release = require(game:GetService("ReplicatedStorage").Shared.Config.Release)
+local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
+local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
@@ -813,6 +816,166 @@ end
 --------------------------------------------------------------------------------
 -- Daily timer (display only; the server will own the rotation's end time)
 
+-- Login rewards board (DAILY tab; Services/LoginRewardService decides, this only draws).
+-- Studio holds the look: Day1 is drawn claimed, Day4 today and Day5 still to come, so
+-- their colours are read once as the three styles. Each cell has a clear "Hit" button.
+type CellLook = { bg: Color3, bgT: number, day: Color3, text: Color3 }
+local loginCells: { [number]: Frame } = {}
+local loginLooks: { claimed: CellLook, today: CellLook, future: CellLook, grand: CellLook }? = nil
+local loginNote: TextLabel? = nil
+
+local function lookOf(cell: Frame, textName: string): CellLook
+	local day = cell:FindFirstChild("Day")
+	local text = cell:FindFirstChild(textName)
+	return {
+		bg = cell.BackgroundColor3,
+		bgT = cell.BackgroundTransparency,
+		day = if day and day:IsA("TextLabel") then day.TextColor3 else WHITE,
+		text = if text and text:IsA("TextLabel") then text.TextColor3 else WHITE,
+	}
+end
+
+local function rewardWords(r: Economy.Reward): string
+	local parts: { string } = {}
+	local item = if r.item then Inventory.ITEMS[r.item] else nil
+	if item then
+		table.insert(parts, item.name)
+	end
+	if r.coins then
+		table.insert(parts, commas(r.coins) .. " COINS")
+	end
+	if r.tickets then
+		table.insert(parts, `{r.tickets} TICKET{if r.tickets == 1 then "" else "S"}`)
+	end
+	return table.concat(parts, " + ")
+end
+
+local function rewardArt(r: Economy.Reward): string?
+	local item = if r.item then Inventory.ITEMS[r.item] else nil
+	if item and item.icon then
+		return item.icon
+	end
+	if r.coins then
+		return if r.coins >= 1000 then ShopCatalog.ART.coinStack else ShopCatalog.ART.coin
+	end
+	return nil -- Tickets: no icon until the Ticket art is made (plan step 3); the words say it
+end
+
+local function loginState(): (LoginRewards.Login, number)
+	local last = StateValues.get(player, "LoginLast")
+	local step = StateValues.get(player, "LoginStep")
+	local login = LoginRewards.clean({ last = last, step = step })
+	return login, Economy.day(math.floor(workspace:GetServerTimeNow()))
+end
+
+local function drawLogin()
+	local looks = loginLooks
+	if not looks then
+		return
+	end
+	local login, today = loginState()
+	local current, waiting = LoginRewards.board(login, today)
+	for step, cell in loginCells do
+		local reward = Economy.LOGIN[step]
+		local grand = step == LoginRewards.STEPS
+		local state = if step < current or (step == current and not waiting)
+			then "claimed"
+			elseif step == current then "today"
+			else "future"
+		local look = if state == "claimed"
+			then looks.claimed
+			elseif state == "today" then looks.today
+			elseif grand then looks.grand
+			else looks.future
+		cell.BackgroundColor3 = look.bg
+		cell.BackgroundTransparency = look.bgT
+		local day = cell:FindFirstChild("Day")
+		if day and day:IsA("TextLabel") then
+			day.TextColor3 = look.day
+		end
+		local words = cell:FindFirstChild(if grand then "Prize" else "Amount")
+		if words and words:IsA("TextLabel") then
+			words.Text = if state == "claimed"
+				then "CLAIMED"
+				elseif state == "today" then "CLAIM"
+				else rewardWords(reward)
+			words.TextColor3 = if grand and state == "future" then words.TextColor3 else look.text
+		end
+		local icon = cell:FindFirstChild("Coin")
+		local art = icon and icon:FindFirstChild("Art")
+		local id = rewardArt(reward)
+		if icon and icon:IsA("GuiObject") then
+			icon.Visible = id ~= nil
+		end
+		if art and art:IsA("ImageLabel") and id then
+			art.Image = id
+		end
+	end
+	local note = loginNote
+	if note then
+		if waiting then
+			note.Text = `DAY {current} OF {LoginRewards.STEPS}`
+		else
+			local left = Economy.DAY_SECONDS
+				- (math.floor(workspace:GetServerTimeNow()) % Economy.DAY_SECONDS)
+			note.Text = string.format("NEXT REWARD IN %dH %02dM", left // 3600, (left % 3600) // 60)
+		end
+	end
+end
+
+local function claimLogin(step: number)
+	if not PlayerData.ready(player) then
+		LobbyHud.toast("Still loading your data, try again", "info")
+		return
+	end
+	local login, today = loginState()
+	local current, waiting = LoginRewards.board(login, today)
+	if step == current and waiting then
+		UiSfx.cue("Click")
+		LobbyNet.event("LoginClaim"):FireServer()
+	elseif step > current then
+		LobbyHud.toast(
+			`Day {step}: {rewardWords(Economy.LOGIN[step])}. Log in each day to reach it`,
+			"info"
+		)
+	elseif step == current then
+		LobbyHud.toast("Already claimed today. Come back tomorrow!", "info")
+	end
+end
+
+local function hookLogin()
+	local login = scroll:FindFirstChild("Login", true)
+	if not login then
+		return
+	end
+	for step = 1, LoginRewards.STEPS do
+		local cell = login:FindFirstChild("Day" .. step, true)
+		if cell and cell:IsA("Frame") then
+			loginCells[step] = cell
+			local hit = cell:FindFirstChild("Hit")
+			if hit and hit:IsA("GuiButton") then
+				hit.Activated:Connect(function()
+					claimLogin(step)
+				end)
+			end
+		end
+	end
+	local c1, c4, c5, c7 =
+		loginCells[1], loginCells[4], loginCells[5], loginCells[LoginRewards.STEPS]
+	if c1 and c4 and c5 and c7 then
+		loginLooks = {
+			claimed = lookOf(c1, "Amount"),
+			today = lookOf(c4, "Amount"),
+			future = lookOf(c5, "Amount"),
+			grand = lookOf(c7, "Prize"),
+		}
+	end
+	local head = login.Parent and login.Parent:FindFirstChild("Head_LOGIN REWARDS")
+	local note = head and head:FindFirstChild("Note")
+	loginNote = if note and note:IsA("TextLabel") then note else nil
+	drawLogin()
+end
+
 local function updateDaily()
 	local note = dailyNote
 	if not note then
@@ -820,6 +983,7 @@ local function updateDaily()
 	end
 	local left = 86400 - (os.time() % 86400)
 	note.Text = string.format("NEW ITEMS IN %dH %02dM", left // 3600, (left % 3600) // 60)
+	drawLogin()
 end
 
 --------------------------------------------------------------------------------
@@ -1049,14 +1213,7 @@ function ShopController.init()
 			Router.open("BattlePass")
 		end)
 	end
-	local day4 = scroll:FindFirstChild("Day4", true)
-	if day4 and day4:IsA("GuiObject") then
-		day4.InputBegan:Connect(function(input: InputObject)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				soon("Login rewards")
-			end
-		end)
-	end
+	hookLogin()
 	-- today's items: real skins (placeholder stock), the picture big and spilling over
 	-- the card's top like RIVALS' shop cells, on one flat colour of the skin's tier
 	local dailyItems = pages.Daily:FindFirstChild("Items", true)
@@ -1221,6 +1378,38 @@ function ShopController.start()
 		return
 	end
 	StateValues.changed(player, "Coins"):Connect(placeCounter)
+	-- login rewards: redraw on every change, answer the claim, nudge once per join
+	StateValues.changed(player, "LoginLast"):Connect(drawLogin)
+	StateValues.changed(player, "LoginStep"):Connect(drawLogin)
+	LobbyNet.event("LoginEvent").OnClientEvent:Connect(function(p: LobbyNet.LoginEventPayload)
+		if typeof(p) ~= "table" then
+			return
+		end
+		if p.kind == "claimed" then
+			UiSfx.cue("Confirm")
+			local step = if typeof(p.step) == "number" then Economy.LOGIN[p.step] else nil
+			LobbyHud.toast(
+				if step then `Claimed: {rewardWords(step)}` else "Reward claimed",
+				"success"
+			)
+		elseif p.kind == "failed" then
+			LobbyHud.toast(
+				if typeof(p.text) == "string" then p.text else "Couldn't claim, try again",
+				"error"
+			)
+		end
+		drawLogin()
+	end)
+	task.spawn(function()
+		while not PlayerData.ready(player) do
+			StateValues.changed(player, "DataReady"):Wait()
+		end
+		drawLogin()
+		local login, today = loginState()
+		if LoginRewards.nextStep(login, today) then
+			LobbyHud.toast("Your daily reward is ready: Shop → DAILY", "info")
+		end
+	end)
 	LobbyNet.event("ShopEvent").OnClientEvent:Connect(function(p: LobbyNet.ShopEventPayload)
 		if typeof(p) ~= "table" then
 			return

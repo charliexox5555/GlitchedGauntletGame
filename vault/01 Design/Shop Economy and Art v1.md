@@ -54,7 +54,7 @@ Coin goal: a daily-login-only player can afford one Common daily skin a week; a 
 Day 1 250 coins · Day 2 1 token · Day 3 500 coins · Day 4 2 tokens · Day 5 750 coins · Day 6 3 tokens · **Day 7 a Standard case + 1,000 coins** (big tile). Claimed from the DAILY tab and a lobby toast.
 
 ### 5. Daily shop
-Server picks 8 skins each day at 00:00 UTC (the same for everyone, seeded by the date), no duplicates, weighted: 4 Common, 2 Rare, 1 Epic, 1 Epic-or-Legendary. Owned skins show OWNED. Price by tier (section 2). Coins buy in one server write; Robux through a developer product per price point.
+**Per player** (owner 2026-11-22: "not the same for everyone"): at each player's first visit after 00:00 UTC the server rolls their 8 skins and **saves them in their data** (day index + picks + bought), so a client can never buy anything off its own list. No duplicates, skins they own are skipped where possible, weighted: 4 Common, 2 Rare, 1 Epic, 1 Epic-or-Legendary. Owned skins show OWNED. Price by tier (section 2). Coins buy in one server write; Robux through a developer product per price point.
 
 ### 6. Coin packs (≈10 coins per Robux, growing bonus)
 | Pack | Coins | Robux | Bonus |
@@ -104,3 +104,14 @@ From `11 Monetization Publishing and Live Ops`: *Paid Random Items and Odds Disc
 2. Daily shop: Common and Rare for coins, Epic and up Robux? Or only Common for coins?
 3. Coins at launch: login rewards only, or login + small match pay?
 4. Bonus cases in coin packs / the Starter Bundle: case only where allowed (extra coins elsewhere), or a fixed skin instead?
+
+## Step 1 built: economy config, Tickets, login rewards (2026-11-22)
+- **`src/shared/Config/Economy.luau`** (new): `STARTING_TICKETS` 2, `MAX_TICKETS`, the 7-day `LOGIN` calendar (250 coins · 1 Ticket · 500 · 2 Tickets · 750 · 3 Tickets · Standard case + 1,000), `CASE_TICKETS` (Standard 1, Elite 3, Apex 6, Knife 8: wired in step 2), `Economy.day(t)` = UTC day index.
+- **Starting coins 2,500 → 500** (`Config/Inventory.STARTING_COINS`; only new saves).
+- **Save data** (`Shared/PlayerData`, same `PlayerDataV1` key, no version bump): `tickets` (a save from before gets the starting 2) and `login = { last = UTC day, step }` (`Shared/LoginRewards`: clean / valid / nextStep / board). Published as StateValues `Tickets`, `LoginLast`, `LoginStep`. `PlayerDataService.write` writes both fields; older servers keep them (they clone the stored table).
+- **`LobbyServer/Services/LoginRewardService`** (new): remote `LoginClaim` (no arguments, `RATE.LoginClaim` 0.5/s burst 2) → one `PlayerDataService.transact` that reads the server's UTC day, picks the step (the day after the last claim = next step; a missed day = step 1; after 7 = 1), pays and marks the day claimed in the same write. Answers on `LoginEvent` (`claimed` + what it gave / `failed` + text).
+- **DAILY tab board** (`ShopController.hookLogin` / `drawLogin`): each cell shows its reward (coin / coin stack / case art + words; Ticket days are words only until the Ticket icon exists), claimed / today / later states use the colours Studio already had on Day1 / Day4 / Day5, the header says "DAY n OF 7" or "NEXT REWARD IN 5H 12M", and it redraws at the UTC rollover. A clear `Hit` button in each cell (Studio, `tools/studio/ShopLoginRewards.luau`) claims on tap, click or gamepad. A toast on joining says when today's reward is waiting.
+- **Tested in Studio play (Studio DataStore):** unit checks of the rules (new player, claimed today, next day, wrap after 7, missed day, bad saves, old save gets 2 Tickets, huge Tickets refused) all pass; join → toast "Your daily reward is ready"; claim via the button → +250 coins, Day 1 CLAIMED, header "NEXT REWARD IN 1H 24M"; a second claim fired straight at the remote → "Already claimed today", no coins; rejoin → still claimed, no toast. No new console errors. Captures: [before](Shop%20Economy/login_before_claim.jpg), [after](Shop%20Economy/login_after_claim.jpg).
+- **Not tested:** steps 2–7 for real (needs a real next day; the rules are unit-checked), the Day 7 case grant, two servers at once, phone.
+- **Not yet:** Tickets aren't shown anywhere but the board's words (the counter comes with the Ticket icon, step 3); cases still cost coins until step 2.
+- **Security review (roblox-reviewer, 2026-11-22):** no Critical / High / Medium. A second claim is impossible (day, step and "claimed" are decided in one `UpdateAsync`); no client values are read; retries reuse the txId; caps and `PlayerData.valid` keep values whole and in range; old saves load safely. Low, parked: a claim while already at the coin / Ticket / 999-case cap uses the day and pays nothing; each server uses its own clock at UTC midnight (the in-write check still stops double claims).

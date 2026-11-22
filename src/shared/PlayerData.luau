@@ -4,7 +4,9 @@
 --   { v = 1, coins = number, items = { [itemId] = count }, tx = { purchaseId },
 --     skins = { [gunId] = { line, ... } },   owned skin lines per gun ("Stock" is always
 --                                            owned and never stored; 2026-11-20)
---     prog = Shared/Progress (level, XP, win streak, lost-streak offer; 2026-11-22) }
+--     prog = Shared/Progress (level, XP, win streak, lost-streak offer; 2026-11-22),
+--     tickets = number (earn-only case currency, Config/Economy; 2026-11-22),
+--     login = Shared/LoginRewards { last = UTC day, step } (2026-11-22) }
 -- Older saves have no `prog`: it starts at level 1 with no streak (no version bump:
 -- every write keeps the fields it doesn't know, so older servers never drop it).
 -- Written only by the Lobby's PlayerDataService, one UpdateAsync per change.
@@ -18,6 +20,7 @@
 --               "Matches", "Wins", "Kills" (the profile card)
 --   StateValues "StreakSaveValue", "StreakSaveEnds" (os.time), "StreakSavePrice": the
 --               live lost-streak offer (0 / nil when there is none)
+--   StateValues "Tickets" the Ticket balance; "LoginLast", "LoginStep" the login board
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,6 +31,8 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 local Progress = require(ReplicatedStorage.Shared.Progress)
 local ProgressionConfig = require(ReplicatedStorage.Shared.Config.Progression)
+local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
@@ -38,6 +43,8 @@ export type Data = {
 	tx: { string },
 	skins: Skins,
 	prog: Progress.Prog,
+	tickets: number,
+	login: LoginRewards.Login,
 }
 
 local PlayerData = {}
@@ -85,11 +92,18 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		tx = {},
 		skins = {},
 		prog = Progress.new(),
+		tickets = Economy.STARTING_TICKETS,
+		login = LoginRewards.new(),
 	}
 	if typeof(raw) ~= "table" then
 		return data
 	end
 	data.prog = Progress.clean((raw :: any).prog)
+	data.login = LoginRewards.clean((raw :: any).login)
+	-- a save from before Tickets existed gets the starting Tickets too
+	data.tickets = if (raw :: any).tickets == nil
+		then Economy.STARTING_TICKETS
+		else count((raw :: any).tickets, Economy.MAX_TICKETS) or 0
 	local t = raw :: { [string]: unknown }
 	data.coins = count(t.coins, Inventory.MAX_COINS) or 0
 	if typeof(t.items) == "table" then
@@ -146,7 +160,12 @@ end
 -- After a change: every number whole and in range. A change that breaks this
 -- is refused, never saved clamped.
 function PlayerData.valid(data: Data): boolean
-	if not whole(data.coins, Inventory.MAX_COINS) then
+	if
+		not whole(data.coins, Inventory.MAX_COINS) or not whole(data.tickets, Economy.MAX_TICKETS)
+	then
+		return false
+	end
+	if not LoginRewards.valid(data.login) then
 		return false
 	end
 	for id, n in data.items do
@@ -211,6 +230,9 @@ end
 -- items only).
 function PlayerData.publish(player: Player, data: Data?)
 	StateValues.set(player, "Coins", if data then data.coins else 0)
+	StateValues.set(player, "Tickets", if data then data.tickets else 0)
+	StateValues.set(player, "LoginLast", if data then data.login.last else 0)
+	StateValues.set(player, "LoginStep", if data then data.login.step else 0)
 	local was = StateValues.get(player, "DataReady") == true
 	if data and not was then
 		HealthLog.stage("data ready", player)
@@ -266,6 +288,11 @@ end
 
 function PlayerData.coins(player: Player): number
 	local v = StateValues.get(player, "Coins")
+	return if typeof(v) == "number" and v == v then v else 0
+end
+
+function PlayerData.tickets(player: Player): number
+	local v = StateValues.get(player, "Tickets")
 	return if typeof(v) == "number" and v == v then v else 0
 end
 

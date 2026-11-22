@@ -65,6 +65,17 @@ export type ProgressEventPayload = {
 	text: string?, -- "failed": why
 }
 
+-- LoginClaim (client -> server): no arguments (Services/LoginRewardService)
+-- LoginEvent (server -> one client): LoginEventPayload
+export type LoginEventPayload = {
+	kind: "claimed" | "failed",
+	step: number?, -- "claimed": the step (1..7) just claimed
+	coins: number?, -- "claimed": what it gave
+	tickets: number?,
+	item: string?, -- a Config/Inventory item id
+	text: string?, -- "failed": why
+}
+
 -- CaseShow (server -> each OTHER player): someone opened a case; play it at them
 export type CaseShowPayload = {
 	userId: number, -- the opener
@@ -88,6 +99,8 @@ local EVENTS = {
 	"SettingsRequest",
 	"StreakSave",
 	"ProgressEvent",
+	"LoginClaim",
+	"LoginEvent",
 }
 
 local folder: Instance

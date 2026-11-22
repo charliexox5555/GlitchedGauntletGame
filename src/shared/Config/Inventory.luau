@@ -75,9 +75,9 @@ return table.freeze({
 	ITEMS = table.freeze(ITEMS),
 	BY_CASE = table.freeze(BY_CASE),
 
-	-- Wallet. PLACEHOLDER until coins are earned in matches: a new player
-	-- starts with enough to try the Shop.
-	STARTING_COINS = 2500,
+	-- Wallet: a new player's coins (owner 2026-11-22: "too free"; coins now come from login
+	-- rewards and match pay, vault/01 Design/Shop Economy and Art v1.md).
+	STARTING_COINS = 500,
 	MAX_COINS = 10_000_000,
 
 	-- Studio only: the dev "add coins" button grants this much.
