@@ -11,7 +11,8 @@ type HitZone = Types.HitZone
 local Damage = {}
 
 function Damage.zoneOf(partName: string): HitZone
-	if partName == "Head" then
+	-- HitboxHead: everyone's standard head hitbox (shared/MatchBody, Config/Avatar HEAD_HITBOX).
+	if partName == "Head" or partName == "HitboxHead" then
 		return "Head"
 	end
 	if string.find(partName, "Leg") or string.find(partName, "Foot") then

@@ -18,19 +18,30 @@ local MatchBody = {}
 -- Models whose clothing changes are already being followed (`dress`).
 local watched: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
+-- Whether fighters wear the skinned classic body (Config/Avatar BODY), else our block body.
+function MatchBody.usesSkinnedBody(): boolean
+	return Avatar.BODY == "S15"
+end
+
 -- The standard description, built fresh (never trusting a client) and
 -- copying only what Config/Avatar keeps from `own` (the player's own
 -- description; nil for bots and dummies).
 function MatchBody.description(own: HumanoidDescription?): HumanoidDescription
 	local d = Instance.new("HumanoidDescription")
-	-- Body parts: 0 = Roblox's default blocky R15 parts. Head too, so every
-	-- head hitbox is the same size.
-	d.Head = 0
-	d.Torso = 0
-	d.LeftArm = 0
-	d.RightArm = 0
-	d.LeftLeg = 0
-	d.RightLeg = 0
+	-- Body parts: the skinned classic body's (Config/Avatar S15_PARTS), or 0 =
+	-- Roblox's default blocky R15 parts under our blocks. The head: the
+	-- player's own with the skinned body (fair through the standard
+	-- HitboxHead), else the default head so every head is the same size.
+	local skinned = MatchBody.usesSkinnedBody()
+	d.Head = if skinned
+		then (if own and own.Head ~= 0 then own.Head else Avatar.STANDARD_HEAD)
+		else 0
+	local parts = Avatar.S15_PARTS
+	d.Torso = if skinned then parts.Torso else 0
+	d.LeftArm = if skinned then parts.LeftArm else 0
+	d.RightArm = if skinned then parts.RightArm else 0
+	d.LeftLeg = if skinned then parts.LeftLeg else 0
+	d.RightLeg = if skinned then parts.RightLeg else 0
 	local s = Avatar.SCALES
 	d.HeightScale = s.height
 	d.WidthScale = s.width
@@ -54,6 +65,12 @@ function MatchBody.description(own: HumanoidDescription?): HumanoidDescription
 		end
 		if Avatar.KEEP_FACE then
 			d.Face = own.Face
+		end
+		if MatchBody.usesSkinnedBody() then
+			-- Their own head's look: a dynamic head's face and animation come with it.
+			pcall(function()
+				d.MoodAnimation = own.MoodAnimation
+			end)
 		end
 		-- What comes through is checked again once it has spawned
 		-- (`filterAccessory`: size caps, effects stripped).
@@ -491,6 +508,76 @@ local function refresh(model: Model)
 	end
 end
 
+local function oversized(size: Vector3): boolean
+	local a, b, c = sorted(size)
+	local la, lb, lc = sorted(Avatar.HEAD_LIMIT)
+	return a > la or b > lb or c > lc
+end
+
+-- Everyone's head hitbox (Config/Avatar HEAD_HITBOX): an invisible part welded
+-- at the head's centre that takes the head hits; the visible head doesn't.
+local function headHitbox(model: Model)
+	local head = model:FindFirstChild("Head")
+	if not head or not head:IsA("BasePart") then
+		return
+	end
+	local old = model:FindFirstChild("HitboxHead")
+	if old then
+		old:Destroy()
+	end
+	head.CanQuery = false
+	local box = Instance.new("Part")
+	box.Name = "HitboxHead"
+	box.Size = Avatar.HEAD_HITBOX
+	box.Transparency = 1
+	box.CanCollide = false
+	box.CanTouch = false
+	box.CanQuery = true
+	box.Massless = true
+	box.CastShadow = false
+	box.CFrame = head.CFrame
+	local weld = Instance.new("Weld")
+	weld.Part0 = head
+	weld.Part1 = box
+	weld.Parent = box
+	box.Parent = model
+	-- A rebuilt head (an ApplyDescription) needs its hitbox again.
+	head.AncestryChanged:Connect(function(_, parent)
+		if parent == nil and model.Parent then
+			task.defer(function()
+				if model.Parent and model:FindFirstChild("Head") then
+					headHitbox(model)
+				end
+			end)
+		end
+	end)
+end
+
+-- The skinned classic body (Config/Avatar BODY "S15") is on the description;
+-- here an oversized own head is swapped for the standard one (yields: an
+-- ApplyDescription), then everyone gets the standard head hitbox. Once per model.
+local function finishSkinnedBody(model: Model)
+	if model:GetAttribute("BodyS15") == true then
+		return
+	end
+	model:SetAttribute("BodyS15", true)
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local head = model:FindFirstChild("Head")
+	if humanoid and head and head:IsA("BasePart") and oversized(head.Size) then
+		local ok, err = pcall(function()
+			local applied = humanoid:GetAppliedDescription()
+			applied.Head = Avatar.STANDARD_HEAD
+			humanoid:ApplyDescriptionAsync(applied)
+		end)
+		if not ok then
+			warn("[MatchBody] couldn't swap an oversized head:", err)
+		end
+	end
+	if model.Parent then
+		headHitbox(model)
+	end
+end
+
 -- Draws the body as blocks (Config/Avatar BLOCKS): one welded block over each
 -- R15 part, in that part's skin colour with the classic Shirt / Pants laid on
 -- it; the engine's parts stay as the rig and the hitboxes, invisible. The
@@ -498,6 +585,10 @@ end
 -- it after any ApplyDescription (which can rebuild the parts). Can yield the
 -- first time (`preload`).
 function MatchBody.dress(model: Model)
+	if MatchBody.usesSkinnedBody() then
+		finishSkinnedBody(model)
+		return
+	end
 	if not Avatar.BLOCK_BODY then
 		return
 	end

@@ -116,6 +116,31 @@ local PANTS = table.freeze({ "Pants" })
 local BOTH = table.freeze({ "Pants", "Shirt" })
 
 return table.freeze({
+	-- Which body fighters wear (owner 2026-11-21, after RIVALS: "their body is so smooth"; vault/01 Design/Match
+	-- Avatar.md → Skinned classic body):
+	--  "S15"    the classic blocky R15 proportions as one SKINNED mesh (smooth shoulders, elbows, hips, knees),
+	--           with the player's own head, dynamic face, hair and hats, classic clothing and skin colours. The body
+	--           parts are the public community body "S15 - Skinned Classic 1.0" (catalog bundle 209745; DevForum
+	--           "Classic Blocky S15 Rigs [Skinned meshes]" by ellieflopper, offered for any R15 game, not for
+	--           resale), set by id on the description so the engine builds the skinned rig itself.
+	--  "Blocks" our sharp block body drawn over the engine's parts (BLOCK_BODY, BLOCKS below).
+	BODY = "S15" :: "S15" | "Blocks",
+	S15_PARTS = table.freeze({
+		Torso = 15365012259,
+		LeftArm = 15365010034,
+		RightArm = 15365012263,
+		LeftLeg = 15365010038,
+		RightLeg = 15365010030,
+	}),
+	-- The head for bots, dummies and oversized own heads: the bundle's dynamic head.
+	STANDARD_HEAD = 15365010165,
+	-- Own heads bigger than this (studs, any axis order) get the standard head instead (RIVALS swaps oversized
+	-- heads too); the hitbox is the same for everyone either way (HEAD_HITBOX).
+	HEAD_LIMIT = Vector3.new(1.7, 1.9, 1.7),
+	-- Every fighter's head hitbox (an invisible part named HitboxHead welded at the head; the visible head and
+	-- its hair don't take hits): a big head or a puffy hairdo never makes you easier to hit.
+	HEAD_HITBOX = Vector3.new(1.2, 1.2, 1.2),
+
 	-- Body scales written on the standard description (Humanoid NumberValues).
 	SCALES = table.freeze({
 		height = 1,
