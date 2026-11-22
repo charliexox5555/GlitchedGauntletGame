@@ -56,7 +56,7 @@ Not taken: crates (their `CrateBadges` carry a logo), the tall roadblock, pallet
 | Heights | runner (kill), ground 0, catwalks + crane walkway +12 (4 stairs); roofs, loco, ladles, ingot cart out of reach (roof guards) |
 
 ## Kit (`tools/blender/maps_foundry4/`, asset 133709238746938, `ServerStorage.MapKit.Foundry4`)
-14 pieces, ~60k tris, built in its own file `art-source/maps/Foundry4/Kit_Foundry4.blend`: F4Furnace, F4Stove, F4Ladle, F4LadleCar, F4Crane, F4Stair12, F4Rail4, F4Post, F4Coil, F4IngotCart, F4Loco, F4OxyTanks (cylinders only), F4Mudgun, F4Chimney. (F4ScrapBin and the F4Clad panel were dropped in the owner fixes below.) Round forms are 8-12 flat facets with flat shading; chamfers are flat 1-segment cuts.
+14 pieces, ~60k tris, built in its own file `art-source/maps/Foundry4/Kit_Foundry4.blend`: F4Furnace, F4Stove, F4Ladle, F4LadleCar, F4Crane, F4Stair12, F4Rail4, F4Post, F4Coil, F4IngotCart, F4Loco, F4OxyTanks (cylinders only), F4Chimney, F4SlabPile2, F4SlabPile6, F4RollerDoor. (F4ScrapBin, the F4Clad panel and F4Mudgun were dropped in the owner passes below.) Round forms are 8-12 flat facets with flat shading; chamfers are flat 1-segment cuts.
 
 **Owner feedback on the first kit look (2026-11-21):** the ladle, the ladle car and the loco read as "curved boxes" whose parts "don't align well, they don't flush well". Cause: smooth shading across the 12 facets made them read round, the ladle's bands were straight rings on a tapered body, and the loco's louvres, rails and the car's blocks were stuck on. Rebuilt the same day:
 - every kit piece is flat-shaded (each facet a plane);
@@ -129,6 +129,22 @@ Paint (yellow, team colours) and the molten / lamp Neon stay flat.
 - **Ladle stand:** beams stepped in from the legs, cross rails the ladle's foot actually stands on, steel feet.
 
 Checks after the fixes (run once): **z-fight 0, floating 0, slopes 0**. About 1,560 parts (300 fewer meshes).
+
+## Owner final pass (2026-11-21, third look)
+The owner: "the Foundry looks pretty good", but the slab piles still look unprofessional, props are placed "without any actual use", the mudgun uses building skills they don't like, the mill door is unprofessional; "the barriers are that kind of style that looks good"; look at the RIVALS Museum and build that well (low triangle counts are fine, but not at the cost of looks).
+- **Purpose pass:** every prop now does a job. Cover: slab piles, coil stacks, the skip, the ingot cart, the drums, the jersey barrier, the gas cage, the loco, the ladles. Working parts of the works: the furnace, stoves, runner, skimmer, crane, ladle car and track. Removed: the mudgun (kit piece and collision), the cones and the power boxes.
+- **Slab piles** are now kit pieces built like the RIVALS barriers: concrete footings with cut tops, a steel cradle beam on each (flanges and web), identical slabs 8 × 0.9 × 3.6 with flat chamfers stacked exactly, timber spacers on the cradle lines, and the slabs' end faces spray-painted as part of the slab. `F4SlabPile2` (3.22, low cover) and `F4SlabPile6` (8.02). [Close-up](../../02%20Art/References/maps/foundry4/close-slabs-door.jpg)
+- **Roller doors** (the mill door and the back sheds' doors) are one kit piece, `F4RollerDoor`: chamfered steel jambs with guide channels, a coil housing with a cut lower front, a slatted curtain with cut-in grooves, a rubber bottom rail, a control box with a status lamp. The doors sit on the cladding grid (12-wide openings, the jambs cover the edges) and the plinths stop at the jambs.
+- Checks after the pass (run once): **z-fight 0, floating 0, slopes 0**; about 1,480 parts.
+
+## Grade (self, honest): 7/10
+Good: a clear landmark and a readable middle (the furnace, the glowing runner, the yellow crane); RIVALS textures on every surface; a consistent chunky kit; clean joins (audits 0/0/0); warm against cool light that reads at night.
+What still holds it back:
+- **Kit hero pieces are simpler than the Museum's.** The furnace and the stoves read well at range but are plainer up close than RIVALS' trims and arches (no stepped trim stacks on the furnace platforms, plain pipe elbows).
+- **Some Part-built props are still basic:** the pump house and the valve house are clean boxes with trims; the skip and the gas cage are tidy but plain next to the kit pieces.
+- **The yards are flat and open** past the hall walls; the only height is the catwalks inside. A yard-side deck or a pipe bridge would help the flanks.
+- **Night readability:** the corrugated and concrete textures show less at night than in RIVALS' daylit Museum.
+- Not playtested (owner: build checks only).
 
 ## Waiting on the owner
 - Play it: the runner (falling in kills), the bridges, the crane walkway, the catwalk stairs, the yards and the east lane past the ladle.

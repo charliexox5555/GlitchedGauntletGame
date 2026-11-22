@@ -442,36 +442,20 @@ return function(): string
 			H
 		)
 	end
-	-- the slab pile (one design, owner 2026-11-21: "things don't line up"): identical steel slabs 8 x 0.9 x 3.6,
-	-- stacked exactly on identical timber bearers (0.6 x 0.35, 0.2 proud of the slab each side); each layer seats
-	-- 0.02 into the one below so no faces touch in one plane. Layer pitch 1.23.
+	-- the slab pile (one design, owner 2026-11-21: "still don't look professional"): the kit's F4SlabPile2 (low cover,
+	-- 3.22) or F4SlabPile6 (8.02): concrete footings, steel cradles, identical chamfered slabs with painted ends,
+	-- timber spacers on the cradle lines
 	local function slabPile(
 		parent: Instance,
 		x: number,
 		z: number,
-		n: number,
+		tall: boolean,
 		H: Half?,
 		rot: number?
 	)
 		local T = CFrame.new(x, 0, z) * yaw(rot or 0)
-		local y = 0
-		for _ = 1, n do
-			for _, dx in { -2.6, 2.6 } do
-				box(
-					parent,
-					"Bearer",
-					V(dx - 0.3, y - 0.02, -2.0),
-					V(dx + 0.3, y + 0.35, 2.0),
-					L.wood,
-					false,
-					H,
-					T
-				)
-			end
-			box(parent, "Slab", V(-4, y + 0.33, -1.8), V(4, y + 1.23, 1.8), L.steel, false, H, T)
-			y += 1.23
-		end
-		col("Slab pile", V(-4.0, 0, -2.0), V(4.0, y, 2.0), H, T)
+		kit(if tall then "F4SlabPile6" else "F4SlabPile2", parent, T, H)
+		col("Slab pile", V(-4.0, 0, -2.15), V(4.0, if tall then 8.02 else 3.22, 2.15), H, T)
 	end
 	-- the skip (one design): a steel bin 9.6 x 4.8 on two skids, an enclosing top rim, evenly spaced ribs that stop
 	-- under the rim, lifting lugs at the ends, a level fill of scrap plates inside the rim
@@ -820,9 +804,6 @@ return function(): string
 			col("Trestle leg", V(x - 0.36, 0, 35.6), V(x + 0.36, 22.5, 36.4), H)
 		end
 	end
-	-- the mudgun beside the tap (arm toward the furnace)
-	kit("F4Mudgun", secFurnace, CFrame.new(-38, 0, 9) * yaw(180), nil)
-	col("Mudgun", V(-42.6, 0, 7.6), V(-36.0, 7.6, 10.4), nil)
 	-- the cast house behind the furnace (x -75..-66.5): clad shed on a concrete plinth, roof, a lit door
 	box(secFurnace, "Cast house", V(-75, 0, -16), V(-66.5, 19, 16), L.renderDark, true)
 	box(
@@ -1165,7 +1146,7 @@ return function(): string
 		blocker("Roof guard", V(-48.6, 31.3, 0), V(48.6, 45, 33.5), H)
 
 		------------------------------------------------------------------ cast floor cover
-		slabPile(secHall, -20, 15, 3, H)
+		slabPile(secHall, -20, 15, false, H)
 		-- the ingot cart on its spur (rails along X at z 14 / 18)
 		for _, rz in { 14.0, 18.0 } do
 			box(
@@ -1194,12 +1175,6 @@ return function(): string
 		col("Ingot cart", V(-4.6, 0, 13.5), V(8.6, 8.1, 18.5), H)
 		blocker("Ingot guard", V(-4.6, 8.1, 13.5), V(8.6, 20, 18.5), H)
 		coilStack(secHall, 30, 15, H)
-		-- details: power boxes on columns, cones by the pit, drums by the mudgun
-		for _, x in { -36, 12 } do
-			rivals("R_PowerBox", secHall, CFrame.new(x, 3.0, 29.85) * yaw(90), H)
-		end
-		rivals("R_Cone", secHall, CFrame.new(46, 0, 9) * yaw(20), H)
-		rivals("R_Cone", secHall, CFrame.new(42.5, 0, 9.6) * yaw(-35), H)
 		-- painted walk lines along the wall
 		box(secHall, "Wall line", V(-47, -0.05, 22.0), V(47, 0.06, 22.3), L.paintW, false, H)
 
@@ -1257,14 +1232,13 @@ return function(): string
 				H
 			)
 		end
-		rivals("R_PowerBox", secYard, CFrame.new(-57.4, 2.5, 60.2) * yaw(-90), H)
 		blocker("Roof guard", V(-66.9, 9.7, 54.3), V(-57.1, 30, 61.9), H)
 		-- skip, coil stacks, slab piles
 		skipBin(secYard, -36, 46, H)
-		slabPile(secYard, -26, 60, 7, H, 90)
+		slabPile(secYard, -26, 60, true, H, 90)
 		coilStack(secYard, -6, 48, H, 90)
 		coilStack(secYard, 20, 54, H)
-		slabPile(secYard, 50, 60, 3, H)
+		slabPile(secYard, 50, 60, false, H)
 		-- the spare ladle on its stand (east flank)
 		local LS = CFrame.new(66, 0, 46)
 		for _, dx in { -4.2, 4.2 } do
@@ -1542,7 +1516,6 @@ return function(): string
 		col("Drums", V(-26.8, 0, 75.6), V(-21.0, 3.3, 81.2), H)
 		rivals("R_Roadblock", secYard, CFrame.new(58, 0, 84), H)
 		col("Barrier", V(53, 0, 82.75), V(63, 4.2, 85.25), H)
-		rivals("R_Cone", secYard, CFrame.new(64.5, 0, 82) * yaw(15), H)
 		-- painted lines: walkway along the hall wall, the spawn band (team colour)
 		box(secYard, "Walk line", V(-46, -0.05, 35.0), V(46, 0.06, 35.3), L.paintY, false, H)
 		box(
@@ -1563,19 +1536,35 @@ return function(): string
 		------------------------------------------------------------------ the works round the bounds (this half)
 		-- the back mill shed along z 96 (x -75..75): plinth, clad, high lit windows, closed roller doors, roof
 		box(secWorld, "Back shed", V(-81, 0, 96.5), V(81, 26, 130), L.steelDark, true, H)
-		box(
-			secWorld,
-			"Back plinth",
-			V(-80.95, -0.05, 96.1),
-			V(80.95, 4.0, 97.0),
-			L.render,
-			false,
-			H
-		)
+		-- plinth and trim in runs between the two roller doors (x 30 and -36, openings 12 on the cladding grid)
+		local BACK_DOORS = { -36, 30 }
+		local bx = -80.95
+		for _, dx in BACK_DOORS do
+			box(
+				secWorld,
+				"Back plinth",
+				V(bx, -0.05, 96.1),
+				V(dx - 6.45, 4.0, 97.0),
+				L.render,
+				false,
+				H
+			)
+			box(
+				secWorld,
+				"Back plinth trim",
+				V(bx - 0.1, 3.9, 95.95),
+				V(dx - 6.42, 4.3, 97.05),
+				L.steelDark,
+				false,
+				H
+			)
+			bx = dx + 6.45
+		end
+		box(secWorld, "Back plinth", V(bx, -0.05, 96.1), V(80.95, 4.0, 97.0), L.render, false, H)
 		box(
 			secWorld,
 			"Back plinth trim",
-			V(-81.05, 3.9, 95.95),
+			V(bx + 0.03, 3.9, 95.95),
 			V(81.05, 4.3, 97.05),
 			L.steelDark,
 			false,
@@ -1592,7 +1581,7 @@ return function(): string
 			CLAD.back,
 			H,
 			function(xc: number, yb: number): boolean
-				return yb < 12 and (math.abs(xc - 27) < 6 or math.abs(xc + 39) < 6)
+				return yb < 12 and (math.abs(xc - 30) < 6 or math.abs(xc + 36) < 6)
 			end
 		)
 		box(secWorld, "Back windows", V(-76, 20.3, 96.1), V(76, 23.5, 96.3), L.window, false, H)
@@ -1623,36 +1612,8 @@ return function(): string
 			false,
 			H
 		)
-		for _, dx in { 27, -39 } do
-			box(
-				secWorld,
-				"Roller door",
-				V(dx - 5.6, 0, 96.05),
-				V(dx + 5.6, 11.5, 96.4),
-				L.steelLight,
-				false,
-				H
-			)
-			box(
-				secWorld,
-				"Roller hood",
-				V(dx - 6.1, 11.4, 95.7),
-				V(dx + 6.1, 12.6, 96.5),
-				L.yellow,
-				false,
-				H
-			)
-			for k = 1, 7 do
-				box(
-					secWorld,
-					"Roller rib",
-					V(dx - 5.5, k * 1.45 - 0.08, 95.98),
-					V(dx + 5.5, k * 1.45 + 0.08, 96.1),
-					L.steel,
-					false,
-					H
-				)
-			end
+		for _, dx in BACK_DOORS do
+			kit("F4RollerDoor", secWorld, CFrame.new(dx, 0, 96.5), H)
 		end
 		box(secWorld, "Back roof", V(-81.5, 25.9, 96.1), V(81.5, 26.8, 130.4), L.roof, false, H)
 		kit("F4Chimney", secWorld, CFrame.new(42, 26, 116), H)
@@ -1703,7 +1664,16 @@ return function(): string
 	end
 	-- the east mill's middle (z -31.6..31.6) behind the ladle track, and its doors
 	box(secWorld, "East mill", V(75.5, 0, -96.4), V(110, 24, 96.4), L.steelDark, true)
-	box(secWorld, "East plinth", V(75.1, -0.05, -96.0), V(76.0, 3.9, 96.0), L.render, false)
+	for _, sz in { -1, 1 } do
+		box(
+			secWorld,
+			"East plinth",
+			V(75.1, -0.05, sz * 6.45),
+			V(76.0, 3.9, sz * 96.0),
+			L.render,
+			false
+		)
+	end
 	cladRunZ(
 		secWorld,
 		-30,
@@ -1718,8 +1688,7 @@ return function(): string
 			return yb < 12 and math.abs(zc) < 6
 		end
 	)
-	box(secWorld, "Mill door", V(75.05, 0, -5.6), V(75.4, 11.5, 5.6), L.steelLight, false)
-	box(secWorld, "Mill door hood", V(74.7, 11.4, -6.1), V(75.5, 12.6, 6.1), L.yellow, false)
+	kit("F4RollerDoor", secWorld, CFrame.new(75.5, 0, 0) * yaw(90), nil)
 	box(secWorld, "Mill windows", V(75.1, 20.3, -95), V(75.55, 22.8, 95), L.window, false)
 	box(secWorld, "Mill roof", V(74.8, 23.9, -96.7), V(110.4, 24.8, 96.7), L.roof, false)
 	box(secWorld, "West wall", V(-77, 0, -16), V(-75.2, 3, 16), L.render, false)

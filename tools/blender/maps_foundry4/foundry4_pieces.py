@@ -26,8 +26,9 @@ bottom centre unless noted.
   F4Loco       the shunting loco (along Y, 7.2 x 16 x 11): hood, cab with windows, frame, wheels, rails, buffers.
                Its body paint is F4_Paint (team colour in Studio).
   F4OxyTanks   three gas cylinders (the cage is Parts in Studio).
-  F4Mudgun     the clay gun on its pedestal, the arm swung toward +X.
   F4Chimney    a background stack (60 tall), banded, with a red-and-white top.
+  F4SlabPile2 / F4SlabPile6   slab piles on concrete footings and steel cradles (3.22 / 8.02 tall).
+  F4RollerDoor a roller shutter door for an 11.2 x 11.5 opening (frame, coil housing, cut-in slats, control box).
 Our own designs (RIVALS meshes used in Studio are listed in the map note).
 """
 from math import cos, pi, sin
@@ -64,6 +65,8 @@ A.PAL.update(
 		"F4_White": ("#D8D6D0", 0.6),
 		"F4_Red": ("#B7402F", 0.6),
 		"F4_Lamp": ("#F2C98A", 0.4),
+		"F4_Wood": ("#8A6A48", 0.85),
+		"F4_Marking": ("#C98A2E", 0.6),
 	}
 )
 RBX = {
@@ -73,6 +76,7 @@ RBX = {
 	"F4_Grate": "DiamondPlate",
 	"F4_Glass": "Glass",
 	"F4_Concrete": "Concrete",
+	"F4_Wood": "Wood",
 }
 TRANSPARENT = {}
 
@@ -611,34 +615,58 @@ def oxy_tanks(coll):
 	return [obj("F4OxyTanks", b, ["F4_Black", "F4_White", "F4_SteelDark"], coll, 0.04)]
 
 
-def mudgun(coll):
-	"""The clay gun that plugs the tap hole: a flared pedestal, a slew ring, a boom (+X) with cut ends, the gun barrel
-	hung from the boom tip by a clevis and pointing down-forward with a nozzle, a hydraulic ram from the column to the
-	boom. Origin = pedestal foot centre."""
+def slab_pile(n):
+	"""A slab pile, built like the RIVALS barriers (chunky, flat chamfers, one colour per material): two concrete
+	footings with cut tops, a steel cradle beam on each (flanges and web), `n` identical slabs 8 x 0.9 x 3.6 stacked
+	exactly, timber spacers between them on the cradle lines, the slabs' end faces spray-painted (the paint is the end
+	face itself, nothing stuck on). Origin = bottom centre, slabs along X."""
+
+	def build(coll):
+		b = bmesh.new()
+		SL, CO, SD, WD, PA = range(5)
+		for x in (-2.6, 2.6):
+			prism(b, [(-2.15, 0.0), (2.15, 0.0), (2.15, 0.38), (1.95, 0.5), (-1.95, 0.5), (-2.15, 0.38)], "x", x - 0.55, x + 0.55, CO)
+			cube(b, x - 0.4, x + 0.4, -2.0, 2.0, 0.48, 0.62, SD)
+			cube(b, x - 0.08, x + 0.08, -1.95, 1.95, 0.6, 1.02, SD)
+			cube(b, x - 0.4, x + 0.4, -2.0, 2.0, 1.0, 1.14, SD)
+		z = 1.12
+		for k in range(n):
+			if k:
+				for x in (-2.6, 2.6):
+					cube(b, x - 0.28, x + 0.28, -1.95, 1.95, z - 0.31, z + 0.01, WD)
+			_vs, fs = cube(b, -4.0, 4.0, -1.8, 1.8, z, z + 0.9, SL)
+			for f in fs:
+				if len({round(v.co.x, 4) for v in f.verts}) == 1:
+					f.material_index = PA
+			z += 1.2
+		return [obj("F4SlabPile%d" % n, b, ["F4_SteelLight", "F4_Concrete", "F4_SteelDark", "F4_Wood", "F4_Marking"], coll, 0.07)]
+
+	return build
+
+
+def roller_door(coll):
+	"""A roller shutter door for an opening 11.2 wide x 11.5 tall in a wall whose face is the plane y = 0 (the door
+	faces +Y = Roblox -Z). Chamfered steel jambs with guide channels, a coil housing with a cut lower front, a slatted
+	curtain whose grooves are cut in (slats in front of a recessed back sheet), a rubber bottom rail, a control box
+	with a status lamp. Origin = bottom centre of the opening on the wall face."""
 	b = bmesh.new()
-	SD, YE, BK, CO = range(4)
-	loft(b, [(1.95, 0.0), (1.95, 0.45), (1.7, 0.7)], 8, CO)
-	loft(b, [(1.35, 0.6), (1.05, 1.6), (0.95, 4.9)], 8, SD)
-	revolve(b, [(0.5, 4.8), (1.35, 4.8), (1.35, 5.2), (1.2, 5.35), (0.5, 5.35)], 8, YE)
-	# boom: a box beam with cut ends (profile in XZ extruded across Y)
-	yprism(b, [(-1.2, 5.3), (3.9, 5.3), (4.4, 5.75), (4.4, 6.25), (3.9, 6.6), (-1.2, 6.6), (-1.5, 6.3), (-1.5, 5.6)], -0.55, 0.55, YE)
-	# clevis at the tip, the barrel (8 facets) aimed down-forward, its nozzle
+	SD, ST, SL, BK, YE, LP = range(6)
 	for s in (-1, 1):
-		yprism(b, [(3.6, 4.6), (4.3, 4.6), (4.3, 5.35), (3.6, 5.35)], s * 0.45, s * 0.7, SD)
-	tip = Vector((3.95, 0, 4.85))
-	d = Vector((0.75, 0, -0.66)).normalized()
-	cyl(b, tip - d * 1.6, tip + d * 1.6, 0.62, 8, SD)
-	cyl(b, tip - d * 1.75, tip - d * 1.45, 0.75, 8, BK)
-	cyl(b, tip + d * 1.55, tip + d * 2.2, 0.36, 8, BK)
-	cyl(b, (3.95, -0.72, 4.85), (3.95, 0.72, 4.85), 0.22, 6, BK)
-	# the ram: cylinder from a lug on the column to a lug under the boom
-	cyl(b, (0.9, 0, 2.6), (2.1, 0, 4.4), 0.26, 8, BK)
-	cyl(b, (1.9, 0, 4.1), (2.6, 0, 5.25), 0.15, 6, SD)
-	cube(b, 0.75, 1.15, -0.3, 0.3, 2.3, 2.9, SD)
-	cube(b, 2.35, 2.85, -0.3, 0.3, 5.0, 5.35, SD)
-	# counterweight at the boom tail
-	yprism(b, [(-1.45, 6.55), (-0.2, 6.55), (-0.2, 7.3), (-0.45, 7.55), (-1.2, 7.55), (-1.45, 7.3)], -0.7, 0.7, BK)
-	return [obj("F4Mudgun", b, ["F4_SteelDark", "F4_Yellow", "F4_Black", "F4_Concrete"], coll, 0.04)]
+		jamb = [(s * 5.6, -0.1), (s * 6.4, -0.1), (s * 6.4, 0.6), (s * 6.1, 0.9), (s * 5.6, 0.9)]
+		prism(b, jamb if s > 0 else list(reversed(jamb)), "z", 0.0, 12.0, SD)
+		cube(b, min(s * 5.3, s * 5.62), max(s * 5.3, s * 5.62), 0.05, 0.6, 0.0, 11.6, BK)
+	prism(b, [(-0.1, 11.5), (1.0, 11.5), (1.4, 11.9), (1.4, 13.0), (1.1, 13.4), (-0.1, 13.4)], "x", -6.5, 6.5, ST)
+	cube(b, -5.42, 5.42, 0.08, 0.3, 0.3, 11.55, SD)
+	k = 0
+	z = 0.35
+	while z < 11.4:
+		cube(b, -5.4, 5.4, 0.12, 0.46, z + 0.07, min(z + 0.7, 11.52), SL)
+		z += 0.7
+		k += 1
+	cube(b, -5.4, 5.4, 0.06, 0.62, 0.0, 0.36, BK)
+	cube(b, 6.55, 7.45, -0.05, 0.5, 3.9, 5.3, ST)
+	cube(b, 6.75, 7.25, 0.48, 0.56, 4.6, 5.0, LP)
+	return [obj("F4RollerDoor", b, ["F4_SteelDark", "F4_Steel", "F4_SteelLight", "F4_Black", "F4_Yellow", "F4_Lamp"], coll, 0.05)]
 
 
 def chimney(coll):
@@ -659,12 +687,12 @@ def chimney(coll):
 
 PIECES = (
 	"F4Furnace", "F4Stove", "F4Ladle", "F4LadleCar", "F4Crane", "F4Stair12", "F4Rail4", "F4Post", "F4Coil",
-	"F4IngotCart", "F4Loco", "F4OxyTanks", "F4Mudgun", "F4Chimney",
+	"F4IngotCart", "F4Loco", "F4OxyTanks", "F4Chimney", "F4SlabPile2", "F4SlabPile6", "F4RollerDoor",
 )
 BUILD = {
 	"F4Furnace": furnace, "F4Stove": stove, "F4Ladle": ladle, "F4LadleCar": ladle_car, "F4Crane": crane,
 	"F4Stair12": stair12, "F4Rail4": rail4, "F4Post": post, "F4Coil": coil,
-	"F4IngotCart": ingot_cart, "F4Loco": loco, "F4OxyTanks": oxy_tanks, "F4Mudgun": mudgun, "F4Chimney": chimney,
+	"F4IngotCart": ingot_cart, "F4Loco": loco, "F4OxyTanks": oxy_tanks, "F4Chimney": chimney, "F4SlabPile2": slab_pile(2), "F4SlabPile6": slab_pile(6), "F4RollerDoor": roller_door,
 }
 
 
