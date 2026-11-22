@@ -90,27 +90,43 @@ def events(name, rel_db=-26.0, gap=0.25):
 
 
 # Shots ------------------------------------------------------------------------------
+# 2026-11-22 v3 (owner: the shots sound "too close to the original ... more
+# oomph ... sleek and satisfying"): every gun gets a real low thump (a steel
+# bulkhead hit, low-passed: the sub punch), its skin layers ~3 dB up, a harder
+# glue, +1.5 dB over its stock shot, and its EQ aimed further past stock on the
+# lows and presence. Auto guns' shots are cut to one fire interval x 1.5 +
+# 30 ms like the stock pack (`cut`), the tail carrying the decay: longer shots
+# overlapped five deep in a spray and the voice limit (4 per sound) cut them
+# off mid-sound, so sprays felt uneven.
+THUMP = "sci-fi metal impact, steel bulkhead hit, low"
+
 GUNS = {
+	"Vandal": dict(
+		core=V.A + "shot_0{}", takes=8, first=V.A + "shot_00_first_01", last=V.A + "shot_00_last_with_tail_01",
+		tail=V.A + "shot_00_tail_only_01", length=0.5, cut=0.185, win=0.08,
+		gun=[("AKM_7.62x39mm_1m_left_on_ground", 0.26, 110, 9000, -5.5, 0.97), ("HK_416_5.56mm_on_gun", 0.12, 1200, None, -8.0, 1.0)],
+		water=-6.0, zap=(-8.5, -11.0), thump=-10.0,
+	),
 	"Stinger": dict(
 		core=M + "shot_0{}", takes=9, first=M + "shot_00_first_01", last=M + "shot_00_last_with_tail_01",
-		tail=M + "shot_00_tail_only_01", length=0.3,
-		gun=[("HK_MP7_4.6mm_on_gun", 0.12, 900, None, -9.0, 1.0), ("HK_MP7_4.6mm_1m_left", 0.2, 140, 9000, -6.0, 0.98)],
-		water=-12.0, zap=(-13.0, -18.0),
+		tail=M + "shot_00_tail_only_01", length=0.3, cut=0.143, win=0.05,
+		gun=[("HK_MP7_4.6mm_on_gun", 0.12, 900, None, -7.0, 1.0), ("HK_MP7_4.6mm_1m_left", 0.2, 140, 9000, -5.0, 0.98)],
+		water=-9.0, zap=(-10.0, -14.0), thump=-12.0,
 	),
 	"Marshal": dict(
 		core=RF + "shot_0{}", takes=4, length=1.4,
 		gun=[("Remington_700_7.62x51mm_1m_right", 0.5, 100, 9000, -5.0, 0.98)],
-		water=-8.0, zap=(-11.0, -14.0),
+		water=-5.0, zap=(-8.0, -11.0), thump=-9.0,
 	),
 	"Bucky": dict(
 		core=SG + "shot_0{}", takes=4, length=1.4,
 		gun=[("SAIGA-12_12g_solid_slug_1m_left", 0.45, 90, 8000, -5.0, 1.0), ("SPAS-12_12g_solid_slug_1m_right", 0.3, 600, None, -10.0, 1.0)],
-		water=-7.0, zap=(-12.0, -15.0),
+		water=-4.0, zap=(-9.0, -12.0), thump=-8.0,
 	),
 	"Sheriff": dict(
 		core=R + "shot_0{}", takes=4, length=1.0,
 		gun=[("Smith_&_Wesson_M66_.357_Magnum_1m_left", 0.35, 110, 9000, -5.0, 1.0)],
-		water=-9.0, zap=(-11.5, -15.0),
+		water=-6.0, zap=(-8.5, -12.0), thump=-10.0,
 	),
 }
 
@@ -124,7 +140,7 @@ def target_of(spec):
 # five bands against the stock takes and corrects, aiming a touch over stock on
 # the lows and presence (punch and bite), level elsewhere.
 BANDS = [(20, 150), (150, 600), (600, 3000), (3000, 8000), (8000, 16000)]
-AIM = [1.0, 0.0, 0.0, 1.0, 0.0]
+AIM = [2.0, 0.0, 0.0, 2.0, 0.5]
 
 
 def profile(x, win):
@@ -139,9 +155,9 @@ def eq_from(g):
 	return [("low", 120, g[0]), ("peak", 350, g[1], 0.8), ("peak", 1500, g[2], 0.7), ("peak", 5000, g[3], 0.8), ("high", 9000, g[4])]
 
 
-def tune(gun, passes=3):
+def tune(gun, passes=4):
 	spec = GUNS[gun]
-	win = 0.05 if spec["length"] < 0.5 else 0.25
+	win = spec.get("win", 0.25)
 	ref = np.mean([profile(V.stock(spec["core"].format(i + 1)), win) for i in range(spec["takes"])], axis=0)
 	gains = np.zeros(5)
 	for _ in range(passes):
@@ -153,7 +169,7 @@ def tune(gun, passes=3):
 	print(f"  {gun}: eq {np.round(gains, 1)}  vs stock {np.round(got - ref, 1)}")
 
 
-def gun_fire(gun, k, base=None, water=None, length=None, zap_on=None):
+def gun_fire(gun, k, base=None, water=None, length=None, zap_on=None, full=False):
 	spec = GUNS[gun]
 	V.GLUE_EQ = spec.get("eq", [])
 	length = length or spec["length"]
@@ -165,19 +181,37 @@ def gun_fire(gun, k, base=None, water=None, length=None, zap_on=None):
 	layers.append(V.water_crack(k, 0.09, w))
 	on = zap_on if zap_on is not None else (k % 2 == 0)
 	layers.append(V.electric_snap(k, gain=spec["zap"][0] if on else spec["zap"][1]))
+	layers.append((spec["thump"], thump(k), 0.0))
 	x = V.stack(length + 0.05, *V.aligned(core, *layers))[: int(length * RATE)]
-	return B.fade(V.glue(x, spec["target"]), 0, min(0.06, length * 0.3) if length < 0.5 else length * 0.35)
+	x = B.fade(V.glue(x, spec["target"]), 0, min(0.06, length * 0.3) if length < 0.5 else length * 0.35)
+	if spec.get("cut") and not full:
+		x = B.fade(x[: int(spec["cut"] * RATE)], 0, 0.03)
+	return x
+
+
+def thump(k):
+	"""The sub punch: a real steel bulkhead hit, low-passed to its thump."""
+	x = gdc(THUMP)
+	i = V.onset(x)
+	y = x[max(i - int(0.001 * RATE), 0) : i + int(0.22 * RATE)]
+	y = lp(resample(y, 1 / (0.95 + 0.04 * (k % 3))), 160, 2)
+	return B.fade(y, 0, 0.1)
 
 
 def gun_far(gun, k):
 	spec = GUNS[gun]
-	x = gun_fire(gun, k, water=spec["water"] - 6, zap_on=False)
-	return B.master_tp(lp(x, 5000, 2), spec["target"] - 2.0)
+	x = gun_fire(gun, k, water=spec["water"] - 6, zap_on=False, full=True)
+	x = B.master_tp(lp(x, 5000, 2), spec["target"] - 2.0)
+	if spec.get("cut"):
+		x = B.fade(x[: int(spec["cut"] * RATE)], 0, 0.03)
+	return x
 
 
-def stinger_last():
-	spec = GUNS["Stinger"]
-	head = gun_fire("Stinger", 0, base=spec["last"], length=0.3)
+def auto_last(gun):
+	"""The emptying shot: the designed head on the stock last-with-tail, and a
+	quiet power-down (the charge fizzling out) under its tail."""
+	spec = GUNS[gun]
+	head = gun_fire(gun, 0, base=spec["last"], length=0.3, full=True)
 	core = V.pro(spec["last"])
 	tail = core[int(0.3 * RATE) :]
 	fizz = V.seg(V.fs(CRACKLE), 0.5, 0.9, fin=0.05, fout=0.4, lo=1800, hi=9000)
@@ -189,8 +223,8 @@ def stinger_last():
 	return B.tp_limit(B.fade(out, 0, 0.4))
 
 
-def stinger_tail():
-	core = V.stock(GUNS["Stinger"]["tail"])
+def auto_tail(gun):
+	core = V.stock(GUNS[gun]["tail"])
 	shimmer = V.seg(V.fs(ELECTRICITY), 0.2, 1.4, fin=0.15, fout=0.7, lo=3500, hi=11000)
 	x = core.copy()
 	x[: len(shimmer)] += stereo(V.norm(shimmer, -22.0))[: len(x)] * np.abs(core).max()
@@ -345,10 +379,11 @@ def katana_swing(k, heavy=False):
 	layers = [(0.0, core), (0.0, V.norm(crackle, -9)), (0.0, V.norm(whip, -12))]
 	if heavy:
 		ev = [t for t in (5.429, 4.662)]
-		crack = V.seg(V.fs(LIGHTNING), ev[k % 2] - 0.004, 0.6, fout=0.3, lo=60, hi=7000)
+		# owner 2026-11-22: the thunder "cuts off too early": it rings out ~2.4 s
+		crack = V.seg(V.fs(LIGHTNING), ev[k % 2] - 0.004, 2.4, fout=1.3, lo=60, hi=7000)
 		layers.append((want, V.norm(crack, -7)))
 		layers.append((want, V.norm(V.seg(V.fs(SPLASH), 0.1, 0.4, fout=0.2, lo=400, rel=-24), -10)))
-	length = 0.9 if heavy else 0.5
+	length = 2.6 if heavy else 0.5
 	x = V.foley(layers, length, B.short_max(core) + 1.5)
 	# keep the peak where the game expects it
 	return x
@@ -393,6 +428,7 @@ def write(name, x, mono=False):
 
 def build():
 	os.makedirs(OUT, exist_ok=True)
+	V.LOUDER = 1.5  # v3: a clear step over each stock shot
 	V.TARGET = float(np.mean([B.short_max(V.stock(f"{V.A}shot_0{i}")) for i in range(1, 9)])) + V.LOUDER
 	for spec in GUNS.values():
 		spec["target"] = target_of(spec)
@@ -405,14 +441,16 @@ def build():
 	c["Insp_roll_01"] = insp_roll()
 	c["Insp_catch_01"] = insp_catch()
 	c["Insp_settle_01"] = insp_settle()
-	# Stinger
-	for k in range(6):
-		c[f"Stinger_fire_{k + 1:02d}"] = gun_fire("Stinger", k)
-	c["Stinger_fireFirst_01"] = gun_fire("Stinger", 0, base=GUNS["Stinger"]["first"], water=-9.0, zap_on=True)
-	c["Stinger_fireLast_01"] = stinger_last()
-	c["Stinger_tail_01"] = stinger_tail()
+	# Vandal and Stinger (auto): short shots, a first, a last with its tail, the tail
+	for gun, n in (("Vandal", 8), ("Stinger", 6)):
+		for k in range(n):
+			c[f"{gun}_fire_{k + 1:02d}"] = gun_fire(gun, k)
+		c[f"{gun}_fireFirst_01"] = gun_fire(gun, 0, base=GUNS[gun]["first"], water=GUNS[gun]["water"] + 2, zap_on=True)
+		c[f"{gun}_fireLast_01"] = auto_last(gun)
+		c[f"{gun}_tail_01"] = auto_tail(gun)
+		for k in range(4 if gun == "Vandal" else 3):
+			c[f"{gun}_fireFar_{k + 1:02d}"] = gun_far(gun, k)
 	for k in range(3):
-		c[f"Stinger_fireFar_{k + 1:02d}"] = gun_far("Stinger", k)
 		c[f"Stinger_magOut_{k + 1:02d}"] = g36_mag(f"{M}magazine_unload_0{k % 3 + 1}", k, True)
 		c[f"Stinger_magIn_{k + 1:02d}"] = g36_mag(f"{M}magazine_load_0{k % 4 + 1}", k, False)
 		c[f"Stinger_rack_{k + 1:02d}"] = rack(f"{M}cock_0{k % 4 + 1}", k)

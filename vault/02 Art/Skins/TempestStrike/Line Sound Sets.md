@@ -69,3 +69,33 @@ Each set uses the same recipe as the Vandal: the stock ProPack take as the core,
 - The katana's swings and hits.
 
 Levels can be tuned per cue in `Config/TempestAudio`.
+
+## v3 (2026-11-22): oomph, spray timing, katana thunder
+**Owner's notes:**
+- The shots are "too close to the original … needs more oomph … sleek and satisfying".
+- The katana heavy's thunder "cuts off too early".
+- Spraying "feels like it gets messed up".
+- They asked to confirm that nothing uses atlases.
+
+**Spray (a real bug, not Studio lag):**
+- The Vandal fires every 0.103 s and the Stinger every 0.075 s, but their designed shots were 0.5 s and 0.3 s long. In a spray they stacked about five deep, and the per-sound voice limit (`Config/Audio` `VOICES_PER_SOUND` = 4) cut the oldest off mid-sound on every shot.
+- Auto guns' shots are now cut the way the stock pack does it: about one fire interval × 1.5 + 30 ms (Vandal 0.185 s, Stinger 0.143 s), with a 30 ms fade.
+- The separate tail, faded by the next shot, carries the decay.
+- The far versions are cut the same way. The last round keeps its full tail.
+
+**Oomph, for every gun (the Vandal's shots now come from this builder too):**
+- **Thump:** a real low thump: a steel bulkhead hit, low-passed at 160 Hz, 8–12 dB under the core.
+- **Mechanism:** the HK416 on-gun action is up 4 dB on the Vandal (from −12 to −8).
+- **Skin layers:** water and electric are about 3 dB up.
+- **Glue:** a harder transient (+6 dB), 5:1 compression and +3 dB drive.
+- **Level:** +1.5 dB over each stock shot (was +0.8).
+- **EQ:** auto-matched again, aiming +2 dB on the lows and presence.
+
+**Result:** the lows are 1.2–2.8 dB over stock and the presence +1 to +2.7 dB. The Bucky stays about 1–2 dB light in the mids.
+
+**Katana heavy:** the real lightning crack now runs 2.4 s, with a 1.3 s natural fade; the file is 2.6 s long.
+
+**Atlases: confirmed none.** Every Tempest take is its own asset, played from 0 s (`AudioController` bank takes carry no start offset). The only "combined" file is each layered shot, which is one designed take.
+
+**Uploads:** 54 new or changed files went up solo. The handling, inspect and swing files kept their uploads.
+

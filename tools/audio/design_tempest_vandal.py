@@ -233,9 +233,11 @@ def glue(x, target):
 	from build_sound_atlas import tighten
 
 	x = eq(x, GLUE_EQ)
-	x = transient(x, 4.0)
-	x = compress(x, -22, 4.0, 0.003, 0.08)
-	x = soft_clip(x / (np.abs(x).max() + 1e-9) * 10 ** (1.6 / 20)) * 0.89
+	# 2026-11-22 v3 (owner: "too close to the original ... needs more oomph"):
+	# a harder transient, firmer compression and more drive
+	x = transient(x, 6.0)
+	x = compress(x, -22, 5.0, 0.003, 0.08)
+	x = soft_clip(x / (np.abs(x).max() + 1e-9) * 10 ** (3.0 / 20)) * 0.89
 	x = tighten(x, 0.07, 0.2)
 	x = B.fade(x, 0.001, len(x) / RATE * 0.3)
 	return B.master_tp(x, target)
