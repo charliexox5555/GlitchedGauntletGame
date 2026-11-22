@@ -154,6 +154,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Handoff - Ability Rework (Opus).md` (9): start here to continue the ability rework in a pure Opus chat: paste-ready opener, usage rules, what is done and Play-checked, what is left in order, Studio / Blender / git state, gotchas
 - `05 Production/Ability Rework 2026-11-15.md` (5): plan and status for the nine-Mod rework: model routing, live Blender MCP rules + shared core `tools/blender/rework/rw_core.py`, prop interfaces to keep, phases
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
+- `05 Production/Store Description.md` (2): Roblox store description draft for Draft Duels (built features only), what was left out and why, pre-launch additions
 - [Release Roadmap](05%20Production/Release%20Roadmap.md): full pre-release checklist, build dependencies, test matrix and ranked deadline cuts
 - [Experience Naming](05%20Production/Experience%20Naming.md): Roblox naming research, spoken-name shortlist, and collision checks
 - [Experience Naming Review](05%20Production/Experience%20Naming%20Review.md): numbered name candidates for owner feedback, comparison titles, and first-page Roblox checks
