@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Types = require(ReplicatedStorage.Shared.Types)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply) -- Optimized VFX
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
 
 local Kit = require(script.Parent.ShotFxKit)
@@ -376,7 +377,7 @@ function MuzzleFx.flash(
 		return
 	end
 	if rig.darkFlame then
-		rig.darkFlame:Emit(1)
+		rig.darkFlame:Emit(SettingsApply.vfxCount(1))
 	end
 	rig.front:Emit(1)
 	if rig.forks then
@@ -388,13 +389,13 @@ function MuzzleFx.flash(
 		rig.core:Emit(1)
 	end
 	if rig.side then
-		rig.side:Emit(1)
+		rig.side:Emit(SettingsApply.vfxCount(1))
 	end
 	if rig.embers and math.random() < 0.6 then
-		rig.embers:Emit(math.random(1, 3))
+		rig.embers:Emit(SettingsApply.vfxCount(math.random(1, 3)))
 	end
 	if smoke ~= false then
-		rig.smoke:Emit(rig.smokeCount)
+		rig.smoke:Emit(SettingsApply.vfxCount(rig.smokeCount))
 		if not spectral then
 			rig.heat = math.min(rig.heat + 1, HEAT_MAX)
 		end

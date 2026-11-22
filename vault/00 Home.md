@@ -7,6 +7,7 @@
 
 ## 📍 Status
 
+- **Settings: VIDEO tab works (2026-11-22; waiting on a pad-duel check).** Optimized lighting / VFX / textures, sensitivity (all sub-rows, invert, touch and stick too), FOV, viewmodel FOV, camera shake, hide HUD / side tasks, kill feed, damage highlight colours and colourblind palette swaps, all applied by the new `Shared/SettingsApply`. Lobby-side checks passed in Studio; match-side rows not played yet. [UI Settings → Results, chunk 1](02%20Art/UI%20Settings.md#results-chunk-1-video-2026-11-22)
 - **Release build pass (2026-11-22, Lobby place saved v1002; waiting on the owner's look):** range closed (CLOSED sign, shutter, hologram archived), Battle Pass builds archived to `ServerStorage.Archive.BattlePass` and its adverts swapped for DUELS / CASES / LOCKER, locker guns upright on every display (muzzle-height fallback) with a tidier wall, last lobby surfaces moved to RIVALS ExtraTextures. Details and rollback: [Release Plan 2026-11-22](05%20Production/Release%20Plan%202026-11-22.md) → Decided.
 
 - **Release decision (2026-11-22): soft launch first.** First publish is unpromoted while the gate tests run; public launch after they pass. Plan: [Release Plan 2026-11-22](05%20Production/Release%20Plan%202026-11-22.md). Still open: Shooting Range at launch, which two bundles get abilities, coin income rate.

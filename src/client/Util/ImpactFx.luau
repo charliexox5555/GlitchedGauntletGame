@@ -16,6 +16,7 @@ local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local HitFxConfig = require(ReplicatedStorage.Shared.Config.HitFx)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply) -- Optimized VFX
 
 local Kit = require(script.Parent.ShotFxKit)
 local AudioController = require(script.Parent.Parent.Controllers.AudioController)
@@ -287,7 +288,7 @@ local function scorch(
 		h.smoke = smoke
 	end
 	smoke.Enabled = true
-	smoke:Emit(3)
+	smoke:Emit(SettingsApply.vfxCount(3))
 end
 
 -- Every frame, with `dt` already scaled by the effects time scale: ages and
@@ -392,11 +393,11 @@ function ImpactFx.knifeContact(position: Vector3, spectral: boolean?)
 	local set = getHitSet()
 	set.att.WorldCFrame = CFrame.new(position)
 	set.flash:Emit(1)
-	set.sparks:Emit(2)
+	set.sparks:Emit(SettingsApply.vfxCount(2))
 	if spectral then
 		local mist = dustSet(Color3.fromRGB(121, 233, 194))
 		mist.att.WorldCFrame = set.att.WorldCFrame
-		mist.dust:Emit(4)
+		mist.dust:Emit(SettingsApply.vfxCount(4))
 	end
 end
 
@@ -434,7 +435,7 @@ function ImpactFx.impact(
 			else hit.Color:Lerp(Color3.fromHex("8A8A8A"), 0.5)
 		local puff = dustSet(color)
 		puff.att.WorldCFrame = cf
-		puff.dust:Emit(if spectral then 4 else 1)
+		puff.dust:Emit(SettingsApply.vfxCount(if spectral then 4 else 1))
 		return
 	end
 	local mat = material or hit.Material
@@ -463,7 +464,7 @@ function ImpactFx.impact(
 		local set = getHitSet()
 		set.att.WorldCFrame = cf
 		set.spectralFlash:Emit(1)
-		set.spectralChips:Emit(4)
+		set.spectralChips:Emit(SettingsApply.vfxCount(4))
 		scorch(position, normal, 0.45 * (size or 1))
 		return
 	end
@@ -477,30 +478,30 @@ function ImpactFx.impact(
 	if kind == "Metal" then
 		if hot then
 			set.flash:Emit(1)
-			set.metalSparks:Emit(math.random(6, 10))
+			set.metalSparks:Emit(SettingsApply.vfxCount(math.random(6, 10)))
 		end
-		dust.dust:Emit(1)
+		dust.dust:Emit(SettingsApply.vfxCount(1))
 		placeHole(position, normal, Color3.fromHex("8E9399"), holeSize * 0.8)
 	elseif kind == "Wood" then
-		dust.dust:Emit(1)
-		dust.chips:Emit(math.random(4, 6)) -- splinters
+		dust.dust:Emit(SettingsApply.vfxCount(1))
+		dust.chips:Emit(SettingsApply.vfxCount(math.random(4, 6))) -- splinters
 		placeHole(position, normal, Color3.fromHex("6E5A44"), holeSize)
 	elseif kind == "Soft" then
-		dust.dust:Emit(3)
-		dust.chips:Emit(math.random(2, 4)) -- clods
+		dust.dust:Emit(SettingsApply.vfxCount(3))
+		dust.chips:Emit(SettingsApply.vfxCount(math.random(2, 4))) -- clods
 	elseif kind == "Glass" then
 		if hot then
 			set.flash:Emit(1)
 		end
-		dust.chips:Emit(math.random(4, 7))
+		dust.chips:Emit(SettingsApply.vfxCount(math.random(4, 7)))
 		placeHole(position, normal, Color3.fromHex("C8CDD2"), holeSize * 0.9)
 	else
 		if hot then
 			set.flash:Emit(1)
-			set.sparks:Emit(math.random(1, 3))
+			set.sparks:Emit(SettingsApply.vfxCount(math.random(1, 3)))
 		end
-		dust.dust:Emit(2)
-		dust.chips:Emit(math.random(3, 5))
+		dust.dust:Emit(SettingsApply.vfxCount(2))
+		dust.chips:Emit(SettingsApply.vfxCount(math.random(3, 5)))
 		placeHole(position, normal, WHITE, holeSize)
 	end
 end

@@ -22,6 +22,11 @@ local PlayZone = require(Shared:WaitForChild("PlayZone") :: ModuleScript)
 local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
 local MapLighting = require(Shared:WaitForChild("MapLighting") :: ModuleScript)
 
+-- The player's settings on this client (the lobby client starts it in lobby servers).
+if ServerRole.isMatch() then
+	require(Shared:WaitForChild("SettingsApply") :: ModuleScript).start()
+end
+
 local RUNNER = "MatchClientRunner"
 local LOBBY_MODE = "LobbyOnly" -- runner attribute: start only LOBBY_CONTROLLERS
 -- What runs for a player walking the lobby (their dependencies are loaded, not started).

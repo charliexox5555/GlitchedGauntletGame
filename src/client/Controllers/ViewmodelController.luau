@@ -38,6 +38,8 @@ local RoundCarry = require(script.Parent.Parent.Util.RoundCarry)
 local Spring = require(ReplicatedStorage.Shared.Util.Spring)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
+local SettingsApplyConfig = require(ReplicatedStorage.Shared.Config.SettingsApply)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local SkinPreview = require(ReplicatedStorage.Shared.SkinPreview)
 local MeleeSkins = require(ReplicatedStorage.Shared.Config.MeleeSkins)
 
@@ -2820,7 +2822,16 @@ local function update(dt: number)
 	-- crosshair, so aimed sights stay on the centre and lean with it.
 	local cantDegrees = VM.SLIDE_CANT.hip + (VM.SLIDE_CANT.ads - VM.SLIDE_CANT.hip) * adsT
 	local cant = CFrame.Angles(0, 0, -math.rad(cantDegrees) * SlideTilt.amount())
-	local root = camCf * cant * ViewmodelMotion.step(motion, motionInput, dt)
+	-- Settings VIEWMODEL FOV: the gun slides along the line of sight (centred
+	-- sights stay centred), gone in ADS so each sight window stays as built.
+	local vmPct = SettingsApply.get("viewmodelFov")
+	local vmPush = if typeof(vmPct) == "number"
+		then (1 - vmPct / 100) * SettingsApplyConfig.VIEWMODEL_DEPTH * (1 - adsT)
+		else 0
+	local root = camCf
+		* CFrame.new(0, 0, vmPush)
+		* cant
+		* ViewmodelMotion.step(motion, motionInput, dt)
 
 	-- Held Mod: the gun drops away (plus a Mod gesture's dip), the item comes up.
 	local lowerCf, lowerT = ViewmodelHeldMods.lower(heldMods, now, dt)

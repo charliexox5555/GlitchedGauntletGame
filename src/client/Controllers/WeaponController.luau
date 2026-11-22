@@ -1232,7 +1232,8 @@ local function update(dt: number)
 	CameraController.setZoom(
 		if scope then CameraController.scopeFov(scope.zoom) elseif s then s.config.adsFov else nil,
 		-- The zoom trails the gun (ViewmodelController: VM.ADS_FEEL).
-		ViewmodelController.adsZoom()
+		ViewmodelController.adsZoom(),
+		scope ~= nil
 	)
 	HudController.setAim(ViewmodelController.adsBlend())
 	setScoped(scope ~= nil and adsAlpha >= VM.SCOPE_AT)

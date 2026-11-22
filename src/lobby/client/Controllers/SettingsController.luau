@@ -22,6 +22,7 @@ local UserInputService = game:GetService("UserInputService")
 local HitFx = require(ReplicatedStorage.Shared.Config.HitFx)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local Settings = require(ReplicatedStorage.Shared.Config.Settings)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
@@ -84,6 +85,8 @@ end
 local function applyLive()
 	UiMotion.setReduced(values.reducedMotion == true)
 	UiSfx.setEnabled(values.uiSounds ~= false)
+	-- everything else applies through Shared/SettingsApply (live, before the save lands)
+	SettingsApply.preview(values)
 end
 
 local function send()

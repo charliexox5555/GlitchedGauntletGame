@@ -23,6 +23,7 @@ local Workspace = game:GetService("Workspace")
 local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Config = require(ReplicatedStorage.Shared.Config.HitFx)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply) -- Optimized VFX
 
 local ShotFxKit = require(script.Parent.ShotFxKit)
 
@@ -153,14 +154,18 @@ end
 local function applyFlash(flash: Flash)
 	local s = flash.spec
 	local t = flash.t
+	-- Settings FLASH / BASE COLOR (or a colourblind swap); nil = the tuned colours.
+	local flashColor, baseColor = SettingsApply.hitColors()
+	local white = flashColor or WHITE
+	local settle = baseColor or s.color
 	local color: Color3
 	local fill: number
 	if t < s.whiteTime then
-		color = WHITE
+		color = white
 		fill = s.whiteFill
 	else
 		local blendK = math.clamp((t - s.whiteTime) / s.blend, 0, 1)
-		color = WHITE:Lerp(s.color, blendK)
+		color = white:Lerp(settle, blendK)
 		-- Solid until `hold`, then fades out by `time` (RIVALS: a solid white or
 		-- red body, not a tint).
 		local fadeK = math.clamp((t - s.hold) / (s.time - s.hold), 0, 1)
@@ -172,7 +177,7 @@ local function applyFlash(flash: Flash)
 	for _, h in flash.highlights do
 		h.FillColor = color
 		h.FillTransparency = fill
-		h.OutlineColor = s.outline
+		h.OutlineColor = baseColor or s.outline
 		h.OutlineTransparency = outline
 	end
 end
@@ -591,7 +596,7 @@ local function emitBurst(rig: FlareRig)
 	rig.glow:Emit(1)
 	if f.dark.enabled then
 		rig.dark.Size = scaled(f.dark.size, s)
-		rig.dark:Emit(1)
+		rig.dark:Emit(SettingsApply.vfxCount(1))
 	end
 	-- The crown, its base on top of the head.
 	local cr = f.crown
@@ -600,7 +605,7 @@ local function emitBurst(rig: FlareRig)
 		rig.crown.Size = scaled(cr.size, cs)
 		local peak = cr.size[#cr.size] * cs
 		rig.crownAtt.WorldPosition = rig.head + Vector3.yAxis * (f.baseHeight + cr.baseShare * peak)
-		rig.crown:Emit(cr.count)
+		rig.crown:Emit(SettingsApply.vfxCount(cr.count))
 	end
 	rig.streak.Size = scaled(f.streak.size, s)
 	rig.streak.Speed = NumberRange.new(f.streak.speed * s)
@@ -608,8 +613,8 @@ local function emitBurst(rig: FlareRig)
 	rig.sparks.Size = scaled({ 0, 0, 0.1, f.sparks.size, 1, 0 }, s)
 	rig.sparks.Speed =
 		NumberRange.new(f.sparks.speed.Min * math.sqrt(s), f.sparks.speed.Max * math.sqrt(s))
-	rig.sparks:Emit(math.round(f.sparks.count * rig.more))
-	rig.embers:Emit(math.round(f.embers.count * rig.more))
+	rig.sparks:Emit(SettingsApply.vfxCount(math.round(f.sparks.count * rig.more)))
+	rig.embers:Emit(SettingsApply.vfxCount(math.round(f.embers.count * rig.more)))
 end
 
 local function stepFlare(rig: FlareRig, dt: number)
@@ -755,8 +760,8 @@ function HitFx.hit(position: Vector3, head: boolean, killed: boolean)
 		local headPart = if found and found:IsA("BasePart") then found else nil
 		headFlash(headPart, if headPart then headPart.Position else position, killed)
 	end
-	if not body then
-		return
+	if not body or SettingsApply.get("damageHighlight") == false then
+		return -- (Settings DAMAGE HIGHLIGHT off: no body flash)
 	end
 	local spec = if killed
 		then Config.FLASH.kill

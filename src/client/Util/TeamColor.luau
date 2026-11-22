@@ -8,12 +8,21 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 
 local TeamColor = {}
 
 TeamColor.ALLY = Config.COLORS.ally
 TeamColor.ENEMY = Config.COLORS.enemy
 TeamColor.GLITCH = Config.COLORS.glitch
+
+-- Settings COLORBLIND FILTER: a palette swap of ally / enemy (Config/SettingsApply
+-- PALETTES). Read at use time, so effects made after a change pick it up.
+SettingsApply.onChanged(function()
+	local palette = SettingsApply.palette()
+	TeamColor.ALLY = palette.ally or Config.COLORS.ally
+	TeamColor.ENEMY = palette.enemy or Config.COLORS.enemy
+end)
 
 -- Colour for an effect owned by team `team` (a number), or by an instance
 -- (Player, character, dummy).

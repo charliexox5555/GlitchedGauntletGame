@@ -18,6 +18,7 @@ local TweenService = game:GetService("TweenService")
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local KillFeed = require(script.Parent.Parent.Util.KillFeed)
@@ -118,10 +119,12 @@ local function nameOf(x: Instance): string
 end
 
 local function colorOf(x: Instance): Color3
+	local palette = SettingsApply.palette() -- Settings COLORBLIND FILTER
+	local ally, enemy = palette.ally or ALLY, palette.enemy or ENEMY
 	if playerOf(x) == player then
-		return ALLY
+		return ally
 	end
-	return if Teams.isAlly(x, player) then ALLY else ENEMY
+	return if Teams.isAlly(x, player) then ally else enemy
 end
 
 local function row(
@@ -405,6 +408,12 @@ function KillFeedController.start()
 			return
 		end
 		bind(gui)
+		-- Settings SHOW KILL FEED: the rows of recent kills (your own kill pop stays).
+		SettingsApply.onChanged(function()
+			if feed then
+				feed.Visible = SettingsApply.get("showKillFeed") ~= false
+			end
+		end)
 		Net.event("Killed").OnClientEvent:Connect(onKilled)
 		MatchState.changed("Round"):Connect(function()
 			roundKills = 0

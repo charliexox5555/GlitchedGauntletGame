@@ -17,6 +17,8 @@ local Workspace = game:GetService("Workspace")
 local CameraConfig = require(ReplicatedStorage.Shared.Config.Camera)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
+
 local InputController = require(script.Parent.InputController)
 local SlideTilt = require(script.Parent.Parent.Util.SlideTilt)
 
@@ -25,6 +27,8 @@ local CameraController = {}
 local baseFov: number = CameraConfig.DEFAULT_FOV
 local zoomFov: number? = nil
 local zoomAlpha = 0
+local zoomScoped = false -- the zoom is a sniper scope (WHILE SCOPED sensitivity)
+local shakeScale = 1 -- Settings CAMERA SHAKES (0-1)
 local rollSize = 0 -- radians: the lean setRoll asked for (Util/SlideTilt carries the curve)
 local moveFov = 0
 local targetMoveFov = 0
@@ -95,7 +99,6 @@ local function lerp(a: number, b: number, t: number): number
 	return a + (b - a) * t
 end
 
--- Sets the player's preferred FOV (from settings), clamped to the allowed range.
 -- Someone else places the camera (death camera, spectating): `fn` runs each
 -- frame instead of the follow, the turn cap and the lunge; FOV, recoil and
 -- shake still apply on top. nil hands the camera back.
@@ -121,10 +124,20 @@ function CameraController.scopeFov(zoom: number): number
 	return 2 * math.deg(math.atan(math.tan(math.rad(baseFov / 2)) / math.max(zoom, 1)))
 end
 
--- ADS zoom: `alpha` 0..1 blends from the base FOV to `fov`.
-function CameraController.setZoom(fov: number?, alpha: number)
+-- ADS zoom: `alpha` 0..1 blends from the base FOV to `fov`; `scoped` = a
+-- sniper scope (its own sensitivity row).
+function CameraController.setZoom(fov: number?, alpha: number, scoped: boolean?)
 	zoomFov = fov
 	zoomAlpha = math.clamp(alpha, 0, 1)
+	zoomScoped = scoped == true
+end
+
+-- The player's FIELD OF VIEW (Settings), clamped to the slider's range.
+function CameraController.setBaseFov(fov: number)
+	if fov ~= fov then
+		return
+	end
+	baseFov = math.clamp(fov, CameraConfig.MIN_FOV, CameraConfig.MAX_FOV)
 end
 
 -- One shot of recoil. `up`/`side` in degrees; `recover` = share that comes
@@ -147,7 +160,7 @@ function CameraController.viewPunch(degrees: number, duration: number)
 		return
 	end
 	viewPunchFrom = viewPunchApplied
-	viewPunchDegrees = degrees
+	viewPunchDegrees = degrees * shakeScale
 	viewPunchAt = os.clock()
 	viewPunchTime = duration
 end
@@ -171,7 +184,7 @@ function CameraController.shake(degrees: number)
 	if degrees ~= degrees or degrees <= 0 then
 		return
 	end
-	shakeAmp = math.min(shakeAmp + math.rad(degrees), SHAKE_MAX)
+	shakeAmp = math.min(shakeAmp + math.rad(degrees * shakeScale), SHAKE_MAX)
 end
 
 -- The view may turn at most `degreesPerSecond` (nil lifts it), whatever the
@@ -329,6 +342,16 @@ local function step(dt: number)
 	if placed then
 		placed(cam, dt)
 	else
+		-- Settings sensitivity: rescale this frame's turn (mouse, stick, touch)
+		-- before anything else adds to it.
+		local last = lastLook
+		if last then
+			local mode: SettingsApply.TurnMode = if zoomAlpha < 0.5
+				then "hip"
+				elseif zoomScoped then "scope"
+				else "aim"
+			SettingsApply.scaleTurn(cam, last, mode)
+		end
 		smoothFollow(cam, dt)
 	end
 	-- The camera module turned the view from last frame's look by this
@@ -423,6 +446,13 @@ function CameraController.start()
 	button.Parent = gui
 	gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 	modalButton = button
+	-- Settings: FOV and camera shake; the sensitivity is scaled in step()
+	-- while this screen exists (the lobby camera step stands down).
+	SettingsApply.claimCamera(gui)
+	SettingsApply.onChanged(function()
+		CameraController.setBaseFov(SettingsApply.get("fov"))
+		shakeScale = math.clamp(SettingsApply.get("cameraShake") / 100, 0, 1)
+	end)
 	-- M (Config/Input FreeMouse): the player frees or re-locks the mouse.
 	InputController.onPressed("FreeMouse", function()
 		CameraController.freeMouse(FREE_KEY, not freeReasons[FREE_KEY])

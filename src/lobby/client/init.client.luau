@@ -10,6 +10,10 @@ if ServerRole.isMatch() then
 	return
 end
 
+-- The player's settings on this client (Shared/SettingsApply; the match
+-- client starts it in match servers).
+require(Shared:WaitForChild("SettingsApply") :: ModuleScript).start()
+
 -- The lobby's Studio-built screens (PlayerScripts.UI.Lobby) into PlayerGui,
 -- before any controller looks for them (Shared/UiRoot; vault/04 Tech/UI Architecture.md).
 local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)

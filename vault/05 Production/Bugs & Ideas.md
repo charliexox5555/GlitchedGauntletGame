@@ -25,6 +25,8 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 - **`WeaponBuilder` sets `CollisionFidelity = Box` in a `pcall` that never takes effect** (a loaded MeshPart's fidelity can't be changed from a script), so guns keep `Default` colliders. Harmless today; the aim sight-line check relies on those colliders.
 
 ## 💡 Ideas
+- **Side tasks must honour HIDE SIDE TASKS (2026-11-22, [UI Settings](../02%20Art/UI%20Settings.md#wiring-the-settings-plan-chunk-1-video-2026-11-22)):** the setting is wired: `Shared/SettingsApply` hides the `LobbyTasks` ScreenGui (`Config/SettingsApply.SIDE_TASK_GUIS`) while HIDE SIDE TASKS or HIDE HUD is on. When the tasks system is built, keep the list in that ScreenGui (or add its gui name there) and let SettingsApply own its `Enabled`; `LobbyHudView.bind` currently forces it off.
+- **Settings VIDEO leftovers (2026-11-22):** Optimized VFX doesn't thin Mod VFX yet (only the gun path); Tritanopia mode changes nothing (defaults pass); test the match-side rows in a pad duel.
 - **Rooftops4 follow-ups (2026-11-21, [Rooftops4](../01%20Design/Maps/Rooftops4.md)):**
   - **Bots are exempt from the fall kill.** `MapService.checkFalls` only loops over players, so a bot that falls into an alley stays in the street for the rest of the round. Rooftops4 is the first regular map with falls in rotation.
   - **OldTown4's rail guards block shots.** `CanQuery` can't be off while `CanCollide` is on; move them to the new `MapBlockers` collision group like Rooftops4.

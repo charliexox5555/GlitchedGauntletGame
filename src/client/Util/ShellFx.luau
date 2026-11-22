@@ -14,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 
 local Types = require(ReplicatedStorage.Shared.Types)
 local SkinCasings = require(ReplicatedStorage.Shared.Config.SkinCasings)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 
 local Kit = require(script.Parent.ShotFxKit)
 
@@ -271,7 +272,7 @@ end
 -- Throws a casing from `eject`. Pump and bolt guns throw it when they cycle,
 -- a moment after the shot. Melee weapons throw nothing.
 function ShellFx.eject(eject: Attachment, config: WeaponConfig, scale: number, inherit: Vector3?)
-	if config.melee then
+	if config.melee or SettingsApply.lowVfx() then -- Optimized VFX: no casings
 		return
 	end
 	if config.fireMode == "Pump" or config.fireMode == "Bolt" then
