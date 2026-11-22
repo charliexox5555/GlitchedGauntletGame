@@ -82,3 +82,15 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
   - Every prop needs a job: cover, a working part of the place, or framing a route. Nothing is placed to fill.
   - The quality bar for props: the barriers ("that kind of style looks good") and RIVALS' Museum.
   - The order now: Foundry4 final fixes + grade; a RIVALS texture pass + grade on OldTown4 (priority), Rooftops4, Greenhouse4 (and Wharf / Snowpeak4 / Metro4 where it helps); then Canyon Outpost.
+
+## Release plan (owner, 2026-11-21)
+**Castle is on hold;** Canyon Outpost is the final new map. After it:
+1. **Review Canyon Outpost:** a final pass so everything is solid.
+2. **Audit all release maps:** part organisation, structure, textures, overall Studio quality.
+3. **Clean up legacy maps:** delete every old map that isn't in the release lineup; keep only the release ones.
+4. **SFX and VFX where fitting:** sounds from our pro library or other assets, and effects on select maps for polish, depth and character. Don't overdo it; some maps need none (Arena etc.).
+5. **Prep and push:** finish the maps, make everything release-ready, and push. Then the owner playtests each map and gives feedback.
+
+**Release lineup:**
+- regular (1v1-2v2): Arena, Pier, Wharf, Snowpeak4, Rooftops4, Greenhouse4, Foundry4, CanyonOutpost;
+- large (2v2-3v3): BigArena, Dockyard, Metro4, OldTown4.
