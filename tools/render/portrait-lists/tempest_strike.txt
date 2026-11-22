@@ -1,0 +1,1 @@
+WeaponSkins/TempestStrike/Vandal;WeaponSkins/TempestStrike/Stinger;WeaponSkins/TempestStrike/Marshal;WeaponSkins/TempestStrike/Bucky;WeaponSkins/TempestStrike/Sheriff;WeaponSkins/TempestStrike/Knife

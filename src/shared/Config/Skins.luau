@@ -83,6 +83,7 @@ local LINES: { [string]: Line } = {
 	Sundial = { tier = "Epic", kind = "animated" }, -- turning dial
 	-- bundles only
 	RuinBlighted = { tier = "Exclusive", kind = "animated" },
+	TempestStrike = { tier = "Exclusive", kind = "animated" }, -- Vandal, Stinger, Marshal, Bucky, Sheriff, Katana (owner 2026-11-22: final)
 }
 
 -- Knives use their line's tier like any gun (owner 2026-11-20, round 6: knives have their

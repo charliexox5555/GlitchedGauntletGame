@@ -161,3 +161,17 @@ Owner: get the line into Studio and start VFX and animations in code and keyfram
   - Tracks are `Katana*` in `tools/studio/knife_fp_keys.py`; the ring spin pivot is handle (0, 0, 0.77).
 - **Katana, round 2 (owner check):** the inspect has no toss (wrist and forearm only, within 18° of the shoulder line). The draw is a wheel-up, and the thrust no longer spins. The VFX now use the glow band (decal 83697426300765 → image 97366507211773) for the edge sheath, a core line and the swing arcs. Motes, tip drips and a hit flare were added. See the [playtest note](../../../05%20Production/Playtests/2026-11-22%20Tempest-Strike%20Line.md#round-2-the-owners-katana-check-2026-11-22-rojo-connected).
 
+
+## Final bundle (owner 2026-11-22: "push this as the final gun bundle")
+- **Line:** `Config/Skins` gets `TempestStrike` as a bundle-only line (tier "Exclusive", like Ruin-Blighted), so it never drops from cases.
+- **Shop:** the TEMPEST-STRIKE bundle in `ShopCatalog` now holds six items: Vandal, Stinger, Marshal, Bucky, Sheriff and the knife slot, shown as "TEMPEST-STRIKE KATANA". The card line reads "5 GUNS + THE KATANA". Its price is still the placeholder 1,499 Robux.
+- **Lobby install:** all six are installed in the Lobby place at `ReplicatedStorage.WeaponSkins.TempestStrike`, built from the same exports and model assets as the match place (Vandal s08, Stinger s03, Marshal / Bucky / Sheriff s02, Katana s05).
+  - Each has its own AssetData row, `GGAsset_LobbySkins_248`–`253`. The stock-gun tags the clones inherited were removed.
+- **Pictures:**
+  - Square portraits for the shop tiles: `RenderPortraits.luau` → `icon_sheet.py` → `art-source/ui/item-portraits/*_TempestStrike.png`, IDs in `Shared/ItemPortraits`.
+  - Side-on pictures for the Locker cards: `art-source/ui/item-icons/*_TempestStrike.png`, IDs in `Shared/ItemIcons`.
+  - The sheet list is `tools/render/portrait-lists/tempest_strike.txt`.
+- **Not done:**
+  - The Lobby and match places need saving by the owner.
+  - Robux buying is still parked game-wide, so the bundle card shows and opens but the purchase flow is the economy's.
+  - No collection emblem yet.

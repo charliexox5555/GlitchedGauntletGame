@@ -110,12 +110,19 @@ ShopCatalog.CASES = {
 } :: { Case }
 
 -- The launch bundles (owner 2026-11-20): two featured skin-line bundles and a
--- Thanksgiving bundle. PLACEHOLDER prices; Tempest-Strike's roster beyond the
--- Vandal and the Thanksgiving contents are still to be decided.
-local function skin(line: string, lineName: string, gun: string, rarity: Rarity): Item
+-- Thanksgiving bundle. PLACEHOLDER prices; the Thanksgiving contents are still
+-- to be decided. Tempest-Strike is final (owner 2026-11-22): five guns and the
+-- Katana in the knife slot, bundle-only (Config/Skins: Exclusive).
+local function skin(
+	line: string,
+	lineName: string,
+	gun: string,
+	rarity: Rarity,
+	shown: string?
+): Item
 	return {
 		kind = "Skin",
-		name = lineName .. " " .. string.upper(gun),
+		name = lineName .. " " .. string.upper(shown or gun), -- `shown`: a knife-slot item's own name
 		gun = gun,
 		line = line,
 		rarity = rarity,
@@ -146,9 +153,14 @@ ShopCatalog.BUNDLES = {
 		color = Color3.fromHex("2F5DB8"),
 		slot = "Featured",
 		tag = "NEW",
-		sub = "STARTS WITH THE VANDAL",
+		sub = "5 GUNS + THE KATANA",
 		items = {
-			skin("TempestStrike", "TEMPEST-STRIKE", "Vandal", "Legendary"),
+			skin("TempestStrike", "TEMPEST-STRIKE", "Vandal", "Exclusive"),
+			skin("TempestStrike", "TEMPEST-STRIKE", "Stinger", "Exclusive"),
+			skin("TempestStrike", "TEMPEST-STRIKE", "Marshal", "Exclusive"),
+			skin("TempestStrike", "TEMPEST-STRIKE", "Bucky", "Exclusive"),
+			skin("TempestStrike", "TEMPEST-STRIKE", "Sheriff", "Exclusive"),
+			skin("TempestStrike", "TEMPEST-STRIKE", "Knife", "Exclusive", "Katana"),
 		},
 	},
 	{
