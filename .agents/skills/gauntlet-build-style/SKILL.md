@@ -5,7 +5,7 @@ description: Apply Gauntlet's faceted modeling and worldbuilding direction to ma
 
 # Gauntlet build style
 
-Read [Style Bible](../../../vault/02%20Art/Style%20Bible.md), [Art Direction](../../../vault/02%20Art/Art%20Direction.md) and the area brief. Lobby V4 follows [Lobby V4 Theme](../../../vault/02%20Art/Lobby%20V4%20Theme.md). The light-grey Sunwell scheme belongs to the older build.
+Read [Style Bible](../../../vault/02%20Art/Style%20Bible.md), [Art Direction](../../../vault/02%20Art/Art%20Direction.md) and the area brief. For any multi-part model, also load `gauntlet-model-joins` (union-before-bevel, seated details, close-up join renders). Active hub is Lobby V5 ([Lobby V5 Plan](../../../vault/02%20Art/Lobby%20V5%20Plan.md)); Lobby V4 and light-grey Sunwell belong to older builds.
 
 - Use planar facets and weighted or flat normals. Build curves from visible angled plates, typically 6–12 on large round forms. End bars, frames and walls with readable tapers, cuts or chamfers. Start with a silhouette, then secondary forms, then details at real joints.
 - Give every junction a deliberate transition such as a flange, collar, plinth, bracket or shadow gap. Keep reusable objects separate with their own meshes, colliders and lights. Reuse the area builder and kit for consistent profiles and instancing.

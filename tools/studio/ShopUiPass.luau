@@ -30,22 +30,51 @@ if old then
 end
 scaleIn(preview, "PreviewScale")
 
+-- the tab bar shrinks on a bundle page (ShopController.pageTabs): a UIScale on Tabs,
+-- marked PivotOk so Util/Pivot leaves it scaling from its top-left (no holder wrap)
+local tabs = scroll.Tabs
+local tabsScale = tabs:FindFirstChild("TabsScale") or Instance.new("UIScale")
+tabsScale.Name = "TabsScale"
+tabsScale.Scale = 1
+tabsScale.Parent = tabs
+local state = tabs:FindFirstChild("GauntletState") or Instance.new("Folder")
+state.Name = "GauntletState"
+state.Parent = tabs
+local pivotOk = state:FindFirstChild("PivotOk") or Instance.new("StringValue")
+pivotOk.Name = "PivotOk"
+pivotOk.Value = "t" -- StateValues' true
+pivotOk.Parent = state
+
+-- room for a hovered card's pop (1.04) and its selection brackets: the scroll was 1340
+-- wide with the pages left-aligned 30 px in, so the full-width bundle cards' brackets were
+-- clipped (owner 2026-11-22). Now 1420 wide, pages centred (70 px each side).
+scroll.Size = UDim2.new(0, 1420, 1, 0)
+local scrollList = scroll:FindFirstChildOfClass("UIListLayout")
+if scrollList then
+	scrollList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+end
+local scrollPad = scroll:FindFirstChildOfClass("UIPadding")
+if scrollPad then
+	scrollPad.PaddingLeft = UDim.new(0, 0)
+	scrollPad.PaddingRight = UDim.new(0, 0)
+end
+
 -- Preview layout (y from the preview's top; the controller places that top)
 preview.AnchorPoint = Vector2.new(0.5, 0)
 preview.Position = UDim2.new(0.5, 0, 0, 250)
-preview.Size = UDim2.new(1, 0, 0, 710)
+preview.Size = UDim2.new(1, 0, 0, 790)
 local function at(name: string, y: number)
 	local o = preview[name]
 	o.Position = UDim2.new(0.5, 0, 0, y)
 end
 at("Head", 0)
 at("For", 64)
-preview.StageBox.Size = UDim2.fromOffset(1500, 340)
-at("StageBox", 270)
-at("Hint", 444)
-at("Actions", 466)
+preview.StageBox.Size = UDim2.fromOffset(1600, 420) -- the gun big (owner: "the gun viewport can be larger")
+at("StageBox", 310)
+at("Hint", 524)
+at("Actions", 546)
 preview.Actions.Size = UDim2.new(0, 0, 0, 104)
-at("Strip", 580)
+at("Strip", 660)
 preview.Strip.Size = UDim2.new(0, 0, 0, 124)
 
 -- Price buttons: the button is the plate

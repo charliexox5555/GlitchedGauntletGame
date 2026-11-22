@@ -1,6 +1,6 @@
-# Glitched Gauntlet developer handoff
+# Glitched Gauntlet (Draft Duels) developer handoff
 
-Audit date **2026-11-17**. Sources are the current checkout, the project vault and both open Studio Edit DataModels. The owner confirmed that the game will keep two places for now and that Lobby V4 is the release target after cleanup.
+Updated **2026-11-22** (post single-place merge; original two-place baseline audit was **2026-11-17**). The experience now runs in **one merged Roblox place** (`71551303511506`, **Draft Duels**, experience `10772880160`, Lobby V5) via `default.project.json` on Rojo port `34873`. The retired Match place (`133387545285290`, `archive/match-place.project.json`) is kept only for historical reference. See [Place Merge Plan](Place%20Merge%20Plan.md) and [UI Architecture](UI%20Architecture.md) for the current runtime layout.
 
 ## 1. The whole game in one pass
 
@@ -18,8 +18,8 @@ Audit date **2026-11-17**. Sources are the current checkout, the project vault a
 | `default.project.json` | The one place's Rojo tree (lobby + match, 2026-11-21): `src/server` → `ServerScriptService.Server`, `src/client` → `StarterPlayer.StarterPlayerScripts.Client`, `src/first` → `ReplicatedFirst.Loading`, `src/lobby/server` → `LobbyServer`, `src/lobby/client` → `LobbyClient`, `src/lobby/shared` → `ReplicatedStorage.Lobby` | Edit the mapped files on disk. Use Rojo on port 34873. The retired match place's tree is `archive/match-place.project.json`. |
 | Shared | `src/shared` → `ReplicatedStorage.Shared`, `assets` → `ReplicatedStorage.Assets` | Test shared changes in both places. Config is replicated. Keep secrets and decision-making on the server. |
 | Studio `Workspace` and `ServerStorage` | Lobby rooms, map models, staging layouts, builders and backups | Inspect Studio Explorer or MCP. Find the builder or Blender source first if the edited object is generated. |
-| Studio `StarterGui`, `ReplicatedStorage.UiTemplates` | Screen layouts and cloneable rows, cards or icons | Modify the builder and update the owning Studio template. Lua controllers bind its names and fill its state. |
-| Studio `ReplicatedStorage.Weapons`, `WeaponSkins`, `Abilities` | Mesh-heavy runtime objects. Both places carry weapons and skins. Match holds the ability assets. | Use the relevant art and import pipeline and verify IDs, pivots, attachments, collisions and names in Studio. |
+| Studio `StarterPlayerScripts.UI` (`Shared/UiRoot`) | Screen layouts and cloneable rows, cards or icons mounted into `PlayerGui` at runtime (`StarterGui` is empty in the merged place) | Modify the builder (`tools/studio/Build*.luau`) and update the owning Studio template under `StarterPlayerScripts.UI`. Lua controllers bind its names and fill its state. |
+| Studio `ReplicatedStorage.Weapons`, `WeaponSkins`, `Abilities`, `Crates` | Mesh-heavy runtime objects (all in the single merged place `71551303511506`). | Use the relevant art and import pipeline and verify IDs, pivots, attachments, collisions and names in Studio. |
 | `art-source/` | Blender sources, exported art, asset manifests, model backups and upload ledger | Edit the source and track the resulting asset references. Check the ledger before importing or uploading again. |
 | `tools/` | Blender automation, Open Cloud uploaders, Studio builders, validators, texture, audio and icon helpers | Read the matching vault instructions before running a builder against either place. |
 | `vault/` | Obsidian source for decisions, design, production, art and handoffs | Open this folder as the vault. Start from [Home](../00%20Home.md), [INDEX](../INDEX.md) and the [Code Map](Code%20Map.md). |
@@ -28,11 +28,11 @@ All four client/server entry scripts load the Service or Controller ModuleScript
 
 For mesh-backed changes, trace the Blender source to the export manifest and upload ledger, then the installer into the right Studio container. The Import pipeline section in [Art Direction](../02%20Art/Art%20Direction.md) documents the base-gun path and `tools/studio/ValidateWeapons.luau`. Check asset availability and backups before rebuilding. Older checked-in gun backups may predate the models in Studio. The Match scene also holds versioned weapon backup folders under ServerStorage.
 
-## 3. Lobby
+## 3. Lobby (Lobby V5 in merged place `71551303511506`)
 
-**Place** `71551303511506`, experience `10772880160`. The open place contains `Workspace.Lobby` (V3), `SunwellStaging` and `LobbyV4Staging`. The enabled spawn is in `LobbyV4Staging.Anchors` around X = −1500. V3 and Sunwell spawns were disabled during inspection. This establishes the open place's spawn. Published contents require a separate check.
+**Place** `71551303511506`, experience `10772880160`. Since **2026-11-21**, `Workspace.LobbyV5` is the active hub (legacy `Lobby`, `SunwellStaging`, `LobbyV4Staging`, `LobbyRivals`, and `ShootingRangeRivals` still sit in the Edit place awaiting pre-publish cleanup). `ServerRole` distinguishes Lobby servers from reserved Match private servers of this same place. Duel pads launch in-server matches via `PadDuelService` / `MatchHost` (`MatchKit/MatchRunner`), while PLAY queues cross-server via `GlobalQueue` (`MemoryStoreService`). `Range` (`Release.RANGE_OPEN = false`) and `BattlePass` (`Release.BATTLE_PASS_OPEN = false`) are gated off for soft launch. See [Lobby V5 Plan](../02%20Art/Lobby%20V5%20Plan.md), [Place Merge Plan](Place%20Merge%20Plan.md) and [Shop Economy and Art v1](../01%20Design/Shop%20Economy%20and%20Art%20v1.md).
 
-### Walk the hub
+### Walk the hub (controller & area mapping)
 
 | Area | Studio and code |
 |---|---|
@@ -53,9 +53,9 @@ See [Lobby V4 Build](../02%20Art/Lobby%20V4%20Build.md), [Lobby UI overhaul](../
 - `MatchFoundController` passes the custom `LobbyLoading` GUI to Roblox. Match's `src/first/LoadingScreen.client.luau` picks it up and fades it out. That receiver is on disk and builds successfully. It was absent from the open Match Edit DataModel during this audit.
 - `LockerService` validates skin equips, mirrors them to the player and persists them in `LockerV1`. When enabled, Match's `SkinPreviewService` reads that store into the player's `LockerSkins` folder. The in-match preview line overrides saved equipment while it is set to a line other than Stock. Shop browsing and cosmetic persistence are separate paths.
 
-## 4. Match
+## 4. Match (in-server pad duels & reserved Match servers of `71551303511506`)
 
-**Place** `133387545285290`, same experience. Edit-mode Workspace holds the original maps and multiple redesigns. `MapService` collects eligible map models under `ServerStorage.Maps` and clones the selected map into `Workspace.ActiveMap` at runtime. Pool rules and card images are in `Config/Match`. Installed test layouts can exist outside the vote pool. In Studio, `ForceMap` can select those layouts directly.
+Since the 2026-11-21 place merge, matches run inside `71551303511506` (`ServerRole = "Match"` for reserved servers, or per-pad `MatchKit/MatchRunner` instances inside a Lobby server). `MapService` clones the selected map from `ServerStorage.Maps` (12 active rotation maps in `Config/Match.MAPS`) into the match's arena slot. Legacy Match place `133387545285290` is retired.
 
 ### Runtime from join to results
 
@@ -95,7 +95,9 @@ See [Match Flow](../01%20Design/Match%20Flow.md), [Gunplay](../01%20Design/Gunpl
 | Tune a gun or test a Mod | Shared config and server/client pair | Studio test range with `TestMode=true`. P opens the weapon picker, F8 the Mod panel and F6 the gun review tool where enabled. Recheck in a real draft/round with the range off. |
 | Swap a mesh, model or sound | [Art Direction](../02%20Art/Art%20Direction.md), `art-source`, `tools/blender`, `tools/opencloud` and Studio | Validate asset access, pivots/attachments, sound preload, appearance at player scale and any other place using it. Update [Asset Tracker](../06%20Assets/Asset%20Tracker.md). |
 
-## 6. Audit snapshot and release handoff
+## 6. Historical pre-merge audit snapshot (2026-11-17)
+
+> Superseded by the 2026-11-21 single-place merge and the [2026-11-22 Antigravity Audit](../05%20Production/Audits/2026-11-22%20Antigravity%20Audit.md). Kept for historical comparison only.
 
 | Check | Result on 2026-11-17 |
 |---|---|

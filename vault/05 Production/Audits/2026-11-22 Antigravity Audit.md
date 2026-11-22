@@ -14,7 +14,7 @@
 | Tool / Integration | Status | Details |
 |---|---|---|
 | **Roblox Studio MCP** | **Connected (read-only verified)** | Configured in `C:\Users\charl\.gemini\config\mcp_config.json` (`cmd.exe /c cd /d %LOCALAPPDATA%\Roblox && .\mcp.bat`). Open Studio windows: merged Lobby/Main place `[ 🔥] Draft Duels` (`game.Name`: `[ 🦃] Draft Duels`, `PlaceId = 71551303511506`, `UniverseId = 10772880160`, `Edit`, `AuthorityMode = Automatic`, `StreamingEnabled = true`, `TestMode = false`) and read-only RIVALS reference (`rivals file updated without DMCA @CLSTUDIO.rbxl`, not inspected). Retired Match place `133387545285290` is closed. |
-| **Blender MCP (`blender-mcp`)** | **Paused — port 9876 conflict & protocol mismatch** | `uv` / `uvx` already installed (`C:\Users\charl\.local\bin\uv.exe`). Blender 5.2 (`PID 54904`) is listening on `127.0.0.1:9876` via the **official Blender Foundation MCP extension** (`AppData\Roaming\Blender Foundation\Blender\5.2\extensions\user_default\mcp\mcp_to_blender_server.py`, NUL-terminated JSON / `execute_blender_code`). Two clients are already running: `PID 13608` (Claude Desktop's `ant.dir.gh.blender.blender-mcp`) and `PID 18464` (Codex's `C:\Users\charl\blender_mcp\mcp\.venv\Scripts\blender-mcp.exe`, port `9897`). Per owner rules (*tell me before taking port 9876*; memory `blender-skills-installed.md` deliberately avoided `ahujasid/blender-mcp`), no add-on was overwritten, no config was modified, and no scene call was made. |
+| **Blender MCP (`blender-mcp`)** | **Connected (wired & read-only verified 2026-11-22)** | Owner approved staying in the running Blender 5.2 instance (`PID 54904`, port `9876`, official Blender Foundation MCP extension). Added `"blender"` (`C:\Users\charl\blender_mcp\mcp\.venv\Scripts\blender-mcp.exe`, `127.0.0.1:9876`) to `C:\Users\charl\.gemini\config\mcp_config.json`. Read-only scene summary confirmed: `<unsaved>`, scene `Scene`, 3 objects (`Camera`, `Cube`, `Light`) in `Collection`. Nothing modified. |
 | **Local CLI checks** | **Verified** | `rojo build default.project.json` exits `0` (built outside repo). `stylua --check src` exits `1`. `selene src` exits `1`. |
 
 ### Proposed Blender MCP config (not added yet)
@@ -286,6 +286,15 @@ Target file: `C:\Users\charl\.gemini\config\mcp_config.json` (under `"mcpServers
 
 7. **Unused Daily Log habit & mixed `INDEX.md` formatting** *(Saving: Small)*
    - **Evidence:** `vault/05 Production/Daily Log/` has only one entry (`2026-10-26.md`, 2.7 KB). `INDEX.md` (39.8 KB) mixes backtick bare filenames (54 relative names that don't include folder paths) with Markdown links, making automated verification noisy.
+
+### Applied usage-savings pass (2026-11-22)
+Per owner approval, the usage-savings pass was applied without touching Studio or `src/`:
+- Pruned `vault/00 Home.md` from **67.7 KB → ~11 KB** (37.0 KB of 2026-11-12..21 status entries preserved verbatim at the top of `vault/05 Production/Status History.md`; `Locked decisions` contradictions resolved).
+- Updated `AGENTS.md` and `vault/04 Tech/Developer Handoff.md` to the single merged place (`71551303511506`, Draft Duels, Lobby V5, `UiRoot`).
+- Added missing `.agents/skills/gauntlet-model-joins/SKILL.md`, refreshed `.agents/skills/` pointers, and fixed the stale Fredoka One font line in `.claude/skills/gauntlet-ui-style/SKILL.md`.
+- Patched all 8 missing entries and stale notes in `vault/04 Tech/Code Map.md`.
+- Added `tools/vault_index_sizes.py`, refreshed **114** `(KB)` labels in `vault/INDEX.md` (0 remaining `<15 KB` size traps), and tagged superseded Lobby V1–V4 / Sunwell notes as `[SUPERSEDED by Lobby V5]`.
+- Merged duplicate Claude memory `maps-build-checks-only.md` into `map-build-checks-only.md`, and moved 7 non-fitting Blender skills (`sculpting`, `retopology`, `lod-pipeline`, `collision-proxy`, `vfx-fx`, `geometry-nodes`, `procedural-modeling`) to `~/.claude/skills-disabled/`.
 
 ---
 

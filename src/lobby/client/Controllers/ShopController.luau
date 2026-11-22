@@ -62,8 +62,9 @@ local ShopController = {}
 local player = Players.LocalPlayer
 local QUINT = Enum.EasingStyle.Quint
 local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
-local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
-local CARD = Color3.fromHex("141417")
+local WHITE = Color3.new(1, 1, 1)
+local ShopTheme = require(ReplicatedStorage.Shared.Config.ShopTheme) -- scheme A (owner 2026-11-22)
+local CARD = ShopTheme.PANEL
 local TAB_OFF_T = 0.2
 local TABS = { "HOME", "BUNDLES", "DAILY", "COINS" }
 local PAGE_OF = { HOME = "Home", BUNDLES = "Bundles", DAILY = "Daily", COINS = "Coins" }
@@ -288,7 +289,7 @@ end
 local function showItemCard(item: ShopCatalog.Item, at: GuiObject)
 	local cell = child(itemCard, "Cell") :: Frame
 	Thumb.item(cell, item)
-	cell.BackgroundColor3 = itemColor(item);
+	cell.BackgroundColor3 = ShopTheme.INNER;
 	(child(cell, "Kind") :: TextLabel).Text = string.upper(item.kind)
 	local words = child(itemCard, "Words") :: Frame;
 	(child(words, "Name") :: TextLabel).Text = if item.kind == "Coins"
@@ -355,7 +356,7 @@ local function buildBundle(card: GuiButton, bundle: ShopCatalog.Bundle)
 		c.Name = "Item" .. i
 		c.LayoutOrder = i
 		c.Size = UDim2.fromOffset(cellSize, cellSize)
-		c.BackgroundColor3 = itemColor(item)
+		c.BackgroundColor3 = ShopTheme.INNER
 		Thumb.item(c, item);
 		(child(c, "Kind") :: TextLabel).Text = string.upper(item.kind);
 		(child(c, "Name") :: TextLabel).Text = if item.kind == "Coins"
@@ -467,7 +468,7 @@ end
 -- The icon in a price plate's row (a "Coin" frame with an "Art" image): the coin, the
 -- Robux mark (read from a Studio Robux plate), or none (Tickets until their icon exists).
 local robuxIcon: string? = nil
-local ROBUX_PLATE = Color3.fromHex("3FD45C") -- RIVALS-like green for anything Robux
+local ROBUX_PLATE = ShopTheme.ROBUX -- RIVALS-like green for anything Robux
 local coinPlate: Color3? = nil -- the Studio coin plate colour (read once)
 local function priceIcon(button: Instance, kind: "coins" | "robux" | "tickets" | "none")
 	local plate = button:FindFirstChild("Price", true)
@@ -671,22 +672,53 @@ end
 -- (Shared/UiLayout; owner 2026-11-22: "the shop needs to fill more of the screen"). The
 -- bundle preview sits under the tab bar, which stays on screen, scaled (Studio's
 -- PreviewScale) to fit the height that's left.
-local TABS_BOTTOM = 258 -- the scroll's top padding + the tab row (Studio)
-local PREVIEW_H = 710 -- the preview's laid-out height (tools/studio/ShopUiPass.luau)
+-- On a bundle's page the tab bar shrinks, centres and moves up (owner 2026-11-22: "make the
+-- top bar buttons more centered and smaller so the gun viewport can be larger"): Studio's
+-- Tabs.TabsScale UIScale, the Tabs list centred, the scroll's top padding smaller.
+local PAGE_TABS_SCALE = 0.68
+local PAGE_TOP_PAD = 64 -- the scroll's top padding on a bundle page (150 on the shop)
+local SHOP_TOP_PAD = 150
+local PREVIEW_H = 790 -- the preview's laid-out height (tools/studio/ShopUiPass.luau)
 local function relayout()
 	if not (fit and canvas and scroll and (preview :: Frame?)) then
 		return -- still starting up
 	end
 	local f = math.max(fit.Scale, 0.01)
 	local h = canvas.AbsoluteSize.Y / f
-	local top = TABS_BOTTOM
-	local kp = math.clamp((h - top - 8) / PREVIEW_H, 0.5, 1.2)
+	-- the page starts just under wherever the tab bar ends now
+	local tabs = scroll:FindFirstChild("Tabs")
+	local top = if tabs and tabs:IsA("GuiObject")
+		then (tabs.AbsolutePosition.Y + tabs.AbsoluteSize.Y - canvas.AbsolutePosition.Y) / f + 10
+		else 258
+	local kp = math.clamp((h - top - 8) / PREVIEW_H, 0.5, 1.45)
 	local previewScale = preview:FindFirstChild("PreviewScale")
 	if previewScale and previewScale:IsA("UIScale") then
 		previewScale.Scale = kp
 		preview.Size = UDim2.new(1 / kp, 0, 0, PREVIEW_H)
 		-- the pop setup may centre its anchor: place its top edge under the tabs either way
 		preview.Position = UDim2.new(0.5, 0, 0, top + PREVIEW_H * kp * preview.AnchorPoint.Y)
+	end
+end
+
+-- The tab bar's two looks: the shop's (full size, left) and a bundle page's (small, centred).
+local function pageTabs(onPage: boolean)
+	local tabs = scroll:FindFirstChild("Tabs")
+	if not tabs then
+		return
+	end
+	local scale = tabs:FindFirstChild("TabsScale")
+	if scale and scale:IsA("UIScale") then
+		scale.Scale = if onPage then PAGE_TABS_SCALE else 1
+	end
+	local list = tabs:FindFirstChildOfClass("UIListLayout")
+	if list then
+		list.HorizontalAlignment = if onPage
+			then Enum.HorizontalAlignment.Center
+			else Enum.HorizontalAlignment.Left
+	end
+	local pad = scroll:FindFirstChildOfClass("UIPadding")
+	if pad then
+		pad.PaddingTop = UDim.new(0, if onPage then PAGE_TOP_PAD else SHOP_TOP_PAD)
 	end
 end
 
@@ -710,7 +742,7 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 		c.Name = "Item" .. i
 		c.LayoutOrder = i
 		c.Size = UDim2.fromOffset(120, 120)
-		c.BackgroundColor3 = itemColor(item)
+		c.BackgroundColor3 = ShopTheme.INNER
 		c.ZIndex = 12
 		for _, d in c:GetDescendants() do
 			if d:IsA("GuiObject") then
@@ -759,7 +791,8 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	scroll.CanvasPosition = Vector2.zero
 	scroll.ScrollingEnabled = false
 	showCounter(false)
-	relayout()
+	pageTabs(true)
+	task.defer(relayout) -- after the tab bar has moved
 	preview.Visible = true
 	stage:run(true)
 	for _, name in { "Head", "For" } do
@@ -800,6 +833,7 @@ local function closePreview()
 	stage:run(false)
 	stage:show(nil)
 	preview.Visible = false
+	pageTabs(false)
 	pages[PAGE_OF[tab]].Visible = true
 	scroll.ScrollingEnabled = true
 	showCounter(scroll.CanvasPosition.Y < COUNTER_HIDE_AT)
@@ -814,12 +848,12 @@ local function styleTab(name: string, on: boolean)
 		return
 	end
 	tween(plate, 0.15, {
-		BackgroundColor3 = if on then WHITE else CARD,
+		BackgroundColor3 = if on then ShopTheme.GOLD else CARD,
 		BackgroundTransparency = if on then 0 else TAB_OFF_T,
 	})
 	local label = plate:FindFirstChild("Label")
 	if label and label:IsA("TextLabel") then
-		tween(label, 0.15, { TextColor3 = if on then INK else WHITE })
+		tween(label, 0.15, { TextColor3 = if on then ShopTheme.ON_GOLD else ShopTheme.MUTED })
 	end
 end
 
@@ -1144,7 +1178,7 @@ local function drawDaily()
 		local def = (Skins.TIERS :: any)[tier] or Skins.TIERS.Common
 		local art = card:FindFirstChild("Art")
 		if art and art:IsA("GuiObject") then
-			art.BackgroundColor3 = def.color:Lerp(Color3.fromHex("0E0F13"), 0.3)
+			art.BackgroundColor3 = ShopTheme.INNER -- the tier shows on the tag only (scheme A)
 		end
 		local name = card:FindFirstChild("Name")
 		if name and name:IsA("TextLabel") then
@@ -1154,6 +1188,7 @@ local function drawDaily()
 		local tagLabel = tag and tag:FindFirstChild("Label")
 		if tagLabel and tagLabel:IsA("TextLabel") then
 			tagLabel.Text = def.name .. " SKIN"
+			tagLabel.TextColor3 = def.color -- the tier shows here only (scheme A)
 		end
 		local coinPrice, robux = DailyRoll.price(pick)
 		if table.find(daily.bought, i) or PlayerData.owns(owned, pick.gun, pick.line) then
@@ -1281,7 +1316,7 @@ local function open(arg: any?)
 	local wash = gui:FindFirstChild("Wash")
 	if wash and wash:IsA("Frame") then
 		wash.BackgroundTransparency = 1
-		tween(wash, 0.25, { BackgroundTransparency = 0.3 })
+		tween(wash, 0.25, { BackgroundTransparency = ShopTheme.WASH_T })
 	end
 	scroll.Position = UDim2.new(0.5, 0, 0, 36) -- the canvas is a fit canvas: centred
 	tween(scroll, 0.4, { Position = UDim2.new(0.5, 0, 0, 0) })
@@ -1387,7 +1422,7 @@ local function fillBundleCard(card: GuiButton, bundle: ShopCatalog.Bundle)
 		if not item then
 			continue
 		end
-		t.BackgroundColor3 = card.BackgroundColor3:Lerp(Color3.fromHex("0E0F13"), 0.55) -- a deeper shade of the card
+		t.BackgroundColor3 = ShopTheme.DEEP
 		local pic = t:FindFirstChild("Pic")
 		local id = if item.gun and item.line then SkinArt.portrait(item.gun, item.line) else nil
 		if pic and pic:IsA("ImageLabel") then

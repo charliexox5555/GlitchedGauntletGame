@@ -208,3 +208,11 @@ All three keep the dark look (the bright flat restyle was rejected before), drop
 - **B · Graphite and gold**: page #121418, panels #1E2128, inner #2A2E37, active tab gold.
 - **C · Deep navy and cyan**: page #0E1525, panels #18233D, inner #22304F, active tab cyan #2FD3E6.
 Waiting on the owner's pick.
+
+## Look pass 1: scheme A colours (2026-11-22, owner: "keeping the same UI theme in the structure of buttons, but for the colours let's go A")
+- **Colours only, same plates and layout.** `src/shared/Config/ShopTheme.luau` (PAGE 17132A, PANEL 241D40, INNER 2F2752, DEEP 1A1530, GOLD FFC83D on ON_GOLD 3A2A00, MUTED CFC8F0, ROBUX 3FD45C, WASH_T 0.12). Studio recoloured by `tools/studio/ShopTheme.luau` (75 parts: old grey panels → PANEL, picture-less card art → INNER, popup closes → INNER, tiles → DEEP, wash → PAGE, dim → DIM, today's login cell → GOLD). ShopController: active tab gold with dark words, other tabs indigo with lilac words; daily cards one indigo with the tier only in the tag's text colour; item cells and tiles indigo; the page wash much stronger (the lobby barely shows, like RIVALS).
+- `Util/Thumb` now uses the skin portrait first (Shared/SkinArt), so every item cell and the hover card show pictures (Ruin-Blighted had none).
+- **Highlight cut off (owner):** a hovered full-width bundle card's brackets were clipped by the scroll (1340 wide, pages left-aligned 30 px in). The scroll is 1420 wide with the pages centred; measured: brackets 127–1791 px inside the scroll's 86–1832.
+- **Bundle page (owner: "top bar buttons more centred and smaller so the gun viewport can be larger"):** on a bundle's page the tab bar scales to 0.68, centres and moves up (scroll top padding 150 → 64; Tabs has a `TabsScale` UIScale marked PivotOk so Util/Pivot doesn't wrap it), the page starts under wherever the tabs end, and the 3D stage is 1600 × 420 (was 1500 × 340). Back / a tab press restores the bar.
+- Captures: [Home](Shop%20Economy/themeA_home.jpg), [Daily](Shop%20Economy/themeA_daily.jpg), [login](Shop%20Economy/themeA_login.jpg), [bundle hover](Shop%20Economy/themeA_bundle_hover.jpg), [bundle page](Shop%20Economy/themeA_bundle_page.jpg).
+- **Not done:** banner art (owner's Gemini / ChatGPT images), coin pack art backdrops, phone check of this pass, Coins tab capture.

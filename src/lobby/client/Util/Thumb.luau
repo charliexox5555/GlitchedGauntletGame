@@ -12,7 +12,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
+local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local ItemStage = require(script.Parent.ItemStage)
 
@@ -77,7 +77,8 @@ function Thumb.item(parent: GuiObject, item: Item)
 		old:Destroy()
 	end
 	if item.kind == "Skin" and item.gun and item.line then
-		local pic = ItemIcons.get(item.gun, item.line)
+		-- the square portrait (Shared/ItemPortraits), else the side-on picture (2026-11-22)
+		local pic = SkinArt.portrait(item.gun, item.line)
 		local m = if pic then nil else Locker.skinModel(item.gun, item.line)
 		if pic then
 			-- the gun across most of the cell, clear of the words at the foot

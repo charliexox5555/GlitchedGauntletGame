@@ -26,8 +26,8 @@ Full spec: `vault/02 Art/UI Theme v4 Soft Edge.md`. Whole-game look: `vault/02 A
 **Never:** capsule pills, radius > 10, hard boxes everywhere, two cuts on one plate, glow halos, glossy gradients, 3D icons, neon/glitch decoration, invented UI copy.
 
 ## 2. Type and colour
-- **Fredoka One** for the UI: the owner's pick from a font board (2026-11-16, `vault/02 Art/UI Shop.md` → pass 4). It is in the lobby now, and the match UI follows. It has one weight, so other weights render as it.
-- Earlier draft: **Sarpanch** for display, **Titillium Web** for labels. Not Roblox's default Builder Sans (it reads generic).
+- **Rubik (Heavy / Bold)** for the UI and world signs (`UiStyle.FONT` / `Config/Theme.luau`, owner's pick 2026-11-16, `vault/02 Art/Style Bible.md` §6, `UI Lobby Overhaul.md`, `UI Match Overhaul.md`).
+- Earlier passes (retired): **Fredoka One** (2026-11-16 font board pass) and **Sarpanch** / **Titillium Web** (v4.1 draft). Never Roblox's default Builder Sans or retired Gotham/Montserrat.
 - **Chunky look (lobby, 2026-11-16):** slanted plates and cells are one-piece sliced art (`client/Util/Plates`, `Util/Cards`, `art-source/ui/plates/`): bright top, deeper base, a dark lip, a thin top bevel line, and white words outlined in a dark shade of the plate colour. Never build plates from separately scaled pieces; they come apart on hover.
 - Both are built-in Roblox families (checked in Studio). Barlow, Teko, Chakra Petch, Bebas and Orbitron are not.
 - Plates `10141B`, fades `06080C`, text `F4F6F9` / `A9B2BF`.
