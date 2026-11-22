@@ -12,6 +12,7 @@ local names = {
 	"SlideDir",
 	"SlideJumpSpeed",
 	"CrouchHeld",
+	"CrouchPressAt",
 	"SprintBlock",
 	"RunSince",
 	"WasGrounded",

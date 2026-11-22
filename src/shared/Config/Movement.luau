@@ -41,6 +41,7 @@ return table.freeze({
 	SLIDE_STALL_GRACE = 0.15,
 	SLIDE_COOLDOWN = 0.6,
 	SLIDE_MIN_SPEED = 12, -- must be moving at least this fast to start a slide
+	SLIDE_BUFFER = 0.25, -- seconds a held crouch press still starts a slide (no "just crouched" misses)
 	SLIDE_JUMP_KEEP = 0.8, -- share of slide speed kept when jumping out of it
 
 	-- 2026-11-04: was 7.2 (over a standing head: "jumps too high"). Whitebox's

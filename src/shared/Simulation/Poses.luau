@@ -86,6 +86,7 @@ for _, name in RUN_SET do
 	table.insert(GAIT_SET, name)
 end
 table.insert(GAIT_SET, "SprintRun")
+table.insert(GAIT_SET, "SprintRunUnarmed") -- nothing in hand: its own easier stride
 for _, name in GAIT_SET do
 	SPECS[name] = { priority = Enum.AnimationPriority.Movement, fade = FADE.run }
 end
@@ -490,7 +491,7 @@ end
 local function strideOf(name: string, length: number): number
 	if string.sub(name, 1, 4) == "Walk" then
 		return Animations.WALK_CLIP_SPEED * length
-	elseif name == "SprintRun" then
+	elseif name == "SprintRun" or name == "SprintRunUnarmed" then
 		return Animations.SPRINT_RUN_SPEED * length
 	end
 	return Animations.RUN_SPEED * length
@@ -511,7 +512,8 @@ local function stepLegs(
 	state: unknown,
 	speed: number,
 	alive: boolean,
-	airborne: boolean
+	airborne: boolean,
+	unarmed: boolean
 )
 	-- (Off the floor the run stops whatever the move state says: holding
 	-- forward through a jump stays "Sprint", and the legs used to keep
@@ -541,7 +543,9 @@ local function stepLegs(
 		next,
 		if sprint > 0 then "RunF" else nil
 	)
-	setWeight(animator, "SprintRun", legs * runShare * forward * sprint)
+	local sprintLegs = legs * runShare * forward * sprint
+	setWeight(animator, "SprintRun", if unarmed then 0 else sprintLegs)
+	setWeight(animator, "SprintRunUnarmed", if unarmed then sprintLegs else 0)
 	if legs <= 0 then
 		return
 	end
@@ -560,7 +564,7 @@ local function stepLegs(
 	end
 	-- The run's upper body swings with the stride: same rate, same time
 	-- (the clips are one length).
-	local sprintTrack = playing(animator, "SprintRun")
+	local sprintTrack = playing(animator, if unarmed then "SprintRunUnarmed" else "SprintRun")
 	if sprintTrack and sprintTrack.Length > 0 then
 		for _, name in SPRINT_SET do
 			local arms = playing(animator, name)
@@ -851,7 +855,7 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 
 	local airborne = humanoid.FloorMaterial == Enum.Material.Air
-	stepLegs(animator, root, state, speed, alive, airborne)
+	stepLegs(animator, root, state, speed, alive, airborne, unarmed)
 	if unarmed then
 		followStride(animator, UNARMED_SWING)
 	end

@@ -997,6 +997,13 @@ dir_clips("Run", "Movement", RUN_FAMILY)
 dir_clips("Walk", "Movement", WALK_FAMILY)
 SPRINT_RUN = run_gait((0, -1), SPRINT_SPEED, SPRINT_LENGTH, 0.3, 1.05, 0.13, -15, -0.16, twist=8, roll=5)
 ground_clip("SprintRun", "Movement", (0, -1), SPRINT_SPEED, SPRINT_LENGTH, SPRINT_RUN)
+# Nothing in hand (the lobby): its own sprint stride, longer and more upright
+# than the gun sprint's (owner 2026-11-22: the empty-hands run "is still very
+# clunky and not smooth": the gun sprint's 0.36 s cycle and 15 degree lean read
+# as a hunched scamper). SprintUnarmed shares its length (Poses keeps them on one time).
+SPRINT_EASY_LENGTH = 0.42
+SPRINT_EASY = run_gait((0, -1), SPRINT_SPEED, SPRINT_EASY_LENGTH, 0.38, 0.9, 0.09, -6, -0.12, twist=6, roll=3)
+ground_clip("SprintRunUnarmed", "Movement", (0, -1), SPRINT_SPEED, SPRINT_EASY_LENGTH, SPRINT_EASY)
 
 
 # The run's upper body (Action2, in step with SprintRun: Simulation/Poses
@@ -1538,9 +1545,9 @@ add(Clip("UnarmedIdle", "Action", lambda t: solve(unarmed_idle_ctrl(t)), UPPER, 
 # Walk: an easy swing; run: elbows bent, a full swing; sprint: pumping.
 # (v2, owner 2026-11-21 "the walking ... looks a little too clunky": a smaller,
 # looser walk swing with soft elbows, the arms trailing the legs.)
-_swing_clip("UnarmedWalk", WALK_LENGTH, swing=17, back=13, bend_fwd=20, bend_back=9, twist=3, lean=0, out=6.0, lag=0.07)
+_swing_clip("UnarmedWalk", WALK_LENGTH, swing=22, back=17, bend_fwd=26, bend_back=12, twist=4, lean=0, out=6.0, lag=0.07)
 _swing_clip("UnarmedRun", RUN_LENGTH, swing=46, back=36, bend_fwd=78, bend_back=48, twist=6, lean=-4, lag=0.05)
-_swing_clip("SprintUnarmed", SPRINT_LENGTH, swing=62, back=50, bend_fwd=95, bend_back=60, twist=9, lean=-6, lag=0.04)
+_swing_clip("SprintUnarmed", SPRINT_EASY_LENGTH, swing=44, back=34, bend_fwd=84, bend_back=55, twist=6, lean=-2, out=6.5, lag=0.04)
 # The sprint arms are an Action2 layer like the other sprint uppers (Poses SPRINT_SET).
 CLIPS["SprintUnarmed"].priority = "Action2"
 

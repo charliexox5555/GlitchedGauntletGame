@@ -137,6 +137,9 @@ return table.freeze({
 	STANDARD_HEAD = 0,
 	-- The face for a standard head (bots, dummies, a swapped head): Roblox's default "Smile" face.
 	DEFAULT_FACE = 144075659,
+	-- The body's surface: soft and clean, no Plastic studs grain (owner 2026-11-22: the win cutscene body "was not
+	-- SmoothPlastic"). Set on every body part, including parts an ApplyDescription rebuilds.
+	BODY_MATERIAL = Enum.Material.SmoothPlastic,
 	-- Own heads bigger than this (studs, any axis order) get the standard head instead (RIVALS swaps oversized
 	-- heads too); the hitbox is the same for everyone either way (HEAD_HITBOX).
 	HEAD_LIMIT = Vector3.new(1.7, 1.9, 1.7),

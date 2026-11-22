@@ -17,18 +17,24 @@ local decoded: { [StringValue]: { content: string, value: any } } = setmetatable
 	{ __mode = "k" }
 )
 
+-- Every data module, in every server: since the place merge (2026-11-21) one
+-- place carries the lobby and the match objects. (The old per-PlaceId lists
+-- left every match object without its data in the merged place.) Tags are
+-- prefixed with their module's name, so they never collide.
 local assets = script.Parent.Config:WaitForChild("AssetData")
-local modules = if game.PlaceId == 71551303511506
-	then { "LobbyInterface", "LobbyLocker", "LobbySkins", "LobbyWeapons", "LobbyWorld" }
-	elseif game.PlaceId == 133387545285290 then {
-		"MatchAbilities",
-		"MatchInterface",
-		"MatchMaps",
-		"MatchSettings",
-		"MatchSkins",
-		"MatchWeapons",
-	}
-	else {}
+local modules = {
+	"LobbyInterface",
+	"LobbyLocker",
+	"LobbySkins",
+	"LobbyWeapons",
+	"LobbyWorld",
+	"MatchAbilities",
+	"MatchInterface",
+	"MatchMaps",
+	"MatchSettings",
+	"MatchSkins",
+	"MatchWeapons",
+}
 for _, name in modules do
 	for tag, fields in require(assets:WaitForChild(name) :: ModuleScript) do
 		authored[tag] = fields

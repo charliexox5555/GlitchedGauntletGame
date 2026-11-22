@@ -22,6 +22,7 @@
 --   SlideEnd        time() the last slide ended (cooldown)
 --   SlideJumpSpeed  speed carried through the air after a slide-jump (0 = none)
 --   CrouchHeld      last step's crouch input (to detect presses)
+--   CrouchPressAt   time() of the last crouch press not yet used by a slide (the slide buffer)
 --   SprintBlock     time() until running is allowed again (firing cancels the run)
 --   RunSince        time() you started moving forward this stretch (the run builds from it)
 --   WasGrounded     last step's ground contact
@@ -115,6 +116,7 @@ local function stepCharacter(player: Player, character: Model)
 	local slideDir: Vector3? = if typeof(slideDirAttr) == "Vector3" then slideDirAttr else nil
 	local slideJump = (StateValues.get(character, "SlideJumpSpeed") :: number?) or 0
 	local crouchHeld = (StateValues.get(character, "CrouchHeld") :: boolean?) == true
+	local crouchPressAt = (StateValues.get(character, "CrouchPressAt") :: number?) or -math.huge
 	local sprintBlock = (StateValues.get(character, "SprintBlock") :: number?) or 0
 	local runSince = StateValues.get(character, "RunSince") :: number?
 	local wasGrounded = (StateValues.get(character, "WasGrounded") :: boolean?) ~= false
@@ -138,6 +140,21 @@ local function stepCharacter(player: Player, character: Model)
 
 	local sliding = state == "Slide"
 	local pressedCrouch = crouchRaw and not crouchHeld
+
+	-- The slide's crouch press is buffered (SLIDE_BUFFER): a press a moment
+	-- early (still turning into the run, the last slide's cooldown not over)
+	-- still slides while C is held, instead of dropping into a crouch. The way
+	-- in is the run you'd be in without the crouch key (the run is automatic).
+	if pressedCrouch then
+		crouchPressAt = now
+	end
+	local couldRun = forward and not aimIn and now >= sprintBlock
+	local slideAsked = crouchRaw and now - crouchPressAt <= Movement.SLIDE_BUFFER
+	-- While that press waits, the run keeps going (a crouch would slow you
+	-- under SLIDE_MIN_SPEED before the cooldown ends).
+	if slideAsked and couldRun and grounded and not sliding then
+		crouchIn = false
+	end
 
 	-- Running: no sprint key (Movement.RUN_DELAY). Moving forward for a moment
 	-- breaks into the run; a slide keeps the stretch going.
@@ -175,9 +192,10 @@ local function stepCharacter(player: Player, character: Model)
 		slideJump = 0
 	end
 
-	-- Start / end a slide.
-	if not sliding and pressedCrouch and state == "Sprint" and grounded then
+	-- Start / end a slide (the press buffered above).
+	if not sliding and slideAsked and couldRun and grounded then
 		if now - slideEnd > Movement.SLIDE_COOLDOWN and flatSpeed >= Movement.SLIDE_MIN_SPEED then
+			crouchPressAt = -math.huge -- one slide per press
 			sliding = true
 			slideStart = now
 			-- The slide's line: the way you're moving right now.
@@ -311,6 +329,7 @@ local function stepCharacter(player: Player, character: Model)
 	set(character, "SlideDir", slideDir)
 	set(character, "SlideJumpSpeed", slideJump)
 	set(character, "CrouchHeld", if crouchRaw then true else nil)
+	set(character, "CrouchPressAt", if crouchPressAt > -math.huge then crouchPressAt else nil)
 	set(character, "SprintBlock", sprintBlock)
 	set(character, "RunSince", runSince)
 	set(character, "WasGrounded", grounded)

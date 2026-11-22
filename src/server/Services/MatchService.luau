@@ -48,6 +48,7 @@ local POLL = 0.1 -- seconds between checks on a running clock
 local RETRY_AFTER_ERROR = 3
 local MAP_RETRY = 5
 local SPAWN_TRIES = 2
+local STREAM_WAIT = 6 -- seconds a spawn may wait for its area to stream to the player
 
 local enabled = false
 local matchesPlayed = 0
@@ -171,6 +172,11 @@ end
 
 local function spawnPlayer(player: Player, spawn: SpawnLocation?)
 	player.RespawnLocation = if Context.ownsServer then spawn else nil
+	if spawn then
+		-- The spot streams in first, so nobody hangs in the air (Streaming
+		-- PauseOutsideLoadedArea) while a big map arrives.
+		pcall(player.RequestStreamAroundAsync, player, spawn.Position, STREAM_WAIT)
+	end
 	for attempt = 1, SPAWN_TRIES do
 		-- Spawned already wearing the standard match body (Match Avatar.md).
 		local ok, err = pcall(CharacterService.loadCharacter, player)

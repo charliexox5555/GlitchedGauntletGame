@@ -94,7 +94,13 @@ function WorldModel.attach(character: Model, id: string?): Model?
 			old:Destroy()
 		end
 	end
+	-- Cosmetic state lives on the Player (not the predicted character) so it
+	-- never triggers Server Authority rollbacks. Dummies keep it on the model.
+	local owner = Players:GetPlayerFromCharacter(character)
+	local holder: Instance = owner or character
 	if not id then
+		-- Empty hands (disarmed, back in the lobby): the poses go unarmed too.
+		StateValues.set(holder, "WeaponId", nil)
 		return nil
 	end
 	local config = Weapons.get(id)
@@ -114,14 +120,7 @@ function WorldModel.attach(character: Model, id: string?): Model?
 	if config and config.models and config.models.left then
 		holdModel(character, config.models.left, "LeftHand", "WorldWeaponLeft")
 	end
-	-- Cosmetic state lives on the Player (not the predicted character) so it
-	-- never triggers Server Authority rollbacks. Dummies keep it on the model.
-	local owner = Players:GetPlayerFromCharacter(character)
-	if owner then
-		StateValues.set(owner, "WeaponId", id)
-	else
-		StateValues.set(character, "WeaponId", id)
-	end
+	StateValues.set(holder, "WeaponId", id)
 	return model
 end
 

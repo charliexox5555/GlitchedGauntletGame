@@ -560,11 +560,22 @@ end
 -- The skinned classic body (Config/Avatar BODY "S15") is on the description;
 -- here an oversized own head is swapped for the standard one (yields: an
 -- ApplyDescription), then everyone gets the standard head hitbox. Once per model.
+local function smoothPart(part: Instance)
+	if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+		part.Material = Avatar.BODY_MATERIAL
+	end
+end
+
 local function finishSkinnedBody(model: Model)
 	if model:GetAttribute("BodyS15") == true then
 		return
 	end
 	model:SetAttribute("BodyS15", true)
+	for _, part in model:GetChildren() do
+		smoothPart(part)
+	end
+	-- An ApplyDescription (the head swap below, a later outfit change) rebuilds parts.
+	model.ChildAdded:Connect(smoothPart)
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	local head = model:FindFirstChild("Head")
 	if humanoid and head and head:IsA("BasePart") and oversized(head.Size) then
