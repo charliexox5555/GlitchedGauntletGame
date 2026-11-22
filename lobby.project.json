@@ -15,18 +15,29 @@
       }
     },
     "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      },
       "LobbyServer": {
         "$path": "src/lobby/server"
       }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        },
         "LobbyClient": {
           "$path": "src/lobby/client",
           "SharedUi": {
             "$path": "src/client/Util/Ui.luau"
           }
         }
+      }
+    },
+    "ReplicatedFirst": {
+      "Loading": {
+        "$path": "src/first"
       }
     }
   }

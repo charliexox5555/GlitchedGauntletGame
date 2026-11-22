@@ -16,8 +16,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local MatchScreens = require(ReplicatedStorage.Shared.MatchScreens)
 local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -141,13 +141,14 @@ end
 -- one Roblox adds at the first spawn (like MapVoteController).
 local function ownCopy(): ScreenGui
 	local playerGui = player:WaitForChild("PlayerGui")
-	local source = StarterGui:FindFirstChild("TopBar")
-	if not (source and source:IsA("ScreenGui")) then
+	local mine0 = playerGui:FindFirstChild("TopBar")
+	local source = if mine0 then nil else MatchScreens.source("TopBar")
+	if not mine0 and not (source and source:IsA("ScreenGui")) then
 		return WaitGui("TopBar") :: ScreenGui
 	end
 	local mine = playerGui:FindFirstChild("TopBar") :: ScreenGui?
 	if not mine then
-		local copy = source:Clone()
+		local copy = (source :: ScreenGui):Clone()
 		copy.ResetOnSpawn = false
 		copy.Parent = playerGui
 		mine = copy

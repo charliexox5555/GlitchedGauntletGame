@@ -27,6 +27,7 @@ local Accuracy = require(Shared.Util.Accuracy)
 local Authority = require(Shared.Authority)
 local Combat = require(Shared.Config.Combat)
 local MatchState = require(Shared.MatchState)
+local PlayZone = require(Shared.PlayZone)
 local Status = require(Shared.Mods.Status)
 local StatusEffects = require(Shared.Config.StatusEffects)
 local FireRate = require(Shared.Util.FireRate)
@@ -192,7 +193,8 @@ local function sendState(player: Player, resync: boolean?)
 	end
 end
 
-local function newSlot(id: string): SlotState?
+-- `endless`: no reserve limit (test mode, the lobby range).
+local function newSlot(id: string, endless: boolean?): SlotState?
 	local config = Weapons.get(id)
 	if not config then
 		return nil
@@ -201,7 +203,7 @@ local function newSlot(id: string): SlotState?
 		id = id,
 		config = config,
 		ammo = config.magSize,
-		reserve = if TestMode.isOn() then nil else Ammo.roundReserve(config),
+		reserve = if endless or TestMode.isOn() then nil else Ammo.roundReserve(config),
 		reloadToken = 0,
 		lastFire = -math.huge,
 		burstShots = 0,
@@ -260,7 +262,7 @@ function WeaponService.giveLoadout(player: Player)
 	local slots: { [Slot]: SlotState } = {}
 	for _, slot in SLOTS do
 		local id = loadout[slot]
-		local s = if id then newSlot(id) else nil
+		local s = if id then newSlot(id, PlayZone.get(player) == "Range") else nil
 		if s then
 			slots[slot] = s
 		end
@@ -286,6 +288,25 @@ function WeaponService.giveLoadout(player: Player)
 	sendState(player, true)
 end
 
+-- Takes every weapon away (leaving the range, back to the lobby): the client
+-- gets an empty loadout, the world gun goes, and the next armed spawn starts
+-- from the default loadout again.
+function WeaponService.disarm(player: Player)
+	local old = states[player]
+	states[player] = {
+		slots = {},
+		equipped = nil,
+		equipReadyAt = 0,
+		seedBase = if old then old.seedBase else seedRng:NextInteger(1, 2 ^ 30),
+		shotIndex = if old then old.shotIndex else 0,
+	}
+	refreshWorldModel(player)
+	sendState(player, true)
+	loadouts[player] = nil
+	fireBoost[player] = nil
+	StateValues.set(player, "FireRateMult", nil)
+end
+
 -- The match's loadout for the player (MatchService): what the next
 -- giveLoadout hands out, with empty slots left empty.
 function WeaponService.setMatchLoadout(player: Player, loadout: { [Slot]: string })
@@ -303,7 +324,7 @@ function WeaponService.setWeapon(player: Player, slot: Slot, id: string)
 	if not state then
 		return
 	end
-	local s = newSlot(id)
+	local s = newSlot(id, PlayZone.get(player) == "Range")
 	if not s then
 		return
 	end
@@ -565,7 +586,8 @@ local function onPickWeapon(player: Player, id: unknown)
 	if not allow(player, "PickWeapon") then
 		return
 	end
-	if not RunService:IsStudio() and not TestMode.isOn() then
+	-- Studio, test-mode servers and the lobby range (PlayZone) only.
+	if not RunService:IsStudio() and not TestMode.isOn() and PlayZone.get(player) ~= "Range" then
 		return
 	end
 	if typeof(id) ~= "string" or #id == 0 or #id > MAX_ID_LENGTH then
@@ -950,6 +972,10 @@ local function onCharacter(player: Player, character: Model)
 		local humanoid = character:WaitForChild("Humanoid", 5) :: Humanoid?
 		character:WaitForChild("RightHand", 5)
 		if not humanoid or character.Parent == nil then
+			return
+		end
+		-- Lobby players carry nothing (PlayZone); the range and matches arm them.
+		if not PlayZone.isArmed(player) then
 			return
 		end
 		WeaponService.giveLoadout(player)

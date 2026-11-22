@@ -14,6 +14,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Combat = require(Shared.Config.Combat)
 local Health = require(Shared.Health)
 local MatchState = require(Shared.MatchState)
+local PlayZone = require(Shared.PlayZone)
 local Net = require(Shared.Net)
 local Types = require(Shared.Types)
 local Weapons = require(Shared.Config.Weapons)
@@ -219,6 +220,18 @@ function Damage.hurt(humanoid: Humanoid, amount: number, attacker: Player?): num
 		return 0
 	end
 	local victim = humanoid.Parent
+	-- Players only take damage in a match, and only from their own match
+	-- (PlayZone): nobody gets hurt in the lobby or the range, and two pad
+	-- duels in one lobby server never touch each other.
+	local victimPlayer = if victim then Players:GetPlayerFromCharacter(victim) else nil
+	if victimPlayer then
+		if PlayZone.get(victimPlayer) ~= "Match" then
+			return 0
+		end
+		if attacker and PlayZone.matchId(attacker) ~= PlayZone.matchId(victimPlayer) then
+			return 0
+		end
+	end
 	if victim and victim:IsA("Model") then
 		for _, guard in damageGuards do
 			local ok, result = pcall(guard, victim, humanoid, amount, attacker)

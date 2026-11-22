@@ -2,6 +2,14 @@
 -- Lobby place client entry. Same two-phase bootstrap as the match client:
 -- init() every controller in ./Controllers, then start() each in its own thread.
 
+-- In a Match server (shared/ServerRole) the lobby UI doesn't run at all: the
+-- match client (StarterPlayerScripts.Client) has the screen.
+local ServerRole =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("ServerRole"))
+if ServerRole.isMatch() then
+	return
+end
+
 -- the chunky cell look on every screen + re-measured self-sizing text
 -- (first, so templates are marked before any controller clones them)
 local LobbyLook = require(script.Util.LobbyLook)

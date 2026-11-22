@@ -18,6 +18,7 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SimulationFields = require(ReplicatedStorage.Shared.Simulation.Fields)
 local HitboxHistory = require(script.Parent.HitboxHistory)
 local HealthService = require(script.Parent.HealthService)
@@ -245,6 +246,12 @@ function CharacterService.useOurAnimations(character: Model)
 end
 
 local function onCharacter(character: Model)
+	-- Lobby players keep their own avatar and Roblox's defaults (PlayZone):
+	-- only fighters (range, match) get the match body.
+	local owner = Players:GetPlayerFromCharacter(character)
+	if owner and not PlayZone.isArmed(owner) then
+		return
+	end
 	-- Non-solid to other bodies from the first frame (prepare runs later).
 	trackBody(character)
 	-- No name or health tags over players (owner, 2026-11-08); bots and
