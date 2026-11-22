@@ -75,4 +75,7 @@ LihFolk used: `roblox-debugging` method (reproduce, isolate, verify); notes cite
 
 **Owner test steps:** 1) Join the lobby on phone, play two pad duels in a row with a friend: the second one should wait on the loading/vote screen until both are in. 2) Queue a real match (PLAY) on both devices: nobody should be left behind, the vote should end and the draft open. 3) Look at limbs after spawns; a missing limb should fix itself within ~4 s (and log it).
 
-**Phase 2 questions sent to the owner:** hold time vs skip button; sting only vs sting + quiet music bed; loading screen on every teleport/duel or only the first join.
+**Phase 2 decisions (owner, 2026-11-22):**
+- **Hold:** short hold, no skip button. The logo's two-beat reveal plays (about 2 s minimum), then the screen fades the moment loading is done.
+- **Sound:** a branded sting on the logo plus a quiet music bed under the progress line, both on Settings MUSIC / MASTER; audition 3-5 licensed options with the owner first.
+- **Where:** the first lobby join and every teleport into a match and back; pad duels get a short version.
