@@ -8,7 +8,12 @@
 --     tickets = number (earn-only case currency, Config/Economy; 2026-11-22),
 --     login = Shared/LoginRewards { last = UTC day, step } (2026-11-22),
 --     daily = Shared/DailyShop { day, picks = { { gun, line } }, bought = { slot } },
---     earn = { day = UTC day, coins = match coins earned that day } (2026-11-22) }
+--     earn = { day = UTC day, coins = match coins earned that day } (2026-11-22),
+--     buys = { starter = bool (Starter Bundle bought), free = bool (the one free daily
+--              skin used), intents = { [productId] = { product, gun, line, slot?, at } }
+--              (the skin each shared "skin" product pays for, saved before its prompt;
+--              slot = its daily shop slot), receipts = { PurchaseId } (the last 100
+--              Robux receipts granted, apart from `tx`; 2026-11-22) } }
 -- Older saves have no `prog`: it starts at level 1 with no streak (no version bump:
 -- every write keeps the fields it doesn't know, so older servers never drop it).
 -- Written only by the Lobby's PlayerDataService, one UpdateAsync per change.
@@ -24,6 +29,7 @@
 --               live lost-streak offer (0 / nil when there is none)
 --   StateValues "Tickets" the Ticket balance; "LoginLast", "LoginStep" the login board
 --   StringValue "DailyShop"  JSON of `daily` (the player's own daily shop)
+--   StateValues "FreeDailyUsed", "StarterBought" (buys.free, buys.starter)
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -51,9 +57,21 @@ export type Data = {
 	login: LoginRewards.Login,
 	daily: DailyShop.Daily,
 	earn: { day: number, coins: number },
+	buys: Buys,
+}
+-- `intent`: the skin a shared skin product pays for (Services/RobuxService)
+export type Intent = { product: number, gun: string, line: string, slot: number?, at: number }
+export type Buys = {
+	starter: boolean,
+	free: boolean,
+	intents: { [string]: Intent },
+	receipts: { string },
 }
 
 local PlayerData = {}
+
+-- How many Robux receipt ids `buys.receipts` keeps (Services/RobuxService).
+PlayerData.RECEIPT_MEMORY = 100
 
 -- Studio play (API access on) saves to its own store, so test coins and test
 -- purchases never land in a live save.
@@ -87,6 +105,45 @@ function PlayerData.newer(raw: unknown): boolean
 	return typeof(v) == "number" and v > PlayerData.VERSION
 end
 
+function PlayerData.cleanBuys(raw: unknown): Buys
+	local out: Buys = { starter = false, free = false, intents = {}, receipts = {} }
+	if typeof(raw) ~= "table" then
+		return out
+	end
+	local t = raw :: { [string]: any }
+	out.starter = t.starter == true
+	out.free = t.free == true
+	if typeof(t.intents) == "table" then
+		local n = 0
+		for key, i in t.intents do
+			if n >= 8 or typeof(key) ~= "string" or #key > 20 or typeof(i) ~= "table" then
+				continue
+			end
+			local product, at = count(i.product, 1e12), count(i.at, 1e10)
+			local slot = if i.slot ~= nil then count(i.slot, 16) else nil
+			local gun = if typeof(i.gun) == "string" and #i.gun <= 24 then i.gun else nil
+			local line = if typeof(i.line) == "string" and #i.line <= 32 then i.line else nil
+			if product and at and gun and line and tostring(product) == key then
+				out.intents[key] =
+					{ product = product, at = at, gun = gun, line = line, slot = slot }
+				n += 1
+			end
+		end
+	end
+	if typeof(t.receipts) == "table" then
+		for _, id in t.receipts do
+			if
+				typeof(id) == "string"
+				and #id <= 64
+				and #out.receipts < PlayerData.RECEIPT_MEMORY
+			then
+				table.insert(out.receipts, id)
+			end
+		end
+	end
+	return out
+end
+
 -- Any stored value (nil, an old version, a hand edit) to a valid Data. A new
 -- player (nil) starts with STARTING_COINS. Bad counts drop. Item ids this
 -- build doesn't know drop too, unless keepUnknown (the save path keeps them,
@@ -103,6 +160,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		login = LoginRewards.new(),
 		daily = DailyShop.new(),
 		earn = { day = 0, coins = 0 },
+		buys = { starter = false, free = false, intents = {}, receipts = {} },
 	}
 	if typeof(raw) ~= "table" then
 		return data
@@ -110,6 +168,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	data.prog = Progress.clean((raw :: any).prog)
 	data.login = LoginRewards.clean((raw :: any).login)
 	data.daily = DailyShop.clean((raw :: any).daily)
+	data.buys = PlayerData.cleanBuys((raw :: any).buys)
 	local earn = (raw :: any).earn
 	if typeof(earn) == "table" then
 		local day, got = count(earn.day, 1e7), count(earn.coins, Inventory.MAX_COINS)
@@ -253,6 +312,8 @@ function PlayerData.publish(player: Player, data: Data?)
 	StateValues.set(player, "Tickets", if data then data.tickets else 0)
 	StateValues.set(player, "LoginLast", if data then data.login.last else 0)
 	StateValues.set(player, "LoginStep", if data then data.login.step else 0)
+	StateValues.set(player, "FreeDailyUsed", if data then data.buys.free else true)
+	StateValues.set(player, "StarterBought", if data then data.buys.starter else true)
 	local was = StateValues.get(player, "DataReady") == true
 	if data and not was then
 		HealthLog.stage("data ready", player)

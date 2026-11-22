@@ -77,4 +77,19 @@ function DailyShop.valid(d: Daily): boolean
 	return true
 end
 
+-- The slot that shows FREE for a player who hasn't used their one free daily skin: the
+-- first coin-priced pick they don't own and haven't bought (`coinPriced` decides).
+function DailyShop.freeSlot(
+	d: Daily,
+	owns: (gun: string, line: string) -> boolean,
+	coinPriced: (p: Pick) -> boolean
+): number?
+	for i, p in d.picks do
+		if coinPriced(p) and not table.find(d.bought, i) and not owns(p.gun, p.line) then
+			return i
+		end
+	end
+	return nil
+end
+
 return DailyShop

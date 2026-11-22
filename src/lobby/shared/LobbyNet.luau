@@ -46,7 +46,7 @@ export type PartyEventPayload = {
 }
 
 export type ShopEventPayload = {
-	kind: "bought" | "opened" | "refunded" | "coins" | "skin" | "failed", -- "skin": a daily shop skin
+	kind: "bought" | "opened" | "refunded" | "coins" | "skin" | "robux" | "free" | "failed", -- "skin": a daily shop skin; "robux": a Robux purchase granted; "free": the free daily skin
 	item: string?, -- "bought" / "opened": the Config/Inventory item id
 	count: number?, -- "bought": how many; "refunded": the Tickets given back
 	gun: string?, -- "opened" / "skin": the skin's gun (Config/Weapons id)
@@ -67,6 +67,8 @@ export type ProgressEventPayload = {
 	text: string?, -- "failed": why
 }
 
+-- RobuxRequest (client -> server): ("pack", n) | ("bundle", id) | ("item", id, i) | ("daily", slot)
+--   | ("starter") (Services/RobuxService; answers on ShopEvent)
 -- LoginClaim (client -> server): no arguments (Services/LoginRewardService)
 -- LoginEvent (server -> one client): LoginEventPayload
 export type LoginEventPayload = {
@@ -103,6 +105,7 @@ local EVENTS = {
 	"ProgressEvent",
 	"LoginClaim",
 	"LoginEvent",
+	"RobuxRequest",
 }
 
 local folder: Instance

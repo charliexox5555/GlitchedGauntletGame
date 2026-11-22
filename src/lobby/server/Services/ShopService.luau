@@ -7,6 +7,7 @@
 -- ShopRequest (client -> server):
 --   ("buyCase", caseId)  pay the case's Ticket price, +1 of its inventory item
 --   ("buyDaily", slot)   buy slot 1..8 of the player's saved daily shop (coin tiers)
+--   ("claimFree", slot)  the one free daily skin (Shared/DailyShop.freeSlot must be slot)
 --   ("openCase", itemId) use one held case: roll a skin you don't own from its
 --                        tier odds (Shared/SkinCases), grant it, -1 case
 --   ("devCoins")         Studio only: + Inventory.STUDIO_GRANT coins
@@ -37,6 +38,7 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
+local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 
 local ShopService = {}
@@ -52,7 +54,8 @@ local REASON_TEXT: { [string]: string } = {
 	expired = "The daily shop just changed, take another look",
 	bought = "You already bought that one",
 	owned = "You already own that skin",
-	robux = "Robux purchases are coming soon",
+	robux = "Buy that one with Robux",
+	freeUsed = "You already claimed your free skin",
 	full = "Your Backpack can't hold more of those",
 	busy = "Still finishing your last purchase",
 	saving = "Couldn't reach your save, try again",
@@ -312,6 +315,51 @@ local function buyDaily(player: Player, slot: number)
 	end
 end
 
+-- The one free daily skin (owner 2026-11-22: once per player, ever): the first coin-priced
+-- pick of today's list they don't own (Shared/DailyShop.freeSlot), claimed in one write.
+local function claimFree(player: Player, slot: number)
+	if not limiter:allow(player, "ShopWrite") then
+		send(player, { kind = "failed", text = REASON_TEXT.slow })
+		return
+	end
+	local got: { gun: string, line: string }? = nil
+	local ok, why = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
+		got = nil
+		if data.buys.free then
+			return false, "freeUsed"
+		end
+		local d = data.daily
+		if d.day ~= Economy.day(os.time()) then
+			return false, "expired"
+		end
+		local free = DailyShop.freeSlot(d, function(gun, line)
+			return PlayerData.owns(data.skins, gun, line)
+		end, function(p)
+			return (DailyRoll.price(p)) ~= nil
+		end)
+		if free ~= slot then
+			return false, "expired"
+		end
+		local p = d.picks[slot]
+		PlayerData.grantSkin(data, p.gun, p.line)
+		table.insert(d.bought, slot)
+		data.buys.free = true
+		got = { gun = p.gun, line = p.line }
+		return true
+	end)
+	local g = got
+	if ok and g then
+		send(player, {
+			kind = "free",
+			gun = g.gun,
+			line = g.line,
+			text = SkinCases.name(g.gun, g.line),
+		})
+	elseif not ok then
+		send(player, { kind = "failed", text = REASON_TEXT[why or ""] or "Couldn't claim it" })
+	end
+end
+
 -- Studio only: own every skin that exists here (Locker testing).
 local function devSkins(player: Player)
 	if not RunService:IsStudio() then
@@ -401,6 +449,18 @@ local function onRequest(player: Player, action: unknown, arg: unknown)
 			return
 		end
 		buyDaily(player, arg :: number)
+	elseif action == "claimFree" then
+		if
+			typeof(arg) ~= "number"
+			or arg ~= arg
+			or arg ~= math.floor(arg)
+			or arg < 1
+			or arg > 16
+		then
+			reject("badArgs")
+			return
+		end
+		claimFree(player, arg :: number)
 	elseif action == "devCoins" then
 		devCoins(player)
 	elseif action == "devSkins" then

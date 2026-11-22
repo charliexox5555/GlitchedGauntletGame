@@ -85,6 +85,7 @@ return table.freeze({
 		SettingsRequest = { 1, 4 }, -- the client sends 1.5 s after the last change, and on close
 		StreakSave = { 0.5, 2 }, -- the popup's BUY (one purchase, maybe a retry)
 		LoginClaim = { 0.5, 2 }, -- the login board's CLAIM (once a day, maybe a retry)
+		RobuxRequest = { 0.5, 3 }, -- Robux BUY buttons (each opens Roblox's purchase prompt)
 	},
 
 	-- Duel pads (Services/PadDuelService, place merge 2026-11-21): a pad's two

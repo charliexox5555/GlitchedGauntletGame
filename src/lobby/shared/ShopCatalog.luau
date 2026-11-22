@@ -42,6 +42,8 @@ export type Bundle = {
 	soon: boolean?, -- contents not decided yet: the card says so and doesn't open
 }
 
+local Products = require(game:GetService("ReplicatedStorage").Shared.Config.Products)
+
 local ShopCatalog = {}
 
 -- Shared art ids (art-source/ui/shop/, uploaded 2026-11-16) for screens that
@@ -167,8 +169,7 @@ ShopCatalog.BUNDLES = {
 		color = Color3.fromHex("2E7D5B"),
 		slot = "Starter",
 		tag = "NEW PLAYERS",
-		sub = "CONTENTS COMING SOON",
-		soon = true,
+		sub = "1,000 COINS + A STANDARD CASE", -- Config/Products.STARTER grants it
 		items = {},
 	},
 } :: { Bundle }
@@ -189,6 +190,11 @@ ShopCatalog.ITEM_ROBUX = table.freeze({
 function ShopCatalog.itemRobux(item: Item): number?
 	if item.robux then
 		return item.robux
+	end
+	-- a bundle skin bought alone (Config/Products.BUNDLE_ITEM_ROBUX: guns 349, knife 449)
+	if item.kind == "Skin" and item.rarity == "Exclusive" then
+		local each = Products.BUNDLE_ITEM_ROBUX
+		return if item.gun == "Knife" then each.knife else each.gun
 	end
 	local byRarity = ShopCatalog.ITEM_ROBUX[item.kind]
 	return if byRarity then byRarity[item.rarity or "Common"] else nil

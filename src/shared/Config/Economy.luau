@@ -63,6 +63,10 @@ Economy.SKIN_ROBUX = table.freeze({
 	Exclusive = 499,
 }) :: { [string]: number }
 
+-- What a Robux purchase that can't be granted pays back in coins, per Robux (a lost skin
+-- intent, a skin or bundle already owned). About the coin packs' base rate.
+Economy.ROBUX_TO_COINS = 10
+
 function Economy.day(t: number): number
 	return t // Economy.DAY_SECONDS
 end

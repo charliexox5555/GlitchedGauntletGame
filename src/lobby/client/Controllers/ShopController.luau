@@ -34,7 +34,6 @@ local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
-local RunService = game:GetService("RunService")
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
@@ -53,6 +52,7 @@ local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
+local Products = require(ReplicatedStorage.Shared.Config.Products)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
@@ -85,6 +85,7 @@ local tabPlates: { [string]: GuiButton } = {}
 local dim: Frame
 local popCanvas: Frame
 local casePanel: Frame
+local confirmPanel: Frame
 local oddsPanel: Frame
 local itemCard: Frame
 local coinsGui: ScreenGui
@@ -413,7 +414,7 @@ local popupOpen: Frame? = nil
 local function showPanel(panel: Frame?)
 	local was = popupOpen
 	popupOpen = panel
-	for _, p in { casePanel, oddsPanel } do
+	for _, p in { casePanel, oddsPanel, confirmPanel } do
 		if p ~= panel then
 			p.Visible = false
 		end
@@ -578,7 +579,9 @@ local function forWords(item: ShopCatalog.Item): string
 	return kindWord(item)
 end
 
+local previewIndex = 1
 local function selectPreview(index: number)
+	previewIndex = index
 	local bundle = previewBundle
 	if not bundle then
 		return
@@ -997,10 +1000,81 @@ local function hookLogin()
 	drawLogin()
 end
 
+-- The confirm popup (Studio ConfirmPanel, tools/studio/ShopConfirmPanel.luau; owner
+-- 2026-11-22: every buy opens it first, like RIVALS' emote popup). Coins short → the COINS
+-- tab with the pack that covers it pointed at. Robux → the server prompts (RobuxService).
+type Confirm = {
+	title: string,
+	name: string,
+	art: string?,
+	price: number,
+	currency: "coins" | "robux" | "free",
+	go: () -> (),
+}
+local confirmOpen: Confirm? = nil
+local goToPack: (short: number) -> () -- set in init (needs the tabs)
+
+local function openConfirm(c: Confirm)
+	confirmOpen = c;
+	(child(confirmPanel, "Title") :: TextLabel).Text = c.title;
+	(child(confirmPanel, "ItemName") :: TextLabel).Text = c.name
+	local art = child(confirmPanel, "Art") :: ImageLabel
+	art.Image = c.art or ""
+	local buy = child(confirmPanel, "Buy")
+	if c.currency == "free" then
+		setPlate(buy, "FREE")
+		priceIcon(buy, "none")
+	else
+		setPlate(buy, commas(c.price))
+		priceIcon(buy, c.currency)
+	end
+	showPanel(confirmPanel)
+end
+
+local function confirmBuy(button: GuiObject)
+	local c = confirmOpen
+	if not c then
+		return
+	end
+	if c.currency == "coins" and PlayerData.coins(player) < c.price then
+		denied(button, true)
+		local short = c.price - PlayerData.coins(player)
+		showPanel(nil)
+		confirmOpen = nil
+		goToPack(short)
+		return
+	end
+	confirmOpen = nil
+	showPanel(nil)
+	c.go()
+end
+
+-- A Robux buy: the server checks it and opens Roblox's purchase prompt.
+local function askRobux(what: string, a: any?, b: any?)
+	if not PlayerData.ready(player) then
+		LobbyHud.toast("Your save is still loading", "info")
+		return
+	end
+	LobbyNet.event("RobuxRequest"):FireServer(what, a, b)
+end
+
 -- The daily shop cards (DAILY tab, Item1..Item8): the player's own saved list, priced by
 -- tier (coins for Common / Rare, Robux above), OWNED once theirs. The picture big and
 -- spilling over the card's top like RIVALS' cells, on one flat colour of the tier.
 local dailyItems: Instance? = nil
+
+-- The one free daily skin (once per player, ever; Services/ShopService.claimFree).
+local function freeSlot(daily: DailyShop.Daily, owned: PlayerData.Skins): number?
+	if StateValues.get(player, "FreeDailyUsed") ~= false then
+		return nil
+	end
+	return DailyShop.freeSlot(daily, function(gun, line)
+		return PlayerData.owns(owned, gun, line)
+	end, function(p)
+		return (DailyRoll.price(p)) ~= nil
+	end)
+end
+
 local function drawDaily()
 	local items = dailyItems
 	if not items then
@@ -1008,6 +1082,7 @@ local function drawDaily()
 	end
 	local daily = PlayerData.daily(player)
 	local owned = PlayerData.skins(player)
+	local free = freeSlot(daily, owned)
 	for i = 1, DailyShop.SIZE do
 		local holder = items:FindFirstChild("Item" .. i)
 		local card = holder and holder:FindFirstChild("Card")
@@ -1036,6 +1111,9 @@ local function drawDaily()
 		local coinPrice, robux = DailyRoll.price(pick)
 		if table.find(daily.bought, i) or PlayerData.owns(owned, pick.gun, pick.line) then
 			plateAmount(card, "OWNED")
+			priceIcon(card, "none")
+		elseif i == free then
+			plateAmount(card, "FREE")
 			priceIcon(card, "none")
 		elseif coinPrice then
 			plateAmount(card, commas(coinPrice))
@@ -1075,25 +1153,53 @@ local function buyDaily(slot: number, button: GuiObject)
 		LobbyHud.toast("You already own that skin", "info")
 		return
 	end
-	local coinPrice = DailyRoll.price(pick)
+	local coinPrice, robux = DailyRoll.price(pick)
+	local name = SkinCases.name(pick.gun, pick.line)
+	local art = SkinArt.portrait(pick.gun, pick.line)
+	if slot == freeSlot(daily, PlayerData.skins(player)) then
+		openConfirm({
+			title = "FREE SKIN",
+			name = name,
+			art = art,
+			price = 0,
+			currency = "free",
+			go = function()
+				LobbyNet.event("ShopRequest"):FireServer("claimFree", slot)
+			end,
+		})
+		return
+	end
 	if not coinPrice then
-		soon("Buying with Robux")
+		openConfirm({
+			title = "SKIN",
+			name = name,
+			art = art,
+			price = robux or 0,
+			currency = "robux",
+			go = function()
+				askRobux("daily", slot)
+			end,
+		})
 		return
 	end
-	if buying then
-		return
-	end
-	if PlayerData.coins(player) < coinPrice then
-		denied(button, true)
-		LobbyHud.toast("Not enough coins", "error")
-		return
-	end
-	lastBuyButton = button
-	buying = true
-	LobbyNet.event("ShopRequest"):FireServer("buyDaily", slot)
-	task.delay(8, function()
-		buying = false
-	end)
+	openConfirm({
+		title = "SKIN",
+		name = name,
+		art = art,
+		price = coinPrice,
+		currency = "coins",
+		go = function()
+			if buying then
+				return
+			end
+			lastBuyButton = button
+			buying = true
+			LobbyNet.event("ShopRequest"):FireServer("buyDaily", slot)
+			task.delay(8, function()
+				buying = false
+			end)
+		end,
+	})
 end
 
 local function updateDaily()
@@ -1216,6 +1322,7 @@ function ShopController.init()
 	dim = child(gui, "Dim")
 	popCanvas = child(gui, "PopupCanvas")
 	casePanel = child(popCanvas, "CasePanel")
+	confirmPanel = child(popCanvas, "ConfirmPanel")
 	oddsPanel = child(popCanvas, "OddsPanel")
 	itemCard = child(canvas, "ItemCard")
 	coinsTop = child(coinsGui, "Top")
@@ -1275,11 +1382,12 @@ function ShopController.init()
 				end
 			end
 			plateAmount(card, commas(b.robux))
-			if b.soon or #b.items == 0 then
+			-- the Starter is bought through Products.STARTER below (buyStarter)
+			if b.slot ~= "Starter" and (b.soon or #b.items == 0) then
 				card.Activated:Connect(function()
 					LobbyHud.toast("Coming soon: what's in it is still being made", "info")
 				end)
-			else
+			elseif b.slot ~= "Starter" then
 				buildBundle(card, b)
 			end
 		end
@@ -1304,19 +1412,87 @@ function ShopController.init()
 			Router.open("BattlePass")
 		end)
 	end
-	soonOn("Offer", "Special offers")
-	for i = 1, 6 do
-		if RunService:IsStudio() then
-			-- Studio test coins until coin packs are sold (Services/ShopService)
-			local holder = scroll:FindFirstChild("Pack" .. i, true)
-			local card = holder and holder:FindFirstChild("Card")
-			if card and card:IsA("GuiButton") then
-				card.Activated:Connect(function()
-					LobbyNet.event("ShopRequest"):FireServer("devCoins")
-				end)
+	-- the Starter Bundle: Home's special offer card and the BUNDLES row (once per player)
+	local starter = Products.STARTER
+	local function buyStarter()
+		if not starter then
+			return
+		end
+		if StateValues.get(player, "StarterBought") ~= false then
+			LobbyHud.toast("You already have the Starter Bundle", "info")
+			return
+		end
+		openConfirm({
+			title = "STARTER BUNDLE",
+			name = `{commas(starter.coins or 0)} COINS + A STANDARD CASE`,
+			art = ShopCatalog.ART.coinStack,
+			price = starter.robux,
+			currency = "robux",
+			go = function()
+				askRobux("starter")
+			end,
+		})
+	end
+	local offer = scroll:FindFirstChild("Offer", true)
+	local offerCard = offer and offer:FindFirstChild("Card")
+	if offerCard and offerCard:IsA("GuiButton") and starter then
+		local sub = offerCard:FindFirstChild("Sub")
+		if sub and sub:IsA("TextLabel") then
+			sub.Text = `{commas(starter.coins or 0)} COINS + A STANDARD CASE`
+		end
+		plateAmount(offerCard, commas(starter.robux))
+		offerCard.Activated:Connect(buyStarter)
+	end
+	local starterRow = pages.Bundles:FindFirstChild("Bundle_Starter", true)
+	local starterCard = starterRow and starterRow:FindFirstChild("Card")
+	if starterCard and starterCard:IsA("GuiButton") then
+		starterCard.Activated:Connect(buyStarter)
+	end
+	-- coin packs (Config/Products.PACKS, in Pack1..Pack6 order)
+	for i, pack in Products.PACKS do
+		local holder = scroll:FindFirstChild("Pack" .. i, true)
+		local card = holder and holder:FindFirstChild("Card")
+		if card and card:IsA("GuiButton") then
+			local amount = card:FindFirstChild("Amount")
+			if amount and amount:IsA("TextLabel") then
+				amount.Text = "+" .. commas(pack.coins or 0)
 			end
-		else
-			soonOn("Pack" .. i, "Buying coins")
+			local kind = card:FindFirstChild("Kind")
+			if kind and kind:IsA("TextLabel") then
+				kind.Text = if pack.case then "COINS + CASE" else "COINS"
+			end
+			plateAmount(card, commas(pack.robux))
+			card.Activated:Connect(function()
+				openConfirm({
+					title = "COINS",
+					name = pack.name .. (if pack.case then " + A CASE" else ""),
+					art = ShopCatalog.ART.coinStack,
+					price = pack.robux,
+					currency = "robux",
+					go = function()
+						askRobux("pack", i)
+					end,
+				})
+			end)
+		end
+	end
+	goToPack = function(short: number)
+		setTab("COINS", true)
+		local best: number? = nil
+		for i, pack in Products.PACKS do
+			if (pack.coins or 0) >= short then
+				best = i
+				break
+			end
+		end
+		best = best or #Products.PACKS
+		local holder = scroll:FindFirstChild("Pack" .. best, true)
+		local card = holder and holder:FindFirstChild("Card")
+		LobbyHud.toast(`You need {commas(short)} more coins: this pack covers it`, "info")
+		if card and card:IsA("GuiObject") then
+			task.delay(0.35, function()
+				UiMotion.nudge(card, UiMotion.home(card))
+			end)
 		end
 	end
 	for _, n in { "Charm_1", "Charm_2", "Charm_3", "Emote_1", "Emote_2", "Emote_3" } do
@@ -1359,6 +1535,24 @@ function ShopController.init()
 	CloseButton.hook(child(casePanel, "Close") :: GuiButton, function()
 		showPanel(nil)
 	end)
+	CloseButton.hook(child(confirmPanel, "Close") :: GuiButton, function()
+		confirmOpen = nil
+		showPanel(nil)
+	end)
+	do
+		local buy = child(confirmPanel, "Buy") :: GuiButton
+		local sc = pop(buy)
+		buy.MouseEnter:Connect(function()
+			rest(sc, KM.hover)
+		end)
+		buy.MouseLeave:Connect(function()
+			rest(sc, 1)
+		end)
+		buy.Activated:Connect(function()
+			press(sc)
+			confirmBuy(buy)
+		end)
+	end
 	CloseButton.hook(child(oddsPanel, "Close") :: GuiButton, function()
 		showPanel(casePanel) -- back to the case
 	end)
@@ -1458,7 +1652,44 @@ function ShopController.init()
 		end)
 		b.Activated:Connect(function()
 			press(pop(b))
-			soon(if n == "BuyItem" then "Buying items" else "Buying bundles")
+			local bundle = previewBundle
+			if not bundle then
+				return
+			end
+			if n == "BuyBundle" then
+				openConfirm({
+					title = "BUNDLE",
+					name = bundle.name,
+					art = SkinArt.line(
+						bundle.items[1] and bundle.items[1].line or "",
+						{ "Vandal" }
+					),
+					price = bundle.robux,
+					currency = "robux",
+					go = function()
+						askRobux("bundle", bundle.id)
+					end,
+				})
+			else
+				local index = previewIndex
+				local item = bundle.items[index]
+				local price = item and ShopCatalog.itemRobux(item)
+				if not item or not price then
+					return
+				end
+				openConfirm({
+					title = "SKIN",
+					name = item.name,
+					art = if item.gun and item.line
+						then SkinArt.portrait(item.gun, item.line)
+						else nil,
+					price = price,
+					currency = "robux",
+					go = function()
+						askRobux("item", bundle.id, index)
+					end,
+				})
+			end
 		end)
 	end
 
@@ -1486,6 +1717,7 @@ function ShopController.start()
 	end)
 	-- login rewards: redraw on every change, answer the claim, nudge once per join
 	StateValues.changed(player, "LoginLast"):Connect(drawLogin)
+	StateValues.changed(player, "FreeDailyUsed"):Connect(drawDaily)
 	StateValues.changed(player, "LoginStep"):Connect(drawLogin)
 	LobbyNet.event("LoginEvent").OnClientEvent:Connect(function(p: LobbyNet.LoginEventPayload)
 		if typeof(p) ~= "table" then
@@ -1529,9 +1761,12 @@ function ShopController.start()
 			return -- a case opening: the Backpack shows it (Controllers/BackpackController)
 		elseif p.kind == "coins" then
 			LobbyHud.toast(p.text or "Coins added", "success")
-		elseif p.kind == "skin" then
+		elseif p.kind == "skin" or p.kind == "free" then
 			UiSfx.cue("Confirm")
 			LobbyHud.toast(`{p.text or "Skin"} is yours: equip it in the Locker`, "success")
+		elseif p.kind == "robux" then
+			UiSfx.cue("Confirm")
+			LobbyHud.toast(p.text or "Purchase complete", "success")
 		elseif wasBuying then
 			denied(lastBuyButton, p.text == "Not enough coins")
 			LobbyHud.toast(p.text or "Purchase failed", "error")
