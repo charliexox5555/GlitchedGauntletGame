@@ -11,4 +11,11 @@ Release.RANGE_OPEN = false
 -- the Backpack replaced it (vault/01 Design/Inventory and Crates.md).
 Release.BATTLE_PASS_OPEN = false
 
+-- The Shop's full layout (Home charms + emotes, the Thanksgiving "LIMITED TIME" bundle). false = the
+-- launch layout: Home = CASES + SPECIAL OFFERS only, Bundles = Ruin-Blighted, Tempest-Strike + the
+-- Starter Bundle. The Studio screen marks its parts with attributes (ShopController applies them):
+-- FullOnly / LaunchOnly (bool), LaunchSize / LaunchCellPadding (UDim2), LaunchMaxCells. The full layout is
+-- recorded in vault/02 Art/UI Shop.md → Release layout.
+Release.SHOP_FULL_LAYOUT = false
+
 return table.freeze(Release)

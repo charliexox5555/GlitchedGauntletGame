@@ -40,7 +40,7 @@ export type Bundle = {
 	robux: number,
 	color: Color3,
 	items: { Item },
-	slot: "Featured" | "Limited", -- where it sits on the BUNDLES tab
+	slot: "Featured" | "Limited" | "Starter", -- where it sits on the BUNDLES tab
 	tag: string?, -- the small tag under the name
 	sub: string?, -- one line under the name (what's in it)
 	soon: boolean?, -- contents not decided yet: the card says so and doesn't open
@@ -170,6 +170,19 @@ ShopCatalog.BUNDLES = {
 		color = Color3.fromHex("C9822B"),
 		slot = "Limited",
 		tag = "LIMITED TIME",
+		sub = "CONTENTS COMING SOON",
+		soon = true,
+		items = {},
+	},
+	{
+		-- launch layout only (Config/Release.SHOP_FULL_LAYOUT; Studio `Bundles.Row3`, LaunchOnly).
+		-- PLACEHOLDER price and contents: the owner sets them in the pricing pass.
+		id = "Starter",
+		name = "STARTER BUNDLE",
+		robux = 99,
+		color = Color3.fromHex("2E7D5B"),
+		slot = "Starter",
+		tag = "NEW PLAYERS",
 		sub = "CONTENTS COMING SOON",
 		soon = true,
 		items = {},

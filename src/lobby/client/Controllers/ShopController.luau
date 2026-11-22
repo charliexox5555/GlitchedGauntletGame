@@ -883,6 +883,36 @@ end
 
 --------------------------------------------------------------------------------
 
+-- Launch vs full layout (shared/Config/Release.SHOP_FULL_LAYOUT). Studio holds both: parts marked
+-- FullOnly / LaunchOnly show in one layout only, LaunchSize / LaunchCellPadding / LaunchMaxCells
+-- re-lay them for launch.
+-- Nothing is built here; the full layout is the Studio screen as saved.
+local function applyLayout()
+	local full = Release.SHOP_FULL_LAYOUT
+	for _, d in scroll:GetDescendants() do
+		if d:IsA("GuiObject") then
+			if d:GetAttribute("FullOnly") == true and not full then
+				d.Visible = false
+			elseif d:GetAttribute("LaunchOnly") == true then
+				d.Visible = not full
+			end
+			local size = d:GetAttribute("LaunchSize")
+			if not full and typeof(size) == "UDim2" then
+				d.Size = size
+			end
+		elseif d:IsA("UIGridLayout") and not full then
+			local pad = d:GetAttribute("LaunchCellPadding")
+			if typeof(pad) == "UDim2" then
+				d.CellPadding = pad
+			end
+			local cells = d:GetAttribute("LaunchMaxCells")
+			if typeof(cells) == "number" then
+				d.FillDirectionMaxCells = cells
+			end
+		end
+	end
+end
+
 function ShopController.init()
 	local playerGui = player:WaitForChild("PlayerGui")
 	local g = playerGui:WaitForChild("Shop", 15)
@@ -912,6 +942,7 @@ function ShopController.init()
 		tabPlates[name] = child(child(child(scroll, "Tabs"), name), "Plate")
 		hookTab(name, tabPlates[name])
 	end
+	applyLayout()
 
 	-- every card: big ones get the selection frame, small ones lift
 	for _, d in scroll:GetDescendants() do

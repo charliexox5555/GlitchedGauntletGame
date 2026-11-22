@@ -276,3 +276,32 @@ Owner: "organize the shop a little better": cases as square tiles in a 2 x 2; BU
 
 Checked in Studio play: [v2_home.jpg](Shop/v2_home.jpg), [v2_bundles.jpg](Shop/v2_bundles.jpg), [v2_daily.jpg](Shop/v2_daily.jpg). No new errors.
 - **Open:** the Home charm and emote cards are still placeholders with no art (flat colour + words); bundle banner art (owner, Photoshop); Tempest-Strike's roster beyond the Vandal; the Thanksgiving contents; real prices. **Save the Lobby place.**
+
+## Release layout (2026-11-22, owner: "cut the shop down to what's sold at launch")
+Plan: **record the full layout first (below), then switch to the launch layout with one flag**, never deleting a section. Icons and pricing are the next task.
+
+### The full layout before this change (kept, `Release.SHOP_FULL_LAYOUT = true` brings it back)
+Studio owns the screen: `StarterPlayer.StarterPlayerScripts.UI.Lobby.Shop` (ScreenGui; cloned to `PlayerGui.Shop`), plus `LobbyCoins` for the coin counter. Older copy: `ServerStorage.PlateMigrationBackup.StarterGui.Shop`. Patch scripts: `tools/studio/ShopLayoutV2.luau` (current look), `tools/studio/BuildShop.luau` (older full builder, no longer matches). Code: `src/lobby/client/Controllers/ShopController.luau` (wiring), data `src/lobby/shared/ShopCatalog.luau`, server `src/lobby/server/Services/ShopService.luau`.
+
+Everything sits in `Shop.Canvas.Scroll` (UIListLayout, 1340 wide; pages 1280 wide, AutomaticSize):
+- **Tabs** (`Scroll.Tabs`): HOME, BUNDLES, DAILY, COINS (each `Tabs.<NAME>.Plate` + icon + label).
+- **HOME** (`Scroll.Home`, list padding 22):
+  - `Head_CASES` "CASES".
+  - `Top` (1280 x 432, row, padding 24): `Cases` (432 x 432, UIGridLayout 208 x 208 cells, padding 16 → 2 x 2) with `Case_Standard` (400 coins), `Case_Elite` (900), `Case_Apex` (2,000), `Case_Knife` (2,500); each opens the case popup (`PopupCanvas.CasePanel` + `OddsPanel`). `SeasonPass` (824 x 432) → Router "BattlePass"; already hidden by `Release.BATTLE_PASS_OPEN = false`.
+  - `Head_SPECIAL OFFERS` "SPECIAL OFFERS".
+  - `Mid` (1280 x 330, row, padding 24): `Offer` (760 x 330; card "STARTER BUNDLE", sub "A CASE, 500 COINS AND A CHARM", 99 Robux plate, 4 dots, art Crop; tap = "Special offers" coming soon) and `Cosmetics` (496 x 330, grid 154 x 157): `Charm_1` (250), `Charm_2` (250), `Emote_1` (400), `Charm_3` (250), `Emote_2` (400), `Emote_3` (600), all "Buying cosmetics" coming soon, placeholder art.
+- **BUNDLES** (`Scroll.Bundles`): `Head_FEATURED` "FEATURED"; `Row1` (1280 x 340): `Bundle_RuinBlighted` (628 x 340, 1,999 R$, EXCLUSIVE, 5 skins) and `Bundle_TempestStrike` (628 x 340, 1,499 R$, NEW, 5 guns + Katana), both open the 3D bundle preview (`Canvas.Preview`); `Head_LIMITED` "LIMITED TIME" (LayoutOrder 3); `Row2` (LayoutOrder 4, 1280 x 240): `Bundle_Thanksgiving` (799 R$, LIMITED TIME, `soon`, toasts coming soon). Words and prices from `ShopCatalog.BUNDLES`.
+- **DAILY** (`Scroll.Daily`): `Head_TODAY'S ITEMS` (+ "NEW ITEMS IN …" note), `Items` (grid of `Item1`–`Item8`, 308 x 230, from `ShopCatalog.DAILY`, coin price by tier), `Head_LOGIN REWARDS` ("DAY 4 OF 7"), `Login` (`Days` grid `Day1`–`Day6` + big `Day7`).
+- **COINS** (`Scroll.Coins`): `Head_COINS`, `Packs` (grid of `Pack1`–`Pack6`, 410 x 280; Studio grants test coins, live = coming soon).
+- Overlays: `Canvas.Preview` (bundle 3D preview, BUY ITEM / BUY BUNDLE / SEPARATELY), `Canvas.ItemCard`, `Dim`, `PopupCanvas` (CasePanel, OddsPanel).
+- Before captures: [release_before_home.jpg](Shop/release_before_home.jpg), [release_before_bundles.jpg](Shop/release_before_bundles.jpg).
+
+### Launch layout (applied 2026-11-22)
+- **Switch:** `src/shared/Config/Release.luau` → `SHOP_FULL_LAYOUT = false` (launch). Set it to `true` to get the full layout above back exactly (checked in Studio play: charms/emotes, 2 x 2 cases, 760-wide offer, LIMITED TIME row all return; the Starter row hides).
+- **How:** nothing is deleted or built in code. The Studio screen carries attributes that `ShopController.applyLayout` reads: `FullOnly` (hidden at launch), `LaunchOnly` (shown only at launch), `LaunchSize` (UDim2), and on a UIGridLayout `LaunchCellPadding` / `LaunchMaxCells`. The saved Studio sizes are the full layout's. Patch script: `tools/studio/ShopReleaseLayout.luau` (re-runnable, Edit mode).
+- **HOME:** CASES = the four cases in one row across the page (`Top` and `Cases` LaunchSize 1280 x 208, grid padding 149 x 16, 4 cells per row); SPECIAL OFFERS = the Starter Bundle offer card full width (`Offer` LaunchSize 1280 x 330; its art is Crop so it just shows more). `Mid.Cosmetics` (charms, emotes) is FullOnly. The Season Pass card stays behind `BATTLE_PASS_OPEN`.
+- **BUNDLES:** FEATURED (Ruin-Blighted, Tempest-Strike) unchanged; `Head_LIMITED` + `Row2` (Thanksgiving) are FullOnly; new LaunchOnly `Head_STARTER` "STARTER" (LayoutOrder 5) + `Row3` (6) with `Bundle_Starter` (full width 1280 x 240, cloned from the Thanksgiving card, flat green 2E7D5B). Its words come from the new `ShopCatalog.BUNDLES` entry `Starter` (slot "Starter", tag NEW PLAYERS, **placeholder 99 R$, `soon`**: tapping toasts "coming soon" until the owner sets contents and price).
+- **DAILY, COINS:** unchanged.
+- **Checked in Studio play:** PC [release_home_pc.jpg](Shop/release_home_pc.jpg), [release_bundles_pc.jpg](Shop/release_bundles_pc.jpg); phone scale [release_home_phone.jpg](Shop/release_home_phone.jpg), [release_bundles_phone.jpg](Shop/release_bundles_phone.jpg) (the MCP can't resize the viewport, so the phone shots are this 2178 x 964 viewport (aspect 2.26, close to a notched phone's 2.16) with the Canvas's phone fit applied by hand: fit × PhoneBoost 1.5, canvas resized as `UiLayout.fitCanvas` does). Starter card tap → "coming soon" toast. No new console errors. StyLua and Selene clean.
+- **Not tested:** the real Device Emulator and a real phone; gamepad focus order through the hidden cards (hidden GuiObjects aren't selectable, but not walked through); a published server. The Home offer card still says "A CASE, 500 COINS AND A CHARM" (charms aren't sold at launch: owner to reword in the pricing pass).
+- **Next (owner):** shop icons and pricing; Starter Bundle contents; whether the Starter Bundle stays in the full layout later (today it's LaunchOnly: clear the attribute on `Head_STARTER` and `Row3` to keep it). **Save the Lobby place** (the Studio attributes and the Starter row live only in the place).
