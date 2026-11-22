@@ -23,6 +23,37 @@ function MatchBody.usesSkinnedBody(): boolean
 	return Avatar.BODY == "S15"
 end
 
+-- The R15 parts each skinned-body slot (Config/Avatar S15_PARTS) brings.
+local S15_SLOT_PARTS: { [string]: { string } } = {
+	Torso = { "UpperTorso", "LowerTorso" },
+	LeftArm = { "LeftUpperArm", "LeftLowerArm", "LeftHand" },
+	RightArm = { "RightUpperArm", "RightLowerArm", "RightHand" },
+	LeftLeg = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot" },
+	RightLeg = { "RightUpperLeg", "RightLowerLeg", "RightFoot" },
+}
+
+-- The skinned-body slots of `model` that didn't load (empty when it's all there, or with the block body). When a
+-- body-part asset fails, ApplyDescription and LoadCharacterWithHumanoidDescription still succeed: that limb comes
+-- back as Roblox's default unskinned parts and the applied description reads 0 for it (measured 2026-11-22). So
+-- the check is on the parts themselves.
+function MatchBody.missingParts(model: Model): { string }
+	local missing: { string } = {}
+	if not MatchBody.usesSkinnedBody() then
+		return missing
+	end
+	for slot, names in S15_SLOT_PARTS do
+		for _, name in names do
+			local part = model:FindFirstChild(name)
+			if not (part and part:IsA("MeshPart") and (part :: any).HasSkinnedMesh == true) then
+				table.insert(missing, slot)
+				break
+			end
+		end
+	end
+	table.sort(missing)
+	return missing
+end
+
 -- The standard description, built fresh (never trusting a client) and
 -- copying only what Config/Avatar keeps from `own` (the player's own
 -- description; nil for bots and dummies).

@@ -18,6 +18,7 @@ local RunService = game:GetService("RunService")
 
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
@@ -188,6 +189,12 @@ end
 -- items only).
 function PlayerData.publish(player: Player, data: Data?)
 	StateValues.set(player, "Coins", if data then data.coins else 0)
+	local was = StateValues.get(player, "DataReady") == true
+	if data and not was then
+		HealthLog.stage("data ready", player)
+	elseif was and not data then
+		HealthLog.problem("data lost", player)
+	end
 	StateValues.set(player, "DataReady", data ~= nil)
 	local shown: Items = {}
 	if data then

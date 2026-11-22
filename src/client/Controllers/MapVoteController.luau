@@ -26,6 +26,8 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 
@@ -568,8 +570,15 @@ function MapVoteController.start()
 	if not game:IsLoaded() then
 		game.Loaded:Wait()
 	end
+	-- The server answers with this match's id (a pad duel's MatchId, "server" for a whole-server match), so a token
+	-- left from an earlier pad duel never counts (Bots/MatchPlan).
+	-- The range has no match to start: nothing to signal.
+	if PlayZone.get(player) == "Range" then
+		return
+	end
+	local matchId = PlayZone.matchId(player) or "server"
 	local ready = Net.event("MatchReady")
-	while StateValues.get(player, "MatchVoteReady") ~= true do
+	while StateValues.get(player, "MatchVoteReady") ~= matchId do
 		local phase = MatchState.phase()
 		if phase ~= nil and phase ~= "Waiting" then
 			break
@@ -577,6 +586,7 @@ function MapVoteController.start()
 		ready:FireServer()
 		task.wait(0.5)
 	end
+	HealthLog.stage("match screens ready", player, matchId)
 end
 
 return MapVoteController

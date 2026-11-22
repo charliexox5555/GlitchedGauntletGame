@@ -370,4 +370,10 @@ return table.freeze({
 	-- How long to wait for a player's own description before falling back to
 	-- the plain standard body (seconds), and how often to retry.
 	FETCH_TIMEOUT = 6,
+	-- A spawned body missing a skinned-body part (an asset that didn't load) is re-applied after these waits
+	-- (seconds), then logged as failed (CharacterService, shared/HealthLog).
+	BODY_RETRY = table.freeze({ 1, 3 }),
+	-- Seconds after each failed lobby spawn before the next try (CharacterService.spawn; 3 tries 1 s apart until
+	-- 2026-11-22). With CharacterAutoLoads off, giving up leaves the player with no character.
+	SPAWN_RETRY = table.freeze({ 1, 2, 4, 8, 8 }),
 })

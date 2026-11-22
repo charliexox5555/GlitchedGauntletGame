@@ -263,6 +263,11 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 	return false
 end
 
+-- Sends every player still here back to the lobby (MatchService, when a match stops on an error).
+function MatchEndService.sendEveryoneHome()
+	teleport(Players:GetPlayers(), lobbyReturn("Leave"))
+end
+
 -- Resends everyone still waiting on a failed teleport (MatchService calls it
 -- while it waits for the server to empty).
 function MatchEndService.resendStranded()

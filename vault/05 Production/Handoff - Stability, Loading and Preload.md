@@ -41,3 +41,38 @@ Find the real cause of each report with logs and timings before changing code (`
 
 ## Done when
 - Reports 1-5 can't be reproduced (with the steps written down), the health log shows every stage, the new loading screen + sound is approved by the owner, first-time UI / skins don't flash, and the results and remaining risks are in this note, `00 Home.md` Status and `Bugs & Ideas.md`.
+
+---
+
+## Phase 1 plan and findings (2026-11-22)
+Reproduced in a Studio playtest on the Lobby place (solo pad duel, `PadDuelSolo`), reading live instances only (`Player.GauntletState`, `ReplicatedStorage.Matches[id]` StringValues, character parts).
+
+| # | Report | Real cause (measured) | Fix |
+|---|---|---|---|
+| 4 | Match starts before everyone loaded | The ready flag `MatchVoteReady` is a plain `true` on the player and nothing ever clears it. 1st pad duel: Waiting → Vote 0.3 s after the zone change (client really ready). **2nd pad duel: Vote 0.03 s after the zone change, no Waiting phase at all**: the old flag counted the player as loaded before their new match client existed. Same for every later duel and for both players of a 1v1. Reserved match servers also start without a seat that's still teleporting after `JOIN_GRACE` (20 s; a phone teleport can take longer). | The flag carries the match id (`Context.id`); readiness counts only this match's token, the client signals until it sees its own id. `JOIN_GRACE` 20 → 40 s. A player who is here but never signals (a client that broke) stops blocking after `READY_TIMEOUT` (Config/Bots). |
+| 3 | Stuck on the map select | Server: the vote itself has a fixed deadline, but `MatchService.loop` stops for good on any error (an error in the match is caught and the loop **returns**; an error in `pickMap` / `MapService.load` kills the thread). Phase stays `"Vote"` with `VoteChosen` set, so every client keeps the vote screen and nobody is sent back. A present client that never sends MatchReady also held the Waiting screen forever (`ready == present` had no timeout). | Map pick and load guarded; on a match error a pad duel sends its players home (Context.finish) and a match server sends everyone back to the lobby, with a health-log line. READY_TIMEOUT above. |
+| 1 | Body skins missing / default | Measured: when one body-part asset doesn't load, `ApplyDescription` **succeeds silently**, that limb comes back as Roblox's default unskinned parts (MeshId 7430071044, `HasSkinnedMesh` false) and the applied description reads 0 for that slot. Nothing checked for it. | `MatchBody.missingParts` checks the S15 slots after every spawn; CharacterService re-applies the description (2 more tries, backoff) and logs it. |
+| 2 | Join / teleport breaks | Lobby: `CharacterService.spawn` gives up after 3 tries → no character ever (CharacterAutoLoads is off). Teleport code itself (Launcher, MatchEndService) already retries; the hangs after arrival are reports 3/4. Real teleports can't be run in Studio. | Spawn retries 3 → 5 with backoff and a health line; health log on every stage so a live report can be traced. |
+
+**Health log** (`Shared/HealthLog`): one line per stage, `[Health] <stage> <player> +<seconds since join>`, server and client, Studio and live (server lines show in the F9 console, Server tab). Stages: joined, data ready, character (body ok / retried / failed), zone match, client ready, waiting, vote, map loaded, round start, match error.
+
+LihFolk used: `roblox-debugging` method (reproduce, isolate, verify); notes cited in results below.
+
+## Phase 1 results (2026-11-22)
+**Changed** (strict Luau, numbers in Config):
+- `Shared/HealthLog` (new): the stage log. Example from the Studio run: `[Health] S match zone … +33.0s 4fe0f793` → `waiting 0/1 ready` → `client ready … 0.3s after the zone` → `players in` → `vote open` → `vote done Rooftops4` → `map loaded` → `character … body ok` → `round start … alive 1 v 1`. Problems print as warnings (`body parts missing`, `spawn failed`, `map load failed`, `match error`).
+- `Bots/MatchPlan` + `MapVoteController`: the ready token is the match id (`MatchVoteReady = Context.id`, `"server"` for a match server); the client signals until it sees its own id, and not at all in the range (it used to fire every 0.5 s there forever). `Config/Bots`: `JOIN_GRACE` 20 → 45 s (LihFolk *Parties and Group Teleports* uses 45 s from the first arrival), new `READY_TIMEOUT` 30 s (Studio 15 s) for a seat that's here but whose client never signals.
+- `MatchService`: map pick and load can't kill the loop (a broken vote plays the loaded map); a match error sends a pad duel's players home (`Context.finish`) or teleports a match server's players to the lobby (`MatchEndService.sendEveryoneHome`, with the usual resend) instead of freezing everyone on the vote.
+- `MatchBody.missingParts` + `CharacterService`: every spawn checks the skinned-body parts; missing ones re-apply the body after 1 s and 3 s (`Config/Avatar.BODY_RETRY`), then log `body parts failed`. Bot stand-ins with a missing part are thrown away (`Bots/Identity`). Lobby spawn tries 3 → 5 with backoff (`Config/Avatar.SPAWN_RETRY`).
+
+**Verified in Studio (Lobby place, MCP, live instance reads):**
+- Two pad duels in a row (solo + bot): before, the 2nd vote opened 0.03 s after the zone change with no Waiting phase; after, both duels wait for the real client signal (0.27 s) and log it.
+- Body check: forcing bad ids on LeftArm and RightLeg made `missingParts` report `LeftArm,RightLeg`; re-applying the standard body cleared it.
+- Match-server role (`ServerRole=Match`): token `server`, vote, map load, body ok, round runs.
+- `selene` 0/0, `stylua`, `rojo build` clean.
+
+**Not tested (needs a publish or two people):** real teleports into a match and back, two real players on one pad, a real asset failure in the wild, the READY_TIMEOUT and match-error paths (no way to break a client or a match on purpose without test hooks). After the owner's phone + PC test, any failure should show up as a `[Health]` warning: send the F9 Server lines.
+
+**Owner test steps:** 1) Join the lobby on phone, play two pad duels in a row with a friend: the second one should wait on the loading/vote screen until both are in. 2) Queue a real match (PLAY) on both devices: nobody should be left behind, the vote should end and the draft open. 3) Look at limbs after spawns; a missing limb should fix itself within ~4 s (and log it).
+
+**Phase 2 questions sent to the owner:** hold time vs skip button; sting only vs sting + quiet music bed; loading screen on every teleport/duel or only the first join.

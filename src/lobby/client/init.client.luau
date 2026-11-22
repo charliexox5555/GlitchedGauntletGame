@@ -50,3 +50,4 @@ for _, controller in loaded do
 end
 
 print("[Lobby] client ready")
+require(Shared:WaitForChild("HealthLog") :: ModuleScript).stage("lobby client ready", player)

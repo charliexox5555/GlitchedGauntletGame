@@ -18,7 +18,14 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
+local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 local Net = Context.net
+
+-- The client's "my match screens are up" signal (MapVoteController). The value is the match's id, never a plain
+-- true: a pad duel player keeps their GauntletState across duels, and a plain flag left from the last duel counted
+-- them as loaded before their new match client existed (measured 2026-11-22: the 2nd duel's vote opened 0.03 s
+-- after the zone change). Only this match's token counts.
+local READY = "MatchVoteReady"
 
 export type Plan = {
 	matchId: string,
@@ -34,6 +41,8 @@ local MatchPlan = {}
 
 local MAX_ID = 64
 local plan: Plan? = nil
+-- When each player of this match was first seen here (os.clock()), for READY_TIMEOUT.
+local seenAt: { [Player]: number } = {}
 
 local function userIds(value: unknown, size: number, seen: { [number]: boolean }): { number }?
 	if typeof(value) ~= "table" then
@@ -106,6 +115,10 @@ local function listed(p: Plan, userId: number): boolean
 end
 
 local function read(player: Player)
+	if not seenAt[player] then
+		seenAt[player] = os.clock()
+		HealthLog.stage("match zone", player, Context.id)
+	end
 	if plan then
 		return
 	end
@@ -171,41 +184,61 @@ function MatchPlan.teamFor(player: Player): number?
 	return nil
 end
 
--- Wait for the vote UI on every connected seat. Only absent seats can expire.
+-- Whether this player's match client has said its screens are up, for this match.
+function MatchPlan.isReady(player: Player): boolean
+	return StateValues.get(player, READY) == Context.id
+end
+
+-- Wait for the vote UI on every connected seat. An absent seat expires after JOIN_GRACE (from the first arrival);
+-- a seat that is here but never signals (a client that broke while loading) stops blocking after READY_TIMEOUT.
 function MatchPlan.readiness(): (number, number, boolean)
 	local p = plan
 	if not p then
 		return 0, 0, false
 	end
-	local grace = if RunService:IsStudio()
-		then BotsConfig.JOIN_GRACE_STUDIO
-		else BotsConfig.JOIN_GRACE
-	local ready, present, expected = 0, 0, 0
+	local studio = RunService:IsStudio()
+	local grace = if studio then BotsConfig.JOIN_GRACE_STUDIO else BotsConfig.JOIN_GRACE
+	local readyTimeout = if studio
+		then BotsConfig.READY_TIMEOUT_STUDIO
+		else BotsConfig.READY_TIMEOUT
+	local now = os.clock()
+	local ready, present, expected, waived = 0, 0, 0, 0
 	for team = 1, 2 do
 		for _, userId in p.teams[team] do
 			expected += 1
 			local player = Players:GetPlayerByUserId(userId)
 			if player then
 				present += 1
-				if StateValues.get(player, "MatchVoteReady") == true then
+				if MatchPlan.isReady(player) then
 					ready += 1
+				elseif now - (seenAt[player] or now) >= readyTimeout then
+					waived += 1
 				end
 			end
 		end
 	end
 	local canStart = ready > 0
-		and ready == present
-		and (present == expected or os.clock() - p.firstJoinAt >= grace)
+		and ready + waived == present
+		and (present == expected or now - p.firstJoinAt >= grace)
 	return ready, expected, canStart
 end
 
 function MatchPlan.start()
 	Net.event("MatchReady").OnServerEvent:Connect(function(player)
-		if StateValues.get(player, "MatchVoteReady") ~= true then
-			StateValues.set(player, "MatchVoteReady", true)
+		if not MatchPlan.isReady(player) then
+			StateValues.set(player, READY, Context.id)
+			local since = seenAt[player]
+			HealthLog.stage(
+				"client ready",
+				player,
+				if since then string.format("%.1fs after the zone", os.clock() - since) else nil
+			)
 		end
 	end)
 	Players.PlayerAdded:Connect(read)
+	Players.PlayerRemoving:Connect(function(player)
+		seenAt[player] = nil
+	end)
 	for _, player in Players:GetPlayers() do
 		read(player)
 	end

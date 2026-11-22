@@ -164,8 +164,14 @@ return table.freeze({
 
 	-- Lobby → Match (vault/05 Production/Overnight 2026-11-04.md → contracts).
 	MODES = { ["1v1"] = 1, ["2v2"] = 2, ["3v3"] = 3 } :: { [string]: number },
-	JOIN_GRACE = 20, -- seconds to wait for an absent teleport seat before a bot fills in
+	-- Seconds from the first arrival to wait for an absent teleport seat before a bot fills in (20 until 2026-11-22:
+	-- a phone teleport can take longer; LihFolk Parties and Group Teleports uses 45).
+	JOIN_GRACE = 45,
 	JOIN_GRACE_STUDIO = 3,
+	-- Seconds a seat that is here may go without its client's ready signal before the match starts anyway (a client
+	-- that broke while loading must not hold everyone on the loading screen; it is dealt in when it catches up).
+	READY_TIMEOUT = 30,
+	READY_TIMEOUT_STUDIO = 15,
 	-- Studio with no BotMatch attribute: a lone player still gets one bot.
 	STUDIO_SOLO_BOT = true,
 

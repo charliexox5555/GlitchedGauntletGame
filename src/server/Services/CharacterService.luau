@@ -21,6 +21,7 @@ local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local SimulationFields = require(ReplicatedStorage.Shared.Simulation.Fields)
+local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 local HitboxHistory = require(script.Parent.HitboxHistory)
 local HealthService = require(script.Parent.HealthService)
 
@@ -102,6 +103,43 @@ local function applyStandard(player: Player, character: Model)
 	if not ok then
 		warn("[CharacterService] couldn't apply the match body:", err)
 	end
+end
+
+-- Every skinned-body part really loaded? A part asset that fails comes back as a default limb with no error
+-- (MatchBody.missingParts): apply the body again a couple of times. Yields only when something is missing.
+local function verifyBody(player: Player, character: Model)
+	if not MatchBody.usesSkinnedBody() then
+		return
+	end
+	local missing = MatchBody.missingParts(character)
+	if #missing == 0 then
+		HealthLog.stage("character", player, "body ok")
+		return
+	end
+	for attempt, wait in Avatar.BODY_RETRY do
+		HealthLog.problem(
+			"body parts missing",
+			player,
+			`{table.concat(missing, ",")}, retry {attempt}`
+		)
+		task.wait(wait)
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if
+			not character.Parent
+			or player.Character ~= character
+			or not humanoid
+			or humanoid.Health <= 0
+		then
+			return
+		end
+		applyStandard(player, character)
+		missing = MatchBody.missingParts(character)
+		if #missing == 0 then
+			HealthLog.stage("character", player, `body ok after retry {attempt}`)
+			return
+		end
+	end
+	HealthLog.problem("body parts failed", player, table.concat(missing, ","))
 end
 
 -- An accessory on a combatant: the rule in Config/Avatar decides whether it
@@ -272,6 +310,12 @@ local function onCharacter(character: Model)
 					return
 				end
 			end
+			if player then
+				verifyBody(player, character)
+				if not character.Parent then
+					return
+				end
+			end
 			MatchBody.dress(character)
 			CharacterService.prepare(character)
 			character:WaitForChild("Animate", 5)
@@ -281,6 +325,7 @@ local function onCharacter(character: Model)
 end
 
 local function onPlayer(player: Player)
+	HealthLog.joined(player)
 	task.spawn(fetchOwn, player)
 	player.CharacterAdded:Connect(onCharacter)
 	if player.Character then
@@ -344,7 +389,9 @@ function CharacterService.spawn(player: Player)
 	do
 		task.wait(0.1)
 	end
-	for _ = 1, 3 do
+	-- With CharacterAutoLoads off a player whose every try fails never gets a character (a join that "doesn't
+	-- load"), so the tries back off and the last failure is logged.
+	for attempt, wait in Avatar.SPAWN_RETRY do
 		if player.Parent ~= Players then
 			return
 		end
@@ -352,9 +399,10 @@ function CharacterService.spawn(player: Player)
 		if ok then
 			return
 		end
-		warn("[CharacterService] couldn't spawn", player.Name, err)
-		task.wait(1)
+		HealthLog.problem("spawn failed", player, `try {attempt}: {err}`)
+		task.wait(wait)
 	end
+	HealthLog.problem("spawn gave up", player, `{#Avatar.SPAWN_RETRY} tries`)
 end
 
 function CharacterService.start()

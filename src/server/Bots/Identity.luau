@@ -43,12 +43,14 @@ local function build(description: HumanoidDescription): Model?
 	if ok and model then
 		local head = model:FindFirstChild("Head")
 		local root = model:FindFirstChild("HumanoidRootPart")
+		-- A body part that didn't load comes back as a default limb: no stand-in like that (MatchBody.missingParts).
 		if
 			head
 			and head:IsA("BasePart")
 			and root
 			and root:IsA("BasePart")
 			and model:FindFirstChildOfClass("Humanoid")
+			and #MatchBody.missingParts(model) == 0
 		then
 			return model
 		end

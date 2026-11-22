@@ -41,6 +41,7 @@ local ZoneService = require(script.Parent.ZoneService)
 local StatsService = require(script.Parent.StatsService)
 local MatchEndService = require(script.Parent.MatchEndService)
 local Health = require(ReplicatedStorage.Shared.Health)
+local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 
 local MatchService = {}
 
@@ -768,6 +769,17 @@ local function runMatch(): boolean
 			setAllLocked(false)
 			BotService.setFighting(true)
 			setPhase("Live", Config.ROUND_TIME)
+			HealthLog.stage(
+				"round start",
+				nil,
+				string.format(
+					"%s round %d, alive %d v %d",
+					Context.id,
+					round,
+					teamState(1),
+					teamState(2)
+				)
+			)
 			runClock(Config.ROUND_TIME, over)
 			-- Sudden death: the circle closes until a side is out.
 			if not over() and ZoneService.begin() then
@@ -884,7 +896,9 @@ local function waitForPlayers()
 		return -- straight into the next match
 	end
 	setPhase("Waiting", 0)
+	HealthLog.stage("waiting", nil, Context.id)
 	local lonelySince: number? = nil
+	local lastCount = ""
 	while true do
 		balanceTeams()
 		local plan = MatchPlan.current()
@@ -892,9 +906,16 @@ local function waitForPlayers()
 			local ready, expected, canStart = MatchPlan.readiness()
 			MatchState.set("ReadyPlayers", ready)
 			MatchState.set("ExpectedPlayers", expected)
+			local count =
+				string.format("%d/%d ready, %d here", ready, expected, #Players:GetPlayers())
+			if count ~= lastCount then
+				lastCount = count
+				HealthLog.stage("waiting", nil, `{Context.id} {count}`)
+			end
 			if canStart then
 				fillSlots()
 				if bothSidesFilled() then
+					HealthLog.stage("players in", nil, `{Context.id} {count}`)
 					return
 				end
 			end
@@ -991,18 +1012,51 @@ local function pickMap(): string?
 	elseif #fits == 1 or #Players:GetPlayers() == 0 then
 		return fits[math.random(1, #fits)]
 	end
+	HealthLog.stage("vote open", nil, `{Context.id} {#fits} maps`)
 	return MapVoteService.run(fits, size, MatchState.botSeats())
 end
 
+-- Loads a map, never throwing: a map that fails to load keeps the one already loaded.
+local function loadMap(id: string): boolean
+	local ok, loaded = pcall(MapService.load, id)
+	if not ok then
+		HealthLog.problem("map load failed", nil, `{Context.id} {id}: {loaded}`)
+		return false
+	end
+	if loaded then
+		HealthLog.stage("map loaded", nil, `{Context.id} {id}`)
+	end
+	return loaded == true
+end
+
+-- A match that stopped on an error never leaves its players frozen on the vote or the draft (before
+-- 2026-11-22 the loop just returned, with the Phase still "Vote"): a pad duel sends them back to the lobby here,
+-- a match server teleports them to the lobby (MatchEndService retries a failed teleport).
+local function abandonMatch(reason: string)
+	HealthLog.problem("match error", nil, `{Context.id}: {reason}`)
+	if Context.padDuel and Context.finish then
+		Context.finish(Players:GetPlayers())
+	else
+		MatchEndService.sendEveryoneHome()
+	end
+end
+
 local function loop()
-	while not MapService.load(Config.MAP) do
+	while not loadMap(Config.MAP) do
 		task.wait(MAP_RETRY)
 	end
 	lastMap = Config.MAP
 	while true do
 		waitForPlayers()
-		local nextMap = pickMap()
-		if nextMap and nextMap ~= lastMap and MapService.load(nextMap) then
+		local picked, nextMap = xpcall(pickMap, debug.traceback)
+		if not picked then
+			-- The vote broke: play the map that's loaded rather than hang on the vote screen.
+			HealthLog.problem("map vote failed", nil, `{Context.id}: {nextMap}`)
+			nextMap = nil
+		else
+			HealthLog.stage("vote done", nil, `{Context.id} {nextMap or lastMap or "?"}`)
+		end
+		if nextMap and nextMap ~= lastMap and loadMap(nextMap) then
 			lastMap = nextMap
 		end
 		matchesPlayed += 1
@@ -1021,6 +1075,15 @@ local function loop()
 			table.clear(pendingTakeovers)
 			setAllLocked(true)
 			MapService.setBarriers(true)
+			abandonMatch(tostring(result))
+			if Context.ownsServer and not RunService:IsStudio() then
+				-- Wait for the teleports out, resending any that failed.
+				local until_ = os.clock() + Config.MATCH_END.emptyWait
+				while #Players:GetPlayers() > 0 and os.clock() < until_ do
+					task.wait(5)
+					MatchEndService.resendStranded()
+				end
+			end
 			return
 		end
 		if result ~= true then
