@@ -99,3 +99,40 @@ Levels can be tuned per cue in `Config/TempestAudio`.
 
 **Uploads:** 54 new or changed files went up solo. The handling, inspect and swing files kept their uploads.
 
+## Round 4 (2026-11-22): katana thunder down, A/B for the shots
+**Owner's notes on v3:**
+- The thunder cracks "still seemed a bit too much".
+- The Stinger, Marshal and Sheriff "mostly just sound like the original … we gotta add some stuff".
+- The Bucky is a shotgun, so it's lower priority, but it shouldn't just be stock either.
+
+**Katana heavy (in the game):**
+- The lightning now rings about 1.1 s with a 0.6 s fade, at −13 dB under the swing (was 2.4 s at −7). The file is 1.3 s.
+- Its peak is still at 0.089 s, so the swing timing holds.
+- Re-uploaded both takes.
+
+**Shots, A/B audition (not in the game until the owner picks):** built by `tools/audio/design_tempest_ab.py`; the output is `art-source/audio/tempest/line_v1/ab/` with `_reel.wav` and `_reel.txt`.
+- v1–v3 put layers on top of the stock ProPack shot and EQ'd them to sit over it, so the stock shot always led.
+- In round 4, Pole Position's real-gun recordings are the core instead, one job per mic: crack (close or on-gun), body (1 m), bite (a second gun's close mic, high-passed), and tail (the 50–55 m mic).
+- On top of those come the bulkhead thump, the Tempest water and electric layers (louder), the class finish (SMG, MARKSMAN, MAGNUM, SHOTGUN), a 300 Hz body lift, air where the mics are dark, and a level of +1.5 dB over stock.
+- **A:** pro-designed only.
+- **B:** the same with the stock shot at −7 dB under it.
+
+| Gun | Crack | Body | Bite | Tail |
+|---|---|---|---|---|
+| Stinger | HK MP7 on-gun | MP7 1 m and FN P90 1 m | Uzi 1 m | — |
+| Marshal | Remington 700 1 m | Sako TRG 1 m | Barrett M98B on-gun | Remington 50 m |
+| Sheriff | S&W M66 .357 1 m | S&W M29 .44 | SIG P229 1 m | M66 50 m |
+| Bucky | Saiga-12 1 m | USAS-12 1 m | SPAS-12 1 m | Saiga-12 55 m |
+
+**Distance from the stock shot (RMS over 5 bands):**
+
+| Version | Distance |
+|---|---|
+| v3 | 1.0–1.9 dB |
+| A | 3–7 dB |
+| B | 1.9–2.8 dB |
+
+A is heavier in the lows, leaner in the low-mids and, on the Marshal, darker on top.
+
+The Stinger is also played in 12-round sprays at its fire rate (stock, A, B). Once the owner picks per gun, the takes are uploaded solo and replace `<Gun>_fire` / `fireFar` in `Config/TempestAudio`.
+

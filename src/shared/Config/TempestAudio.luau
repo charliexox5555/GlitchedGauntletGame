@@ -247,8 +247,8 @@ local takes: { [string]: { GunSoundAssets.Take } } = {
 		{ asset = "rbxassetid://92502868492690", length = 0.500, gain = 1 }, -- Katana_fire_04.wav
 	},
 	["Katana_heavy"] = {
-		{ asset = "rbxassetid://130451841697133", length = 2.600, gain = 1 }, -- Katana_heavy_01.wav
-		{ asset = "rbxassetid://75560353425823", length = 2.600, gain = 1 }, -- Katana_heavy_02.wav
+		{ asset = "rbxassetid://83740489783133", length = 1.300, gain = 1 }, -- Katana_heavy_01.wav
+		{ asset = "rbxassetid://103412092538772", length = 1.300, gain = 1 }, -- Katana_heavy_02.wav
 	},
 	["Katana_hitBody"] = {
 		{ asset = "rbxassetid://134936969510008", length = 0.450, gain = 1 }, -- Katana_hitBody_01.wav

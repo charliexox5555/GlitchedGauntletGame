@@ -379,11 +379,12 @@ def katana_swing(k, heavy=False):
 	layers = [(0.0, core), (0.0, V.norm(crackle, -9)), (0.0, V.norm(whip, -12))]
 	if heavy:
 		ev = [t for t in (5.429, 4.662)]
-		# owner 2026-11-22: the thunder "cuts off too early": it rings out ~2.4 s
-		crack = V.seg(V.fs(LIGHTNING), ev[k % 2] - 0.004, 2.4, fout=1.3, lo=60, hi=7000)
-		layers.append((want, V.norm(crack, -7)))
+		# owner 2026-11-22: v2 "cuts off too early", v3 (2.4 s at -7) "a bit too
+		# much": a ~1.1 s ring that fades out, well under the swing (-13)
+		crack = V.seg(V.fs(LIGHTNING), ev[k % 2] - 0.004, 1.1, fout=0.6, lo=80, hi=6500)
+		layers.append((want, V.norm(crack, -13)))
 		layers.append((want, V.norm(V.seg(V.fs(SPLASH), 0.1, 0.4, fout=0.2, lo=400, rel=-24), -10)))
-	length = 2.6 if heavy else 0.5
+	length = 1.3 if heavy else 0.5
 	x = V.foley(layers, length, B.short_max(core) + 1.5)
 	# keep the peak where the game expects it
 	return x
