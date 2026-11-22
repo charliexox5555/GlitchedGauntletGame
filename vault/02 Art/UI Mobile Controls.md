@@ -61,6 +61,39 @@ Tablet: the same layout; sizes are in screen-height units, so it scales by itsel
 - **Saved as fractions of the safe area + size as a fraction of the screen height**, per profile, in `PlayerDataV1.settings.touch`. The server validates it (types, finite, clamped 0-1, sizes in range, known button ids, rate-limited). RIVALS saves raw pixels, which breaks when you switch devices.
 - Overlap check on save: buttons can't cover each other or the Roblox top-bar rectangle.
 
+### Build plan v1 (owner 2026-11-22: "Touch Layout Editor ... change up controls settings for mobile", with RIVALS Touch-tab screenshots)
+
+**Settings → TOUCH tab:**
+- **Layout:** LAYOUT EDITOR (opens the editor), LEFT-HANDED, BUTTON OPACITY, CAMERA THROUGH BUTTONS, SHOW AMMO.
+- **Attack:** DOUBLE TAP TO FIRE plus its window.
+- **One section per button group:** Fire, Aim, Jump, Slide, Reload, Sprint, Abilities, Weapon slots, Quick melee, Scoreboard, Inspect.
+  - Each section has ENABLED (Fire and Jump can't be hidden) and CUSTOM, which gives that group its own OPACITY.
+- **Source:** all rows come from `Config/TouchControls` and `Config/Settings`.
+
+**Saved data:**
+- `touchProfile` (1-3) and `touchLayout1..3` hold `{ [object] = { x, y, s } }`.
+  - `x` and `y` are the centre as a fraction of the touch root, in the right-handed frame.
+  - `s` is a size multiplier from 0.6 to 1.6.
+- `Shared/PlayerSettings` cleans them on both sides: only known object ids, finite numbers, clamped.
+- No entry means the default spot, so RESET just clears the profile.
+
+**`Shared/TouchLayout`:**
+- It owns the geometry that used to live in `TouchController.layout` (cluster sizes, the row under Roblox's bar).
+- It then applies the saved layout on top: the left-handed mirror, custom spots and sizes, hidden groups (kept hidden even when HUD code shows them), and opacity.
+- The match HUD and the editor use the same module.
+
+**Editor (`UI.Lobby.TouchEditor`, Studio-built bar, `lobby/client/Util/TouchEditor`):**
+- It previews a copy of `UI.Match.Touch` with every button showing.
+- Tap a button to select it, drag to move it, use −/+ for size, HIDE for its group.
+- The bar also has profiles 1/2/3, RESET, CANCEL and DONE.
+- DONE saves through Settings.
+
+**Controller:** BottomHud key chips already show pad glyphs (`Shared/InputGlyphs`). This round adds a SWITCH (Y) hint and a Studio `ForceInput` switch so glyphs can be tested without a pad.
+
+**Not in v1:** these rows exist but do nothing yet; they come with the "functionality for all settings" pass.
+- Double tap to fire.
+- Camera through buttons.
+
 ## 6. Owner questions
 1. **Stick:** our own floating stick (full control of the look, recommended), or Roblox's dynamic thumbstick like RIVALS (hide its start marker, can't restyle much)?
 2. **Sprint toggle:** a SPRINT button, a stick-push lock, or both (recommended: both; the lock can be turned off)?

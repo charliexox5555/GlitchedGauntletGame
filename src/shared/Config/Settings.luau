@@ -8,7 +8,9 @@
 -- Enum.KeyCode names ("" = unbound). Most rows aren't read by gameplay yet
 -- (owner, 2026-11-21: "just the ability to edit them and toggle things on/off").
 
-export type Kind = "toggle" | "slider" | "choice" | "color" | "key"
+-- "action" = a button that opens something (not saved); "layout" = saved
+-- data with no row of its own (hidden), e.g. a touch layout profile.
+export type Kind = "toggle" | "slider" | "choice" | "color" | "key" | "action" | "layout"
 
 export type Row = {
 	id: string,
@@ -31,10 +33,14 @@ export type Row = {
 	warn: boolean?, -- the note is a warning (red)
 	confirm: boolean?, -- choices: a change asks KEEP within CONFIRM_SECONDS or goes back
 	locked: boolean?, -- keybinds: shown, can't be changed (Roblox's own)
+	hidden: boolean?, -- saved but never drawn (touch layout profiles)
+	button: string?, -- action rows: the button's text ("EDIT")
 }
 
 export type Section = { title: string, rows: { Row } }
 export type Tab = { id: string, label: string, sections: { Section } }
+
+local TouchControls = require(script.Parent.TouchControls)
 
 local function toggle(id: string, label: string, default: boolean, desc: string): Row
 	return { id = id, label = label, kind = "toggle", default = default, desc = desc }
@@ -676,6 +682,139 @@ local function keyLabel(name: string): string
 	return string.upper(b or name)
 end
 
+-- TOUCH (vault/02 Art/UI Mobile Controls.md → Build plan v1): the layout,
+-- then one section per touch button group (Config/TouchControls).
+do
+	local sections: { Section } = {
+		{
+			title = "LAYOUT",
+			rows = {
+				{
+					id = "touchEditor",
+					label = "LAYOUT EDITOR",
+					kind = "action",
+					default = nil,
+					button = "EDIT",
+					desc = "Move, resize and hide your touch buttons. Three layouts to switch between.",
+				},
+				toggle(
+					"touchLeftHanded",
+					"LEFT-HANDED",
+					false,
+					"Swaps the sides: the stick on the right, the buttons on the left."
+				),
+				{
+					id = "touchOpacity",
+					label = "BUTTON OPACITY",
+					kind = "slider",
+					default = 100,
+					min = TouchControls.OPACITY_MIN,
+					max = 100,
+					step = 5,
+					unit = "%",
+					desc = "How solid every touch button is. A button with CUSTOM on uses its own.",
+				},
+				toggle(
+					"touchCameraThrough",
+					"CAMERA THROUGH BUTTONS",
+					true,
+					"A swipe that starts on a button still turns the camera."
+				),
+				toggle(
+					"touchShowAmmo",
+					"SHOW AMMO",
+					true,
+					"The ammo count under your weapon slots."
+				),
+			},
+		},
+		{
+			title = "ATTACK",
+			rows = {
+				toggle(
+					"touchDoubleTap",
+					"DOUBLE TAP TO FIRE",
+					false,
+					"Tap the right side of the screen twice and hold to fire."
+				),
+				{
+					id = "touchDoubleTapWindow",
+					label = "DOUBLE TAP WINDOW",
+					kind = "slider",
+					default = 0.25,
+					min = TouchControls.DOUBLE_TAP_MIN,
+					max = TouchControls.DOUBLE_TAP_MAX,
+					step = 0.05,
+					unit = " s",
+					sub = true,
+					showIf = { id = "touchDoubleTap", value = true },
+					desc = "How quickly the second tap has to follow the first.",
+				},
+			},
+		},
+	}
+	for _, g in TouchControls.GROUPS do
+		local rows: { Row } = {}
+		if g.canHide then
+			table.insert(
+				rows,
+				toggle(
+					"touch" .. g.key .. "On",
+					"ENABLED",
+					true,
+					"Shows or hides this button. " .. g.desc
+				)
+			)
+		end
+		table.insert(
+			rows,
+			toggle(
+				"touch" .. g.key .. "Custom",
+				"CUSTOM",
+				false,
+				"Gives this button its own opacity instead of BUTTON OPACITY."
+			)
+		)
+		local alpha = pct(
+			"touch" .. g.key .. "Alpha",
+			"OPACITY",
+			100,
+			TouchControls.OPACITY_MIN,
+			100,
+			"This button's opacity."
+		)
+		alpha.sub = true
+		alpha.step = 5
+		alpha.showIf = { id = "touch" .. g.key .. "Custom", value = true }
+		table.insert(rows, alpha)
+		table.insert(sections, { title = g.label, rows = rows })
+	end
+	-- saved layouts (drawn by the editor, not as rows)
+	local saved: { Row } = {
+		{
+			id = "touchProfile",
+			label = "PROFILE",
+			kind = "choice",
+			default = "1",
+			choices = { "1", "2", "3" },
+			hidden = true,
+			desc = "",
+		},
+	}
+	for i = 1, TouchControls.PROFILES do
+		table.insert(saved, {
+			id = "touchLayout" .. i,
+			label = "LAYOUT " .. i,
+			kind = "layout",
+			default = {},
+			hidden = true,
+			desc = "",
+		})
+	end
+	table.insert(sections, { title = "", rows = saved })
+	table.insert(TABS, { id = "touch", label = "TOUCH", sections = sections })
+end
+
 -- Row lookup by id.
 local BY_ID: { [string]: Row } = {}
 for _, tab in TABS do
@@ -692,7 +831,7 @@ return table.freeze({
 	BY_ID = BY_ID,
 	keyLabel = keyLabel,
 	-- saving (Shared/PlayerSettings, Lobby SettingsService)
-	MAX_BYTES = 8000, -- a save request's JSON may be at most this long
+	MAX_BYTES = 14000, -- (3 touch layouts included) a save request's JSON may be at most this long
 	CONFIRM_SECONDS = 10, -- Force Controls: time to press KEEP before it goes back
 	SEND_DELAY = 1.5, -- client: seconds after the last change before it sends
 	SAVE_DELAY = 6, -- server: seconds after the last save request before it writes

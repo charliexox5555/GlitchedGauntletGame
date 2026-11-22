@@ -28,8 +28,8 @@ local Workspace = game:GetService("Workspace")
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
+local TouchLayout = require(ReplicatedStorage.Shared.TouchLayout)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
-local Device = require(script.Parent.Parent.Util.Device)
 local TouchHud = require(script.Parent.Parent.Util.TouchHud)
 local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
@@ -40,7 +40,6 @@ local TouchController = {}
 
 local player = Players.LocalPlayer
 
-local TABLET = 0.78 -- tablets: every cluster × this (mockup measure, vault note)
 local DEADZONE = 0.12
 local FOLLOW = 1.6 -- the stick follows the thumb past this x its ring
 local LOCK_PUSH = 1.25 -- the stick pulled this far past its ring, straight ahead...
@@ -48,8 +47,6 @@ local LOCK_AHEAD = -0.9 -- ...(its direction's screen y at most this)...
 local LOCK_HOLD = 0.25 -- ...for this long locks sprint
 local UNLOCK_BACK = 0.35 -- pulling back past this (screen y) unlocks it
 local SLIDE_PRESS = 0.25 -- s: how long a slide tap holds Crouch
-local GAP = 8 -- px between Roblox's buttons and ours
-local ROW_TUCK = 4 -- px the row under Roblox's buttons tucks into the top bar's margin
 local HIDDEN_PHASES: { [string]: boolean } =
 	{ Vote = true, Draft = true, Replay = true, MatchEnd = true }
 
@@ -89,6 +86,7 @@ local jumpHeld = false
 local aimOn, sprintOn, crouchOn = false, false, false
 local aimMode: "toggle" | "alt" | "none" = "toggle"
 local autoSprint = true
+local settingsValues: { [string]: any }? = nil -- the published Settings (PlayerSettings.read)
 
 local refreshVisible: () -> () = function() end -- set in start (refresh)
 local touching: { [InputObject]: string } = {} -- a touch → the button it started on
@@ -119,11 +117,14 @@ local function paint(name: string)
 	local face, icon = faceOf(name)
 	local on = toggled[name] == true
 	if face then
+		-- the player's opacity (Settings → TOUCH) scales every state
+		local a = TouchLayout.alpha(TouchHud.find(name))
 		face.BackgroundColor3 = if on then WHITE elseif pressed[name] then PRESSED else PLATE
-		face.BackgroundTransparency = if on
+		local t = if on
 			then (if pressed[name] then 0.2 else 0.06)
 			elseif pressed[name] then 0.12
 			else REST
+		face.BackgroundTransparency = 1 - (1 - t) * a
 		local press = face:FindFirstChild("Press")
 		if press and press:IsA("UIScale") then
 			TweenService:Create(press, PRESS, { Scale = if pressed[name] then 0.94 else 1 }):Play()
@@ -417,10 +418,7 @@ end
 
 -- Auto Sprint (Settings, default on): the run is automatic, so there's no
 -- Sprint button and no stick lock.
-local function refreshSprintSetting()
-	local values = PlayerSettings.read(player, 5)
-	local v = values and values.autoSprint
-	autoSprint = if typeof(v) == "boolean" then v else true
+local function applySprintSetting()
 	local b = TouchHud.find("SprintButton")
 	if b then
 		b.Visible = not autoSprint
@@ -433,62 +431,31 @@ local function refreshSprintSetting()
 	end
 end
 
+-- Settings (published by the lobby's SettingsService, also in match servers):
+-- Auto Sprint and the touch layout.
+local function refreshSprintSetting()
+	local values = PlayerSettings.read(player, 5)
+	settingsValues = values
+	local v = values and values.autoSprint
+	autoSprint = if typeof(v) == "boolean" then v else true
+	applySprintSetting()
+end
+
 -- Layout ------------------------------------------------------------------------
 
--- Phones: the clusters as built. Tablets: smaller (height-sized clusters get
--- too big on 4:3). Settings sits beside Roblox's buttons, the row under them.
+-- The device layout and the player's saved one (Settings → TOUCH, the
+-- layout editor): Shared/TouchLayout, shared with the editor. HUD rules
+-- that hide buttons (Auto Sprint, no-ADS guns, empty slots) run after it.
 local function layout()
 	local r = root
 	if not r then
 		return
 	end
-	local scale = if Device.isPhone() then 1 else TABLET
-	for _, c in r:GetChildren() do
-		local side = c:GetAttribute("PhoneSide")
-		if c:IsA("Frame") and typeof(side) == "number" then
-			c.Size = UDim2.fromScale(side * scale, side * scale)
-		end
-	end
-	local s = stick
-	if s then
-		s.Size = UDim2.fromScale(0.27 * scale, 0.27 * scale)
-	end
-	local inset = GuiService.TopbarInset
-	local topLeft = r:FindFirstChild("TopLeft")
-	if inset.Height <= 0 or not topLeft or not topLeft:IsA("Frame") then
-		return
-	end
-	local box = topLeft.AbsoluteSize
-	if box.X <= 0 then
-		return
-	end
-	-- TopbarInset is in screen pixels, AbsolutePosition is measured from below
-	-- Roblox's top bar (GetGuiInset): convert, or the row lands a bar lower.
-	local guiTop = GuiService:GetGuiInset()
-	local function place(name: string, centre: Vector2)
-		local b = topLeft:FindFirstChild(name)
-		if b and b:IsA("GuiObject") then
-			local p = (centre - guiTop - topLeft.AbsolutePosition) / box
-			b.Position = UDim2.fromScale(p.X, p.Y)
-		end
-	end
-	local settings = topLeft:FindFirstChild("SettingsButton")
-	local d = if settings and settings:IsA("GuiObject")
-		then settings.AbsoluteSize.X
-		else box.X * 0.16
-	-- GuiService.TopbarInset is the free space between Roblox's left and right
-	-- buttons: Min.X is the right edge of Roblox's left buttons.
-	place("SettingsButton", Vector2.new(inset.Min.X + GAP + d / 2, inset.Min.Y + inset.Height / 2))
-	-- The row under Roblox's buttons, from the safe area's left edge, skipping
-	-- hidden buttons.
-	local rowY = inset.Max.Y + d / 2 - ROW_TUCK -- tucked up under the top bar (owner: "a bit too low")
-	local x = r.AbsolutePosition.X + GAP * 1.5 + d / 2
-	for _, name in { "ScoreboardButton", "InspectButton" } do
-		local b = topLeft:FindFirstChild(name)
-		if b and b:IsA("GuiObject") and b.Visible then
-			place(name, Vector2.new(x, rowY))
-			x += d + GAP
-		end
+	TouchLayout.refresh(r, settingsValues)
+	refreshAim()
+	applySprintSetting()
+	for name in toggled do
+		paint(name)
 	end
 end
 
@@ -519,6 +486,7 @@ local function refresh()
 		g.Enabled = on
 		if on then
 			TouchHud.refresh()
+			layout() -- sizes are real now that the screen draws
 			releaseStick()
 		else
 			releaseAll()
@@ -656,7 +624,10 @@ function TouchController.start()
 		refreshSprintSetting()
 		local values = player:FindFirstChild("Settings")
 		if values and values:IsA("StringValue") then
-			values.Changed:Connect(refreshSprintSetting)
+			values.Changed:Connect(function()
+				refreshSprintSetting()
+				layout()
+			end)
 		end
 		layout()
 	end)

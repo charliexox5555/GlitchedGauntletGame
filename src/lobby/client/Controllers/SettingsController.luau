@@ -28,6 +28,7 @@ local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local Plates = require(script.Parent.Parent.Util.Plates)
+local TouchEditor = require(script.Parent.Parent.Util.TouchEditor)
 
 local SettingsController = {}
 
@@ -290,6 +291,42 @@ end
 
 --------------------------------------------------------------------------------
 -- Controls
+
+-- An action row: one plate button ("EDIT »") that opens something.
+local actions: { [string]: () -> () } = {}
+local function fillAction(control: Frame, row: Row)
+	local reset = templates:WaitForChild("SettingReset") :: Frame
+	local b = (child(reset, "Button") :: TextButton):Clone()
+	b.Name = "Action"
+	b.AnchorPoint = Vector2.new(1, 0.5)
+	b.Position = UDim2.fromScale(1, 0.5)
+	b.Size = UDim2.fromOffset(200, 56)
+	b.Parent = control
+	local label = b:FindFirstChildWhichIsA("TextLabel", true)
+	local text = (row.button or "OPEN") .. "  »"
+	if label then
+		label.Text = text
+	else
+		b.Text = text
+	end
+	b.BackgroundColor3 = C.white
+	if label then
+		label.TextColor3 = C.ink
+	else
+		b.TextColor3 = C.ink
+	end
+	Plates.finish(b)
+	LobbyKit.button(b, function()
+		local fn = actions[row.id]
+		if fn then
+			fn()
+		end
+	end, {
+		onHover = function(on: boolean)
+			UiMotion.tween(b, 0.2, { BackgroundColor3 = if on then C.gold else C.white })
+		end,
+	})
+end
 
 local function fillToggle(control: Frame, row: Row, rowButton: GuiButton)
 	local t = (templates:WaitForChild("SettingToggle") :: Frame):Clone()
@@ -869,6 +906,8 @@ local function addRow(row: Row, order: number, wide: boolean)
 			fillDropdown(control, row)
 		elseif row.kind == "color" then
 			fillColor(control, row)
+		elseif row.kind == "action" then
+			fillAction(control, row)
 		end
 		if isLocked then
 			for _, d in control:GetDescendants() do
@@ -951,10 +990,11 @@ renderTab = function(i: number, keepScroll: boolean?)
 	end
 	local tab = Settings.TABS[i]
 	local wide = tab.id == "keybinds"
-	-- Phones: no INSPECT panel (too little room); the list is centred
-	-- (Studio PhonePosition) and runs the canvas's full height.
+	-- Phones: the list and INSPECT sit side by side (Studio Phone*
+	-- attributes, owner 2026-11-22: "bring the info bar back"); the list runs
+	-- the canvas's full height.
 	local phone = UiLayout.family() == "Phone"
-	inspect.Visible = not wide and not phone
+	inspect.Visible = not wide
 	local width = if wide then LIST_WIDE else LIST_W
 	list.Size = if phone then UDim2.new(0, width, 1, -176) else UDim2.fromOffset(width, 740)
 	preview.Visible = i == CROSSHAIR_TAB
@@ -971,10 +1011,18 @@ renderTab = function(i: number, keepScroll: boolean?)
 		h.Parent = list
 	end
 	for _, section in tab.sections do
+		-- a section of saved-only rows (touch layouts) draws nothing
+		local any = false
+		for _, row in section.rows do
+			any = any or not row.hidden
+		end
+		if not any then
+			continue
+		end
 		order += 1
 		addSection(section.title, order, wide)
 		for _, row in section.rows do
-			if shown(row) then
+			if shown(row) and not row.hidden then
 				order += 1
 				table.insert(items, addRow(row, order, wide))
 				firstRow = firstRow or row
@@ -1112,6 +1160,24 @@ function SettingsController.init()
 		dropList.Visible = false
 	end)
 
+	-- TOUCH → LAYOUT EDITOR: Settings steps aside while the editor is up;
+	-- DONE saves its changes like any other row.
+	actions.touchEditor = function()
+		closePopups()
+		gui.Enabled = false
+		TouchEditor.open(values, function(changes)
+			gui.Enabled = true
+			if changes then
+				for id, v in changes do
+					values[id] = v
+				end
+				applyLive()
+				queueSend()
+				renderTab(current, true)
+			end
+		end)
+	end
+
 	local tabs = child(canvas, "Tabs") :: Frame
 	local buttons: { GuiButton } = {}
 	for _, tab in Settings.TABS do
@@ -1139,6 +1205,7 @@ function SettingsController.init()
 			end
 		end,
 		onClose = function()
+			TouchEditor.cancel()
 			closePopups()
 			capture = nil
 			sendToken += 1

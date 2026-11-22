@@ -56,7 +56,31 @@ local function studioTouch(): boolean
 	return v ~= nil and v:IsA("StringValue") and v.Value == "t"
 end
 
+-- Studio test switch: Workspace.GauntletState.ForceInput = "sgamepad" /
+-- "skeyboard" / "stouch" (StateValues string encoding) shows that input's
+-- key hints without the device.
+local function studioForced(): Mode?
+	if not RunService:IsStudio() then
+		return nil
+	end
+	local folder = Workspace:FindFirstChild("GauntletState")
+	local v = folder and folder:FindFirstChild("ForceInput")
+	if v and v:IsA("StringValue") then
+		local m = string.lower(string.sub(v.Value, 2))
+		return if m == "gamepad"
+			then "Gamepad"
+			elseif m == "keyboard" then "Keyboard"
+			elseif m == "touch" then "Touch"
+			else nil
+	end
+	return nil
+end
+
 function InputGlyphs.mode(): Mode
+	local forced = studioForced()
+	if forced then
+		return forced
+	end
 	if studioTouch() then
 		return "Touch"
 	end

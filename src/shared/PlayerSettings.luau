@@ -16,6 +16,7 @@ local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Settings = require(ReplicatedStorage.Shared.Config.Settings)
+local TouchControls = require(ReplicatedStorage.Shared.Config.TouchControls)
 
 export type Values = { [string]: any }
 
@@ -38,6 +39,10 @@ function PlayerSettings.snap(row: Settings.Row, n: number): number
 	local v = lo + math.floor((n - lo) / step + 0.5) * step
 	v = math.clamp(v, lo, hi)
 	return math.floor(v * 1000 + 0.5) / 1000
+end
+
+local function round(n: number): number
+	return math.floor(n * 1000 + 0.5) / 1000
 end
 
 local function cleanOne(row: Settings.Row, v: unknown): any
@@ -65,6 +70,36 @@ local function cleanOne(row: Settings.Row, v: unknown): any
 			out[i] = if typeof(k) == "string" and (k == "" or (#k <= 32 and KEY_NAMES[k]))
 				then k
 				else default[i]
+		end
+		return out
+	elseif kind == "action" then
+		return nil -- a button, nothing to save
+	elseif kind == "layout" then
+		-- a touch layout: { [object] = { x, y, s } }, objects from
+		-- Config/TouchControls only, x / y the centre as a 0-1 fraction,
+		-- s the size multiplier (rounded: keeps the save small)
+		local out = {}
+		if typeof(v) ~= "table" then
+			return out
+		end
+		for name, e in v :: { [unknown]: unknown } do
+			if
+				typeof(name) == "string"
+				and TouchControls.MOVABLE[name]
+				and typeof(e) == "table"
+			then
+				local t = e :: { unknown }
+				local x, y, sz = t[1], t[2], t[3]
+				if finite(x) and finite(y) and finite(sz) then
+					out[name] = {
+						round(math.clamp(x :: number, 0, 1)),
+						round(math.clamp(y :: number, 0, 1)),
+						round(
+							math.clamp(sz :: number, TouchControls.SIZE_MIN, TouchControls.SIZE_MAX)
+						),
+					}
+				end
+			end
 		end
 		return out
 	end

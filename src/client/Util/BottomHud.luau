@@ -535,15 +535,29 @@ local function bind(gui: ScreenGui)
 	local hints = right:WaitForChild("Hints") :: Frame
 	-- The hint keycaps show the real bindings (Config/Input) for the input in
 	-- use: a key name, a gamepad glyph, or nothing (Shared/InputGlyphs).
-	for _, pair in hints:GetChildren() do
-		local key = pair:FindFirstChild("Key")
-		if key and key:IsA("GuiObject") and (Bindings :: any)[pair.Name] then
-			if key:GetAttribute("KeyAction") == nil then
-				key:SetAttribute("KeyAction", pair.Name)
+	-- A hint whose key has nothing to show on this input (SWITCH has no
+	-- keyboard key) hides with it.
+	local function refreshHints()
+		for _, pair in hints:GetChildren() do
+			local key = pair:FindFirstChild("Key")
+			if
+				pair:IsA("GuiObject")
+				and key
+				and key:IsA("GuiObject")
+				and (Bindings :: any)[pair.Name]
+			then
+				if key:GetAttribute("KeyAction") == nil then
+					key:SetAttribute("KeyAction", pair.Name)
+				end
+				InputGlyphs.apply(key)
+				local keys, pad = InputGlyphs.keysFor(pair.Name)
+				local list = if InputGlyphs.mode() == "Gamepad" then pad else keys
+				pair.Visible = InputGlyphs.shows(key) and #list > 0
 			end
-			InputGlyphs.apply(key)
 		end
 	end
+	refreshHints()
+	InputGlyphs.changed:Connect(refreshHints)
 	local loadout: { [string]: LoadoutCell } = {}
 	for _, name in { "Primary", "Secondary", "Melee" } do
 		local holder = loadoutRow:WaitForChild(name) :: Frame
