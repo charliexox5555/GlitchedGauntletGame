@@ -591,8 +591,9 @@ end
 -- kept left of the right column. The scoreboard makes room (CARDS_KEEP_BOARD).
 -- They come in with the rest of the screen: one beat, Quint, no overshoot.
 local CARD_W, CARD_GAP, LEAD_SCALE = 260, 18, 1.14
-local CARD_BOTTOM = 1036 -- design px
-local CARD_LEFT, CARD_RIGHT = 40, 1436 -- the zone (the right column starts at 1460)
+local CARD_LIFT = 44 -- design px from the canvas bottom to the cards' bottom
+local CARD_LEFT = 40 -- design px; the zone ends CARD_CLEAR left of the right column
+local CARD_CLEAR = 24
 local CARDS_KEEP_BOARD = false
 
 local function number(n: number): string
@@ -621,7 +622,15 @@ function MatchEndScreen.cards(list: { CardData })
 	local fit = s.fit.Scale
 	local ox = s.canvas.AbsolutePosition.X - s.gui.AbsolutePosition.X
 	local stretch = (s.canvas.AbsoluteSize.X / math.max(fit, 1e-3)) / DESIGN.X
-	local zoneLeft, zoneRight = CARD_LEFT * stretch, CARD_RIGHT * stretch
+	-- A boosted canvas (phones, Shared/UiLayout <Family>Boost) is shorter and
+	-- narrower in design px than 1920 x 1080: the row keeps to its bottom and
+	-- stops at the right column wherever that sits.
+	local cardBottom = s.canvas.AbsoluteSize.Y / math.max(fit, 1e-3) - CARD_LIFT
+	local column = s.canvas:FindFirstChild("Right")
+	local zoneRight = if column and column:IsA("GuiObject")
+		then (column.AbsolutePosition.X - s.canvas.AbsolutePosition.X) / math.max(fit, 1e-3) - CARD_CLEAR
+		else (DESIGN.X - 484) * stretch
+	local zoneLeft = CARD_LEFT * stretch
 	type Slot = { data: CardData, x: number, w: number }
 	local slots: { Slot } = {}
 	for _, d in list do
@@ -686,7 +695,7 @@ function MatchEndScreen.cards(list: { CardData })
 		taken.Text = number(d.taken)
 		local badge = child(card, "Badge") :: CanvasGroup
 		badge.Visible = d.mvp
-		local home = UDim2.fromOffset(slot.x + shift, CARD_BOTTOM)
+		local home = UDim2.fromOffset(slot.x + shift, cardBottom)
 		card.Position = home + UDim2.fromOffset(0, ENTER_RISE)
 		local pop = child(card, "Pop") :: UIScale
 		pop.Scale = (if d.lead then LEAD_SCALE else 1) * ENTER_FROM
