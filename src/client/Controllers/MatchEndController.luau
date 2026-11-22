@@ -2,11 +2,10 @@
 -- The end of a match (vault/05 Production/Match Structure Revamp.md, phase
 -- D): the winner cutscene (Util/WinCutscene, vault/02 Art/Win Cutscene.md:
 -- copies of the winning side on the map's stage, several keyed shots cut to
--- the ending song, held on a low final pose) and then the post-match screen in the
--- v1 style, laid out after the RIVALS reference: VICTORY / DEFEAT on top,
--- your stats card at the bottom, a table of everyone in team modes, and
--- Rematch / Play Again / Leave at the bottom right. The server decides
--- everything (Services/MatchEndService); the buttons only ask.
+-- the ending song, held on a low final pose) and then the post-match screen:
+-- the Studio-built MatchEndScreen (Util/MatchEndScreen, every device), filled
+-- from the results. The server decides everything (Services/MatchEndService);
+-- the buttons only ask.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -22,7 +21,6 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
-local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local CameraController = require(script.Parent.CameraController)
 local DeathFxController = require(script.Parent.DeathFxController)
@@ -31,15 +29,12 @@ local ReplayController = require(script.Parent.ReplayController)
 local SpectateController = require(script.Parent.SpectateController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
-local Ui = require(script.Parent.Parent.Util.Ui)
-local Device = require(script.Parent.Parent.Util.Device)
 local MatchEndScreen = require(script.Parent.Parent.Util.MatchEndScreen)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 local WinCutscene = require(script.Parent.Parent.Util.WinCutscene)
 
 local MatchEndController = {}
 
-local C = Theme.COLORS
 local player = Players.LocalPlayer
 
 type Line = {
@@ -70,12 +65,7 @@ local active = false
 local screenUp = false -- the results screen is in (after the cutscene)
 local hidden: { Instance } = {}
 local hiddenGuis: { ScreenGui } = {}
-local gui: ScreenGui? = nil
-local rematchButton: ImageButton? = nil
-local rematchSub: TextLabel? = nil
-local countdown: TextLabel? = nil
 local picked: string? = nil
-local buttons: { [string]: GuiObject } = {}
 
 -- Helpers ---------------------------------------------------------------------------
 
@@ -97,275 +87,7 @@ local function hideLive()
 	end
 end
 
--- The cutscene ----------------------------------------------------------------------
-
--- The screen ------------------------------------------------------------------------
-
-local function statBox(
-	parent: Instance,
-	x: number,
-	y: number,
-	w: number,
-	value: number,
-	label: string
-)
-	local box = Ui.cut(parent, {
-		Position = UDim2.fromOffset(x, y),
-		Size = UDim2.fromOffset(w, 74),
-	}, { color = C.card, transparency = 0.1, corner = 10 })
-	Ui.text(box, tostring(value), "displayM", {
-		Size = UDim2.new(1, 0, 0, 46),
-		Position = UDim2.fromOffset(0, 4),
-		ZIndex = 4,
-	})
-	Ui.text(box, label, "label", {
-		Size = UDim2.new(1, 0, 0, 18),
-		Position = UDim2.fromOffset(0, 50),
-		TextColor3 = C.textSecondary,
-		ZIndex = 4,
-	})
-end
-
-local function mine(): Line?
-	local id = "p" .. player.UserId
-	for _, line in summary do
-		if line.id == id then
-			return line
-		end
-	end
-	return nil
-end
-
-local function setPicked(choice: string)
-	picked = choice
-	for name, b in buttons do
-		local line = b:FindFirstChild("Line")
-		if line and line:IsA("ImageLabel") then
-			line.ImageColor3 = if name == choice then C.gold else C.lineStrong
-		end
-	end
-end
-
-local function button(
-	parent: Instance,
-	name: string,
-	label: string,
-	y: number,
-	primary: boolean
-): ImageButton
-	local b = Ui.cut(parent, {
-		Name = name,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, y),
-		Size = UDim2.fromOffset(300, 74),
-	}, {
-		className = "ImageButton",
-		color = if primary then C.gold else C.panel,
-		transparency = if primary then 0 else 0.1,
-		line = C.lineStrong,
-		corner = 14,
-	})
-	Ui.text(b, label, "titleCard", {
-		Size = UDim2.new(1, 0, 0, 44),
-		Position = UDim2.fromOffset(0, 6),
-		TextSize = 36,
-		TextColor3 = if primary then C.onAccent else C.text,
-		ZIndex = 4,
-	})
-	buttons[name] = b
-	b.Activated:Connect(function()
-		if picked == "PlayAgain" or picked == "Leave" then
-			return
-		end
-		if name == "Rematch" and MatchState.get("RematchOpen") ~= true then
-			UiSound.play("Denied")
-			return
-		end
-		UiSound.play("Select")
-		setPicked(name)
-		Net.event("MatchChoice"):FireServer(name)
-	end)
-	return b
-end
-
-local function buildScreen(winner: number, one: number, two: number)
-	local old = gui
-	if old then
-		old:Destroy()
-	end
-	table.clear(buttons)
-	picked = nil
-	local screen = Ui.make("ScreenGui", {
-		Name = "MatchEnd",
-		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
-		DisplayOrder = 15,
-	}, player:WaitForChild("PlayerGui"))
-	gui = screen
-	-- Frees the mouse in first person while the screen is up.
-	Ui.make("TextButton", {
-		Modal = true,
-		BackgroundTransparency = 1,
-		Text = "",
-		Size = UDim2.fromOffset(0, 0),
-	}, screen)
-	local won = winner == Teams.of(player)
-	local accent = if won then C.ally else C.enemy
-
-	-- Top banner.
-	local top = Ui.make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 70),
-		Size = UDim2.fromOffset(520, 120),
-		BackgroundTransparency = 1,
-	}, screen)
-	Ui.cut(top, { Size = UDim2.fromScale(1, 1) }, {
-		color = C.panel,
-		transparency = 0.12,
-		line = accent,
-		corner = 16,
-	})
-	Ui.text(top, if won then "VICTORY" else "DEFEAT", "displayL", {
-		Size = UDim2.new(1, 0, 0, 64),
-		Position = UDim2.fromOffset(0, 12),
-		TextColor3 = accent,
-		ZIndex = 4,
-	})
-	local myTeam = Teams.of(player) or 1
-	Ui.text(
-		top,
-		string.format(
-			"%d  —  %d",
-			if myTeam == 1 then one else two,
-			if myTeam == 1 then two else one
-		),
-		"titleS",
-		{
-			Size = UDim2.new(1, 0, 0, 28),
-			Position = UDim2.fromOffset(0, 78),
-			TextColor3 = C.textSecondary,
-			ZIndex = 4,
-		}
-	)
-	Ui.fit(top)
-
-	-- Your card.
-	local me = mine()
-	local card = Ui.make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -40),
-		Size = UDim2.fromOffset(440, 270),
-		BackgroundTransparency = 1,
-	}, screen)
-	Ui.cut(card, { Size = UDim2.fromScale(1, 1) }, {
-		color = C.panel,
-		transparency = 0.12,
-		line = C.lineStrong,
-		corner = 16,
-	})
-	local plate = Ui.cut(card, {
-		Position = UDim2.fromOffset(0, 0),
-		Size = UDim2.new(1, 0, 0, 64),
-	}, { color = accent, corner = 16 })
-	Ui.text(plate, string.upper(player.DisplayName), "titleCard", {
-		Size = UDim2.new(1, -24, 0, 44),
-		Position = UDim2.fromOffset(12, 4),
-		TextColor3 = C.onAccent,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		ZIndex = 4,
-	})
-	Ui.text(plate, "@" .. player.Name .. (if me and me.mvp then "   ·   MVP" else ""), "label", {
-		Size = UDim2.new(1, 0, 0, 16),
-		Position = UDim2.fromOffset(0, 44),
-		TextColor3 = C.onAccent,
-		ZIndex = 4,
-	})
-	if me then
-		statBox(card, 20, 80, 124, me.eliminations, "ELIMINATIONS")
-		statBox(card, 158, 80, 124, me.deaths, "DEATHS")
-		statBox(card, 296, 80, 124, me.assists, "ASSISTS")
-		statBox(card, 20, 170, 194, me.dealt, "DAMAGE DEALT")
-		statBox(card, 226, 170, 194, me.taken, "DAMAGE TAKEN")
-	end
-	Ui.fit(card)
-
-	-- Everyone (team modes).
-	if #summary > 2 then
-		local tableFrame = Ui.make("Frame", {
-			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(0, 40, 1, -40),
-			Size = UDim2.fromOffset(420, 40 + 34 * #summary),
-			BackgroundTransparency = 1,
-		}, screen)
-		Ui.cut(tableFrame, { Size = UDim2.fromScale(1, 1) }, {
-			color = C.panel,
-			transparency = 0.15,
-			corner = 12,
-		})
-		Ui.text(tableFrame, "PLAYER                         E     D     A     DMG", "label", {
-			Size = UDim2.new(1, -24, 0, 18),
-			Position = UDim2.fromOffset(12, 12),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.textSecondary,
-			ZIndex = 4,
-		})
-		for i, line in summary do
-			local y = 34 + (i - 1) * 34
-			local row = Ui.make("Frame", {
-				Position = UDim2.fromOffset(12, y),
-				Size = UDim2.new(1, -24, 0, 30),
-				BackgroundTransparency = 1,
-				ZIndex = 4,
-			}, tableFrame)
-			local colour = if line.team == myTeam then C.ally else C.enemy
-			Ui.text(row, (if line.mvp then "★ " else "") .. string.upper(line.name), "bodyM", {
-				Size = UDim2.new(0, 190, 1, 0),
-				TextXAlignment = Enum.TextXAlignment.Left,
-				TextTruncate = Enum.TextTruncate.AtEnd,
-				TextColor3 = colour,
-				ZIndex = 4,
-			})
-			local values = { line.eliminations, line.deaths, line.assists, line.dealt }
-			for j, v in values do
-				Ui.text(row, tostring(v), "bodyM", {
-					AnchorPoint = Vector2.new(0.5, 0),
-					Position = UDim2.fromOffset(222 + (j - 1) * 46 + (if j == 4 then 10 else 0), 0),
-					Size = UDim2.fromOffset(60, 30),
-					ZIndex = 4,
-				})
-			end
-		end
-		Ui.fit(tableFrame)
-	end
-
-	-- Buttons.
-	local side = Ui.make("Frame", {
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, -40, 1, -40),
-		Size = UDim2.fromOffset(300, 290),
-		BackgroundTransparency = 1,
-	}, screen)
-	countdown = Ui.text(side, "", "label", {
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, 0),
-		Size = UDim2.fromOffset(300, 18),
-		TextXAlignment = Enum.TextXAlignment.Right,
-		TextColor3 = C.textSecondary,
-	})
-	local rematch = button(side, "Rematch", "REMATCH", 30, false)
-	rematchButton = rematch
-	rematchSub = Ui.text(rematch, "", "label", {
-		Size = UDim2.new(1, 0, 0, 16),
-		Position = UDim2.fromOffset(0, 50),
-		TextColor3 = C.textSecondary,
-		ZIndex = 4,
-	})
-	button(side, "PlayAgain", "PLAY AGAIN", 116, true)
-	button(side, "Leave", "LEAVE", 202, false)
-	Ui.fit(side)
-end
-
--- Desktop: the Studio-built screen (Util/MatchEndScreen) ---------------------------
+-- The screen (the Studio-built Util/MatchEndScreen) ----------------------------
 
 local BOT_HEAD = "rbxassetid://119185654291939"
 
@@ -415,7 +137,7 @@ local function winnersOf(winner: number): { Model }
 	return winners
 end
 
--- What the server's choice buttons do (same rules as the old buttons).
+-- What the screen's choice buttons do (the server decides; these only ask).
 local function choose(name: string)
 	if picked == "PlayAgain" or picked == "Leave" then
 		return
@@ -552,27 +274,12 @@ local function refreshScreen()
 			MatchState.timeLeft(),
 			picked
 		)
-		return
-	end
-	local label = countdown
-	if label then
-		label.Text = string.format("BACK TO THE LOBBY IN %d", math.ceil(MatchState.timeLeft()))
-	end
-	local b = rematchButton
-	local sub = rematchSub
-	if b and sub then
-		local openNow = MatchState.get("RematchOpen") == true
-		local votes = MatchState.get("RematchVotes") or 0
-		local needed = MatchState.get("RematchNeeded") or 0
-		sub.Text = if openNow then string.format("%d / %d VOTED", votes, needed) else "UNAVAILABLE"
-		b.ImageTransparency = if openNow then 0.1 else 0.6
-		b.Active = openNow
 	end
 end
 
 -- Start and end -------------------------------------------------------------------
 
-local function stop()
+function MatchEndController.stop()
 	if not active then
 		return
 	end
@@ -597,11 +304,6 @@ local function stop()
 		end
 	end
 	table.clear(hiddenGuis)
-	local screen = gui
-	if screen then
-		screen:Destroy()
-		gui = nil
-	end
 	WeaponController.setSpectating(false)
 	local cam = Workspace.CurrentCamera
 	if cam then
@@ -637,12 +339,7 @@ local function begin()
 	local playerGui = player:FindFirstChildOfClass("PlayerGui")
 	if playerGui then
 		for _, g in playerGui:GetChildren() do
-			if
-				g:IsA("ScreenGui")
-				and g.Name ~= "MatchEnd"
-				and g.Name ~= "MatchEndScreen"
-				and g.Enabled
-			then
+			if g:IsA("ScreenGui") and g.Name ~= "MatchEndScreen" and g.Enabled then
 				g.Enabled = false
 				table.insert(hiddenGuis, g)
 			end
@@ -651,23 +348,19 @@ local function begin()
 	-- The results screen comes in as the song rings out over the final
 	-- pose (or at once on a skip, or with no cutscene).
 	local function screen()
-		if screenUp or not active then
+		if screenUp or not active or not MatchEndScreen.active() then
 			return
 		end
 		screenUp = true
-		if MatchEndScreen.active() then
-			picked = nil
-			MatchEndScreen.show(screenData(data), choose)
-			-- the winners' cards under them (the cutscene's copies), else name plates
-			if #WinCutscene.copies() > 0 then
-				showCards(winner)
-			else
-				showPlates(winner)
-			end
-			refreshScreen()
+		picked = nil
+		MatchEndScreen.show(screenData(data), choose)
+		-- the winners' cards under them (the cutscene's copies), else name plates
+		if #WinCutscene.copies() > 0 then
+			showCards(winner)
 		else
-			buildScreen(winner, data.score1, data.score2) -- phones: the old code-built screen
+			showPlates(winner)
 		end
+		refreshScreen()
 	end
 	-- one positive ending song for everyone, winner or not (owner
 	-- 2026-11-20): the cutscene starts it and runs on its clock
@@ -707,7 +400,7 @@ local function onPhase()
 			end
 		end)
 	else
-		stop()
+		MatchEndController.stop()
 	end
 end
 
@@ -860,7 +553,7 @@ local function preview()
 end
 
 function MatchEndController.start()
-	MatchEndScreen.start(Device.compact())
+	MatchEndScreen.start()
 	WinCutscene.preload()
 	-- Keys: Enter = PLAY AGAIN, R = REMATCH.
 	UserInputService.InputBegan:Connect(function(input: InputObject)
@@ -893,7 +586,7 @@ function MatchEndController.start()
 	end
 	MatchState.changed("Phase"):Connect(onPhase)
 	MatchState.changed("Results"):Connect(onPhase)
-	player.CharacterAdded:Connect(stop)
+	player.CharacterAdded:Connect(MatchEndController.stop)
 	task.spawn(function()
 		while true do
 			task.wait(0.2)

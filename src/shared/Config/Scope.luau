@@ -28,6 +28,10 @@ Scope.DOT = Color3.fromHex("FF3233")
 -- inside that the black thins out over `feather` (of the screen height, per
 -- side) in `steps` rings, to nothing.
 Scope.WINDOW = table.freeze({ outer = 0.97, feather = 0.125, steps = 28 })
+-- The surround: black outside a circle with the feather baked in
+-- (tools/ui/make_scope_mask.py from outer / feather above; art-source/ui/hud).
+-- A texture, not a 4000 px UIStroke: phones drew the stroke's hole not quite round.
+Scope.MASK = "rbxassetid://85760880940693"
 
 -- Reticle: a thin see-through cross over the whole window and a red dot.
 Scope.RETICLE = table.freeze({

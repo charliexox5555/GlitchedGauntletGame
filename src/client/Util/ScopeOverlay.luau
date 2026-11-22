@@ -3,7 +3,7 @@
 -- the HUD by Controllers/HudController, which shows and hides it for
 -- WeaponController (scoped in), SpectateController and ReplayController and
 -- steps it every frame.
---   window   a clear circle inside a huge black stroke, with rings of
+--   window   a clear circle in a black mask texture (Config/Scope.MASK), with
 --            thinning black inside it (the feathered edge). It opens from
 --            where the eyepiece was, lags the turn of the view, and jolts on
 --            a shot.
@@ -28,7 +28,6 @@ local TAU = 2 * math.pi
 local root: Frame? = nil
 local window: Frame? = nil
 local reticle: Frame? = nil
-local rings: { { frame: Frame, stroke: UIStroke } } = {}
 local pixelParts: { { object: GuiObject, width: number, height: number } } = {}
 local blur: BlurEffect? = nil
 
@@ -107,27 +106,35 @@ function ScopeOverlay.build(gui: ScreenGui): Frame
 	local w = frame(r, "Window")
 	w.Size = UDim2.fromScale(W.outer, W.outer)
 	w.SizeConstraint = Enum.SizeConstraint.RelativeYY
-	round(w)
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Scope.COLOR
-	stroke.Thickness = 4000
-	stroke.Parent = w
+	w.BackgroundTransparency = 1
 	window = w
-	-- The feather: rings from the edge inward, each drawn as a round frame's
-	-- stroke, black thinning out along a smoothstep. Sizes are shares of the
-	-- window, so they scale and move with it; each stroke is twice its ring's
-	-- width, so the rings overlap and no gap shows between them.
-	for i = 1, W.steps do
-		local inner = 1 - 2 * W.feather / W.outer * i / W.steps -- this ring's inner edge, of the window
-		local k = (i - 0.5) / W.steps
-		local ring = frame(w, "Feather")
-		ring.Size = UDim2.fromScale(inner, inner)
-		round(ring)
-		local s = Instance.new("UIStroke")
-		s.Color = Scope.COLOR
-		s.Transparency = k * k * (3 - 2 * k)
-		s.Parent = ring
-		table.insert(rings, { frame = ring, stroke = s })
+	-- The surround: a mask texture (a round hole with the feather baked in)
+	-- over the window's square, and four big black frames outside it. A
+	-- texture keeps the hole exactly round on every device.
+	local mask = Instance.new("ImageLabel")
+	mask.Name = "Mask"
+	mask.Size = UDim2.fromScale(1, 1)
+	mask.BackgroundTransparency = 1
+	mask.Image = Scope.MASK
+	mask.ImageColor3 = Scope.COLOR
+	mask.Parent = w
+	local FAR = 10000 -- px: past any screen
+	for _, side in
+		{
+			{ "Top", Vector2.new(0.5, 1), UDim2.new(0.5, 0, 0, 1), UDim2.fromOffset(FAR, FAR) },
+			{ "Bottom", Vector2.new(0.5, 0), UDim2.new(0.5, 0, 1, -1), UDim2.fromOffset(FAR, FAR) },
+			{ "Left", Vector2.new(1, 0.5), UDim2.new(0, 1, 0.5, 0), UDim2.new(0, FAR, 1, 0) },
+			{ "Right", Vector2.new(0, 0.5), UDim2.new(1, -1, 0.5, 0), UDim2.new(0, FAR, 1, 0) },
+		}
+	do
+		local f = Instance.new("Frame")
+		f.Name = side[1] :: string
+		f.AnchorPoint = side[2] :: Vector2
+		f.Position = side[3] :: UDim2
+		f.Size = side[4] :: UDim2
+		f.BackgroundColor3 = Scope.COLOR
+		f.BorderSizePixel = 0
+		f.Parent = w
 	end
 
 	-- The reticle's box is the window's at rest.
@@ -265,10 +272,6 @@ function ScopeOverlay.step(dt: number)
 	local at = from + (offset + Vector2.new(0, -shot.rise * jolt)) * px
 	w.Position = UDim2.new(0.5, math.round(at.X), 0.5, math.round(at.Y))
 	w.Size = UDim2.fromScale(W.outer * scale, W.outer * scale)
-	local ringWidth = W.feather * height * scale / W.steps
-	for _, ring in rings do
-		ring.stroke.Thickness = ringWidth * 2
-	end
 	-- The reticle opens with the window, then keeps the screen centre.
 	ret.Position = UDim2.new(0.5, math.round(from.X), 0.5, math.round(from.Y))
 	ret.Size = UDim2.fromScale(W.outer * open, W.outer * open)
