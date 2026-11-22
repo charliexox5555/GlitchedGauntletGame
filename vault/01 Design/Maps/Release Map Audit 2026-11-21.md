@@ -84,3 +84,5 @@ Arena, BigArena and Snowpeak4 get nothing new.
 - Win scene on Arena, BigArena, Pier and Dockyard: the winners stand at team A's spawn.
 
 Files: `src/shared/Config/Ambience.luau`, `Config/AssetData/MatchMaps.luau`, `Config/Match.luau`, `Config/MapLife.luau` (comment), `tools/studio/maps/ReleaseFx.luau`, `MapKit.luau`, `Rooftops4/Build.luau`. Rojo synced the `src/` changes into the match place.
+
+**Owner decision (2026-11-21):** keep the RIVALS copies (`Workspace.Docks`, `Workspace.Museum`, `Workspace["Rivals Asset Pack"]`, `ServerStorage.MapsRivals`) in the place for now as study references. Revisit before a public release, since Workspace content streams to players.
