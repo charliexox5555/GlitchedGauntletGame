@@ -133,7 +133,7 @@ ShopCatalog.BUNDLES = {
 	{
 		id = "RuinBlighted",
 		name = "RUIN-BLIGHTED",
-		robux = 1999,
+		robux = 999,
 		color = Color3.fromHex("2A6F6A"),
 		slot = "Featured",
 		tag = "EXCLUSIVE",
@@ -149,7 +149,7 @@ ShopCatalog.BUNDLES = {
 	{
 		id = "TempestStrike",
 		name = "TEMPEST-STRIKE",
-		robux = 1499,
+		robux = 1099,
 		color = Color3.fromHex("2F5DB8"),
 		slot = "Featured",
 		tag = "NEW",
@@ -176,10 +176,10 @@ ShopCatalog.BUNDLES = {
 	},
 	{
 		-- launch layout only (Config/Release.SHOP_FULL_LAYOUT; Studio `Bundles.Row3`, LaunchOnly).
-		-- PLACEHOLDER price and contents: the owner sets them in the pricing pass.
+		-- Price 67 R$ (owner 2026-11-22); contents come with the economy build (vault/01 Design/Shop Economy and Art v1.md).
 		id = "Starter",
 		name = "STARTER BUNDLE",
-		robux = 99,
+		robux = 67,
 		color = Color3.fromHex("2E7D5B"),
 		slot = "Starter",
 		tag = "NEW PLAYERS",

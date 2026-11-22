@@ -69,9 +69,9 @@ New look: the existing pile renders get a bigger, brighter stage, a "+40%" tag a
 
 ### 7. Bundles
 - **Price** = clearly under the real separate price (we show "SEPARATELY 2,995" struck out, never an invented "x5 VALUE"):
-  - Ruin-Blighted (5 Exclusive): 1,499 (separately 5 × 499 = 2,495).
-  - Tempest-Strike (5 guns + Katana): 1,799 (separately 5 × 499 + Katana bundle-only).
-  - Starter Bundle: 99–149, once per player: coins + a Standard case where paid random items are allowed (extra coins elsewhere). Never Tickets (they are never sold).
+  - Ruin-Blighted (5 Exclusive): **999** (separately 5 × 499 = 2,495). Owner 2026-11-22: "around 1,000 for the bigger bundles".
+  - Tempest-Strike (5 guns + Katana): **1,099** (separately 5 × 499 + Katana bundle-only; one item more than Ruin-Blighted).
+  - Starter Bundle: **67** (owner 2026-11-22), once per player: coins + a Standard case where paid random items are allowed (extra coins elsewhere). Never Tickets (they are never sold).
 - **Sold alone:** each gun skin of a bundle; the knife-slot item (Katana) bundle-only.
 - **Hover a bundle card** → a tooltip strip of its items (picture, name, kind), like RIVALS' Molotov tooltip but in our dark plate style.
 - **Detail menu** (rework `Canvas.Preview`): header "NAME · SKIN" with the tier tile; the **static portrait** big in the middle (3D only for knives and animated lines, owner's call per item); BACK, BUY ITEM (Robux), BUY BUNDLE (Robux) + struck SEPARATELY; the item strip at the bottom with tier-coloured tiles, OWNED marks.
