@@ -12,6 +12,7 @@
 -- UserInputService:GetImageForKeyCode, so Xbox and PlayStation each get
 -- their own pictures. Client only.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -82,8 +83,49 @@ function InputGlyphs.keyName(code: Enum.KeyCode): string
 	return NAMES[code.Name] or string.upper(code.Name)
 end
 
--- The binding an action uses now. Saved keybinds will override Config/Input
--- here (InputGlyphs.setOverride).
+-- The binding an action uses now: the player's own PlayContext (the server
+-- puts their saved Settings keybinds there, server/Services/InputContextService),
+-- else Config/Input. setOverride wins over both (tests, previews).
+local function isPad(code: Enum.KeyCode): boolean
+	local n = code.Name
+	return string.sub(n, 1, 6) == "Button"
+		or string.sub(n, 1, 4) == "DPad"
+		or string.sub(n, 1, 10) == "Thumbstick"
+end
+
+local function context(): Instance?
+	local player = if RunService:IsClient() then Players.LocalPlayer else nil
+	return player and player:FindFirstChild("PlayContext")
+end
+
+local function liveKeys(action: string): ({ Enum.KeyCode }?, { Enum.KeyCode }?)
+	local ctx = context()
+	local a = ctx and ctx:FindFirstChild(action)
+	if not a then
+		return nil, nil
+	end
+	local keys: { Enum.KeyCode }, pad: { Enum.KeyCode } = {}, {}
+	for _, c in a:GetChildren() do
+		if c:IsA("InputBinding") and c.KeyCode.Value ~= 0 and c.UIButton == nil then
+			table.insert(if isPad(c.KeyCode) then pad else keys, c.KeyCode)
+		end
+	end
+	-- Config order first (the main key before the alt), then any others.
+	local b = Bindings[action]
+	local function order(list: { Enum.KeyCode }, pref: { Enum.KeyCode })
+		table.sort(list, function(x, y)
+			local ix, iy = table.find(pref, x) or math.huge, table.find(pref, y) or math.huge
+			if ix ~= iy then
+				return ix < iy
+			end
+			return x.Value < y.Value
+		end)
+	end
+	order(keys, if b then b.keys else {})
+	order(pad, if b then b.gamepad else {})
+	return keys, pad
+end
+
 local overrides: { [string]: { keys: { Enum.KeyCode }?, gamepad: { Enum.KeyCode }? } } = {}
 
 function InputGlyphs.setOverride(
@@ -98,8 +140,9 @@ end
 function InputGlyphs.keysFor(action: string): ({ Enum.KeyCode }, { Enum.KeyCode })
 	local b = Bindings[action]
 	local o = overrides[action]
-	local keys = (o and o.keys) or (if b then b.keys else {})
-	local pad = (o and o.gamepad) or (if b then b.gamepad else {})
+	local liveK, liveP = liveKeys(action)
+	local keys = (o and o.keys) or liveK or (if b then b.keys else {})
+	local pad = (o and o.gamepad) or liveP or (if b then b.gamepad else {})
 	return keys, pad
 end
 
@@ -270,6 +313,29 @@ if RunService:IsClient() then
 		UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(check)
 	end)
 	UserInputService.LastInputTypeChanged:Connect(check)
+	-- Keybinds changed (the server rebuilt bindings in PlayContext): redraw
+	-- once the burst of adds and removes is over.
+	local pending = false
+	local function rebound()
+		if pending then
+			return
+		end
+		pending = true
+		task.delay(0.1, function()
+			pending = false
+			InputGlyphs.refreshAll()
+			changed:Fire(InputGlyphs.mode())
+		end)
+	end
+	task.spawn(function()
+		local player = Players.LocalPlayer
+		local ctx = player and player:WaitForChild("PlayContext", 60)
+		if ctx then
+			ctx.DescendantAdded:Connect(rebound)
+			ctx.DescendantRemoving:Connect(rebound)
+			rebound()
+		end
+	end)
 end
 
 return InputGlyphs

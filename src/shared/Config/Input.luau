@@ -10,46 +10,71 @@ export type Binding = {
 	keys: { Enum.KeyCode },
 	gamepad: { Enum.KeyCode },
 	touch: string?, -- name of the HUD button that drives this action
+	-- the Settings KEYBINDS row (Config/Settings) whose saved keys replace
+	-- `keys` / `gamepad` (server/Services/InputContextService)
+	setting: string?,
 	-- Value actions are fed by code, not keys (default: a Bool button).
 	kind: ("Bool" | "Direction1D")?,
 }
 
 local bindings: { [string]: Binding } = {
 	Fire = {
+		setting = "kFire",
 		keys = { Enum.KeyCode.MouseLeftButton },
 		gamepad = { Enum.KeyCode.ButtonR2 },
 		touch = "FireButton",
 	},
 	Aim = {
+		setting = "kAim",
 		keys = { Enum.KeyCode.MouseRightButton },
 		gamepad = { Enum.KeyCode.ButtonL2 },
 	},
 	Reload = {
+		setting = "kReload",
 		keys = { Enum.KeyCode.R },
 		gamepad = { Enum.KeyCode.ButtonX },
 		touch = "ReloadButton",
 	},
 	Sprint = {
+		setting = "kSprint",
 		keys = { Enum.KeyCode.LeftShift },
 		gamepad = { Enum.KeyCode.ButtonL3 },
 	},
 	Crouch = {
+		setting = "kCrouch",
 		keys = { Enum.KeyCode.C, Enum.KeyCode.LeftControl },
 		gamepad = { Enum.KeyCode.ButtonB },
 	},
-	Primary = { keys = { Enum.KeyCode.One }, gamepad = {}, touch = "PrimaryButton" },
-	Secondary = { keys = { Enum.KeyCode.Two }, gamepad = {}, touch = "SecondaryButton" },
-	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {}, touch = "MeleeButton" },
-	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY } },
+	Primary = {
+		keys = { Enum.KeyCode.One },
+		gamepad = {},
+		touch = "PrimaryButton",
+		setting = "kPrimary",
+	},
+	Secondary = {
+		keys = { Enum.KeyCode.Two },
+		gamepad = {},
+		touch = "SecondaryButton",
+		setting = "kSecondary",
+	},
+	Melee = {
+		keys = { Enum.KeyCode.Three },
+		gamepad = {},
+		touch = "MeleeButton",
+		setting = "kMelee",
+	},
+	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, setting = "kCycle" },
 	QuickMelee = {
+		setting = "kQuickMelee",
 		keys = { Enum.KeyCode.V },
 		gamepad = { Enum.KeyCode.ButtonR3 },
 		touch = "QuickMeleeButton",
 	},
 	-- Frees or re-locks the mouse (CameraController.freeMouse), owner 2026-11-16.
-	FreeMouse = { keys = { Enum.KeyCode.M }, gamepad = {} },
+	FreeMouse = { keys = { Enum.KeyCode.M }, gamepad = {}, setting = "kFreeMouse" },
 	-- Inspect the held gun (Y like Valorant).
 	Inspect = {
+		setting = "kInspect",
 		keys = { Enum.KeyCode.Y },
 		gamepad = { Enum.KeyCode.DPadDown },
 		touch = "InspectButton",
@@ -57,9 +82,24 @@ local bindings: { [string]: Binding } = {
 	-- Mod slots (Mods.md → Controls). Simulation input: Dash and Updraft
 	-- are predicted from these (shared/Simulation/Abilities); held Mods are
 	-- equipped by ModController. Crouch stays on C / Left Ctrl.
-	Mod1 = { keys = { Enum.KeyCode.Q }, gamepad = { Enum.KeyCode.ButtonL1 }, touch = "Mod1Button" },
-	Mod2 = { keys = { Enum.KeyCode.E }, gamepad = { Enum.KeyCode.ButtonR1 }, touch = "Mod2Button" },
-	Mod3 = { keys = { Enum.KeyCode.T }, gamepad = { Enum.KeyCode.DPadUp }, touch = "Mod3Button" },
+	Mod1 = {
+		keys = { Enum.KeyCode.Q },
+		gamepad = { Enum.KeyCode.ButtonL1 },
+		touch = "Mod1Button",
+		setting = "kMod1",
+	},
+	Mod2 = {
+		keys = { Enum.KeyCode.E },
+		gamepad = { Enum.KeyCode.ButtonR1 },
+		touch = "Mod2Button",
+		setting = "kMod2",
+	},
+	Mod3 = {
+		keys = { Enum.KeyCode.T },
+		gamepad = { Enum.KeyCode.DPadUp },
+		touch = "Mod3Button",
+		setting = "kMod3",
+	},
 	-- Camera pitch / 90 degrees, fed every frame by PoseController. It's
 	-- simulation input, so the server and the predicting client pose the
 	-- character with the same pitch (shared/Simulation/Poses).
