@@ -218,7 +218,7 @@ function EffectsController.localWallImpact(
 	)
 	if tempest then
 		TempestFx.splash(position, normal)
-		local set = TempestAudio.vandal[config.id]
+		local set = TempestAudio.guns[config.id]
 		if set then
 			AudioController.playSound(set.impact, "Foley", position) -- under the surface sound
 		end

@@ -556,8 +556,10 @@ function TempestKatana.step(
 	local ring = 0
 	if drawP then
 		if state.drawPrev == nil then
-			cue(state, "draw")
-			charmKick += 1
+			charmKick += 1 -- (the draw's sound is the gun set's: TempestAudio.guns.Knife.draw)
+		end
+		if (state.drawPrev or 0) < Style.DRAW_SNAP and drawP >= Style.DRAW_SNAP then
+			cue(state, "inspectSnap") -- the wheel up through the left
 		end
 		ring = 360 * Style.RING_TURNS * smooth(0, Style.RING_SPIN_END, drawP)
 		local d0, d1 = Style.DRAW_SURGE[1], Style.DRAW_SURGE[2]
@@ -568,7 +570,7 @@ function TempestKatana.step(
 			math.max(surgeGoal, smooth(d0, d0 + 0.05, drawP) * (1 - smooth(d1, d1 + 0.15, drawP)))
 		local prev = state.drawPrev or 0
 		if prev < d1 and drawP >= d1 then
-			cue(state, "drawLock")
+			cue(state, "inspectCatch") -- lands in the hold: a zap and a click
 			state.burstAt.Position =
 				state.toBody:PointToWorldSpace(bl(blade(1), 0, 0) * state.scale)
 			state.burst:Emit(if reduced then 3 else 8)
@@ -585,23 +587,23 @@ function TempestKatana.step(
 		if inspectP < prev then
 			prev = 0
 		end
-		if prev < 0.02 and inspectP >= 0.02 then
-			cue(state, "inspect")
-		end
 		if prev < Style.INSPECT_LIFT and inspectP >= Style.INSPECT_LIFT then
-			cue(state, "inspectRoll")
 			charmKick += 1.2
 		end
-		for i, w in Style.INSPECT_WAVES do
+		-- the electric sounds on the move's moments (SkinPreview KATANA.INSPECT_SFX)
+		for _, ev in Style.INSPECT_SFX do
+			local at = ev[1] :: number
+			if prev < at and inspectP >= at then
+				cue(state, ev[2] :: string)
+			end
+		end
+		for _, w in Style.INSPECT_WAVES do
 			local w0, w1 = w[1], w[2]
 			if inspectP > w0 and inspectP < w1 then
 				band = smooth(w0, w1, inspectP)
 				surgeGoal = math.max(surgeGoal, 0.5)
 			end
 			if prev < w1 and inspectP >= w1 then
-				if i == #Style.INSPECT_WAVES then
-					cue(state, "inspectCatch")
-				end
 				state.flare = math.max(state.flare, 0.7)
 				state.burstAt.Position =
 					state.toBody:PointToWorldSpace(bl(blade(1), 0, 0) * state.scale)
@@ -631,7 +633,6 @@ function TempestKatana.step(
 				if not reduced then
 					state.cleave.arcs:Emit(5)
 				end
-				cue(state, "cleave")
 			end
 		end
 	end

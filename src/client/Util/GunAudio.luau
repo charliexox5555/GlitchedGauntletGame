@@ -92,24 +92,26 @@ function GunAudio.shot(key: any, config: WeaponConfig, options: ShotOptions?)
 		end
 	end
 
-	-- Tempest-Strike Vandal (Config/TempestAudio.vandal, design_tempest_vandal.py):
-	-- its own designed takes; other players hear its far take with the stock tail
-	local tempest = if o.tempest then TempestAudio.vandal[config.id] else nil
-	if tempest then
+	-- A Tempest-Strike gun (Config/TempestAudio.guns, design_tempest_vandal.py /
+	-- design_tempest_line.py): its own designed takes; other players hear its far
+	-- take with the stock tail. Sets without a first / last / tail take use the
+	-- plain shot (those guns' shots carry their own decay).
+	local tempest = if o.tempest then TempestAudio.guns[config.id] else nil
+	if tempest and tempest.fire then
 		if o.at then
-			AudioController.playSound(tempest.fireFar, group, o.at)
+			AudioController.playSound(tempest.fireFar or tempest.fire, group, o.at)
 			if set.tail then
 				st.tail = AudioController.playSound(set.tail, group, o.at)
 			end
 			return
 		end
-		local last = o.lastRound == true
+		local last = o.lastRound == true and tempest.fireLast ~= nil
 		local skinShot = if last
 			then tempest.fireLast
-			elseif first then tempest.fireFirst
+			elseif first and tempest.fireFirst then tempest.fireFirst
 			else tempest.fire
 		if AudioController.playSound(skinShot, "Gun") then
-			if not last then
+			if not last and tempest.tail then
 				st.tail = AudioController.playSound(tempest.tail, "Gun")
 			end
 			return

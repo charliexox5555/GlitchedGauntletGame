@@ -752,7 +752,8 @@ end
 -- An action beat: its foley (Config/TempestAudio, over the stock handling sounds)
 -- and any hook the caller set (state.cues[name] = fn).
 function TempestIdle.cue(state: State, name: string)
-	local owned = state.p.ownFoley and (name == "magOut" or name == "magSeat")
+	-- guns whose designed handling carries the water keep the old layered cues quiet
+	local owned = state.p.ownFoley and (name == "magOut" or name == "magSeat" or name == "shellIn")
 	if state.visible and not owned then
 		AudioController.playSound(TempestAudio.cues[name], "Foley")
 	end
@@ -1141,15 +1142,19 @@ function TempestIdle.step(
 		end
 		if prev < pr.rollIn and inspectP >= pr.rollIn then
 			state.boost = math.max(state.boost, Style.BOOST_SHOT)
-			TempestIdle.cue(state, "inspectRoll")
 		end
 		if prev < pr.catch and inspectP >= pr.catch then
 			burst(state, "Centre", 12, bl(pr.x, 0, pr.z))
 			state.boost = math.max(state.boost, Style.BOOST_SEAT)
-			TempestIdle.cue(state, "inspectCatch")
 		end
-		if prev < 0.02 and inspectP >= 0.02 then
-			TempestIdle.cue(state, "inspect")
+		-- the electric inspect sounds, each on its moment of the move
+		-- (TempestProfiles inspectSfx: snaps fire ahead so their whoosh
+		-- peaks as the pose lands)
+		for _, ev in state.p.inspectSfx do
+			local at = ev[1] :: number
+			if prev < at and inspectP >= at then
+				TempestIdle.cue(state, ev[2] :: string)
+			end
 		end
 	elseif drawP then
 		if state.drawPrev == nil then

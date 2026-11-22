@@ -294,10 +294,10 @@ local function usesRuinBlighted(): boolean
 end
 
 -- The Tempest-Strike Vandal: its own designed shots and handling
--- (Config/TempestAudio.vandal; owner approved the v2 set 2026-11-22).
+-- (Config/TempestAudio.guns; owner approved the Vandal's v2 set 2026-11-22, the line 2026-11-22).
 local function tempestSet(config: WeaponConfig): any
 	if ViewmodelController.hasTempest() then
-		return TempestAudio.vandal[config.id]
+		return TempestAudio.guns[config.id]
 	end
 	return nil
 end
@@ -498,11 +498,13 @@ local function inspect()
 	if alive and s and not reloading and os.clock() >= equipReadyAt and not gunBlocked() then
 		if ViewmodelController.inspect() then
 			local reaver = ViewmodelController.hasRuinedReaver()
-			if not usesRuinBlighted() and not reaver then
+			-- (the Tempest-Strike Katana's inspect sounds are its own timeline)
+			local katana = s.config.fireMode == "Melee" and tempestSet(s.config) ~= nil
+			if not usesRuinBlighted() and not reaver and not katana then
 				playGun(s.config, "inspect")
 			end
 			-- The knife's flips click as it's caught (Config/Viewmodel InspectMelee).
-			if s.config.fireMode == "Melee" and not reaver then
+			if s.config.fireMode == "Melee" and not reaver and not katana then
 				for _, at in Animations.KNIFE_FEEL.inspectFlips do
 					task.delay(at, function()
 						if ViewmodelController.isInspecting() then

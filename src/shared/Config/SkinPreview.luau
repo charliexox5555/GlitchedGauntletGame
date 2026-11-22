@@ -148,6 +148,18 @@ return table.freeze({
 			RING_AXIS = Vector3.yAxis, -- the ring hole's axis (bone space)
 			DRAW_SURGE = { 0.3, 0.5 }, -- the surge runs guard -> tip (the wheel up into the hold)
 			INSPECT_LIFT = 0.7, -- KatanaInspect: the wrist snaps it up tip-high
+			-- its sounds (3.4 s): level lands 0.13, wave 0.18, lift lands 0.73, wave
+			-- 0.78, back 0.95; snaps fire 0.12 s (0.035) ahead of the pose
+			INSPECT_SFX = {
+				{ 0.02, "inspect" },
+				{ 0.095, "inspectSnap" },
+				{ 0.18, "katanaWave" },
+				{ 0.695, "inspectSnap" },
+				{ 0.78, "katanaWave" },
+				{ 0.915, "inspectSnap" },
+				{ 0.975, "inspectSettle" },
+			},
+			DRAW_SNAP = 0.3, -- KatanaDraw: the wheel's whoosh (peaks as it passes the left, ~0.4)
 			INSPECT_WAVES = { { 0.18, 0.34 }, { 0.78, 0.9 } }, -- waves down the level blade, then the raised one
 			CHARM_AXIS = Vector3.new(1, 1, 0).Unit, -- the charm swings about this (bone space)
 			CHARM_HANG = 0.0638, -- the charm pivot sits this far under the ring centre (rides the ring spin)

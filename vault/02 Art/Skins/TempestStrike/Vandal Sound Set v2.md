@@ -105,3 +105,8 @@ The owner said the first shot "just sounds like the regular shot". Before upload
 
 All tunable in `Config/TempestAudio`.
 
+## Inspect: now electric and on the move's moments (2026-11-22)
+The owner said the set was "solid, except for the inspect": replace the water with electric, and line the cues up with the animation. The v2 water inspect cues are replaced by the electric set, which plays on the tempestInspect timeline.
+
+See [Line Sound Sets](Line%20Sound%20Sets.md) for the cues and their times.
+

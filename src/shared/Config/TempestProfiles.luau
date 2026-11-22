@@ -65,12 +65,28 @@ export type Profile = {
 	adsHide: boolean?, -- the helix and shot rings clear the sight while aiming
 	pulseEvery: number?, -- a shot ring every Nth shot (fast guns)
 	shellCue: boolean?, -- the Tempest shell-in cue per round (default on)
-	ownFoley: boolean?, -- the gun's designed mag sounds carry the water (no magOut / magSeat cue)
+	ownFoley: boolean?, -- the gun's designed handling carries the water (no magOut / magSeat / shellIn cue)
+	inspectSfx: { { any } }, -- { progress, TempestAudio cue } on the inspect track (sounds on the move's moments)
 }
 
 local function v(x: number, y: number, z: number): Station
 	return { x, y, z }
 end
+
+-- Inspect sounds on the move's moments (owner 2026-11-22: "fix the timing so the
+-- audio cues line up accurately with the key moments"). A snap's whoosh peaks
+-- ~0.12 s into its file, the roll's whirl ~0.34 s: they fire that much ahead.
+-- tempestInspect (5 s, Config/Viewmodel): the snap to the right side lands at
+-- 0.15, it passes muzzle-up for the roll at 0.52, caught 0.59, the whip home
+-- lands 0.945.
+local INSPECT_SFX = {
+	{ 0.02, "inspect" },
+	{ 0.126, "inspectSnap" },
+	{ 0.452, "inspectRoll" },
+	{ 0.59, "inspectCatch" },
+	{ 0.921, "inspectSnap" },
+	{ 0.965, "inspectSettle" },
+}
 
 local VENTS = { { name = "TS_VentL", side = 1 }, { name = "TS_VentR", side = -1 } }
 
@@ -111,7 +127,8 @@ local profiles: { [string]: Profile } = {
 		tracks = { draw = "DrawTempest", reload = "ReloadTempest", inspect = "InspectTempest" },
 		reloadSpin = true,
 		fit = false,
-		ownFoley = true, -- TempestAudio.vandal magOut / magIn
+		ownFoley = true, -- TempestAudio.guns magOut / magIn
+		inspectSfx = INSPECT_SFX,
 	},
 	-- SMG: receiver to 0.46, shroud 0.46-0.82, thin barrel and brake to the muzzle at 1.14 (bore 0.294).
 	-- No vent flaps (owner 2026-11-22: the flaring plates looked odd).
@@ -163,6 +180,8 @@ local profiles: { [string]: Profile } = {
 		helixWidth = 0.6,
 		adsHide = true,
 		pulseEvery = 3,
+		ownFoley = true,
+		inspectSfx = INSPECT_SFX,
 	},
 	-- Lever-action scoped rifle: receiver + scope 0.2-1.13, wood forend to 1.9, barrel over a tube
 	-- magazine (0.077-0.24) to the crown at 3.2 (bore 0.205); rounds go in at the side gate.
@@ -211,6 +230,8 @@ local profiles: { [string]: Profile } = {
 		reloadSpin = false,
 		fit = true,
 		shellCue = false, -- the stock shell sound only (a second cue per round read as choppy)
+		ownFoley = true,
+		inspectSfx = INSPECT_SFX,
 	},
 	-- Pump shotgun: receiver to 0.95, barrel over a tube magazine (0.164-0.42), pump 1.3-2.05,
 	-- muzzle at 2.83 (bore 0.369); shells in at the loading port. No ADS.
@@ -261,6 +282,8 @@ local profiles: { [string]: Profile } = {
 		reloadSpin = false,
 		fit = true,
 		shellCue = false, -- the stock shell sound only (a second cue per round read as choppy)
+		ownFoley = true,
+		inspectSfx = INSPECT_SFX,
 	},
 	-- Revolver (two-handed): frame and 12-sided cylinder 0.3-0.6, barrel with a top rib over an
 	-- underlug to 1.2, bare barrel to the muzzle at 1.5 (bore 0.278), side plates.
@@ -308,6 +331,17 @@ local profiles: { [string]: Profile } = {
 		},
 		reloadSpin = false,
 		fit = true,
+		ownFoley = true,
+		-- InspectTempestSheriff (2.8 s): snap to the right side 0.16, rolled to you
+		-- as the cylinder swings out 0.58 (spins 0.67-0.99), flicked shut 0.87, home 0.955
+		inspectSfx = {
+			{ 0.02, "inspect" },
+			{ 0.117, "inspectSnap" },
+			{ 0.537, "inspectSnap" },
+			{ 0.62, "inspectRoll" },
+			{ 0.865, "inspectCatch" },
+			{ 0.96, "inspectSettle" },
+		},
 	},
 }
 

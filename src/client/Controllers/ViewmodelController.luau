@@ -1260,10 +1260,11 @@ function ViewmodelController.unequip()
 	end
 end
 
--- The camera gun wears the Tempest-Strike line (Util/TempestIdle runs on it).
+-- The camera gun wears the Tempest-Strike line (Util/TempestIdle or, in the
+-- knife slot, Util/TempestKatana runs on it).
 function ViewmodelController.hasTempest(): boolean
 	local right = guns.Right
-	return right ~= nil and right.tempest ~= nil
+	return right ~= nil and (right.tempest ~= nil or right.katana ~= nil)
 end
 
 function ViewmodelController.hasShadowMist(): boolean
