@@ -5,7 +5,8 @@
 -- match client in match servers (start() is safe to call twice). It reads the
 -- server-published "Settings" StringValue (Shared/PlayerSettings) and:
 --   * applies the world-wide rows itself: optimized lighting and textures,
---     hide HUD / side tasks (named ScreenGuis), the lobby camera's sensitivity;
+--     hide HUD / side tasks (named ScreenGuis), the lobby camera's sensitivity
+--     and FOV, the volume sliders (SoundGroups) and UI SOUNDS;
 --   * answers the rest for the systems that own them: get(id), onChanged(fn),
 --     lowVfx() / vfxCount(n), scaleTurn() (CameraController), palette() and
 --     hitColors() (colourblind + damage highlight).
@@ -17,12 +18,16 @@ local MaterialService = game:GetService("MaterialService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"):WaitForChild("SettingsApply") :: ModuleScript)
 local Settings = require(Shared:WaitForChild("Config"):WaitForChild("Settings") :: ModuleScript)
 local PlayerSettings = require(Shared:WaitForChild("PlayerSettings") :: ModuleScript)
+local UiSfx = require(Shared:WaitForChild("UiSfx") :: ModuleScript)
+local Audio = require(Shared:WaitForChild("Config"):WaitForChild("Audio") :: ModuleScript)
+local CameraConfig = require(Shared:WaitForChild("Config"):WaitForChild("Camera") :: ModuleScript)
 
 type Values = PlayerSettings.Values
 export type TurnMode = "hip" | "aim" | "scope"
@@ -150,6 +155,9 @@ local function lobbyCameraStep()
 		lobbyLast = nil
 		return
 	end
+	-- FIELD OF VIEW in the lobby's third person too (a case's FOV kick runs
+	-- after this, Util/CaseOpening).
+	cam.FieldOfView = math.clamp(num("fov"), CameraConfig.MIN_FOV, CameraConfig.MAX_FOV)
 	local last = lobbyLast
 	if last then
 		SettingsApply.scaleTurn(cam, last, "hip")
@@ -343,12 +351,66 @@ local function applyGuis()
 	end
 end
 
+-- AUDIO ----------------------------------------------------------------------------
+
+local function soundGroup(name: string): SoundGroup
+	local g = SoundService:FindFirstChild(name)
+	if g and g:IsA("SoundGroup") then
+		return g
+	end
+	local made = Instance.new("SoundGroup")
+	made.Name = name
+	made.Parent = SoundService
+	return made
+end
+
+-- The Settings MUSIC group (lobby music, the win song).
+function SettingsApply.musicGroup(): SoundGroup
+	return soundGroup(Config.MUSIC_GROUP)
+end
+
+local function applyAudio()
+	local master = num("masterVolume") / 100
+	local sfx = master * num("sfxVolume") / 100
+	soundGroup(Config.MUSIC_GROUP).Volume = master * num("musicVolume") / 100
+	soundGroup(Config.SFX_GROUP).Volume = sfx
+	local combat = SoundService:FindFirstChild(Config.COMBAT_GROUP)
+	if combat and combat:IsA("SoundGroup") then
+		combat.Volume = (Audio.GROUP_VOLUME.Master or 1) * sfx
+	end
+	local ui = SoundService:FindFirstChild(Config.UI_GROUP)
+	if ui and ui:IsA("SoundGroup") then
+		ui.Volume = master
+	end
+	UiSfx.setEnabled(SettingsApply.get("uiSounds") ~= false)
+end
+
+-- A sound nobody put in a group (the world, footsteps, abilities, cases)
+-- joins SOUND EFFECTS; checked a frame later so its maker can group it first.
+local function claimSound(d: Instance)
+	if d:IsA("Sound") and d.SoundGroup == nil then
+		d.SoundGroup = soundGroup(Config.SFX_GROUP)
+	end
+end
+
+local function watchSounds(root: Instance)
+	for _, d in root:GetDescendants() do
+		claimSound(d)
+	end
+	root.DescendantAdded:Connect(function(d)
+		if d:IsA("Sound") then
+			task.defer(claimSound, d)
+		end
+	end)
+end
+
 -- VALUES ---------------------------------------------------------------------------
 
 local function applyAll()
 	setLowLight(on("optimizedLighting"))
 	setLowTex(on("optimizedTextures"))
 	applyGuis()
+	applyAudio()
 	changedEvent:Fire()
 end
 
@@ -384,8 +446,18 @@ function SettingsApply.start()
 		Enum.RenderPriority.Last.Value,
 		lobbyCameraRecord
 	)
+	applyAudio()
+	-- the mix buses are made by their owners (AudioController, UiSfx): level them on arrival
+	SoundService.ChildAdded:Connect(function(c)
+		if c:IsA("SoundGroup") and (c.Name == Config.COMBAT_GROUP or c.Name == Config.UI_GROUP) then
+			task.defer(applyAudio)
+		end
+	end)
+	watchSounds(Workspace)
+	watchSounds(SoundService)
 	task.spawn(function()
 		local playerGui = player:WaitForChild("PlayerGui")
+		watchSounds(playerGui)
 		playerGui.ChildAdded:Connect(function(g)
 			if g:IsA("ScreenGui") then
 				task.defer(function()

@@ -26,6 +26,18 @@ SettingsApply.ORBIT_MIN = 1
 -- from 100 % (80 % = 0.35 studs back, smaller; 120 % = 0.35 closer).
 SettingsApply.VIEWMODEL_DEPTH = 1.75
 
+-- AUDIO ----------------------------------------------------------------------
+-- The volume sliders (0-100 %) set these SoundGroups under SoundService:
+--   * Combat (AudioController's mix bus: guns, hits, foley, ambience) and
+--     SFX_GROUP (every other sound with no group: the world, footsteps,
+--     abilities, cases): MASTER x SOUND EFFECTS, on top of the bus's own level;
+--   * MUSIC_GROUP (the lobby music, the win song): MASTER x MUSIC;
+--   * UiSfx (menu sounds): MASTER (UI SOUNDS turns them off).
+SettingsApply.SFX_GROUP = "SettingsSfx"
+SettingsApply.MUSIC_GROUP = "SettingsMusic"
+SettingsApply.UI_GROUP = "UiSfx"
+SettingsApply.COMBAT_GROUP = "Combat"
+
 -- PERFORMANCE ------------------------------------------------------------------
 -- Optimized VFX: decorative particle counts (dust, chips, embers, smoke) are
 -- multiplied by this and rounded down, so single puffs go and bursts thin out.

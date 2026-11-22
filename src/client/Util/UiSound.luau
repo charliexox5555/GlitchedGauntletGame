@@ -10,8 +10,8 @@ local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local UiSound = {}
 
 -- Returns the Sound it started (nil if the cue's gap or Settings held it).
-function UiSound.play(name: string, pitchScale: number?): Sound?
-	return UiSfx.play(name, pitchScale)
+function UiSound.play(name: string, pitchScale: number?, group: SoundGroup?): Sound?
+	return UiSfx.play(name, pitchScale, group)
 end
 
 -- Loads every cue once, in the background, so the first hover isn't silent.

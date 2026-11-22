@@ -77,8 +77,10 @@ end
 
 -- Returns the main Sound it started (nil when it didn't play), so a caller
 -- can follow it (the win cutscene runs on the ending song's clock).
-function UiSfx.play(name: string, pitchScale: number?): Sound?
-	if not enabled then
+-- `through`: play through that SoundGroup instead, even with UI SOUNDS off
+-- (the win song is music: Settings MUSIC, Shared/SettingsApply).
+function UiSfx.play(name: string, pitchScale: number?, through: SoundGroup?): Sound?
+	if not enabled and not through then
 		return nil
 	end
 	local cue = cueOf(name)
@@ -97,6 +99,9 @@ function UiSfx.play(name: string, pitchScale: number?): Sound?
 		local s = p.sounds[p.next]
 		p.next = p.next % #p.sounds + 1
 		s.Volume = c.volume
+		if through then
+			s.SoundGroup = through
+		end
 		s.PlaybackSpeed = (c.pitch or 1) * speed
 		s.TimePosition = 0
 		s:Play()

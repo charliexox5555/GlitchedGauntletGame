@@ -6,6 +6,16 @@
 export type Group = "Gun" | "Enemy" | "Feedback" | "Foley" | "Ui" | "Ambience" | "Room"
 
 return table.freeze({
+	-- The lobby's main music (owner 2026-11-22), lobby servers only, while the
+	-- player walks the lobby (it fades out in the range and pad duels).
+	-- Through the Settings MUSIC group (Shared/SettingsApply).
+	LOBBY_MUSIC = table.freeze({
+		id = "rbxassetid://130289448486631",
+		volume = 0.5,
+		fadeIn = 2,
+		fadeOut = 1,
+	}),
+
 	-- SoundGroups under SoundService.Combat (the master bus).
 	GROUP_VOLUME = table.freeze({
 		Master = 1,

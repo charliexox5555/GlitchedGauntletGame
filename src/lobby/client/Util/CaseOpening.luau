@@ -259,7 +259,8 @@ local function kick(strength: number, fovPunch: number)
 	local t0 = os.clock()
 	local baseFov = cam.FieldOfView
 	local name = "CaseKick" .. tostring(t0)
-	RunService:BindToRenderStep(name, Enum.RenderPriority.Camera.Value + 1, function()
+	-- (+2: after Shared/SettingsApply sets the player's FOV at +1)
+	RunService:BindToRenderStep(name, Enum.RenderPriority.Camera.Value + 2, function()
 		local t = os.clock() - t0
 		local env = math.max(0, 1 - t / 0.35)
 		if env <= 0 then

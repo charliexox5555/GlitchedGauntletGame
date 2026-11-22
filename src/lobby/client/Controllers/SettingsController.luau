@@ -84,8 +84,7 @@ end
 
 local function applyLive()
 	UiMotion.setReduced(values.reducedMotion == true)
-	UiSfx.setEnabled(values.uiSounds ~= false)
-	-- everything else applies through Shared/SettingsApply (live, before the save lands)
+	-- everything else (UI SOUNDS and the volumes too) applies through Shared/SettingsApply (live, before the save lands)
 	SettingsApply.preview(values)
 end
 

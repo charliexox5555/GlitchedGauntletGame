@@ -30,6 +30,7 @@ local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Config = require(ReplicatedStorage.Shared.Config.WinCutscene)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
@@ -626,7 +627,7 @@ local function fireCue(r: Run, cue: Config.Cue, late: number)
 	snd.Volume = cue.vol
 	local song = r.song
 	if song then
-		snd.SoundGroup = song.SoundGroup -- the ending song's group (UI sounds)
+		snd.SoundGroup = song.SoundGroup -- the ending song's group (Settings MUSIC)
 	end
 	snd.Parent = r.folder
 	snd.TimePosition = math.max(late, 0)
@@ -920,7 +921,8 @@ function WinCutscene.play(winners: { Model }, opts: Options): boolean
 	run = r
 	moveBars(r, true, Config.BARS.inTime)
 	-- the song is the clock (one ending song for everyone)
-	r.song = UiSound.play(Config.SONG)
+	-- Settings MUSIC (its cues follow the song's group)
+	r.song = UiSound.play(Config.SONG, nil, SettingsApply.musicGroup())
 	r.asked = os.clock()
 	r.began = r.asked
 	cam.CameraType = Enum.CameraType.Scriptable
