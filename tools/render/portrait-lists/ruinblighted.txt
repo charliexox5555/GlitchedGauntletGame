@@ -1,0 +1,1 @@
+WeaponSkins/RuinBlighted/Vandal;WeaponSkins/RuinBlighted/Spectre;WeaponSkins/RuinBlighted/Ghost;WeaponSkins/RuinBlighted/Guardian;WeaponSkins/RuinBlighted/Operator

@@ -190,3 +190,13 @@ Save results in `art-source/ui/shop/` with the file names below; I upload and wi
 ### What I render in Studio (no prompt needed)
 - Hero shots: each bundle's Vandal side-on at 2048 px, transparent (RenderPortraits at a larger size) → the cards' Hero.
 - Ruin-Blighted portraits for all five guns → its tiles and the bundle page strip.
+
+## Renders done (2026-11-22)
+- **Ruin-Blighted portraits** (Vandal, Spectre, Ghost, Guardian, Operator) rendered with `RenderPortraits` settings on a 3 × 2 sheet, cut by `icon_sheet.py` into `art-source/ui/item-portraits/*_RuinBlighted.png`, uploaded (group 11116787) and added to `Shared/ItemPortraits` (image ids, not the decal ids: Open Cloud "Decal" uploads must be resolved to their Image id, e.g. `InsertService:LoadAsset(decal)` → `Decal.Texture`). List in `tools/render/portrait-lists/ruinblighted.txt`.
+- **Hero shots** (each bundle's Vandal, near side-on, slight front three-quarter, ~840 px wide): new `tools/studio/RenderHeroShots.luau` (one skin per full-screen sheet), `icon_sheet.py --cols 1 --rows 1 --maxw 1600` (new `--maxw`), `art-source/ui/shop/heroes/hero_*.png`, ids in `ShopCatalog.BUNDLES[*].hero`.
+- Cards now show the real hero and tiles; the old hover row of small item cells is gone on cards that have tiles. Captures: [Ruin-Blighted card](Shop%20Economy/bundles_renders_ruin.jpg), [Tempest-Strike card](Shop%20Economy/bundles_renders_tempest.jpg), [bundle page at 16:9](Shop%20Economy/bundle_page_16x9.jpg).
+
+## Owner's verdict on the shop look (2026-11-22)
+"The UI definitely needs work, especially the bundles. The colours I just don't like in the Shop and everything needs to be improved. We will render out and create professional images with Gemini or ChatGPT with your prompts once we get there for the bundles."
+- So: the flat card colours (teal / blue / green, gold coin cards) are **not liked**; the next look pass replaces them. Bundle banners will be **professional images from Gemini / ChatGPT** (prompts above), with our hero renders as the gun layer where the image needs the real skin.
+- Open for that pass: a new shop colour scheme (ask the owner with options before building), banner art in, then every tab polished.

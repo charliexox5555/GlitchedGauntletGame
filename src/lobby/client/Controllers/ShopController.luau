@@ -312,7 +312,25 @@ end
 --------------------------------------------------------------------------------
 -- Bundles: contents on hover
 
+local function openBundle(bundle: ShopCatalog.Bundle)
+	local first = 1
+	for i, item in bundle.items do
+		if item.kind == "Skin" then
+			first = i
+			break
+		end
+	end
+	openPreview(bundle, first)
+end
+
 local function buildBundle(card: GuiButton, bundle: ShopCatalog.Bundle)
+	if card:FindFirstChild("Tiles") then
+		-- the card shows its items as Studio tiles (fillBundleCard): no hover row
+		card.Activated:Connect(function()
+			openBundle(bundle)
+		end)
+		return
+	end
 	local contents = Instance.new("Frame")
 	contents.Name = "Contents"
 	contents.Position = UDim2.fromOffset(22, 96)
@@ -395,14 +413,7 @@ local function buildBundle(card: GuiButton, bundle: ShopCatalog.Bundle)
 		end)
 	end)
 	card.Activated:Connect(function()
-		local first = 1
-		for i, item in bundle.items do
-			if item.kind == "Skin" then
-				first = i
-				break
-			end
-		end
-		openPreview(bundle, first)
+		openBundle(bundle)
 	end)
 end
 
@@ -1353,7 +1364,9 @@ local function fillBundleCard(card: GuiButton, bundle: ShopCatalog.Bundle)
 				table.insert(guns, item.gun)
 			end
 		end
-		local id = SkinArt.side("Vandal", first.line) or SkinArt.line(first.line, guns)
+		local id = bundle.hero
+			or SkinArt.side("Vandal", first.line)
+			or SkinArt.line(first.line, guns)
 		heroPic.Image = id or ""
 		if not id then
 			-- no picture yet (plan: Blender hero renders): the 3D view of its Vandal

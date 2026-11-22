@@ -9,6 +9,7 @@ visible pixels (plus a margin) and saved as a PNG named after the item.
 
 usage: python icon_sheet.py BLACK.jpg WHITE.jpg OUT_DIR "Weapons/Vandal;WeaponSkins/Prism/Vandal;..."
        [--cols 5 --rows 3 --centered]   (RenderPortraits.luau: a centred grid of square cells)
+       [--maxw 512]                     (widest output; the shop's hero shots use 1600)
 """
 import os
 import sys
@@ -27,7 +28,7 @@ def name_for(path):
     return parts[2] + '_' + parts[1]  # WeaponSkins/<Line>/<Gun> -> Gun_Line
 
 
-def main(black_path, white_path, out_dir, items, cols=COLS, rows=ROWS, centered=False):
+def main(black_path, white_path, out_dir, items, cols=COLS, rows=ROWS, centered=False, max_w=MAX_W):
     os.makedirs(out_dir, exist_ok=True)
     b = Image.open(black_path).convert('RGB')
     w = Image.open(white_path).convert('RGB').resize(b.size)
@@ -64,8 +65,8 @@ def main(black_path, white_path, out_dir, items, cols=COLS, rows=ROWS, centered=
             continue
         l, t, r, btm = box
         cell = cell.crop((max(0, l - PAD), max(0, t - PAD), min(cell.width, r + PAD), min(cell.height, btm + PAD)))
-        if cell.width > MAX_W:
-            cell = cell.resize((MAX_W, round(cell.height * MAX_W / cell.width)), Image.LANCZOS)
+        if cell.width > max_w:
+            cell = cell.resize((max_w, round(cell.height * max_w / cell.width)), Image.LANCZOS)
         fn = os.path.join(out_dir, name_for(path) + '.png')
         cell.save(fn)
         saved.append(fn)
@@ -83,7 +84,8 @@ if __name__ == '__main__':
         return default
     cols = opt('--cols', COLS)
     rows = opt('--rows', ROWS)
+    max_w = opt('--maxw', MAX_W)
     centered = '--centered' in args
     if centered:
         args.remove('--centered')
-    main(args[0], args[1], args[2], [x for x in args[3].split(';') if x], cols, rows, centered)
+    main(args[0], args[1], args[2], [x for x in args[3].split(';') if x], cols, rows, centered, max_w)

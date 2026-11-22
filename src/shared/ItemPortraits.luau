@@ -219,6 +219,12 @@ local IDS: { [string]: string } = table.freeze({
 	["Vandal/Rootglass"] = "rbxassetid://81584990516318",
 	["Vandal/Sealwork"] = "rbxassetid://93124561342243",
 	["Vandal/TempestStrike"] = "rbxassetid://103005799915959",
+	-- Ruin-Blighted (bundle only; rendered 2026-11-22 for the Shop's bundle tiles)
+	["Vandal/RuinBlighted"] = "rbxassetid://140263872544455",
+	["Spectre/RuinBlighted"] = "rbxassetid://105834249348929",
+	["Ghost/RuinBlighted"] = "rbxassetid://113494965598753",
+	["Guardian/RuinBlighted"] = "rbxassetid://123307577086723",
+	["Operator/RuinBlighted"] = "rbxassetid://138818531885286",
 })
 function ItemPortraits.get(gunId: string, line: string): string?
 	return IDS[gunId .. "/" .. line]

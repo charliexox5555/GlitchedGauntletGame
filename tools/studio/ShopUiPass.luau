@@ -136,7 +136,7 @@ for _, id in { "RuinBlighted", "TempestStrike" } do
 	local holder = row1["Bundle_" .. id]
 	holder.Size = UDim2.fromOffset(W, H)
 	local card = holder.Card
-	hero(card, "Hero", Vector2.new(0, 1), UDim2.new(0, 0, 1, 24), UDim2.fromOffset(760, 400))
+	hero(card, "Hero", Vector2.new(0, 1), UDim2.new(0, 28, 1, 20), UDim2.fromOffset(720, 390))
 	local tiles = card:FindFirstChild("Tiles") or Instance.new("Frame")
 	tiles.Name = "Tiles"
 	tiles.BackgroundTransparency = 1

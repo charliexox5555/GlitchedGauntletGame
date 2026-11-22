@@ -4150,5 +4150,47 @@
   "name": "GG Ruin-Blighted Spectre shot 00 tail only 01",
   "type": "Audio",
   "uploaded": "2026-11-20 01:10:15"
+ },
+ "art-source/ui/item-portraits/Vandal_RuinBlighted.png": {
+  "assetId": 78493368702901,
+  "name": "GG Portrait Vandal RuinBlighted",
+  "type": "Decal",
+  "uploaded": "2026-11-22 17:35:43"
+ },
+ "art-source/ui/item-portraits/Spectre_RuinBlighted.png": {
+  "assetId": 85586196054455,
+  "name": "GG Portrait Spectre RuinBlighted",
+  "type": "Decal",
+  "uploaded": "2026-11-22 17:35:47"
+ },
+ "art-source/ui/item-portraits/Ghost_RuinBlighted.png": {
+  "assetId": 84614637195729,
+  "name": "GG Portrait Ghost RuinBlighted",
+  "type": "Decal",
+  "uploaded": "2026-11-22 17:35:50"
+ },
+ "art-source/ui/item-portraits/Guardian_RuinBlighted.png": {
+  "assetId": 73665386124791,
+  "name": "GG Portrait Guardian RuinBlighted",
+  "type": "Decal",
+  "uploaded": "2026-11-22 17:35:53"
+ },
+ "art-source/ui/item-portraits/Operator_RuinBlighted.png": {
+  "assetId": 137776618445189,
+  "name": "GG Portrait Operator RuinBlighted",
+  "type": "Decal",
+  "uploaded": "2026-11-22 17:35:56"
+ },
+ "art-source/ui/shop/heroes/hero_ruinblighted.png": {
+  "assetId": 71311115838552,
+  "name": "GG Shop Hero ruinblighted",
+  "type": "Decal",
+  "uploaded": "2026-11-22 17:35:59"
+ },
+ "art-source/ui/shop/heroes/hero_tempeststrike.png": {
+  "assetId": 107976826330113,
+  "name": "GG Shop Hero tempeststrike",
+  "type": "Decal",
+  "uploaded": "2026-11-22 17:36:02"
  }
 }

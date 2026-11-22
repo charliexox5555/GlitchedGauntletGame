@@ -40,6 +40,7 @@ export type Bundle = {
 	tag: string?, -- the small tag under the name
 	sub: string?, -- one line under the name (what's in it)
 	soon: boolean?, -- contents not decided yet: the card says so and doesn't open
+	hero: string?, -- the card's big picture (a Studio hero render, tools/studio/RenderHeroShots.luau)
 }
 
 local Products = require(game:GetService("ReplicatedStorage").Shared.Config.Products)
@@ -120,6 +121,7 @@ ShopCatalog.BUNDLES = {
 		id = "RuinBlighted",
 		name = "RUIN-BLIGHTED",
 		robux = 999,
+		hero = "rbxassetid://110988773235195", -- art-source/ui/shop/heroes/hero_ruinblighted.png
 		color = Color3.fromHex("2A6F6A"),
 		slot = "Featured",
 		tag = "EXCLUSIVE",
@@ -136,6 +138,7 @@ ShopCatalog.BUNDLES = {
 		id = "TempestStrike",
 		name = "TEMPEST-STRIKE",
 		robux = 1099,
+		hero = "rbxassetid://122194641365122", -- art-source/ui/shop/heroes/hero_tempeststrike.png
 		color = Color3.fromHex("2F5DB8"),
 		slot = "Featured",
 		tag = "NEW",
