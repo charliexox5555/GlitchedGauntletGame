@@ -29,7 +29,12 @@ function ScreenPoint.centre(space: GuiBase2d): Vector2
 	end
 	local cf = cam.CFrame
 	local p = cam:WorldToViewportPoint(cf.Position + cf.LookVector * 100)
-	return ScreenPoint.toLocal(space, Vector2.new(p.X, p.Y))
+	-- Snapped to 0.01 px: the projection carries ~1e-4 px of float noise that
+	-- changes as the camera turns, and a centre on a pixel edge then floored
+	-- to alternating pixels (owner 2026-11-22: the crosshair shook on a phone).
+	local x = math.floor(p.X * 100 + 0.5) / 100
+	local y = math.floor(p.Y * 100 + 0.5) / 100
+	return ScreenPoint.toLocal(space, Vector2.new(x, y))
 end
 
 -- A viewport point as a fraction of `space` (for Scale positions).

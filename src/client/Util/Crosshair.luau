@@ -32,6 +32,8 @@ local root: Frame? = nil
 local bars: { Part } = {} -- right, left, bottom, top
 local dot: Part? = nil
 local shownGap = 0
+local drawnInner = 0 -- the gap as drawn (whole px)
+local GAP_DEADBAND = 0.75 -- px the eased gap must move before the bars do
 local primed = false
 local alpha = 1
 
@@ -208,7 +210,13 @@ function Crosshair.step(
 		primed = true
 	end
 	shownGap += (goal - shownGap) * (1 - math.exp(-c.followRate * dt))
-	local inner = math.floor(shownGap * collapse + 0.5)
+	-- A small dead band: a gap hovering on a half pixel (a touch stick's
+	-- tiny speed changes) no longer flips the bars a pixel every frame.
+	local want = shownGap * collapse
+	if math.abs(want - drawnInner) > GAP_DEADBAND or want < 0.5 then
+		drawnInner = math.floor(want + 0.5)
+	end
+	local inner = drawnInner
 
 	local length = evenPx(c.bars.length * px) -- even: whole-pixel ends (5 px landed on half pixels)
 	local thick = evenPx(c.bars.thickness * px)
