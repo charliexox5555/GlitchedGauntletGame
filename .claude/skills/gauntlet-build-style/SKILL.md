@@ -39,6 +39,7 @@ History, captures and the code that implements this: `vault/02 Art/Sunwell Works
 5. **Slight asymmetry inside an ordered whole**: one corner cut bigger, a leaning plate. The room stays balanced; the object is not a mirror image.
 
 ## 2. How parts join (the owner checks this up close)
+**Load the project skill `gauntlet-model-joins` for any multi-part model** (owner 2026-11-21: union the shells before the bevel, seat details into their body, close-up join renders before export).
 1. **Every junction has a transition**: plinth, collar, flange, bracket, gland, or a recessed shadow gap. Never two boxes of different depth butted together.
 2. Parts that meet either **share one plane** (split by a 0.1 to 0.15 shadow gap) or are **clearly stepped** (0.1 or more). No near-misses.
 3. **One real part = one piece of geometry.** A frame's sill, cheeks and header are one ring (`ring_prism`), not four boxes.

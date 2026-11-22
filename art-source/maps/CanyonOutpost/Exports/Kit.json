@@ -1,0 +1,628 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "CNBarrel": {
+   "props": {},
+   "parts": [
+    "CNBarrel_CN_Wood",
+    "CNBarrel_CN_WoodDark",
+    "CNBarrel_CN_Iron"
+   ]
+  },
+  "CNMinePortal": {
+   "props": {},
+   "parts": [
+    "CNMinePortal_CN_Wood",
+    "CNMinePortal_CN_WoodDark",
+    "CNMinePortal_CN_WoodLight",
+    "CNMinePortal_CN_Iron",
+    "CNMinePortal_CN_Black",
+    "CNMinePortal_CN_Lamp"
+   ]
+  },
+  "CNOreCart": {
+   "props": {},
+   "parts": [
+    "CNOreCart_CN_Paint",
+    "CNOreCart_CN_Iron",
+    "CNOreCart_CN_WoodDark",
+    "CNOreCart_CN_Ore",
+    "CNOreCart_CN_OreLight"
+   ]
+  },
+  "CNWagon": {
+   "props": {},
+   "parts": [
+    "CNWagon_CN_Wood",
+    "CNWagon_CN_WoodDark",
+    "CNWagon_CN_Paint",
+    "CNWagon_CN_Iron",
+    "CNWagon_CN_Canvas",
+    "CNWagon_CN_Rope"
+   ]
+  },
+  "CNWaterTower": {
+   "props": {},
+   "parts": [
+    "CNWaterTower_CN_Wood",
+    "CNWaterTower_CN_WoodDark",
+    "CNWaterTower_CN_Iron",
+    "CNWaterTower_CN_Concrete",
+    "CNWaterTower_CN_Roof",
+    "CNWaterTower_CN_Steel",
+    "CNWaterTower_CN_Rope"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "CNBarrel",
+   "name": "CNBarrel_CN_Wood",
+   "material": "CN_Wood",
+   "look": {
+    "material": "Wood",
+    "color": "8C6344"
+   },
+   "glow": false,
+   "tris": 676,
+   "center": [
+    0.0,
+    0.0,
+    1.67
+   ],
+   "size": [
+    2.51141,
+    2.51141,
+    3.10347
+   ]
+  },
+  {
+   "piece": "CNBarrel",
+   "name": "CNBarrel_CN_WoodDark",
+   "material": "CN_WoodDark",
+   "look": {
+    "material": "Wood",
+    "color": "5A3A26"
+   },
+   "glow": false,
+   "tris": 452,
+   "center": [
+    0.0,
+    0.0,
+    1.725
+   ],
+   "size": [
+    2.12504,
+    2.12504,
+    3.45
+   ]
+  },
+  {
+   "piece": "CNBarrel",
+   "name": "CNBarrel_CN_Iron",
+   "material": "CN_Iron",
+   "look": {
+    "material": "Metal",
+    "color": "3A3B3F"
+   },
+   "glow": false,
+   "tris": 828,
+   "center": [
+    0.0,
+    0.0,
+    1.70992
+   ],
+   "size": [
+    2.55487,
+    2.55487,
+    2.70355
+   ]
+  },
+  {
+   "piece": "CNMinePortal",
+   "name": "CNMinePortal_CN_Wood",
+   "material": "CN_Wood",
+   "look": {
+    "material": "Wood",
+    "color": "8C6344"
+   },
+   "glow": false,
+   "tris": 231,
+   "center": [
+    0.0,
+    -2.775,
+    7.5006
+   ],
+   "size": [
+    14.2024,
+    8.3524,
+    15.0012
+   ]
+  },
+  {
+   "piece": "CNMinePortal",
+   "name": "CNMinePortal_CN_WoodDark",
+   "material": "CN_WoodDark",
+   "look": {
+    "material": "Wood",
+    "color": "5A3A26"
+   },
+   "glow": false,
+   "tris": 437,
+   "center": [
+    0.0,
+    -2.5756,
+    6.9006
+   ],
+   "size": [
+    16.4024,
+    8.8512,
+    13.8012
+   ]
+  },
+  {
+   "piece": "CNMinePortal",
+   "name": "CNMinePortal_CN_WoodLight",
+   "material": "CN_WoodLight",
+   "look": {
+    "material": "Wood",
+    "color": "AB795C"
+   },
+   "glow": false,
+   "tris": 1196,
+   "center": [
+    0.0,
+    -4.495,
+    8.51
+   ],
+   "size": [
+    21.0,
+    9.0124,
+    17.02
+   ]
+  },
+  {
+   "piece": "CNMinePortal",
+   "name": "CNMinePortal_CN_Iron",
+   "material": "CN_Iron",
+   "look": {
+    "material": "Metal",
+    "color": "3A3B3F"
+   },
+   "glow": false,
+   "tris": 603,
+   "center": [
+    6.2,
+    2.46,
+    9.33
+   ],
+   "size": [
+    0.84,
+    1.72,
+    1.96
+   ]
+  },
+  {
+   "piece": "CNMinePortal",
+   "name": "CNMinePortal_CN_Black",
+   "material": "CN_Black",
+   "look": {
+    "material": "Neon",
+    "color": "111111"
+   },
+   "glow": false,
+   "tris": 62,
+   "center": [
+    0.0,
+    -8.9994,
+    6.2006
+   ],
+   "size": [
+    10.4024,
+    0.6012,
+    12.4012
+   ]
+  },
+  {
+   "piece": "CNMinePortal",
+   "name": "CNMinePortal_CN_Lamp",
+   "material": "CN_Lamp",
+   "look": {
+    "material": "Neon",
+    "color": "F2C98A"
+   },
+   "glow": false,
+   "tris": 37,
+   "center": [
+    6.2,
+    2.9,
+    8.895
+   ],
+   "size": [
+    0.5424,
+    0.5424,
+    0.69
+   ]
+  },
+  {
+   "piece": "CNOreCart",
+   "name": "CNOreCart_CN_Paint",
+   "material": "CN_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B0532E"
+   },
+   "glow": false,
+   "tris": 263,
+   "center": [
+    0.0,
+    0.0,
+    1.77402
+   ],
+   "size": [
+    3.95232,
+    5.83942,
+    1.45197
+   ]
+  },
+  {
+   "piece": "CNOreCart",
+   "name": "CNOreCart_CN_Iron",
+   "material": "CN_Iron",
+   "look": {
+    "material": "Metal",
+    "color": "3A3B3F"
+   },
+   "glow": false,
+   "tris": 2381,
+   "center": [
+    0.0,
+    0.0,
+    1.33
+   ],
+   "size": [
+    4.19892,
+    7.1,
+    2.9
+   ]
+  },
+  {
+   "piece": "CNOreCart",
+   "name": "CNOreCart_CN_WoodDark",
+   "material": "CN_WoodDark",
+   "look": {
+    "material": "Wood",
+    "color": "5A3A26"
+   },
+   "glow": false,
+   "tris": 268,
+   "center": [
+    0.0,
+    0.0,
+    0.83598
+   ],
+   "size": [
+    3.5,
+    6.30393,
+    0.57197
+   ]
+  },
+  {
+   "piece": "CNOreCart",
+   "name": "CNOreCart_CN_Ore",
+   "material": "CN_Ore",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A443A"
+   },
+   "glow": false,
+   "tris": 162,
+   "center": [
+    0.0,
+    0.0,
+    2.95098
+   ],
+   "size": [
+    3.5,
+    5.41053,
+    0.34195
+   ]
+  },
+  {
+   "piece": "CNOreCart",
+   "name": "CNOreCart_CN_OreLight",
+   "material": "CN_OreLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A6A55"
+   },
+   "glow": false,
+   "tris": 320,
+   "center": [
+    0.07571,
+    -0.1354,
+    3.26963
+   ],
+   "size": [
+    2.02117,
+    3.55087,
+    0.42073
+   ]
+  },
+  {
+   "piece": "CNWagon",
+   "name": "CNWagon_CN_Wood",
+   "material": "CN_Wood",
+   "look": {
+    "material": "Wood",
+    "color": "8C6344"
+   },
+   "glow": false,
+   "tris": 899,
+   "center": [
+    0.0,
+    1.275,
+    2.675
+   ],
+   "size": [
+    5.8,
+    15.45,
+    5.35
+   ]
+  },
+  {
+   "piece": "CNWagon",
+   "name": "CNWagon_CN_WoodDark",
+   "material": "CN_WoodDark",
+   "look": {
+    "material": "Wood",
+    "color": "5A3A26"
+   },
+   "glow": false,
+   "tris": 3151,
+   "center": [
+    0.0,
+    1.11667,
+    3.11
+   ],
+   "size": [
+    7.9,
+    15.13333,
+    4.98
+   ]
+  },
+  {
+   "piece": "CNWagon",
+   "name": "CNWagon_CN_Paint",
+   "material": "CN_Paint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B0532E"
+   },
+   "glow": false,
+   "tris": 3081,
+   "center": [
+    0.0,
+    -0.44692,
+    2.39692
+   ],
+   "size": [
+    7.3,
+    11.49149,
+    4.39149
+   ]
+  },
+  {
+   "piece": "CNWagon",
+   "name": "CNWagon_CN_Iron",
+   "material": "CN_Iron",
+   "look": {
+    "material": "Metal",
+    "color": "3A3B3F"
+   },
+   "glow": false,
+   "tris": 2638,
+   "center": [
+    0.0,
+    -0.44692,
+    3.12198
+   ],
+   "size": [
+    8.18,
+    11.84706,
+    6.19717
+   ]
+  },
+  {
+   "piece": "CNWagon",
+   "name": "CNWagon_CN_Canvas",
+   "material": "CN_Canvas",
+   "look": {
+    "material": "Fabric",
+    "color": "D2C3A0"
+   },
+   "glow": false,
+   "tris": 238,
+   "center": [
+    0.0,
+    -0.6,
+    6.55
+   ],
+   "size": [
+    5.2,
+    11.1,
+    2.7
+   ]
+  },
+  {
+   "piece": "CNWagon",
+   "name": "CNWagon_CN_Rope",
+   "material": "CN_Rope",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9C8462"
+   },
+   "glow": false,
+   "tris": 941,
+   "center": [
+    0.0,
+    -0.6,
+    6.62
+   ],
+   "size": [
+    6.0,
+    6.96,
+    2.8
+   ]
+  },
+  {
+   "piece": "CNWaterTower",
+   "name": "CNWaterTower_CN_Wood",
+   "material": "CN_Wood",
+   "look": {
+    "material": "Wood",
+    "color": "8C6344"
+   },
+   "glow": false,
+   "tris": 3742,
+   "center": [
+    0.0,
+    0.0,
+    16.1
+   ],
+   "size": [
+    15.27014,
+    15.27014,
+    30.8
+   ]
+  },
+  {
+   "piece": "CNWaterTower",
+   "name": "CNWaterTower_CN_WoodDark",
+   "material": "CN_WoodDark",
+   "look": {
+    "material": "Wood",
+    "color": "5A3A26"
+   },
+   "glow": false,
+   "tris": 2045,
+   "center": [
+    2.0603,
+    0.0,
+    15.565
+   ],
+   "size": [
+    19.6206,
+    15.5,
+    15.97
+   ]
+  },
+  {
+   "piece": "CNWaterTower",
+   "name": "CNWaterTower_CN_Iron",
+   "material": "CN_Iron",
+   "look": {
+    "material": "Metal",
+    "color": "3A3B3F"
+   },
+   "glow": false,
+   "tris": 2364,
+   "center": [
+    3.05418,
+    0.0,
+    18.3
+   ],
+   "size": [
+    18.19164,
+    14.56,
+    34.6
+   ]
+  },
+  {
+   "piece": "CNWaterTower",
+   "name": "CNWaterTower_CN_Concrete",
+   "material": "CN_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A39482"
+   },
+   "glow": false,
+   "tris": 679,
+   "center": [
+    0.0,
+    0.0,
+    0.35
+   ],
+   "size": [
+    16.6,
+    16.6,
+    0.7
+   ]
+  },
+  {
+   "piece": "CNWaterTower",
+   "name": "CNWaterTower_CN_Roof",
+   "material": "CN_Roof",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9C3B2A"
+   },
+   "glow": false,
+   "tris": 422,
+   "center": [
+    0.0,
+    0.0,
+    33.175
+   ],
+   "size": [
+    13.43676,
+    13.43676,
+    3.65
+   ]
+  },
+  {
+   "piece": "CNWaterTower",
+   "name": "CNWaterTower_CN_Steel",
+   "material": "CN_Steel",
+   "look": {
+    "material": "Metal",
+    "color": "646870"
+   },
+   "glow": false,
+   "tris": 885,
+   "center": [
+    3.0,
+    0.0,
+    11.65
+   ],
+   "size": [
+    0.84,
+    14.24,
+    22.3
+   ]
+  },
+  {
+   "piece": "CNWaterTower",
+   "name": "CNWaterTower_CN_Rope",
+   "material": "CN_Rope",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9C8462"
+   },
+   "glow": false,
+   "tris": 37,
+   "center": [
+    8.52422,
+    0.0,
+    24.20412
+   ],
+   "size": [
+    5.05761,
+    0.12,
+    10.84159
+   ]
+  }
+ ],
+ "tris": 29038
+}
