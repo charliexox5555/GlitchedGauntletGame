@@ -1,6 +1,6 @@
 --!strict
 -- The Season Pass (vault/02 Art/UI Battle Pass.md), desktop. Studio-built
--- StarterGui.BattlePass (backup tools/studio/BuildBattlePass.luau), filled
+-- StarterGui.BattlePass (backup tools/studio/archive/BuildBattlePass.luau), filled
 -- from Lobby/SeasonCatalog. UI only for now: the server will own each
 -- player's season level, progress and claims (and premium purchase); until
 -- then the screen runs on SeasonCatalog.PREVIEW_PROGRESS and a claim only
@@ -20,6 +20,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
+local Release = require(ReplicatedStorage.Shared.Config.Release)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -487,9 +488,12 @@ end
 --------------------------------------------------------------------------------
 
 function BattlePassController.init()
+	if not Release.BATTLE_PASS_OPEN then
+		return -- archived for this update: the build lives in tools/studio/archive (shared/Config/Release)
+	end
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("BattlePass", 15)
 	if not g or not g:IsA("ScreenGui") then
-		warn("[BattlePass] StarterGui.BattlePass missing (tools/studio/BuildBattlePass.luau)")
+		warn("[BattlePass] StarterGui.BattlePass missing (tools/studio/archive/BuildBattlePass.luau)")
 		return
 	end
 	gui = g

@@ -20,6 +20,7 @@ local Config = require(ReplicatedStorage.Lobby.Config)
 
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
+local Release = require(ReplicatedStorage.Shared.Config.Release)
 
 local WorldPrompts = {}
 
@@ -29,10 +30,18 @@ local HOOKS: { [string]: Hook } = {
 	-- LobbyQueue pads are duel pads since the place merge (2026-11-21): the
 	-- server runs them (Services/PadDuelService), so no prompt here.
 	LobbyShop = { menu = "Shop", action = "Open Shop", object = "Market" },
-	LobbyBattlePass = { menu = "BattlePass", action = "Battle Pass", object = "Season 1" },
+	-- LobbyBattlePass: see below (Release.BATTLE_PASS_OPEN)
 	LobbyLocker = { menu = "Locker", action = "Open Locker", object = "Loadout" },
-	LobbyRangeEntrance = { menu = "Range", action = "Range", object = "Practice" },
+	-- LobbyRangeEntrance: see below (Release.RANGE_OPEN)
 }
+
+-- Closed for this update (shared/Config/Release): no prompt for the Battle Pass or the range.
+if Release.BATTLE_PASS_OPEN then
+	HOOKS.LobbyBattlePass = { menu = "BattlePass", action = "Battle Pass", object = "Season 1" }
+end
+if Release.RANGE_OPEN then
+	HOOKS.LobbyRangeEntrance = { menu = "Range", action = "Range", object = "Practice" }
+end
 
 local PROMPT_NAME = "LobbyMenuPrompt"
 local STEP_CHECK = 0.1 -- seconds between step-pad checks

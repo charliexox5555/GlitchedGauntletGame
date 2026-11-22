@@ -37,6 +37,7 @@ local Plates = require(script.Parent.Plates)
 local QueueState = require(script.Parent.QueueState)
 local Router = require(script.Parent.Router)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
+local Release = require(ReplicatedStorage.Shared.Config.Release)
 local KM = UiMotion.M
 
 local LobbyHudView = {}
@@ -446,7 +447,10 @@ local function hookItem(s: State, b: TextButton)
 			Router.toggle(menu)
 		end
 	end)
-	s.items[b.Name] = b
+	if b.Name == "Range" and not Release.RANGE_OPEN then
+			b.Visible = false -- closed for this update (shared/Config/Release)
+		end
+		s.items[b.Name] = b
 end
 
 -- A hover lift for party circles (their ring's "Pop").

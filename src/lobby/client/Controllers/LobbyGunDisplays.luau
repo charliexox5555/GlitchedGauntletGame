@@ -144,6 +144,24 @@ local function place(anchor: BasePart, s: Shown)
 	if uLocal:Dot(Vector3.yAxis) < 0 then
 		uLocal = -uLocal
 	end
+	-- Up from the sights where the gun has them (they sit on top, and the raw model's Y is not a reliable up:
+	-- the guns were showing upside down on the displays). Sightless guns keep the rule above.
+	local sightSum, sightCount = Vector3.zero, 0
+	for _, d in m:GetDescendants() do
+		if d:IsA("BasePart") and string.find(d.Name, "Sight") then
+			sightSum += d.Position - box0.Position
+			sightCount += 1
+		end
+	end
+	-- Sightless guns: the bore (Muzzle) sits above the middle of the box, since the grip and mag hang below
+	-- (measured on all 226 gun/line models 2026-11-22; skin copies are stored on their side, up along -Z).
+	local upHint = if sightCount > 0
+		then sightSum / sightCount
+		elseif tip then tip - box0.Position
+		else Vector3.zero
+	if upHint:Dot(uLocal) < 0 then
+		uLocal = -uLocal
+	end
 	local sLocal = bLocal:Cross(uLocal) -- the gun's right side
 	local fromGun = CFrame.fromMatrix(Vector3.zero, sLocal, uLocal, -bLocal)
 	-- its right side looks out along `face`, its barrel along `barrel`

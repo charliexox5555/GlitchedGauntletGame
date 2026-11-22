@@ -48,6 +48,7 @@ local Thumb = require(script.Parent.Parent.Util.Thumb)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Router = require(script.Parent.Parent.Util.Router)
+local Release = require(game:GetService("ReplicatedStorage").Shared.Config.Release)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
@@ -977,6 +978,9 @@ function ShopController.init()
 		end
 	end
 	local passHolder = scroll:FindFirstChild("SeasonPass", true)
+	if passHolder and passHolder:IsA("GuiObject") and not Release.BATTLE_PASS_OPEN then
+		passHolder.Visible = false -- no Battle Pass card this update (shared/Config/Release)
+	end
 	local passCardB = passHolder and passHolder:FindFirstChild("Card")
 	if passCardB and passCardB:IsA("GuiButton") then
 		passCardB.Activated:Connect(function()
@@ -1005,6 +1009,9 @@ function ShopController.init()
 		soonOn(n, "Buying cosmetics")
 	end
 	local passCard = scroll:FindFirstChild("SeasonPass", true)
+	if passCard and passCard:IsA("GuiObject") and not Release.BATTLE_PASS_OPEN then
+		passCard.Visible = false -- no Battle Pass card this update (shared/Config/Release)
+	end
 	local view = passCard and passCard:FindFirstChild("View", true)
 	if view and view:IsA("GuiButton") then
 		view.Activated:Connect(function()

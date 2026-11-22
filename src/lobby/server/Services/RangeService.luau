@@ -20,6 +20,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local Release = require(ReplicatedStorage.Shared.Config.Release)
 
 local RangeService = {}
 
@@ -268,6 +269,9 @@ prepareBot = function(bot: Model)
 end
 
 function RangeService.start()
+	if not Release.RANGE_OPEN then
+		return -- closed for this update (shared/Config/Release)
+	end
 	match = loadMatch()
 
 	for tag, entering in { RangeEntry = true, RangeExit = false } do
