@@ -6,9 +6,8 @@
 -- Builders (Shared/UiKit, the match's Util/Ui) and controllers read these
 -- tokens and never hold their own hex values. Config/Theme maps the match's
 -- v1 token names onto these.
--- Sizes are design px: the desktop canvas is 1920 x 1080, the phone canvas
--- 800 x 420 (Util/Layout scales each cluster); top-bar chips are real px so
--- they match Roblox's own 44 px top-bar buttons.
+-- Sizes are design px on the 1920 x 1080 canvas; Shared/UiLayout fits it to
+-- every device.
 
 -- Team colours come from Config/Mods (the in-world tints), not Config/Theme,
 -- because Theme reads this module.
@@ -104,8 +103,7 @@ Style.FONT = table.freeze({
 	body = Font.new("rbxassetid://12187365977", Enum.FontWeight.Medium),
 })
 
--- Type scale (design px). The text floor in Util/Layout keeps every label at
--- 14 px drawn or more.
+-- Type scale (design px).
 Style.TEXT = table.freeze({
 	hero = { font = Style.FONT.display, size = 120 }, -- MATCH FOUND
 	mode = { font = Style.FONT.display, size = 104 }, -- 1V1 on a card
@@ -132,7 +130,7 @@ Style.RADIUS = table.freeze({
 	pill = 999, -- clamped to half the height by UICorner
 })
 
--- Stroke widths in drawn px (snapped to whole pixels by Util/Layout).
+-- Stroke widths in drawn px (snapped to whole pixels by Shared/UiKit).
 Style.STROKE = table.freeze({
 	base = 2,
 	selected = 3,
@@ -164,61 +162,11 @@ Style.GLOW = table.freeze({
 	period = 1.4,
 })
 
--- Roblox top-bar row (GuiService.TopbarInset). Chips are real px.
-Style.TOPBAR = table.freeze({
-	height = 44, -- Roblox's own button height
-	gap = 8, -- between our chips
-	lead = 4, -- after Roblox's buttons
-	edge = 12, -- right edge margin
-	fallbackTop = 12, -- console / no top bar: margin from the safe-area top
-	headshot = 36,
-	coin = 28,
-})
-
--- Per-family layout sizes (design px on each family's canvas).
-Style.DOCK = table.freeze({
-	desktop = table.freeze({
-		tileW = 128,
-		tileH = 104,
-		playW = 300,
-		playH = 112,
-		gap = 12,
-		bottom = 24,
-		radius = 16,
-		playRadius = 18,
-		icon = 40,
-		pillW = 600,
-		pillH = 64, -- CANCEL inside is 58: 44 px drawn at the 0.76 HUD floor
-		cancelBadge = 0, -- desktop uses the pill's CANCEL
-	}),
-	phone = table.freeze({
-		tileW = 92,
-		tileH = 80,
-		playW = 172,
-		playH = 88,
-		gap = 8,
-		bottom = 10,
-		radius = 14,
-		playRadius = 16,
-		icon = 30,
-		pillW = 520,
-		pillH = 60,
-		cancelBadge = 60, -- the CANCEL badge on PLAY while searching (44+ px drawn)
-	}),
-})
-
--- Menu chrome.
+-- Menu chrome (Util/Menu: the code-built Range panel), 1920 x 1080 design px.
 Style.MENU = table.freeze({
-	desktop = table.freeze({
-		header = Vector2.new(96, 96),
-		close = Vector2.new(1824, 96),
-		closeSize = 64, -- 46 px drawn at 1366 x 768
-	}),
-	phone = table.freeze({
-		header = Vector2.new(24, 6),
-		close = Vector2.new(780, 4),
-		closeSize = 60, -- 45 px drawn on a 667 x 375 phone
-	}),
+	header = Vector2.new(96, 96),
+	close = Vector2.new(1824, 96),
+	closeSize = 64, -- 46 px drawn at 1366 x 768
 })
 
 -- The lobby look from the 2026-11-16 overhaul (vault/02 Art/UI Lobby
@@ -254,7 +202,6 @@ Style.KIT = table.freeze({
 		press = 0.875,
 		hoverCard = 1.04, -- big cards and tiles (1.125 would cover their neighbours)
 		pressCard = 0.96,
-		pageFrom = 0.75, -- a page opens from 0.75 scale (RIVALS Page)
 		blur = 24, -- the world behind an open page
 		blurIn = 0.5,
 		nudge = table.freeze({ -8, 6, -3, 0 }), -- a locked thing shakes (px)

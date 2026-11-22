@@ -26,7 +26,6 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
-local Layout = require(script.Parent.Parent.Util.Layout)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
 local Pivot = require(script.Parent.Parent.Util.Pivot)
 local Plates = require(script.Parent.Parent.Util.Plates)
@@ -38,7 +37,6 @@ local KM = UiMotion.M
 local BattlePassController = {}
 
 local player = Players.LocalPlayer
-local DESIGN = Vector2.new(1920, 1080)
 local QUINT = Enum.EasingStyle.Quint
 local IN = Enum.EasingDirection.In
 local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
@@ -56,7 +54,6 @@ type Pick = { tier: number, track: Track } | "pass"
 
 local gui: ScreenGui
 local canvas: Frame
-local fit: UIScale
 local detail: Frame
 local showBox: Frame
 local stage: ItemStage.Stage
@@ -64,7 +61,6 @@ local tracks: Frame
 local levelRow: Frame
 local dim: Frame
 local popCanvas: Frame
-local popFit: UIScale
 local oddsPanel: Frame
 
 local isOpen = false
@@ -415,15 +411,6 @@ end
 --------------------------------------------------------------------------------
 -- Open / close
 
-local function refit()
-	local size = gui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		local s = math.min(size.X / DESIGN.X, size.Y / DESIGN.Y)
-		fit.Scale = s
-		popFit.Scale = s
-	end
-end
-
 local function setPage(n: number, animate: boolean)
 	page = math.clamp(n, 1, pages())
 	renderPage()
@@ -460,7 +447,6 @@ local function open()
 	end
 	isOpen = true
 	gui.Enabled = true
-	refit()
 	resetClose()
 	showOdds(false)
 	local wash = gui:FindFirstChild("Wash")
@@ -501,9 +487,6 @@ end
 --------------------------------------------------------------------------------
 
 function BattlePassController.init()
-	if Layout.isPhone() then
-		return -- phones keep the old placeholder panel (Controllers/Panels)
-	end
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("BattlePass", 15)
 	if not g or not g:IsA("ScreenGui") then
 		warn("[BattlePass] StarterGui.BattlePass missing (tools/studio/BuildBattlePass.luau)")
@@ -512,16 +495,13 @@ function BattlePassController.init()
 	gui = g
 	gui.Enabled = false
 	canvas = child(gui, "Canvas")
-	fit = child(canvas, "Fit")
 	detail = child(canvas, "Detail")
 	showBox = child(detail, "Show")
 	tracks = child(canvas, "Tracks")
 	levelRow = child(canvas, "Level")
 	dim = child(gui, "Dim")
 	popCanvas = child(gui, "PopupCanvas")
-	popFit = child(popCanvas, "Fit")
 	oddsPanel = child(popCanvas, "OddsPanel")
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 	stage =
 		ItemStage.new(child(showBox, "Stage") :: Frame, { length = 7.8, height = 3, distance = 11 })
 	stage:bindDrag(child(showBox, "DragArea") :: GuiButton)

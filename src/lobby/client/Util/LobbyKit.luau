@@ -11,8 +11,8 @@
 --   slot(template, parent, fill) / clearSlots(parent)
 --                               one repeated card per call (RIVALS' Slot
 --                               pattern), wrapped so it pops from its centre
---   page(spec)                  a router page: blur + wash, opens from 0.75
---                               of its fit, one at a time, back / B closes
+--   page(spec)                  a router page: blur + wash, one at a time,
+--                               back / B closes
 -- Colours, font and motion are Config/UiStyle.KIT.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,7 +23,6 @@ local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local Cards = require(script.Parent.Cards)
 local CloseButton = require(script.Parent.CloseButton)
-local Layout = require(script.Parent.Layout)
 local Pivot = require(script.Parent.Pivot)
 local Plates = require(script.Parent.Plates)
 local Router = require(script.Parent.Router)
@@ -158,66 +157,21 @@ end
 export type PageSpec = {
 	name: string, -- the Router name
 	gui: ScreenGui,
-	canvas: GuiObject, -- centre-anchored, holds the page
-	design: Vector2, -- the canvas' design size (desktop 1920 x 1080)
 	wash: GuiObject?, -- the full-screen violet wash, faded in
 	focus: (() -> GuiObject?)?, -- where gamepad selection starts
 	close: GuiButton?, -- the drawn-X close
 	onOpen: ((arg: any?) -> ())?,
 	onClose: (() -> ())?,
-	-- Phones (Util/Layout family "phone"): the whole 1920 x 1080 canvas would
-	-- draw at ~0.35 (4-9 px words, 30 px buttons), so a phone shows only
-	-- `region` of the canvas (design px, min / max corners), zoomed to fill
-	-- the screen; `arrange` moves the page's pieces into that region once.
-	phone: { region: Rect, arrange: (() -> ())? }?,
 }
 
-export type Page = { isOpen: () -> boolean, refit: () -> () }
+export type Page = { isOpen: () -> boolean }
 
 -- A page in the router: one open at a time, blur 24 behind it, the wash fades
--- in, the canvas opens from 0.75 of its fit (Quint Out, no overshoot).
+-- in. The canvas' "Fit" UIScale is Shared/UiLayout's (every device).
 function LobbyKit.page(spec: PageSpec): Page
-	-- lihfolk-ignore: findfirstchild-chain (nil-checked on the next line)
-	local fit = spec.canvas:FindFirstChild("Fit") :: UIScale?
-	if not fit then
-		local s = Instance.new("UIScale")
-		s.Name = "Fit"
-		s.Parent = spec.canvas
-		fit = s
-	end
-	local fitScale = fit :: UIScale
 	local open = false
 	local token = 0
 	local washT = if spec.wash then spec.wash.BackgroundTransparency else 1
-
-	local phone = if Layout.isPhone() then spec.phone else nil
-	if phone and phone.arrange then
-		phone.arrange()
-	end
-	local function target(): number
-		local size = spec.gui.AbsoluteSize
-		if size.X <= 0 or size.Y <= 0 then
-			return 1
-		end
-		if phone then
-			local r = phone.region
-			local w, h = r.Max.X - r.Min.X, r.Max.Y - r.Min.Y
-			local k = math.min(size.X / w, size.Y / h)
-			-- the region's centre on the screen's centre (the canvas is
-			-- centre-anchored: offsets are in screen px)
-			local cx, cy = (r.Min.X + r.Max.X) / 2, (r.Min.Y + r.Max.Y) / 2
-			spec.canvas.Position =
-				UDim2.new(0.5, (spec.design.X / 2 - cx) * k, 0.5, (spec.design.Y / 2 - cy) * k)
-			return k
-		end
-		return math.min(size.X / spec.design.X, size.Y / spec.design.Y)
-	end
-	local function refit()
-		if open then
-			fitScale.Scale = target()
-		end
-	end
-	spec.gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	local resetClose: (() -> ())? = nil
 	if spec.close then
@@ -245,7 +199,6 @@ function LobbyKit.page(spec: PageSpec): Page
 				spec.wash.BackgroundTransparency = 1
 				UiMotion.tween(spec.wash, M.beat, { BackgroundTransparency = washT })
 			end
-			UiMotion.pageIn(fitScale, target())
 			if spec.onOpen then
 				spec.onOpen(arg)
 			end
@@ -260,7 +213,6 @@ function LobbyKit.page(spec: PageSpec): Page
 			if spec.wash then
 				UiMotion.out(spec.wash, { BackgroundTransparency = 1 })
 			end
-			UiMotion.out(fitScale, { Scale = target() * 0.94 })
 			if spec.onClose then
 				spec.onClose()
 			end
@@ -276,7 +228,6 @@ function LobbyKit.page(spec: PageSpec): Page
 		isOpen = function()
 			return open
 		end,
-		refit = refit,
 	}
 end
 

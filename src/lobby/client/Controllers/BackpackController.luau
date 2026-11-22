@@ -375,8 +375,6 @@ function BackpackController.init()
 	LobbyKit.page({
 		name = "Backpack",
 		gui = gui,
-		canvas = canvas,
-		design = Vector2.new(1920, 1080),
 		wash = child(gui, "Wash") :: Frame,
 		close = child(canvas, "Close") :: GuiButton,
 		focus = function()
@@ -391,8 +389,6 @@ function BackpackController.init()
 			showReveal(false)
 			hideItem()
 		end,
-		-- phones: the header and the grid fill the screen
-		phone = { region = Rect.new(440, 100, 1480, 960) },
 	})
 
 	-- live updates while it's open (a purchase in the Shop lands here)

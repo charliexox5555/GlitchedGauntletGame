@@ -22,7 +22,7 @@
 --   CONTENTS lists every outcome with its odds (adding up to 100%) and the
 --   note. Where PolicyService says paid random items are restricted (or the
 --   check fails) the case can't be bought; the server will enforce the same.
--- Phones keep the old placeholder shop (Controllers/Panels) for now.
+-- Every device; Shared/UiLayout sizes it (the Fit scales on Canvas, PopupCanvas, Top).
 
 local Players = game:GetService("Players")
 local PolicyService = game:GetService("PolicyService")
@@ -47,7 +47,6 @@ local Pivot = require(script.Parent.Parent.Util.Pivot)
 local Thumb = require(script.Parent.Parent.Util.Thumb)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
-local Layout = require(script.Parent.Parent.Util.Layout)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
@@ -56,7 +55,6 @@ local KM = UiMotion.M
 local ShopController = {}
 
 local player = Players.LocalPlayer
-local DESIGN = Vector2.new(1920, 1080)
 local QUINT = Enum.EasingStyle.Quint
 local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
 local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
@@ -81,13 +79,11 @@ local pages: { [string]: Frame } = {}
 local tabPlates: { [string]: GuiButton } = {}
 local dim: Frame
 local popCanvas: Frame
-local popFit: UIScale
 local casePanel: Frame
 local oddsPanel: Frame
 local itemCard: Frame
 local coinsGui: ScreenGui
 local coinsTop: Frame
-local coinsFit: UIScale
 local coinsAmount: TextLabel
 local templates: Folder
 local dailyNote: TextLabel?
@@ -137,22 +133,6 @@ local function commas(n: number): string
 	local out = string.reverse(s):gsub("(%d%d%d)", "%1,")
 	out = string.reverse(out)
 	return (string.gsub(out, "^,", ""))
-end
-
---------------------------------------------------------------------------------
--- Fitting
-
-local function refit()
-	local size = gui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		local s = math.min(size.X / DESIGN.X, size.Y / DESIGN.Y)
-		fit.Scale = s
-		popFit.Scale = s
-	end
-	local cs = coinsGui.AbsoluteSize
-	if cs.X > 0 and cs.Y > 0 then
-		coinsFit.Scale = math.clamp(math.min(cs.X / DESIGN.X, cs.Y / DESIGN.Y), 0.6, 1.5)
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -854,7 +834,6 @@ local function open(arg: any?)
 	end
 	isOpen = true
 	gui.Enabled = true
-	refit()
 	resetClose()
 	placeCounter()
 	counterShown = false
@@ -904,9 +883,6 @@ end
 --------------------------------------------------------------------------------
 
 function ShopController.init()
-	if Layout.isPhone() then
-		return -- phones keep the old placeholder shop (Controllers/Panels)
-	end
 	local playerGui = player:WaitForChild("PlayerGui")
 	local g = playerGui:WaitForChild("Shop", 15)
 	local cg = playerGui:WaitForChild("LobbyCoins", 15)
@@ -924,12 +900,10 @@ function ShopController.init()
 	scroll = child(canvas, "Scroll")
 	dim = child(gui, "Dim")
 	popCanvas = child(gui, "PopupCanvas")
-	popFit = child(popCanvas, "Fit")
 	casePanel = child(popCanvas, "CasePanel")
 	oddsPanel = child(popCanvas, "OddsPanel")
 	itemCard = child(canvas, "ItemCard")
 	coinsTop = child(coinsGui, "Top")
-	coinsFit = child(coinsTop, "Fit")
 	local bar = child(coinsTop, "Bar") :: Frame
 	coinsAmount = child(bar, "Amount")
 	for _, name in TABS do
@@ -937,8 +911,6 @@ function ShopController.init()
 		tabPlates[name] = child(child(child(scroll, "Tabs"), name), "Plate")
 		hookTab(name, tabPlates[name])
 	end
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
-	coinsGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	-- every card: big ones get the selection frame, small ones lift
 	for _, d in scroll:GetDescendants() do

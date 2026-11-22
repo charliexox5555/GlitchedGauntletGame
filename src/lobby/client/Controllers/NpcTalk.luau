@@ -510,15 +510,12 @@ function NpcTalk.start()
 		LobbyKit.page({
 			name = "Talk",
 			gui = g,
-			canvas = canvas,
-			design = Vector2.new(1920, 1080),
 			wash = child(g, "Wash") :: GuiObject?,
 			focus = function(): GuiObject?
 				return replyButtons[1]
 			end,
 			onOpen = onOpen,
 			onClose = onClose,
-			phone = { region = Rect.new(Vector2.new(170, 330), Vector2.new(1560, 1080)) },
 		})
 	end
 	local function track(model: Instance)

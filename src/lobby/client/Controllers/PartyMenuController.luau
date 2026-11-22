@@ -25,7 +25,6 @@ local SocialService = game:GetService("SocialService")
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
-local Layout = require(script.Parent.Parent.Util.Layout)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
@@ -35,7 +34,6 @@ local KM = UiMotion.M
 local PartyMenuController = {}
 
 local player = Players.LocalPlayer
-local DESIGN = Vector2.new(1920, 1080)
 local QUINT = Enum.EasingStyle.Quint
 local IN = Enum.EasingDirection.In
 local ALLY, GOLD, GREEN =
@@ -59,7 +57,6 @@ type Entry = {
 
 local gui: ScreenGui
 local canvas: Frame
-local fit: UIScale
 local scrim: Frame
 local left: Frame
 local slots: { Frame } = {}
@@ -431,13 +428,6 @@ end
 --------------------------------------------------------------------------------
 -- Open / close
 
-local function refit()
-	local size = gui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		fit.Scale = math.min(size.X / DESIGN.X, size.Y / DESIGN.Y)
-	end
-end
-
 local function slideIn(o: GuiObject, dx: number, dy: number, delay: number)
 	local h = StateValues.get(o, "Home")
 	local home = if typeof(h) == "UDim2" then h else o.Position
@@ -457,7 +447,6 @@ local function open()
 	end
 	isOpen = true
 	gui.Enabled = true
-	refit()
 	resetClose()
 	loadFriends()
 	render()
@@ -506,9 +495,6 @@ end
 --------------------------------------------------------------------------------
 
 function PartyMenuController.init()
-	if Layout.isPhone() then
-		return -- the phone pass gives phones their own party screen
-	end
 	local playerGui = player:WaitForChild("PlayerGui")
 	local g = playerGui:WaitForChild("PartyMenu", 15)
 	local t = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("PartyPlayerCard", 15)
@@ -522,7 +508,6 @@ function PartyMenuController.init()
 	gui.Enabled = false
 	template = t
 	canvas = child(gui, "Canvas")
-	fit = child(canvas, "Fit")
 	scrim = child(gui, "Scrim")
 	left = child(canvas, "Left")
 	countLabel = child(left, "Count")
@@ -535,7 +520,6 @@ function PartyMenuController.init()
 	emptyLabel = child(canvas, "Empty")
 	searchBox = child(child(canvas, "Search"), "Box")
 	filterRow = child(canvas, "Filters")
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
 		Router.close()

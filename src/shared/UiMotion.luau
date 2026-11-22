@@ -13,7 +13,6 @@
 --   nudge(obj, home)                      a short shake (locked / SOON things)
 --   slideIn(obj, dx, dy, delay)           from an offset to its saved home
 --   popIn(pop, delay, from?)              grow in from `from` (default 0.8)
---   pageIn(fit)                           a page opens from 0.75 of its fit
 --   button(btn, pop, onClick, opts?)      hover / press / gamepad / click
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
@@ -147,14 +146,6 @@ function UiMotion.popIn(pop: UIScale, delay: number?, from: number?)
 	else
 		go()
 	end
-end
-
--- A page opens from 0.75 of its fitted size (its canvas is centre-anchored,
--- so it grows from the middle). `fit` is the page's one Fit UIScale; `target`
--- is the fitted scale it should end at.
-function UiMotion.pageIn(fit: UIScale, target: number)
-	fit.Scale = if UiMotion.reduced() then target else target * M.pageFrom
-	UiMotion.tween(fit, M.beat + 0.05, { Scale = target })
 end
 
 export type ButtonOptions = {

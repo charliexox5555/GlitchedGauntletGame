@@ -1,17 +1,19 @@
 --!strict
--- Shared chrome for every full-screen lobby menu (Play, Shop, Battle Pass,
--- Locker, Settings, Range), v2 (Figma "Lobby v2 · Play menu 1920x1080"):
--- an edge-to-edge dimmer gui (ScreenInsets None, art only) and a content gui
--- in the core-UI safe area (LihFolk: Safe Areas and Insets), a CanvasGroup
--- canvas with one Fit UIScale, the kicker + title header, and the same round
--- close button in the same corner on every menu (LihFolk: Menu Archetypes).
+-- Chrome for the last code-built lobby menu (Controllers/Panels: the Range
+-- placeholder), v2 (Figma "Lobby v2 · Play menu 1920x1080"): an edge-to-edge
+-- dimmer gui (ScreenInsets None, art only) and a content gui in the core-UI
+-- safe area (LihFolk: Safe Areas and Insets), a 1920 x 1080 CanvasGroup
+-- canvas whose "Fit" UIScale Shared/UiLayout owns (every device), the
+-- kicker + title header, and the shared drawn-X close (Util/CloseButton).
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 
 local CloseButton = require(script.Parent.CloseButton)
 local Fx = require(script.Parent.Fx)
 local Kit = require(script.Parent.Kit)
-local Layout = require(script.Parent.Layout)
 local Router = require(script.Parent.Router)
 local Style = require(script.Parent.Style)
 
@@ -30,14 +32,8 @@ export type Chrome = {
 	resetClose: () -> (),
 }
 
-function Menu.canvas(): Vector2
-	return if Layout.isPhone() then Layout.PHONE_CANVAS else Vector2.new(1920, 1080)
-end
-
 function Menu.build(name: string, kicker: string, title: string): Chrome
-	local phone = Layout.isPhone()
-	local M = if phone then Style.MENU.phone else Style.MENU.desktop
-	local canvas = Menu.canvas()
+	local M = Style.MENU
 	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 	local backdrop = Kit.make("ScreenGui", {
 		Name = name .. "Backdrop",
@@ -86,7 +82,7 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 		Name = "Content",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(canvas.X, canvas.Y),
+		Size = UDim2.fromOffset(1920, 1080),
 		BackgroundTransparency = 1,
 		-- Gamepad selection stays inside the menu (LihFolk: Gamepad and Console UX).
 		SelectionGroup = true,
@@ -99,7 +95,7 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 	local header = Kit.make("Frame", {
 		Name = "Header",
 		Position = UDim2.fromOffset(M.header.X, M.header.Y),
-		Size = UDim2.fromOffset(if phone then 640 else 1200, if phone then 60 else 100),
+		Size = UDim2.fromOffset(1200, 100),
 		BackgroundTransparency = 1,
 	}, content)
 	Kit.text(header, kicker, "label", {
@@ -110,9 +106,9 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 	})
 	Kit.text(header, title, "title", {
 		Name = "Title",
-		Position = UDim2.fromOffset(0, if phone then 20 else 24),
-		Size = UDim2.fromOffset(if phone then 620 else 1100, if phone then 38 else 66),
-		TextSize = if phone then 32 else Style.TEXT.title.size,
+		Position = UDim2.fromOffset(0, 24),
+		Size = UDim2.fromOffset(1100, 66),
+		TextSize = Style.TEXT.title.size,
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
 
@@ -124,7 +120,10 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 	local resetClose = CloseButton.hook(close, function()
 		Router.close()
 	end)
-	Layout.fit(content, "menu")
+	local fit = Instance.new("UIScale")
+	fit.Name = "Fit"
+	fit.Parent = content
+	UiLayout.watch(gui)
 	return {
 		gui = gui,
 		backdrop = backdrop,

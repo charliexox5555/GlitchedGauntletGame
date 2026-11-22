@@ -103,7 +103,6 @@ local ICON_WIDTH: { [string]: number } = {
 
 local gui: ScreenGui
 local canvas: Frame
-local fit: UIScale
 local gunsList: ScrollingFrame
 local tray: Frame
 local strip: ScrollingFrame
@@ -112,7 +111,6 @@ local gunName: TextLabel
 local skinTag: Frame
 local soonLabel: TextLabel
 local templates: Folder
-local backFit: UIScale
 local floorShadow: Frame
 
 local isOpen = false
@@ -782,14 +780,6 @@ local function setTab(name: string)
 end
 
 -- Open / close -----------------------------------------------------------------------
-local function refit()
-	local size = gui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		fit.Scale = math.min(size.X / DESIGN.X, size.Y / DESIGN.Y)
-		backFit.Scale = fit.Scale
-	end
-end
-
 local function slideIn(obj: GuiObject, dx: number, dy: number, delay: number)
 	local h = home(obj)
 	obj.Position = h + UDim2.fromOffset(dx, dy)
@@ -807,7 +797,6 @@ local function reveal()
 	tray.Visible = false
 	tray.Position = home(tray)
 	gui.Enabled = true
-	refit()
 	enterStage()
 	setTab("WEAPONS")
 	if next(gunCards) == nil then
@@ -1013,7 +1002,6 @@ function LockerController.init()
 	gui = g
 	gui.Enabled = false
 	canvas = child(gui, "Canvas")
-	fit = child(canvas, "Fit")
 	gunsList = child(canvas, "Guns")
 	tray = child(canvas, "Tray")
 	strip = child(tray, "Strip")
@@ -1022,7 +1010,6 @@ function LockerController.init()
 	skinTag = child(canvas, "SkinTag")
 	soonLabel = child(canvas, "Soon")
 	local backCanvas = child(child(gui, "Backdrop"), "BackCanvas") :: Frame
-	backFit = child(backCanvas, "Fit")
 	floorShadow = child(backCanvas, "Floor")
 	local light = backCanvas:FindFirstChild("Light")
 	stageLight = if light and light:IsA("ImageLabel") then light else nil
@@ -1030,7 +1017,6 @@ function LockerController.init()
 	for _, o in { gunsList, kinds, tray, child(canvas, "GunName"), child(canvas, "SkinTag") } do
 		home(o :: GuiObject)
 	end
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	Plates.deepen(gui)
 	-- the wipe (above everything, two screens tall, soft top and bottom edges)

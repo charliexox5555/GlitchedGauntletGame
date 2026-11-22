@@ -1117,24 +1117,11 @@ function SettingsController.init()
 	LobbyKit.page({
 		name = "Settings",
 		gui = gui,
-		canvas = canvas,
-		design = DESIGN,
 		wash = child(gui, "Wash") :: Frame,
 		close = child(canvas, "Close") :: GuiButton,
 		focus = function()
 			return list:FindFirstChildWhichIsA("GuiButton", true)
 		end,
-		-- phones: the title, tabs and list fill the screen; INSPECT steps
-		-- aside (the full mobile settings come with the mobile UI)
-		phone = {
-			region = Rect.new(130, 20, 1090, 500),
-			arrange = function()
-				inspect.Visible = false
-				local close = child(canvas, "Close") :: GuiObject
-				close.Position = UDim2.fromOffset(1040, 76)
-				list.Size = UDim2.fromOffset(940, 270)
-			end,
-		},
 		onOpen = function(arg: any?)
 			if arg == "crosshair" then
 				pick(CROSSHAIR_TAB)

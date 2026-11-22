@@ -5,8 +5,9 @@
 -- The layout is built in Studio, one ScreenGui per part like the match
 -- (StarterGui.LobbyTasks, LobbyPlayerList, LobbyBar, LobbyToast,
 -- templates UiTemplates.Lobby.PlayerRow / PartySlot / PartyInviteRow, backup
--- tools/studio/BuildLobbyHud.luau); this fills and animates it. LobbyHud
--- uses it on desktop; phones keep the old dock until the mobile pass.
+-- tools/studio/BuildLobbyHud.luau); this fills and animates it on every
+-- device (LobbyHud binds it). Sizing per device: Shared/UiLayout owns each
+-- group's "Fit" UIScale.
 --
 -- Tab shows / hides the player list (like Roblox's). The party row shows you
 -- and the friends in your Roblox party who are here (server attributes
@@ -42,7 +43,6 @@ local LobbyHudView = {}
 
 local player = Players.LocalPlayer
 
-local DESIGN = Vector2.new(1920, 1080)
 local NAVY, NAVY_HI = Color3.fromHex("27272A"), Color3.fromHex("39393C")
 local ALLY, GOLD = Color3.fromHex("3FE0F2"), Color3.fromHex("FFC83D")
 local RED, WHITE, INK = Color3.fromHex("FF4D5E"), Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
@@ -64,7 +64,6 @@ local MENUS: { [string]: string } = {
 
 type State = {
 	gui: ScreenGui,
-	fits: { UIScale },
 	topRight: Frame,
 	bottom: Frame,
 	list: Frame,
@@ -603,17 +602,6 @@ local function onPartyEvent(payload: unknown)
 	end
 end
 
--- Fit: each group keeps its corner, scaled like the rest of the HUD.
-local function refit(s: State)
-	local size = s.gui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		local scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.6, 1.5)
-		for _, f in s.fits do
-			f.Scale = scale
-		end
-	end
-end
-
 -- API -------------------------------------------------------------------------------
 
 -- The Studio-built ScreenGuis (one per part), or nil if they aren't there.
@@ -636,7 +624,6 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	local topRight = child(guis.LobbyPlayerList, "TopRight") :: Frame
 	local bottom = child(gui, "Bottom") :: Frame
 	local toast = child(guis.LobbyToast, "Toast") :: Frame
-	local tasksGroup = child(guis.LobbyTasks, "TopLeft") :: Frame
 	local list = child(topRight, "PlayerList") :: Frame
 	local head = child(list, "Head") :: Frame
 	local play = child(bottom, "Play") :: TextButton
@@ -644,12 +631,6 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	local plate = child(toast, "Plate") :: Frame
 	local s: State = {
 		gui = gui,
-		fits = {
-			child(topRight, "Fit"),
-			child(bottom, "Fit"),
-			child(toast, "Fit"),
-			child(tasksGroup, "Fit"),
-		},
 		topRight = topRight,
 		bottom = bottom,
 		list = list,
@@ -689,10 +670,6 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	}
 	state = s
 	Pivot.centre(s.invite) -- the invite popup pops from its centre
-	refit(s)
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		refit(s)
-	end)
 	for name in MENUS do
 		hookItem(s, child(bottom, name))
 	end

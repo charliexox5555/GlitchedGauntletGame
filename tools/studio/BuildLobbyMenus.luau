@@ -36,7 +36,7 @@ local ALLY, GREEN, RED = hex("3FE0F2"), hex("3FD68A"), hex("FF4D5E")
 local MUTED, INK, WHITE = hex("B8B8BB"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local CENTRE = Vector2.new(0.5, 0.5)
--- mode art (the ChatGPT art the old queue menu used; Controllers/QueueMenu MODE_ART)
+-- mode art (the ChatGPT art the old queue menu used; Controllers/QueueMenu, deleted 2026-11-22)
 local ART = {
 	["1v1"] = "rbxassetid://132175332386485",
 	["2v2"] = "rbxassetid://88838344441665",

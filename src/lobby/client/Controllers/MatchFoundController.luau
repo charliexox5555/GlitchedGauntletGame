@@ -40,7 +40,6 @@ local EASE_IN = 0.45 -- the wave fades in over this after the dots pop in
 
 local gui: ScreenGui
 local scrim: Frame
-local fit: UIScale
 local studioLabel: TextLabel
 local pops: { UIScale } = {}
 local blur: BlurEffect
@@ -51,13 +50,6 @@ local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
-end
-
-local function refit()
-	local size = gui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		fit.Scale = math.clamp(math.min(size.X / 1920, size.Y / 1080), 0.6, 1.5)
-	end
 end
 
 local waveConn: RBXScriptConnection? = nil
@@ -146,7 +138,6 @@ local function open()
 	local my = token
 	Router.close()
 	gui.Enabled = true
-	refit()
 	studioLabel.Visible = false
 	scrim.BackgroundTransparency = 1
 	tween(scrim, 0.3, { BackgroundTransparency = SCRIM_T })
@@ -245,13 +236,11 @@ function MatchFoundController.init()
 	gui.Enabled = false
 	scrim = child(gui, "Scrim")
 	local center = child(gui, "Center") :: Frame
-	fit = child(center, "Fit")
 	studioLabel = child(center, "Studio")
 	local dots = child(center, "Dots") :: Frame
 	for i = 1, 3 do
 		table.insert(pops, child(child(child(dots, "Dot" .. i), "Circle"), "Pop") :: UIScale)
 	end
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 	blur = Instance.new("BlurEffect")
 	blur.Name = "LobbyFoundBlur"
 	blur.Size = 0

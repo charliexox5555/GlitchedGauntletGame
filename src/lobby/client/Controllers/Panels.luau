@@ -1,15 +1,11 @@
 --!strict
--- The other lobby menus (Shop, Battle Pass, Settings, Range) as framed
--- placeholders: the same chrome as the Play menu (blur, scrim, header, close)
--- with a believable skeleton of what will live there and a clear "coming soon"
--- line. (Settings: Controllers/SettingsController; the Locker: LockerController.)
-
-local TweenService = game:GetService("TweenService")
+-- The Range menu (bar button RANGE, the range entrance prompt): a framed
+-- placeholder on Util/Menu's chrome until the Range wing opens. Every other
+-- lobby menu is a Studio-built screen with its own controller.
 
 local Fx = require(script.Parent.Parent.Util.Fx)
 local Icons = require(script.Parent.Parent.Util.Icons)
 local Kit = require(script.Parent.Parent.Util.Kit)
-local Layout = require(script.Parent.Parent.Util.Layout)
 local Menu = require(script.Parent.Parent.Util.Menu)
 local Router = require(script.Parent.Parent.Util.Router)
 local Style = require(script.Parent.Parent.Util.Style)
@@ -18,11 +14,9 @@ local Panels = {}
 
 local C = Style.COLOR
 
--- Desktop: 1920 x 1080 canvas. Phone: 800 x 420 (LihFolk: Responsive UI for
--- Phone Tablet Console and PC); placeholder panels collapse to one card there.
-local PHONE = Layout.isPhone()
-local BODY = Layout.pick(Vector2.new(96, 228), Vector2.new(24, 76))
-local BODY_SIZE = Layout.pick(Vector2.new(1728, 700), Vector2.new(752, 330))
+-- On Util/Menu's 1920 x 1080 canvas (Shared/UiLayout fits it per device).
+local BODY = Vector2.new(96, 228)
+local BODY_SIZE = Vector2.new(1728, 700)
 
 type Panel = {
 	chrome: Menu.Chrome,
@@ -30,33 +24,6 @@ type Panel = {
 	body: Frame,
 	isOpen: boolean,
 }
-
--- A skeleton bar with a light sweeping through it on a loop.
-local function skeleton(parent: Instance, props: { [string]: any }): Frame
-	local bar = Kit.make("Frame", {
-		BackgroundColor3 = C.white,
-		BorderSizePixel = 0,
-		ZIndex = 4,
-	}, parent)
-	for k, v in props do
-		(bar :: any)[k] = v
-	end
-	Kit.corner(bar, Style.RADIUS.xs)
-	local g = Kit.make("UIGradient", {
-		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, C.surfaceDeep),
-			ColorSequenceKeypoint.new(0.5, C.surfaceHover),
-			ColorSequenceKeypoint.new(1, C.surfaceDeep),
-		}),
-		Offset = Vector2.new(-1, 0),
-	}, bar)
-	TweenService:Create(
-		g,
-		TweenInfo.new(1.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1),
-		{ Offset = Vector2.new(1, 0) }
-	):Play()
-	return bar
-end
 
 local function card(
 	parent: Instance,
@@ -141,163 +108,13 @@ local function build(name: string, kicker: string, title: string): Panel
 			return panel.focus
 		end,
 	})
-	-- Built content is added after the Fit pass: re-run the text floor and
-	-- stroke snap once everything exists.
-	task.defer(function()
-		local fit = chrome.content:FindFirstChild("Fit")
-		if fit and fit:IsA("UIScale") then
-			Layout.floorText(chrome.content, fit.Scale)
-			Layout.snapStrokes(chrome.content, fit.Scale)
-		end
-	end)
 	return panel
 end
 
--- Phone: a placeholder panel is one card (icon, what it will be, COMING SOON).
-local function compact(p: Panel, icon: string, headline: string, text: string)
-	local c = card(p.body, 0, 0, BODY_SIZE.X, 230)
-	Icons.draw(c, icon, 72, C.textSecondary, {
-		Position = UDim2.fromOffset(28, 28),
-		ZIndex = 4,
-	})
-	Kit.text(c, headline, "title", {
-		Position = UDim2.fromOffset(124, 30),
-		Size = UDim2.fromOffset(600, 44),
-		TextSize = 32,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 4,
-	})
-	Kit.text(c, text, "body", {
-		Position = UDim2.fromOffset(126, 82),
-		Size = UDim2.fromOffset(590, 80),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextYAlignment = Enum.TextYAlignment.Top,
-		TextWrapped = true,
-		TextColor3 = C.textSecondary,
-		ZIndex = 4,
-	})
-	Kit.tag(c, "COMING SOON", C.primary, {
-		Position = UDim2.fromOffset(126, 178),
-		ZIndex = 4,
-	}, true)
-end
 --------------------------------------------------------------------------------
-
-local function buildShop()
-	local p = build("Shop", "SHOP  ·  DAILY ITEMS", "SHOP")
-	if PHONE then
-		compact(
-			p,
-			"Shop",
-			"DAILY ITEMS",
-			"Skins, wraps, charms, emotes and bundles arrive with the economy."
-		)
-		return
-	end
-	local featured = card(p.body, 0, 0, 620, 560, C.primary)
-	Kit.tag(
-		featured,
-		"FEATURED",
-		C.primary,
-		{ Position = UDim2.fromOffset(28, 28), ZIndex = 5 },
-		true
-	)
-	skeleton(featured, { Position = UDim2.fromOffset(28, 400), Size = UDim2.fromOffset(340, 30) })
-	skeleton(featured, { Position = UDim2.fromOffset(28, 448), Size = UDim2.fromOffset(220, 18) })
-	skeleton(featured, { Position = UDim2.fromOffset(470, 488), Size = UDim2.fromOffset(122, 44) })
-	for i = 0, 5 do
-		local col, row = i % 3, i // 3
-		local c = card(p.body, 660 + col * 340, row * 284, 320, 268)
-		skeleton(c, { Position = UDim2.fromOffset(22, 24), Size = UDim2.fromOffset(276, 140) })
-		skeleton(c, { Position = UDim2.fromOffset(22, 184), Size = UDim2.fromOffset(180, 20) })
-		skeleton(c, { Position = UDim2.fromOffset(22, 218), Size = UDim2.fromOffset(90, 26) })
-	end
-	soon(p.body, "Skins, wraps, charms, emotes and bundles arrive with the economy.", 600)
-end
-
-local function buildBattlePass()
-	local p = build("BattlePass", "SEASON 1  ·  TIER 1", "BATTLE PASS")
-	if PHONE then
-		compact(
-			p,
-			"BattlePass",
-			"SEASON 1",
-			"Seasonal rewards for playing: skins, banners, emotes and currency."
-		)
-		return
-	end
-	Kit.text(p.body, "TIER 1", "heading", {
-		Size = UDim2.fromOffset(200, 48),
-		TextXAlignment = Enum.TextXAlignment.Left,
-	})
-	local track = Kit.make("Frame", {
-		Position = UDim2.fromOffset(170, 20),
-		Size = UDim2.fromOffset(1100, 10),
-		BackgroundColor3 = C.surfaceDeep,
-		BorderSizePixel = 0,
-	}, p.body)
-	Kit.make(
-		"Frame",
-		{ Size = UDim2.fromScale(0.03, 1), BackgroundColor3 = C.primary, BorderSizePixel = 0 },
-		track
-	)
-	Kit.text(p.body, "0 / 1,000 XP", "label", {
-		Position = UDim2.fromOffset(1290, 14),
-		Size = UDim2.fromOffset(200, 20),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.textSecondary,
-	})
-	for _, rowDef in
-		{
-			{ y = 80, label = "PREMIUM", line = C.primary :: Color3?, h = 250 },
-			{ y = 360, label = "FREE", line = nil :: Color3?, h = 190 },
-		}
-	do
-		Kit.text(p.body, rowDef.label, "label", {
-			Position = UDim2.fromOffset(0, rowDef.y),
-			Size = UDim2.fromOffset(120, 20),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = if rowDef.label == "PREMIUM" then C.primary else C.textSecondary,
-		})
-		for i = 0, 7 do
-			local c = card(
-				p.body,
-				i * 210,
-				rowDef.y + 28,
-				190,
-				rowDef.h,
-				if i == 0 then C.text else rowDef.line
-			)
-			Kit.text(c, tostring(i + 1), "heading", {
-				Position = UDim2.fromOffset(16, 10),
-				Size = UDim2.fromOffset(40, 26),
-				TextXAlignment = Enum.TextXAlignment.Left,
-				TextColor3 = if i == 0 then C.primary else C.textMuted,
-				ZIndex = 4,
-			})
-			skeleton(c, {
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromScale(0.5, 0.55),
-				Size = UDim2.fromOffset(110, rowDef.h * 0.45),
-			})
-		end
-	end
-	soon(p.body, "Seasonal rewards for playing: skins, banners, emotes and currency.", 600)
-end
-
--- The Locker is its own controller now (Controllers/LockerController, a 3D stage).
 
 local function buildRange()
 	local p = build("Range", "PRACTICE", "SHOOTING RANGE")
-	if PHONE then
-		compact(
-			p,
-			"Range",
-			"EVERY GUN. EVERY MOD.",
-			"Lanes, dummies that shoot back, a movement course and an ability area. Opens in the next lobby phase."
-		)
-		return
-	end
 	local c = card(p.body, 0, 0, 1100, 420)
 	Icons.draw(c, "Range", 120, C.textSecondary, {
 		Position = UDim2.fromOffset(60, 60),
@@ -331,15 +148,6 @@ local function buildRange()
 end
 
 function Panels.init()
-	-- desktop: the Studio-built shop (Controllers/ShopController); phones keep this one
-	if PHONE then
-		buildShop()
-	end
-	-- desktop: the Studio-built Season Pass (Controllers/BattlePassController)
-	if PHONE then
-		buildBattlePass()
-	end
-	-- Settings: the Studio-built screen (Controllers/SettingsController)
 	buildRange()
 end
 

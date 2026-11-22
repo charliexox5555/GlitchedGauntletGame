@@ -1,5 +1,5 @@
 --!strict
--- The desktop Play menu and the searching bar (vault/02 Art/UI Play and Party
+-- The Play menu and the searching bar (vault/02 Art/UI Play and Party
 -- Menus.md). Both are Studio-built (StarterGui.PlayMenu, StarterGui.LobbySearch;
 -- backup tools/studio/BuildLobbyMenus.luau); this only fills and animates them.
 --
@@ -9,7 +9,7 @@
 -- you're searching, the bar at the top shows the mode, the bot-fill countdown,
 -- the timer and a cancel button (anyone in a party can cancel; only the leader
 -- starts). The server decides everything (Services/QueueService).
--- Phones keep the old code-built menu (Controllers/QueueMenu) for now.
+-- Every device; Shared/UiLayout sizes both (their Fit scales).
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
@@ -18,7 +18,6 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
-local Layout = require(script.Parent.Parent.Util.Layout)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -30,7 +29,6 @@ local UiSfx = require(game:GetService("ReplicatedStorage").Shared.UiSfx)
 local PlayMenuController = {}
 
 local player = Players.LocalPlayer
-local DESIGN = Vector2.new(1920, 1080)
 local QUINT = Enum.EasingStyle.Quint
 local IN = Enum.EasingDirection.In
 local GREEN, MUTED = Color3.fromHex("3FD68A"), Color3.fromHex("B8B8BB")
@@ -51,7 +49,6 @@ type Tile = {
 
 local gui: ScreenGui
 local canvas: Frame
-local fit: UIScale
 local scrim: Frame
 local tiles: { Tile } = {}
 local isOpen = false
@@ -61,7 +58,6 @@ local pendingUntil = 0 -- a join is in flight: ignore more clicks briefly
 
 -- the searching bar
 local searchGui: ScreenGui
-local barFit: UIScale
 local bar: Frame
 local barPop: UIScale
 local barMode: TextLabel
@@ -319,13 +315,6 @@ end
 --------------------------------------------------------------------------------
 -- Open / close
 
-local function refit()
-	local size = gui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		fit.Scale = math.min(size.X / DESIGN.X, size.Y / DESIGN.Y)
-	end
-end
-
 local function open()
 	openToken += 1
 	if isOpen then
@@ -333,7 +322,6 @@ local function open()
 	end
 	isOpen = true
 	gui.Enabled = true
-	refit()
 	refreshTiles()
 	resetClose()
 	scrim.BackgroundTransparency = 1
@@ -388,13 +376,6 @@ end
 --------------------------------------------------------------------------------
 -- The searching bar
 
-local function refitBar()
-	local size = searchGui.AbsoluteSize
-	if size.X > 0 and size.Y > 0 then
-		barFit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.6, 1.5)
-	end
-end
-
 local function updateBar()
 	local elapsed = QueueState.elapsed()
 	barTimer.Text = clock(elapsed)
@@ -445,9 +426,6 @@ end
 --------------------------------------------------------------------------------
 
 function PlayMenuController.init()
-	if Layout.isPhone() then
-		return -- phones keep Controllers/QueueMenu's menu for now
-	end
 	local playerGui = player:WaitForChild("PlayerGui")
 	local g = playerGui:WaitForChild("PlayMenu", 15)
 	local sg = playerGui:WaitForChild("LobbySearch", 15)
@@ -460,9 +438,7 @@ function PlayMenuController.init()
 	gui = g
 	gui.Enabled = false
 	canvas = child(gui, "Canvas")
-	fit = child(canvas, "Fit")
 	scrim = child(gui, "Scrim")
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	local modes = child(canvas, "Modes") :: Frame
 	for _, b in modes:GetChildren() do
@@ -501,7 +477,6 @@ function PlayMenuController.init()
 
 	searchGui = sg
 	local top = child(searchGui, "Top") :: Frame
-	barFit = child(top, "Fit")
 	bar = child(top, "Bar")
 	barPop = child(bar, "Pop")
 	local modeCircle = child(bar, "Mode") :: Frame
@@ -510,8 +485,6 @@ function PlayMenuController.init()
 	barSub = child(bar, "Sub")
 	barTimer = child(bar, "Timer")
 	bar.Visible = false
-	searchGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refitBar)
-	refitBar()
 	local cancel = child(bar, "Cancel") :: TextButton
 	local cancelPop = child(cancel, "Pop") :: UIScale
 	cancel.MouseEnter:Connect(function()

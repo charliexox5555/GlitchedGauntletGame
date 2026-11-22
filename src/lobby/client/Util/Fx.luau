@@ -2,8 +2,8 @@
 -- Lobby UI motion kit. Timings are named tokens (LihFolk: UI Motion Language
 -- and Timing; LihFolk UI Spec): feedback 0.05-0.1 s, exits 0.12 s with In
 -- easing and no overshoot, entrances about 0.22 s, big reveals 0.4 s. Pops and
--- presses use a child "PopScale" UIScale (the cluster's "Fit" UIScale is
--- Layout's). Reduced motion (GuiService.ReducedMotionEnabled or the Settings
+-- presses use a child "PopScale" UIScale (a "Fit" UIScale is Shared/
+-- UiLayout's). Reduced motion (GuiService.ReducedMotionEnabled or the Settings
 -- toggle) turns movement into fades: positions, sizes, rotations and pops jump
 -- to their end value, loops and sweeps stop, transparency and colour still ease.
 -- Idle loops pause while their ScreenGui is disabled.
