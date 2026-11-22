@@ -12,6 +12,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Config = require(ReplicatedStorage.Lobby.Config)
@@ -148,7 +149,7 @@ end
 
 function ProfileController.init()
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("Profile", 15)
-	local folder = ReplicatedStorage:WaitForChild("UiTemplates", 15)
+	local folder = UiRoot.findTemplates(15)
 	local lobby = folder and folder:WaitForChild("Lobby", 15)
 	local tpl = lobby and lobby:WaitForChild("ProfileSkin", 15)
 	if not (g and g:IsA("ScreenGui") and tpl and tpl:IsA("Frame")) then

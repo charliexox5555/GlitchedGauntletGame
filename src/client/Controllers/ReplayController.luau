@@ -13,6 +13,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -399,7 +400,7 @@ local function buildUi()
 		}, gui)
 	end
 	-- The match UI's card: the gold FINAL KILL block, killer, weapon, victim.
-	local templates = ReplicatedStorage:FindFirstChild("UiTemplates")
+	local templates = UiRoot.findTemplates(0)
 	local folder = templates and templates:FindFirstChild("Replay")
 	local template = folder and folder:FindFirstChild("FinalKill")
 	if template and template:IsA("Frame") then

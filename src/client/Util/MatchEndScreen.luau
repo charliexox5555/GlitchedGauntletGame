@@ -9,6 +9,7 @@
 -- decides everything). Desktop only for now.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -372,7 +373,7 @@ local function bind(gui: ScreenGui)
 		rounds = child(canvas, "Rounds"),
 		board = child(canvas, "Board"),
 		right = right,
-		templates = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("MatchEnd") :: Folder,
+		templates = UiRoot.templates():WaitForChild("MatchEnd") :: Folder,
 		buttons = {},
 		onChoice = nil,
 		plates = {},

@@ -26,7 +26,7 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
-local MatchScreens = require(ReplicatedStorage.Shared.MatchScreens)
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local CoreUi = require(ReplicatedStorage.Shared.CoreUi)
@@ -493,7 +493,7 @@ function MapVoteController.start()
 	-- The vote runs before anyone spawns, and StarterGui is only copied into
 	-- PlayerGui on a spawn: take our own copy now, and drop the one Roblox
 	-- adds at the first spawn.
-	local source = MatchScreens.source("MapVote")
+	local source = UiRoot.source("Match", "MapVote")
 	gui = source:Clone()
 	gui.Name = "MapVoteLive"
 	gui.Enabled = false
@@ -507,7 +507,7 @@ function MapVoteController.start()
 		dropCopy(c)
 	end
 	playerGui.ChildAdded:Connect(dropCopy)
-	local folder = ReplicatedStorage:WaitForChild("UiTemplates")
+	local folder = UiRoot.templates()
 	templates = folder:WaitForChild("MapVote")
 	backdrop = child(gui, "Backdrop") :: Frame
 	canvas = child(gui, "Canvas") :: Frame

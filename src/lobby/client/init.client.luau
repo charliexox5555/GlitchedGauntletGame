@@ -4,29 +4,23 @@
 
 -- In a Match server (shared/ServerRole) the lobby UI doesn't run at all: the
 -- match client (StarterPlayerScripts.Client) has the screen.
-local ServerRole =
-	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("ServerRole"))
+local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local ServerRole = require(Shared:WaitForChild("ServerRole") :: ModuleScript)
 if ServerRole.isMatch() then
-	-- StarterGui still copies the lobby's screens to everyone: keep them off.
-	local StarterGui = game:GetService("StarterGui")
-	local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-	local function off(gui: Instance)
-		if gui:IsA("ScreenGui") and StarterGui:FindFirstChild(gui.Name) then
-			gui.Enabled = false
-		end
-	end
-	for _, gui in playerGui:GetChildren() do
-		off(gui)
-	end
-	playerGui.ChildAdded:Connect(off)
 	return
 end
+
+-- The lobby's Studio-built screens (PlayerScripts.UI.Lobby) into PlayerGui,
+-- before any controller looks for them (Shared/UiRoot; vault/04 Tech/UI Architecture.md).
+local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
+local player = game:GetService("Players").LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+UiRoot.mount("Lobby", playerGui)
 
 -- the chunky cell look on every screen + re-measured self-sizing text
 -- (first, so templates are marked before any controller clones them)
 local LobbyLook = require(script.Util.LobbyLook)
-local player = game:GetService("Players").LocalPlayer
-LobbyLook.apply(player:WaitForChild("PlayerGui"))
+LobbyLook.apply(playerGui)
 
 local Controllers = script:FindFirstChild("Controllers")
 

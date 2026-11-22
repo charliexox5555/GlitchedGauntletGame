@@ -9,6 +9,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -231,7 +232,7 @@ local function bind(gui: ScreenGui)
 		round = child(top, "Round"),
 		us = child(score, "Us"),
 		them = child(score, "Them"),
-		templates = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("Scoreboard") :: Folder,
+		templates = UiRoot.templates():WaitForChild("Scoreboard") :: Folder,
 	}
 	local function refit()
 		local size = gui.AbsoluteSize

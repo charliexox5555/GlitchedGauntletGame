@@ -1,6 +1,6 @@
 # UI architecture: one structure for every device (plan, 2026-11-22)
 
-**Status:** plan, waiting on the owner's answers (§8). Nothing deleted or moved yet.
+**Status (2026-11-22):** owner approved the recommended answers. **Steps 1-2 done** (§10): every screen and template now lives in `StarterPlayerScripts.UI`, loaded by `Shared/UiRoot`; tested in a Lobby playtest (lobby HUD and menus) and the range (match screens). **Save the Lobby place.** Next: step 3, the responsive pass, and the mobile controls mockup.
 **Goal (owner, 2026-11-22):** a full UI pass for every device and layout. Remove the old UI and code, move everything to one structure, make the layout and text scale on phone, tablet, PC and console, ignore the inset on phones where a full-screen look helps, and design new mobile controls ([UI Mobile Controls](../02%20Art/UI%20Mobile%20Controls.md)).
 
 Sources: code audit of `src/` (2026-11-22), Studio read of the merged place and of the RIVALS client ([Rivals Mobile UI → Studio read](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md), [RIVALS UI and Client](../03%20Research/Rivals%20Reference/UI%20and%20Client.md)), [UI Overhaul Research](../02%20Art/UI%20Overhaul%20Research.md) §3-5 (measured text tests), LihFolk `05 UI and UX` (ScreenGui Fundamentals, Layout - Scale Offset and Constraints, Safe Areas and Insets, Readable Text and UI Scale, Responsive UI for Phone Tablet Console and PC, Mobile Button Layout Editor, Input - UserInputService and ContextActionService).
@@ -15,7 +15,7 @@ Sources: code audit of `src/` (2026-11-22), Studio read of the merged place and 
 |---|---|---|
 | `StarterGui` (place file) | 20 lobby screens: LobbyBar, LobbyTopbar, PlayMenu, PartyMenu, Shop, BattlePass, Locker, Settings, Profile, Rewards, Backpack, NpcTalk, LobbyMatchFound, LobbySearch, LobbyCoins, LobbyLoading, LobbyToast, LobbyPlayerList, LobbyTasks, **LobbyHudMockup (unused)** | `lobby/Util/LobbyHudView` + one lobby controller per screen |
 | `ReplicatedStorage.MatchScreens` | 10 match screens: TopBar, BottomHud, DraftScreen, KillFeed, DeathScreen, MatchEndScreen, StatusTray, Scoreboard, MapVote, Notify | `shared/MatchScreens.install` → match controllers |
-| `ReplicatedStorage.UiTemplates` | rows and cells (Lobby, KillFeed, TopBar, MatchEnd, MapVote, Status, Scoreboard, Replay), with **duplicate** TopBar, KillFeed, Scoreboard and MapVote copies | the same controllers |
+| `ReplicatedStorage.UiTemplates` | rows and cells (Lobby, KillFeed, TopBar, MatchEnd, MapVote, Status, Scoreboard, Replay). (First read as duplicates of the match screens; checked: they are the row templates those screens clone.) | the same controllers |
 
 **Still built in code:** CombatHud and the touch buttons (`HudController`), ModHud and the Mod touch arc (`ModHudController`), Replay, Spectate, WinCutscene, ModFeel, NetStats, the full-screen ability effects (13 ScreenGuis), LobbyHudShade, LockerWipe, CaseFlash.
 
@@ -25,8 +25,8 @@ Sources: code audit of `src/` (2026-11-22), Studio read of the merged place and 
 - `lobby/Controllers/LobbyHud`: the v2 dock, top row, pill and toast
 - `lobby/Util/Menu` (171): chrome for those menus
 - the phone halves of `DraftController` (1,794 lines in total), `MatchEndController` and `SpectateController` (the old bar)
-- `client/Util/KillFeed` (407): only its kill sounds are still used
-- `MatchHudController`'s hidden old top bar: only its sounds are still used
+- `client/Util/KillFeed` (407): **still live**: HudController builds it and it plays the kill sounds, the kill banner and the assist popup. It goes with the combat HUD rebuild (step 3), not in the cleanup.
+- `MatchHudController`'s hidden old top bar: only its sounds are still used (goes with the combat HUD rebuild)
 
 **Duplicates and drift:**
 - Two theme modules: `Config/Theme` (v1, about 16 users) on top of `Config/UiStyle` (v2).
@@ -35,7 +35,7 @@ Sources: code audit of `src/` (2026-11-22), Studio read of the merged place and 
 - Two device rules: `client/Util/Device` and `lobby/Util/Layout` (both: short side < 640 = phone).
 - `NetStatsController` and `SoundAuditionController` exist in both client trees.
 - Fonts set in code: BuilderSans, Gotham, RobotoMono, Arcade, Code, Sarpanch, Titillium. Only `UiStyle` tokens should set fonts.
-- **Bug:** `RewardsController:143` waits for `LobbyTopbar`, but the phone path builds `LobbyTopBar`, so Rewards hangs 15 s on phones.
+- ~~Bug: Rewards waits 15 s on phones~~ Not a bug: phones also got the (disabled) Studio `LobbyTopbar`, so the wait returns at once.
 
 **Devices today:** phone vs desktop by size only. No tablet or console family, `PreferredInput` isn't used, and there is no custom thumbstick or jump button. The touch buttons are text labels (FIRE, AIM, R, SLIDE, SWAP, RUN).
 
@@ -110,3 +110,21 @@ All of them: `IgnoreGuiInset = true`, `ResetOnSpawn = false`, `SafeAreaCompatibi
 3. **Responsive pass, screen by screen:** apply §5-6, check the device sheet, add the phone variant, then delete that screen's old phone code. Order: lobby HUD + Play/Party → combat HUD + touch → Draft → Match end / death / spectate → Shop / Locker / Battle Pass / Settings → the rest.
 4. **Mobile controls:** build to the approved concept and replace `HudController`'s and `ModHudController`'s touch code.
 5. **Gamepad focus paths** (TV) last.
+
+## 10. Results
+
+### Steps 1-2 (2026-11-22)
+- **Studio (Lobby place, unsaved until the owner saves):**
+  - `StarterPlayer.StarterPlayerScripts.UI` now holds `Lobby` (19 ScreenGuis from StarterGui), `Match` (the 10 from `ReplicatedStorage.MatchScreens`) and `Templates` (was `ReplicatedStorage.UiTemplates`).
+  - StarterGui is empty. `MatchScreens` was removed, and the unused `LobbyHudMockup` deleted (rebuildable with `tools/studio/BuildLobbyHudMockup.luau`).
+- **Code:**
+  - `Shared/UiRoot` (mount, source, templates, layers) replaces `Shared/MatchScreens`. 17 files now read templates through it.
+  - The lobby client mounts `Lobby` on lobby servers; on match servers it returns at once (the "turn off StarterGui copies" code is gone). The match client mounts `Match`.
+  - `NetStats.mount` reuses a live copy, so the lobby and an armed zone no longer draw two readouts.
+  - `tools/studio/UiEdit.luau` parks a screen (or `Templates`) in StarterGui to edit and stores it back.
+- **Tested:** Lobby playtest (19 screens mounted, HUD, player list, Shop, Locker, Settings, Party, Backpack bound, no new errors) and the range (each match screen once, BottomHud bound, one NetStats). A full match server wasn't run; it uses the same mount path.
+- **Not changed (on purpose):**
+  - No screen has a `Layer` attribute yet, so nothing looks different. Layers go on screen by screen in step 3.
+  - `Theme` / `Ui` v1 kit / `Fx` / `Device` + `Layout` fold into one as their screens are rebuilt; folding them before that would be throwaway work.
+  - The `tools/studio/Build*.luau` builders still write to the old homes (StarterGui, MatchScreens, UiTemplates). After running one, move its output into `UI` (or park and store it with UiEdit).
+  - `selene src` reports one error from before this change: `Content` is undefined at `PlayMenuController:219`.

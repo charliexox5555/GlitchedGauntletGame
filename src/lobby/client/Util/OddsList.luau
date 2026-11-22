@@ -9,6 +9,7 @@
 -- the Backpack and the Season Pass.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local TweenService = game:GetService("TweenService")
 
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
@@ -232,9 +233,7 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 	if layout then
 		layout.HorizontalAlignment = Enum.HorizontalAlignment.Right -- indented skins hug the right
 	end
-	local template = ReplicatedStorage:WaitForChild("UiTemplates")
-		:WaitForChild("Lobby")
-		:WaitForChild("ShopOddsRow") :: Frame
+	local template = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("ShopOddsRow") :: Frame
 	local font = (child(template, "Name") :: TextLabel).FontFace
 	local parent = list.Parent
 	local showInfo = infoCard(if parent and parent:IsA("GuiObject") then parent else list, font)

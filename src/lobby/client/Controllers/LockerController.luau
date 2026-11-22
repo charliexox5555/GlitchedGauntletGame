@@ -17,6 +17,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiSfx = require(game:GetService("ReplicatedStorage").Shared.UiSfx)
 local RunService = game:GetService("RunService")
@@ -1025,7 +1026,7 @@ function LockerController.init()
 	floorShadow = child(backCanvas, "Floor")
 	local light = backCanvas:FindFirstChild("Light")
 	stageLight = if light and light:IsA("ImageLabel") then light else nil
-	templates = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("Lobby") :: Folder
+	templates = UiRoot.templates():WaitForChild("Lobby") :: Folder
 	for _, o in { gunsList, kinds, tray, child(canvas, "GunName"), child(canvas, "SkinTag") } do
 		home(o :: GuiObject)
 	end

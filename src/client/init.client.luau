@@ -19,7 +19,7 @@ local UserInputService = game:GetService("UserInputService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ServerRole = require(Shared:WaitForChild("ServerRole") :: ModuleScript)
 local PlayZone = require(Shared:WaitForChild("PlayZone") :: ModuleScript)
-local MatchScreens = require(Shared:WaitForChild("MatchScreens") :: ModuleScript)
+local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
 local MapLighting = require(Shared:WaitForChild("MapLighting") :: ModuleScript)
 
 local RUNNER = "MatchClientRunner"
@@ -36,9 +36,9 @@ local LOBBY_CONTROLLERS: { [string]: boolean } = {
 local LOBBY_ZOOM = 12 -- studs: the lobby camera distance after leaving first person
 
 local function runControllers(lobbyOnly: boolean)
-	-- The match's screens (ReplicatedStorage.MatchScreens in the merged place).
+	-- The match's screens (PlayerScripts.UI.Match, Shared/UiRoot).
 	if not lobbyOnly then
-		MatchScreens.install(Players.LocalPlayer:WaitForChild("PlayerGui"))
+		UiRoot.mount("Match", Players.LocalPlayer:WaitForChild("PlayerGui"))
 	end
 
 	local Controllers = script:FindFirstChild("Controllers")

@@ -18,6 +18,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local SocialService = game:GetService("SocialService")
 
@@ -510,9 +511,7 @@ function PartyMenuController.init()
 	end
 	local playerGui = player:WaitForChild("PlayerGui")
 	local g = playerGui:WaitForChild("PartyMenu", 15)
-	local t = ReplicatedStorage:WaitForChild("UiTemplates")
-		:WaitForChild("Lobby")
-		:WaitForChild("PartyPlayerCard", 15)
+	local t = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("PartyPlayerCard", 15)
 	if not g or not g:IsA("ScreenGui") or not t or not t:IsA("Frame") then
 		warn(
 			"[PartyMenu] StarterGui.PartyMenu / PartyPlayerCard missing (tools/studio/BuildLobbyMenus.luau)"

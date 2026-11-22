@@ -71,8 +71,15 @@ local function line(parent: Instance, order: number): (TextLabel, Frame)
 	return text, icon
 end
 
+local mounted: ScreenGui? = nil
+
 -- Builds the readout and keeps it updated. `rightInset`: px from the right edge.
+-- One per client: in a lobby server the lobby mounts it and the match client
+-- (armed zones) mounts again, so a live copy is reused, not doubled.
 function NetStats.mount(rightInset: number): ScreenGui
+	if mounted and mounted.Parent then
+		return mounted
+	end
 	local player = Players.LocalPlayer
 	local gui = make("ScreenGui", {
 		Name = "NetStats",
@@ -116,6 +123,7 @@ function NetStats.mount(rightInset: number): ScreenGui
 		}, barBox)
 	end
 	gui.Parent = player:WaitForChild("PlayerGui")
+	mounted = gui
 
 	local function showRegion()
 		region.Text = ServerRegion.get()

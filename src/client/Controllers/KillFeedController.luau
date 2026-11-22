@@ -12,6 +12,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local TweenService = game:GetService("TweenService")
 
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
@@ -417,7 +418,7 @@ local function bind(gui: ScreenGui)
 		flash = disc:WaitForChild("Flash") :: Frame,
 		wave = holder:WaitForChild("Wave") :: ImageLabel,
 	}
-	local folder = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("KillFeed")
+	local folder = UiRoot.templates():WaitForChild("KillFeed")
 	template = folder:WaitForChild("Row") :: Frame
 end
 

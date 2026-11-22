@@ -27,6 +27,7 @@
 local Players = game:GetService("Players")
 local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 
@@ -917,7 +918,7 @@ function ShopController.init()
 	gui.Enabled = false
 	coinsGui = cg
 	coinsGui.Enabled = false
-	templates = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("Lobby") :: Folder
+	templates = UiRoot.templates():WaitForChild("Lobby") :: Folder
 	canvas = child(gui, "Canvas")
 	fit = child(canvas, "Fit")
 	scroll = child(canvas, "Scroll")

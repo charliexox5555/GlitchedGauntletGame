@@ -11,6 +11,7 @@ local AvatarEditorService = game:GetService("AvatarEditorService")
 local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local SocialService = game:GetService("SocialService")
 
@@ -67,7 +68,7 @@ end
 
 function RewardsController.init()
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("Rewards", 15)
-	local folder = ReplicatedStorage:WaitForChild("UiTemplates", 15)
+	local folder = UiRoot.findTemplates(15)
 	local lobby = folder and folder:WaitForChild("Lobby", 15)
 	local tpl = lobby and lobby:WaitForChild("RewardRow", 15)
 	if not (g and g:IsA("ScreenGui") and tpl and tpl:IsA("Frame")) then

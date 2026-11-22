@@ -16,7 +16,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
-local MatchScreens = require(ReplicatedStorage.Shared.MatchScreens)
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
@@ -142,7 +142,7 @@ end
 local function ownCopy(): ScreenGui
 	local playerGui = player:WaitForChild("PlayerGui")
 	local mine0 = playerGui:FindFirstChild("TopBar")
-	local source = if mine0 then nil else MatchScreens.source("TopBar")
+	local source = if mine0 then nil else UiRoot.source("Match", "TopBar")
 	if not mine0 and not (source and source:IsA("ScreenGui")) then
 		return WaitGui("TopBar") :: ScreenGui
 	end
@@ -176,9 +176,7 @@ function TopBarController.start()
 	local infoLabel = timer:WaitForChild("Info") :: TextLabel
 	local timerEdge = timer:WaitForChild("Edge") :: UIStroke
 	local timerPop = timer:WaitForChild("Pop") :: UIScale
-	local template = ReplicatedStorage:WaitForChild("UiTemplates")
-		:WaitForChild("TopBar")
-		:WaitForChild("Player") :: Frame
+	local template = UiRoot.templates():WaitForChild("TopBar"):WaitForChild("Player") :: Frame
 
 	local function side(name: string): Side
 		local block = bar:WaitForChild(name) :: Frame

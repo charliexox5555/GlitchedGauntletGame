@@ -12,6 +12,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
@@ -65,7 +66,7 @@ end
 
 function BackpackController.init()
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("Backpack", 15)
-	local folder = ReplicatedStorage:WaitForChild("UiTemplates", 15)
+	local folder = UiRoot.findTemplates(15)
 	local lobby = folder and folder:WaitForChild("Lobby", 15)
 	local tpl = lobby and lobby:WaitForChild("BackpackCell", 15)
 	if not (g and g:IsA("ScreenGui") and tpl and tpl:IsA("GuiButton")) then

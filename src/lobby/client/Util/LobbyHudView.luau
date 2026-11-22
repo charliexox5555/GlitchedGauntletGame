@@ -24,6 +24,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
@@ -654,9 +655,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		list = list,
 		count = child(head, "Count"),
 		more = child(list, "More"),
-		rowTemplate = ReplicatedStorage:WaitForChild("UiTemplates")
-			:WaitForChild("Lobby")
-			:WaitForChild("PlayerRow") :: Frame,
+		rowTemplate = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("PlayerRow") :: Frame,
 		play = play,
 		playPop = child(face, "Pop"),
 		playBody = child(face, "Body"),
@@ -678,9 +677,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		topShown = true,
 		listShown = true,
 		party = child(bottom, "Party"),
-		slotTemplate = ReplicatedStorage:WaitForChild("UiTemplates")
-			:WaitForChild("Lobby")
-			:WaitForChild("PartySlot") :: Frame,
+		slotTemplate = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("PartySlot") :: Frame,
 		slots = {},
 		invite = child(toast, "Invite"),
 		invitePop = child(child(toast, "Invite"), "Pop"),

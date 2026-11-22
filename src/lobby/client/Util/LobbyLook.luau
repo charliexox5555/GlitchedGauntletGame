@@ -5,6 +5,7 @@
 -- plates are finished by each screen's controller (Util/Plates.deepen).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Cards = require(script.Parent.Cards)
@@ -107,7 +108,7 @@ local TEMPLATES = {
 }
 
 function LobbyLook.apply(playerGui: Instance)
-	local folder = ReplicatedStorage:FindFirstChild("UiTemplates")
+	local folder = UiRoot.findTemplates(5)
 	local lobby = folder and folder:FindFirstChild("Lobby")
 	if lobby then
 		for _, name in TEMPLATES do

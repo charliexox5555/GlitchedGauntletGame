@@ -16,6 +16,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -329,9 +330,7 @@ local function bind(gui: ScreenGui)
 		hint = hint,
 		hintPlate = plate,
 		hintLabel = child(plate, "Label"),
-		template = ReplicatedStorage:WaitForChild("UiTemplates")
-			:WaitForChild("Status")
-			:WaitForChild("Entry") :: Frame,
+		template = UiRoot.templates():WaitForChild("Status"):WaitForChild("Entry") :: Frame,
 		entries = {},
 		shownHint = "",
 	}

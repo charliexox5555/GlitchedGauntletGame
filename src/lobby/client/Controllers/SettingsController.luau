@@ -15,6 +15,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local UserInputService = game:GetService("UserInputService")
 
 local HitFx = require(ReplicatedStorage.Shared.Config.HitFx)
@@ -1039,7 +1040,7 @@ end
 
 function SettingsController.init()
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("Settings", 15)
-	local folder = ReplicatedStorage:WaitForChild("UiTemplates", 15)
+	local folder = UiRoot.findTemplates(15)
 	local lobby = folder and folder:WaitForChild("Lobby", 15)
 	if not (g and g:IsA("ScreenGui") and lobby) then
 		warn(
