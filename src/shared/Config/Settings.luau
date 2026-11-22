@@ -29,6 +29,7 @@ export type Row = {
 	sub: boolean?, -- indented under the row above
 	showIf: { id: string, value: any }?, -- only shown while that row has that value
 	lockIf: { id: string, value: any, why: string }?, -- greyed out while that row has that value
+	phoneLock: string?, -- greyed out on touch controls (Shared/InputMode), with this note
 	note: string?, -- a small line under the label ("CONTROLLER AND PHONE ONLY")
 	warn: boolean?, -- the note is a warning (red)
 	confirm: boolean?, -- choices: a change asks KEEP within CONFIRM_SECONDS or goes back
@@ -318,31 +319,36 @@ local TABS: { Tab } = {
 						"aimAnimation",
 						"AIMING ANIMATION",
 						true,
-						"The smooth zoom when you aim down sights. Off: aiming snaps in."
+						"The springy move and zoom when you aim down sights. Off: the gun and zoom go straight in, no bounce."
 					),
 				},
 			},
 			{
 				title = "CONTROLS",
 				rows = {
-					toggle(
-						"toggleAim",
-						"TOGGLE AIM",
-						false,
-						"Press once to aim, again to stop, instead of holding. Always on for phones."
-					),
-					toggle(
-						"toggleCrouch",
-						"TOGGLE CROUCH",
-						false,
-						"Press once to crouch, again to stand, instead of holding. Always on for phones."
-					),
+					{
+						id = "toggleAim",
+						label = "TOGGLE AIM",
+						kind = "toggle",
+						default = false,
+						phoneLock = "ALWAYS ON FOR PHONES",
+						desc = "Press once to aim, again to stop, instead of holding. Always on for phones.",
+					},
+					{
+						id = "toggleCrouch",
+						label = "TOGGLE CROUCH",
+						kind = "toggle",
+						default = false,
+						phoneLock = "ALWAYS ON FOR PHONES",
+						desc = "Press once to crouch, again to stand, instead of holding. Always on for phones.",
+					},
 					{
 						id = "toggleSprint",
 						label = "TOGGLE SPRINT",
 						kind = "toggle",
 						default = false,
 						desc = "Press once to sprint, again to walk, instead of holding. Always on for phones.",
+						phoneLock = "ALWAYS ON FOR PHONES",
 						lockIf = {
 							id = "autoSprint",
 							value = true,
@@ -353,7 +359,7 @@ local TABS: { Tab } = {
 						"autoSprint",
 						"AUTO SPRINT",
 						true,
-						"You sprint whenever you move forward. Always on for phones."
+						"You sprint whenever you move forward. Off: hold Sprint to run (phones get a Sprint button)."
 					),
 					{
 						id = "scrollWeapons",
@@ -361,6 +367,7 @@ local TABS: { Tab } = {
 						kind = "toggle",
 						default = true,
 						note = "MOUSE ONLY",
+						phoneLock = "MOUSE ONLY",
 						desc = "The scroll wheel switches between your weapons.",
 					},
 				},
@@ -374,7 +381,20 @@ local TABS: { Tab } = {
 						kind = "toggle",
 						default = true,
 						note = "CONTROLLER AND PHONE ONLY",
-						desc = "Your aim is pulled gently onto enemies near your crosshair. You can always aim away from it.",
+						desc = "Your aim slows and is pulled gently onto enemies near your crosshair while you aim. You can always aim away from it.",
+					},
+					{
+						id = "aimAssistStrength",
+						label = "STRENGTH",
+						kind = "slider",
+						default = 100,
+						min = 0,
+						max = 100,
+						step = 1,
+						unit = "%",
+						sub = true,
+						showIf = { id = "aimAssist", value = true },
+						desc = "How strong the slowdown and pull are. 100 % is the game's tuned level.",
 					},
 					{
 						id = "autoShoot",
@@ -413,6 +433,7 @@ local TABS: { Tab } = {
 						step = 1,
 						unit = "%",
 						note = "CONTROLLER ONLY",
+						phoneLock = "CONTROLLER ONLY",
 						desc = "Stick drift: if your camera or character moves on its own, raise this until it stops. Keep it as low as you can.",
 					},
 					{

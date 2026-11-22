@@ -12,8 +12,8 @@ local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ScreenPoint = require(ReplicatedStorage.Shared.ScreenPoint)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Mods = require(ReplicatedStorage.Shared.Mods)
@@ -426,10 +426,7 @@ function MatchEndScreen.show(d: Data, onChoice: (name: string) -> ())
 	-- A controller starts on PLAY AGAIN (the D-pad reaches REMATCH and LEAVE;
 	-- X and Y are shortcuts), and the selection stays on this screen.
 	s.gui.SelectionGroup = true
-	local ok, preferred = pcall(function()
-		return UserInputService.PreferredInput
-	end)
-	if ok and preferred == Enum.PreferredInput.Gamepad then
+	if InputMode.gamepad() then
 		local first = s.buttons.PlayAgain
 		if first then
 			GuiService.SelectedObject = first

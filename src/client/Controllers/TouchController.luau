@@ -28,6 +28,7 @@ local Workspace = game:GetService("Workspace")
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local TouchLayout = require(ReplicatedStorage.Shared.TouchLayout)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local TouchHud = require(script.Parent.Parent.Util.TouchHud)
@@ -640,9 +641,7 @@ function TouchController.start()
 	pcall(function() -- the range has no match state
 		MatchState.changed("Phase"):Connect(refresh)
 	end)
-	pcall(function()
-		UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(refresh)
-	end)
+	InputMode.changed:Connect(refresh) -- a real input change or FORCE CONTROLS
 	local camera = Workspace.CurrentCamera
 	if camera then
 		camera:GetPropertyChangedSignal("ViewportSize"):Connect(layout)

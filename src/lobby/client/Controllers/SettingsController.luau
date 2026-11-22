@@ -23,6 +23,7 @@ local HitFx = require(ReplicatedStorage.Shared.Config.HitFx)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
 local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local Settings = require(ReplicatedStorage.Shared.Config.Settings)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
@@ -137,8 +138,20 @@ local function set(id: string, v: any)
 	redraw()
 end
 
+-- Why a row is greyed out right now (nil = it isn't): another row's value
+-- (lockIf), or touch controls for rows phones don't use (phoneLock).
+local function lockWhy(row: Row): string?
+	if row.lockIf and values[row.lockIf.id] == row.lockIf.value then
+		return row.lockIf.why
+	end
+	if row.phoneLock and InputMode.touch() then
+		return row.phoneLock
+	end
+	return nil
+end
+
 local function locked(row: Row): boolean
-	return row.lockIf ~= nil and values[row.lockIf.id] == row.lockIf.value
+	return lockWhy(row) ~= nil
 end
 
 local function shown(row: Row): boolean
@@ -279,8 +292,9 @@ local function inspectRow(row: Row)
 	inspected = row
 	head.Text = row.label
 	local text = row.desc
-	if locked(row) and row.lockIf then
-		text ..= "  (" .. row.lockIf.why .. ")"
+	local why = lockWhy(row)
+	if why then
+		text ..= "  (" .. why .. ")"
 	end
 	desc.Text = text
 	desc.TextColor3 = if row.warn then C.red else C.muted
@@ -881,7 +895,7 @@ local function addRow(row: Row, order: number, wide: boolean)
 		nameLabel.TextSize = if row.sub then 23 else 26
 		nameLabel.Size = UDim2.new(0, 420, 1, 0)
 		local note = r:FindFirstChild("Note") :: TextLabel?
-		local noteText = if isLocked and row.lockIf then row.lockIf.why else row.note
+		local noteText = if isLocked then lockWhy(row) else row.note
 		if note and noteText then
 			note.Text = noteText
 			note.TextColor3 = if row.warn or isLocked then C.red else C.muted
@@ -1216,6 +1230,12 @@ function SettingsController.init()
 	})
 	current = 0
 	loadSaved()
+	-- phone-only greying (phoneLock) follows the device, and FORCE CONTROLS
+	InputMode.changed:Connect(function()
+		if gui.Enabled and current > 0 then
+			renderTab(current, true)
+		end
+	end)
 end
 
 return SettingsController

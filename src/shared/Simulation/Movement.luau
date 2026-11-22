@@ -148,7 +148,10 @@ local function stepCharacter(player: Player, character: Model)
 	if pressedCrouch then
 		crouchPressAt = now
 	end
-	local couldRun = forward and not aimIn and now >= sprintBlock
+	-- Settings AUTO SPRINT off (the own client sets the character's
+	-- AutoSprint attribute, Shared/SettingsApply): the run needs Sprint held.
+	local autoRun = character:GetAttribute("AutoSprint") ~= false or sprintIn
+	local couldRun = forward and not aimIn and now >= sprintBlock and autoRun
 	local slideAsked = crouchRaw and now - crouchPressAt <= Movement.SLIDE_BUFFER
 	-- While that press waits, the run keeps going (a crouch would slow you
 	-- under SLIDE_MIN_SPEED before the cooldown ends).
@@ -158,7 +161,7 @@ local function stepCharacter(player: Player, character: Model)
 
 	-- Running: no sprint key (Movement.RUN_DELAY). Moving forward for a moment
 	-- breaks into the run; a slide keeps the stretch going.
-	local mayRun = forward and not aimIn and not crouchIn and now >= sprintBlock
+	local mayRun = forward and not aimIn and not crouchIn and now >= sprintBlock and autoRun
 	if mayRun then
 		runSince = runSince or now
 		if sprintIn then

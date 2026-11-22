@@ -8,11 +8,11 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 
 local TouchHud = {}
 
@@ -29,14 +29,12 @@ function TouchHud.enabled(): boolean
 	if RunService:IsStudio() and StateValues.get(Workspace, "ForceTouchUI") == true then
 		return true
 	end
-	if not UserInputService.TouchEnabled then
+	if not InputMode.touchCapable() then
 		return false
 	end
-	-- A tablet with a keyboard or gamepad plugged in prefers that instead.
-	local ok, preferred = pcall(function()
-		return UserInputService.PreferredInput
-	end)
-	return not ok or preferred == Enum.PreferredInput.Touch
+	-- A tablet with a keyboard or gamepad plugged in prefers that instead
+	-- (Shared/InputMode: Settings FORCE CONTROLS wins).
+	return InputMode.touch()
 end
 
 function TouchHud.screen(): ScreenGui?

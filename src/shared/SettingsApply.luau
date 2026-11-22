@@ -18,6 +18,7 @@ local MaterialService = game:GetService("MaterialService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
@@ -26,6 +27,7 @@ local Config = require(Shared:WaitForChild("Config"):WaitForChild("SettingsApply
 local Settings = require(Shared:WaitForChild("Config"):WaitForChild("Settings") :: ModuleScript)
 local PlayerSettings = require(Shared:WaitForChild("PlayerSettings") :: ModuleScript)
 local UiSfx = require(Shared:WaitForChild("UiSfx") :: ModuleScript)
+local InputMode = require(Shared:WaitForChild("InputMode") :: ModuleScript)
 local Audio = require(Shared:WaitForChild("Config"):WaitForChild("Audio") :: ModuleScript)
 local CameraConfig = require(Shared:WaitForChild("Config"):WaitForChild("Camera") :: ModuleScript)
 
@@ -112,8 +114,30 @@ end
 -- The camera module turned the view from `lastLook` by this frame's input
 -- (mouse, stick or touch): rescale that turn by the player's sensitivity.
 -- Rotates about Camera.Focus, so a third-person orbit stays on its subject.
+-- STICK DEADZONE (controller): the stick sits off centre but inside the
+-- player's deadzone (drift), so it shouldn't move anything.
+function SettingsApply.stickDrift(stick: Enum.KeyCode): boolean
+	if not InputMode.gamepad() then
+		return false
+	end
+	local zone = num("stickDeadzone") / 100
+	if zone <= 0 then
+		return false
+	end
+	for _, input in UserInputService:GetGamepadState(Enum.UserInputType.Gamepad1) do
+		if input.KeyCode == stick then
+			local m = Vector2.new(input.Position.X, input.Position.Y).Magnitude
+			return m > 0 and m < zone
+		end
+	end
+	return false
+end
+
 function SettingsApply.scaleTurn(cam: Camera, lastLook: Vector3, mode: TurnMode)
 	local sx, sy = SettingsApply.turnScale(mode)
+	if SettingsApply.stickDrift(Enum.KeyCode.Thumbstick2) then
+		sx, sy = 0, 0 -- a drifting right stick turns nothing
+	end
 	if sx == 1 and sy == 1 then
 		return
 	end
@@ -411,6 +435,12 @@ local function applyAll()
 	setLowTex(on("optimizedTextures"))
 	applyGuis()
 	applyAudio()
+	InputMode.setForced(SettingsApply.get("forceControls"))
+	local character = player.Character
+	if character then
+		-- AUTO SPRINT off: the run needs Sprint (Simulation/Movement reads it)
+		character:SetAttribute("AutoSprint", SettingsApply.get("autoSprint") ~= false)
+	end
 	changedEvent:Fire()
 end
 
@@ -446,12 +476,29 @@ function SettingsApply.start()
 		Enum.RenderPriority.Last.Value,
 		lobbyCameraRecord
 	)
+	-- a drifting left stick walks nowhere (after the control module's Move)
+	RunService:BindToRenderStep(
+		"GGSettingsDeadzone",
+		Enum.RenderPriority.Input.Value + 1,
+		function()
+			if SettingsApply.stickDrift(Enum.KeyCode.Thumbstick1) then
+				local character = player.Character
+				local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid:Move(Vector3.zero, false)
+				end
+			end
+		end
+	)
 	applyAudio()
 	-- the mix buses are made by their owners (AudioController, UiSfx): level them on arrival
 	SoundService.ChildAdded:Connect(function(c)
 		if c:IsA("SoundGroup") and (c.Name == Config.COMBAT_GROUP or c.Name == Config.UI_GROUP) then
 			task.defer(applyAudio)
 		end
+	end)
+	player.CharacterAdded:Connect(function(character)
+		character:SetAttribute("AutoSprint", SettingsApply.get("autoSprint") ~= false)
 	end)
 	watchSounds(Workspace)
 	watchSounds(SoundService)

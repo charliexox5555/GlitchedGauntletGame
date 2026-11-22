@@ -50,16 +50,74 @@ local function watch(name: string, action: InputAction)
 	end)
 end
 
+-- TOGGLE AIM / CROUCH / SPRINT (Settings, keyboard and controller; phones
+-- toggle in TouchController): while a row is on, the server puts that
+-- action's keys on "<Name>Toggle" and each press here flips the real action.
+local toggled: { [string]: boolean } = {}
+
+local function setToggled(name: string, on: boolean)
+	local action = actions[name]
+	if not action then
+		return
+	end
+	toggled[name] = on
+	if action:GetState() ~= on then
+		action:Fire(on)
+	end
+end
+
+-- Drops every held toggle (death, a new character, a toggle row turned off).
+function InputController.releaseToggles()
+	for name, on in toggled do
+		if on then
+			setToggled(name, false)
+		end
+	end
+end
+
+-- Drops one held toggle (WeaponController: a new weapon drops a toggled aim).
+function InputController.releaseToggle(name: string)
+	if toggled[name] then
+		setToggled(name, false)
+	end
+end
+
+local function watchToggle(name: string, toggle: InputAction)
+	toggle.Pressed:Connect(function()
+		setToggled(name, not toggled[name])
+	end)
+	-- the row turned off (the keys left this action): let go
+	toggle.ChildRemoved:Connect(function()
+		if #toggle:GetChildren() == 0 and toggled[name] then
+			setToggled(name, false)
+		end
+	end)
+end
+
 function InputController.init()
 	local ctx = Players.LocalPlayer:WaitForChild("PlayContext") :: InputContext
-	for name in Bindings do
+	for name, b in Bindings do
 		local action = ctx:WaitForChild(name, 10)
 		if action and action:IsA("InputAction") then
 			actions[name] = action
 			watch(name, action)
 		end
+		local toggle = if b.toggle then ctx:FindFirstChild(name .. "Toggle") else nil
+		if toggle and toggle:IsA("InputAction") then
+			watchToggle(name, toggle)
+			-- a toggle left on by the last match client (destroyed with it)
+			if
+				action
+				and action:IsA("InputAction")
+				and #toggle:GetChildren() > 0
+				and action:GetState()
+			then
+				action:Fire(false)
+			end
+		end
 	end
 	context = ctx
+	Players.LocalPlayer.CharacterAdded:Connect(InputController.releaseToggles)
 end
 
 function InputController.action(name: string): InputAction

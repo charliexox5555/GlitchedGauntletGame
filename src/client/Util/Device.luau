@@ -9,9 +9,9 @@
 -- first). Studio test hook: Workspace attribute ForceLayout = "phone" | "desktop".
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+local InputMode = require(game:GetService("ReplicatedStorage").Shared.InputMode)
 
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Device = {}
@@ -68,7 +68,7 @@ Device.TOUCH_MIN = 0.62
 Device.ARC_REACH = 216
 
 function Device.hasTouchLayer(): boolean
-	return UserInputService.TouchEnabled
+	return InputMode.touchCapable()
 		or (RunService:IsStudio() and StateValues.get(Workspace, "ForceTouchUI") == true)
 end
 
@@ -92,7 +92,7 @@ function Device.phoneBarScale(): number
 end
 
 function Device.touch(): boolean
-	return UserInputService.TouchEnabled
+	return InputMode.touchCapable()
 end
 
 -- The touch arrangement (Controllers/PhoneHudController, the draft's scroller
@@ -105,7 +105,7 @@ function Device.compact(): boolean
 	if RunService:IsStudio() and StateValues.get(Workspace, "ForceTouchUI") == true then
 		return true
 	end
-	return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	return InputMode.touch() -- (Settings FORCE CONTROLS wins)
 end
 
 return Device

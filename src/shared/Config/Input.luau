@@ -15,6 +15,10 @@ export type Binding = {
 	setting: string?,
 	-- Value actions are fed by code, not keys (default: a Bool button).
 	kind: ("Bool" | "Direction1D")?,
+	-- the Settings toggle row (TOGGLE AIM / CROUCH / SPRINT): while it's on,
+	-- the keys drive "<Name>Toggle" instead and each press flips this action
+	-- (server/Services/InputContextService, client InputController)
+	toggle: string?,
 }
 
 local bindings: { [string]: Binding } = {
@@ -26,6 +30,7 @@ local bindings: { [string]: Binding } = {
 	},
 	Aim = {
 		setting = "kAim",
+		toggle = "toggleAim",
 		keys = { Enum.KeyCode.MouseRightButton },
 		gamepad = { Enum.KeyCode.ButtonL2 },
 	},
@@ -37,11 +42,13 @@ local bindings: { [string]: Binding } = {
 	},
 	Sprint = {
 		setting = "kSprint",
+		toggle = "toggleSprint",
 		keys = { Enum.KeyCode.LeftShift },
 		gamepad = { Enum.KeyCode.ButtonL3 },
 	},
 	Crouch = {
 		setting = "kCrouch",
+		toggle = "toggleCrouch",
 		keys = { Enum.KeyCode.C, Enum.KeyCode.LeftControl },
 		gamepad = { Enum.KeyCode.ButtonB },
 	},

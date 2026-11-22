@@ -4,6 +4,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 
 local Shared = ReplicatedStorage.Shared
 local Combat = require(Shared.Config.Combat)
@@ -126,7 +127,8 @@ function TeammateBillboardController.start()
 				marker.health.Size = UDim2.fromOffset(healthWidth, 5)
 				marker.shield.Size = UDim2.fromOffset(shieldWidth, 1)
 				marker.gui.Adornee = head
-				marker.gui.Enabled = not blinded
+				-- (Settings HIDE TEAMMATE TAGS)
+				marker.gui.Enabled = not blinded and SettingsApply.get("hideTeammateTags") ~= true
 			end
 		end
 		for model, marker in markers do

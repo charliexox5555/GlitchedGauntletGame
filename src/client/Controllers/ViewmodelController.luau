@@ -2222,6 +2222,12 @@ function ViewmodelController.setAds(alpha: number)
 			/ math.max(if c then c.adsTime else 0.2, 0.05),
 		dt
 	)
+	-- Settings AIMING ANIMATION off: no spring or bounce, the gun and the zoom
+	-- follow the aim straight (the aim time itself is gameplay and stays).
+	if SettingsApply.get("aimAnimation") == false then
+		adsBlend, adsBlendVel = adsGoal, 0
+		adsZoom, adsZoomVel = adsGoal, 0
+	end
 	if alpha > 0.05 and playing.Inspect then
 		ViewmodelController.cancelInspect()
 	end

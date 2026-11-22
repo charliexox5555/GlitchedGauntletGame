@@ -11,6 +11,9 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local CoreUi = require(script.Parent.CoreUi)
+local InputMode = require(
+	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("InputMode") :: ModuleScript
+)
 local Fx = require(script.Parent.Fx)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion)
 local UiSfx = require(game:GetService("ReplicatedStorage").Shared.UiSfx)
@@ -139,10 +142,7 @@ local function trap(menu: Menu, on: boolean)
 end
 
 local function usingGamepad(): boolean
-	local ok, preferred = pcall(function()
-		return UserInputService.PreferredInput
-	end)
-	return if ok then preferred == Enum.PreferredInput.Gamepad else UserInputService.GamepadEnabled
+	return InputMode.gamepad() -- (Settings FORCE CONTROLS wins)
 end
 
 -- Gamepad selection lands inside the menu: its own focus, else the screen's
@@ -234,7 +234,7 @@ end
 
 -- Picking up a controller with a menu open gives it a selection.
 pcall(function()
-	UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(function()
+	InputMode.changed:Connect(function()
 		local name = current
 		if name and GuiService.SelectedObject == nil then
 			focusMenu(menus[name])

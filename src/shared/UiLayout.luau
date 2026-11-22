@@ -25,8 +25,9 @@
 
 local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
+
+local InputMode = require(script.Parent:WaitForChild("InputMode") :: ModuleScript)
 
 local UiLayout = {}
 
@@ -88,13 +89,15 @@ function UiLayout.family(): Family
 	elseif forced == "console" then
 		return "Console"
 	end
-	local ok, preferred = pcall(function()
-		return UserInputService.PreferredInput
-	end)
-	if GuiService:IsTenFootInterface() or (ok and preferred == Enum.PreferredInput.Gamepad) then
+	-- (Shared/InputMode: Settings FORCE CONTROLS wins over the real input)
+	local ok, preferred = true, InputMode.preferred()
+	if
+		(GuiService:IsTenFootInterface() and not InputMode.isForced())
+		or (ok and preferred == Enum.PreferredInput.Gamepad)
+	then
 		return "Console"
 	end
-	local touch = UserInputService.TouchEnabled or studioSwitch("ForceTouchUI") == "true"
+	local touch = InputMode.touchCapable() or studioSwitch("ForceTouchUI") == "true"
 	local v = viewport()
 	if touch and math.min(v.X, v.Y) < UiLayout.PHONE_SHORT_SIDE then
 		return "Phone"
@@ -400,9 +403,7 @@ function UiLayout.watch(gui: ScreenGui)
 			screenScale(d, UiLayout.family(), gui.AbsoluteSize.Y)
 		end
 	end)
-	pcall(function()
-		UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(again)
-	end)
+	InputMode.changed:Connect(again)
 end
 
 return UiLayout

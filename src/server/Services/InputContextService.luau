@@ -49,6 +49,13 @@ local function build(): InputContext
 			addBinding(action, key)
 		end
 		action.Parent = ctx
+		if b.toggle then
+			-- TOGGLE rows: the keys move here while the row is on
+			local t = Instance.new("InputAction")
+			t.Name = name .. "Toggle"
+			t.Type = Enum.InputActionType.Bool
+			t.Parent = ctx
+		end
 	end
 	return ctx
 end
@@ -84,6 +91,31 @@ local function keysFor(b: Bindings.Binding, values: PlayerSettings.Values?): { E
 	return list
 end
 
+-- Gives `action` exactly the keys `want` (the bindings this service made).
+local function setKeys(action: InputAction, want: { Enum.KeyCode })
+	local have: { Enum.KeyCode } = {}
+	for _, c in action:GetChildren() do
+		if c:IsA("InputBinding") and c:GetAttribute(KEYBIND_ATTRIBUTE) then
+			table.insert(have, c.KeyCode)
+		end
+	end
+	local same = #have == #want
+	for _, k in want do
+		same = same and table.find(have, k) ~= nil
+	end
+	if same then
+		return
+	end
+	for _, c in action:GetChildren() do
+		if c:IsA("InputBinding") and c:GetAttribute(KEYBIND_ATTRIBUTE) then
+			c:Destroy()
+		end
+	end
+	for _, k in want do
+		addBinding(action, k)
+	end
+end
+
 local function applyKeybinds(player: Player)
 	local ctx = player:FindFirstChild("PlayContext")
 	local replica = player:FindFirstChild(Settings.REPLICA)
@@ -98,25 +130,15 @@ local function applyKeybinds(player: Player)
 		local action = ctx:FindFirstChild(name)
 		if b.setting and action and action:IsA("InputAction") then
 			local want = keysFor(b, values)
-			local have: { Enum.KeyCode } = {}
-			for _, c in action:GetChildren() do
-				if c:IsA("InputBinding") and c:GetAttribute(KEYBIND_ATTRIBUTE) then
-					table.insert(have, c.KeyCode)
-				end
-			end
-			local same = #have == #want
-			for _, k in want do
-				same = same and table.find(have, k) ~= nil
-			end
-			if not same then
-				for _, c in action:GetChildren() do
-					if c:IsA("InputBinding") and c:GetAttribute(KEYBIND_ATTRIBUTE) then
-						c:Destroy()
-					end
-				end
-				for _, k in want do
-					addBinding(action, k)
-				end
+			-- TOGGLE AIM / CROUCH / SPRINT on: the keys drive the toggle action
+			-- (the client flips this one, Controllers/InputController).
+			local toggle = if b.toggle then ctx:FindFirstChild(name .. "Toggle") else nil
+			if toggle and toggle:IsA("InputAction") then
+				local toggled = values[b.toggle] == true
+				setKeys(action, if toggled then {} else want)
+				setKeys(toggle, if toggled then want else {})
+			else
+				setKeys(action, want)
 			end
 		end
 	end

@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -31,6 +32,7 @@ local Fighters = require(Shared.Util.Fighters)
 local FireRate = require(Shared.Util.FireRate)
 local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
+local SettingsApply = require(Shared.SettingsApply)
 local ShadowMistAudio = require(Shared.Config.ShadowMistAudio)
 local TempestAudio = require(Shared.Config.TempestAudio)
 local SkinPreviewConfig = require(Shared.Config.SkinPreview)
@@ -528,6 +530,7 @@ local function applyEquip(slot: Slot)
 	cancelReload()
 	equipped = slot
 	pressQueued = false
+	InputController.releaseToggle("Aim") -- a toggled aim doesn't carry to the next weapon
 	burstQueue = 0
 	nextLeft = false
 	-- Every equip plays the full draw (Valorant): raise and rack the action.
@@ -1151,6 +1154,48 @@ local function onFireReleased()
 	triggerHeld = false
 end
 
+-- Auto shoot (Controllers/AimAssistController) ---------------------------------
+-- It presses the same trigger as the player: an automatic gun is held while
+-- the crosshair stays on an enemy, anything else is tapped (the gun's own
+-- fire rate still gates every shot, and the server checks each one).
+local autoHeld = false
+
+function WeaponController.currentConfig(): WeaponConfig?
+	local s = current()
+	return if s then s.config else nil
+end
+
+function WeaponController.isScoped(): boolean
+	return scoped
+end
+
+-- The equipped weapon could shoot or swing this frame.
+function WeaponController.readyToFire(): boolean
+	local s = current()
+	return s ~= nil and canShoot(s) and not isHolstered()
+end
+
+function WeaponController.autoTrigger(on: boolean)
+	if on and not autoHeld then
+		autoHeld = true
+		if not triggerHeld then
+			onFirePressed()
+		end
+	elseif not on and autoHeld then
+		autoHeld = false
+		if not InputController.isDown("Fire") then
+			onFireReleased()
+		end
+	end
+end
+
+function WeaponController.autoTap()
+	if not triggerHeld and not pressQueued then
+		onFirePressed()
+		onFireReleased()
+	end
+end
+
 -- Per frame --------------------------------------------------------------------
 
 -- While you spectate, the viewmodel and the zoom show someone else's gun
@@ -1593,6 +1638,7 @@ local function endLife()
 	ViewmodelController.setLowered(false)
 	triggerHeld = false
 	burstQueue = 0
+	InputController.releaseToggles() -- TOGGLE AIM / CROUCH / SPRINT end with the life
 	cancelReload()
 	equipped = nil
 	table.clear(slots)
@@ -1665,16 +1711,32 @@ function WeaponController.start()
 			pressQueued = true
 		end
 	end)
-	InputController.onPressed("CycleWeapon", function()
-		-- The next slot that holds something, skipping empty ones.
-		local index = table.find(CYCLE, equipped or "Primary") or 0
+	-- The next (dir 1) or previous (-1) slot that holds something, skipping empty ones.
+	local function cycle(dir: number)
+		local index = table.find(CYCLE, equipped or "Primary") or 1
 		for step = 1, #CYCLE - 1 do
-			local slot = CYCLE[(index + step - 1) % #CYCLE + 1]
+			local slot = CYCLE[(index - 1 + step * dir) % #CYCLE + 1]
 			if slots[slot] then
 				equip(slot)
 				return
 			end
 		end
+	end
+	InputController.onPressed("CycleWeapon", function()
+		cycle(1)
+	end)
+	-- Settings SCROLL WEAPONS (mouse only): the wheel walks the loadout.
+	UserInputService.InputChanged:Connect(function(input: InputObject, processed: boolean)
+		if
+			processed
+			or input.UserInputType ~= Enum.UserInputType.MouseWheel
+			or SettingsApply.get("scrollWeapons") == false
+			or PickerController.isOpen()
+			or combatLocked()
+		then
+			return
+		end
+		cycle(if input.Position.Z > 0 then -1 else 1)
 	end)
 	Net.event("WeaponState").OnClientEvent:Connect(onWeaponState)
 	Net.event("HitConfirm").OnClientEvent:Connect(onHitConfirm)

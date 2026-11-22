@@ -323,6 +323,7 @@ Reloads use only the reserve rounds needed to top up the gun. An interrupted she
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.
 - **No snap-to-target.** Use Roblox's official Aim Assist module as the base.
+- **Built 2026-11-22** (`client/Controllers/AimAssistController`, `Config/AimAssist`; [UI Settings → Chunk 3](../02%20Art/UI%20Settings.md#chunk-3-gameplay--aim-assist--auto-shoot-plan-2026-11-22)): our own code after studying Roblox's AimAssistController and RIVALS. 7.5 deg half-cone (narrows with zoom), full weight inside 2.5 deg; friction 40 %; pull 15 % hip / 30 % ADS of the player's own turn, only while the aim moves; tracking 35 % of a strafe while the aim moves; nothing under 4 studs, past the gun's range, through walls or while blinded; STRENGTH slider scales it all (100 % = these). **Auto shoot** (Disabled / Custom / Dynamic): crosshair ray to the gun's reach, Dynamic = 50 ms + 10 % of the shot interval (50-150 ms), snipers only scoped, the FIRE button stays.
 - Ranked will split pools by input type. Never give stat buffs by device (device detection can be spoofed).
 
 ## 5. Feedback ("juice")

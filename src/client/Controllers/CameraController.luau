@@ -132,6 +132,18 @@ function CameraController.setZoom(fov: number?, alpha: number, scoped: boolean?)
 	zoomScoped = scoped == true
 end
 
+-- Aim assist's per-frame turn filter: (camera, last frame's look, dt). Runs
+-- after the sensitivity scale, only while the player controls the camera.
+local assistStep: ((cam: Camera, lastLook: Vector3, dt: number) -> ())? = nil
+function CameraController.setAssist(fn: ((cam: Camera, lastLook: Vector3, dt: number) -> ())?)
+	assistStep = fn
+end
+
+-- How far the zoom is in (0 hip .. 1 aimed): aim assist pulls harder in ADS.
+function CameraController.zoomAlpha(): number
+	return if zoomFov then zoomAlpha else 0
+end
+
 -- The player's FIELD OF VIEW (Settings), clamped to the slider's range.
 function CameraController.setBaseFov(fov: number)
 	if fov ~= fov then
@@ -351,6 +363,11 @@ local function step(dt: number)
 				elseif zoomScoped then "scope"
 				else "aim"
 			SettingsApply.scaleTurn(cam, last, mode)
+			-- aim assist (Controllers/AimAssistController) bends this frame's turn
+			local assist = assistStep
+			if assist then
+				assist(cam, last, dt)
+			end
 		end
 		smoothFollow(cam, dt)
 	end

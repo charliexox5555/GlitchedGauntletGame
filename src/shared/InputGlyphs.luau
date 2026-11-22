@@ -19,6 +19,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Bindings = require(ReplicatedStorage.Shared.Config.Input)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 
 local InputGlyphs = {}
 
@@ -84,9 +85,7 @@ function InputGlyphs.mode(): Mode
 	if studioTouch() then
 		return "Touch"
 	end
-	local ok, preferred = pcall(function()
-		return UserInputService.PreferredInput
-	end)
+	local ok, preferred = true, InputMode.preferred() -- (Settings FORCE CONTROLS wins)
 	if ok then
 		if preferred == Enum.PreferredInput.Touch then
 			return "Touch"
@@ -129,9 +128,13 @@ local function liveKeys(action: string): ({ Enum.KeyCode }?, { Enum.KeyCode }?)
 		return nil, nil
 	end
 	local keys: { Enum.KeyCode }, pad: { Enum.KeyCode } = {}, {}
-	for _, c in a:GetChildren() do
-		if c:IsA("InputBinding") and c.KeyCode.Value ~= 0 and c.UIButton == nil then
-			table.insert(if isPad(c.KeyCode) then pad else keys, c.KeyCode)
+	-- (a TOGGLE row moves the keys to "<Name>Toggle": read both)
+	local toggle = ctx and ctx:FindFirstChild(action .. "Toggle")
+	for _, holder in { a, toggle } do
+		for _, c in (holder :: Instance):GetChildren() do
+			if c:IsA("InputBinding") and c.KeyCode.Value ~= 0 and c.UIButton == nil then
+				table.insert(if isPad(c.KeyCode) then pad else keys, c.KeyCode)
+			end
 		end
 	end
 	-- Config order first (the main key before the alt), then any others.
@@ -333,9 +336,7 @@ if RunService:IsClient() then
 			changed:Fire(now)
 		end
 	end
-	pcall(function()
-		UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(check)
-	end)
+	InputMode.changed:Connect(check)
 	UserInputService.LastInputTypeChanged:Connect(check)
 	-- Keybinds changed (the server rebuilt bindings in PlayContext): redraw
 	-- once the burst of adds and removes is over.

@@ -19,6 +19,8 @@ local Workspace = game:GetService("Workspace")
 
 local CrosshairConfig = require(ReplicatedStorage.Shared.Config.Crosshair)
 local HitFx = require(ReplicatedStorage.Shared.Config.HitFx)
+local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 
 local ScreenPoint = require(ReplicatedStorage.Shared.ScreenPoint)
 local Crosshair = require(script.Parent.Crosshair)
@@ -505,6 +507,17 @@ end
 -- Also sizes the hit marker just popped for this hit by its damage.
 -- `target`: who was hit (HitConfirm.victim; nil falls back to the last
 -- number with no target).
+-- Settings COLOR / CRIT COLOR: the player's colour once they change it from
+-- the default, else the tuned one.
+local function numberColor(headshot: boolean): Color3
+	local id = if headshot then "damageCritColor" else "damageColor"
+	if SettingsApply.get(id) == PlayerSettings.default(id) then
+		return if headshot then NUMBER.headColor else NUMBER.color
+	end
+	local ok, c = pcall(Color3.fromHex, tostring(SettingsApply.get(id)))
+	return if ok then c else NUMBER.color
+end
+
 function HitFeedback.damage(
 	amount: number,
 	headshot: boolean,
@@ -519,6 +532,9 @@ function HitFeedback.damage(
 	if m and m.active then
 		lastSize = damageSize(amount)
 		m.targetSize = lastSize
+	end
+	if SettingsApply.get("damageNumbers") == false then
+		return -- Settings DAMAGE NUMBERS off (the marker still sizes above)
 	end
 	local now = clock
 	local world = position or Vector3.zero
@@ -580,7 +596,7 @@ function HitFeedback.damage(
 	stack.killed = killed == true
 	stack.head = headshot
 	stack.size = if stack.killed then NUMBER.killSize elseif headshot then NUMBER.headSize else 1
-	stack.label.TextColor3 = if headshot then NUMBER.headColor else NUMBER.color
+	stack.label.TextColor3 = numberColor(headshot)
 	stack.stroke.Color = if headshot then NUMBER.headOutline else BLACK
 	stack.label.Text = tostring(math.round(stack.total))
 	stack.crosshair = position == nil and target == nil -- nowhere to sit: by the crosshair
