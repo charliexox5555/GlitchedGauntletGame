@@ -77,3 +77,8 @@ Each map lands in rotation (`Config/Match` MAPS) only after its audits pass. Ses
   - Foundry4 goes first.
   - The four new maps (Rooftops4, Greenhouse4, OldTown4 and others) may be retextured once Foundry shows the result.
   - **Decided (owner, 2026-11-21): yes, retexture after Foundry.** Once Foundry4 shows which RIVALS variants render and look right, the built rotation maps get a RIVALS texture pass: OldTown4, Rooftops4, Greenhouse4, and Wharf / Snowpeak4 / Metro4 where it fits (Arena / Big Arena stay plain by design). It runs in its own session, before Canyon Outpost.
+- **Props with purpose, skills removed (owner, after Foundry4):** "a lot of times you kind of just like place things around there without any actual use ... it's all this like mud gun. It just uses those building skills I don't really like ... Delete any skills or instructions that tell you to get those things ... we want low triangle counts, but we have to make it look good. Like look at the Rivals Museum."
+  - The user-level skills set-dressing, environment-artist, roblox-map-builder and lowpoly-style moved to `~/.claude/skills-disabled/`; they are not used in map work.
+  - Every prop needs a job: cover, a working part of the place, or framing a route. Nothing is placed to fill.
+  - The quality bar for props: the barriers ("that kind of style looks good") and RIVALS' Museum.
+  - The order now: Foundry4 final fixes + grade; a RIVALS texture pass + grade on OldTown4 (priority), Rooftops4, Greenhouse4 (and Wharf / Snowpeak4 / Metro4 where it helps); then Canyon Outpost.
