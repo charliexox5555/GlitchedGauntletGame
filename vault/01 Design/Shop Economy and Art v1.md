@@ -152,3 +152,41 @@ Economy / flow (this step):
 - **Not tested:** a real Robux purchase through Roblox's dialog (Studio test purchases are free; try one in Studio by clicking BUY, then on a live server), PolicyService on a restricted account, phone.
 - **Next: the UI pass** (owner's notes 1–3 above): bundle detail full-screen and centred with the tab bar kept, bigger bundle cards, the whole shop larger, RIVALS-like price buttons (the "separately" tag is broken in the capture), plus the art (Ticket icon, banners).
 - **Security review (roblox-reviewer, 2026-11-22):** no Critical / High; nothing grants without payment or twice in normal play. Two Mediums, fixed and re-tested: (1) the saved skin choice could change under an open prompt (click skin B behind the dialog for A) → one choice per product (`buys.intents`) and no new skin ask while a skin prompt is open (unlocked by `PromptProductPurchaseFinished`, never a grant; 120 s fallback); (2) receipt ids shared the 25-write `tx` memory → their own list `buys.receipts` (last 100). Lows parked: an unknown product id is retried forever (keep retired products in `Config/Products`); coins at the 10M cap clamp silently; the Studio hook takes untyped args (Studio only).
+
+## UI pass 1 (2026-11-22)
+- **Bigger everywhere:** the Shop canvas has `DesktopBoost = 1.3` (Shared/UiLayout now reads a DesktopBoost attribute, opt-in; Phone 1.5 / Tablet 1.2 were already there). Home, Bundles, Daily and Coins fill about 80–90 % of a 16:9 screen.
+- **Bundle page:** centred (its parts were placed at x = 960 px on a canvas that is wider than 1920, so it sat left), laid out under the **tab bar, which now stays on screen** like RIVALS (a tab press closes the page and switches); a `PreviewScale` fits it to the height left (`ShopController.relayout`).
+- **Price buttons:** BUY ITEM / BUY BUNDLE are big green plates with the label inside on top and the Robux price under it; SEPARATELY is a red plate with the struck-out total (its art was being pushed aside by the list layout; the price now sits in a `Row` like the other plates). Robux plates are green everywhere (bundle cards, daily Robux skins, the confirm popup), coin plates keep the gold.
+- **Skin bundle cards:** Ruin-Blighted and Tempest-Strike are full width (1280 × 420), one above the other, each with a big hero picture on the left and one tile per item on the right; hovering a tile shows the item card, clicking it opens the bundle page on that item. Until the hero renders exist the hero and the Ruin-Blighted tiles show the 3D view (`Util/Thumb`).
+- Studio patch: `tools/studio/ShopUiPass.luau`. Captures: [Home](Shop%20Economy/ui_home_pc.jpg), [Bundles](Shop%20Economy/ui_bundles_pc.jpg), [bundle page](Shop%20Economy/ui_preview_pc.jpg), [bundle page, phone scale](Shop%20Economy/ui_preview_phone.jpg).
+- **Not done / next:** real art (below); the Studio viewport was 1538 × 604 during the captures (very wide), so check on a normal 16:9 window; phone checked by applying the phone scale by hand, not on a device.
+
+## Art plan: what makes what (2026-11-22, owner: "ChatGPT and Gemini are connected ... let me know what is better")
+| Art | Best tool | Why |
+|---|---|---|
+| Every gun / skin picture: the bundle hero shots, Ruin-Blighted's missing tile pictures, daily cards | **Our Studio render pipeline** (`tools/studio/RenderPortraits.luau` → `tools/render/icon_sheet.py`, like the 200+ portraits we have) | It renders the real skin models; an image generator redraws guns and gets our skins wrong. I do these. |
+| Bundle banner backgrounds (Ruin-Blighted, Tempest-Strike, Starter) | **Gemini or ChatGPT** (either; Gemini handles very wide images well) | Pure mood art, no gun has to match. Our renders and text go on top in Studio. |
+| The Ticket currency icon | **ChatGPT** (give it our coin and crate pictures as the style reference) | Clean transparent PNG icons that copy a reference look well. Then I make the shop / backpack sizes. |
+| Coin pack backdrops (optional) | Gemini or ChatGPT | Same as banners. |
+| A 3D Ticket model (only if we want it spinning in the case opening later) | ChatGPT driving Blender, from the approved icon | Not needed for launch. |
+
+Save results in `art-source/ui/shop/` with the file names below; I upload and wire them.
+
+### Prompt 1 — Ticket icon (ChatGPT). Attach: `art-source/ui/shop/coin.png`, `art-source/ui/shop/crates/crate_standard_card.png`, a lobby screenshot.
+"Game currency icon for a Roblox shooter called Draft Duels: a single gold admission ticket stub, chunky and slightly tilted, with a notched tear edge on one side, a small embossed star-burst emblem in the middle and a thin darker gold border. Same rendering style as the attached coin: soft stylised 3D, clean bevels, warm gold (#FFC83D) with darker gold shading, one soft highlight, no texture noise. Transparent background, centred, nothing else in the image, no text, no glow, no drop shadow. Square 1024 × 1024 PNG." → `ticket.png`. Ask for 4 variations; the owner picks one.
+
+### Prompt 2 — Ruin-Blighted banner background (Gemini or ChatGPT). Attach a Ruin-Blighted Vandal screenshot for its colours.
+"Wide banner background, 2560 × 840, for a weapon-skin bundle called Ruin-Blighted in a stylised Roblox shooter. Mood: overgrown ancient ruins at dusk, cracked teal-green stone (#2A6F6A), creeping moss, faint glowing cyan cracks, drifting dust. Stylised and clean, simple shapes, soft gradients, like a polished mobile game store banner. Keep the left two thirds calm and darker (a big weapon picture and the title go there) and the right third simple (item tiles go there). No weapons, no characters, no text, no logos, no frame or border." → `banner_ruinblighted.png`
+
+### Prompt 3 — Tempest-Strike banner background
+"Wide banner background, 2560 × 840, for a weapon-skin bundle called Tempest-Strike in a stylised Roblox shooter. Mood: a storm front over a dark sea, deep royal blue (#2F5DB8) clouds, thin white-cyan lightning forks in the distance, wind-swept rain streaks. Stylised and clean, simple shapes, soft gradients, like a polished mobile game store banner. Keep the left two thirds calm and darker and the right third simple. No weapons, no characters, no text, no logos, no frame or border." → `banner_tempeststrike.png`
+
+### Prompt 4 — Starter Bundle background
+"Wide banner background, 2560 × 600, for a 'Starter Bundle' in a stylised Roblox shooter: a warm green (#2E7D5B) studio backdrop with soft angular light panels and a gentle spotlight from the right where a coin pile and a weapon case will be placed. Clean, simple, no objects, no text, no logos, no border." → `banner_starter.png`
+
+### Prompt 5 — Coin pack backdrop (optional)
+"Square 1024 × 700 background for a coin pack card in a stylised Roblox shooter shop: deep warm gold-brown gradient with soft angular light rays from behind the centre, subtle sparkle dust. Clean and simple; the coin pile picture goes in the middle on top. No objects, no text, no border." → `pack_backdrop.png`
+
+### What I render in Studio (no prompt needed)
+- Hero shots: each bundle's Vandal side-on at 2048 px, transparent (RenderPortraits at a larger size) → the cards' Hero.
+- Ruin-Blighted portraits for all five guns → its tiles and the bundle page strip.

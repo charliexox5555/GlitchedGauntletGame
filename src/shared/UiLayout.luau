@@ -45,10 +45,13 @@ UiLayout.CONSOLE_SAFE = 0.05
 -- much bigger on a console (inside the safe box).
 UiLayout.CONSOLE_BOOST = 1.15
 
--- `owner`'s <Family>Boost attribute (console default CONSOLE_BOOST), or 1.
+-- `owner`'s <Family>Boost attribute (console default CONSOLE_BOOST), or 1. Desktop is 1
+-- unless the owner opts in with DesktopBoost (the Shop, owner 2026-11-22: "fill more of
+-- the screen").
 local function boostOf(owner: Instance, family: Family): number
 	if family == "Desktop" then
-		return 1
+		local d = owner:GetAttribute("DesktopBoost")
+		return if typeof(d) == "number" and d > 0 then d else 1
 	end
 	local v = owner:GetAttribute(family .. "Boost")
 	if typeof(v) == "number" then

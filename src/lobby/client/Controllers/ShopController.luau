@@ -456,8 +456,14 @@ end
 -- The icon in a price plate's row (a "Coin" frame with an "Art" image): the coin, the
 -- Robux mark (read from a Studio Robux plate), or none (Tickets until their icon exists).
 local robuxIcon: string? = nil
+local ROBUX_PLATE = Color3.fromHex("3FD45C") -- RIVALS-like green for anything Robux
+local coinPlate: Color3? = nil -- the Studio coin plate colour (read once)
 local function priceIcon(button: Instance, kind: "coins" | "robux" | "tickets" | "none")
 	local plate = button:FindFirstChild("Price", true)
+	if plate and plate:IsA("GuiObject") then
+		coinPlate = coinPlate or plate.BackgroundColor3
+		plate.BackgroundColor3 = if kind == "robux" then ROBUX_PLATE else coinPlate :: Color3
+	end
 	local row = plate and plate:FindFirstChild("Row")
 	local icon = row and row:FindFirstChild("Coin")
 	if not (icon and icon:IsA("GuiObject")) then
@@ -650,6 +656,29 @@ local function selectPreview(index: number)
 	end
 end
 
+-- The shop is bigger on screen through the canvas's DesktopBoost / PhoneBoost / TabletBoost
+-- (Shared/UiLayout; owner 2026-11-22: "the shop needs to fill more of the screen"). The
+-- bundle preview sits under the tab bar, which stays on screen, scaled (Studio's
+-- PreviewScale) to fit the height that's left.
+local TABS_BOTTOM = 258 -- the scroll's top padding + the tab row (Studio)
+local PREVIEW_H = 710 -- the preview's laid-out height (tools/studio/ShopUiPass.luau)
+local function relayout()
+	if not (fit and canvas and scroll and (preview :: Frame?)) then
+		return -- still starting up
+	end
+	local f = math.max(fit.Scale, 0.01)
+	local h = canvas.AbsoluteSize.Y / f
+	local top = TABS_BOTTOM
+	local kp = math.clamp((h - top - 8) / PREVIEW_H, 0.5, 1.2)
+	local previewScale = preview:FindFirstChild("PreviewScale")
+	if previewScale and previewScale:IsA("UIScale") then
+		previewScale.Scale = kp
+		preview.Size = UDim2.new(1 / kp, 0, 0, PREVIEW_H)
+		-- the pop setup may centre its anchor: place its top edge under the tabs either way
+		preview.Position = UDim2.new(0.5, 0, 0, top + PREVIEW_H * kp * preview.AnchorPoint.Y)
+	end
+end
+
 openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	previewBundle = bundle
 	hideItemCard()
@@ -709,12 +738,17 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	local separately = ShopCatalog.separately(bundle)
 	local was = child(actions, "Separately") :: Frame
 	was.Visible = separately > bundle.robux
-	local wasLabel = child(child(was, "Plate"), "Amount") :: TextLabel
+	local wasLabel = was:FindFirstChild("Amount", true) :: TextLabel -- Plate.Row.Amount
 	wasLabel.Text = commas(separately)
 
-	-- the page steps aside; the preview comes in
-	scroll.Visible = false
+	-- the page steps aside (the tab bar stays, like RIVALS); the preview comes in
+	for _, page in pages do
+		page.Visible = false
+	end
+	scroll.CanvasPosition = Vector2.zero
+	scroll.ScrollingEnabled = false
 	showCounter(false)
+	relayout()
 	preview.Visible = true
 	stage:run(true)
 	for _, name in { "Head", "For" } do
@@ -755,7 +789,8 @@ local function closePreview()
 	stage:run(false)
 	stage:show(nil)
 	preview.Visible = false
-	scroll.Visible = true
+	pages[PAGE_OF[tab]].Visible = true
+	scroll.ScrollingEnabled = true
 	showCounter(scroll.CanvasPosition.Y < COUNTER_HIDE_AT)
 end
 
@@ -831,6 +866,7 @@ local function hookTab(name: string, plate: GuiButton)
 	end)
 	plate.Activated:Connect(function()
 		press(scale)
+		closePreview() -- a tab press from a bundle's page goes back to the shop
 		if tab ~= name then
 			setTab(name, true)
 		end
@@ -1226,6 +1262,7 @@ local function open(arg: any?)
 	isOpen = true
 	gui.Enabled = true
 	resetClose()
+	relayout()
 	placeCounter()
 	counterShown = false
 	coinsTop.Position = UDim2.new(0.5, 0, 0, -80)
@@ -1303,6 +1340,66 @@ local function applyLayout()
 	end
 end
 
+-- A skin bundle card (owner 2026-11-22, RIVALS' Skins tab): the hero picture (the line's
+-- Vandal, side-on) big on the left, one tile per item on the right; hovering a tile shows
+-- the item, clicking it opens the bundle's page on that item.
+local function fillBundleCard(card: GuiButton, bundle: ShopCatalog.Bundle)
+	local heroPic = card:FindFirstChild("Hero")
+	local first = bundle.items[1]
+	if heroPic and heroPic:IsA("ImageLabel") and first and first.line then
+		local guns: { string } = {}
+		for _, item in bundle.items do
+			if item.gun then
+				table.insert(guns, item.gun)
+			end
+		end
+		local id = SkinArt.side("Vandal", first.line) or SkinArt.line(first.line, guns)
+		heroPic.Image = id or ""
+		if not id then
+			-- no picture yet (plan: Blender hero renders): the 3D view of its Vandal
+			Thumb.item(heroPic, { kind = "Skin", gun = guns[1] or "Vandal", line = first.line })
+		end
+	end
+	local tiles = card:FindFirstChild("Tiles")
+	if not tiles then
+		return
+	end
+	for i = 1, 6 do
+		local t = tiles:FindFirstChild("Tile" .. i)
+		if not (t and t:IsA("GuiButton")) then
+			continue
+		end
+		local item = bundle.items[i]
+		t.Visible = item ~= nil
+		if not item then
+			continue
+		end
+		t.BackgroundColor3 = card.BackgroundColor3:Lerp(Color3.fromHex("0E0F13"), 0.55) -- a deeper shade of the card
+		local pic = t:FindFirstChild("Pic")
+		local id = if item.gun and item.line then SkinArt.portrait(item.gun, item.line) else nil
+		if pic and pic:IsA("ImageLabel") then
+			pic.Image = id or ""
+		end
+		if not id then
+			Thumb.item(t, item) -- no portrait yet: its picture or a 3D view
+		end
+		local sc = pop(t)
+		t.MouseEnter:Connect(function()
+			rest(sc, 1.06)
+			showItemCard(item, t)
+		end)
+		t.MouseLeave:Connect(function()
+			rest(sc, 1)
+			hideItemCard()
+		end)
+		t.Activated:Connect(function()
+			press(sc)
+			hideItemCard()
+			openPreview(bundle, i)
+		end)
+	end
+end
+
 function ShopController.init()
 	local playerGui = player:WaitForChild("PlayerGui")
 	local g = playerGui:WaitForChild("Shop", 15)
@@ -1318,6 +1415,12 @@ function ShopController.init()
 	templates = UiRoot.templates():WaitForChild("Lobby") :: Folder
 	canvas = child(gui, "Canvas")
 	fit = child(canvas, "Fit")
+	canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		relayout()
+	end)
+	fit:GetPropertyChangedSignal("Scale"):Connect(function()
+		relayout()
+	end)
 	scroll = child(canvas, "Scroll")
 	dim = child(gui, "Dim")
 	popCanvas = child(gui, "PopupCanvas")
@@ -1382,6 +1485,14 @@ function ShopController.init()
 				end
 			end
 			plateAmount(card, commas(b.robux))
+			priceIcon(card, "robux")
+			fillBundleCard(card, b)
+			if b.slot == "Starter" then
+				local heroPic = card:FindFirstChild("Hero")
+				if heroPic and heroPic:IsA("ImageLabel") then
+					heroPic.Image = ShopCatalog.ART.coinStack
+				end
+			end
 			-- the Starter is bought through Products.STARTER below (buyStarter)
 			if b.slot ~= "Starter" and (b.soon or #b.items == 0) then
 				card.Activated:Connect(function()
