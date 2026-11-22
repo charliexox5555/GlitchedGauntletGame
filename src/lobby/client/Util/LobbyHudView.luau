@@ -62,6 +62,8 @@ local MENUS: { [string]: string } = {
 	Backpack = "Backpack", -- replaced the Battle Pass for the first release (owner 2026-11-20)
 	Range = "Range",
 	Settings = "Settings",
+	-- stands in for Settings while a lost streak can be saved (Controllers/StreakSaveController)
+	SaveStreak = "StreakSave",
 }
 
 type State = {
@@ -950,7 +952,7 @@ function LobbyHudView.intro()
 			tween(s.bottom, 0.5, { Position = home }, QUINT, OUT)
 		end
 	end)
-	local order = { "Locker", "Shop", "Backpack", "Range", "Settings" }
+	local order = { "Locker", "Shop", "Backpack", "Range", "Settings", "SaveStreak" }
 	for i, name in order do
 		local b = s.items[name]
 		local pop = b and b:FindFirstChild("Icon") and (b :: any).Icon:FindFirstChild("Pop")

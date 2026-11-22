@@ -76,10 +76,10 @@ function PlayerDataService.newTxId(): string
 end
 
 -- A no-write read of the stored value (UpdateAsync skips GetAsync's cache).
-local function readFresh(player: Player): (boolean, any)
+local function readFresh(userId: number): (boolean, any)
 	local raw: any = nil
-	local ok = retry("read " .. player.UserId, function()
-		return store:UpdateAsync(PlayerData.key(player.UserId), function(old: any)
+	local ok = retry("read " .. userId, function()
+		return store:UpdateAsync(PlayerData.key(userId), function(old: any)
 			raw = old
 			return nil
 		end)
@@ -87,30 +87,15 @@ local function readFresh(player: Player): (boolean, any)
 	return ok, raw
 end
 
--- Applies one change atomically to the player's save and publishes the result.
--- Yields. Returns (true) when it was written (or had already been written under
--- this txId), else (false, reason): the change's own reason, "busy", "saving",
--- "update" (the save is from a newer build), "invalid".
-function PlayerDataService.transact(
-	player: Player,
-	txId: string,
-	change: Change
-): (boolean, string?)
-	local rec = records[player]
-	if not rec then
-		return false, "saving"
-	end
-	if rec.busy then
-		return false, "busy"
-	end
-	rec.busy = true
-	inFlight += 1
-
+-- One atomic change on a UserId's key (the player may be in this server or not).
+-- Returns (ok, data written or already there, refused reason, the raw settings seen).
+local function write(userId: number, txId: string, change: Change): (boolean, Data?, string?, any)
 	local result: Data? = nil
 	local refused: string? = nil
 	local seenSettings: any = nil
-	local ok = retry("change " .. player.UserId, function()
-		return store:UpdateAsync(PlayerData.key(player.UserId), function(old: any)
+	inFlight += 1
+	local ok = retry("change " .. userId, function()
+		return store:UpdateAsync(PlayerData.key(userId), function(old: any)
 			-- runs again on every internal retry: reset what it reports
 			result, refused = nil, nil
 			seenSettings = if typeof(old) == "table" then old.settings else nil
@@ -140,9 +125,9 @@ function PlayerDataService.transact(
 			end
 			result = data
 			local out: { [string]: any } = if typeof(old) == "table" then table.clone(old) else {}
-			out.v, out.coins, out.items, out.tx, out.skins =
-				data.v, data.coins, data.items, data.tx, data.skins
-			return out, { player.UserId }
+			out.v, out.coins, out.items, out.tx, out.skins, out.prog =
+				data.v, data.coins, data.items, data.tx, data.skins, data.prog
+			return out, { userId }
 		end)
 	end)
 
@@ -150,7 +135,7 @@ function PlayerDataService.transact(
 		-- The last attempt may have landed before the error: look before
 		-- telling the player to try again (a retry would be a second purchase).
 		result, refused = nil, nil
-		local read, raw = readFresh(player)
+		local read, raw = readFresh(userId)
 		if read and not PlayerData.newer(raw) then
 			local data = PlayerData.clean(raw, true)
 			if table.find(data.tx, txId) then
@@ -158,8 +143,43 @@ function PlayerDataService.transact(
 			end
 		end
 	end
-
 	inFlight -= 1
+	return ok, result, refused, seenSettings
+end
+
+-- Applies one change atomically to the player's save and publishes the result.
+-- Yields. Returns (true) when it was written (or had already been written under
+-- this txId), else (false, reason): the change's own reason, "busy", "saving",
+-- "update" (the save is from a newer build), "invalid".
+-- `queue`: wait (up to QUEUE_WAIT s) for a change in flight instead of "busy"
+-- (match results must not drop because a purchase was saving).
+local QUEUE_WAIT = 20
+function PlayerDataService.transact(
+	player: Player,
+	txId: string,
+	change: Change,
+	queue: boolean?
+): (boolean, string?)
+	local rec = records[player]
+	if not rec then
+		return false, "saving"
+	end
+	if rec.busy and queue then
+		inFlight += 1 -- shutdown waits for queued changes too
+		local t = os.clock()
+		while rec.busy and records[player] == rec and os.clock() - t < QUEUE_WAIT do
+			task.wait(0.2)
+		end
+		inFlight -= 1
+	end
+	if records[player] ~= rec then
+		return false, "saving"
+	end
+	if rec.busy then
+		return false, "busy"
+	end
+	rec.busy = true
+	local ok, result, refused, seenSettings = write(player.UserId, txId, change)
 	rec.busy = false
 	if ok and result and records[player] == rec then
 		if not rec.settingsSeen then
@@ -169,6 +189,31 @@ function PlayerDataService.transact(
 		PlayerData.publish(player, result)
 		changedEvent:Fire(player)
 	end
+	if not ok then
+		return false, "saving"
+	end
+	if refused then
+		return false, refused
+	end
+	return true
+end
+
+-- The same change for someone who may have left this server (match results for a
+-- leaver). Uses the live record when they're still here.
+function PlayerDataService.transactUserId(
+	userId: number,
+	txId: string,
+	change: Change
+): (boolean, string?)
+	local player = Players:GetPlayerByUserId(userId)
+	if player and records[player] then
+		local ok, why = PlayerDataService.transact(player, txId, change, true)
+		if ok or why ~= "saving" or records[player] then
+			return ok, why
+		end
+		-- they left while it waited: write by UserId (the txId makes a repeat safe)
+	end
+	local ok, _, refused = write(userId, txId, change)
 	if not ok then
 		return false, "saving"
 	end
@@ -232,6 +277,34 @@ function PlayerDataService.writeSettings(userId: number, changes: { [string]: an
 	return ok and not skipped
 end
 
+-- A write from the server the player just left (match results, a leaver's loss)
+-- can land just after this server loaded them. One fresh read a little later
+-- picks it up (Progression.md, save audit gap 4).
+local REFRESH_AFTER = 12
+local function refresh(player: Player, rec: Record)
+	if records[player] ~= rec or rec.busy or not rec.data then
+		return
+	end
+	local before = rec.data
+	local ok, raw = readFresh(player.UserId)
+	-- a change that landed while this read waited is newer: keep it
+	if
+		not ok
+		or records[player] ~= rec
+		or rec.busy
+		or rec.data ~= before
+		or PlayerData.newer(raw)
+	then
+		return
+	end
+	local fresh = PlayerData.clean(raw, true)
+	if fresh.tx[1] ~= rec.data.tx[1] then
+		rec.data = fresh
+		PlayerData.publish(player, fresh)
+		changedEvent:Fire(player)
+	end
+end
+
 -- Loads with backoff until it lands or the player leaves (the Shop waits for
 -- DataReady, so a failed load must not lock it for the whole session).
 local function load(player: Player)
@@ -252,6 +325,7 @@ local function load(player: Player)
 			rec.data = PlayerData.clean(raw, true)
 			PlayerData.publish(player, rec.data)
 			changedEvent:Fire(player)
+			task.delay(REFRESH_AFTER, refresh, player, rec)
 			return
 		end
 		task.wait(pause)

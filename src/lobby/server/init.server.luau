@@ -11,6 +11,7 @@ local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local MATCH_SERVICES: { [string]: boolean } = {
 	LockerService = true,
 	PlayerDataService = true,
+	ProgressionService = true,
 	SettingsService = true,
 }
 

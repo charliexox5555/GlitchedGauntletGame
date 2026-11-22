@@ -83,6 +83,7 @@ return table.freeze({
 		ShopRequest = { 0.5, 3 }, -- purchase clicks
 		ShopWrite = { 1 / 6, 5 }, -- DataStore writes from the Shop (about 10 a minute)
 		SettingsRequest = { 1, 4 }, -- the client sends 1.5 s after the last change, and on close
+		StreakSave = { 0.5, 2 }, -- the popup's BUY (one purchase, maybe a retry)
 	},
 
 	-- Duel pads (Services/PadDuelService, place merge 2026-11-21): a pad's two

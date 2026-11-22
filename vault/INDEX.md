@@ -20,6 +20,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `04 Tech/Measured Check Skills.md` (3): the 38 installed `rbx-*` measured-check skills, which to use per area, the security scan, what was left out
 
 ## Design (01 Design)
+- `01 Design/Progression.md` (8): levels and XP, win streak, coin streak save (RIVALS study), PlayerDataV1 save audit
 - `01 Design/Match Flow.md` (8): rounds, select/draft, timers, weapon phases, as built
 - `01 Design/Gunplay.md` (48): movement, slide, spread, recoil, aim assist, feedback, health/downed (§3), viewmodel (§6), feel roadmap (§5)
 - `01 Design/Gun Balance.md` (8): health, shields, every gun's damage, TTK

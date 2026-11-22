@@ -13,6 +13,10 @@
 -- ShopEvent (server -> one client): ShopEventPayload below
 -- SettingsRequest (client -> server): ("save", values) (Services/SettingsService;
 --   the saved values come back in the player's "Settings" StringValue)
+-- StreakSave (client -> server): ("buy", price) (Services/StreakSaveService; price = the one
+--   the popup showed, so a price change never charges more than was shown)
+-- ProgressEvent (server -> one client): ProgressEventPayload below (Services/ProgressionService,
+--   StreakSaveService)
 --
 -- Live state is on attributes the server owns:
 --   Player:  QueueStatus ("idle" | "searching" | "found" | "teleporting"),
@@ -50,6 +54,17 @@ export type ShopEventPayload = {
 	text: string?, -- the item's name, or a short message
 }
 
+export type ProgressEventPayload = {
+	kind: "gain" | "saved" | "failed",
+	xp: number?, -- "gain": XP this match gave
+	levelFrom: number?,
+	levelTo: number?,
+	streakFrom: number?,
+	streakTo: number?,
+	lostOffer: number?, -- "gain": a lost streak now on offer
+	text: string?, -- "failed": why
+}
+
 -- CaseShow (server -> each OTHER player): someone opened a case; play it at them
 export type CaseShowPayload = {
 	userId: number, -- the opener
@@ -71,6 +86,8 @@ local EVENTS = {
 	"ShopEvent",
 	"CaseShow",
 	"SettingsRequest",
+	"StreakSave",
+	"ProgressEvent",
 }
 
 local folder: Instance

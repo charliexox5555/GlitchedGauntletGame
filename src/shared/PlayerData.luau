@@ -2,8 +2,11 @@
 -- The player's saved wallet and inventory (vault/01 Design/Inventory and
 -- Crates.md). One DataStore key per player in STORE:
 --   { v = 1, coins = number, items = { [itemId] = count }, tx = { purchaseId },
---     skins = { [gunId] = { line, ... } } }   owned skin lines per gun ("Stock" is always
+--     skins = { [gunId] = { line, ... } },   owned skin lines per gun ("Stock" is always
 --                                            owned and never stored; 2026-11-20)
+--     prog = Shared/Progress (level, XP, win streak, lost-streak offer; 2026-11-22) }
+-- Older saves have no `prog`: it starts at level 1 with no streak (no version bump:
+-- every write keeps the fields it doesn't know, so older servers never drop it).
 -- Written only by the Lobby's PlayerDataService, one UpdateAsync per change.
 --
 -- Both sides read it from the player:
@@ -11,6 +14,10 @@
 --   StringValue "Inventory"  JSON { [itemId] = count }
 --   StateValues "DataReady"  true once the save loaded (buying waits for it)
 --   StringValue "Skins"  JSON { [gunId] = { line } }, the owned skins (Locker, Backpack)
+--   StateValues "Level", "XpShare" (0..1), "Xp", "XpNeed", "WinStreak", "BestStreak",
+--               "Matches", "Wins", "Kills" (the profile card)
+--   StateValues "StreakSaveValue", "StreakSaveEnds" (os.time), "StreakSavePrice": the
+--               live lost-streak offer (0 / nil when there is none)
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,6 +26,8 @@ local RunService = game:GetService("RunService")
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
+local Progress = require(ReplicatedStorage.Shared.Progress)
+local ProgressionConfig = require(ReplicatedStorage.Shared.Config.Progression)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
@@ -28,6 +37,7 @@ export type Data = {
 	items: Items,
 	tx: { string },
 	skins: Skins,
+	prog: Progress.Prog,
 }
 
 local PlayerData = {}
@@ -74,10 +84,12 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		items = {},
 		tx = {},
 		skins = {},
+		prog = Progress.new(),
 	}
 	if typeof(raw) ~= "table" then
 		return data
 	end
+	data.prog = Progress.clean((raw :: any).prog)
 	local t = raw :: { [string]: unknown }
 	data.coins = count(t.coins, Inventory.MAX_COINS) or 0
 	if typeof(t.items) == "table" then
@@ -148,6 +160,16 @@ function PlayerData.valid(data: Data): boolean
 			return false
 		end
 	end
+	local p = data.prog
+	if
+		not whole(p.level, ProgressionConfig.MAX_LEVEL)
+		or p.level < 1
+		or not whole(p.xp, ProgressionConfig.xpToNext(p.level) - 1)
+		or not whole(p.streak, ProgressionConfig.STREAK.max)
+		or not whole(p.best, ProgressionConfig.STREAK.max)
+	then
+		return false
+	end
 	return true
 end
 
@@ -196,6 +218,7 @@ function PlayerData.publish(player: Player, data: Data?)
 		HealthLog.problem("data lost", player)
 	end
 	StateValues.set(player, "DataReady", data ~= nil)
+	PlayerData.publishProgress(player, if data then data.prog else nil)
 	local shown: Items = {}
 	if data then
 		for id, n in data.items do
@@ -207,6 +230,25 @@ function PlayerData.publish(player: Player, data: Data?)
 	setJson(player, PlayerData.SKINS, if data then data.skins else {})
 	-- Inventory last: clients listen to it, and the skins must already be there
 	setJson(player, PlayerData.REPLICA, shown)
+end
+
+-- Level, XP and streak onto the player (lobby list, profile, match tags read them).
+function PlayerData.publishProgress(player: Player, prog: Progress.Prog?)
+	local now = os.time()
+	local p = prog or Progress.new()
+	StateValues.set(player, "Level", p.level)
+	StateValues.set(player, "Xp", p.xp)
+	StateValues.set(player, "XpNeed", ProgressionConfig.xpToNext(p.level))
+	StateValues.set(player, "XpShare", Progress.share(p))
+	StateValues.set(player, "WinStreak", p.streak)
+	StateValues.set(player, "BestStreak", p.best)
+	StateValues.set(player, "Matches", p.matches)
+	StateValues.set(player, "Wins", p.wins)
+	StateValues.set(player, "Kills", p.kills)
+	local offer = if prog then Progress.offer(p, now) else nil
+	StateValues.set(player, "StreakSaveValue", if offer then offer.value else 0)
+	StateValues.set(player, "StreakSaveEnds", if offer then offer.expires else 0)
+	StateValues.set(player, "StreakSavePrice", if offer then Progress.price(p, now) else 0)
 end
 
 -- The published owned skins (empty until the save loads).

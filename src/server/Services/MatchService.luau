@@ -42,6 +42,14 @@ local StatsService = require(script.Parent.StatsService)
 local MatchEndService = require(script.Parent.MatchEndService)
 local Health = require(ReplicatedStorage.Shared.Health)
 local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
+local HttpService = game:GetService("HttpService")
+-- Levels and streaks (LobbyServer, one copy per server; vault/01 Design/Progression.md)
+local ProgressionService = require(
+	game:GetService("ServerScriptService")
+		:WaitForChild("LobbyServer")
+		:WaitForChild("Services")
+		:WaitForChild("ProgressionService") :: ModuleScript
+) :: any
 
 local MatchService = {}
 
@@ -362,11 +370,70 @@ local function forfeited(): boolean
 	return forfeitWinner() ~= nil
 end
 
+-- Progression: everyone who played a part of this match, and who has been
+-- reported (a leaver at once, the rest at the end).
+local matchKey = ""
+local participants: { [number]: number } = {} -- userId -> team
+local reported: { [number]: boolean } = {}
+
 local function noteHumans()
 	for team = 1, 2 do
 		if #playersOn(team) > 0 then
 			humanSides[team] = true
 		end
+		for _, player in playersOn(team) do
+			participants[player.UserId] = team
+		end
+	end
+end
+
+local function opponentsOf(team: number): { number }
+	local list: { number } = {}
+	for userId, t in participants do
+		if t ~= team then
+			table.insert(list, userId)
+		end
+	end
+	return list
+end
+
+local function killsOf(userId: number): number
+	for _, line in StatsService.summary() do
+		if line.userId == userId then
+			return line.eliminations
+		end
+	end
+	return 0
+end
+
+-- One player's match into their save (once per match; later calls do nothing).
+local function reportProgress(
+	userId: number,
+	team: number,
+	won: boolean,
+	left: boolean,
+	roundsWon: number
+)
+	if reported[userId] or matchKey == "" then
+		return
+	end
+	reported[userId] = true
+	local opponents = opponentsOf(team)
+	local ok, err = pcall(ProgressionService.report, matchKey, userId, {
+		won = won and not left,
+		left = left,
+		-- Studio test switch: Workspace attribute ProgressBotsCount = true lets bot matches move the streak
+		counts = #opponents > 0
+			or (
+				game:GetService("RunService"):IsStudio()
+				and workspace:GetAttribute("ProgressBotsCount") == true
+			),
+		roundsWon = roundsWon,
+		kills = killsOf(userId),
+		opponents = opponents,
+	})
+	if not ok then
+		warn("[MatchService] progression report failed:", err)
 	end
 end
 
@@ -486,6 +553,18 @@ end
 -- Team modes: a bot takes a leaver's seat (and plays from now in a select,
 -- else from the next round). A 1v1 leaver forfeits (forfeitWinner).
 local function onLeave(player: Player)
+	-- Leaving a match before its end is a loss (Progression.md).
+	local leftTeam = participants[player.UserId]
+	if inMatch and leftTeam and not reported[player.UserId] then
+		local score = MatchState.get(if leftTeam == 1 then "Score1" else "Score2")
+		reportProgress(
+			player.UserId,
+			leftTeam,
+			false,
+			true,
+			if typeof(score) == "number" then score else 0
+		)
+	end
 	local wasPending = pendingTakeovers[player] ~= nil
 	pendingTakeovers[player] = nil
 	local team = Teams.of(player)
@@ -691,6 +770,9 @@ local function runMatch(): boolean
 	inMatch = true
 	StatsService.reset()
 	humanSides = { false, false }
+	matchKey = HttpService:GenerateGUID(false)
+	table.clear(participants)
+	table.clear(reported)
 	noteHumans()
 	setAllLocked(true)
 	MatchState.set("Round", 0)
@@ -888,6 +970,11 @@ local function runMatch(): boolean
 	BotService.setFighting(false)
 	local matchWinner = forfeitBy or (if scores[1] > scores[2] then 1 else 2)
 	MatchState.set("MatchWinner", matchWinner)
+	for userId, team in participants do
+		local player = Players:GetPlayerByUserId(userId)
+		local here = player ~= nil and Teams.of(player) == team
+		reportProgress(userId, team, team == matchWinner, not here, scores[team])
+	end
 	return MatchEndService.run(matchWinner, matchMode())
 end
 

@@ -5,7 +5,9 @@
 -- row in the player list (Util/LobbyHudView), like RIVALS' ViewProfile.
 -- Shows what the lobby really knows: portrait, names, level and win streak
 -- (player attributes), the skins they have on (LockerSkins, with
--- each line's emblem); match stats wait for the profile system and say so.
+-- each line's emblem), and since progression (2026-11-22, vault/01 Design/Progression.md)
+-- an XP bar, MATCHES / WINS / ELIMS and a best streak + win rate line, all from the
+-- attributes Shared/PlayerData publishes on every player. The card refreshes while open.
 -- The button: OPEN LOCKER on your own card, INVITE TO PARTY on someone
 -- else's (the same request the player list's INVITE sends; the server
 -- validates and rate-limits it: server/Services/PartyService).
@@ -27,6 +29,8 @@ local ProfileController = {}
 local player = Players.LocalPlayer
 local C = LobbyKit.C
 local MAX_SKINS = 4
+local STREAK_HOT = Color3.fromHex("FF7026")
+local STREAK_COLD = Color3.fromHex("252528")
 
 local gui: ScreenGui
 local card: Frame
@@ -85,7 +89,51 @@ local function fill(p: Player)
 	username.Text = "@" .. p.Name
 	local tags = child(card, "Tags") :: Frame
 	setTag(child(tags, "Level"), "LV " .. numberAttr(p, "Level", 1))
-	setTag(child(tags, "Streak"), "STREAK " .. numberAttr(p, "WinStreak", 0))
+	local streakTag = child(tags, "Streak") :: Frame
+	local streak = numberAttr(p, "WinStreak", 0)
+	setTag(streakTag, "STREAK " .. streak)
+	-- a live streak reads in the streak orange (the bar's SAVE WINSTREAK colour)
+	local hot = streak > 0
+	streakTag.BackgroundColor3 = if hot then STREAK_HOT else STREAK_COLD
+	for _, d in streakTag:GetDescendants() do
+		if d.Name == "Skin" and d:IsA("ImageLabel") then
+			d.ImageColor3 = streakTag.BackgroundColor3
+		end
+	end
+	local streakText = streakTag:FindFirstChild("Label")
+	if streakText and streakText:IsA("TextLabel") then
+		streakText.TextColor3 = if hot then C.ink else C.white
+	end
+	local xpBar = card:FindFirstChild("XpBar")
+	if xpBar then
+		local fillFrame = xpBar:FindFirstChild("Fill", true)
+		if fillFrame and fillFrame:IsA("Frame") then
+			fillFrame.Size = UDim2.fromScale(math.clamp(numberAttr(p, "XpShare", 0), 0, 1), 1)
+		end
+		local xpValue = xpBar:FindFirstChild("Value")
+		if xpValue and xpValue:IsA("TextLabel") then
+			xpValue.Text =
+				string.format("%d / %d XP", numberAttr(p, "Xp", 0), numberAttr(p, "XpNeed", 100))
+		end
+	end
+	local matches, wins = numberAttr(p, "Matches", 0), numberAttr(p, "Wins", 0)
+	local stats = card:FindFirstChild("Stats")
+	local values = { matches, wins, numberAttr(p, "Kills", 0) }
+	for i, v in values do
+		local cell = stats and stats:FindFirstChild("Stat" .. i)
+		local value = cell and cell:FindFirstChild("Value")
+		if value and value:IsA("TextLabel") then
+			value.Text = tostring(v)
+		end
+	end
+	local note = card:FindFirstChild("StatsNote")
+	if note and note:IsA("TextLabel") then
+		note.Text = string.format(
+			"BEST STREAK %d  ·  WIN RATE %d%%",
+			numberAttr(p, "BestStreak", 0),
+			if matches > 0 then math.round(wins / matches * 100) else 0
+		)
+	end
 
 	local skins = child(card, "Skins") :: Frame
 	LobbyKit.clearSlots(skins)
@@ -123,6 +171,32 @@ local function fill(p: Player)
 		action.BackgroundColor3 = if sent then C.navyHi else C.white
 		label.Text = if sent then "INVITE SENT" else "INVITE TO PARTY"
 		label.TextColor3 = if sent then C.muted else C.ink
+	end
+end
+
+-- Their numbers change while the card is open (a match result, a streak save).
+local REFRESH: { [string]: boolean } = {
+	Level = true,
+	Xp = true,
+	XpShare = true,
+	WinStreak = true,
+	BestStreak = true,
+	Matches = true,
+	Wins = true,
+	Kills = true,
+}
+local watching: RBXScriptConnection? = nil
+local function watch(p: Player?)
+	if watching then
+		watching:Disconnect()
+		watching = nil
+	end
+	if p then
+		watching = StateValues.anyChanged(p):Connect(function(name: string)
+			if REFRESH[name] and shown == p and Router.current() == "Profile" then
+				fill(p)
+			end
+		end)
 	end
 end
 
@@ -177,8 +251,14 @@ function ProfileController.init()
 		onOpen = function(arg: any?)
 			local p = if typeof(arg) == "Instance" and arg:IsA("Player") then arg else player
 			fill(p)
+			watch(p)
 		end,
 	})
+	Router.onChanged(function(name: string?)
+		if name ~= "Profile" then
+			watch(nil)
+		end
+	end)
 	-- someone leaving while you look at them closes their card
 	Players.PlayerRemoving:Connect(function(p: Player)
 		if shown == p and Router.current() == "Profile" then
