@@ -18,10 +18,7 @@ local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
-local Theme = require(ReplicatedStorage.Shared.Config.Theme)
-
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
-local TouchHud = require(script.Parent.Parent.Util.TouchHud)
 local AimVignette = require(script.Parent.Parent.Util.AimVignette)
 local Crosshair = require(script.Parent.Parent.Util.Crosshair)
 local DamageIndicator = require(script.Parent.Parent.Util.DamageIndicator)
@@ -37,27 +34,9 @@ local HudController = {}
 
 local player = Players.LocalPlayer
 
-local WHITE = Color3.new(1, 1, 1)
-local AMBER = Color3.fromHex("F2C94C")
-local RED = Color3.fromHex("EB5757")
-local T = Theme.COLORS
-
 type Refs = {
 	gui: ScreenGui,
 	scope: Frame,
-	ammo: TextLabel,
-	mag: TextLabel,
-	gunPicture: ImageLabel,
-	shieldBadge: ImageLabel,
-	weaponName: TextLabel,
-	reloadBar: Frame,
-	reloadFill: Frame,
-	healthFill: Frame,
-	healthChip: Frame, -- the health just lost, which drains after a beat
-	healthText: TextLabel,
-	shieldText: TextLabel,
-	shieldBar: Frame,
-	shieldFill: Frame,
 	vignette: CanvasGroup,
 }
 
@@ -68,12 +47,6 @@ local crosshairSprint = false
 local hitPulse = 0 -- the red edge pulse when hit (0..1), fades over Juice.FLINCH.pulseTime
 -- The body whose health the HUD shows: the fighter you spectate, else yours.
 local subject: Model? = nil
--- Health chip: the bar's lost part stays red for CHIP_HOLD, then drains.
-local CHIP_HOLD = 0.4
-local CHIP_DRAIN = 0.35
-local shownHealth = -1
-local chipFrac = 1
-local chipHoldUntil = 0
 
 local make = Ui.make
 
@@ -130,143 +103,8 @@ local function build(): Refs
 	-- Crosshair: Util/Crosshair (numbers in Config/Crosshair).
 	Crosshair.build(gui)
 
-	-- Ammo (bottom right, UI v1): the gun's picture, rounds in the mag big, the
-	-- mag size and the gun's name small, a thin reload bar. Design px, scaled.
-	local ammoPanel = make("Frame", {
-		Name = "Ammo",
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, -48, 1, -40),
-		Size = UDim2.fromOffset(420, 200),
-		BackgroundTransparency = 1,
-	}, gui)
-	Ui.fit(ammoPanel)
-	local ammoBack = make("Frame", {
-		Name = "Back", -- PhoneHudController trims it on phones
-		Position = UDim2.fromOffset(0, 80),
-		Size = UDim2.fromOffset(420, 120),
-		BorderSizePixel = 0,
-		BackgroundColor3 = T.panel,
-	}, ammoPanel)
-	make("UIGradient", { Transparency = NumberSequence.new(1, 0.15) }, ammoBack)
-	local gunPicture = make("ImageLabel", {
-		Name = "Gun",
-		Position = UDim2.fromOffset(190, 14),
-		Size = UDim2.fromOffset(210, 62),
-		BackgroundTransparency = 1,
-		ScaleType = Enum.ScaleType.Fit,
-		Image = "",
-	}, ammoPanel)
-	local weaponName = Ui.text(ammoPanel, "", "label", {
-		Name = "WeaponName",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(404, 178),
-		Size = UDim2.fromOffset(220, 16),
-		TextColor3 = T.textSecondary,
-		TextXAlignment = Enum.TextXAlignment.Right,
-	})
-	local mag = Ui.text(ammoPanel, "", "titleS", {
-		Position = UDim2.fromOffset(330, 134),
-		Size = UDim2.fromOffset(80, 28),
-		TextColor3 = T.textSecondary,
-		TextXAlignment = Enum.TextXAlignment.Left,
-	})
-	local ammo = Ui.text(ammoPanel, "", "numberHud", {
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(322, 88),
-		Size = UDim2.fromOffset(200, 84),
-		TextXAlignment = Enum.TextXAlignment.Right,
-	})
-	local reloadBar = make("Frame", {
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(404, 170),
-		Size = UDim2.fromOffset(220, 4),
-		BackgroundColor3 = T.raised,
-		BorderSizePixel = 0,
-		Visible = false,
-	}, ammoPanel)
-	local reloadFill = make("Frame", {
-		Size = UDim2.fromScale(0, 1),
-		BackgroundColor3 = WHITE,
-		BorderSizePixel = 0,
-	}, reloadBar)
-
-	-- Health (bottom left, UI v1): a shield badge with the shield in it, the
-	-- health number big, a shield bar over the health bar.
-	local healthPanel = make("Frame", {
-		Name = "Health",
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0, 48, 1, -40),
-		Size = UDim2.fromOffset(420, 120),
-		BackgroundTransparency = 1,
-	}, gui)
-	Ui.fit(healthPanel)
-	local healthBack = make("Frame", {
-		Size = UDim2.fromScale(1, 1),
-		BorderSizePixel = 0,
-		BackgroundColor3 = T.panel,
-	}, healthPanel)
-	make("UIGradient", { Transparency = NumberSequence.new(0.15, 1) }, healthBack)
-	local badge = make("ImageLabel", {
-		Name = "ShieldBadge",
-		Position = UDim2.fromOffset(20, 18),
-		Size = UDim2.fromOffset(60, 76),
-		BackgroundTransparency = 1,
-		Image = Theme.IMAGE.shieldFill,
-		ImageColor3 = T.ally,
-		ImageTransparency = 0.82,
-	}, healthPanel)
-	make("ImageLabel", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Image = Theme.IMAGE.shieldLine,
-		ImageColor3 = T.ally,
-	}, badge)
-	local shieldText = Ui.text(badge, "0", "titleS", {
-		Position = UDim2.fromOffset(0, 22),
-		Size = UDim2.fromOffset(60, 28),
-		TextColor3 = T.ally,
-	})
-	local healthText = Ui.text(healthPanel, "100", "numberHud", {
-		Position = UDim2.fromOffset(96, 2),
-		Size = UDim2.fromOffset(170, 84),
-		TextXAlignment = Enum.TextXAlignment.Left,
-	})
-	Ui.text(healthPanel, "HEALTH", "label", {
-		Name = "Caption",
-		Position = UDim2.fromOffset(250, 34),
-		Size = UDim2.fromOffset(100, 16),
-		TextColor3 = T.textSecondary,
-		TextXAlignment = Enum.TextXAlignment.Left,
-	})
-	local shieldBar = make("Frame", {
-		Position = UDim2.fromOffset(96, 84),
-		Size = UDim2.fromOffset(300, 6),
-		BackgroundColor3 = T.raised,
-		BorderSizePixel = 0,
-		Visible = false,
-	}, healthPanel)
-	local shieldFill = make("Frame", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = T.ally,
-		BorderSizePixel = 0,
-	}, shieldBar)
-	local healthBar = make("Frame", {
-		Position = UDim2.fromOffset(96, 96),
-		Size = UDim2.fromOffset(300, 10),
-		BackgroundColor3 = T.raised,
-		BorderSizePixel = 0,
-	}, healthPanel)
-	local healthChip = make("Frame", {
-		Name = "Chip",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = RED,
-		BorderSizePixel = 0,
-	}, healthBar)
-	local healthFill = make("Frame", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = WHITE,
-		BorderSizePixel = 0,
-	}, healthBar)
+	-- Health and ammo are the Studio-built bottom HUD (Util/BottomHud) or,
+	-- on touch, the touch screen (Util/TouchHud); the old v1 panels are gone.
 
 	-- Damage direction: red arcs round the crosshair (Util/DamageIndicator).
 	DamageIndicator.build(gui)
@@ -274,20 +112,7 @@ local function build(): Refs
 	return {
 		gui = gui,
 		scope = scope,
-		ammo = ammo,
-		mag = mag,
-		weaponName = weaponName,
-		reloadBar = reloadBar,
-		reloadFill = reloadFill,
-		healthFill = healthFill,
-		healthChip = healthChip,
-		healthText = healthText,
-		shieldText = shieldText,
-		shieldBar = shieldBar,
-		shieldFill = shieldFill,
 		vignette = vignette,
-		gunPicture = gunPicture,
-		shieldBadge = badge,
 	}
 end
 
@@ -302,46 +127,15 @@ function HudController.setWeapon(
 )
 	BottomHud.setWeapon(displayName, id)
 	HudController.setAmmo(ammo, magSize, reserve)
-	local r = refs
-	if not r then
-		return
-	end
-	r.weaponName.Text = if ammo == 0
-			and reserve == 0
-			and magSize > 0
-		then "NO AMMO"
-		else string.upper(displayName)
-	r.gunPicture.Image = if id then Theme.GUN[id] or "" else ""
 end
 
 function HudController.setAmmo(ammo: number, magSize: number, reserve: number?)
 	BottomHud.setAmmo(ammo, magSize, reserve)
-	local r = refs
-	if not r then
-		return
-	end
-	if magSize <= 0 then
-		r.ammo.Text = ""
-		r.mag.Text = ""
-		return
-	end
-	r.ammo.Text = tostring(ammo)
-	r.mag.Text = "/ " .. (if reserve == nil then "∞" else tostring(reserve))
-	r.mag.TextColor3 = if reserve == 0 then RED else T.textSecondary
-	r.ammo.TextColor3 = if ammo == 0 then RED elseif ammo <= magSize * 0.25 then AMBER else WHITE
 end
 
 -- `progress` 0..1 while reloading, nil when not.
 function HudController.setReload(progress: number?)
 	BottomHud.setReload(progress)
-	local r = refs
-	if not r then
-		return
-	end
-	r.reloadBar.Visible = progress ~= nil
-	if progress then
-		r.reloadFill.Size = UDim2.fromScale(math.clamp(progress, 0, 1), 1)
-	end
 end
 
 function HudController.setSpread(degrees: number)
@@ -458,34 +252,8 @@ local function update(dt: number)
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		local frac = math.clamp(Health.get(humanoid) / Health.max(humanoid), 0, 1)
-		r.healthFill.Size = UDim2.fromScale(frac, 1)
-		r.healthFill.BackgroundColor3 = if frac < 0.35 then RED else WHITE
-		local health = math.ceil(Health.get(humanoid))
-		if health ~= shownHealth then
-			if shownHealth >= 0 and health < shownHealth then
-				-- Hit: the number flashes red and the chip holds the lost part.
-				chipHoldUntil = os.clock() + CHIP_HOLD
-				r.healthText.TextColor3 = RED
-				Ui.tween(r.healthText, 0.4, { TextColor3 = WHITE })
-			end
-			shownHealth = health
-			r.healthText.Text = tostring(health)
-		end
-		if frac >= chipFrac then
-			chipFrac = frac -- healed (or a new life): no chip
-		elseif os.clock() >= chipHoldUntil then
-			chipFrac = math.max(frac, chipFrac - dt / CHIP_DRAIN)
-		end
-		r.healthChip.Size = UDim2.fromScale(chipFrac, 1)
 		local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
 		local hasShield = typeof(shield) == "number" and shield > 0
-		r.shieldBar.Visible = hasShield
-		r.shieldBadge.Visible = hasShield
-		r.shieldText.Text = if hasShield then tostring(math.ceil(shield :: number)) else ""
-		if hasShield then
-			r.shieldFill.Size =
-				UDim2.fromScale(math.clamp((shield :: number) / Combat.MAX_SHIELD, 0, 1), 1)
-		end
 		BottomHud.setHealth(
 			Health.get(humanoid),
 			Health.max(humanoid),
@@ -511,42 +279,17 @@ function HudController.setSubject(body: Model?)
 		return
 	end
 	subject = body
-	shownHealth = -1 -- no "hit" flash for the switch itself
-	chipFrac = 0
 	hitPulse = 0
 end
 
 function HudController.setSpectating(on: boolean)
 	BottomHud.setSpectating(on)
-	local r = refs
-	if not r then
-		return
-	end
-	for _, name in { "Health", "Ammo" } do
-		local panel = r.gui:FindFirstChild(name)
-		if panel and panel:IsA("GuiObject") then
-			panel.Visible = not on and not BottomHud.active() and not TouchHud.active()
-		end
-	end
 end
 
 function HudController.init()
 	refs = build()
 	HitFeedback.build((refs :: Refs).gui)
-	-- The Studio-built bottom HUD (desktop) replaces the old health and ammo panels.
 	BottomHud.start()
-	BottomHud.onActive(function()
-		local r = refs
-		if not r then
-			return
-		end
-		for _, name in { "Health", "Ammo" } do
-			local panel = r.gui:FindFirstChild(name)
-			if panel and panel:IsA("GuiObject") then
-				panel.Visible = false
-			end
-		end
-	end)
 end
 
 function HudController.start()

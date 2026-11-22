@@ -12,7 +12,8 @@ local StarterGui = game:GetService("StarterGui")
 local StarterPlayer = game:GetService("StarterPlayer")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
+-- a fresh copy: Studio caches required modules, and Rojo updates this one
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout:Clone())
 
 local Sheet = {}
 

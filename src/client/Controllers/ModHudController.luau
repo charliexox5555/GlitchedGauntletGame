@@ -24,7 +24,6 @@ local Charges = require(ReplicatedStorage.Shared.Mods.Charges)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
-local Device = require(script.Parent.Parent.Util.Device)
 local StatusTray = require(script.Parent.Parent.Util.StatusTray)
 
 -- The status line's colours: Hinder (Frost's ice), Stimmed (electric yellow).
@@ -535,23 +534,21 @@ local function build(): ScreenGui
 	-- Touch: the Studio-built Mod buttons on the touch screen (UI.Match.Touch,
 	-- Util/TouchHud). TouchController links them to the Mod1/2/3 actions; here
 	-- they get their icon, cooldown seconds and held state.
-	if TouchHud.enabled() then
-		for i = 1, Config.SLOTS do
-			local b = TouchHud.find("Mod" .. i .. "Button")
-			local label = b and b:FindFirstChild("Label", true)
-			if b and b:IsA("GuiButton") and label and label:IsA("TextLabel") then
-				slots[i].button = b
-				slots[i].buttonText = label
-			end
+	for i = 1, Config.SLOTS do
+		local b = TouchHud.find("Mod" .. i .. "Button")
+		local label = b and b:FindFirstChild("Label", true)
+		if b and b:IsA("GuiButton") and label and label:IsA("TextLabel") then
+			slots[i].button = b
+			slots[i].buttonText = label
 		end
-		local alt = TouchHud.find("ModAltButton")
-		if alt and alt:IsA("GuiButton") then
-			alt.Visible = false
-			alt.Activated:Connect(function()
-				ModController.useAlt()
-			end)
-			altButton = alt
-		end
+	end
+	local alt = TouchHud.find("ModAltButton")
+	if alt and alt:IsA("GuiButton") then
+		alt.Visible = false
+		alt.Activated:Connect(function()
+			ModController.useAlt()
+		end)
+		altButton = alt
 	end
 	return screen
 end
@@ -658,8 +655,11 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 		ui.face.Position = UDim2.fromOffset(0, 0)
 	end
 
-	-- The Studio-built bottom HUD (desktop) shows the slot instead.
-	if BottomHud.active() then
+	-- The Studio-built bottom HUD (desktop) or the touch screen's Mod buttons
+	-- show the slot instead.
+	if TouchHud.active() then
+		ui.root.Visible = false
+	elseif BottomHud.active() then
 		ui.root.Visible = false
 		BottomHud.setMod(slot, {
 			id = id,
@@ -870,7 +870,7 @@ end
 
 function ModHudController.start()
 	build()
-	StatusTray.start(Device.compact())
+	StatusTray.start()
 	ModController.onDeny(function(slot: number, _reason: string)
 		local ui = slots[slot]
 		if ui then

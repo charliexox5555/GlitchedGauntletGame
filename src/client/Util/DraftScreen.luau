@@ -64,7 +64,6 @@ export type Handlers = {
 	canHover: () -> boolean,
 }
 
-local DESIGN = Vector2.new(1920, 1080)
 local COL_W, CARD_H = 400, 500
 local PATH_GAP = 26
 local LIFT = 10 -- the picked card stays this far up
@@ -209,12 +208,8 @@ local function hook(p: Pickable, onPick: () -> ())
 	end)
 end
 
-local function fitCanvas(s: State)
-	local size = s.gui.AbsoluteSize
-	if size.X > 0 then
-		s.fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.5, 1.5)
-	end
-end
+-- The canvas is a fit canvas: Shared/UiLayout sizes it per device.
+local function fitCanvas(_s: State) end
 
 local function bind(gui: ScreenGui)
 	local canvas = child(gui, "Canvas") :: Frame
@@ -305,16 +300,11 @@ local function bind(gui: ScreenGui)
 	state = s
 end
 
--- Binds StarterGui.DraftScreen once it has been copied into PlayerGui.
--- Phones keep the old layout until the mobile pass.
-function DraftScreen.start(isCompact: boolean, onReady: () -> ())
+-- Binds the DraftScreen once it has been copied into PlayerGui (every device).
+function DraftScreen.start(_isCompact: boolean?, onReady: () -> ())
 	task.spawn(function()
 		local gui = WaitGui("DraftScreen")
 		if not gui or not gui:IsA("ScreenGui") then
-			return
-		end
-		if isCompact then
-			gui.Enabled = false
 			return
 		end
 		bind(gui)

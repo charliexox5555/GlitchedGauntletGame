@@ -17,6 +17,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -40,6 +41,9 @@ local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
 local SEGMENTS = 24
 local ABOVE_MODS = 114 -- design px above the bottom HUD's Mod row anchor
+local PHONE_BOOST = 1.6 -- touch: the row and hint this much bigger than height / 1080
+local TABLET_BOOST = 1.15
+local TOUCH_Y = 0.8 -- touch: the row's centre, as a share of the screen height
 local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
 local GOLD, WHITE = Color3.fromHex("FFC83D"), Color3.new(1, 1, 1)
 local SPENT = 0.82 -- a drained segment's transparency
@@ -334,11 +338,25 @@ local function bind(gui: ScreenGui)
 		entries = {},
 		shownHint = "",
 	}
-	-- Anchored to the bottom like the bottom HUD (its Mod row), scaled the same.
+	-- The row sizes to its entries, so it keeps its 1080p pixel design and one
+	-- UIScale (vault/04 Tech/UI Architecture.md §5). Desktop: over the bottom
+	-- HUD's Mod row, scaled like it (no 0.6 floor: that pushed UI off phones).
+	-- Touch: bigger (PHONE_BOOST), above the bottom centre, between the stick
+	-- and the fire cluster (owner 2026-11-22: no old hints on phones).
 	local function refit()
 		local size = gui.AbsoluteSize
-		if size.X > 0 and size.Y > 0 then
-			local scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.6, 1.5)
+		if size.X <= 0 or size.Y <= 0 then
+			return
+		end
+		local family = UiLayout.family()
+		if family == "Phone" or family == "Tablet" then
+			local scale = size.Y
+				/ DESIGN.Y
+				* (if family == "Phone" then PHONE_BOOST else TABLET_BOOST)
+			s.fit.Scale = scale
+			holder.Position = UDim2.fromScale(0.5, TOUCH_Y)
+		else
+			local scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.35, 1.5)
 			s.fit.Scale = scale
 			holder.Position = UDim2.new(0.5, 0, 0.965, -ABOVE_MODS * scale)
 		end
@@ -349,14 +367,10 @@ local function bind(gui: ScreenGui)
 	RunService.RenderStepped:Connect(step)
 end
 
-function StatusTray.start(isCompact: boolean)
+function StatusTray.start(_isCompact: boolean?)
 	task.spawn(function()
 		local gui = WaitGui("StatusTray")
 		if not gui or not gui:IsA("ScreenGui") then
-			return
-		end
-		if isCompact then
-			gui.Enabled = false -- phones keep the old status line for now
 			return
 		end
 		bind(gui)

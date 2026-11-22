@@ -21,7 +21,6 @@ local Mods = require(ReplicatedStorage.Shared.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
-local Device = require(script.Parent.Parent.Util.Device)
 local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
 local WaitGui = require(script.Parent.Parent.Util.WaitGui)
 
@@ -44,7 +43,6 @@ type Line = {
 
 local player = Players.LocalPlayer
 
-local DESIGN = Vector2.new(1920, 1080)
 local NAVY, NAVY_HI = Color3.fromHex("262629"), Color3.fromHex("39393C")
 local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
 local ALLY_CELL, ENEMY_CELL = Color3.fromHex("0D5C7A"), Color3.fromHex("8A1C24")
@@ -234,22 +232,12 @@ local function bind(gui: ScreenGui)
 		them = child(score, "Them"),
 		templates = UiRoot.templates():WaitForChild("Scoreboard") :: Folder,
 	}
-	local function refit()
-		local size = gui.AbsoluteSize
-		if size.X > 0 then
-			s.fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.5, 1.5)
-		end
-	end
-	refit()
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+	-- A fit canvas: Shared/UiLayout sizes it per device.
 	gui.Enabled = false
 	state = s
 end
 
 function ScoreboardController.start()
-	if Device.compact() then
-		return -- phones later
-	end
 	task.spawn(function()
 		local gui = WaitGui("Scoreboard")
 		if not gui or not gui:IsA("ScreenGui") then
@@ -278,6 +266,18 @@ function ScoreboardController.start()
 			end
 		end)
 	end)
+end
+
+-- Touch: the touch screen's scoreboard button, held like Tab.
+function ScoreboardController.setHeld(on: boolean)
+	if on then
+		local phase = MatchState.phase()
+		if phase ~= "MatchEnd" and phase ~= "Waiting" and phase ~= "Vote" then
+			setOpen(true)
+		end
+	else
+		setOpen(false)
+	end
 end
 
 return ScoreboardController

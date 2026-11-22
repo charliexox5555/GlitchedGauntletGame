@@ -38,7 +38,6 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
-local UiSound = require(script.Parent.Parent.Util.UiSound)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -52,7 +51,6 @@ local InputController = require(script.Parent.InputController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 local DeathScreen = require(script.Parent.Parent.Util.DeathScreen)
-local Device = require(script.Parent.Parent.Util.Device)
 local Ui = require(script.Parent.Parent.Util.Ui)
 local Watched = require(script.Parent.Parent.Util.Watched)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
@@ -65,7 +63,6 @@ type WeaponConfig = Types.WeaponConfig
 local SpectateController = {}
 
 local S = Juice.SPECTATE
-local C = Theme.COLORS
 local player = Players.LocalPlayer
 
 type Mode = "Off" | "DeathCam" | "Watch"
@@ -169,9 +166,6 @@ local shownReserve: number? = nil
 local shownReload: number? = nil
 
 -- UI.
-local bar: Frame? = nil
-local nameLabel: TextLabel? = nil
-local healthFill: Frame? = nil
 local blink: Frame? = nil
 
 -- Helpers -----------------------------------------------------------------------
@@ -302,69 +296,6 @@ local function buildUi()
 		ClipToDeviceSafeArea = false,
 		DisplayOrder = 5,
 	}, player:WaitForChild("PlayerGui"))
-	local holder = Ui.make("Frame", {
-		Name = "Bar",
-		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -150),
-		Size = UDim2.fromOffset(460, 78),
-		BackgroundTransparency = 1,
-		Visible = false,
-	}, gui)
-	Ui.cut(holder, { Size = UDim2.fromScale(1, 1) }, {
-		color = C.panel,
-		transparency = 0.15,
-		line = C.lineStrong,
-		lineTransparency = 0.3,
-		corner = 14,
-	})
-	Ui.text(holder, "SPECTATING", "label", {
-		Position = UDim2.fromOffset(0, 8),
-		Size = UDim2.new(1, 0, 0, 16),
-		TextColor3 = C.textSecondary,
-		ZIndex = 4,
-	})
-	nameLabel = Ui.text(holder, "", "titleS", {
-		Position = UDim2.fromOffset(60, 24),
-		Size = UDim2.new(1, -120, 0, 32),
-		TextSize = 30,
-		TextColor3 = C.ally,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		ZIndex = 4,
-	})
-	local track = Ui.make("Frame", {
-		Position = UDim2.new(0, 60, 1, -16),
-		Size = UDim2.new(1, -120, 0, 4),
-		BackgroundColor3 = C.lineSoft,
-		BorderSizePixel = 0,
-		ZIndex = 4,
-	}, holder)
-	healthFill = Ui.make("Frame", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = C.text,
-		BorderSizePixel = 0,
-		ZIndex = 5,
-	}, track)
-	local function arrow(text: string, x: number, step: number)
-		local b = Ui.make("TextButton", {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(x, if x < 0.5 then 30 else -30, 0.5, 0),
-			Size = UDim2.fromOffset(44, 56),
-			BackgroundTransparency = 1,
-			Text = text,
-			FontFace = Theme.TEXT.titleS.font,
-			TextSize = 30,
-			TextColor3 = C.text,
-			ZIndex = 4,
-		}, holder)
-		b.Activated:Connect(function()
-			UiSound.play("Select")
-			SpectateController.cycle(step)
-		end)
-	end
-	arrow("<", 0, -1)
-	arrow(">", 1, 1)
-	Ui.fit(holder)
-	bar = holder
 	blink = Ui.make("Frame", {
 		Name = "Blink",
 		Size = UDim2.fromScale(1, 1),
@@ -417,28 +348,13 @@ local function showKilledBy()
 	DeathScreen.killedBy(view)
 end
 
+-- The Studio-built spectate bar (DeathScreen) on every device; the old
+-- code-built bar is gone (owner 2026-11-22).
 local function setBar(f: Fighter?)
-	if DeathScreen.active() then
-		-- Desktop: the Studio-built spectate bar.
-		if bar then
-			(bar :: Frame).Visible = false
-		end
-		if f then
-			DeathScreen.spectate(fighterView(f.holder))
-		else
-			DeathScreen.hide()
-		end
-		return
-	end
-	local b = bar
-	if not b then
-		return
-	end
-	b.Visible = f ~= nil
-	local label = nameLabel
-	if f and label then
-		label.Text = string.upper(nameOf(f.holder))
-		label.TextColor3 = if Teams.of(f.holder) == Teams.of(player) then C.ally else C.enemy
+	if f then
+		DeathScreen.spectate(fighterView(f.holder))
+	else
+		DeathScreen.hide()
 	end
 end
 
@@ -1130,14 +1046,8 @@ local function watchStep(cam: Camera, dt: number)
 	end
 
 	-- Their health on the bar.
-	local fill = healthFill
 	if humanoid and DeathScreen.active() then
 		DeathScreen.setHealth(Health.get(humanoid), Health.max(humanoid))
-	elseif fill and humanoid then
-		fill.Size = UDim2.fromScale(
-			math.clamp(Health.get(humanoid) / math.max(Health.max(humanoid), 1), 0, 1),
-			1
-		)
 	end
 end
 
@@ -1452,7 +1362,7 @@ end
 
 function SpectateController.start()
 	buildUi()
-	DeathScreen.start(Device.compact())
+	DeathScreen.start()
 	DeathScreen.onCycle(SpectateController.cycle)
 	-- Your combat report vs your killer (server: StatsService).
 	Net.event("CombatReport").OnClientEvent:Connect(function(dealt: unknown, taken: unknown)

@@ -25,6 +25,7 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -33,6 +34,7 @@ local TouchHud = require(script.Parent.Parent.Util.TouchHud)
 local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
 local MovementController = require(script.Parent.MovementController)
+local ScoreboardController = require(script.Parent.ScoreboardController)
 
 local TouchController = {}
 
@@ -89,6 +91,7 @@ local aimMode: "toggle" | "alt" | "none" = "toggle"
 local autoSprint = true
 
 local buttons: { GuiButton } = {}
+local refreshVisible: () -> () = function() end -- set in start (refresh)
 local touching: { [InputObject]: string } = {} -- a touch → the button it started on
 
 local function setAction(name: string, value: boolean)
@@ -238,7 +241,19 @@ local function dragStick(at: Vector2)
 	end
 end
 
+local function alive(): boolean
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	return humanoid ~= nil and Health.isAlive(humanoid)
+end
+
+local wasAlive = true
 local function step()
+	local nowAlive = alive()
+	if nowAlive ~= wasAlive then
+		wasAlive = nowAlive
+		task.defer(refreshVisible)
+	end
 	local g = gui
 	if not g or not g.Enabled then
 		return
@@ -302,6 +317,8 @@ local function down(name: string)
 		jumpHeld = true
 	elseif name == "ModAltButton" then
 		ModController.useAlt()
+	elseif name == "ScoreboardButton" then
+		ScoreboardController.setHeld(true)
 	end
 end
 
@@ -315,6 +332,8 @@ local function up(name: string)
 		setAction("Aim", false)
 	elseif name == "JumpButton" then
 		jumpHeld = false
+	elseif name == "ScoreboardButton" then
+		ScoreboardController.setHeld(false)
 	end
 end
 
@@ -447,12 +466,14 @@ local function layout()
 	end
 end
 
+-- Hidden in the vote / draft / replay / match end, and while you're down or
+-- spectating (like RIVALS: the death and spectate screens own the bottom).
 local function visible(): boolean
 	if not TouchHud.enabled() then
 		return false
 	end
 	local phase = MatchState.phase()
-	return not (phase and HIDDEN_PHASES[phase])
+	return not (phase and HIDDEN_PHASES[phase]) and alive()
 end
 
 local function releaseAll()
@@ -581,13 +602,14 @@ function TouchController.start()
 		end
 	end)
 
-	-- The scoreboard isn't laid out for touch yet (ScoreboardController skips
-	-- compact screens), and there's no match settings screen: hide both.
-	for _, name in { "ScoreboardButton", "SettingsButton" } do
-		local b = TouchHud.find(name)
-		if b then
-			b.Visible = false
-		end
+	-- No match settings screen yet: Settings stays hidden.
+	local settingsButton = TouchHud.find("SettingsButton")
+	if settingsButton then
+		settingsButton.Visible = false
+	end
+	local scoreboardButton = TouchHud.find("ScoreboardButton")
+	if scoreboardButton then
+		scoreboardButton.Visible = true
 	end
 
 	TouchHud.onLoadout(refreshAim)
@@ -617,6 +639,7 @@ function TouchController.start()
 		camera:GetPropertyChangedSignal("ViewportSize"):Connect(layout)
 	end
 	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layout)
+	refreshVisible = refresh
 	refresh()
 	task.defer(function()
 		layout()

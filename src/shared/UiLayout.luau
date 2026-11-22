@@ -14,6 +14,12 @@
 -- names in them) carry a UIScale named "ScreenScale": its Scale = screen
 -- height / 1080 × its <Family>Boost attribute (default 1), also on rows
 -- cloned in later.
+-- A content-sized HUD screen (rows and strips that size to names) keeps its
+-- 1080p pixel design on a "fit canvas": a frame with FitCanvas = true and a
+-- UIScale named "Fit". The Fit scale = min(W / 1920, H / 1080) × the
+-- canvas's <Family>Boost, and the canvas is sized 1 / that scale, so it always
+-- covers the screen exactly and its groups (positioned in Scale by
+-- tools/studio/modules/UiFitCanvas) stay where they belong on any screen.
 -- Client only.
 
 local GuiService = game:GetService("GuiService")
@@ -82,6 +88,85 @@ local function screenScale(s: UIScale, family: Family, height: number)
 	s.Scale = (height / UiLayout.DESIGN_HEIGHT) * (if typeof(boost) == "number" then boost else 1)
 end
 
+local function fitCanvas(canvas: GuiObject, family: Family, size: Vector2)
+	local fit = canvas:FindFirstChild("Fit")
+	if not fit or not fit:IsA("UIScale") or size.X <= 0 or size.Y <= 0 then
+		return
+	end
+	-- AvoidTopbar: menus keep their content under Roblox's top-bar buttons
+	-- (owner 2026-11-22); their FullBleed backdrops still cover the screen.
+	local top = 0
+	if canvas:GetAttribute("AvoidTopbar") == true then
+		local inset = GuiService.TopbarInset
+		top = if inset.Height > 0 then inset.Max.Y else 0
+	end
+	local usable = Vector2.new(size.X, math.max(size.Y - top, 1))
+	local boost = if family ~= "Desktop" then canvas:GetAttribute(family .. "Boost") else nil
+	local scale = math.min(usable.X / 1920, usable.Y / UiLayout.DESIGN_HEIGHT)
+		* (if typeof(boost) == "number" then boost else 1)
+	fit.Scale = scale
+	local share = usable.Y / size.Y -- the canvas's part of the screen height
+	canvas.AnchorPoint = Vector2.new(0.5, 1)
+	canvas.Position = UDim2.fromScale(0.5, 1)
+	canvas.Size = UDim2.fromScale(1 / scale, share / scale)
+	canvas.ClipsDescendants = false
+	for _, c in canvas:GetChildren() do
+		if c:IsA("GuiObject") and c:GetAttribute("FullBleed") == true then
+			-- Cover the whole screen from inside the canvas.
+			c.AnchorPoint = Vector2.zero
+			c.Position = UDim2.fromScale(0, -(1 - share) / share)
+			c.Size = UDim2.fromScale(1, 1 / share)
+		end
+	end
+end
+
+-- Any other UIScale named "Fit" (a 1080p pixel design: a menu's 1920 x 1080
+-- canvas or a HUD cluster) is owned here: Scale = min(W / 1920, (H - top) /
+-- 1080) × its parent's <Family>Boost, with no floor (owner 2026-11-22: menus
+-- went off phone screens because the old controllers clamped it at 0.5-0.6).
+-- A parent with AvoidTopbar stays centred in the space under Roblox's
+-- top-bar buttons. Old controller code that still writes Fit is overridden.
+local function fitValue(fit: UIScale, family: Family, size: Vector2): number?
+	local parent = fit.Parent
+	if not parent or not parent:IsA("GuiObject") or size.X <= 0 or size.Y <= 0 then
+		return nil
+	end
+	local top = 0
+	if parent:GetAttribute("AvoidTopbar") == true then
+		local inset = GuiService.TopbarInset
+		top = if inset.Height > 0 then inset.Max.Y else 0
+	end
+	local boost = if family ~= "Desktop" then parent:GetAttribute(family .. "Boost") else nil
+	return math.min(size.X / 1920, (size.Y - top) / UiLayout.DESIGN_HEIGHT)
+		* (if typeof(boost) == "number" then boost else 1)
+end
+
+local function ownedFit(d: Instance): boolean
+	local parent = d.Parent
+	return d:IsA("UIScale")
+		and d.Name == "Fit"
+		and d:GetAttribute("Retired") ~= true
+		and parent ~= nil
+		and parent:GetAttribute("FitCanvas") ~= true
+end
+
+local function generalFit(fit: UIScale, family: Family, size: Vector2)
+	local scale = fitValue(fit, family, size)
+	if not scale then
+		return
+	end
+	if math.abs(fit.Scale - scale) > 1e-4 then
+		fit.Scale = scale
+	end
+	local parent = fit.Parent :: GuiObject
+	if parent:GetAttribute("AvoidTopbar") == true then
+		local inset = GuiService.TopbarInset
+		local top = if inset.Height > 0 then inset.Max.Y else 0
+		parent.AnchorPoint = Vector2.new(0.5, 0.5)
+		parent.Position = UDim2.new(0.5, 0, 0, top + (size.Y - top) / 2)
+	end
+end
+
 local function applyTo(o: GuiObject, family: Family)
 	for _, prop in PROPS do
 		local override = if family ~= "Desktop" then o:GetAttribute(family .. prop) else nil
@@ -136,9 +221,21 @@ end
 -- screen were `height` px tall (tools/studio/modules/UiDeviceSheet previews).
 function UiLayout.applyAs(root: Instance, family: Family, height: number)
 	local sliceK = math.clamp(height / UiLayout.DESIGN_HEIGHT, 0.3, 2)
+	local viewSize = if root:IsA("GuiObject")
+		then root.AbsoluteSize
+		else Vector2.new(height * 16 / 9, height)
+	if root:IsA("GuiObject") then
+		local uiScale = root:FindFirstChildOfClass("UIScale")
+		if uiScale and uiScale.Scale > 0 then
+			viewSize /= uiScale.Scale -- the preview's own zoom
+		end
+	end
 	for _, d in root:GetDescendants() do
 		if d:IsA("GuiObject") then
 			applyTo(d, family)
+			if d:GetAttribute("FitCanvas") == true then
+				fitCanvas(d, family, viewSize)
+			end
 			local design = d:GetAttribute("DesignSliceScale")
 			if typeof(design) == "number" and (d:IsA("ImageLabel") or d:IsA("ImageButton")) then
 				d.SliceScale = design * sliceK
@@ -147,6 +244,8 @@ function UiLayout.applyAs(root: Instance, family: Family, height: number)
 			d.Scale = 1
 		elseif d:IsA("UIScale") and d.Name == "ScreenScale" then
 			screenScale(d, family, height)
+		elseif ownedFit(d) then
+			generalFit(d :: UIScale, family, viewSize)
 		end
 	end
 end
@@ -158,9 +257,13 @@ function UiLayout.apply(gui: Instance)
 		then gui.AbsoluteSize.Y
 		else viewport().Y
 	local sliceK = math.clamp(height / UiLayout.DESIGN_HEIGHT, 0.3, 2)
+	local viewSize = if gui:IsA("ScreenGui") then gui.AbsoluteSize else viewport()
 	for _, d in gui:GetDescendants() do
 		if d:IsA("GuiObject") then
 			applyTo(d, family)
+			if d:GetAttribute("FitCanvas") == true then
+				fitCanvas(d, family, viewSize)
+			end
 			local design = d:GetAttribute("DesignSliceScale")
 			if typeof(design) == "number" and (d:IsA("ImageLabel") or d:IsA("ImageButton")) then
 				d.SliceScale = design * sliceK
@@ -169,6 +272,8 @@ function UiLayout.apply(gui: Instance)
 			d.Scale = 1
 		elseif d:IsA("UIScale") and d.Name == "ScreenScale" then
 			screenScale(d, family, height)
+		elseif ownedFit(d) then
+			generalFit(d :: UIScale, family, viewSize)
 		end
 	end
 	gui:SetAttribute("LayoutFamily", family)
@@ -191,6 +296,13 @@ function UiLayout.watch(gui: ScreenGui)
 					d.Scale = 1
 				end
 			end)
+		elseif ownedFit(d) then
+			local fit = d :: UIScale
+			fit:GetPropertyChangedSignal("Scale"):Connect(function()
+				if gui.Parent then
+					generalFit(fit, UiLayout.family(), gui.AbsoluteSize)
+				end
+			end)
 		end
 	end
 	local pending = false
@@ -207,6 +319,7 @@ function UiLayout.watch(gui: ScreenGui)
 		end)
 	end
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(again)
+	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(again)
 	-- Rows cloned in later (a ScreenScale inside them) get the current scale.
 	gui.DescendantAdded:Connect(function(d: Instance)
 		if d:IsA("UIScale") and d.Name == "ScreenScale" then

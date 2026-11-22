@@ -27,6 +27,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local CoreUi = require(ReplicatedStorage.Shared.CoreUi)
@@ -313,7 +314,8 @@ local function placeGrid(count: number)
 	local totalW = cols * w + (cols - 1) * GAP
 	local totalH = rows * h + (rows - 1) * GAP
 	cards.Size = UDim2.fromOffset(totalW, totalH)
-	cards.Position = UDim2.fromOffset(DESIGN.X / 2, TOP + math.max(0, (room - totalH) / 2))
+	-- In canvas fractions: the canvas is a fit canvas (Shared/UiLayout).
+	cards.Position = UDim2.fromScale(0.5, (TOP + math.max(0, (room - totalH) / 2)) / DESIGN.Y)
 end
 
 local function buildCards()
@@ -512,14 +514,8 @@ function MapVoteController.start()
 	backdrop = child(gui, "Backdrop") :: Frame
 	canvas = child(gui, "Canvas") :: Frame
 	fit = child(canvas, "Fit") :: UIScale
-	local function refit()
-		local size = gui.AbsoluteSize
-		if size.X > 0 then
-			fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.35, 1.5)
-		end
-	end
-	refit()
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+	-- A fit canvas (Shared/UiLayout); this copy is ours, so watch it here.
+	UiLayout.watch(gui)
 	cards = child(canvas, "Cards") :: Frame
 	grid = child(cards, "Grid") :: UIGridLayout
 	stage = child(canvas, "Stage") :: Frame

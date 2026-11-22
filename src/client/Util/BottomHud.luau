@@ -13,7 +13,6 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
-local Device = require(script.Parent.Device)
 local Bindings = require(ReplicatedStorage.Shared.Config.Input)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 local WaitGui = require(script.Parent.WaitGui)
@@ -652,8 +651,10 @@ function BottomHud.start()
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end
-		if Device.isPhone() then
-			gui.Enabled = false -- phones keep the old HUD until the mobile pass
+		if TouchHud.enabled() then
+			-- Touch: the touch screen has its own health bar, weapon slots,
+			-- ammo readout and Mod buttons (Util/TouchHud).
+			gui.Enabled = false
 			return
 		end
 		bind(gui)

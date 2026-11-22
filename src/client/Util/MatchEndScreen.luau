@@ -381,15 +381,8 @@ local function bind(gui: ScreenGui)
 		cards = {},
 		token = 0,
 	}
-	local function refit()
-		local size = gui.AbsoluteSize
-		if size.X > 0 then
-			fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.5, 1.5)
-		end
-	end
-	refit()
+	-- A fit canvas: Shared/UiLayout sizes it per device; the shadows follow.
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		refit()
 		task.defer(shadows, s)
 	end)
 	hookButton(s, "PlayAgain", child(child(right, "PlayAgain"), "Button"))
@@ -402,10 +395,7 @@ end
 
 -- API -------------------------------------------------------------------------------
 
-function MatchEndScreen.start(isCompact: boolean)
-	if isCompact then
-		return -- phones keep the old screen for now
-	end
+function MatchEndScreen.start(_isCompact: boolean?)
 	task.spawn(function()
 		local gui = WaitGui("MatchEndScreen")
 		if gui and gui:IsA("ScreenGui") then
@@ -626,14 +616,17 @@ function MatchEndScreen.cards(list: { CardData })
 	end
 	table.clear(s.cards)
 	-- where each winner is on the screen, in the canvas's design pixels
-	local size = s.gui.AbsoluteSize
+	-- The canvas is a fit canvas (Shared/UiLayout): it spans the screen, so its
+	-- design width is the screen width / fit, and the zone stretches with it.
 	local fit = s.fit.Scale
-	local ox = (size.X - DESIGN.X * fit) / 2
+	local ox = s.canvas.AbsolutePosition.X - s.gui.AbsolutePosition.X
+	local stretch = (s.canvas.AbsoluteSize.X / math.max(fit, 1e-3)) / DESIGN.X
+	local zoneLeft, zoneRight = CARD_LEFT * stretch, CARD_RIGHT * stretch
 	type Slot = { data: CardData, x: number, w: number }
 	local slots: { Slot } = {}
 	for _, d in list do
 		local root = d.model:FindFirstChild("HumanoidRootPart")
-		local x = DESIGN.X / 2
+		local x = DESIGN.X * stretch / 2
 		if root and root:IsA("BasePart") then
 			local p = cam:WorldToViewportPoint(root.Position)
 			x = (p.X - ox) / fit
@@ -651,11 +644,11 @@ function MatchEndScreen.cards(list: { CardData })
 	local left = slots[1].x - slots[1].w / 2
 	local right = slots[#slots].x + slots[#slots].w / 2
 	local shift = 0
-	if right > CARD_RIGHT then
-		shift = CARD_RIGHT - right
+	if right > zoneRight then
+		shift = zoneRight - right
 	end
-	if left + shift < CARD_LEFT then
-		shift = CARD_LEFT - left
+	if left + shift < zoneLeft then
+		shift = zoneLeft - left
 	end
 	local layer = s.canvas:FindFirstChild("Cards")
 	if not layer then

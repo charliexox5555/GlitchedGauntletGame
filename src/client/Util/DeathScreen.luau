@@ -25,7 +25,6 @@ export type KilledBy = Fighter & {
 	hp: number?, -- their HP left (nil hides it)
 }
 
-local DESIGN = Vector2.new(1920, 1080)
 local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
 local ALLY_CELL, ENEMY_CELL = Color3.fromHex("0D5C7A"), Color3.fromHex("8A1C24")
 local SEGS = 10
@@ -159,16 +158,8 @@ local function fillFighter(strip: Instance, f: Fighter)
 end
 
 local function bind(gui: ScreenGui)
+	-- A fit canvas (Shared/UiLayout scales it per device; phones bigger).
 	local canvas = child(gui, "Canvas") :: Frame
-	local fit = child(canvas, "Fit") :: UIScale
-	local function refit()
-		local size = gui.AbsoluteSize
-		if size.X > 0 then
-			fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.5, 1.5)
-		end
-	end
-	refit()
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 	local kb = child(canvas, "KilledBy") :: Frame
 	local sp = child(canvas, "Spectate") :: Frame
 	local row = child(sp, "Row") :: Frame
@@ -208,14 +199,10 @@ local function bind(gui: ScreenGui)
 	state = s
 end
 
-function DeathScreen.start(isCompact: boolean)
+function DeathScreen.start()
 	task.spawn(function()
 		local gui = WaitGui("DeathScreen")
 		if not gui or not gui:IsA("ScreenGui") then
-			return
-		end
-		if isCompact then
-			gui.Enabled = false -- phones keep the old bar for now
 			return
 		end
 		bind(gui)
