@@ -40,6 +40,13 @@ Camera: drag anywhere that isn't a button (right half mostly). Sizes are RIVALS-
  │ HP ▬▬▬▬▬                                                   ammo 24/96  │
  └───────────────────────────────────────────────────────────────────────┘
 ```
+**After the owner's real-phone RIVALS captures (2026-11-22, [Rivals Mobile UI → Owner's phone captures](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md)):**
+- The sizes hold: their Jump 19%, Aim / Fire / Crouch 17%, Reload 12%, slots 10%. Ours (Jump 22, Fire 21, Aim / Slide 17, Reload 12) is a little bigger on the two we press most.
+- The scorebug and our round settings button move **into the top-bar row** next to Roblox's buttons, so more of the screen is free.
+- Ammo sits on the equipped weapon slot (mag big, reserve small), with the big bottom-right ammo readout kept for desktop only.
+- In the lobby the Jump and Slide buttons stay, faded.
+- One message slot at top-centre (no toast stacked over the banner), and a smaller killed-by card than theirs so the gun stays visible.
+
 Tablet: the same layout; sizes are in screen-height units, so it scales by itself. The editor saves positions as fractions, so a phone layout opens fine on an iPad.
 
 ## 4. Look (Soft Edge + owner taste)
