@@ -108,8 +108,18 @@ All of them: `IgnoreGuiInset = true`, `ResetOnSpawn = false`, `SafeAreaCompatibi
    - fix the RewardsController wait
 2. **Structure:** the `UI` folder, `UiRoot` + layers, `UiEdit`, and moving the screens (StarterGui + MatchScreens + UiTemplates → `UI`). Check the lobby and a match in a playtest.
 3. **Responsive pass, screen by screen:** apply §5-6, check the device sheet, add the phone variant, then delete that screen's old phone code. Order: lobby HUD + Play/Party → combat HUD + touch → Draft → Match end / death / spectate → Shop / Locker / Battle Pass / Settings → the rest.
-4. **Mobile controls:** build to the approved concept and replace `HudController`'s and `ModHudController`'s touch code.
-5. **Gamepad focus paths** (TV) last.
+4. **Mobile controls** (v1 built 2026-11-22, waiting on the owner's phone playtest): build to the approved mockup v2 and replace `HudController`'s and `ModHudController`'s touch code ([UI Mobile Controls](../02%20Art/UI%20Mobile%20Controls.md) §7).
+5. **Input prompts that follow the device and the keybinds** (owner, 2026-11-22). Every place that shows a key or button reads it live:
+   - One `InputGlyphs` module: action → the binding for the current input (`UserInputService.PreferredInput`) → a key label (PC) or a gamepad glyph. Use `UserInputService:GetImageForKeyCode`, which gives the right Xbox or PlayStation picture. Touch shows no glyph.
+   - Saved keybinds (Settings → KEYBINDS, saved in `PlayerDataV1` but not applied yet) must be applied to the `PlayContext` bindings (server builds it, client too). Every hint re-reads when they change.
+   - RIVALS-style hint spots: L1 / R1 beside the weapon slots, a key-hint row under them (Emote, Scoreboard, Quick Melee, Quick Utility), and lobby buttons with their glyph (Play = X, party + = Y, the lobby bar on the D-pad).
+6. **Controller support** (owner: "full customization for controller support"):
+   - **TV-safe padding:** on the gamepad / TV family, the HUD root gets about 3-5% padding on every edge. RIVALS pads its HUD corners on console because TVs crop the picture edge (overscan / title-safe area).
+   - Gamepad focus paths in every menu (`GuiService.SelectedObject`, NextSelection; check with `rbx-gamepad-focus-paths`).
+   - Rebindable gamepad buttons in Settings.
+7. **Touch layout editor** (after the controls ship; RIVALS' editor read in [Rivals Mobile UI](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md) → Studio read):
+   - drag, resize, per-button opacity, hide (not Fire / Jump), 3 profiles, reset, left-handed mirror
+   - saved as fractions of the safe area plus size as a share of the screen height, server-validated through `SettingsService`
 
 ## 10. Results
 

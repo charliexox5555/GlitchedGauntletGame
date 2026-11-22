@@ -1,7 +1,10 @@
 --!strict
 -- Input Action System bindings (Gunplay.md §6). The client InputController
 -- builds an InputContext with one InputAction per entry. Touch buttons are
--- linked by name from the HUD.
+-- linked by name from the Touch screen (UI.Match.Touch, TouchController).
+-- Aim, Sprint and Crouch have no touch name on purpose: on touch they are
+-- toggles, driven by TouchController (owner: mobile ADS and sprint always
+-- toggle; one Slide button: slide while running, else crouch toggle).
 
 export type Binding = {
 	keys: { Enum.KeyCode },
@@ -20,7 +23,6 @@ local bindings: { [string]: Binding } = {
 	Aim = {
 		keys = { Enum.KeyCode.MouseRightButton },
 		gamepad = { Enum.KeyCode.ButtonL2 },
-		touch = "AimButton",
 	},
 	Reload = {
 		keys = { Enum.KeyCode.R },
@@ -30,22 +32,28 @@ local bindings: { [string]: Binding } = {
 	Sprint = {
 		keys = { Enum.KeyCode.LeftShift },
 		gamepad = { Enum.KeyCode.ButtonL3 },
-		touch = "SprintButton",
 	},
 	Crouch = {
 		keys = { Enum.KeyCode.C, Enum.KeyCode.LeftControl },
 		gamepad = { Enum.KeyCode.ButtonB },
-		touch = "SlideButton",
 	},
-	Primary = { keys = { Enum.KeyCode.One }, gamepad = {} },
-	Secondary = { keys = { Enum.KeyCode.Two }, gamepad = {} },
-	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {} },
-	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, touch = "SwapButton" },
-	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
+	Primary = { keys = { Enum.KeyCode.One }, gamepad = {}, touch = "PrimaryButton" },
+	Secondary = { keys = { Enum.KeyCode.Two }, gamepad = {}, touch = "SecondaryButton" },
+	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {}, touch = "MeleeButton" },
+	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY } },
+	QuickMelee = {
+		keys = { Enum.KeyCode.V },
+		gamepad = { Enum.KeyCode.ButtonR3 },
+		touch = "QuickMeleeButton",
+	},
 	-- Frees or re-locks the mouse (CameraController.freeMouse), owner 2026-11-16.
 	FreeMouse = { keys = { Enum.KeyCode.M }, gamepad = {} },
 	-- Inspect the held gun (Y like Valorant).
-	Inspect = { keys = { Enum.KeyCode.Y }, gamepad = { Enum.KeyCode.DPadDown } },
+	Inspect = {
+		keys = { Enum.KeyCode.Y },
+		gamepad = { Enum.KeyCode.DPadDown },
+		touch = "InspectButton",
+	},
 	-- Mod slots (Mods.md → Controls). Simulation input: Dash and Updraft
 	-- are predicted from these (shared/Simulation/Abilities); held Mods are
 	-- equipped by ModController. Crouch stays on C / Left Ctrl.

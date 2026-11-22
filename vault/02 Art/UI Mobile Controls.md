@@ -1,6 +1,6 @@
 # Mobile controls: concept (2026-11-22)
 
-**Status (2026-11-22):** mockup v2 built in Studio after the owner's review (compact firing cluster, real TopBar, new ammo readout, Inspect). Waiting on the owner's playtest notes, then the build (§7).
+**Status (2026-11-22):** the real touch controls are built (v1, below) and tested in Studio. Waiting on the owner's phone playtest; then the layout editor.
 **Owner brief (2026-11-22):** custom, good-looking touch UI with icons, similar to RIVALS (custom jump button and everything), changed where our game needs it. **On mobile, ADS and sprint are always toggles** (no hold option).
 
 Read first: [Rivals Mobile UI](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md) (video study + the 2026-11-22 Studio read of their editor), [UI Theme v4 Soft Edge](UI%20Theme%20v4%20Soft%20Edge.md) §6-7, [UI Architecture](../04%20Tech/UI%20Architecture.md) (layers, Touch layer), LihFolk *Mobile Button Layout Editor*, *Touch Gestures*, *Input - UserInputService and ContextActionService*.
@@ -127,6 +127,58 @@ Changes:
 - Builder updated (`tools/studio/BuildTouchMockup.luau` rebuilds v2); inspect icon added to `make_touch_icons.py`.
 
 **For the build:** the TopBar's phone fit rule and the hidden info line belong in `TopBarController`; the Settings position comes from `TopbarInset`; tablets keep the 0.78 factor.
+
+## Build v1: the real touch controls (2026-11-22)
+Owner: "yes go ahead"; health = "the simple bar like in the mockup" (the old panel didn't fit the theme).
+
+**Studio:** `StarterPlayerScripts.UI.Match.Touch` (Layer `Touch`, off by default), built by `tools/studio/BuildTouchScreen.luau`.
+- Mockup v2 layout with ImageButtons named after `Config/Input` touch names, each with a `Face` (plate) and a `Press` UIScale.
+- `StickZone`, `Stick` / `Nub` / `SprintLock`, `StickRest`, and the simple `Health` bar (Fill, Shield line, Value).
+- The mockup is stored in `UI.Mockups.TouchMockup`. StarterGui is empty.
+
+**Code:**
+- `client/Controllers/TouchController`:
+  - our floating stick (`Player:Move`, camera-relative, dead zone 0.12)
+  - sprint lock: past 1.25× the ring, straight ahead, for 0.25 s (timed per frame); pulling back unlocks it
+  - Aim and Sprint as toggles (`InputAction:Fire`); Slide = a 0.25 s Crouch press while running, else a crouch toggle; Jump held
+  - press motion on every button
+  - hides in the Vote, Draft, Replay and MatchEnd phases
+  - tablets × 0.78
+  - Settings and the row placed from `GuiService.TopbarInset`
+  - hides Roblox's stick and jump button (`TouchControlsEnabled`); the lobby host turns them back on when you leave an armed zone
+- `client/Util/TouchHud`: touch on/off (a touch-first device or Studio `ForceTouchUI`), screen lookup, weapon slots (gun art, counts, the held one lit), the ammo readout under the held slot, and the health bar. Fed from `BottomHud.setLoadout / setAmmo / setHealth`.
+- `ModHudController` adopts the screen's `Mod1-3Button` and `ModAltButton` (icon, cooldown seconds, held state) instead of drawing its own arc.
+- `HudController`'s old text buttons (FIRE / AIM / R / SLIDE / SWAP / RUN) and `touchLayer()` are removed.
+- `PhoneHudController` hides the old ammo and health panels and the Q / E / T faces when the touch screen is up.
+- `Config/Input`:
+  - new touch names: Primary / Secondary / Melee / QuickMelee / Inspect buttons
+  - Aim, Sprint and Crouch have no touch name (they're toggles)
+  - SwapButton removed (the slots replace it)
+
+**Tested** (Lobby playtest, range, Studio `ForceTouchUI` + `ForceLayout = phone`, mouse as the finger):
+- the screen comes up and Roblox's stick is hidden
+- 10 actions link to their buttons
+- the ammo readout shows `25 /∞`
+- Aim toggles on and lights
+- the stick moves the character forward and stops on release
+- Slide while standing toggles crouch (MoveState Crouch)
+- Sprint toggles
+- Jump puts the character in the air
+- leaving the range restores Roblox's stick and removes the screen
+- no errors
+
+**Not tested:**
+- the sprint lock after the per-frame fix
+- a slide from a real run
+- Mods in a real match (the range has none)
+- a real phone
+- a full match server
+
+**Known:**
+- In Studio's desktop view Roblox's chat window covers the Sprint button and eats its taps. On a phone the chat stays closed until opened. If that's a problem, Sprint moves nearer the stick.
+- The scoreboard button is hidden (the scoreboard isn't laid out for touch yet), and so is Settings (no match settings screen yet).
+
+**Next:** the owner's playtest on a phone (or the Studio Device Emulator), then the layout editor (UI Architecture §9 step 7).
 
 ## 7. Build steps (after picks)
 1. Icon sheet (SVG) → owner review → upload.

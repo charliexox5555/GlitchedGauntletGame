@@ -32,8 +32,7 @@ local ICE = Color3.fromHex("BFE8FF")
 local ELECTRIC = Color3.fromHex("FFD23F")
 local HEAL = Color3.fromHex("3FE0F2") -- same cyan as the tray's buffs
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
-local HudController = require(script.Parent.HudController)
-local InputController = require(script.Parent.InputController)
+local TouchHud = require(script.Parent.Parent.Util.TouchHud)
 local ModController = require(script.Parent.ModController)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Ui = require(script.Parent.Parent.Util.Ui)
@@ -90,7 +89,7 @@ type SlotUi = {
 	held: boolean,
 	deniedAt: number,
 	-- Touch arc button (nil off touch).
-	button: TextButton?,
+	button: GuiButton?,
 	buttonText: TextLabel?,
 	shownTouch: string,
 }
@@ -114,7 +113,7 @@ local meter: Meter? = nil
 local METER_WIDTH = 240
 local METER_MAX_PIPS = 3
 local slowedLabel: TextLabel? = nil -- the status line (Hinder countdown)
-local altButton: TextButton? = nil
+local altButton: GuiButton? = nil
 local slots: { SlotUi } = {}
 local shownHint = ""
 
@@ -533,60 +532,26 @@ local function build(): ScreenGui
 		fullAt = -math.huge,
 	}
 
-	local layer = HudController.touchLayer()
-	if layer then
-		local function touchButton(name: string, pos: UDim2, size: number): (TextButton, TextLabel)
-			size = math.max(size, 72) -- 44+ px drawn at the touch layer's 0.62 floor
-			local b = make("TextButton", {
-				Name = name,
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = pos,
-				Size = UDim2.fromOffset(size, size),
-				BackgroundColor3 = BACK,
-				BackgroundTransparency = 0.25,
-				Text = "",
-				AutoButtonColor = true,
-			}, layer)
-			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
-			make("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.35 }, b)
-			make("ImageLabel", {
-				Name = "Icon",
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.fromScale(0.5, 0.5),
-				Size = UDim2.fromScale(0.62, 0.62),
-				BackgroundTransparency = 1,
-				Image = "",
-			}, b)
-			local label = text({
-				Size = UDim2.fromScale(1, 1),
-				FontFace = HEAVY,
-				TextSize = 22,
-				Text = "",
-				ZIndex = 2,
-			}, b)
-			return b, label
-		end
-		-- An arc above and left of Fire (HudController puts Fire at 1,-110 / 1,-210).
-		local arc = {
-			UDim2.new(1, -300, 1, -300),
-			UDim2.new(1, -250, 1, -362),
-			UDim2.new(1, -180, 1, -398),
-		}
+	-- Touch: the Studio-built Mod buttons on the touch screen (UI.Match.Touch,
+	-- Util/TouchHud). TouchController links them to the Mod1/2/3 actions; here
+	-- they get their icon, cooldown seconds and held state.
+	if TouchHud.enabled() then
 		for i = 1, Config.SLOTS do
-			local b, label = touchButton("Mod" .. i .. "Button", arc[i], 58)
-			slots[i].button = b
-			slots[i].buttonText = label
+			local b = TouchHud.find("Mod" .. i .. "Button")
+			local label = b and b:FindFirstChild("Label", true)
+			if b and b:IsA("GuiButton") and label and label:IsA("TextLabel") then
+				slots[i].button = b
+				slots[i].buttonText = label
+			end
 		end
-		local alt, altLabel = touchButton("ModAltButton", UDim2.new(1, -140, 1, -300), 56)
-		altLabel.TextSize = 22 -- 13.6 px drawn at the touch layer floor
-		altLabel.Text = "ALT"
-		alt.Visible = false
-		alt.Activated:Connect(function()
-			ModController.useAlt()
-		end)
-		altButton = alt
-		-- The Mod buttons drive the Mod1/2/3 input actions (Config/Input touch).
-		InputController.bindTouchButtons(layer)
+		local alt = TouchHud.find("ModAltButton")
+		if alt and alt:IsA("GuiButton") then
+			alt.Visible = false
+			alt.Activated:Connect(function()
+				ModController.useAlt()
+			end)
+			altButton = alt
+		end
 	end
 	return screen
 end
@@ -720,7 +685,7 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	if button and label and touchKey ~= ui.shownTouch then
 		ui.shownTouch = touchKey
 		button.Visible = id ~= nil
-		local icon = button:FindFirstChild("Icon")
+		local icon = button:FindFirstChild("Icon", true)
 		local iconId = if view.def then view.def.icon else ""
 		if icon and icon:IsA("ImageLabel") then
 			icon.Image = iconId
@@ -896,8 +861,8 @@ local function update(dt: number)
 		local view = if held ~= 0 then ModController.slot(held) else nil
 		local altHint = view and view.def and view.def.hint.alt
 		alt.Visible = altHint ~= nil
-		local label = alt:FindFirstChildOfClass("TextLabel")
-		if label and altHint then
+		local label = alt:FindFirstChild("Label", true)
+		if label and label:IsA("TextLabel") and altHint then
 			label.Text = string.upper(altHint)
 		end
 	end

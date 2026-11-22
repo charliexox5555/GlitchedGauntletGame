@@ -2,14 +2,14 @@
 -- Combat HUD (Gunplay.md §5): a dynamic crosshair, hit markers and damage
 -- numbers (Util/HitFeedback), ammo + reload, health and shield in the UI v1
 -- look (vault/02 Art/UI Design.md), a low-HP vignette, the damage direction
--- and the touch buttons. The kill feed and kill banner are Util/KillFeed.
+-- (the touch controls are TouchController). The kill feed and kill banner are
+-- Util/KillFeed.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -21,6 +21,7 @@ local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
+local TouchHud = require(script.Parent.Parent.Util.TouchHud)
 local AimVignette = require(script.Parent.Parent.Util.AimVignette)
 local Crosshair = require(script.Parent.Parent.Util.Crosshair)
 local DamageIndicator = require(script.Parent.Parent.Util.DamageIndicator)
@@ -31,7 +32,6 @@ local Ui = require(script.Parent.Parent.Util.Ui)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
-local InputController = require(script.Parent.InputController)
 
 local HudController = {}
 
@@ -40,26 +40,7 @@ local player = Players.LocalPlayer
 local WHITE = Color3.new(1, 1, 1)
 local AMBER = Color3.fromHex("F2C94C")
 local RED = Color3.fromHex("EB5757")
-local BACK = Color3.fromHex("18181B")
 local T = Theme.COLORS
-local BOLD = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold)
-
--- Touch layout: designed for a 760-px-tall screen, scaled down to fit (never
--- below TOUCH_SCALE_MIN) and never up. Positions are offsets from the
--- layer's bottom-right corner.
-local TOUCH_LAYER = Vector2.new(480, 480)
-local TOUCH_DESIGN_HEIGHT = 760
-local TOUCH_SCALE_MIN = 0.62
-local TOUCH_MIN_BUTTON = 72 -- design px (Util/Device mirrors the layer numbers)
-
-local touchLayer: Frame? = nil
-
--- Touch controls are built on touch devices, and in Studio when the Workspace
--- attribute ForceTouchUI is ticked (to check the layout on a PC).
-local function touchUi(): boolean
-	return UserInputService.TouchEnabled
-		or (RunService:IsStudio() and StateValues.get(Workspace, "ForceTouchUI") == true)
-end
 
 type Refs = {
 	gui: ScreenGui,
@@ -287,65 +268,6 @@ local function build(): Refs
 	-- Damage direction: red arcs round the crosshair (Util/DamageIndicator).
 	DamageIndicator.build(gui)
 
-	-- Touch buttons (names match Config/Input), on their own layer: a
-	-- bottom-right frame in a ScreenGui that respects the device's safe area
-	-- (notches, rounded corners), scaled to the screen height so the whole
-	-- cluster (and the Mod arc ModHudController adds to it) fits a small
-	-- phone and stays the same shape everywhere.
-	if touchUi() then
-		local touchGui = make("ScreenGui", {
-			Name = "TouchControls",
-			ResetOnSpawn = false,
-			ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
-			DisplayOrder = 4,
-		}, player:WaitForChild("PlayerGui"))
-		local layer = make("Frame", {
-			Name = "Layer",
-			AnchorPoint = Vector2.new(1, 1),
-			Position = UDim2.fromScale(1, 1),
-			Size = UDim2.fromOffset(TOUCH_LAYER.X, TOUCH_LAYER.Y),
-			BackgroundTransparency = 1,
-		}, touchGui)
-		local scale = make("UIScale", { Scale = 1 }, layer)
-		local function rescale()
-			local cam = Workspace.CurrentCamera
-			local h = if cam then cam.ViewportSize.Y else TOUCH_DESIGN_HEIGHT
-			scale.Scale = math.clamp(h / TOUCH_DESIGN_HEIGHT, TOUCH_SCALE_MIN, 1)
-		end
-		rescale()
-		local cam = Workspace.CurrentCamera
-		if cam then
-			cam:GetPropertyChangedSignal("ViewportSize"):Connect(rescale)
-		end
-		touchLayer = layer
-		local function button(name: string, label: string, pos: UDim2, size: number)
-			-- 72 design px at least: 44+ px drawn at the layer's 0.62 floor
-			-- (LihFolk: Responsive UI, 44 px tap minimum).
-			size = math.max(size, TOUCH_MIN_BUTTON)
-			local b = make("TextButton", {
-				Name = name,
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = pos,
-				Size = UDim2.fromOffset(size, size),
-				BackgroundColor3 = BACK,
-				BackgroundTransparency = 0.25, -- readable over snow and bright walls
-				FontFace = BOLD,
-				TextSize = 22, -- 13.6 px drawn at the 0.62 floor
-				TextColor3 = WHITE,
-				Text = label,
-				AutoButtonColor = true,
-			}, layer)
-			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
-			make("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.35 }, b)
-		end
-		button("FireButton", "FIRE", UDim2.new(1, -110, 1, -210), 86)
-		button("AimButton", "AIM", UDim2.new(1, -210, 1, -260), 64)
-		button("ReloadButton", "R", UDim2.new(1, -60, 1, -310), 52)
-		button("SlideButton", "SLIDE", UDim2.new(1, -200, 1, -150), 60)
-		button("SwapButton", "SWAP", UDim2.new(1, -60, 1, -392), 52) -- 8 px clear of R at 72 px
-		button("SprintButton", "RUN", UDim2.new(1, -290, 1, -200), 56)
-	end
-
 	return {
 		gui = gui,
 		scope = scope,
@@ -367,12 +289,6 @@ local function build(): Refs
 end
 
 -- API ------------------------------------------------------------------------
-
--- The touch controls' layer (nil off touch): ModHudController puts its Mod
--- arc here so it lines up with Fire at every scale.
-function HudController.touchLayer(): Frame?
-	return touchLayer
-end
 
 function HudController.setWeapon(
 	displayName: string,
@@ -606,7 +522,7 @@ function HudController.setSpectating(on: boolean)
 	for _, name in { "Health", "Ammo" } do
 		local panel = r.gui:FindFirstChild(name)
 		if panel and panel:IsA("GuiObject") then
-			panel.Visible = not on and not BottomHud.active()
+			panel.Visible = not on and not BottomHud.active() and not TouchHud.active()
 		end
 	end
 end
@@ -632,10 +548,6 @@ function HudController.init()
 end
 
 function HudController.start()
-	local layer = touchLayer
-	if layer then
-		InputController.bindTouchButtons(layer)
-	end
 	RunService.RenderStepped:Connect(update)
 	Net.event("Killed").OnClientEvent:Connect(KillFeed.kill)
 	if RunService:IsStudio() then

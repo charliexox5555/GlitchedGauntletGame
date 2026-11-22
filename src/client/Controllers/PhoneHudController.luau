@@ -7,9 +7,9 @@
 --   * status along the top: the score bar under Roblox's top bar, health at
 --     the top left under it, the kill feed under health;
 --   * the bottom-left quarter stays clear for the thumbstick;
---   * the bottom-right quarter is the game's touch layer (HudController: FIRE,
---     AIM, R, SLIDE, SWAP, RUN, the ability arc) and Roblox's jump button, so
---     ammo joins that combat cluster in its free strip left of SLIDE;
+--   * the bottom-right quarter is the touch screen's (TouchController,
+--     Util/TouchHud: its own weapon slots and ammo readout, so the old ammo
+--     panel hides);
 --   * the Q / E / T slot faces hide: the touch layer's ability buttons show
 --     the same icons and cooldowns ("hide, don't shrink"); their hint stays.
 -- Desktop and tablets (short side 640+) keep the 1080p layout. Nothing here
@@ -20,6 +20,7 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 
 local Device = require(script.Parent.Parent.Util.Device)
+local TouchHud = require(script.Parent.Parent.Util.TouchHud)
 local Ui = require(script.Parent.Parent.Util.Ui)
 
 local PhoneHudController = {}
@@ -37,12 +38,8 @@ local HEALTH_SIZE = Vector2.new(420, 120)
 local FEED_SCALE = 0.8 -- the kill feed, relative to the HUD scale
 local HEALTH_SCALE = 0.88 -- health ends 8+ px above the thumbstick quarter
 local FEED_ROWS, FEED_ROW = 3, 52 -- rows shown on a phone; Util/KillFeed row + gap
--- HudController's touch layer: 480 x 480 design px scaled by height / 760
--- (at least 0.62). Its free bottom strip runs 250-480 px from the right edge,
--- up to 110 px from the bottom (left of SLIDE, under RUN).
-local AMMO_RIGHT, AMMO_LEFT, AMMO_STRIP_H = 250, 480, 110
--- On a compact screen the ammo panel keeps only its right part (the count
--- and the mag size), so it can be drawn bigger in the strip.
+-- Without touch controls (a phone-sized screen with a keyboard) the ammo panel
+-- keeps only its right part (the count and the mag size).
 local AMMO_PANEL = Vector2.new(220, 120)
 
 local function child(parent: Instance?, name: string): GuiObject?
@@ -89,6 +86,9 @@ local function arrange()
 	local healthBottom = below
 	if health then
 		Ui.override(health, k * HEALTH_SCALE)
+		-- With touch controls the touch screen draws its own simple health bar
+		-- (Util/TouchHud, the mockup's): the old panel hides.
+		health.Visible = not TouchHud.active()
 		health.AnchorPoint = Vector2.new(0, 0)
 		health.Position = UDim2.fromOffset(MARGIN, below)
 		healthBottom = below + HEALTH_SIZE.Y * k * HEALTH_SCALE
@@ -116,18 +116,13 @@ local function arrange()
 		banner.Position = UDim2.fromScale(0.5, 0.5)
 	end
 
-	-- Ammo: in the touch layer's free strip when there is one.
+	-- Ammo: the touch screen has its own readout under the held weapon slot
+	-- (Util/TouchHud), so the old panel hides there.
 	local ammo = child(combat, "Ammo")
-	local layer = child(pg:FindFirstChild("TouchControls"), "Layer")
+	local touch = TouchHud.active()
 	if ammo then
-		if layer then
-			local kt = Device.touchScale()
-			local width = (AMMO_LEFT - AMMO_RIGHT) * kt
-			local ka = math.min(width / AMMO_PANEL.X, (AMMO_STRIP_H * kt) / AMMO_PANEL.Y)
-			Ui.override(ammo, ka)
-			ammo.AnchorPoint = Vector2.new(1, 1)
-			ammo.Position = UDim2.new(1, -AMMO_RIGHT * kt, 1, -GAP)
-		else
+		ammo.Visible = not touch
+		if not touch then
 			Ui.override(ammo, k)
 			ammo.AnchorPoint = Vector2.new(1, 1)
 			ammo.Position = UDim2.new(1, -MARGIN, 1, -MARGIN)
@@ -151,9 +146,9 @@ local function arrange()
 		end
 	end
 
-	-- Q / E / T faces hide when the touch layer has the ability buttons.
+	-- Q / E / T faces hide when the touch screen has the ability buttons.
 	local slots = child(pg:FindFirstChild("ModHud"), "Slots")
-	if slots and layer then
+	if slots and touch then
 		for _, c in slots:GetChildren() do
 			local body = if string.sub(c.Name, 1, 4) == "Slot"
 				then c:FindFirstChild("Body")

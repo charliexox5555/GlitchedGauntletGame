@@ -114,6 +114,11 @@ local function cleanUp()
 	end)
 	UserInputService.MouseBehavior = Enum.MouseBehavior.Default
 	UserInputService.MouseIconEnabled = true
+	-- The match client's touch controls hid Roblox's stick and jump button
+	-- (TouchController); the lobby walks on Roblox's own.
+	pcall(function()
+		game:GetService("GuiService").TouchControlsEnabled = true
+	end)
 end
 
 local function stop()

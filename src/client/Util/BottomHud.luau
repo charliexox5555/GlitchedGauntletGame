@@ -18,6 +18,8 @@ local Bindings = require(ReplicatedStorage.Shared.Config.Input)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 local WaitGui = require(script.Parent.WaitGui)
 
+local TouchHud = require(script.Parent.TouchHud)
+
 local BottomHud = {}
 
 export type LoadoutEntry = {
@@ -270,6 +272,7 @@ end
 function BottomHud.setAmmo(ammo: number, magSize: number, reserve: number?)
 	ammoNow, ammoMag, ammoReserve = ammo, magSize, reserve
 	drawAmmo()
+	TouchHud.setAmmo(ammo, magSize, reserve) -- the touch screen's readout
 end
 
 function BottomHud.setReload(progress: number?)
@@ -298,6 +301,7 @@ end
 
 -- Called every frame by HudController with the local character's state.
 function BottomHud.setHealth(health: number, max: number, shield: number, dt: number)
+	TouchHud.setHealth(health, max, shield) -- the touch screen's simple bar
 	local r = ui
 	if not r then
 		return
@@ -415,6 +419,7 @@ function BottomHud.setLoadout(entries: { LoadoutEntry }, equipped: string?)
 	loadoutNow = entries
 	equippedNow = equipped
 	drawLoadout()
+	TouchHud.setLoadout(entries, equipped) -- the touch screen's weapon slots
 end
 
 -- Called every frame by ModHudController; spectating keeps the row hidden.
