@@ -587,6 +587,8 @@ function MapVoteController.start()
 		task.wait(0.5)
 	end
 	HealthLog.stage("match screens ready", player, matchId)
+	-- The loading screens' "match is set up" stage (src/first/LoadingScreen, DuelLoadingController); local only.
+	player:SetAttribute("MatchScreensReady", matchId)
 end
 
 return MapVoteController

@@ -49,8 +49,9 @@ local function setPlaying(on: boolean)
 	t:Play()
 end
 
+-- Not under the loading screen (it has its own bed: src/first/LoadingScreen.client.luau).
 local function refresh()
-	setPlaying(not PlayZone.isArmed(player))
+	setPlaying(not PlayZone.isArmed(player) and player:GetAttribute("LoadingScreen") ~= true)
 end
 
 function LobbyMusic.init()
@@ -66,6 +67,7 @@ end
 
 function LobbyMusic.start()
 	player:GetAttributeChangedSignal(PlayZone.ATTRIBUTE):Connect(refresh)
+	player:GetAttributeChangedSignal("LoadingScreen"):Connect(refresh)
 	refresh()
 end
 

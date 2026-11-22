@@ -51,3 +51,5 @@ end
 
 print("[Lobby] client ready")
 require(Shared:WaitForChild("HealthLog") :: ModuleScript).stage("lobby client ready", player)
+-- The loading screen's last lobby stage (src/first/LoadingScreen.client.luau); a local attribute, never replicated.
+player:SetAttribute("LobbyClientReady", true)
