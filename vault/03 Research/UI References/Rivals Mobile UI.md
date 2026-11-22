@@ -128,6 +128,16 @@ Video 2 shows hands in a corner inset. It is zoomed (the main screen is a magnif
 ![](../../02%20Art/References/ui/video-frames/rivals-mobile/LlVGVAABi14_0725_pro-minimal-hud.jpg)
 ![](../../02%20Art/References/ui/video-frames/rivals-mobile/LlVGVAABi14_0228_pro-custom-hud.jpg)
 
+### Studio read of the editor (RIVALS file, Client datamodel, 2026-11-22)
+Confirmed from the live client (read only, study not copy):
+- **Where:** `MainGui.MobileInputs` = full-screen `Modal` + `JoystickArea` + `DoubleTapArea` (right half, x 50-100%, the "Double Tap To Attack" hint) + `Buttons`. Code: `Modules.UserInterface.MobileInputs` → `EditorLogic` (95 lines), `DoubleTap` (129), `Joystick` (113), `Buttons` (334) + `Buttons.MobileButton` (649). Shown only when `ControlsController.CurrentControls == "Touch"` and no page, Equipment or eliminated screen is open.
+- **Button list = data** (`ReplicatedStorage.Modules.InputLibrary`, `add_mobile_button`): name, icon, DefaultPosition (corner-anchored offsets), DefaultSize, AlwaysVisible, **AlwaysToggle**, HideIfDead, VisibleWhileSpectating, ItemIndex. 16 buttons at phone size: aim 70, shoot 70, jump 80, crouch 70 (always toggle), slide 70 (hidden by default), reload 50, four weapon slots 40 (top-right row, gun icon at 3x the button), quick melee / quick utility 30, inspect / player list / emote / camera POV 40 (top-left row).
+- **Device scaling:** one rule. If the short side ≤ 500 px it uses the phone numbers; otherwise positions x1.79, sizes x1.71 and the cluster moves up 45 px (tablet).
+- **Roblox controls:** keeps Roblox's **DynamicThumbstick** (hides `ThumbstickStart`, mirrors it for left-handed), **destroys Roblox's JumpButton**, and draws its own buttons.
+- **Editor:** drag a button, a corner `Resize` handle (size = 2x the finger distance from the centre, min 35 px), global and per-button transparency settings, **3 profiles** (the 1 2 3 in the editor bar), reset, import/export (encrypted table). Saves `{Position = {x,y} px, Size = {w,h} px}` per button through `Remotes.Data.UpdateMobileButtonSettings`.
+- **Weak spot we fix:** positions are absolute pixels, so a layout made on one screen breaks on another. We save normalised positions (fraction of the safe area) and size as a fraction of the short side.
+- **Whole UI numbers:** `MainGui` has 2,199 Scale-sized vs 55 Offset-sized objects, 292 of 293 text labels use `TextScaled`, 109 `UIAspectRatioConstraint`s, no `UITextSizeConstraint`, one `UIScale`. Screens: `MainGui` (ScreenInsets None, IgnoreGuiInset), `InsetGui` (TopbarSafeInsets, their top-bar buttons), `TeleportingGui` (None, order 998). StarterGui holds only a Studio dev gui.
+
 Settings found (mobile-relevant, [1:26 video 1](https://www.youtube.com/watch?v=ZsYA86F6jJk&t=86s)): Toggle Crouch (always on for mobile), Toggle Sprint (not on mobile), Auto Sprint (always on), Easy Slide (slide by crouching while sprinting), Auto Shoot, Auto Jump, Double Tap To Shoot, Left Handed Touch Controls, Aim Assist Strength (0.7), Controller Deadzone, Sensitivity (2.75). A tip from a PC player is low sniper sensitivity plus high FOV on mobile ([4:10 HGMz1](https://www.youtube.com/watch?v=HGMz1-vs4dc&t=250s)).
 
 ## 5. What works and what is cramped
