@@ -1,6 +1,6 @@
 # Mobile controls: concept (2026-11-22)
 
-**Status:** concept, waiting on the owner's picks (§6). Then a real ScreenGui mockup in Studio at 844×390 and 667×375 for review, then the build.
+**Status (2026-11-22):** mockup v1 built in Studio (phone, small phone and iPad captures below), waiting on the owner's review. Then the build (§7).
 **Owner brief (2026-11-22):** custom, good-looking touch UI with icons, similar to RIVALS (custom jump button and everything), changed where our game needs it. **On mobile, ADS and sprint are always toggles** (no hold option).
 
 Read first: [Rivals Mobile UI](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md) (video study + the 2026-11-22 Studio read of their editor), [UI Theme v4 Soft Edge](UI%20Theme%20v4%20Soft%20Edge.md) §6-7, [UI Architecture](../04%20Tech/UI%20Architecture.md) (layers, Touch layer), LihFolk *Mobile Button Layout Editor*, *Touch Gestures*, *Input - UserInputService and ContextActionService*.
@@ -68,6 +68,45 @@ Tablet: the same layout; sizes are in screen-height units, so it scales by itsel
 4. **Fire extras:** double-tap the right half to fire, and an optional left FIRE button, both off by default?
 5. **Icons:** I draw the set as vectors in our style (recommended), or ChatGPT draws them from a prompt sheet?
 6. **Weapon slots:** top-right row with gun pictures (RIVALS-like), or one SWAP button like now?
+
+## Mockup v1 (2026-11-22; owner picked the recommended answers: own stick, sprint button + stick lock, one Slide button, double-tap / left FIRE off by default, icons drawn by Claude, weapon slots top-right)
+
+**Where:** `StarterGui.TouchMockup`, parked for review (its `UiEditFrom` attribute is `Mockups`; `tools/studio/UiEdit.luau` with `ACTION = "store", NAME = "TouchMockup"` moves it to `StarterPlayerScripts.UI.Mockups`). Builder and backup: `tools/studio/BuildTouchMockup.luau` (`PREVIEW` = a device size, or nil for full screen). Lobby place, **not saved yet**.
+
+![](References/ui/touch/touch-mockup-v1-844x390.jpg)
+![](References/ui/touch/touch-mockup-v1-667x375.jpg)
+![](References/ui/touch/touch-mockup-v1-1024x768.jpg)
+
+**Icons** (`tools/ui/make_touch_icons.py` → `art-source/ui/touch/`, sheet `References/ui/touch/touch-icons-v1.png`): fire (a round in flight + motion dashes, gold), aim (16-sided reticle), jump (arrow over a ground bar), run (Sprint), slide (feet-first figure), reload (two faceted arrow bands), scoreboard, settings cog, melee knife, and the » chevrons (the stick's sprint-lock hint only). White, faceted, cut ends, tinted in Roblox. Uploaded as Decals; **use the Image ids** (`InsertService:LoadAsset(decal).Decal.Texture`), which are listed at the top of the builder.
+
+**How it's built:**
+- Four corner clusters are squares sized off the screen height (`SizeConstraint = RelativeYY`): right 0.8 H, left 0.8 H, weapons 0.5 H, top-left 0.6 H, scorebug 0.62 H. Inside them everything is Scale, so each cluster keeps its shape on every aspect ratio.
+- Text is `TextScaled` + `UITextSizeConstraint` (min 12).
+- Rest = dark plate at 55%. A toggle that's on = a solid light plate with a dark icon. Fire = gold icon (the one gold thing). A Mod on cooldown = a dark cover with the seconds.
+
+**Measured (drawn px at the device size):**
+
+| Device | Jump | Fire | Aim / Slide | Reload | Mod | Weapon slot | Quick melee | Ammo text |
+|---|---|---|---|---|---|---|---|---|
+| 667×375 (worst phone) | 83 | 77 | 64 | 44 | 52 | 43 | 41 | 16 |
+| 1024×768 (iPad, tablet factor 0.78) | 132 | | | 70 | | | | |
+
+The 43 / 41 px slots get the +20% invisible hit box (≈ 52 / 49 px). RIVALS' tablet jump is ≈ 137 px.
+
+**Self-review fixes:**
+- v1: the fire icon read as a rocket, so the side trails became motion dashes behind the round.
+- v2: Sprint's » looked like the Dash Mod icon next to it, so Sprint is now a runner. The side-on guns overlapped, so they sit at −35° at 1.15× of the slot. Quick melee was 25 px, now 41. White on cyan/red scorebug plates didn't read, so the plates are dark with coloured numbers. The health number was dark on dark, now white.
+
+**Tablet:** height-sized clusters get too big on 4:3, so tablets multiply every cluster side by **0.78** (`TabletFactor` attribute on the mockup; `PhoneSide` on each cluster).
+
+**Placeholders, not designs:** the faint Roblox buttons top-left (real ones come from Roblox), the scorebug (the phone TopBar gets its own pass), and the health bar.
+
+**Open for the owner:**
+1. Is the equipped-slot look (a lighter plate) enough, or should it be bigger or edged?
+2. Ammo on the slot only, or also a small count on the Fire ring?
+3. Do the icons read? Is anything off-taste?
+4. Sprint button placement (above-left of the stick).
+5. Should NetStats (top-right in the top-bar row) move on phones, since the weapon slots sit there now?
 
 ## 7. Build steps (after picks)
 1. Icon sheet (SVG) → owner review → upload.

@@ -2,13 +2,13 @@
 -- Edit a Studio-built screen (vault/04 Tech/UI Architecture.md §3).
 --
 -- The UI lives in StarterPlayer.StarterPlayerScripts.UI (Lobby / Match /
--- Templates), where Studio doesn't draw it. This parks a screen in StarterGui
+-- Templates, plus Mockups: design screens the game never mounts), where Studio doesn't draw it. This parks a screen in StarterGui
 -- so it shows in the edit viewport, and stores it back when you're done.
 -- While a screen is parked, a Studio playtest shows the parked copy
 -- (Shared/UiRoot) and warns. Store everything back before you save the place.
 --
 -- Use: set ACTION and NAME below, paste the whole file into the Command Bar.
---   ACTION = "park",  NAME = "Shop"       -- show one screen (Lobby or Match)
+--   ACTION = "park",  NAME = "Shop"       -- show one screen (Lobby, Match or Mockups)
 --   ACTION = "park",  NAME = "Templates"  -- show the row/cell templates
 --   ACTION = "store", NAME = "*"          -- put everything parked back
 --   ACTION = "list",  NAME = ""           -- what is where
@@ -43,7 +43,7 @@ local function park(name: string): string
 		holder.Parent = StarterGui
 		return "parked Templates (StarterGui." .. TEMPLATE_HOLDER .. ")"
 	end
-	for _, group in { "Lobby", "Match" } do
+	for _, group in { "Lobby", "Match", "Mockups" } do
 		local folder = ui:FindFirstChild(group)
 		local gui = folder and folder:FindFirstChild(name)
 		if gui and gui:IsA("ScreenGui") then
@@ -54,7 +54,7 @@ local function park(name: string): string
 			return `parked {group}.{name}`
 		end
 	end
-	return `no screen named {name} in UI.Lobby or UI.Match`
+	return `no screen named {name} in UI.Lobby, UI.Match or UI.Mockups`
 end
 
 local function store(name: string): { string }
@@ -85,7 +85,13 @@ local function store(name: string): { string }
 			end
 			gui:SetAttribute(PARKED, nil)
 			gui:SetAttribute("UiEditWasEnabled", nil)
-			gui.Parent = ui:FindFirstChild(from) or ui
+			local home = ui:FindFirstChild(from)
+			if not home then
+				home = Instance.new("Folder")
+				home.Name = from
+				home.Parent = ui
+			end
+			gui.Parent = home
 			table.insert(done, `{from}.{gui.Name}`)
 		end
 	end
@@ -103,7 +109,7 @@ elseif ACTION == "store" then
 end
 
 local lines = {}
-for _, group in { "Lobby", "Match" } do
+for _, group in { "Lobby", "Match", "Mockups" } do
 	local folder = ui:FindFirstChild(group)
 	local names = {}
 	for _, c in (if folder then folder:GetChildren() else {}) do
