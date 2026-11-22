@@ -1175,7 +1175,7 @@ function ShopController.init()
 	Plates.deepen(gui)
 	Pivot.fix(gui)
 	Pivot.fix(coinsGui)
-	Router.register("Shop", { open = open, close = close })
+	Router.register("Shop", { open = open, close = close, screen = "Shop" })
 end
 
 function ShopController.start()

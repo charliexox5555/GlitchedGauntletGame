@@ -8,9 +8,11 @@
 -- MatchEndController owns when it shows and what the buttons do (the server
 -- decides everything). Desktop only for now.
 
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Mods = require(ReplicatedStorage.Shared.Mods)
@@ -420,6 +422,18 @@ function MatchEndScreen.show(d: Data, onChoice: (name: string) -> ())
 	fillBuild(s, d.build)
 	s.gui.Enabled = true
 	animateIn(s, rows)
+	-- A controller starts on PLAY AGAIN (the D-pad reaches REMATCH and LEAVE;
+	-- X and Y are shortcuts), and the selection stays on this screen.
+	s.gui.SelectionGroup = true
+	local ok, preferred = pcall(function()
+		return UserInputService.PreferredInput
+	end)
+	if ok and preferred == Enum.PreferredInput.Gamepad then
+		local first = s.buttons.PlayAgain
+		if first then
+			GuiService.SelectedObject = first
+		end
+	end
 end
 
 -- A button or its key: a press pop, then the controller's choice.
@@ -566,6 +580,10 @@ function MatchEndScreen.hide()
 	end
 	s.token += 1
 	s.gui.Enabled = false
+	local sel = GuiService.SelectedObject
+	if sel and sel:IsDescendantOf(s.gui) then
+		GuiService.SelectedObject = nil
+	end
 	if s.plateConn then
 		s.plateConn:Disconnect()
 		s.plateConn = nil

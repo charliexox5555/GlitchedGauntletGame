@@ -1045,7 +1045,7 @@ function LockerController.init()
 	w.Parent = wipeGui
 	wipeGui.Parent = playerGui
 	wipe = w
-	Router.register("Locker", { open = open, close = close })
+	Router.register("Locker", { open = open, close = close, screen = "Locker" })
 	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
 		Router.close()
 	end)

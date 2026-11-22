@@ -22,6 +22,10 @@ export type Menu = {
 	close: () -> (),
 	-- The button gamepad selection starts on (LihFolk: Gamepad and Console UX).
 	focus: (() -> GuiObject?)?,
+	-- Its ScreenGui in PlayerGui: without `focus`, selection starts on the
+	-- screen's first selectable button (lowest SelectionOrder), and either way
+	-- the screen traps the selection so it can't wander into the HUD.
+	screen: string?,
 	-- No blur / grade behind it (the Locker shows its own 3D stage).
 	clear: boolean?,
 }
@@ -114,6 +118,52 @@ function Router.register(name: string, menu: Menu)
 	menus[name] = menu
 end
 
+local function screenOf(menu: Menu): ScreenGui?
+	local pg = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	local found = pg and menu.screen and pg:FindFirstChild(menu.screen)
+	return if found and found:IsA("ScreenGui") then found else nil
+end
+
+-- Selection stays inside an open menu's screen (SelectionGroup + Stop).
+local function trap(menu: Menu, on: boolean)
+	local gui = screenOf(menu)
+	if not gui then
+		return
+	end
+	gui.SelectionGroup = on
+	local stop = if on then Enum.SelectionBehavior.Stop else Enum.SelectionBehavior.Escape
+	gui.SelectionBehaviorUp = stop
+	gui.SelectionBehaviorDown = stop
+	gui.SelectionBehaviorLeft = stop
+	gui.SelectionBehaviorRight = stop
+end
+
+local function usingGamepad(): boolean
+	local ok, preferred = pcall(function()
+		return UserInputService.PreferredInput
+	end)
+	return if ok then preferred == Enum.PreferredInput.Gamepad else UserInputService.GamepadEnabled
+end
+
+-- Gamepad selection lands inside the menu: its own focus, else the screen's
+-- first selectable button.
+local function focusMenu(menu: Menu)
+	if not usingGamepad() then
+		return
+	end
+	local target = if menu.focus then menu.focus() else nil
+	if target then
+		GuiService.SelectedObject = target
+		return
+	end
+	local gui = screenOf(menu)
+	if gui then
+		pcall(function()
+			GuiService:Select(gui)
+		end)
+	end
+end
+
 function Router.current(): string?
 	return current
 end
@@ -147,14 +197,13 @@ function Router.open(name: string, arg: any?)
 	if not previous and not QUIET_OPEN[name] then
 		UiSfx.play("PageOpen") -- from the world into a page (switching pages stays quiet)
 	end
-	menu.open(arg)
-	-- Gamepad selection lands inside the menu at the start of its entrance.
-	if menu.focus and UserInputService.GamepadEnabled then
-		local target = menu.focus()
-		if target then
-			GuiService.SelectedObject = target
-		end
+	if previous then
+		trap(menus[previous], false)
 	end
+	menu.open(arg)
+	trap(menu, true)
+	-- Gamepad selection lands inside the menu at the start of its entrance.
+	focusMenu(menu)
 	notify()
 end
 
@@ -165,6 +214,7 @@ function Router.close()
 	end
 	current = nil
 	menus[name].close()
+	trap(menus[name], false)
 	GuiService.SelectedObject = nil
 	setWorldDimmed(false)
 	notify()
@@ -181,6 +231,16 @@ end
 function Router.onChanged(cb: (string?) -> ())
 	table.insert(listeners, cb)
 end
+
+-- Picking up a controller with a menu open gives it a selection.
+pcall(function()
+	UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(function()
+		local name = current
+		if name and GuiService.SelectedObject == nil then
+			focusMenu(menus[name])
+		end
+	end)
+end)
 
 -- Gamepad B / keyboard Backspace back out of a menu. Esc can't be used: Roblox
 -- reserves it for its own menu, so it never reaches the game unprocessed.

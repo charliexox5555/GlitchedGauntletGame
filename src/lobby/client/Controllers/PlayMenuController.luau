@@ -473,7 +473,7 @@ function PlayMenuController.init()
 		Router.close()
 	end)
 	Plates.deepen(gui)
-	Router.register("Queue", { open = open, close = close })
+	Router.register("Queue", { open = open, close = close, screen = "PlayMenu" })
 
 	searchGui = sg
 	local top = child(searchGui, "Top") :: Frame

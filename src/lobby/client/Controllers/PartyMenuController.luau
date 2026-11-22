@@ -554,7 +554,7 @@ function PartyMenuController.init()
 		render()
 	end)
 	Plates.deepen(gui)
-	Router.register("Party", { open = open, close = close })
+	Router.register("Party", { open = open, close = close, screen = "PartyMenu" })
 end
 
 function PartyMenuController.start()

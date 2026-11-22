@@ -579,7 +579,7 @@ function BattlePassController.init()
 	-- everything that pops grows from its own centre (owner rule)
 	Plates.deepen(gui)
 	Pivot.fix(gui)
-	Router.register("BattlePass", { open = open, close = close })
+	Router.register("BattlePass", { open = open, close = close, screen = "BattlePass" })
 end
 
 return BattlePassController

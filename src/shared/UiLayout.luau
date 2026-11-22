@@ -33,6 +33,27 @@ export type Family = "Phone" | "Tablet" | "Desktop" | "Console"
 
 UiLayout.PHONE_SHORT_SIDE = 640 -- px: same rule as client/Util/Device
 UiLayout.DESIGN_HEIGHT = 1080
+-- Console (a gamepad or a TV): important UI stays out of the outer 5% of each
+-- edge, which some TVs crop (LihFolk: Gamepad and Console UX, "Ten-foot UI";
+-- RIVALS pads its HUD corners on a controller). Fit canvases and Fit scales
+-- shrink into that box; a GuiObject with SafePad = true gets the margin as
+-- padding; anything else uses Console* attributes. Backdrops still bleed.
+UiLayout.CONSOLE_SAFE = 0.05
+-- and reads from a couch: without its own ConsoleBoost, a fit screen is this
+-- much bigger on a console (inside the safe box).
+UiLayout.CONSOLE_BOOST = 1.15
+
+-- `owner`'s <Family>Boost attribute (console default CONSOLE_BOOST), or 1.
+local function boostOf(owner: Instance, family: Family): number
+	if family == "Desktop" then
+		return 1
+	end
+	local v = owner:GetAttribute(family .. "Boost")
+	if typeof(v) == "number" then
+		return v
+	end
+	return if family == "Console" then UiLayout.CONSOLE_BOOST else 1
+end
 
 local PROPS = { "Position", "Size", "AnchorPoint", "Visible" }
 
@@ -84,8 +105,7 @@ function UiLayout.family(): Family
 end
 
 local function screenScale(s: UIScale, family: Family, height: number)
-	local boost = if family ~= "Desktop" then s:GetAttribute(family .. "Boost") else nil
-	s.Scale = (height / UiLayout.DESIGN_HEIGHT) * (if typeof(boost) == "number" then boost else 1)
+	s.Scale = (height / UiLayout.DESIGN_HEIGHT) * boostOf(s, family)
 end
 
 local function fitCanvas(canvas: GuiObject, family: Family, size: Vector2)
@@ -100,22 +120,26 @@ local function fitCanvas(canvas: GuiObject, family: Family, size: Vector2)
 		local inset = GuiService.TopbarInset
 		top = if inset.Height > 0 then inset.Max.Y else 0
 	end
-	local usable = Vector2.new(size.X, math.max(size.Y - top, 1))
-	local boost = if family ~= "Desktop" then canvas:GetAttribute(family .. "Boost") else nil
+	-- On a console the canvas keeps out of the TV-safe margin on every side.
+	local m = if family == "Console" then UiLayout.CONSOLE_SAFE else 0
+	local side, bottom = size.X * m, size.Y * m
+	top = math.max(top, size.Y * m)
+	local usable = Vector2.new(math.max(size.X - 2 * side, 1), math.max(size.Y - top - bottom, 1))
 	local scale = math.min(usable.X / 1920, usable.Y / UiLayout.DESIGN_HEIGHT)
-		* (if typeof(boost) == "number" then boost else 1)
+		* boostOf(canvas, family)
 	fit.Scale = scale
-	local share = usable.Y / size.Y -- the canvas's part of the screen height
+	local wide = usable.X / size.X -- the canvas's part of the screen width
+	local share = usable.Y / size.Y -- and of its height
 	canvas.AnchorPoint = Vector2.new(0.5, 1)
-	canvas.Position = UDim2.fromScale(0.5, 1)
-	canvas.Size = UDim2.fromScale(1 / scale, share / scale)
+	canvas.Position = UDim2.fromScale(0.5, 1 - m)
+	canvas.Size = UDim2.fromScale(wide / scale, share / scale)
 	canvas.ClipsDescendants = false
 	for _, c in canvas:GetChildren() do
 		if c:IsA("GuiObject") and c:GetAttribute("FullBleed") == true then
 			-- Cover the whole screen from inside the canvas.
 			c.AnchorPoint = Vector2.zero
-			c.Position = UDim2.fromScale(0, -(1 - share) / share)
-			c.Size = UDim2.fromScale(1, 1 / share)
+			c.Position = UDim2.fromScale(-m / wide, -(top / size.Y) / share)
+			c.Size = UDim2.fromScale(1 / wide, 1 / share)
 		end
 	end
 end
@@ -136,9 +160,9 @@ local function fitValue(fit: UIScale, family: Family, size: Vector2): number?
 		local inset = GuiService.TopbarInset
 		top = if inset.Height > 0 then inset.Max.Y else 0
 	end
-	local boost = if family ~= "Desktop" then parent:GetAttribute(family .. "Boost") else nil
-	return math.min(size.X / 1920, (size.Y - top) / UiLayout.DESIGN_HEIGHT)
-		* (if typeof(boost) == "number" then boost else 1)
+	local keep = if family == "Console" then 1 - 2 * UiLayout.CONSOLE_SAFE else 1
+	return math.min(size.X * keep / 1920, (size.Y - top) * keep / UiLayout.DESIGN_HEIGHT)
+		* boostOf(parent, family)
 end
 
 local function ownedFit(d: Instance): boolean
@@ -167,7 +191,38 @@ local function generalFit(fit: UIScale, family: Family, size: Vector2)
 	end
 end
 
+-- SafePad = true: the console margin as padding (kept on top of any padding
+-- the frame already has, whose values are stashed in BasePad* attributes).
+local PAD_SIDES = { "PaddingLeft", "PaddingRight", "PaddingTop", "PaddingBottom" }
+local function safePad(o: GuiObject, family: Family)
+	local pad = o:FindFirstChildOfClass("UIPadding")
+	local m = if family == "Console" then UiLayout.CONSOLE_SAFE else 0
+	if not pad then
+		if m == 0 then
+			return
+		end
+		local made = Instance.new("UIPadding")
+		made.Name = "SafePad"
+		made.Parent = o
+		pad = made
+	end
+	local p = pad :: UIPadding
+	for _, sideName in PAD_SIDES do
+		local key = "BasePad" .. sideName
+		local base = p:GetAttribute(key)
+		if typeof(base) ~= "UDim" then
+			base = (p :: any)[sideName]
+			p:SetAttribute(key, base)
+		end
+		local b = base :: UDim;
+		(p :: any)[sideName] = UDim.new(b.Scale + m, b.Offset)
+	end
+end
+
 local function applyTo(o: GuiObject, family: Family)
+	if o:GetAttribute("SafePad") == true then
+		safePad(o, family)
+	end
 	for _, prop in PROPS do
 		local override = if family ~= "Desktop" then o:GetAttribute(family .. prop) else nil
 		local base = o:GetAttribute("Base" .. prop)
@@ -211,10 +266,8 @@ end
 function UiLayout.screenScaleFor(gui: Instance, boostOwner: Instance?): number
 	local family = UiLayout.family()
 	local height = if gui:IsA("ScreenGui") then gui.AbsoluteSize.Y else viewport().Y
-	local boost = if boostOwner and family ~= "Desktop"
-		then boostOwner:GetAttribute(family .. "Boost")
-		else nil
-	return (height / UiLayout.DESIGN_HEIGHT) * (if typeof(boost) == "number" then boost else 1)
+	return (height / UiLayout.DESIGN_HEIGHT)
+		* (if boostOwner then boostOf(boostOwner, family) else 1)
 end
 
 -- Applies `family`'s overrides to every GuiObject under `root`, as if the
