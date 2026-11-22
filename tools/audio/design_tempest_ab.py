@@ -20,7 +20,8 @@ not EQ'd toward the stock shot, and levelled +1.5 dB over it.
   A  pro-designed only (no stock layer)
   B  the same with the stock ProPack shot tucked under it (-7 dB)
 
-    python -I tools/audio/design_tempest_ab.py
+    python -I tools/audio/design_tempest_ab.py            # the A/B takes and reel
+    python -I tools/audio/design_tempest_ab.py --set B    # + the picked variant's far / first takes
 
 Writes art-source/audio/tempest/line_v1/ab/<Gun>_<A|B>_fire_NN.wav and
 _reel.wav / _reel.txt (stock, A, B per gun; the Stinger also in sprays).
@@ -121,8 +122,40 @@ def designed(gun, k, variant, full=False):
 	return x
 
 
+def far(gun, k, variant):
+	"""What other players hear: the designed shot with its skin layers pulled
+	back, darker and 2 dB down (cut to the fire interval on auto guns)."""
+	p = PRO[gun]
+	keep = p["water"], p["zap"]
+	p["water"], p["zap"] = p["water"] - 6, (p["zap"][1] - 3, p["zap"][1] - 3)
+	x = designed(gun, k, variant, full=True)
+	p["water"], p["zap"] = keep
+	x = B.master_tp(L.lp(x, 5000, 2), target(gun) - 2.0)
+	if p.get("cut"):
+		x = B.fade(x[: int(p["cut"] * RATE)], 0, 0.03)
+	return x
+
+
+def write_set(variant):
+	"""The chosen variant's in-game takes (owner picked B for all, 2026-11-22):
+	fire, fireFar and the Stinger's fireFirst (water up, snap on)."""
+	for gun in PRO:
+		for k in range(3):
+			x = far(gun, k, variant)
+			sf.write(os.path.join(OUT, f"{gun}_{variant}_fireFar_{k + 1:02d}.wav"), x.astype(np.float32), RATE, subtype="PCM_16")
+	p = PRO["Stinger"]
+	keep = p["water"]
+	p["water"] += 2
+	x = designed("Stinger", 0, variant)
+	p["water"] = keep
+	sf.write(os.path.join(OUT, f"Stinger_{variant}_fireFirst_01.wav"), x.astype(np.float32), RATE, subtype="PCM_16")
+
+
 def main():
 	os.makedirs(OUT, exist_ok=True)
+	if "--set" in sys.argv:
+		write_set(sys.argv[sys.argv.index("--set") + 1])
+		return
 	clips = {}
 	for gun in PRO:
 		for variant in ("A", "B"):

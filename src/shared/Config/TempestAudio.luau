@@ -102,15 +102,15 @@ local takes: { [string]: { GunSoundAssets.Take } } = {
 		{ asset = "rbxassetid://128080953195438", length = 0.300, gain = 1 }, -- impact_04.wav
 	},
 	["Stinger_fire"] = {
-		{ asset = "rbxassetid://114401814954046", length = 0.143, gain = 1 }, -- Stinger_fire_01.wav
-		{ asset = "rbxassetid://73414438765302", length = 0.143, gain = 1 }, -- Stinger_fire_02.wav
-		{ asset = "rbxassetid://118073331947429", length = 0.143, gain = 1 }, -- Stinger_fire_03.wav
-		{ asset = "rbxassetid://112744796336449", length = 0.143, gain = 1 }, -- Stinger_fire_04.wav
-		{ asset = "rbxassetid://103668446087244", length = 0.143, gain = 1 }, -- Stinger_fire_05.wav
-		{ asset = "rbxassetid://137898557949988", length = 0.143, gain = 1 }, -- Stinger_fire_06.wav
+		{ asset = "rbxassetid://84545953281673", length = 0.143, gain = 1 }, -- Stinger_B_fire_01.wav
+		{ asset = "rbxassetid://70509193633180", length = 0.143, gain = 1 }, -- Stinger_B_fire_02.wav
+		{ asset = "rbxassetid://84553635843099", length = 0.143, gain = 1 }, -- Stinger_B_fire_03.wav
+		{ asset = "rbxassetid://90720456397521", length = 0.143, gain = 1 }, -- Stinger_B_fire_04.wav
+		{ asset = "rbxassetid://101511049322533", length = 0.143, gain = 1 }, -- Stinger_B_fire_05.wav
+		{ asset = "rbxassetid://102772591678439", length = 0.143, gain = 1 }, -- Stinger_B_fire_06.wav
 	},
 	["Stinger_fireFirst"] = {
-		{ asset = "rbxassetid://117413027122141", length = 0.143, gain = 1 }, -- Stinger_fireFirst_01.wav
+		{ asset = "rbxassetid://74447646192855", length = 0.143, gain = 1 }, -- Stinger_B_fireFirst_01.wav
 	},
 	["Stinger_fireLast"] = {
 		{ asset = "rbxassetid://77599541715867", length = 1.859, gain = 1 }, -- Stinger_fireLast_01.wav
@@ -119,9 +119,9 @@ local takes: { [string]: { GunSoundAssets.Take } } = {
 		{ asset = "rbxassetid://89688543267520", length = 1.859, gain = 1 }, -- Stinger_tail_01.wav
 	},
 	["Stinger_fireFar"] = {
-		{ asset = "rbxassetid://83246244868148", length = 0.143, gain = 1 }, -- Stinger_fireFar_01.wav
-		{ asset = "rbxassetid://137168523043287", length = 0.143, gain = 1 }, -- Stinger_fireFar_02.wav
-		{ asset = "rbxassetid://118112408940507", length = 0.143, gain = 1 }, -- Stinger_fireFar_03.wav
+		{ asset = "rbxassetid://87382006259315", length = 0.143, gain = 1 }, -- Stinger_B_fireFar_01.wav
+		{ asset = "rbxassetid://140262913044354", length = 0.143, gain = 1 }, -- Stinger_B_fireFar_02.wav
+		{ asset = "rbxassetid://98143897130788", length = 0.143, gain = 1 }, -- Stinger_B_fireFar_03.wav
 	},
 	["Stinger_magOut"] = {
 		{ asset = "rbxassetid://134247403214219", length = 0.600, gain = 1 }, -- Stinger_magOut_01.wav
@@ -144,15 +144,15 @@ local takes: { [string]: { GunSoundAssets.Take } } = {
 		{ asset = "rbxassetid://128311268369388", length = 0.300, gain = 1 }, -- Stinger_dryFire_03.wav
 	},
 	["Marshal_fire"] = {
-		{ asset = "rbxassetid://113457737324541", length = 1.400, gain = 1 }, -- Marshal_fire_01.wav
-		{ asset = "rbxassetid://84097844558381", length = 1.400, gain = 1 }, -- Marshal_fire_02.wav
-		{ asset = "rbxassetid://136726751510249", length = 1.400, gain = 1 }, -- Marshal_fire_03.wav
-		{ asset = "rbxassetid://84147696758215", length = 1.400, gain = 1 }, -- Marshal_fire_04.wav
+		{ asset = "rbxassetid://98296124674131", length = 1.400, gain = 1 }, -- Marshal_B_fire_01.wav
+		{ asset = "rbxassetid://82128350100983", length = 1.400, gain = 1 }, -- Marshal_B_fire_02.wav
+		{ asset = "rbxassetid://105075787152368", length = 1.400, gain = 1 }, -- Marshal_B_fire_03.wav
+		{ asset = "rbxassetid://85273773236773", length = 1.400, gain = 1 }, -- Marshal_B_fire_04.wav
 	},
 	["Marshal_fireFar"] = {
-		{ asset = "rbxassetid://123303950645515", length = 1.400, gain = 1 }, -- Marshal_fireFar_01.wav
-		{ asset = "rbxassetid://74365371014187", length = 1.400, gain = 1 }, -- Marshal_fireFar_02.wav
-		{ asset = "rbxassetid://132564533791527", length = 1.400, gain = 1 }, -- Marshal_fireFar_03.wav
+		{ asset = "rbxassetid://91729199496207", length = 1.400, gain = 1 }, -- Marshal_B_fireFar_01.wav
+		{ asset = "rbxassetid://77054103080676", length = 1.400, gain = 1 }, -- Marshal_B_fireFar_02.wav
+		{ asset = "rbxassetid://97870828581624", length = 1.400, gain = 1 }, -- Marshal_B_fireFar_03.wav
 	},
 	["Marshal_rack"] = {
 		{ asset = "rbxassetid://93816946502063", length = 0.800, gain = 1 }, -- Marshal_rack_01.wav
@@ -172,15 +172,15 @@ local takes: { [string]: { GunSoundAssets.Take } } = {
 		{ asset = "rbxassetid://129745569858006", length = 0.300, gain = 1 }, -- Marshal_dryFire_03.wav
 	},
 	["Bucky_fire"] = {
-		{ asset = "rbxassetid://113942866402607", length = 1.400, gain = 1 }, -- Bucky_fire_01.wav
-		{ asset = "rbxassetid://86335360382293", length = 1.400, gain = 1 }, -- Bucky_fire_02.wav
-		{ asset = "rbxassetid://77521566119527", length = 1.400, gain = 1 }, -- Bucky_fire_03.wav
-		{ asset = "rbxassetid://122314227585710", length = 1.400, gain = 1 }, -- Bucky_fire_04.wav
+		{ asset = "rbxassetid://80028133838082", length = 1.400, gain = 1 }, -- Bucky_B_fire_01.wav
+		{ asset = "rbxassetid://84611230526207", length = 1.400, gain = 1 }, -- Bucky_B_fire_02.wav
+		{ asset = "rbxassetid://115514865294546", length = 1.400, gain = 1 }, -- Bucky_B_fire_03.wav
+		{ asset = "rbxassetid://76142284117179", length = 1.400, gain = 1 }, -- Bucky_B_fire_04.wav
 	},
 	["Bucky_fireFar"] = {
-		{ asset = "rbxassetid://111112244818575", length = 1.400, gain = 1 }, -- Bucky_fireFar_01.wav
-		{ asset = "rbxassetid://101561915303398", length = 1.400, gain = 1 }, -- Bucky_fireFar_02.wav
-		{ asset = "rbxassetid://134035516022008", length = 1.400, gain = 1 }, -- Bucky_fireFar_03.wav
+		{ asset = "rbxassetid://82912589105306", length = 1.400, gain = 1 }, -- Bucky_B_fireFar_01.wav
+		{ asset = "rbxassetid://117941190983826", length = 1.400, gain = 1 }, -- Bucky_B_fireFar_02.wav
+		{ asset = "rbxassetid://82405683424482", length = 1.400, gain = 1 }, -- Bucky_B_fireFar_03.wav
 	},
 	["Bucky_rack"] = {
 		{ asset = "rbxassetid://106052840513188", length = 0.800, gain = 1 }, -- Bucky_rack_01.wav
@@ -199,15 +199,15 @@ local takes: { [string]: { GunSoundAssets.Take } } = {
 		{ asset = "rbxassetid://114852274533234", length = 0.300, gain = 1 }, -- Bucky_dryFire_02.wav
 	},
 	["Sheriff_fire"] = {
-		{ asset = "rbxassetid://129959190896865", length = 1.000, gain = 1 }, -- Sheriff_fire_01.wav
-		{ asset = "rbxassetid://85105117269523", length = 1.000, gain = 1 }, -- Sheriff_fire_02.wav
-		{ asset = "rbxassetid://81922819565408", length = 1.000, gain = 1 }, -- Sheriff_fire_03.wav
-		{ asset = "rbxassetid://96673516835351", length = 1.000, gain = 1 }, -- Sheriff_fire_04.wav
+		{ asset = "rbxassetid://74497621837610", length = 1.000, gain = 1 }, -- Sheriff_B_fire_01.wav
+		{ asset = "rbxassetid://84559243585557", length = 1.000, gain = 1 }, -- Sheriff_B_fire_02.wav
+		{ asset = "rbxassetid://94875543095905", length = 1.000, gain = 1 }, -- Sheriff_B_fire_03.wav
+		{ asset = "rbxassetid://132908083854092", length = 1.000, gain = 1 }, -- Sheriff_B_fire_04.wav
 	},
 	["Sheriff_fireFar"] = {
-		{ asset = "rbxassetid://71816178389592", length = 1.000, gain = 1 }, -- Sheriff_fireFar_01.wav
-		{ asset = "rbxassetid://113135642633662", length = 1.000, gain = 1 }, -- Sheriff_fireFar_02.wav
-		{ asset = "rbxassetid://107936265590152", length = 1.000, gain = 1 }, -- Sheriff_fireFar_03.wav
+		{ asset = "rbxassetid://139539742130618", length = 1.000, gain = 1 }, -- Sheriff_B_fireFar_01.wav
+		{ asset = "rbxassetid://82641373679131", length = 1.000, gain = 1 }, -- Sheriff_B_fireFar_02.wav
+		{ asset = "rbxassetid://137900680537052", length = 1.000, gain = 1 }, -- Sheriff_B_fireFar_03.wav
 	},
 	["Sheriff_rack"] = {
 		{ asset = "rbxassetid://86314200380422", length = 0.500, gain = 1 }, -- Sheriff_rack_01.wav

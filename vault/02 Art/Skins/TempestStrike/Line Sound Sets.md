@@ -136,3 +136,10 @@ A is heavier in the lows, leaner in the low-mids and, on the Marshal, darker on 
 
 The Stinger is also played in 12-round sprays at its fire rate (stock, A, B). Once the owner picks per gun, the takes are uploaded solo and replace `<Gun>_fire` / `fireFar` in `Config/TempestAudio`.
 
+**Owner's pick (2026-11-22): B for all four guns.** The owner said "go with the stock and see how it sounds", and B (pro-designed with the stock shot under it) was also the recommendation: each gun stays recognisable, but it's fuller than v3. This is now in the game:
+- the B fire takes;
+- B far takes (skin layers pulled back, low-passed 5 kHz, 2 dB down, cut to the fire interval on the Stinger), built by `design_tempest_ab.py --set B`;
+- the Stinger's first shot (B, water +2 dB).
+
+That's 31 solo uploads. The Stinger's last shot and tail, and all handling, stay from v3. Switching any gun to A means building with `--set A`, uploading, and changing that gun's `PICKED` entries in the TempestAudio generator.
+
