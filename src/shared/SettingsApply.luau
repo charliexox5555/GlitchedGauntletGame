@@ -44,6 +44,11 @@ local changedEvent = Instance.new("BindableEvent")
 SettingsApply.changed = changedEvent.Event
 local started = false
 
+-- The whole table of values (cleaned; read only).
+function SettingsApply.values(): Values
+	return values
+end
+
 function SettingsApply.get(id: string): any
 	local v = values[id]
 	if v == nil then

@@ -195,11 +195,52 @@ local function newMarker(parent: Instance): Marker
 	}
 end
 
+-- Settings HITMARKERS -----------------------------------------------------------
+-- STYLE: ORIGINAL = the blades; CROSS = four thin diagonal lines; DOT = one
+-- small square (same timing, the dark back behind each). SIZE scales it,
+-- HIT / CRIT COLOR replace the tuned colours once changed from the default.
+local function markerStyle(): string
+	local s = SettingsApply.get("hmStyle")
+	return if s == "Cross" or s == "Dot" then s else "Original"
+end
+
+local function markerColor(spec: MarkerSpec): Color3
+	local id = if spec == HitFx.MARKER.Body
+		then "hmColor"
+		elseif spec == HitFx.MARKER.Head or spec == HitFx.MARKER.Kill then "hmCritColor"
+		else nil
+	if not id or SettingsApply.get(id) == PlayerSettings.default(id) then
+		return spec.color
+	end
+	local ok, c = pcall(Color3.fromHex, tostring(SettingsApply.get(id)))
+	return if ok then c else spec.color
+end
+
+local function markerScale(): number
+	local v = SettingsApply.get("hmSize")
+	return if typeof(v) == "number" then v / 100 else 1
+end
+
 -- Colour and parts for `spec`, without restarting the animation.
 local function paint(m: Marker, spec: MarkerSpec)
 	m.spec = spec
-	for _, w in m.wedges do
-		w.ImageColor3 = spec.color
+	local style = markerStyle()
+	local color = markerColor(spec)
+	local original = style == "Original"
+	for i, w in m.wedges do
+		local shown = style ~= "Dot" or i == 1
+		w.Visible = shown
+		w.Image = if original then HitFx.TEXTURES.marker else ""
+		w.ImageColor3 = color
+		w.BackgroundColor3 = color
+		w.BackgroundTransparency = if original then 1 else 0
+		w.Rotation = if style == "Dot" then 0 else 45 + 90 * (i - 1) + 90
+		local back = m.backs[i]
+		back.Visible = shown and HitFx.MARKER_BACK.enabled
+		back.Image = if original then HitFx.TEXTURES.marker else ""
+		back.BackgroundColor3 = HitFx.MARKER_BACK.color
+		back.BackgroundTransparency = if original then 1 else HitFx.MARKER_BACK.transparency
+		back.Rotation = w.Rotation
 	end
 	m.ringOn = spec.ring
 	m.ring.Visible = spec.ring
@@ -258,7 +299,8 @@ local function stepMarker(m: Marker, dt: number)
 		m.root.GroupTransparency = 1
 		return
 	end
-	local px = screenScale()
+	local px = screenScale() * markerScale()
+	local style = markerStyle()
 	-- The same whole-pixel centre as Util/Crosshair, so the marker and the
 	-- crosshair share one centre (the canvas is an even size).
 	local space = m.root.Parent
@@ -278,13 +320,27 @@ local function stepMarker(m: Marker, dt: number)
 	local len = (spec.fromLength + (spec.length - spec.fromLength) * k) * m.size
 	local centreDist = (tipGap + len / 2) * px
 	for i, w in m.wedges do
-		local rad = math.rad(45 + 90 * (i - 1))
-		w.Position = UDim2.new(0.5, math.cos(rad) * centreDist, 0.5, math.sin(rad) * centreDist)
-		w.Size = UDim2.fromOffset(len * px * HitFx.MARKER_ASPECT, len * px)
 		local back = m.backs[i]
 		local grow = HitFx.MARKER_BACK.grow * px
+		if style == "Dot" then
+			-- one square in the middle, sized by the hit like the blades
+			local side = math.max(2, math.floor(len * px * 0.45 + 0.5))
+			w.Position = UDim2.fromScale(0.5, 0.5)
+			w.Size = UDim2.fromOffset(side, side)
+			back.Position = w.Position
+			back.Size = UDim2.fromOffset(side + 2, side + 2)
+			continue
+		end
+		local rad = math.rad(45 + 90 * (i - 1))
+		w.Position = UDim2.new(0.5, math.cos(rad) * centreDist, 0.5, math.sin(rad) * centreDist)
+		local width = if style == "Cross"
+			then math.max(2, math.floor(2 * px + 0.5))
+			else len * px * HitFx.MARKER_ASPECT
+		w.Size = UDim2.fromOffset(width, len * px)
 		back.Position = w.Position
-		back.Size = UDim2.fromOffset(len * px * HitFx.MARKER_ASPECT + grow, len * px + grow * 1.6)
+		back.Size = if style == "Cross"
+			then UDim2.fromOffset(width + 2, len * px + 2)
+			else UDim2.fromOffset(width + grow, len * px + grow * 1.6)
 	end
 	if m.ringOn then
 		stepRing(m, px)
@@ -304,8 +360,8 @@ end
 -- says so (a re-pop: the bigger event) or quietly downgrading it.
 function HitFeedback.hit(headshot: boolean)
 	local m = hitMarker
-	if not m then
-		return
+	if not m or SettingsApply.get("hmEnabled") == false then
+		return -- (Settings SHOW HITMARKERS off)
 	end
 	local head = HitFx.MARKER.Head
 	if
@@ -328,7 +384,7 @@ end
 -- A kill: nothing extra by default (HitFx.KILL_MARKER); when on, bigger red
 -- wedges and a ring over the hit marker.
 function HitFeedback.kill()
-	if killMarker and HitFx.KILL_MARKER then
+	if killMarker and HitFx.KILL_MARKER and SettingsApply.get("hmEnabled") ~= false then
 		popMarker(killMarker, HitFx.MARKER.Kill)
 		killMarker.size = HitFx.DAMAGE_SCALE.max
 		killMarker.targetSize = HitFx.DAMAGE_SCALE.max

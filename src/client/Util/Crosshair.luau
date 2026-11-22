@@ -176,7 +176,8 @@ function Crosshair.step(
 	stepSpring(kickSpring, dt)
 	-- Whole degrees (RIVALS rounds too): fewer half-pixel edges while it turns.
 	local shownTilt = Crosshair.tilt()
-	local show = wanted or (aiming == true and c.showWhileAiming)
+	-- SHOW WHILE AIMING: the callers hide it on ADS, so the aim blend decides
+	local show = wanted or ((aiming == true or aimBlend > 0.05) and c.showWhileAiming)
 	alpha += ((if show then 1 else 0) - alpha) * (1 - math.exp(-c.fadeRate * dt))
 	r.Visible = alpha > 0.02
 	if not r.Visible then

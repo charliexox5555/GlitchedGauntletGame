@@ -21,6 +21,9 @@ local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
 local AimVignette = require(script.Parent.Parent.Util.AimVignette)
 local Crosshair = require(script.Parent.Parent.Util.Crosshair)
+local CrosshairSettings = require(script.Parent.Parent.Util.CrosshairSettings)
+local Watched = require(script.Parent.Parent.Util.Watched)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local DamageIndicator = require(script.Parent.Parent.Util.DamageIndicator)
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 local KillFeed = require(script.Parent.Parent.Util.KillFeed)
@@ -231,6 +234,31 @@ function HudController.flinch(sourcePosition: Vector3, amount: number)
 	hitPulse = math.max(hitPulse, math.min(f.pulse + f.pulsePerShare * share, f.pulseMax))
 end
 
+-- Whose crosshair is drawn: yours (Settings CROSSHAIR), or while spectating
+-- the watched player's own (their published Settings; bots: the default).
+local ownRevision = 0
+local drawnFor: Instance? = nil
+local drawnRaw: string? = nil
+local drawnRevision = -1
+
+local function syncCrosshair()
+	local holder = Watched.get()
+	if holder == player then
+		holder = nil
+	end
+	if holder then
+		-- (strings compare by reference: cheap every frame; decoded only on a change)
+		local raw = CrosshairSettings.rawOf(holder)
+		if holder ~= drawnFor or raw ~= drawnRaw then
+			Crosshair.apply(CrosshairSettings.fromValues(CrosshairSettings.decode(raw)))
+			drawnFor, drawnRaw, drawnRevision = holder, raw, -1
+		end
+	elseif drawnFor ~= nil or drawnRevision ~= ownRevision then
+		Crosshair.apply(CrosshairSettings.fromValues(SettingsApply.values()))
+		drawnFor, drawnRaw, drawnRevision = nil, nil, ownRevision
+	end
+end
+
 -- Loop -------------------------------------------------------------------------
 
 local function update(dt: number)
@@ -239,6 +267,7 @@ local function update(dt: number)
 	if not r or not cam then
 		return
 	end
+	syncCrosshair()
 	-- Crosshair: the gap follows the spread cone and opens on a sprint; it
 	-- fades for ADS.
 	Crosshair.step(dt, spreadDegrees, crosshairWanted, nil, crosshairSprint)
@@ -293,6 +322,9 @@ function HudController.init()
 end
 
 function HudController.start()
+	SettingsApply.changed:Connect(function()
+		ownRevision += 1
+	end)
 	RunService.RenderStepped:Connect(update)
 	Net.event("Killed").OnClientEvent:Connect(KillFeed.kill)
 	if RunService:IsStudio() then
