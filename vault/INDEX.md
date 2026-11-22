@@ -70,6 +70,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Maps/Overnight Run 2026-11-16.md` (6): all 13 release maps built overnight: method, origins, incident and repair, status table (layout, greybox, kit, grade), checks, builder additions
 - `01 Design/Maps/Map Lineup Brainstorm 2026-11-16.md` (7): why RIVALS maps work (10 points with numbers), our extra needs (slide, Mods), a 12-map proposed lineup with duel/big pairs and a launch set of 6, owner questions
 - `01 Design/Maps/<Name>.md` and `<Name>2.md`: layout, callouts, props and build log per map. Original: Whitebox (15), Big Whitebox (2), Rooftops (19), Dockyard (21), Metro (24), Old Town (26), Bunker (24), Greenhouse (19), Snowpeak Lodge (20). Rebuilds to the standard: Rooftops2 (94), Dockyard2 (75), Metro2 (33), OldTown2 (10), Bunker2 (14), Greenhouse2 (25), Snowpeak2 (15)
+- `01 Design/Shop Economy and Art v1.md` (12): **Shop economy + art plan** (2026-11-22): Coins + earn-only Tickets (cases), skin prices by tier, daily shop rotation, login calendar, coin pack ladder, bundle prices, detail menu, banner art plan, Roblox paid-random-item rules, build order
 
 ## Art (02 Art)
 - `02 Art/Art Direction.md` (16): style rules, palette, model standard, Blender → Open Cloud → WeaponBuilder import pipeline
