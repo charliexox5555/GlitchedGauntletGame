@@ -462,10 +462,13 @@ local function layout()
 	if box.X <= 0 then
 		return
 	end
+	-- TopbarInset is in screen pixels, AbsolutePosition is measured from below
+	-- Roblox's top bar (GetGuiInset): convert, or the row lands a bar lower.
+	local guiTop = GuiService:GetGuiInset()
 	local function place(name: string, centre: Vector2)
 		local b = topLeft:FindFirstChild(name)
 		if b and b:IsA("GuiObject") then
-			local p = (centre - topLeft.AbsolutePosition) / box
+			local p = (centre - guiTop - topLeft.AbsolutePosition) / box
 			b.Position = UDim2.fromScale(p.X, p.Y)
 		end
 	end

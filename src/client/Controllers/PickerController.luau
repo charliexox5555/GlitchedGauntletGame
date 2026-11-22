@@ -254,12 +254,14 @@ local function build(): ScreenGui
 		end
 	end
 
-	-- Touch: a small GUNS button, linked to the WeaponPicker action.
+	-- Touch: a small GUNS button, linked to the WeaponPicker action. It sits
+	-- in the test-tool row under the scoreboard / inspect buttons (GUNS, TEST,
+	-- SKINS), clear of the touch controls on the right.
 	if UserInputService.TouchEnabled then
 		local b = make("TextButton", {
 			Name = "PickerButton",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -16, 0, 56),
+			AnchorPoint = Vector2.new(0, 0),
+			Position = UDim2.fromOffset(12, 100),
 			Size = UDim2.fromOffset(64, 32),
 			BackgroundColor3 = BACK,
 			BackgroundTransparency = 0.4,

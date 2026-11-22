@@ -52,8 +52,13 @@ function SkinPreviewController.start()
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 18
 
-	local toggle = button(gui, "OpenSkins", UDim2.fromOffset(190, 34), UDim2.new(1, -18, 0.63, 0))
-	toggle.AnchorPoint = Vector2.new(1, 1)
+	-- On touch it joins the test-tool row (GUNS, TEST, SKINS) under the
+	-- scoreboard / inspect buttons, clear of the fire button; no key hint.
+	local touch = UserInputService.TouchEnabled
+	local toggle = if touch
+		then button(gui, "OpenSkins", UDim2.fromOffset(86, 32), UDim2.fromOffset(156, 42))
+		else button(gui, "OpenSkins", UDim2.fromOffset(190, 34), UDim2.new(1, -18, 0.63, 0))
+	toggle.AnchorPoint = if touch then Vector2.zero else Vector2.new(1, 1)
 
 	local overlay = button(gui, "CloseOnOutsideClick", UDim2.fromScale(1, 1), UDim2.fromScale(0, 0))
 	overlay.BackgroundTransparency = 1
@@ -122,7 +127,7 @@ function SkinPreviewController.start()
 	end
 	local function refresh()
 		local current = Preview.line()
-		toggle.Text = "Skins · " .. current .. "   [;]"
+		toggle.Text = if touch then "SKINS" else "Skins · " .. current .. "   [;]"
 		for line, row in rows do
 			local selected = current == line
 			row.Text = if selected then "✓   " .. line else line

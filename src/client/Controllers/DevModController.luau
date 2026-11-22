@@ -376,13 +376,14 @@ local function build(): TextButton
 		Text = "",
 	}, panel)
 
-	-- Touch: a small TEST button under the GUNS button (above the panel's
-	-- backdrop, so it closes the panel too), linked to the DevPanel action.
+	-- Touch: a small TEST button beside the GUNS button in the test-tool row
+	-- (above the panel's backdrop, so it closes the panel too), linked to the
+	-- DevPanel action.
 	if UserInputService.TouchEnabled then
 		local b = make("TextButton", {
 			Name = "DevPanelButton",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -16, 0, 96),
+			AnchorPoint = Vector2.new(0, 0),
+			Position = UDim2.fromOffset(84, 100),
 			Size = UDim2.fromOffset(64, 32),
 			BackgroundColor3 = BACK,
 			BackgroundTransparency = 0.4,
