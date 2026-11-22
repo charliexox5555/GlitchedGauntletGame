@@ -222,6 +222,9 @@ local function tearUi(): ScreenGui
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "ReconSpikeTear"
 	gui.IgnoreGuiInset = true
+	gui.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
+	gui.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	gui.ClipToDeviceSafeArea = false
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 20
 	gui.Enabled = false

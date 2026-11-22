@@ -168,6 +168,9 @@ local function screenEdge(): ImageLabel
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HealScreen"
 	gui.IgnoreGuiInset = true
+	gui.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
+	gui.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	gui.ClipToDeviceSafeArea = false
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 2
 	gui.Parent = player:WaitForChild("PlayerGui")

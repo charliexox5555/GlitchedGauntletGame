@@ -20,6 +20,8 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 
+local UiLayout = require(script.Parent.UiLayout)
+
 local UiRoot = {}
 
 export type Group = "Lobby" | "Match"
@@ -116,6 +118,7 @@ function UiRoot.mount(group: Group, playerGui: Instance): { ScreenGui }
 		copy.ResetOnSpawn = false
 		UiRoot.applyLayer(copy)
 		copy.Parent = playerGui
+		UiLayout.watch(copy) -- per-device overrides (Shared/UiLayout)
 		table.insert(made, copy)
 	end
 	return made

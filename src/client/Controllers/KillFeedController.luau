@@ -20,7 +20,6 @@ local Mods = require(ReplicatedStorage.Shared.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
-local Device = require(script.Parent.Parent.Util.Device)
 local KillFeed = require(script.Parent.Parent.Util.KillFeed)
 local Ui = require(script.Parent.Parent.Util.Ui)
 local WaitGui = require(script.Parent.Parent.Util.WaitGui)
@@ -30,7 +29,6 @@ local KillFeedController = {}
 
 local player = Players.LocalPlayer
 
-local DESIGN = Vector2.new(1920, 1080)
 local ROWS = 4
 local ROW_LIFE = 5 -- seconds a row stays
 local SLIDE = 60 -- design px a row slides in from
@@ -370,32 +368,10 @@ local function onKilled(
 	end
 end
 
--- The old code-built feed and pop (Util/KillFeed, in CombatHud) leave the
--- screen; Util/KillFeed keeps playing the kill sounds.
-local function hideOld()
-	local hud = WaitGui("CombatHud")
-	if not hud then
-		return
-	end
-	for _, name in { "KillFeed", "KillBanner" } do
-		local old = hud:WaitForChild(name, 10)
-		if old then
-			old.Parent = nil
-		end
-	end
-end
-
 local function bind(gui: ScreenGui)
+	-- The screen is Scale (tools/studio/modules/UiToScale); each device's size
+	-- and place come from Shared/UiLayout (phones: the right side, 2x).
 	local canvas = gui:WaitForChild("Canvas") :: Frame
-	local fit = canvas:WaitForChild("Fit") :: UIScale
-	local function refit()
-		local size = gui.AbsoluteSize
-		if size.X > 0 then
-			fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.5, 1.5)
-		end
-	end
-	refit()
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 	feed = canvas:WaitForChild("Feed") :: Frame
 	local holder = canvas:WaitForChild("KillPop") :: Frame
 	local group = holder:WaitForChild("Group") :: CanvasGroup
@@ -423,9 +399,6 @@ local function bind(gui: ScreenGui)
 end
 
 function KillFeedController.start()
-	if Device.compact() then
-		return -- phones keep the old feed for now
-	end
 	task.spawn(function()
 		local gui = WaitGui("KillFeed")
 		if not gui or not gui:IsA("ScreenGui") then
@@ -437,7 +410,6 @@ function KillFeedController.start()
 			roundKills = 0
 			table.clear(watchedKills)
 		end)
-		hideOld()
 	end)
 end
 

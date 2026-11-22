@@ -131,6 +131,9 @@ local function screen(): ScreenGui
 	local made = Instance.new("ScreenGui")
 	made.Name = "WindStrokes"
 	made.IgnoreGuiInset = true
+	made.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
+	made.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	made.ClipToDeviceSafeArea = false
 	made.ResetOnSpawn = false
 	made.DisplayOrder = 3
 	dashPool = newPool(made, "Dash", #DASH.strokes)

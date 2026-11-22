@@ -122,6 +122,15 @@ function NetStats.mount(rightInset: number): ScreenGui
 			BorderSizePixel = 0,
 		}, barBox)
 	end
+	-- Phones: hidden (owner 2026-11-22: it crowds the top-right corner,
+	-- where the touch weapon slots sit). A touch-first device with a short
+	-- side under 640 px.
+	local uis = game:GetService("UserInputService")
+	local camera = workspace.CurrentCamera
+	local view = if camera then camera.ViewportSize else Vector2.new(1920, 1080)
+	if uis.TouchEnabled and not uis.KeyboardEnabled and math.min(view.X, view.Y) < 640 then
+		gui.Enabled = false
+	end
 	gui.Parent = player:WaitForChild("PlayerGui")
 	mounted = gui
 

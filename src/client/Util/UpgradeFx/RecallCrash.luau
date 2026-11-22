@@ -410,6 +410,9 @@ local function build(): Screen
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "RecallCrashScreen"
 	gui.IgnoreGuiInset = true
+	gui.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
+	gui.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	gui.ClipToDeviceSafeArea = false
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 6 -- over the HUD
 	gui.Enabled = false

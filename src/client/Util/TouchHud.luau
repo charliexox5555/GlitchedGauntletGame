@@ -128,11 +128,31 @@ local function draw()
 	end
 end
 
+local loadoutListeners: { () -> () } = {}
+
 function TouchHud.setLoadout(entries: { LoadoutEntry }, held: string?)
 	loadout, equipped = entries, held
 	if TouchHud.active() then
 		draw()
 	end
+	for _, fn in loadoutListeners do
+		task.spawn(fn)
+	end
+end
+
+-- The held gun's id (nil with nothing held).
+function TouchHud.heldWeaponId(): string?
+	for _, e in loadout do
+		if e.slot == equipped then
+			return e.id
+		end
+	end
+	return nil
+end
+
+-- Calls `fn` whenever the loadout or the held slot changes.
+function TouchHud.onLoadout(fn: () -> ())
+	table.insert(loadoutListeners, fn)
 end
 
 function TouchHud.setAmmo(ammo: number, magSize: number, reserve: number?)

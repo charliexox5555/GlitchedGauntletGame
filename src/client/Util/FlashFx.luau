@@ -83,6 +83,9 @@ local function build(): ScreenGui
 	local made = Instance.new("ScreenGui")
 	made.Name = "FlashBlind"
 	made.IgnoreGuiInset = true
+	made.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
+	made.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	made.ClipToDeviceSafeArea = false
 	made.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	made.ResetOnSpawn = false
 	made.DisplayOrder = 60 -- over the HUD

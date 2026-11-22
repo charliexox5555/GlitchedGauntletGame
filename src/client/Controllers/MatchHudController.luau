@@ -32,7 +32,6 @@ local TICK = 0.1 -- seconds between refreshes
 local FIGHT_MESSAGE_TIME = 1.2 -- seconds "FIGHT" stays up
 local SUDDEN_DEATH_MESSAGE_TIME = 2.5 -- seconds "SUDDEN DEATH" stays up
 local RESET_TRIES = 10
-local DESIGN = Vector2.new(1920, 1080)
 
 export type Tone = "neutral" | "ally" | "enemy" | "gold" | "danger"
 local TONE: { [Tone]: Color3 } = {
@@ -63,7 +62,7 @@ type Ui = {
 	title: TextLabel,
 	titleShadow: TextLabel,
 	sub: TextLabel,
-	width: number,
+	full: UDim2, -- the band's open size (Scale)
 	shown: string,
 	token: number,
 }
@@ -107,22 +106,15 @@ local function bind(): Ui
 		title = band:WaitForChild("Title") :: TextLabel,
 		titleShadow = band:WaitForChild("Shadow") :: TextLabel,
 		sub = band:WaitForChild("Sub") :: TextLabel,
-		width = band.Size.X.Offset,
+		full = band.Size,
 		shown = "",
 		token = 0,
 	}
 	band.Visible = false
 	band.GroupTransparency = 1
 
-	-- One UIScale keeps the 1920 x 1080 layout proportional on other screens.
-	local function refit()
-		local size = gui.AbsoluteSize
-		if size.X > 0 and size.Y > 0 then
-			ui.fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.6, 1.5)
-		end
-	end
-	refit()
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+	-- The band is Scale (tools/studio/modules/UiToScale); each device's size
+	-- and place come from Shared/UiLayout.
 	return ui
 end
 
@@ -139,13 +131,17 @@ local function show(ui: Ui, kicker: string, title: string, sub: string, tone: To
 	ui.shown = title
 	ui.token += 1
 	local token = ui.token
-	local height = ui.band.Size.Y.Offset
+	-- Open / close from the middle in Scale (the screen is Scale now).
+	local full = ui.full
+	local function across(k: number): UDim2
+		return UDim2.new(full.X.Scale * k, full.X.Offset * k, full.Y.Scale, full.Y.Offset)
+	end
 	if title == "" then
 		-- Out: the band closes toward its middle and fades.
 		tween(
 			ui.band,
 			0.22,
-			{ Size = UDim2.fromOffset(ui.width * 0.6, height), GroupTransparency = 1 },
+			{ Size = across(0.6), GroupTransparency = 1 },
 			Enum.EasingStyle.Quad,
 			Enum.EasingDirection.In
 		)
@@ -162,9 +158,9 @@ local function show(ui: Ui, kicker: string, title: string, sub: string, tone: To
 	if was == "" then
 		-- In: the band opens from its middle and fades in.
 		ui.band.Visible = true
-		ui.band.Size = UDim2.fromOffset(ui.width * 0.4, height)
+		ui.band.Size = across(0.4)
 		ui.band.GroupTransparency = 1
-		tween(ui.band, 0.32, { Size = UDim2.fromOffset(ui.width, height), GroupTransparency = 0 })
+		tween(ui.band, 0.32, { Size = full, GroupTransparency = 0 })
 	else
 		-- A new message in the open band: the words dip and come back.
 		ui.band.GroupTransparency = 0.5

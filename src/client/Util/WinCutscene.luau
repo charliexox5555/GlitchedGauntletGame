@@ -569,6 +569,8 @@ local function overlay(): (ScreenGui, Frame, { Frame })
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "WinCutscene"
 	gui.IgnoreGuiInset = true
+	gui.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	gui.ClipToDeviceSafeArea = false
 	gui.ScreenInsets = Enum.ScreenInsets.None
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 5

@@ -2,8 +2,8 @@
 -- Combat HUD (Gunplay.md §5): a dynamic crosshair, hit markers and damage
 -- numbers (Util/HitFeedback), ammo + reload, health and shield in the UI v1
 -- look (vault/02 Art/UI Design.md), a low-HP vignette, the damage direction
--- (the touch controls are TouchController). The kill feed and kill banner are
--- Util/KillFeed.
+-- (the touch controls are TouchController). The kill feed is KillFeedController;
+-- Util/KillFeed plays the kill sounds.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -86,6 +86,9 @@ local function build(): Refs
 	local gui = make("ScreenGui", {
 		Name = "CombatHud",
 		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None, -- full-bleed overlays, under the notch too
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
+		ClipToDeviceSafeArea = false,
 		ResetOnSpawn = false,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 	}, player:WaitForChild("PlayerGui"))
@@ -530,7 +533,6 @@ end
 function HudController.init()
 	refs = build()
 	HitFeedback.build((refs :: Refs).gui)
-	KillFeed.build((refs :: Refs).gui)
 	-- The Studio-built bottom HUD (desktop) replaces the old health and ammo panels.
 	BottomHud.start()
 	BottomHud.onActive(function()

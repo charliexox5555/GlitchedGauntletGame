@@ -13,6 +13,7 @@ local InputController = {}
 
 local context: InputContext? = nil
 local actions: { [string]: InputAction } = {}
+local touchBindings: { [InputAction]: InputBinding } = {}
 
 -- Clean press / release edges per action. An action with a touch-button
 -- binding as well as keys can fire Pressed twice for one press (measured in
@@ -91,16 +92,36 @@ end
 function InputController.bindTouchButtons(root: Instance)
 	for name, b in Bindings do
 		local action = actions[name]
-		if b.touch and action and not action:FindFirstChild("Touch_" .. b.touch) then
+		if b.touch and action then
 			local button = root:FindFirstChild(b.touch, true)
 			if button and button:IsA("GuiButton") then
+				local bindingName = "Touch_" .. b.touch
+				local old = action:FindFirstChild(bindingName)
+				if old and old:IsA("InputBinding") and old.UIButton == button then
+					touchBindings[action] = old
+					continue
+				end
+				if old then
+					old:Destroy()
+				end
 				local binding = Instance.new("InputBinding")
-				binding.Name = "Touch_" .. b.touch
+				binding.Name = bindingName
 				binding.UIButton = button
 				binding.Parent = action
+				touchBindings[action] = binding
 			end
 		end
 	end
+end
+
+function InputController.clearTouchButtons(release: boolean)
+	for action, binding in touchBindings do
+		binding:Destroy()
+		if release and action:GetState() == true then
+			action:Fire(false)
+		end
+	end
+	table.clear(touchBindings)
 end
 
 function InputController.setEnabled(enabled: boolean)

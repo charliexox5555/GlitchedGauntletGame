@@ -17,6 +17,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
@@ -208,15 +209,43 @@ function TopBarController.start()
 	end
 	local sides: { [string]: Side } = { ally = side("AllyTeam"), enemy = side("EnemyTeam") }
 
-	-- One UIScale keeps the 1920 x 1080 layout proportional on other screens.
+	-- The bar sizes to the team sizes, so it keeps its 1080p pixel design and
+	-- one UIScale fits it to the screen (vault/04 Tech/UI Architecture.md §5):
+	--   * desktop / console: the screen height / 1080 (and never wider than
+	--     the screen), with no floor: a floor is what pushed UI off phones;
+	--   * phones (touch): 11.5% of the height, capped so the bar clears
+	--     Roblox's buttons and Settings on the left and the weapon slots on
+	--     the right (vault/02 Art/UI Mobile Controls.md, mockup v2), and the
+	--     ROUND / tier line under the clock hides (it drew at 5-7 px).
+	local infoLine = root:FindFirstChild("Info", true)
+	local clockPosition = if clock and clock:IsA("GuiObject") then clock.Position else nil
+	local clockAnchor = if clock and clock:IsA("GuiObject") then clock.AnchorPoint else nil
 	local function refit()
 		local size = gui.AbsoluteSize
-		if size.X > 0 and size.Y > 0 then
-			fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.6, 1.5)
+		if size.X <= 0 or size.Y <= 0 then
+			return
+		end
+		local phone = UiLayout.family() == "Phone"
+		local width = bar.AbsoluteSize.X / math.max(fit.Scale, 0.01)
+		local scale = size.Y / DESIGN.Y
+		if phone then
+			local reserved = 0.46 * size.Y + 8
+			scale = math.min(0.115 * size.Y / 80, (size.X - 2 * reserved) / math.max(width, 1))
+		end
+		fit.Scale = math.min(scale, size.X * 0.96 / math.max(width, 1))
+		if infoLine and infoLine:IsA("GuiObject") then
+			infoLine.Visible = not phone
+		end
+		if clock and clock:IsA("GuiObject") and clockPosition and clockAnchor then
+			clock.AnchorPoint = if phone then Vector2.new(clockAnchor.X, 0.5) else clockAnchor
+			clock.Position = if phone
+				then UDim2.new(clockPosition.X.Scale, clockPosition.X.Offset, 0.5, 0)
+				else clockPosition
 		end
 	end
 	refit()
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+	bar:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	-- The soft shadow follows the bar's width (the bar grows with the team sizes).
 	local function fitShadow()

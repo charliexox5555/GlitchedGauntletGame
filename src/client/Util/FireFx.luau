@@ -659,6 +659,9 @@ local function cornerLabels(): { ImageLabel }
 	local made = Instance.new("ScreenGui")
 	made.Name = "FireCorners"
 	made.IgnoreGuiInset = true
+	made.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
+	made.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	made.ClipToDeviceSafeArea = false
 	made.ResetOnSpawn = false
 	made.DisplayOrder = 5
 	made.Enabled = false

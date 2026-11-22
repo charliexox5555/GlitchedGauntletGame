@@ -387,6 +387,9 @@ local function buildUi()
 		Name = "Replay",
 		ResetOnSpawn = false,
 		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None, -- full-bleed overlays, under the notch too
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
+		ClipToDeviceSafeArea = false,
 		DisplayOrder = 20,
 		Enabled = false,
 	}, player:WaitForChild("PlayerGui"))

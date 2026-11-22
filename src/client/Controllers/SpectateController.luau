@@ -297,6 +297,9 @@ local function buildUi()
 		Name = "Spectate",
 		ResetOnSpawn = false,
 		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None, -- full-bleed overlays, under the notch too
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
+		ClipToDeviceSafeArea = false,
 		DisplayOrder = 5,
 	}, player:WaitForChild("PlayerGui"))
 	local holder = Ui.make("Frame", {
