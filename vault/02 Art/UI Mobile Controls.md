@@ -94,6 +94,29 @@ Tablet: the same layout; sizes are in screen-height units, so it scales by itsel
 - Double tap to fire.
 - Camera through buttons.
 
+### Build v1 results (2026-11-22, phone emulator)
+**Tested live:**
+- The TOUCH tab works on phones, with INSPECT beside the list.
+- EDIT opens the editor. The lobby HUD steps aside, and the preview shows the saved layout.
+- Dragging moves a button 1:1. The size buttons step by 10%, and HIDE fades a hidden group to 25% in the editor.
+- DONE saves through SettingsService; the published Settings value showed `touchLayout1 = { FireButton = {0.638, 0.519, 1.2} }` and `touchAimOn = false`.
+- Backing out of Settings cancels the editor and restores the HUD.
+
+**Checked on a copy of `UI.Match.Touch`:** the range entrance now says "opens in a later update", so the match HUD couldn't load in the lobby. `TouchLayout.refresh` with the saved settings put Fire at the saved spot and size, and hid Aim. Left-handed mirrors the stick zone, the button clusters and the health bar.
+
+**Fixed while testing:**
+- The bar plates are dark, the active profile white, DONE gold.
+- `LobbyKit.button` wraps buttons in same-named holders (`Util/Pivot`); the editor now looks inside them.
+- The settings gear is hidden in the preview.
+- The wash reaches past the safe area.
+
+**Test data reset:** my test layout was cleared from the owner's account again.
+
+**Still to do:**
+- Double tap to fire and camera-through-buttons (they save, but do nothing yet).
+- Editing from inside a match (the match has no settings screen yet).
+- A test on a real phone.
+
 ## 6. Owner questions
 1. **Stick:** our own floating stick (full control of the look, recommended), or Roblox's dynamic thumbstick like RIVALS (hide its start marker, can't restyle much)?
 2. **Sprint toggle:** a SPRINT button, a stick-push lock, or both (recommended: both; the lock can be turned off)?

@@ -29,7 +29,7 @@ local GAP = 8 -- px between Roblox's buttons and ours
 local ROW_TUCK = 4 -- px the row under Roblox's buttons tucks into the top bar's margin
 local STICK_SIDE = 0.27 -- the floating stick's size (× the screen height)
 -- mirrored for left-handed play (their own spot, and their children's x)
-local MIRROR_GROUPS = { "StickZone", "LeftCluster", "RightCluster" }
+local MIRROR_GROUPS = { "StickZone", "LeftCluster", "RightCluster", "Health" } -- the health bar swaps with the buttons
 local MIRROR_INNER = { "Mods" } -- full-size frames inside a cluster: mirror their children too
 
 -- The objects a layout can move, found once per root.

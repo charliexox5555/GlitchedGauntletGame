@@ -32,6 +32,7 @@ type Session = {
 	selected: string?,
 	drag: { input: InputObject, start: Vector2, centre: Vector2 }?,
 	conns: { RBXScriptConnection },
+	hidden: { ScreenGui }, -- lobby screens put away while editing
 	onDone: (changes: Values?) -> (),
 }
 
@@ -104,6 +105,10 @@ end
 local function barButton(s: Session, name: string): TextButton?
 	local row = s.bar:FindFirstChild("Row", true)
 	local b = row and row:FindFirstChild(name)
+	-- LobbyKit.button wraps a button in a same-named holder (Util/Pivot)
+	if b and not b:IsA("TextButton") then
+		b = b:FindFirstChild(name)
+	end
 	return if b and b:IsA("TextButton") then b else nil
 end
 
@@ -287,6 +292,11 @@ local function finish(changes: Values?)
 	end
 	s.preview:Destroy()
 	s.bar.Enabled = false
+	for _, g in s.hidden do
+		if g.Parent then
+			g.Enabled = true
+		end
+	end
 	local ring = s.bar:FindFirstChild("Selection")
 	if ring and ring:IsA("GuiObject") then
 		ring.Visible = false
@@ -334,10 +344,14 @@ function TouchEditor.open(values: Values, onDone: (changes: Values?) -> ())
 	UiRoot.applyLayer(preview)
 	preview.DisplayOrder = 90
 	preview.Enabled = true
-	-- a dark wash so it reads as edit mode (under the buttons)
+	-- a dark wash so it reads as edit mode (under the buttons), past the
+	-- safe area to the screen's edges
+	preview.ClipToDeviceSafeArea = false
 	local wash = Instance.new("Frame")
 	wash.Name = "EditWash"
-	wash.Size = UDim2.fromScale(1, 1)
+	wash.AnchorPoint = Vector2.new(0.5, 0.5)
+	wash.Position = UDim2.fromScale(0.5, 0.5)
+	wash.Size = UDim2.fromScale(1.6, 1.6)
 	wash.BackgroundColor3 = Color3.new(0, 0, 0)
 	wash.BackgroundTransparency = 0.45
 	wash.ZIndex = 0
@@ -345,9 +359,18 @@ function TouchEditor.open(values: Values, onDone: (changes: Values?) -> ())
 	for _, d in preview:GetDescendants() do
 		if d:IsA("GuiButton") then
 			d.Interactable = false
-			d.Visible = true
+			-- the gear isn't on the match HUD (no match settings yet)
+			d.Visible = d.Name ~= "SettingsButton"
 		elseif d.Name == "AmmoReadout" and d:IsA("GuiObject") then
 			d.Visible = true
+		end
+	end
+	-- the lobby HUD (player board, bar, coins) steps aside
+	local hidden: { ScreenGui } = {}
+	for _, g in pg:GetChildren() do
+		if g:IsA("ScreenGui") and g.Enabled and g ~= bar then
+			g.Enabled = false
+			table.insert(hidden, g)
 		end
 	end
 	preview.Parent = pg
@@ -360,6 +383,7 @@ function TouchEditor.open(values: Values, onDone: (changes: Values?) -> ())
 		selected = nil,
 		drag = nil,
 		conns = {},
+		hidden = hidden,
 		onDone = onDone,
 	}
 	session = s
@@ -369,6 +393,15 @@ function TouchEditor.open(values: Values, onDone: (changes: Values?) -> ())
 		local b = barButton(s, name)
 		if b then
 			Plates.finish(b)
+			-- dark plates like the Settings tabs; DONE is the one gold action
+			setLabel(b, nil, false)
+			if name == "Done" then
+				b.BackgroundColor3 = C.gold
+				local label = b:FindFirstChild("Label")
+				if label and label:IsA("TextLabel") then
+					label.TextColor3 = C.ink
+				end
+			end
 			for _, c in LobbyKit.button(b, fn) do
 				table.insert(s.conns, c)
 			end
