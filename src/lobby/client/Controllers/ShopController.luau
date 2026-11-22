@@ -844,8 +844,8 @@ local function open(arg: any?)
 		wash.BackgroundTransparency = 1
 		tween(wash, 0.25, { BackgroundTransparency = 0.3 })
 	end
-	scroll.Position = UDim2.fromOffset(960, 36)
-	tween(scroll, 0.4, { Position = UDim2.fromOffset(960, 0) })
+	scroll.Position = UDim2.new(0.5, 0, 0, 36) -- the canvas is a fit canvas: centred
+	tween(scroll, 0.4, { Position = UDim2.new(0.5, 0, 0, 0) })
 	setTab(wanted, true)
 	updateDaily()
 	task.spawn(function()
@@ -871,7 +871,7 @@ local function close()
 	if wash and wash:IsA("Frame") then
 		tween(wash, 0.16, { BackgroundTransparency = 1 }, QUINT, IN)
 	end
-	tween(scroll, 0.16, { Position = UDim2.fromOffset(960, 24) }, QUINT, IN)
+	tween(scroll, 0.16, { Position = UDim2.new(0.5, 0, 0, 24) }, QUINT, IN)
 	task.delay(0.18, function()
 		if openToken == my and not isOpen then
 			gui.Enabled = false

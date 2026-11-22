@@ -15,6 +15,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local UserInputService = game:GetService("UserInputService")
 
@@ -147,9 +148,11 @@ local function fmt(row: Row, v: number): string
 	return s .. (row.unit or "")
 end
 
--- canvas design px of a point on screen (the canvas is scaled to fit)
+-- canvas design px of a point on screen (the canvas is scaled to fit; a fit
+-- canvas, Shared/UiLayout, isn't 1920 design px wide, so use its Fit scale)
 local function toCanvas(p: Vector2): Vector2
-	local k = canvas.AbsoluteSize.X / DESIGN.X
+	local fit = canvas:FindFirstChild("Fit")
+	local k = if fit and fit:IsA("UIScale") then fit.Scale else canvas.AbsoluteSize.X / DESIGN.X
 	return (p - canvas.AbsolutePosition) / math.max(k, 1e-3)
 end
 
@@ -948,8 +951,12 @@ renderTab = function(i: number, keepScroll: boolean?)
 	end
 	local tab = Settings.TABS[i]
 	local wide = tab.id == "keybinds"
-	inspect.Visible = not wide
-	list.Size = UDim2.fromOffset(if wide then LIST_WIDE else LIST_W, 740)
+	-- Phones: no INSPECT panel (too little room); the list is centred
+	-- (Studio PhonePosition) and runs the canvas's full height.
+	local phone = UiLayout.family() == "Phone"
+	inspect.Visible = not wide and not phone
+	local width = if wide then LIST_WIDE else LIST_W
+	list.Size = if phone then UDim2.new(0, width, 1, -176) else UDim2.fromOffset(width, 740)
 	preview.Visible = i == CROSSHAIR_TAB
 
 	local order = 0

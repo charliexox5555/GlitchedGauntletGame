@@ -284,6 +284,9 @@ local function flash(color: Color3, strength: number)
 	local g = Instance.new("ScreenGui")
 	g.Name = "CaseFlash"
 	g.IgnoreGuiInset = true
+	g.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
+	g.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	g.ClipToDeviceSafeArea = false
 	g.DisplayOrder = 5
 	g.ResetOnSpawn = false
 	local f = Instance.new("Frame")

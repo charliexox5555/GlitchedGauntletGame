@@ -80,10 +80,13 @@ local RETURN_TIME = 1.2 -- letting go: the ease back to the pose
 local WOBBLE_BOB = 0.05 -- studs
 local WOBBLE_YAW, WOBBLE_PITCH, WOBBLE_ROLL = math.rad(3.2), math.rad(1.6), math.rad(1.2)
 local ZOOM_MIN, ZOOM_MAX = 0.75, 1.3
--- where the gun sits on screen in each view (canvas x, y): the middle of the
--- free area; the camera slides so the gun's centre lands there
-local MAIN_SPOT = Vector2.new(1240, 520)
-local TRAY_SPOT = Vector2.new(960, 380)
+-- where the gun sits on screen in each view: design px from the canvas's
+-- centre (the canvas is a fit canvas, Shared/UiLayout, so it is as wide as the
+-- screen and its groups hug its edges or centre); the camera slides so the
+-- gun's centre lands there (owner 2026-11-22: on a phone the gun sat off its
+-- spot and the gun list showed beside the skins)
+local MAIN_SPOT = Vector2.new(280, -20)
+local TRAY_SPOT = Vector2.new(0, -160)
 local TRAY_ZOOM = 1.3 -- the skins view pulls back so the gun clears the title
 -- the floor shadow sits this far under the gun's centre (canvas px at zoom 1)
 local FLOOR_DROP = 190
@@ -123,6 +126,7 @@ local gunCards: { [string]: GuiButton } = {}
 -- stage
 local stageView: ViewportFrame? = nil
 local stageLight: ImageLabel? = nil -- Backdrop.BackCanvas.Light
+local backCanvas: Frame? = nil -- Backdrop.BackCanvas (the floor shadow's frame)
 local stageCam: Camera? = nil
 local gunOnStand: Model? = nil
 local standPos = Vector3.zero
@@ -266,13 +270,39 @@ local function poseCFrame(): CFrame
 end
 
 -- The camera position that puts the gun's centre at canvas point `spot`.
+-- A spot (design px from the canvas centre) on the screen (absolute px), and
+-- the canvas's design-px-to-screen-px factor.
+local function spotOnScreen(spot: Vector2): (Vector2, number)
+	local fit = canvas and canvas:FindFirstChild("Fit")
+	local factor = if fit and fit:IsA("UIScale") then fit.Scale else 1
+	if not canvas then
+		return spot, factor
+	end
+	return canvas.AbsolutePosition + canvas.AbsoluteSize / 2 + spot * factor, factor
+end
+
 local function cameraFor(spot: Vector2, zoom: number): CFrame
-	local dist = (cameraHome.Position - standPos).Magnitude * zoom
+	-- where the spot is in the stage view (it covers the whole screen, the
+	-- canvas only the part under Roblox's top bar), and the view's own shape
+	local fx, fy = 0.5 + spot.X / DESIGN.X, 0.5 + spot.Y / DESIGN.Y
+	local aspect, k = DESIGN.X / DESIGN.Y, 1
+	local view = stageView
+	if view and view.AbsoluteSize.X > 0 and view.AbsoluteSize.Y > 0 then
+		local p, factor = spotOnScreen(spot)
+		local vs = view.AbsoluteSize
+		fx = (p.X - view.AbsolutePosition.X) / vs.X
+		fy = (p.Y - view.AbsolutePosition.Y) / vs.Y
+		aspect = vs.X / vs.Y
+		-- the gun keeps its size next to the UI: a view taller than the
+		-- canvas pulls the camera back
+		k = vs.Y / math.max(DESIGN.Y * factor, 1)
+	end
+	local dist = (cameraHome.Position - standPos).Magnitude * zoom * k
 	local halfH = dist * math.tan(math.rad(FOV / 2))
-	local halfW = halfH * (DESIGN.X / DESIGN.Y)
-	-- canvas px -> offset from the view centre, in studs at the gun's distance
-	local dx = (spot.X / DESIGN.X - 0.5) * 2 * halfW
-	local dy = (spot.Y / DESIGN.Y - 0.5) * 2 * halfH
+	local halfW = halfH * aspect
+	-- screen fraction -> offset from the view centre, in studs at the gun's distance
+	local dx = (fx - 0.5) * 2 * halfW
+	local dy = (fy - 0.5) * 2 * halfH
 	local rot = cameraHome.Rotation
 	local pos = standPos - rot.LookVector * dist - rot.RightVector * dx + rot.UpVector * dy
 	return CFrame.new(pos) * rot
@@ -334,8 +364,14 @@ local function onRender(dt: number)
 		cam.CFrame = cam.CFrame:Lerp(goal, 1 - math.exp(-dt * 10))
 		-- the floor shadow follows the gun's spot and shrinks as it pulls back
 		local z = math.max(zoomValue.Value, 0.5)
-		floorShadow.Position = UDim2.fromOffset(s.X, s.Y + FLOOR_DROP / z)
-		floorShadow.Size = UDim2.fromOffset(520 / z, 44 / z)
+		-- the same screen point, in the back canvas's own design px
+		local p, factor = spotOnScreen(Vector2.new(s.X, s.Y))
+		local back = backCanvas
+		local bf = if back and back.AbsoluteSize.Y > 0 then back.AbsoluteSize.Y / DESIGN.Y else 1
+		local at = if back then (p - back.AbsolutePosition) / bf else p
+		local k = factor / bf
+		floorShadow.Position = UDim2.fromOffset(at.X, at.Y + FLOOR_DROP / z * k)
+		floorShadow.Size = UDim2.fromOffset(520 / z * k, 44 / z * k)
 	end
 end
 
@@ -689,9 +725,33 @@ local function moveName(x: number)
 		local g = canvas:FindFirstChild(n)
 		if g and g:IsA("GuiObject") then
 			local h = home(g)
-			tween(g, 0.45, { Position = UDim2.fromOffset(x, h.Y.Offset) })
+			tween(g, 0.45, { Position = UDim2.new(0.5, x, h.Y.Scale, h.Y.Offset) })
 		end
 	end
+end
+
+-- The skins view: the gun goes in the middle of the free band between the
+-- name block and the tray, pulled back to fit it (a phone's canvas is
+-- shorter than 1080, so a fixed spot ran into the title).
+local TRAY_FREE = 498 -- design px of that band on a 1920 x 1080 canvas
+local function trayView(): (Vector2, number)
+	local fit = canvas:FindFirstChild("Fit")
+	local factor = if fit and fit:IsA("UIScale") and fit.Scale > 0 then fit.Scale else 1
+	local h = canvas.AbsoluteSize.Y / factor
+	if h <= 0 then
+		return TRAY_SPOT, TRAY_ZOOM
+	end
+	local function y(o: GuiObject, edge: number): number
+		local at = home(o)
+		local size = o.Size.Y.Scale * h + o.Size.Y.Offset
+		return at.Y.Scale * h + at.Y.Offset + (edge - o.AnchorPoint.Y) * size
+	end
+	local tag = canvas:FindFirstChild("SkinTag")
+	local top = if tag and tag:IsA("GuiObject") then y(tag, 1) else 200
+	local bottom = y(tray, 0)
+	local free = math.max(bottom - top, 120)
+	return Vector2.new(0, (top + bottom) / 2 - h / 2),
+		TRAY_ZOOM * math.max(1, TRAY_FREE / free) ^ 0.85
 end
 
 local function setTray(open: boolean)
@@ -716,9 +776,10 @@ local function setTray(open: boolean)
 		tray.Visible = true
 		tray.Position = trayHome + UDim2.fromOffset(0, 340)
 		tween(tray, 0.45, { Position = trayHome })
-		tween(spotValue, 0.6, { Value = Vector3.new(TRAY_SPOT.X, TRAY_SPOT.Y, 0) })
-		tween(zoomValue, 0.6, { Value = TRAY_ZOOM })
-		moveName(TRAY_SPOT.X)
+		local spot, zoom = trayView()
+		tween(spotValue, 0.6, { Value = Vector3.new(spot.X, spot.Y, 0) })
+		tween(zoomValue, 0.6, { Value = zoom })
+		moveName(spot.X)
 	else
 		tween(gunsList, 0.4, { Position = gunsHome })
 		if side and sideHome then
@@ -1009,9 +1070,10 @@ function LockerController.init()
 	gunName = child(canvas, "GunName")
 	skinTag = child(canvas, "SkinTag")
 	soonLabel = child(canvas, "Soon")
-	local backCanvas = child(child(gui, "Backdrop"), "BackCanvas") :: Frame
-	floorShadow = child(backCanvas, "Floor")
-	local light = backCanvas:FindFirstChild("Light")
+	local back = child(child(gui, "Backdrop"), "BackCanvas") :: Frame
+	backCanvas = back
+	floorShadow = child(back, "Floor")
+	local light = back:FindFirstChild("Light")
 	stageLight = if light and light:IsA("ImageLabel") then light else nil
 	templates = UiRoot.templates():WaitForChild("Lobby") :: Folder
 	for _, o in { gunsList, kinds, tray, child(canvas, "GunName"), child(canvas, "SkinTag") } do
@@ -1025,6 +1087,8 @@ function LockerController.init()
 	wipeGui.ResetOnSpawn = false
 	wipeGui.IgnoreGuiInset = true
 	wipeGui.ScreenInsets = Enum.ScreenInsets.None
+	wipeGui.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None
+	wipeGui.ClipToDeviceSafeArea = false
 	wipeGui.DisplayOrder = 60
 	local w = Instance.new("Frame")
 	w.Name = "Wipe"
