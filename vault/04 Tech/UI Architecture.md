@@ -138,3 +138,49 @@ All of them: `IgnoreGuiInset = true`, `ResetOnSpawn = false`, `SafeAreaCompatibi
   - `Theme` / `Ui` v1 kit / `Fx` / `Device` + `Layout` fold into one as their screens are rebuilt; folding them before that would be throwaway work.
   - The `tools/studio/Build*.luau` builders still write to the old homes (StarterGui, MatchScreens, UiTemplates). After running one, move its output into `UI` (or park and store it with UiEdit).
   - `selene src` reports one error from before this change: `Content` is undefined at `PlayMenuController:219`.
+
+### Device pass, parts 1-3 (2026-11-22, after the owner's phone review)
+Owner list: the old phone HUD, kill feed, draft, spectate and ability hints are still old UI; Auto Sprint should hide Sprint; Inspect sat mid-screen; fire and look at once; kill feed on the right; NetStats crowds the corner; buttons need a highlight; ADS only on guns that aim (Classic keeps it as its right click); scope not round on phones; text spills out of boxes (Round · Match Point); damage, cutscene bars and other overlays must cover the whole phone; Shop, Settings etc. go off phone screens; content overlaps Roblox's buttons, but blurred and dimmed backdrops should still cover them.
+
+**How layout works now** (`Shared/UiLayout`, applied by `UiRoot.mount`):
+- **Device families:** Phone, Tablet, Desktop and Console, from size, touch and `PreferredInput`. Studio: `Workspace.GauntletState.ForceLayout` / `ForceTouchUI` StringValues.
+- **Per-device overrides** live as attributes on the same screen (`PhonePosition`, `PhoneSize`, `PhoneScale`, `PhoneVisible`, `PhoneAnchorPoint`, and the same for Tablet and Console), so they can be edited in Studio.
+- **Three ways a screen scales:**
+  - **Scale screens** (`tools/studio/modules/UiToScale`, for fixed layouts): every size and position is Scale; the groups on the screen get a FitWithinMaxSize aspect constraint; text is `TextScaled` with a max of the design size and a min of 11. Used by: KillFeed, Notify.
+  - **Fit canvases** (`UiFitCanvas`, for content-sized HUD screens): the 1080p pixel design stays on a canvas that always covers the screen; the canvas's groups sit on Scale positions; Fit = min(W/1920, H/1080) × `<Family>Boost`. Used by: DeathScreen (phone 1.7×), MatchEndScreen, DraftScreen, Scoreboard, MapVote.
+  - **Every other `Fit` UIScale** (lobby menus and HUD clusters) is owned by UiLayout: min(W/1920, (H − top bar)/1080) × boost, with **no floor**. The old 0.5-0.6 floor is what pushed menus off phones. UiLayout overrides any old controller code that still writes Fit.
+- **Rows that size to their content** (kill feed rows) carry a `ScreenScale` UIScale (screen height / 1080 × `<Family>Boost`).
+- **`AvoidTopbar` and `FullBleed`:** menu content stays under Roblox's top-bar buttons; the backdrops (Wash, Scrim, Dim) are separate full-screen layers.
+- **Full-screen code-built overlays** use `ScreenInsets.None`, `SafeAreaCompatibility.None` and `ClipToDeviceSafeArea = false`: the low-HP and hit vignettes, all ability screens, replay bars, spectate fade and win cutscene.
+- **Preview:** `UiDeviceSheet` draws a screen at a device size with that family's overrides. Studio tools are installed as ModuleScripts in `ServerStorage.UiTools`; the repo copies are in `tools/studio/modules`.
+
+**Moved to the Studio screens on phones; old code deleted:**
+- The kill feed: the Studio screen everywhere, on the right on phones at 2×. Util/KillFeed is now just the kill sounds.
+- TopBar (phone fit rule; its info line hidden on phones).
+- Notify (Scale, below the weapon slots on phones).
+- StatusTray (ability hints and status; ModHud's old hint and status line drop out).
+- DeathScreen + spectate (the old spectate bar is deleted).
+- MatchEndScreen and DraftScreen (the old code-built Draft and MatchEnd are deleted, about 1,600 lines).
+- Scoreboard (touch hold-to-show button).
+- MapVote.
+- PhoneHudController and HudController's v1 health and ammo panels are deleted.
+- BottomHud is off while touch controls show.
+
+**Touch:**
+- Buttons don't take touches, so the camera turns while holding Fire or a Mod.
+- Touch circles are 20% bigger than the drawn buttons.
+- A held button lights up.
+- The stick follows the thumb.
+- Aim is hidden on `noAds` guns, and is an alt-fire hold on Classic and Knife.
+- Sprint is hidden while Auto Sprint (Settings, default on) is on.
+- The Inspect row is placed from `TopbarInset`, which is the free space between Roblox's buttons.
+- The controls hide while you're dead or spectating.
+- NetStats is hidden on phones.
+
+**Scope:** the surround is a mask texture (`Config/Scope.MASK`, `tools/ui/make_scope_mask.py`) plus four black frames, instead of a 4000 px UIStroke.
+
+**Still to do / known:**
+- Lobby phones still used old code-built UI (v2 dock, QueueMenu, Panels) during this pass. Being moved to the Studio screens (part 4).
+- Dense menus (Draft, MatchEnd, Shop, Settings) fit on phones now, but at 1080p proportions the text is small. They need phone-specific positions and boosts per screen, tuned in the Device Emulator or on a phone.
+- ModHud still builds its old slot faces (always hidden now) and the Recon charge meter in code; no Studio replacement for the meter yet.
+- "Controls don't feel smooth": the stick-follow and look-through are in; touch camera sensitivity and aim assist come after the owner's playtest.
