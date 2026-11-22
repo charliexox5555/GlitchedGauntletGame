@@ -286,6 +286,19 @@ The owner's phone test found off-centre UI (crosshair, killed-by, draft), the ro
 - At 1920×1080 desktop with `UiDeviceSheet`: Settings is unchanged.
 
 **Still open:**
-- **Dense menus:** Party, Battle Pass and Rewards fill the phone's height at 1080p proportions, so their text is small. They need their own phone layouts, like Settings and Play got.
+- ~~Dense menus~~ Done (below).
+
+**Phone layouts for Party, Battle Pass and Rewards (2026-11-22).** These are Studio `Phone*` attributes only, so desktop is unchanged.
+- **Party (boost 1.38):**
+  - The title sits on top, and the party column is moved up under it.
+  - Search and filters sit at the top right, and the player grid fills the height.
+- **Battle Pass (boost 1.3):**
+  - The subtitle and the big reward picture are hidden on phones.
+  - The reward details are one short row: tier, name and text on the left; CONTENTS / price / CLAIM on the right.
+  - The level bar and the reward tracks sit under that row.
+- **Rewards (boost 1.3):** the title, subtitle and a full-height list.
+- **Close buttons:** about 42 px on all three.
+- **Checked:** live in the phone emulator, all three readable and nothing clipped.
+- **Test tip:** emulator mouse clicks land offset by the notch. To open a menu, set `GuiService.SelectedObject` to its button and press Enter.
 - **Locker skins on phones:** the gun in the skins view is on the small side.
 
