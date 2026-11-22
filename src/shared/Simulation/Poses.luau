@@ -41,10 +41,17 @@ local SPECS: { [string]: Spec } = {
 	Sprint = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
 	SprintPistol = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
 	SprintKnife = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
+	SprintUnarmed = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
+	-- Nothing in hand (the lobby): the upper body over the Core idle and the legs.
+	UnarmedIdle = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	UnarmedWalk = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	UnarmedRun = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	UnarmedCrouch = { priority = Enum.AnimationPriority.Action, fade = FADE.crouch },
 	Crouch = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
 	Slide = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
 	SlidePistol = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
 	SlideKnife = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
+	SlideUnarmed = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
 	ModHold = { priority = Enum.AnimationPriority.Action, fade = Animations.MOD_FADE },
 	UpdraftSlam = { priority = Enum.AnimationPriority.Action4, fade = Animations.SLAM_FADE },
 	SprintRun = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
@@ -85,10 +92,13 @@ end
 for _, name in CROUCH_SET do
 	SPECS[name] = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch }
 end
--- The slide's weapon kinds: the rifle's ("") and the sidearm's and knife's own arms.
-local SLIDE_KINDS = { "", "Pistol", "Knife" }
--- The run's upper body, one per kind of weapon (long guns, sidearms, knife).
-local SPRINT_SET = { "Sprint", "SprintPistol", "SprintKnife" }
+-- The slide's weapon kinds: the rifle's (""), the sidearm's and knife's own
+-- arms, and nothing in hand.
+local SLIDE_KINDS = { "", "Pistol", "Knife", "Unarmed" }
+-- The run's upper body, one per kind of weapon (long guns, sidearms, knife, none).
+local SPRINT_SET = { "Sprint", "SprintPistol", "SprintKnife", "SprintUnarmed" }
+-- The unarmed arm swings that follow the leg cycle's phase.
+local UNARMED_SWING = { "UnarmedWalk", "UnarmedRun" }
 local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
 for _, name in GAIT_SET do
 	IDS[name] = (Animations.LOCOMOTION :: any)[name]
@@ -143,6 +153,8 @@ local USE_IDS: { [string]: string } = {
 	SlideOutPistol = Animations.LOCOMOTION.SlideOutPistol,
 	SlideInKnife = Animations.LOCOMOTION.SlideInKnife,
 	SlideOutKnife = Animations.LOCOMOTION.SlideOutKnife,
+	SlideInUnarmed = Animations.LOCOMOTION.SlideInUnarmed,
+	SlideOutUnarmed = Animations.LOCOMOTION.SlideOutUnarmed,
 	Reload = Animations.COMBAT.Reload, -- at the gun's reload time (ReloadAt / ReloadFor)
 	PistolReload = Animations.COMBAT.PistolReload, -- ...a sidearm's
 	Flinch = Animations.COMBAT.Flinch, -- hit (HitAt), at FLINCH_WEIGHT
@@ -565,6 +577,37 @@ local function stepLegs(
 	end
 end
 
+-- Keeps arm swings on the heaviest leg cycle: the same share of a cycle, at
+-- the same cycle rate (the right foot lands at phase 0 in every one).
+local function followStride(animator: Animator, names: { string })
+	local lead: AnimationTrack? = nil
+	local leadWeight = -1
+	for _, name in GAIT_SET do
+		local t = playing(animator, name)
+		if t and t.Length > 0 and t.WeightTarget > leadWeight then
+			lead, leadWeight = t, t.WeightTarget
+		end
+	end
+	if not lead then
+		return
+	end
+	local phase = lead.TimePosition / lead.Length
+	local cycles = lead.Speed / lead.Length
+	for _, name in names do
+		local t = playing(animator, name)
+		if t and t.Length > 0 then
+			local want = cycles * t.Length
+			if math.abs(t.Speed - want) > 0.02 then
+				t:AdjustSpeed(want)
+			end
+			local drift = (t.TimePosition / t.Length - phase) % 1
+			if drift > 0.04 and drift < 0.96 then
+				t.TimePosition = phase * t.Length
+			end
+		end
+	end
+end
+
 -- Lines every leg clip up so its right footfall (phase 0) comes `inSeconds`
 -- from now (SlideOut ends in that footfall).
 local function footfallIn(animator: Animator, inSeconds: number)
@@ -639,8 +682,14 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		and config ~= nil
 		and (config.class == "Sidearm" or (config.models ~= nil and config.models.left ~= nil))
 	local knife = alive and config ~= nil and config.fireMode == "Melee" and not holding
+	-- Nothing in hand (the lobby, no gun drawn): relaxed arms, an arm swing.
+	local unarmed = alive and config == nil and not holding
 	-- The slide's arms follow the weapon kind ("" = the rifle's).
-	local slideKind = if knife then "Knife" elseif pistol then "Pistol" else ""
+	local slideKind = if knife
+		then "Knife"
+		elseif pistol then "Pistol"
+		elseif unarmed then "Unarmed"
+		else ""
 	for setName, names in HOLD_SETS do
 		local on = if (setName == "pistol") == pistol then 1 else 0
 		setWeight(animator, names[1], on * hip * math.max(holdPitch, 0))
@@ -691,7 +740,20 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		)
 	end
 	-- Movement (Action2 / Action3) layers over the aim and the walk cycle.
-	local sprintPose = if knife then "SprintKnife" elseif pistol then "SprintPistol" else "Sprint"
+	local sprintPose = if knife
+		then "SprintKnife"
+		elseif pistol then "SprintPistol"
+		elseif unarmed then "SprintUnarmed"
+		else "Sprint"
+	-- Unarmed: idle, walk and run arms by speed (the sprint and slide have
+	-- their own above), the crouch's own arms.
+	local u = if unarmed and state ~= "Slide" then 1 else 0
+	local band = Animations.WALK_RUN
+	local runShare = math.clamp((speed - band.from) / (band.to - band.from), 0, 1)
+	setWeight(animator, "UnarmedIdle", u * (1 - crouch) * (1 - moving))
+	setWeight(animator, "UnarmedWalk", u * (1 - crouch) * moving * (1 - runShare))
+	setWeight(animator, "UnarmedRun", u * (1 - crouch) * moving * runShare)
+	setWeight(animator, "UnarmedCrouch", u * crouch)
 	for _, name in SPRINT_SET do
 		setWeight(animator, name, if state == "Sprint" and name == sprintPose then 1 else 0)
 	end
@@ -780,6 +842,9 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 
 	local airborne = humanoid.FloorMaterial == Enum.Material.Air
 	stepLegs(animator, root, state, speed, alive, airborne)
+	if unarmed then
+		followStride(animator, UNARMED_SWING)
+	end
 	-- Touching down: a squash over whatever the legs are doing, full when you
 	-- land slow and none at a run (the run's own bounce carries it, and frozen
 	-- legs would skate), and only after a real jump or fall (a step off a

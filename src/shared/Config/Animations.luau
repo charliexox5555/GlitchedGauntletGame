@@ -36,6 +36,14 @@ return table.freeze({
 		Sprint = id(135280483179256),
 		SprintPistol = id(127136320549965),
 		SprintKnife = id(123727434361000),
+		-- With nothing in hand (the lobby; tools/anim/tp_clips.py "Unarmed", 2026-11-21): the upper body
+		-- only, over the Core idle and the leg cycles. Walk / run follow the leg cycle's phase (Poses).
+		SprintUnarmed = id(134786443023027),
+		UnarmedIdle = id(87081146273969),
+		UnarmedWalk = id(86939525691218),
+		UnarmedRun = id(87231109134826),
+		UnarmedCrouch = id(78467506175539), -- v2: arms loose and low (v1 107085367174883 read as a guard)
+		SlideUnarmed = id(134814931400718),
 		Crouch = id(79991946157030),
 		CrouchWalk = id(117039700985521), -- one stride, looped (pass 4 2026-11-13: foot-locked, 0.3 s)
 		-- The other crouch-walk directions (same stride length), blended by
@@ -90,7 +98,9 @@ return table.freeze({
 		SlideInPistol = id(104079399198035), -- o1 2026-11-20 overnight TP pass, splines (was 79156910221465)
 		SlideOutPistol = id(105578957053278), -- o1 2026-11-20 overnight TP pass, splines (was 79155087791028)
 		SlideInKnife = id(89987757226261), -- o1 2026-11-20 overnight TP pass, splines (was 81899005096253)
-		SlideOutKnife = id(140321397952166), -- o1 2026-11-20 overnight TP pass, splines (was 109072548908167)
+		SlideOutKnife = id(140321397952166),
+		SlideInUnarmed = id(90446890986346), -- 2026-11-21: nothing in hand (the lobby)
+		SlideOutUnarmed = id(71284722549961), -- o1 2026-11-20 overnight TP pass, splines (was 109072548908167)
 	}),
 	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
 	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip

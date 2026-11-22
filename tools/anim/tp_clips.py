@@ -1466,6 +1466,111 @@ def _slide_kind(kind, spec):
 	)
 
 
+# Unarmed (owner 2026-11-21: in the lobby, with no gun, the body "is like it's
+# holding a gun ... it needs to look good, idle, running, sliding, crouching").
+# Simulation/Poses plays these when the player holds nothing: the upper body
+# only (Action, over the Core idle and the leg cycles), so the legs, hips and
+# their timing stay the movement clips'. Arms by FK angles (shoulder, elbow,
+# wrist; a positive shoulder pitch swings the arm forward). The swing follows
+# the shared stride phase (the right foot lands at phase 0, so the LEFT arm is
+# forward then) and Poses keeps each clip on the leg cycle's phase.
+
+
+def _arm(pitch, bend, out=5.0, wrist=0.0):
+	"""FK for one arm: shoulder `pitch` forward, rolled `out` from the side,
+	the elbow bent `bend` forward, the wrist `wrist`."""
+	return {"fk": ((pitch, 0, out), (bend, 0, 0), (wrist, 0, 0))}
+
+
+def _arms_ctrl(chest, head, right, left):
+	out = standing({"chest": chest, "head": head})
+	out["right_arm"] = right
+	out["left_arm"] = {"fk": tuple((a, -b, -c) for (a, b, c) in left["fk"])}
+	return out
+
+
+def unarmed_idle_ctrl(t):
+	b = math.sin(TAU * t / IDLE_LENGTH)
+	s2 = math.sin(TAU * t / IDLE_LENGTH + 1.3)
+	# Square to the front (the Core idle's hips are bladed 10 degrees), the
+	# arms hanging loose a little ahead of the body, elbows soft, a slow breath.
+	return _arms_ctrl(
+		(-1 + 1.6 * b, 9, 0),
+		(1.5 * b, -6, 0),
+		_arm(4 + 1.5 * s2, 12 + 2 * b, 6 + 0.8 * b, 6),
+		_arm(4 - 1.5 * s2, 12 + 2 * b, 6 + 0.8 * b, 6),
+	)
+
+
+def _swing_clip(name, length, swing, back, bend_fwd, bend_back, twist, lean, out=7.0):
+	"""An arm swing in step with the legs: at phase 0 the left arm is fully
+	forward (`swing` degrees) and the right fully back (`back`), elbows bent
+	`bend_fwd` on the forward swing and `bend_back` behind; the chest
+	counter-turns `twist` degrees against the hips and leans `lean`."""
+
+	def at(t):
+		ph = t / length
+		c = math.cos(TAU * ph)  # 1: left arm forward, -1: right arm forward
+		# A swing spends more time at its ends than in the middle (pendulum),
+		# and the elbow folds as the arm comes forward.
+		def arm(fwd):
+			w = (fwd + 1) / 2  # 0 back .. 1 forward
+			pitch = -back + (swing + back) * w
+			bend = bend_back + (bend_fwd - bend_back) * w
+			return _arm(pitch, bend, out, 4 + 6 * w)
+
+		return solve(
+			_arms_ctrl(
+				(lean, twist * c, 0),
+				(-lean * 0.6, -twist * c * 0.7, 0),
+				arm(-c),
+				arm(c),
+			)
+		)
+
+	return add(Clip(name, "Action", at, UPPER, length=length, loop=True, step=0.03))
+
+
+add(Clip("UnarmedIdle", "Action", lambda t: solve(unarmed_idle_ctrl(t)), UPPER, length=IDLE_LENGTH, loop=True, step=0.1))
+# Walk: an easy swing; run: elbows bent, a full swing; sprint: pumping.
+_swing_clip("UnarmedWalk", WALK_LENGTH, swing=24, back=20, bend_fwd=26, bend_back=10, twist=4, lean=-1)
+_swing_clip("UnarmedRun", RUN_LENGTH, swing=48, back=38, bend_fwd=80, bend_back=45, twist=7, lean=-4)
+_swing_clip("SprintUnarmed", SPRINT_LENGTH, swing=62, back=50, bend_fwd=95, bend_back=60, twist=9, lean=-6)
+# The sprint arms are an Action2 layer like the other sprint uppers (Poses SPRINT_SET).
+CLIPS["SprintUnarmed"].priority = "Action2"
+
+
+def unarmed_crouch(t):
+	b = math.sin(TAU * t / 1.0)
+	# The arms loose and a little ahead, out from the sides so they clear the
+	# thighs, the hands low.
+	return solve(
+		_arms_ctrl(
+			(-6 + 0.8 * b, 6, 0),
+			(4, -4, 0),
+			# (v1 34 / 52 raised the fists to the chest: a boxer's guard.)
+			_arm(16 + b, 24, 12, 6),
+			_arm(13 - b, 20, 12, 6),
+		)
+	)
+
+
+add(Clip("UnarmedCrouch", "Action", unarmed_crouch, UPPER, length=1.0, loop=True, step=0.1))
+
+UNARMED_HOLD = unarmed_idle_ctrl(0.0)
+# The slide with nothing in hand: the right arm out ahead for balance, the
+# left hand skimming the floor (the rifle slide's); in and out from and back
+# to the relaxed stance.
+SLIDE_KINDS["Unarmed"] = {
+	"hold": UNARMED_HOLD,
+	"slide": lambda shake: {"right_arm": {"tip": (1.05, -0.75 + shake, -1.45)}, "right_pole": (1, -0.3, 0.5)},
+	"kick": {"right_arm": {"tip": (1.15, 0.15, -1.2)}, "right_pole": (1, -0.4, 0.5)},
+	"push": {"right_arm": {"tip": (1.2, 0.35, -1.35)}, "right_pole": (1, -0.5, 0.4)},
+	"on_point": lambda ctrl: (-0.9, -0.45, -1.05),
+	"rest_pole": (-1, -0.4, 0.2),
+}
+
+
 for _kind, _spec in SLIDE_KINDS.items():
 	_slide_kind(_kind, _spec)
 
