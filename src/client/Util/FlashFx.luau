@@ -29,6 +29,7 @@ local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 local Tex = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
+local ScreenPoint = require(ReplicatedStorage.Shared.ScreenPoint)
 local ModAudio = require(script.Parent.ModAudio)
 
 local FlashFx = {}
@@ -143,7 +144,12 @@ local function spotOf(from: Vector3?): Vector2
 	local view = cam.ViewportSize
 	local p = cam:WorldToViewportPoint(from)
 	if p.Z > 0 then
-		return Vector2.new(math.clamp(p.X / view.X, -0.2, 1.2), math.clamp(p.Y / view.Y, -0.2, 1.2))
+		-- a fraction of our full-bleed screen, not of the (safe-area) viewport
+		local g = gui
+		local k = if g
+			then ScreenPoint.toScale(g, Vector2.new(p.X, p.Y))
+			else Vector2.new(p.X / view.X, p.Y / view.Y)
+		return Vector2.new(math.clamp(k.X, -0.2, 1.2), math.clamp(k.Y, -0.2, 1.2))
 	end
 	local rel = cam.CFrame:PointToObjectSpace(from)
 	local d = Vector2.new(rel.X, -rel.Y)

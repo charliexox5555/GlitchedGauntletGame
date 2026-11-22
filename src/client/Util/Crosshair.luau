@@ -18,6 +18,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local CrosshairConfig = require(ReplicatedStorage.Shared.Config.Crosshair)
+local ScreenPoint = require(ReplicatedStorage.Shared.ScreenPoint)
 local SlideTilt = require(script.Parent.SlideTilt)
 
 type Config = CrosshairConfig.Crosshair
@@ -182,8 +183,11 @@ function Crosshair.step(
 		return
 	end
 	local vp = cam.ViewportSize
-	-- The centre on a whole pixel (the camera's aim point, rounded).
-	r.Position = UDim2.fromOffset(math.floor(vp.X / 2), math.floor(vp.Y / 2))
+	-- The centre on a whole pixel (the camera's aim point, rounded). Through
+	-- ScreenPoint: on a phone the viewport is the safe area, not the screen.
+	local space = r.Parent
+	local aimAt = if space and space:IsA("GuiBase2d") then ScreenPoint.centre(space) else vp / 2
+	r.Position = UDim2.fromOffset(math.floor(aimAt.X), math.floor(aimAt.Y))
 	local px = math.clamp(vp.Y / c.designHeight, c.minScale, c.maxScale) * c.scale
 
 	-- The gap: the spread cone's edge in pixels at the current FOV, eased.

@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local CrosshairConfig = require(ReplicatedStorage.Shared.Config.Crosshair)
 local HitFx = require(ReplicatedStorage.Shared.Config.HitFx)
 
+local ScreenPoint = require(ReplicatedStorage.Shared.ScreenPoint)
 local Crosshair = require(script.Parent.Crosshair)
 
 local HitFeedback = {}
@@ -258,10 +259,10 @@ local function stepMarker(m: Marker, dt: number)
 	local px = screenScale()
 	-- The same whole-pixel centre as Util/Crosshair, so the marker and the
 	-- crosshair share one centre (the canvas is an even size).
-	local cam = Workspace.CurrentCamera
-	if cam then
-		m.root.Position =
-			UDim2.fromOffset(math.floor(cam.ViewportSize.X / 2), math.floor(cam.ViewportSize.Y / 2))
+	local space = m.root.Parent
+	if space and space:IsA("GuiBase2d") then
+		local centre = ScreenPoint.centre(space)
+		m.root.Position = UDim2.fromOffset(math.floor(centre.X), math.floor(centre.Y))
 	end
 	m.size += (m.targetSize - m.size) * (1 - math.exp(-HitFx.SIZE_RATE * dt))
 	-- Big and wide at the hit, shrinking in tight (time-based: the same at any
@@ -422,7 +423,8 @@ local function screenPoint(world: Vector3, offsetScale: number?): Vector2?
 	local offset = NUMBER_OFFSET * (offsetScale or 1)
 	local x = math.clamp(p.X + offset.X, 40, size.X - 40)
 	local y = math.clamp(p.Y + offset.Y, 30, size.Y - 30)
-	return Vector2.new(x, y)
+	local space = container
+	return if space then ScreenPoint.toLocal(space, Vector2.new(x, y)) else Vector2.new(x, y)
 end
 
 -- The number's size for how far away its target is, like a BillboardGui
@@ -461,8 +463,10 @@ local function place(n: DamageNumber)
 	local cam = Workspace.CurrentCamera
 	local world = anchorOf(n)
 	n.reach = if n.crosshair then 1 else reachScale(world)
-	local p = if n.crosshair and cam
-		then cam.ViewportSize / 2 + NUMBER_OFFSET
+	local p = if n.crosshair
+			and cam
+			and container
+		then ScreenPoint.centre(container) + NUMBER_OFFSET
 		else screenPoint(world, n.reach)
 	n.offscreen = p == nil
 	n.label.Visible = p ~= nil
@@ -656,7 +660,7 @@ local function stepTag(tg: Tag, dt: number)
 	local world = tg.world
 	local p: Vector2? = if world
 		then screenPoint(world)
-		elseif cam then cam.ViewportSize / 2 + NUMBER_OFFSET
+		elseif cam and container then ScreenPoint.centre(container) + NUMBER_OFFSET
 		else nil
 	tg.label.Visible = p ~= nil
 	if not p then

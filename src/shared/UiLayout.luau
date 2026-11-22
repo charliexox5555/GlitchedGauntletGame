@@ -4,7 +4,8 @@
 -- per-device overrides as attributes on any GuiObject, which the owner can
 -- edit in Studio:
 --   <Family>Position (UDim2), <Family>Size (UDim2), <Family>AnchorPoint (Vector2),
---   <Family>Visible (bool), <Family>Scale (number: multiplies the Size)
+--   <Family>Visible (bool), <Family>Scale (number: multiplies the Size),
+--   <Family>Aspect (number, on a UIAspectRatioConstraint)
 -- with Family = Phone | Tablet | Console. The desktop values are kept in
 -- Base* attributes the first time an override is applied, so a device change
 -- (a tablet docking a keyboard) can switch back.
@@ -219,6 +220,22 @@ local function safePad(o: GuiObject, family: Family)
 	end
 end
 
+-- <Family>Aspect on a UIAspectRatioConstraint: its AspectRatio on that
+-- device (a banner narrower and taller on a phone); BaseAspect keeps the
+-- authored one.
+local function aspectTo(c: UIAspectRatioConstraint, family: Family)
+	local v = if family ~= "Desktop" then c:GetAttribute(family .. "Aspect") else nil
+	local base = c:GetAttribute("BaseAspect")
+	if typeof(v) == "number" and v > 0 then
+		if typeof(base) ~= "number" then
+			c:SetAttribute("BaseAspect", c.AspectRatio)
+		end
+		c.AspectRatio = v
+	elseif typeof(base) == "number" then
+		c.AspectRatio = base
+	end
+end
+
 local function applyTo(o: GuiObject, family: Family)
 	if o:GetAttribute("SafePad") == true then
 		safePad(o, family)
@@ -293,6 +310,8 @@ function UiLayout.applyAs(root: Instance, family: Family, height: number)
 			if typeof(design) == "number" and (d:IsA("ImageLabel") or d:IsA("ImageButton")) then
 				d.SliceScale = design * sliceK
 			end
+		elseif d:IsA("UIAspectRatioConstraint") then
+			aspectTo(d, family)
 		elseif d:IsA("UIScale") and d:GetAttribute("Retired") == true then
 			d.Scale = 1
 		elseif d:IsA("UIScale") and d.Name == "ScreenScale" then
@@ -321,6 +340,8 @@ function UiLayout.apply(gui: Instance)
 			if typeof(design) == "number" and (d:IsA("ImageLabel") or d:IsA("ImageButton")) then
 				d.SliceScale = design * sliceK
 			end
+		elseif d:IsA("UIAspectRatioConstraint") then
+			aspectTo(d, family)
 		elseif d:IsA("UIScale") and d:GetAttribute("Retired") == true then
 			d.Scale = 1
 		elseif d:IsA("UIScale") and d.Name == "ScreenScale" then

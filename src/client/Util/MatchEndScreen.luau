@@ -10,6 +10,7 @@
 
 local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ScreenPoint = require(ReplicatedStorage.Shared.ScreenPoint)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -566,8 +567,10 @@ function MatchEndScreen.plates(list: { PlateData })
 			local point, onScreen =
 				cam:WorldToViewportPoint(item.head.Position + Vector3.new(0, PLATE_LIFT, 0))
 			item.strip.Visible = onScreen and item.head.Parent ~= nil
-			if onScreen then
-				item.strip.Position = UDim2.fromOffset(point.X, point.Y)
+			local space = item.strip.Parent
+			if onScreen and space and space:IsA("GuiBase2d") then
+				local at = ScreenPoint.toLocal(space, Vector2.new(point.X, point.Y))
+				item.strip.Position = UDim2.fromOffset(at.X, at.Y)
 			end
 		end
 	end)
@@ -638,7 +641,6 @@ function MatchEndScreen.cards(list: { CardData })
 	-- The canvas is a fit canvas (Shared/UiLayout): it spans the screen, so its
 	-- design width is the screen width / fit, and the zone stretches with it.
 	local fit = s.fit.Scale
-	local ox = s.canvas.AbsolutePosition.X - s.gui.AbsolutePosition.X
 	local stretch = (s.canvas.AbsoluteSize.X / math.max(fit, 1e-3)) / DESIGN.X
 	-- A boosted canvas (phones, Shared/UiLayout <Family>Boost) is shorter and
 	-- narrower in design px than 1920 x 1080: the row keeps to its bottom and
@@ -656,7 +658,7 @@ function MatchEndScreen.cards(list: { CardData })
 		local x = DESIGN.X * stretch / 2
 		if root and root:IsA("BasePart") then
 			local p = cam:WorldToViewportPoint(root.Position)
-			x = (p.X - ox) / fit
+			x = ScreenPoint.toLocal(s.canvas, Vector2.new(p.X, p.Y)).X / fit
 		end
 		table.insert(slots, { data = d, x = x, w = CARD_W * (if d.lead then LEAD_SCALE else 1) })
 	end
