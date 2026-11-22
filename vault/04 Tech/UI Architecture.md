@@ -246,3 +246,46 @@ From the owner's phone test: stuck or unresponsive buttons, inspect and tab rows
 - **Console nit:** the lobby `LobbyTopbar` buttons are close to the player list in console layout on small screens.
 - **Next build steps:** the touch layout editor (§9 step 7), the Range placeholder menu, and aim assist (after the playtest).
 - **Studio warnings:** `rbxassetid://203785492` ("asset type does not match") and "EditableImage is not accessible" print at start. Both were there before this work and don't come from `src`.
+
+### Part 6 (2026-11-22): centring and lobby menus on phones
+
+The owner's phone test found off-centre UI (crosshair, killed-by, draft), the round notify too low, the lobby player board under the top bar, a case reveal that didn't shade the whole screen, and a Locker, Shop and close buttons not fitted to phones.
+
+**Why things sat off centre:**
+- **Crosshair, hit markers, damage numbers, flash, match-end cards:**
+  - On a phone the camera viewport is the safe area, while full-bleed screens also cover the notch.
+  - The 3D view is centred on the whole screen, and the phone's insets are uneven.
+  - So `ViewportSize / 2` put the crosshair 62 px left and 10 px low.
+  - New `Shared/ScreenPoint` converts camera pixels to a GUI's pixels. Its aim point is the projected look direction.
+- **Draft, killed-by:**
+  - Fit-canvas groups were left-anchored at Scale positions on a 1920-wide design, so they spread apart on a wider phone canvas. (The phone position patches from part 4 hid this.)
+  - New Studio tool `tools/studio/modules/UiCentreAttach` (installed as `ServerStorage.UiTools.UiCentreAttach`) re-attaches each group to the centre, or to the edge it hugs, by its design offset. On desktop nothing moves.
+  - The draft is one centred block (phone boost 1.3).
+
+**Fixes:**
+- **Notify:** sits just under the top bar on phones (0.165), narrower and taller. UiLayout now supports `<Family>Aspect` on a UIAspectRatioConstraint.
+- **Lobby player board:** sits under Roblox's top bar on phones (`PhonePosition` (1,-4,0,26)), boost 1.55. Names have a fixed width and truncate, so long names no longer run into STREAK / LV.
+- **Locker:**
+  - It's a fit canvas now: the list hugs the left, the close hugs the right, and the gun gets the free middle.
+  - The gun spots are measured from the canvas centre. `cameraFor` frames them from the real on-screen point and the 3D view's own shape.
+  - The skins view puts the gun between the name and the tray.
+  - The gun list slides fully off screen, so no stray guns show or can be tapped.
+  - The floor shadow follows the gun.
+- **Shop:** fit canvas, the scroll centred at full height, phone boost 1.5. Popups are a fit canvas (1.3).
+- **Backpack / case reveal:**
+  - `RevealShade` and `ItemShade` sat inside a centred 16:9 canvas, so a phone's side bands stayed unshaded. That was the half-blur.
+  - The Backpack is now a fit canvas with those shades full-bleed.
+  - The case flash and the Locker wipe are full-bleed too.
+- **Settings (phone):** INSPECT is hidden, and the tabs and list are centred with the list at full height (boost 1.4).
+- **Play (phone):** the title band sits on top, the mode tiles are centred under it (boost 1.3).
+- **Party, Battle Pass, Profile, Rewards:** centred blocks on fit canvases.
+- **Close buttons:** every menu's close is about 42 px on a phone and sits in the top-right corner.
+
+**Checked:**
+- In the phone emulator (873×401 with a notch) in a live playtest: crosshair, Notify, the lobby board, Locker and skins, Shop, Backpack shade, Settings and Play.
+- At 1920×1080 desktop with `UiDeviceSheet`: Settings is unchanged.
+
+**Still open:**
+- **Dense menus:** Party, Battle Pass and Rewards fill the phone's height at 1080p proportions, so their text is small. They need their own phone layouts, like Settings and Play got.
+- **Locker skins on phones:** the gun in the skins view is on the small side.
+
