@@ -9,6 +9,9 @@
 --
 -- One GunState per bot, no allocations per shot beyond the hit list.
 
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -19,7 +22,7 @@ local Penetration = require(Shared.Util.Penetration)
 local Combat = require(Shared.Config.Combat)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
-local Net = require(Shared.Net)
+local Net = Context.net
 local Spread = require(Shared.Util.Spread)
 local Status = require(Shared.Mods.Status)
 local Teams = require(Shared.Mods.Teams)
@@ -27,9 +30,8 @@ local Types = require(Shared.Types)
 local Weapons = require(Shared.Config.Weapons)
 local Health = require(Shared.Health)
 
-local Services = script.Parent.Parent.Services
-local ModEntities = require(Services.ModEntities)
-local WeaponService = require(Services.WeaponService)
+local ModEntities = require(Globals.ModEntities)
+local WeaponService = require(Globals.WeaponService)
 
 type Slot = Types.Slot
 type WeaponConfig = Types.WeaponConfig

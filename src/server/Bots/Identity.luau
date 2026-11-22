@@ -1,7 +1,8 @@
 --!strict
 -- Match-server avatar cache. Only fitted models leave this module.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared

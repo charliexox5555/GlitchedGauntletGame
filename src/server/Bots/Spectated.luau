@@ -12,17 +12,31 @@ local Spectated = {}
 local watched: { [Instance]: { Player } } = {}
 local NONE: { Player } = table.freeze({})
 
--- Rebuilds the index from SpectateService's `watching` (a handful of entries).
-function Spectated.sync(watching: { [Player]: Instance })
+-- Each match's SpectateService `watching` table (several matches can run in
+-- one server since the place merge), by match id.
+local byMatch: { [string]: { [Player]: Instance } } = {}
+
+-- Rebuilds the index from a SpectateService's `watching` (a handful of entries).
+function Spectated.sync(watching: { [Player]: Instance }, matchId: string?)
+	byMatch[matchId or "server"] = table.clone(watching)
 	table.clear(watched)
-	for spectator, target in watching do
-		local list = watched[target]
-		if not list then
-			list = {}
-			watched[target] = list
+	for _, each in byMatch do
+		for spectator, target in each do
+			local list = watched[target]
+			if not list then
+				list = {}
+				watched[target] = list
+			end
+			table.insert(list, spectator)
 		end
-		table.insert(list, spectator)
 	end
+end
+
+-- A match ended: forget its spectators.
+function Spectated.forget(matchId: string)
+	byMatch[matchId] = nil
+	Spectated.sync({}, matchId)
+	byMatch[matchId] = nil
 end
 
 -- Whether anyone is spectating this target (a bot's model, or a Player).

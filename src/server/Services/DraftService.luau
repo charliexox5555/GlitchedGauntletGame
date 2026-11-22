@@ -11,7 +11,8 @@
 -- (and sometimes the glitch path); at level 2, the next level of its path. One
 -- card per draft, from any column.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -19,10 +20,10 @@ local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Dev = require(ReplicatedStorage.Shared.Config.Dev)
-local MatchState = require(ReplicatedStorage.Shared.MatchState)
+local MatchState = require(script.Parent.Parent.MatchState)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Mods = require(ReplicatedStorage.Shared.Mods)
-local Net = require(ReplicatedStorage.Shared.Net)
+local Net = Context.net
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Validate = require(ReplicatedStorage.Shared.Util.Validate)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)

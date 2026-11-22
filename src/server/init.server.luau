@@ -3,31 +3,34 @@
 -- service, then start() every service, so services can reference each other
 -- during init without ordering problems.
 --
--- One place, two roles (shared/ServerRole, vault/04 Tech/Place Merge Plan.md):
---  * Match (a reserved match server, or the retired match place): every
---    service runs, as before.
---  * Lobby (a public server): only the per-player services run (health,
---    characters, weapons, movement ...), for the range and for players in a
---    pad duel. The match flow itself sleeps until pad duels run it.
+-- One place, two roles (shared/ServerRole, vault/04 Tech/Place Merge Plan.md).
+-- Only the shared, per-player services start here (health, characters,
+-- weapons, movement ...). The match flow (MatchService, DraftService, the
+-- Mods, bots ...) runs per match: MatchHost starts one whole-server match in a
+-- Match server, and pad duels in a Lobby server, each in its own copy
+-- (MatchKit/MatchRunner).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 
--- The services that run in a Lobby server too: everything kept per player or
--- per character, nothing that runs the match flow.
-local LOBBY_SERVICES: { [string]: boolean } = {
+local SHARED_SERVICES: { [string]: boolean } = {
 	CharacterService = true,
 	DeviceService = true,
 	HealthService = true,
 	HitboxHistory = true,
 	InputContextService = true,
 	LookStream = true,
+	MatchHost = true,
 	ModEntities = true,
 	MovementService = true,
 	SkinPreviewService = true,
 	StatusService = true,
 	WeaponService = true,
+}
+-- Match servers only (a Lobby server has the lobby's own).
+local MATCH_ONLY: { [string]: boolean } = {
+	ServerInfoService = true,
 }
 
 local role = ServerRole.get()
@@ -36,7 +39,10 @@ local Services = script:FindFirstChild("Services")
 local loaded: { [string]: any } = {}
 if Services then
 	for _, child in Services:GetChildren() do
-		if child:IsA("ModuleScript") and (role == "Match" or LOBBY_SERVICES[child.Name]) then
+		if
+			child:IsA("ModuleScript")
+			and (SHARED_SERVICES[child.Name] or (role == "Match" and MATCH_ONLY[child.Name]))
+		then
 			loaded[child.Name] = require(child) :: any
 		end
 	end

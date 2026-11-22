@@ -9,8 +9,11 @@
 -- Clients draw the health bars (RangeController) from the "RangeDummy" tag
 -- and the Dummy* attributes.
 
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -18,17 +21,16 @@ local RunService = game:GetService("RunService")
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
-local Net = require(ReplicatedStorage.Shared.Net)
+local Net = Context.net
 local PoseSim = require(ReplicatedStorage.Shared.Simulation.Poses)
 local Status = require(ReplicatedStorage.Shared.Mods.Status)
 local TestRange = require(ReplicatedStorage.Shared.Config.TestRange)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
-local Services = script.Parent.Parent.Services
-local CharacterService = require(Services.CharacterService)
-local WeaponService = require(Services.WeaponService)
+local CharacterService = require(Globals.CharacterService)
+local WeaponService = require(Globals.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
-local HealthService = require(Services.HealthService)
+local HealthService = require(Globals.HealthService)
 
 type DummySpot = TestRange.DummySpot
 

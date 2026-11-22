@@ -11,13 +11,14 @@
 -- Studio has no teleport: the Workspace attribute "BotMatch" ("1v1",
 -- "2v2", "3v3") makes a plan with the first player on team 1 and bots on.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
-local Net = require(ReplicatedStorage.Shared.Net)
+local Net = Context.net
 
 export type Plan = {
 	matchId: string,
@@ -106,6 +107,20 @@ end
 
 local function read(player: Player)
 	if plan then
+		return
+	end
+	-- A pad duel (MatchKit/Context) brings its own plan: the players on the pad, no bots.
+	local given = Context.plan
+	if given then
+		plan = {
+			matchId = given.matchId,
+			mode = given.mode,
+			size = given.size,
+			teams = given.teams,
+			bots = given.bots,
+			studio = false,
+			firstJoinAt = os.clock(),
+		}
 		return
 	end
 	if RunService:IsStudio() then

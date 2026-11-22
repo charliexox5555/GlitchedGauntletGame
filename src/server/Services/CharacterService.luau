@@ -309,6 +309,9 @@ function CharacterService.init()
 		if not player or not Players.CharacterAutoLoads then
 			return -- a match respawns everyone at the next round
 		end
+		if PlayZone.get(player) == "Match" and PlayZone.matchId(player) ~= nil then
+			return -- a pad duel in a lobby server: its match respawns them too
+		end
 		task.delay(Combat.RESPAWN_TIME, function()
 			if player.Parent == Players and player.Character == character then
 				player:LoadCharacter()

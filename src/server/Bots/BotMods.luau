@@ -13,7 +13,10 @@
 -- Each ready Mod scores its opportunity. Held Mods lower the gun, then
 -- recheck the intended throw from the bot's actual release position.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -24,7 +27,7 @@ local Charges = require(Shared.Mods.Charges)
 local Health = require(Shared.Health)
 local Mods = require(Shared.Mods)
 local ModsConfig = require(Shared.Config.Mods)
-local Net = require(Shared.Net)
+local Net = Context.net
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 local Recon = require(Shared.Mods.Recon)
 local Teams = require(Shared.Mods.Teams)
@@ -37,10 +40,10 @@ local THROWS: { [string]: any } = {
 local Target = require(Shared.Mods.Blocks.Target)
 
 local Services = script.Parent.Parent.Services
-local ModEntities = require(Services.ModEntities)
+local ModEntities = require(Globals.ModEntities)
 local ModWalls = require(Services.ModWalls)
-local StatusService = require(Services.StatusService)
-local WeaponService = require(Services.WeaponService)
+local StatusService = require(Globals.StatusService)
+local WeaponService = require(Globals.WeaponService)
 
 local BotGun = require(script.Parent.BotGun)
 local BotTypes = require(script.Parent.Types)

@@ -5,6 +5,8 @@
 -- and is cheap: the aim spring, steering, the inputs the shared simulations
 -- read (Sprint, Crouch, Aim, Fire, AimPitch) and the trigger.
 
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -12,7 +14,7 @@ local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
-local Zone = require(ReplicatedStorage.Shared.Zone)
+local Zone = require(script.Parent.Parent.Zone)
 local RunService = game:GetService("RunService")
 
 local STUDIO = RunService:IsStudio()
@@ -23,8 +25,8 @@ local BotMods = require(script.Parent.BotMods)
 local BotTypes = require(script.Parent.Types)
 local Nav = require(script.Parent.Nav)
 local Perception = require(script.Parent.Perception)
-local Spectated = require(script.Parent.Spectated)
-local LookStream = require(script.Parent.Parent.Services.LookStream)
+local Spectated = require(Globals.Parent.Bots.Spectated)
+local LookStream = require(Globals.LookStream)
 local Tactics = require(script.Parent.Tactics)
 
 type Bot = BotTypes.Bot

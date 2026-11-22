@@ -25,7 +25,10 @@
 -- Nothing lands for `rescueGrace` s after (the trip, shots already fired at
 -- where you were). Each round start re-arms it.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -36,10 +39,10 @@ local ModTypes = require(Shared.Mods.Types)
 local Recall = require(Shared.Mods.Recall)
 local Teams = require(Shared.Mods.Teams)
 
-local ModEntities = require(script.Parent.ModEntities)
-local WeaponService = require(script.Parent.WeaponService)
+local ModEntities = require(Globals.ModEntities)
+local WeaponService = require(Globals.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
-local HealthService = require(script.Parent.HealthService)
+local HealthService = require(Globals.HealthService)
 
 local ModRecall = {}
 

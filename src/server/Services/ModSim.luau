@@ -23,7 +23,8 @@
 -- Mod. With Server Authority on this module does nothing (the server
 -- simulates every character itself).
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -32,10 +33,10 @@ local Authority = require(Shared.Authority)
 local Charges = require(Shared.Mods.Charges)
 local Config = require(Shared.Config.Mods)
 local Health = require(Shared.Health)
-local MatchState = require(Shared.MatchState)
+local MatchState = require(script.Parent.Parent.MatchState)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
-local Net = require(Shared.Net)
+local Net = Context.net
 local RateLimit = require(Shared.Util.RateLimit)
 local Validate = require(Shared.Util.Validate)
 

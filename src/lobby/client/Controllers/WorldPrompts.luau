@@ -26,7 +26,8 @@ local WorldPrompts = {}
 type Hook = { menu: string, action: string, object: string }
 
 local HOOKS: { [string]: Hook } = {
-	LobbyQueue = { menu = "Queue", action = "Play", object = "Duels" },
+	-- LobbyQueue pads are duel pads since the place merge (2026-11-21): the
+	-- server runs them (Services/PadDuelService), so no prompt here.
 	LobbyShop = { menu = "Shop", action = "Open Shop", object = "Market" },
 	LobbyBattlePass = { menu = "BattlePass", action = "Battle Pass", object = "Season 1" },
 	LobbyLocker = { menu = "Locker", action = "Open Locker", object = "Loadout" },

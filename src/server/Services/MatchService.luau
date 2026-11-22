@@ -6,7 +6,10 @@
 -- error can't leave the game stuck. Clients read the state from MatchState
 -- attributes; they can't change anything here (picks go through DraftService).
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -14,7 +17,7 @@ local RunService = game:GetService("RunService")
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
-local MatchState = require(ReplicatedStorage.Shared.MatchState)
+local MatchState = require(script.Parent.Parent.MatchState)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
@@ -25,13 +28,13 @@ local MapService = require(script.Parent.MapService)
 local MapVoteService = require(script.Parent.MapVoteService)
 local ModService = require(script.Parent.ModService)
 local BotService = require(script.Parent.BotService)
-local CharacterService = require(script.Parent.CharacterService)
+local CharacterService = require(Globals.CharacterService)
 local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
-local WeaponService = require(script.Parent.WeaponService)
-local LookStream = require(script.Parent.LookStream)
-local WeaponDamage = require(script.Parent.Weapon.Damage)
-local HealthService = require(script.Parent.HealthService)
-local Net = require(ReplicatedStorage.Shared.Net)
+local WeaponService = require(Globals.WeaponService)
+local LookStream = require(Globals.LookStream)
+local WeaponDamage = require(Globals.Weapon.Damage)
+local HealthService = require(Globals.HealthService)
+local Net = Context.net
 local ZoneService = require(script.Parent.ZoneService)
 local StatsService = require(script.Parent.StatsService)
 local MatchEndService = require(script.Parent.MatchEndService)
@@ -165,10 +168,18 @@ local function isAlive(player: Player): boolean
 end
 
 local function spawnPlayer(player: Player, spawn: SpawnLocation?)
-	player.RespawnLocation = spawn
+	player.RespawnLocation = if Context.ownsServer then spawn else nil
 	for attempt = 1, SPAWN_TRIES do
 		-- Spawned already wearing the standard match body (Match Avatar.md).
 		local ok, err = pcall(CharacterService.loadCharacter, player)
+		if ok and not Context.ownsServer and spawn then
+			-- A pad duel: its map's spawns are off (the lobby spawns everyone else),
+			-- so stand the new character on its spot.
+			local character = player.Character
+			if character then
+				character:PivotTo(spawn.CFrame + Vector3.new(0, spawn.Size.Y / 2 + 3, 0))
+			end
+		end
 		if ok or player.Parent ~= Players then
 			return
 		end
@@ -1040,24 +1051,37 @@ function MatchService.start()
 	end
 	setAllLocked(true)
 	MatchPlan.start()
-	WeaponService.onHit(function(attacker: Instance, victim: Model, _dealt: number, killed: boolean)
-		if killed then
-			lastKiller[victim] = attacker
-		end
-		return nil
-	end)
-	HealthService.onDowned(function(humanoid: Humanoid)
+	-- Shared services hear every fighter in the server: only this match's count (MatchKit/Context).
+	WeaponService.onHit(
+		Context.filtered(
+			2,
+			function(attacker: Instance, victim: Model, _dealt: number, killed: boolean)
+				if killed then
+					lastKiller[victim] = attacker
+				end
+				return nil
+			end
+		)
+	)
+	HealthService.onDowned(Context.filtered(1, function(humanoid: Humanoid)
 		local body = humanoid.Parent
 		local team = body and body:IsA("Model") and Teams.of(body)
 		if body and body:IsA("Model") and team then
 			lastDown[team] = { body = body, at = workspace:GetServerTimeNow() }
 		end
-	end)
-	Players.PlayerAdded:Connect(function(player)
+	end))
+	local function joined(player: Player)
 		-- Fighting needs a spawn; until then, no shots.
 		setLocked(player, true)
 		task.defer(onJoin, player) -- after MatchPlan and ModService have seen them
-	end)
+	end
+	Players.PlayerAdded:Connect(joined)
+	-- A pad duel's players are here before it starts (MatchKit/Context).
+	if not Context.ownsServer then
+		for _, player in Players:GetPlayers() do
+			joined(player)
+		end
+	end
 	Players.PlayerRemoving:Connect(onLeave)
 	task.spawn(loop)
 end

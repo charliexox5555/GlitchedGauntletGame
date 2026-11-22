@@ -239,7 +239,8 @@ local function stepCharacter(player: Player, character: Model)
 	local walkSpeed = dashSpeed or speed * mult
 	-- Spawn hold (select + 3-2-1): stand at the marker, look around only.
 	-- Players and bots alike (bots step here on the server).
-	local held = MatchState.isSpawnHold()
+	-- (This player's own match: a lobby server can run several, MatchState.)
+	local held = MatchState.isSpawnHold(if typeof(player) == "Instance" then player else nil)
 	if held then
 		walkSpeed = 0
 	end

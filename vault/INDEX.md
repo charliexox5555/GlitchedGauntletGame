@@ -15,6 +15,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Status History.md` (42): dated status log before 2026-11-05 (what was built when); grep only
 - `04 Tech/Code Map.md` (10): every Service/Controller, its remotes and attributes; pick code files from here
 - `04 Tech/Architecture.md` (15): repo layout, shot validation walkthrough, match system, test range, Rojo/Studio gotchas, code rules
+- `04 Tech/Place Merge Plan.md` (5): the Lobby + match merge (2026-11-21): owner decisions, server roles, global queue, pad duels as in-server matches, range, Studio move, results
 - `04 Tech/Developer Handoff.md`: both places, player journey, edit map, Studio audit, troubleshooting and release handoff
 - `04 Tech/Measured Check Skills.md` (3): the 38 installed `rbx-*` measured-check skills, which to use per area, the security scan, what was left out
 

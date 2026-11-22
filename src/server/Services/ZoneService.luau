@@ -5,17 +5,20 @@
 -- on its own timer, takes health from every fighter outside it, straight off
 -- their HP (the shield doesn't absorb it). Numbers: Config/Match SUDDEN_DEATH.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Health = require(ReplicatedStorage.Shared.Health)
-local Zone = require(ReplicatedStorage.Shared.Zone)
+local Zone = require(script.Parent.Parent.Zone)
 
 local BotService = require(script.Parent.BotService)
-local HealthService = require(script.Parent.HealthService)
+local HealthService = require(Globals.HealthService)
 local MapService = require(script.Parent.MapService)
 
 local ZoneService = {}

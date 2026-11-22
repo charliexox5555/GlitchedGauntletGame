@@ -86,6 +86,15 @@ return table.freeze({
 		SettingsRequest = { 1, 4 }, -- the client sends 1.5 s after the last change, and on close
 	},
 
+	-- Duel pads (Services/PadDuelService, place merge 2026-11-21): a pad's two
+	-- halves are the two teams; full of real players, it counts down and starts
+	-- the duel in this server.
+	PAD = {
+		tick = 0.2, -- seconds between checks of who stands on the pads
+		height = 8, -- studs above the pad that still count as standing on it
+		countdown = 3, -- seconds from full to the duel starting
+	},
+
 	-- In-game party invites (Services/PartyService): biggest party (the
 	-- biggest team), and how long an invite stays open.
 	PARTY = {

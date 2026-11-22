@@ -3,7 +3,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config.Bots)
-local Zone = require(ReplicatedStorage.Shared.Zone)
+local Zone = require(script.Parent.Parent.Zone)
 
 local Nav = require(script.Parent.Nav)
 local Types = require(script.Parent.Types)

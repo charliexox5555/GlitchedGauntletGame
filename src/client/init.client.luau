@@ -18,6 +18,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ServerRole = require(Shared:WaitForChild("ServerRole") :: ModuleScript)
 local PlayZone = require(Shared:WaitForChild("PlayZone") :: ModuleScript)
 local MatchScreens = require(Shared:WaitForChild("MatchScreens") :: ModuleScript)
+local MapLighting = require(Shared:WaitForChild("MapLighting") :: ModuleScript)
 
 local RUNNER = "MatchClientRunner"
 local LOBBY_ZOOM = 12 -- studs: the lobby camera distance after leaving first person
@@ -63,6 +64,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 local runner: LocalScript? = nil
 local guisBefore: { [Instance]: boolean } = {}
+local lobbyLighting: MapLighting.Baseline? = nil -- the lobby's, while a pad duel lights this view
 
 -- What the match client may leave behind: its screens, the camera setup, the
 -- mouse lock, the viewmodel and effects under the camera.
@@ -105,6 +107,10 @@ local function stop()
 		old:Destroy()
 		cleanUp()
 	end
+	if lobbyLighting then
+		MapLighting.restore(lobbyLighting)
+		lobbyLighting = nil
+	end
 end
 
 local function start()
@@ -112,6 +118,9 @@ local function start()
 	table.clear(guisBefore)
 	for _, gui in playerGui:GetChildren() do
 		guisBefore[gui] = true
+	end
+	if not lobbyLighting then
+		lobbyLighting = MapLighting.capture()
 	end
 	local copy = script:Clone()
 	copy.Name = "ClientRunner"

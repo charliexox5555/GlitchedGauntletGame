@@ -214,12 +214,16 @@ function Damage.hurt(humanoid: Humanoid, amount: number, attacker: Player?): num
 	if amount ~= amount or amount <= 0 or amount == math.huge then
 		return 0
 	end
+	local victim = humanoid.Parent
 	-- After the round is decided (RoundEnd) everyone can still shoot and cast,
-	-- but nothing hurts: the result and the stats stay as they were.
-	if MatchState.phase() == "RoundEnd" then
+	-- but nothing hurts: the result and the stats stay as they were. (The
+	-- victim's own match: a lobby server can run several, MatchState.)
+	local victimOwner: Instance? = if victim
+		then (Players:GetPlayerFromCharacter(victim) or victim)
+		else nil
+	if MatchState.phase(victimOwner) == "RoundEnd" then
 		return 0
 	end
-	local victim = humanoid.Parent
 	-- Players only take damage in a match, and only from their own match
 	-- (PlayZone): nobody gets hurt in the lobby or the range, and two pad
 	-- duels in one lobby server never touch each other.
@@ -270,7 +274,8 @@ function Damage.apply(
 	modSource: string?
 )
 	local humanoid = Targets.liveHumanoid(victimModel)
-	if not humanoid or MatchState.phase() == "RoundEnd" then
+	local owner: Instance = Players:GetPlayerFromCharacter(victimModel) or victimModel
+	if not humanoid or MatchState.phase(owner) == "RoundEnd" then
 		return -- after the round: shots land, nothing counts (no confirm, no BLOCKED)
 	end
 	for _, modify in damageModifiers do

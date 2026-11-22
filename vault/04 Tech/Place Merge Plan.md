@@ -33,6 +33,8 @@ The owner's call: **the Lobby and the match become one place.** Everything runs 
 4. **Match instances (pad duels).** Scope MatchState, remotes, the player list and map placement per match; pads fill with players from this server, count down, start a duel; players come back to the lobby afterwards. Several duels at once.
 5. **Studio move.** The 12 release maps, map kits, ambience, MaterialService variants and match-only assets copied from the match place into the Lobby place; save; check every map loads in both roles.
 
+6. **Third-person body (owner 2026-11-21, added mid-merge).** Replace the blocky match body with a smooth, RIVALS-like third-person body, used everywhere: in matches, in the range and also for players walking the lobby (who can then run and slide too). Keep the player's own face and hair to an extent, as RIVALS does. New third-person animations that read well (aim pitch looking up and down, run, slide), "flawless and smooth". Start with a study of the RIVALS body in the RIVALS place (the owner left it in play mode, and allows stopping it and playing it to look): its mesh setup, how it keeps the face and hair, and how its animation layers work. Then decide whether to rebuild it or make something very close. Touches `shared/MatchBody`, `CharacterService`, `Config/Avatar`, the animation configs and the lobby movement.
+
 ## Open questions (ask as they come up)
 - Pad duel map: map vote (as now) or one map per pad? Default: vote among maps that fit the size.
 - Can lobby players watch a pad duel? Default: not in this pass.
@@ -41,5 +43,23 @@ The owner's call: **the Lobby and the match become one place.** Everything runs 
 ## LihFolk notes used
 `41 Multiplayer Services`: Teleporting and Multi-Place Games; Reserved and Private Servers in Practice; TeleportService - Engine Reference Card; Matchmaking Queues with MemoryStore; MemoryStore Service; Error Handling and Retries.
 
-## Results
-(filled in per phase)
+## Results (2026-11-21)
+**Built and tested in the Lobby Studio** (single-player playtests through the Studio MCP).
+- **Step 1, one place** (commit `bc22cc09`). `lobby.project.json` now carries the match server and client too, and is the merged place's project. `default.project.json` still serves the retired match place, where everything plays as a Match server. `ServerRole`, `PlayZone`, `MatchScreens`. Players spawn in LobbyV5. The match client in a lobby server runs only while the player is armed. **Studio move:** the 12 release maps went to `ServerStorage.Maps`, plus `MapKit`/`MapTools`, `Abilities`, `OvertimeZoneMeshes`, 7 `UiTemplates` folders, RuinBlighted and ShadowMistRound skins, 69 MaterialVariants, and the 10 match screens to `ReplicatedStorage.MatchScreens`. These were copied over a DataStore bridge (SerializationService, `MergeTransfer_v1`) and the Lobby place saved as v931. The RIVALS copies (Docks, Museum, Rivals Asset Pack, MapsRivals) were not moved; they stay in the match place.
+- **Range** (step 1). Join → match body, first person, new HUD, 25/∞ Vandal, lobby HUD hidden. Leave → own avatar, third person, lobby HUD back. Entered and left twice: a fresh client each time, no errors.
+- **Step 2, global queue** (commit `6b5825eb`). In Studio a 1v1 search wrote a ticket, this server took the lease, the matchmaker filled with a bot after 5 s and claimed the ticket, and the launcher would teleport to a reserved server of 71551303511506. **Not tested yet:** two real servers matching each other, and a real teleport (needs the place published and two accounts).
+- **Match role in the Lobby place** (Studio Workspace attr `ServerRole = "Match"`, `BotMatch = "1v1"`). The whole match runs through `MatchHost` → `MatchRunner`: map, draft, rounds; lobby screens off.
+- **Step 3, pad duels.** Standing on Bay_05 side A (Studio `PadDuelSolo`) gave A=1, a 3 s count, then a duel `443387b0` in slot 1: Arena at x 24,500 in `Workspace.Matches`, its own state folder, a bot, the draft screen, rounds counting. The lobby's own state was untouched.
+
+### What to test (owner)
+1. Lobby Studio: Play. You spawn in the LobbyV5 hub.
+2. Walk into the range hologram: first person, your guns, P for the gun picker, shoot the training bots (they come back). Walk out through the exit gate: your avatar, lobby UI.
+3. Studio **Test → 2 players**: both step on one 1v1 pad, one per half. The halves light blue and red and count down, then you fight on a map in the same server. At the end you're back in the lobby.
+4. Published place, two accounts in **different servers**: PLAY → 1v1 on both. You should land in the same private match server, then come back to a public lobby.
+
+### Known gaps / next
+- Lighting for pad duels is per player; the lobby lighting comes back when you leave. Whole-server matches use `Config/MatchLighting` (the old match place's values).
+- Callbacks into shared services from ended duels stay registered (they go quiet through `Context.alive`). That's a small leak per duel.
+- Mod walls and mod entities sit in shared folders. A duel that ends mid-round may leave a wall until its owner's next life.
+- Players watching a pad duel, and requeueing from the pad (Play Again), aren't built.
+- `MatchLift` (the lift plate on match found) no longer triggers, because pads don't search the global queue any more.

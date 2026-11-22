@@ -16,13 +16,14 @@
 --     per side, for the screen's match line), "VoteChosen" ("" while voting,
 --     then the picked map for VOTE.chosenSeconds).
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
-local MatchState = require(ReplicatedStorage.Shared.MatchState)
-local Net = require(ReplicatedStorage.Shared.Net)
+local MatchState = require(script.Parent.Parent.MatchState)
+local Net = Context.net
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 
 local MapVoteService = {}

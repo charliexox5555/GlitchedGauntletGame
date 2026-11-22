@@ -5,7 +5,8 @@
 -- spawns every player there and runs the dummies (TestRange/Dummies). It has
 -- no remotes: dummies are shot through the normal WeaponService validation.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local TestMode = require(ReplicatedStorage.Shared.TestMode)

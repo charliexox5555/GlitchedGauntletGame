@@ -15,18 +15,21 @@
 -- rooftop edge) dies at once instead of falling to FallenPartsDestroyHeight.
 -- The map's authored "KillDepth" field (studs) overrides the default.
 
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
 local CollectionService = game:GetService("CollectionService")
-local Lighting = game:GetService("Lighting")
-local Players = game:GetService("Players")
+local Players = Context.players
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 
 local Health = require(game:GetService("ReplicatedStorage").Shared.Health)
+local MapLighting = require(game:GetService("ReplicatedStorage").Shared.MapLighting)
 local MatchConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Match)
 
-local HealthService = require(script.Parent.HealthService)
+local HealthService = require(Globals.HealthService)
 
 local MapService = {}
 
@@ -37,101 +40,19 @@ local active: Model? = nil
 
 local KILL_CHECK = 0.2 -- seconds between checks
 
--- The place's own lighting, captured before the first map changes it.
-type Baseline = { props: { [string]: any }, fx: { Instance } }
-local baseline: Baseline? = nil
-local LIGHTING_PROPS = {
-	"Ambient",
-	"Brightness",
-	"ClockTime",
-	"ColorShift_Bottom",
-	"ColorShift_Top",
-	"EnvironmentDiffuseScale",
-	"EnvironmentSpecularScale",
-	"ExposureCompensation",
-	"FogColor",
-	"FogEnd",
-	"FogStart",
-	"GeographicLatitude",
-	"GlobalShadows",
-	"OutdoorAmbient",
-	"ShadowSoftness",
-}
-local FX_CLASSES: { [string]: boolean } = {
-	Sky = true,
-	Atmosphere = true,
-	BloomEffect = true,
-	ColorCorrectionEffect = true,
-	SunRaysEffect = true,
-	DepthOfFieldEffect = true,
-	BlurEffect = true,
-}
-local MAP_FX_ATTRIBUTE = "FromMap"
+-- The place's own lighting, captured before the first map changes it
+-- (whole-server matches only: a pad duel's players light their own view,
+-- client/Controllers/MatchLightingController).
+local baseline: MapLighting.Baseline? = nil
 
-local function captureBaseline()
-	if baseline then
+local function applyLighting(map: Model)
+	if not Context.ownsServer then
 		return
 	end
-	local props: { [string]: any } = {}
-	for _, name in LIGHTING_PROPS do
-		props[name] = (Lighting :: any)[name]
+	if not baseline then
+		baseline = MapLighting.matchBaseline()
 	end
-	local fx: { Instance } = {}
-	for _, child in Lighting:GetChildren() do
-		if FX_CLASSES[child.ClassName] then
-			table.insert(fx, child:Clone())
-		end
-	end
-	baseline = { props = props, fx = fx }
-end
-
--- The place's lighting back, then the map's own on top (if it has any).
-local function applyLighting(map: Model)
-	captureBaseline()
-	local base = baseline :: Baseline
-	local config = map:FindFirstChild("Lighting")
-	local mapFx = map:FindFirstChild("LightingFx")
-	for name, value in base.props do
-		pcall(function()
-			(Lighting :: any)[name] = value
-		end)
-	end
-	-- Effects: the map's replace the place's of the same class.
-	local replace: { [string]: boolean } = {}
-	if mapFx then
-		for _, child in mapFx:GetChildren() do
-			replace[child.ClassName] = true
-		end
-	end
-	for _, child in Lighting:GetChildren() do
-		if FX_CLASSES[child.ClassName] then
-			child:Destroy()
-		end
-	end
-	for _, fx in base.fx do
-		if not replace[fx.ClassName] then
-			fx:Clone().Parent = Lighting
-		end
-	end
-	if mapFx then
-		for _, child in mapFx:GetChildren() do
-			if FX_CLASSES[child.ClassName] then
-				local c = child:Clone()
-				StateValues.set(c, MAP_FX_ATTRIBUTE, map.Name)
-				c.Parent = Lighting
-			end
-		end
-	end
-	if config and config:IsA("Configuration") then
-		for name, value in StateValues.all(config) do
-			local ok = pcall(function()
-				(Lighting :: any)[name] = value
-			end)
-			if not ok then
-				warn("[MapService] map lighting: can't set Lighting." .. name)
-			end
-		end
-	end
+	MapLighting.apply(baseline :: MapLighting.Baseline, map)
 end
 
 local function mapsFolder(): Folder
@@ -181,15 +102,38 @@ function MapService.load(id: string): boolean
 		active:Destroy()
 	end
 	local map = source:Clone()
-	map.Name = "ActiveMap"
-	-- Whole map loaded for everyone, so an enemy never streams out mid-fight.
-	map.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
-	map.Parent = workspace
+	-- A pad duel (MatchKit/Context): its own name and map slot, in its own world folder.
+	map.Name = if Context.ownsServer then "ActiveMap" else "ActiveMap_" .. Context.id
+	map:SetAttribute("MatchId", if Context.ownsServer then nil else Context.id)
+	if Context.offset ~= Vector3.zero then
+		map:PivotTo(map:GetPivot() + Context.offset)
+	end
+	-- Whole map loaded for everyone, so an enemy never streams out mid-fight. A
+	-- pad duel's map only for its own players (lobby players never need it).
+	if Context.ownsServer then
+		map.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	else
+		map.ModelStreamingMode = Enum.ModelStreamingMode.PersistentPerPlayer
+		for _, p in Players:GetPlayers() do
+			map:AddPersistentPlayer(p)
+		end
+	end
+	map.Parent = Context.world
 	active = map
-	for _, d in workspace:GetDescendants() do
-		if d:IsA("SpawnLocation") then
-			d.Enabled = d:IsDescendantOf(map)
-			d.Duration = 0 -- no spawn shield: the barrier protects you until the fight
+	if Context.ownsServer then
+		for _, d in workspace:GetDescendants() do
+			if d:IsA("SpawnLocation") then
+				d.Enabled = d:IsDescendantOf(map)
+				d.Duration = 0 -- no spawn shield: the barrier protects you until the fight
+			end
+		end
+	else
+		-- In a lobby server the lobby's spawns stay; the duel places its players itself (MatchService).
+		for _, d in map:GetDescendants() do
+			if d:IsA("SpawnLocation") then
+				d.Enabled = false
+				d.Duration = 0
+			end
 		end
 	end
 	return true
@@ -327,7 +271,9 @@ local function stashMaps()
 end
 
 function MapService.start()
-	stashMaps()
+	if Context.ownsServer then
+		stashMaps()
+	end
 	RunService.Heartbeat:Connect(checkFalls)
 end
 

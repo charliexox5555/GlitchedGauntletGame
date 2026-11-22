@@ -7,7 +7,7 @@ local PathfindingService = game:GetService("PathfindingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
-local Zone = require(ReplicatedStorage.Shared.Zone)
+local Zone = require(script.Parent.Parent.Zone)
 local BotTypes = require(script.Parent.Types)
 
 type Bot = BotTypes.Bot

@@ -12,14 +12,15 @@
 -- retried, and a player whose teleport keeps failing stays on the list, so
 -- MatchService resends them while it waits for the server to empty.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
-local MatchState = require(ReplicatedStorage.Shared.MatchState)
-local Net = require(ReplicatedStorage.Shared.Net)
+local MatchState = require(script.Parent.Parent.MatchState)
+local Net = Context.net
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 
 local StatsService = require(script.Parent.StatsService)
@@ -59,6 +60,15 @@ end
 
 -- One try for `players` (a throw retries each on their own, with backoff).
 local function teleport(players: { Player }, data: LobbyReturn)
+	-- A pad duel in a lobby server (MatchKit/Context): back to the lobby here, no teleport.
+	if Context.padDuel then
+		for _, p in players do
+			if p.Parent == Players and Context.sendHome then
+				Context.sendHome(p)
+			end
+		end
+		return
+	end
 	local list: { Player } = {}
 	for _, p in players do
 		if p.Parent == Players then
@@ -245,6 +255,9 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 		end
 	end
 	teleport(rest, lobbyReturn("Leave"))
+	if Context.padDuel and Context.finish then
+		Context.finish(rest)
+	end
 	return false
 end
 

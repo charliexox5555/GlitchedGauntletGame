@@ -100,7 +100,14 @@ end
 -- Returns its point (on or above the floor), the winners' facing, and
 -- whether it is the fallback.
 local function anchor(): (Vector3, Vector3, boolean)
+	-- A pad duel's map is named after its match (MapService).
+	local matchId = game:GetService("Players").LocalPlayer:GetAttribute("MatchId")
 	local map = Workspace:FindFirstChild("ActiveMap")
+	if typeof(matchId) == "string" then
+		local matches = Workspace:FindFirstChild("Matches")
+		local world = matches and matches:FindFirstChild(matchId)
+		map = world and world:FindFirstChild("ActiveMap_" .. matchId)
+	end
 	if map then
 		for _, part in CollectionService:GetTagged(Config.STAGE_TAG) do
 			if part:IsA("BasePart") and part:IsDescendantOf(map) then

@@ -11,20 +11,23 @@
 -- arguments trusted), and a victim gets a combat report on death: the damage
 -- they dealt to their killer and took from them this life (`CombatReport`).
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
-local Net = require(ReplicatedStorage.Shared.Net)
+local Net = Context.net
 local Pawns = require(ReplicatedStorage.Shared.Simulation.Pawns)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
-local HealthService = require(script.Parent.HealthService)
-local WeaponService = require(script.Parent.WeaponService)
+local HealthService = require(Globals.HealthService)
+local WeaponService = require(Globals.WeaponService)
 
 local StatsService = {}
 
@@ -305,8 +308,9 @@ function StatsService.summary(): { Line }
 end
 
 function StatsService.start()
-	WeaponService.onHit(onHit)
-	HealthService.onDowned(function(humanoid: Humanoid)
+	-- Shared services hear every fighter in the server: only this match's count (MatchKit/Context).
+	WeaponService.onHit(Context.filtered(2, onHit))
+	HealthService.onDowned(Context.filtered(1, function(humanoid: Humanoid)
 		local body = humanoid.Parent
 		local e = body and entryOf(body)
 		if e then
@@ -315,7 +319,7 @@ function StatsService.start()
 			-- its combat report) runs after this, and needs the life's damage.
 			task.defer(forgetLife, e.id)
 		end
-	end)
+	end))
 	-- The hold-Tab scoreboard: the live lines, for the asker only.
 	Net.event("Scoreboard").OnServerEvent:Connect(function(player: Player)
 		if limiter:allow(player, "Scoreboard") then

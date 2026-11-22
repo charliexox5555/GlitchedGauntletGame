@@ -4,7 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
-local Zone = require(ReplicatedStorage.Shared.Zone)
+local Zone = require(script.Parent.Parent.Zone)
 local BotGun = require(script.Parent.BotGun)
 
 export type Memory = {

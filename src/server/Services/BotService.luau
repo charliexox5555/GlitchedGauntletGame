@@ -7,7 +7,10 @@
 -- THINK_RATE (Bots/Brain) and a cheap act every frame. MatchService asks
 -- for bots, spawns them, and counts them for round results.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -19,12 +22,12 @@ local Combat = require(Shared.Config.Combat)
 local Health = require(Shared.Health)
 local Locker = require(Shared.Locker)
 local MatchBody = require(Shared.MatchBody)
-local MatchState = require(Shared.MatchState)
+local MatchState = require(script.Parent.Parent.MatchState)
 local InputConfig = require(Shared.Config.Input)
 local Pawns = require(Shared.Simulation.Pawns)
 local SkinPreview = require(Shared.SkinPreview)
 local Teams = require(Shared.Mods.Teams)
-local Zone = require(Shared.Zone)
+local Zone = require(script.Parent.Parent.Zone)
 
 local Bots = script.Parent.Parent.Bots
 local Aim = require(Bots.Aim)
@@ -38,10 +41,10 @@ local Identity = require(Bots.Identity)
 local Perception = require(Bots.Perception)
 local Tactics = require(Bots.Tactics)
 
-local CharacterService = require(script.Parent.CharacterService)
+local CharacterService = require(Globals.CharacterService)
 local ModWalls = require(script.Parent.ModWalls)
-local WeaponService = require(script.Parent.WeaponService)
-local HeldItem = require(script.Parent.Weapon.HeldItem)
+local WeaponService = require(Globals.WeaponService)
+local HeldItem = require(Globals.Weapon.HeldItem)
 
 type Bot = BotTypes.Bot
 
@@ -143,11 +146,16 @@ local function newBot(team: number): Bot
 	StateValues.set(owner, "ModHeld", 0)
 	StateValues.set(owner, "IsBot", true)
 	StateValues.set(owner, "Level", level)
-	local folder = ReplicatedStorage:FindFirstChild(MatchState.BOT_SEATS)
+	-- Which match this bot plays in (several can run in a lobby server: MatchKit/Context).
+	if not Context.ownsServer then
+		owner:SetAttribute("MatchId", Context.id)
+	end
+	local seatsParent = MatchState.seatsParent()
+	local folder = seatsParent:FindFirstChild(MatchState.BOT_SEATS)
 	if not folder then
 		folder = Instance.new("Folder")
 		folder.Name = MatchState.BOT_SEATS
-		folder.Parent = ReplicatedStorage
+		folder.Parent = seatsParent
 	end
 	local seat = Instance.new("Configuration")
 	seat.Name = name
@@ -377,6 +385,9 @@ local function spawnBot(bot: Bot, at: CFrame)
 	align.Parent = root
 	aligns[bot] = align
 
+	if not Context.ownsServer then
+		model:SetAttribute("MatchId", Context.id)
+	end
 	model.Parent = dummyFolder()
 	-- The block body, this bot's own (its skinned limbs live in
 	-- Workspace.GGBodyLimbs and go with its parts).
@@ -941,13 +952,13 @@ function BotService.start()
 		Identity.collect(player)
 	end
 	Identity.prefetch()
-	WeaponService.onShot(function(player: Player)
+	WeaponService.onShot(Context.filtered(1, function(player: Player)
 		local character = player.Character
 		local head = character and character:FindFirstChild("Head")
 		if character and head and head:IsA("BasePart") then
 			hearShot(character, head.Position)
 		end
-	end)
+	end))
 	RunService.Heartbeat:Connect(step)
 	-- A teammate's Recon: every bot on that team learns where they are.
 	BotMods.setRevealListener(function(team: number, targets: { Model })

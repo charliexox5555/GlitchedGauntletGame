@@ -7,19 +7,22 @@
 -- clears it. Allowed only for a player who is down or not spawned, and only
 -- on a teammate, or on anyone during the round end (you watch your killer).
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Health = require(ReplicatedStorage.Shared.Health)
-local MatchState = require(ReplicatedStorage.Shared.MatchState)
-local Net = require(ReplicatedStorage.Shared.Net)
+local MatchState = require(script.Parent.Parent.MatchState)
+local Net = Context.net
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local BotService = require(script.Parent.BotService)
 local ModService = require(script.Parent.ModService)
-local Spectated = require(script.Parent.Parent.Bots.Spectated)
+local Spectated = require(Globals.Parent.Bots.Spectated)
 
 local SpectateService = {}
 
@@ -33,7 +36,7 @@ local function clearFocus(player: Player)
 	watching[player] = nil
 	sentMods[player] = nil
 	player.ReplicationFocus = nil
-	Spectated.sync(watching)
+	Spectated.sync(watching, Context.id)
 end
 
 -- The fighter's body for a target the client named: a player in this game,
@@ -84,7 +87,7 @@ local function onSpectate(player: Player, target: unknown)
 	watching[player] = target
 	sentMods[player] = nil -- a fresh snapshot for the new target
 	player.ReplicationFocus = root
-	Spectated.sync(watching)
+	Spectated.sync(watching, Context.id)
 end
 
 -- Out of the round end, focus on an enemy (your killer) ends; so does focus
@@ -154,7 +157,7 @@ function SpectateService.start()
 		limiter:forget(player)
 		sentMods[player] = nil
 		watching[player] = nil
-		Spectated.sync(watching)
+		Spectated.sync(watching, Context.id)
 		task.defer(recheck) -- anyone watching them
 	end)
 	MatchState.changed("Phase"):Connect(recheck)

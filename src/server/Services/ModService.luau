@@ -34,7 +34,10 @@
 -- line of sight, target) → spend → apply → ModFx. A refused request costs
 -- nothing and tells only the caster ("Denied").
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -45,10 +48,10 @@ local Charges = require(Shared.Mods.Charges)
 local Combat = require(Shared.Config.Combat)
 local Config = require(Shared.Config.Mods)
 local Dev = require(Shared.Config.Dev)
-local MatchState = require(Shared.MatchState)
+local MatchState = require(script.Parent.Parent.MatchState)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
-local Net = require(Shared.Net)
+local Net = Context.net
 local RateLimit = require(Shared.Util.RateLimit)
 local SelfBuff = require(Shared.Mods.Blocks.SelfBuff)
 local Status = require(Shared.Mods.Status)
@@ -59,14 +62,14 @@ local TestMode = require(Shared.TestMode)
 local TestRange = require(Shared.Config.TestRange)
 local Validate = require(Shared.Util.Validate)
 
-local ModEntities = require(script.Parent.ModEntities)
+local ModEntities = require(Globals.ModEntities)
 local ModRecall = require(script.Parent.ModRecall)
 local ModSim = require(script.Parent.ModSim)
-local HeldItem = require(script.Parent.Weapon.HeldItem)
-local Motion = require(script.Parent.Weapon.Motion)
+local HeldItem = require(Globals.Weapon.HeldItem)
+local Motion = require(Globals.Weapon.Motion)
 local ModWalls = require(script.Parent.ModWalls)
-local StatusService = require(script.Parent.StatusService)
-local WeaponService = require(script.Parent.WeaponService)
+local StatusService = require(Globals.StatusService)
+local WeaponService = require(Globals.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
 
 type SlotState = { id: string?, level: string, charges: number, rechargeAt: number }
@@ -1092,8 +1095,13 @@ function ModService.start()
 			data.level = level
 			Net.event("ModFx"):FireAllClients(kind, data)
 		end,
-		guard = WeaponService.addDamageGuard,
-		modifier = WeaponService.addDamageModifier,
+		-- Shared damage hooks hear every fight in the server: only this match's (MatchKit/Context).
+		guard = function(fn)
+			WeaponService.addDamageGuard(Context.filtered(1, fn) :: any)
+		end,
+		modifier = function(fn)
+			WeaponService.addDamageModifier(Context.filtered(1, fn) :: any)
+		end,
 		onRefill = function(fn: (player: Player) -> ())
 			table.insert(refillListeners, fn)
 		end,

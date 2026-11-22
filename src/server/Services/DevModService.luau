@@ -21,8 +21,11 @@
 --                                  guards (solo Barrier / Crash Recovery / heal tests; can kill)
 -- (Quick-cast is a client setting: the panel toggles it locally.)
 
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Globals =
+	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local CollectionService = game:GetService("CollectionService")
-local Players = game:GetService("Players")
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -30,16 +33,16 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config.Mods)
 local Mods = require(Shared.Mods)
-local Net = require(Shared.Net)
+local Net = Context.net
 local RateLimit = require(Shared.Util.RateLimit)
 local Teams = require(Shared.Mods.Teams)
 local TestMode = require(Shared.TestMode)
 local TestRange = require(Shared.Config.TestRange)
 local Validate = require(Shared.Util.Validate)
 
-local CharacterService = require(script.Parent.CharacterService)
+local CharacterService = require(Globals.CharacterService)
 local ModService = require(script.Parent.ModService)
-local WeaponService = require(script.Parent.WeaponService)
+local WeaponService = require(Globals.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 

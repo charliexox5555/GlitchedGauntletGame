@@ -18,7 +18,8 @@
 -- no damage: enemies in it are Hindered for `hinder` seconds instead
 -- (refreshed every tick they stay in), your team and you not at all.
 
-local Players = game:GetService("Players")
+local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
+local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
