@@ -180,6 +180,19 @@ Owner: "yes go ahead"; health = "the simple bar like in the mockup" (the old pan
 
 **Next:** the owner's playtest on a phone (or the Studio Device Emulator), then the layout editor (UI Architecture §9 step 7).
 
+## Fixes after the owner's phone review (2026-11-22)
+- **Look-through:** the buttons don't take touches (`Interactable = false`), so Roblox's camera turns with a touch that starts on Fire or a Mod; TouchController hit-tests the touch itself (circles 20% bigger than drawn) and fires the actions. The stick zone still blocks the camera.
+- **Highlight:** a held button shows a lit plate (`3B4454`) and presses to 0.94.
+- **Stick:** it follows the thumb past 1.6× its ring, so changing direction answers at once.
+- **Auto Sprint** (Settings, default on): the Sprint button and the stick's lock hint hide.
+- **Aim:** hidden on guns with `noAds`. On guns with `noAds` + `altFire` (Classic, Knife) it holds the alt fire, their right click.
+- **Inspect row:** placed from `GuiService.TopbarInset`, which is the free space between Roblox's buttons (Min.X = the right edge of Roblox's left buttons). The first version read it backwards and Inspect landed mid-screen.
+- **Hidden while dead / spectating;** the death and spectate screens own the bottom.
+- **Scoreboard button:** hold to show, like Tab (the scoreboard now works on phones).
+- **Kill feed** on the right under the weapon slots, 2× size. **NetStats** hidden on phones.
+- **Health:** the simple bar is the touch screen's own; the old v1 panel is deleted.
+- **Not yet:** touch camera sensitivity and aim assist (after the owner's playtest).
+
 ## 7. Build steps (after picks)
 1. Icon sheet (SVG) → owner review → upload.
 2. Studio mockup of the Touch screen in `StarterPlayerScripts.UI/Touch` at 844×390 and 667×375 (device sheet capture) → owner edits it in Studio.
