@@ -132,8 +132,11 @@ return table.freeze({
 		LeftLeg = 15365010038,
 		RightLeg = 15365010030,
 	}),
-	-- The head for bots, dummies and oversized own heads: the bundle's dynamic head.
-	STANDARD_HEAD = 15365010165,
+	-- The head for bots, dummies and oversized own heads: Roblox's classic head (0) with the default face. (The
+	-- bundle's dynamic head, 15365010165, rendered faceless on dummies, 2026-11-21.)
+	STANDARD_HEAD = 0,
+	-- The face for a standard head (bots, dummies, a swapped head): Roblox's default "Smile" face.
+	DEFAULT_FACE = 144075659,
 	-- Own heads bigger than this (studs, any axis order) get the standard head instead (RIVALS swaps oversized
 	-- heads too); the hitbox is the same for everyone either way (HEAD_HITBOX).
 	HEAD_LIMIT = Vector3.new(1.7, 1.9, 1.7),

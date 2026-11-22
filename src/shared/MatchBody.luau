@@ -37,6 +37,10 @@ function MatchBody.description(own: HumanoidDescription?): HumanoidDescription
 		then (if own and own.Head ~= 0 then own.Head else Avatar.STANDARD_HEAD)
 		else 0
 	local parts = Avatar.S15_PARTS
+	-- A standard head needs a face of its own (an own dynamic head brings one).
+	if skinned and d.Head == 0 then
+		d.Face = Avatar.DEFAULT_FACE
+	end
 	d.Torso = if skinned then parts.Torso else 0
 	d.LeftArm = if skinned then parts.LeftArm else 0
 	d.RightArm = if skinned then parts.RightArm else 0
@@ -63,7 +67,7 @@ function MatchBody.description(own: HumanoidDescription?): HumanoidDescription
 			d.Pants = own.Pants
 			d.GraphicTShirt = own.GraphicTShirt
 		end
-		if Avatar.KEEP_FACE then
+		if Avatar.KEEP_FACE and own.Face ~= 0 then
 			d.Face = own.Face
 		end
 		if MatchBody.usesSkinnedBody() then
@@ -567,6 +571,9 @@ local function finishSkinnedBody(model: Model)
 		local ok, err = pcall(function()
 			local applied = humanoid:GetAppliedDescription()
 			applied.Head = Avatar.STANDARD_HEAD
+			if applied.Face == 0 then
+				applied.Face = Avatar.DEFAULT_FACE
+			end
 			humanoid:ApplyDescriptionAsync(applied)
 		end)
 		if not ok then

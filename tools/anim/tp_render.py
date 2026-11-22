@@ -5,6 +5,7 @@ busy; the engine review still decides the grade.
 
     python -I tools/anim/tp_render.py out.png RunL@n8 Jump@0,0.1,0.2 --views=90,0
     python -I tools/anim/tp_render.py out.png RunL@n8 --views=90,0 --trail   # ground moves under the body
+    python -I tools/anim/tp_render.py out.png AimUp@0 --views=-35 --dpi=300   # bigger pictures
 
 View yaw: 0 = from the front, 90 = from the character's right side, 180 =
 from behind, -90 = its left side. `--trail` slides each frame along the
@@ -121,9 +122,12 @@ def main():
 	views = [90, 0]
 	trail = False
 	gun = None
+	dpi = 110
 	specs = []
 	for arg in sys.argv[2:]:
-		if arg.startswith("--views="):
+		if arg.startswith("--dpi="):
+			dpi = int(arg[6:])
+		elif arg.startswith("--views="):
 			views = [int(v) for v in arg[8:].split(",")]
 		elif arg == "--trail":
 			trail = True
@@ -176,7 +180,7 @@ def main():
 			ax.set_ylim(-3.3, 2.6)
 			ax.set_title("%s %d° t=%.2f" % (name, yaw, t), fontsize=6)
 	plt.tight_layout()
-	plt.savefig(out, dpi=110)
+	plt.savefig(out, dpi=dpi)
 	print("wrote", out)
 
 

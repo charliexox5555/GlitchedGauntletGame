@@ -20,14 +20,14 @@ return table.freeze({
 		-- Holding the gun, blended by aim pitch (Action priority). Solved on a
 		-- rig with both hands on the gun (tools/studio/MakeHoldAnimations,
 		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
-		AimUp = id(88731037976156), -- o2 2026-11-20: breathing hold (was 137847543596504) -- looking AIM_PITCH_UP degrees up
+		AimUp = id(76675781741304), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 88731037976156) -- looking AIM_PITCH_UP degrees up
 		AimLevel = id(105637585256231), -- o2 2026-11-20: breathing hold (was 133205732621181)
 		AimDown = id(118568564589362), -- r2 2026-11-21: breathing hold, the head looks down with the aim (o2 118137664448884; was 86939677186257) -- looking AIM_PITCH_DOWN degrees down (v7 2026-11-15: the gun goes out as it drops, the right forearm was inside the chest; was 111694202793931)
 		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
-		PistolAimUp = id(104552117240290), -- o2 2026-11-20: breathing hold (was 95901417628746)
+		PistolAimUp = id(138228207228666), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 104552117240290)
 		PistolAimLevel = id(134408200055475), -- o2 2026-11-20: breathing hold (was 91403700231911)
 		PistolAimDown = id(88754165814506), -- r2 2026-11-21: breathing hold, head looks down (o2 111015808504046; was 70510113818516)
-		PistolAdsUp = id(123908701376846), -- o2 2026-11-20: breathing hold (was 115421178439718)
+		PistolAdsUp = id(72465943608438), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 123908701376846)
 		PistolAdsLevel = id(93700559415008), -- o2 2026-11-20: breathing hold (was 77191013164054)
 		PistolAdsDown = id(100517179779054), -- r2 2026-11-21: breathing hold, head looks down (o2 73233869134802; was 80580729310516)
 		-- Movement (Action2; Slide is Action3 so it wins over everything).
@@ -98,7 +98,7 @@ return table.freeze({
 	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
 	-- hit (HitAt).
 	COMBAT = table.freeze({
-		AdsUp = id(87449585195829), -- o2 2026-11-20: breathing hold (was 88665317482255)
+		AdsUp = id(125005732940313), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 87449585195829)
 		AdsLevel = id(86480588512249), -- o2 2026-11-20: breathing hold (was 95863412039587)
 		AdsDown = id(86597667703377), -- r2 2026-11-21: breathing hold, head looks down (o2 77870476375092; was 139601720262674)
 		Reload = id(110565531734561), -- o1 2026-11-20 overnight TP pass, splines (was 102765870602957) -- v7 2026-11-15: a low-ready swap, the face stays clear (v6 112777133763655 stood the rifle up over the head)
@@ -126,16 +126,16 @@ return table.freeze({
 	-- shoulder, muzzle up, chest rocked back, head still. Util/BodyRecoil
 	-- blends a share of it over the hold on every shot (Config/Juice BODY_KICK).
 	RECOIL = table.freeze({
-		AimUp = id(95144292931563),
+		AimUp = id(129629585356839), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 95144292931563)
 		AimLevel = id(76597005020546),
 		AimDown = id(109221910357149), -- r2: head as the hold (was 89250731384338)
-		AdsUp = id(136021206805401),
+		AdsUp = id(71635127736084), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 136021206805401)
 		AdsLevel = id(73969040108481),
 		AdsDown = id(131076841934336), -- r2 (was 132640996566965)
-		PistolAimUp = id(71397627439679),
+		PistolAimUp = id(122300691641604), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 71397627439679)
 		PistolAimLevel = id(89288747742889),
 		PistolAimDown = id(128468054309219), -- r2 (was 90306962924727)
-		PistolAdsUp = id(117128552950066),
+		PistolAdsUp = id(118515018395854), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 117128552950066)
 		PistolAdsLevel = id(93859139822565),
 		PistolAdsDown = id(97409435633700), -- r2 (was 100422843394946)
 	}),

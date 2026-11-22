@@ -185,6 +185,36 @@ def pitched(pos, pitch):
 	return tuple(AIM_PIVOT + euler(pitch) @ (v3(pos) - AIM_PIVOT))
 
 
+# Looking UP the whole upper body leans back and carries the gun (owner
+# 2026-11-21, after RIVALS: "looking up ... looks really good" there; RIVALS
+# pitches the waist with the aim, Rivals Reference → body): UP_BODY of the
+# pitch is a lean at the waist that takes the shoulder and the gun with it,
+# the rest turns the gun about that (moved) shoulder. Swung about the
+# shoulder alone, the arms rose in front of the face and hid the head from
+# the front (the skinned S15 body, 2026-11-21). Looking down is unchanged.
+UP_BODY = 0.7
+UP_HEAD = 0.85  # the head's share of the pitch looking up (head_share)
+WAIST = v3(0, -0.6, 0)  # the waist joint, root space (tp_rig JOINTS)
+
+
+def chest_pitch(pitch, down_share):
+	"""The chest's share of the aim pitch: UP_BODY looking up, else `down_share`."""
+	return pitch * (UP_BODY if pitch > 0 else down_share)
+
+
+def pitched_body(pos, pitch):
+	"""`pos` (root space) aimed `pitch` degrees: looking up, leaned back at the
+	waist by the body's share and turned about the moved shoulder by the rest
+	(UP_BODY); looking down, swung about the shoulder as before (`pitched`)."""
+	if pitch <= 0:
+		return pitched(pos, pitch)
+	lean = euler(pitch * UP_BODY)
+	turn = euler(pitch * (1 - UP_BODY))
+	leaned = WAIST + lean @ (v3(pos) - WAIST)
+	pivot = WAIST + lean @ (AIM_PIVOT - WAIST)
+	return tuple(pivot + turn @ (leaned - pivot))
+
+
 # The recoil poses (2026-11-15, vault Third Person Overhaul §23): each hold at
 # the far end of a shot's kick: the gun pulled `back` studs along its barrel
 # into the shoulder and a touch up, its muzzle risen `rise` degrees, the chest
@@ -202,7 +232,9 @@ def head_share(pitch, up):
 	aim, read better at -30: the face looks down at the target and meets the
 	stock; the clips' head stayed near level). Looking up it keeps `up`, so
 	the face still shows over the gun."""
-	return 0.95 if pitch < 0 else up
+	# (Up: at least UP_HEAD, so the face tips back along the stock above the
+	# arms with the waist-led lean, UP_BODY.)
+	return 0.95 if pitch < 0 else max(up, UP_HEAD)
 
 
 def long_hold(pitch=0.0, ads=False, kick=None):
@@ -225,9 +257,9 @@ def long_hold(pitch=0.0, ads=False, kick=None):
 	gun = (gun[0], gun[1] + 0.12 * back, gun[2] + back)
 	return standing(
 		{
-			"chest": bladed(lean + pitch * 0.4 + rock, CHEST_TURN - (4 if ads else 0) - twist),
+			"chest": bladed(lean + chest_pitch(pitch, 0.4) + rock, CHEST_TURN - (4 if ads else 0) - twist),
 			"head": head,
-			"gun": {"pos": pitched(gun, pitch), "rot": (pitch + rise, 0, 0)},
+			"gun": {"pos": pitched_body(gun, pitch), "rot": (pitch + rise, 0, 0)},
 			"right_pole": R_POLE,
 			"left_arm": {"on_gun": LONG_GRIP},
 			"left_pole": L_POLE,
@@ -261,9 +293,9 @@ def pistol_hold(pitch=0.0, ads=False, kick=None):
 	gun = (gun[0], gun[1] + 0.25 * back, gun[2] + back)
 	return standing(
 		{
-			"chest": bladed(lean + pitch * 0.35 + rock, -20 - twist),
+			"chest": bladed(lean + chest_pitch(pitch, 0.35) + rock, -20 - twist),
 			"head": head,
-			"gun": {"pos": pitched(gun, pitch), "rot": (pitch + rise, 0, 0)},
+			"gun": {"pos": pitched_body(gun, pitch), "rot": (pitch + rise, 0, 0)},
 			"right_pole": (0.7, -1, 0.3),
 			# Cupping the grip hand from the left and under.
 			"grip": GRIP_SIDEARM,
