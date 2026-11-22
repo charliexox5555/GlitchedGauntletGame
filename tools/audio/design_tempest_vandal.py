@@ -184,7 +184,7 @@ def zap_hits():
 	return [0.168, 0.395, 1.202, 1.639, 2.506, 2.684, 2.91, 1.202]
 
 
-def water_crack(k, length=0.085, gain=-11.0):
+def water_crack(k, length=0.09, gain=-9.0):
 	t = splash_hits()[k % 10]
 	y = seg(fs(WATER_SPLASHES), t - 0.01, length, fout=0.03, lo=650, rel=-24, pitch=0.94 + 0.03 * (k % 3))
 	return (gain, y, 0.6)
@@ -210,13 +210,15 @@ def gun_core(k, base):
 	return core, [(-5.5, B.fade(ak, 0, 0.08), 0.3), (-12.0, B.fade(act, 0, 0.05), 0.0)]
 
 
-def fire(k, base=None, water_gain=-11.0, water_len=0.085, length=0.5, with_zap=None):
+def fire(k, base=None, water_gain=-9.0, water_len=0.09, length=0.5, with_zap=None):
 	base = base or f"{A}shot_0{k % 8 + 1}"
 	core, gun = gun_core(k, base)
 	core = core[: int(length * RATE)]
 	layers = list(gun) + [water_crack(k, water_len, water_gain)]
 	zap_on = with_zap if with_zap is not None else (k % 2 == 0)
-	layers.append(electric_snap(k, gain=-13.0 if zap_on else -19.0))
+	# owner 2026-11-22: "the first shot just sounds like the regular shot": the
+	# skin layers sit a little higher (water -9, snap -11.5 / -15)
+	layers.append(electric_snap(k, gain=-11.5 if zap_on else -15.0))
 	x = stack(length + 0.05, *aligned(core, *layers))[: int(length * RATE)]
 	return B.fade(glue(x, TARGET), 0, 0.06)
 
@@ -400,7 +402,7 @@ def main():
 	clips = {}
 	for k in range(8):
 		clips[f"fire_{k + 1:02d}"] = fire(k)
-	clips["fireFirst_01"] = fire(0, base=f"{A}shot_00_first_01", water_gain=-7.0, water_len=0.12, with_zap=True)
+	clips["fireFirst_01"] = fire(0, base=f"{A}shot_00_first_01", water_gain=-6.0, water_len=0.13, with_zap=True)
 	clips["fireLast_01"] = fire_last()
 	clips["tail_01"] = shot_tail()
 	for k in range(4):

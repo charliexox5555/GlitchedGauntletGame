@@ -65,6 +65,7 @@ export type Profile = {
 	adsHide: boolean?, -- the helix and shot rings clear the sight while aiming
 	pulseEvery: number?, -- a shot ring every Nth shot (fast guns)
 	shellCue: boolean?, -- the Tempest shell-in cue per round (default on)
+	ownFoley: boolean?, -- the gun's designed mag sounds carry the water (no magOut / magSeat cue)
 }
 
 local function v(x: number, y: number, z: number): Station
@@ -110,6 +111,7 @@ local profiles: { [string]: Profile } = {
 		tracks = { draw = "DrawTempest", reload = "ReloadTempest", inspect = "InspectTempest" },
 		reloadSpin = true,
 		fit = false,
+		ownFoley = true, -- TempestAudio.vandal magOut / magIn
 	},
 	-- SMG: receiver to 0.46, shroud 0.46-0.82, thin barrel and brake to the muzzle at 1.14 (bore 0.294).
 	-- No vent flaps (owner 2026-11-22: the flaring plates looked odd).

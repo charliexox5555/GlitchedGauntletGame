@@ -49,6 +49,7 @@ local ImpactFx = require(script.Parent.Parent.Util.ImpactFx)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local MuzzleFx = require(script.Parent.Parent.Util.MuzzleFx)
 local TempestFx = require(script.Parent.Parent.Util.TempestFx)
+local TempestAudio = require(ReplicatedStorage.Shared.Config.TempestAudio)
 local ShellFx = require(script.Parent.Parent.Util.ShellFx)
 local ShotFxKit = require(script.Parent.Parent.Util.ShotFxKit)
 local TracerFx = require(script.Parent.Parent.Util.TracerFx)
@@ -104,6 +105,19 @@ local function shadowShot(config: WeaponConfig): Color3?
 			and cameraSkinLine() == ShadowMist.LINE
 		then ShadowMist.SHOT_TINT
 		else nil
+end
+
+-- The skin line of the gun model `a` sits on (its WeaponId model's SkinLine).
+local function skinLineOf(a: Instance): string?
+	local node: Instance? = a.Parent
+	while node and node ~= Workspace do
+		if node:IsA("Model") and StateValues.get(node, "WeaponId") ~= nil then
+			local line = StateValues.get(node, "SkinLine")
+			return if typeof(line) == "string" then line else nil
+		end
+		node = node.Parent
+	end
+	return nil
 end
 
 -- Our own camera gun wears the Tempest-Strike line (first-person shot effects).
@@ -204,6 +218,10 @@ function EffectsController.localWallImpact(
 	)
 	if tempest then
 		TempestFx.splash(position, normal)
+		local set = TempestAudio.vandal[config.id]
+		if set then
+			AudioController.playSound(set.impact, "Foley", position) -- under the surface sound
+		end
 	end
 end
 
@@ -597,7 +615,11 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	end
 	-- Their shot, 3D at the muzzle: first shot, random takes, a tail with every
 	-- shot faded by the next (Util/GunAudio, per shooter).
-	GunAudio.shot(shooter, config, { at = from })
+	GunAudio.shot(
+		shooter,
+		config,
+		{ at = from, tempest = muzzle ~= nil and skinLineOf(muzzle) == Tempest.LINE }
+	)
 	local maxPellets =
 		math.max(config.pellets, if config.altFire then config.altFire.pellets else 0)
 	for i, e in ends do

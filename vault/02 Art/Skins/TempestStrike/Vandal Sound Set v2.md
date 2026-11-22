@@ -2,7 +2,7 @@
 
 2026-11-22. The owner's brief: "I honestly couldn't get a good Vandal shot sound, so using the Pro Sound library, layer sounds together well … work on Vandal sounds for all the sounds I need to create, and then if I approve them, then we can move on to the other guns." They also allowed downloading new sounds.
 
-**Status:** built and waiting on the owner's audition. Nothing is uploaded or wired in yet.
+**Status (2026-11-22):** the owner approved the audition ("I like the sounds … get it in the game"). It's uploaded and wired in; the owner checks it in game next.
 
 ## Files
 - **Builder:** `tools/audio/design_tempest_vandal.py`. Run it with `python -I tools/audio/design_tempest_vandal.py`.
@@ -78,3 +78,30 @@ For feedback, say per cue: keep, louder or quieter, more or less water, more or 
 1. Upload each file solo; no atlases.
 2. Route the Tempest Vandal's shots and handling through `Config/TempestAudio` and `GunSounds`, the same way Ruin-Blighted's own shots are routed.
 3. Build the same set for Stinger, Marshal, Bucky and Sheriff.
+
+## In the game (2026-11-22)
+The owner said the first shot "just sounds like the regular shot". Before upload, the skin layers were raised a little:
+- water: −9 dB (was −11);
+- electric snap: −11.5 dB, or −15 dB on alternate takes (was −13 / −19);
+- the first shot's water: −6 dB.
+
+**Uploads:** every file is its own Audio asset (39 uploads, no atlases). The IDs are in `Config/TempestAudio` (`takes`) and `art-source/uploads.json`.
+
+**Routing:**
+
+| What | Where | Sound |
+|---|---|---|
+| Own shots (2D) | `Util/GunAudio` `tempest` option, from `WeaponController` when the camera gun wears the line (`ViewmodelController.hasTempest`) | `vFire` 8 takes, `vFireFirst`, `vFireLast` with its own tail, `vTail` faded by the next shot |
+| Other players' shots (3D) | `EffectsController` reads their gun model's SkinLine (`skinLineOf`) | `vFireFar` plus the stock tail |
+| Handling | `WeaponController.playGun` overrides the gun sounds | `vMagOut`, `vMagIn`, `vRack`, `vDryFire`; each already holds the stock click, so the old Tempest `magOut` / `magSeat` cues are off for the Vandal (`TempestProfiles` `ownFoley`) |
+| Skin cues | `TempestIdle` / `TempestKatana` | `draw`, `drawLock`, `aimIn`, `inspect`, `inspectRoll`, `inspectCatch`, `magForm`, `reloadSpin` (v2 files) |
+| Own wall hits | `EffectsController.localWallImpact` | `vImpact`, quiet, under the surface sound |
+
+**Levels** follow the stock Vandal's:
+- report 1.34;
+- tail 2.14;
+- far 1.21;
+- foley 0.91.
+
+All tunable in `Config/TempestAudio`.
+

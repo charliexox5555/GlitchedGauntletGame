@@ -32,6 +32,7 @@ local FireRate = require(Shared.Util.FireRate)
 local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
 local ShadowMistAudio = require(Shared.Config.ShadowMistAudio)
+local TempestAudio = require(Shared.Config.TempestAudio)
 local SkinPreviewConfig = require(Shared.Config.SkinPreview)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
@@ -292,6 +293,15 @@ local function usesRuinBlighted(): boolean
 	return studioSkinPreview and ViewmodelController.hasShadowMist()
 end
 
+-- The Tempest-Strike Vandal: its own designed shots and handling
+-- (Config/TempestAudio.vandal; owner approved the v2 set 2026-11-22).
+local function tempestSet(config: WeaponConfig): any
+	if ViewmodelController.hasTempest() then
+		return TempestAudio.vandal[config.id]
+	end
+	return nil
+end
+
 -- A sound from the gun's Config/GunSounds entry, played on our side (2D).
 local function playGun(
 	config: WeaponConfig,
@@ -299,6 +309,14 @@ local function playGun(
 	group: AudioController.Group?,
 	pitchScale: number?
 ): AudioController.Handle?
+	local tempest = tempestSet(config)
+	if tempest and tempest[name] then
+		local custom =
+			AudioController.playSound(tempest[name], group or "Foley", nil, nil, pitchScale)
+		if custom then
+			return custom
+		end
+	end
 	if name == "rack" and config.id == "Vandal" and usesRuinBlighted() then
 		local custom = AudioController.playSound(ShadowMistAudio.rack, group or "Foley")
 		if custom then
@@ -761,6 +779,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	GunAudio.shot(s, config, {
 		lastRound = config.magSize > 0 and s.ammo <= 0,
 		shadowMist = usesRuinBlighted(),
+		tempest = tempestSet(config) ~= nil,
 	})
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
 	local mag = config.magSize

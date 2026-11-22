@@ -1260,6 +1260,12 @@ function ViewmodelController.unequip()
 	end
 end
 
+-- The camera gun wears the Tempest-Strike line (Util/TempestIdle runs on it).
+function ViewmodelController.hasTempest(): boolean
+	local right = guns.Right
+	return right ~= nil and right.tempest ~= nil
+end
+
 function ViewmodelController.hasShadowMist(): boolean
 	local right = guns.Right
 	return right ~= nil and right.shadowActions ~= nil

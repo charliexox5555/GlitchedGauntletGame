@@ -752,7 +752,8 @@ end
 -- An action beat: its foley (Config/TempestAudio, over the stock handling sounds)
 -- and any hook the caller set (state.cues[name] = fn).
 function TempestIdle.cue(state: State, name: string)
-	if state.visible then
+	local owned = state.p.ownFoley and (name == "magOut" or name == "magSeat")
+	if state.visible and not owned then
 		AudioController.playSound(TempestAudio.cues[name], "Foley")
 	end
 	local f = state.cues[name]

@@ -20,6 +20,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
+local TempestAudio = require(ReplicatedStorage.Shared.Config.TempestAudio)
 local SkinPreviewConfig = require(ReplicatedStorage.Shared.Config.SkinPreview)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -54,6 +55,7 @@ export type ShotOptions = {
 	at: Vector3?, -- 3D at this point (other players); 2D when nil
 	lastRound: boolean?, -- this shot empties the mag (only known for your own gun)
 	shadowMist: boolean?, -- local Shadow Mist audition in Match Studio
+	tempest: boolean?, -- the gun wears the Tempest-Strike line (its own designed shots)
 }
 
 -- Plays one shot of `config`'s gun for `key` (one per shooter).
@@ -86,6 +88,30 @@ function GunAudio.shot(key: any, config: WeaponConfig, options: ShotOptions?)
 		local audition = SkinPreviewConfig.SHADOW_MIST.SHOT_PREVIEW
 		if config.id == "Vandal" and AudioController.isPreloaded(audition) then
 			AudioController.play(audition, { group = "Gun", volume = 1, jitter = false })
+			return
+		end
+	end
+
+	-- Tempest-Strike Vandal (Config/TempestAudio.vandal, design_tempest_vandal.py):
+	-- its own designed takes; other players hear its far take with the stock tail
+	local tempest = if o.tempest then TempestAudio.vandal[config.id] else nil
+	if tempest then
+		if o.at then
+			AudioController.playSound(tempest.fireFar, group, o.at)
+			if set.tail then
+				st.tail = AudioController.playSound(set.tail, group, o.at)
+			end
+			return
+		end
+		local last = o.lastRound == true
+		local skinShot = if last
+			then tempest.fireLast
+			elseif first then tempest.fireFirst
+			else tempest.fire
+		if AudioController.playSound(skinShot, "Gun") then
+			if not last then
+				st.tail = AudioController.playSound(tempest.tail, "Gun")
+			end
 			return
 		end
 	end
