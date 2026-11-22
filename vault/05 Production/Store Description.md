@@ -27,6 +27,17 @@ Welcome to DRAFT DUELS, the shooter where every round is a new loadout! Draft a 
 👍 Like and favorite for updates!
 ```
 
+## Promotional text
+
+A short hook that sits on top of the description. Use it: it's the first thing people read. Make it about the draft (the one thing RIVALS-style shooters don't have), keep it short, and change it with each update.
+
+- Launch pick: `🃏 NEW LOADOUT EVERY ROUND! Draft a gun + ability and duel to 5!`
+- Other options:
+  - `Pick your gun. Pick your power. Win the duel. ⚔️`
+  - `Every round is a new draft. Every duel is different. 🃏`
+  - `Draft. Upgrade. Outplay. First to 5 wins!`
+- Update versions: `🆕 NEW MAP: <name>!` · `🔥 NEW ABILITY: <name>!` · `📦 NEW CASE: <name> skins!`
+
 ## Left out on purpose
 
 - **Gun names.** Vandal, Phantom, Sheriff, Operator and so on are Valorant's names. Keep them out of store text, and rename them before a public launch.
