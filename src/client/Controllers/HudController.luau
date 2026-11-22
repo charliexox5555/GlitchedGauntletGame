@@ -94,16 +94,7 @@ local shownHealth = -1
 local chipFrac = 1
 local chipHoldUntil = 0
 
-local function make(className: string, props: { [string]: any }, parent: Instance?): any
-	local inst = Instance.new(className)
-	for k, v in props do
-		(inst :: any)[k] = v
-	end
-	if parent then
-		inst.Parent = parent
-	end
-	return inst
-end
+local make = Ui.make
 
 local function build(): Refs
 	pcall(function()

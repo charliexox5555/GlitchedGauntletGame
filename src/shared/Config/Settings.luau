@@ -678,13 +678,11 @@ end
 
 -- Row lookup by id.
 local BY_ID: { [string]: Row } = {}
-local TAB_OF: { [string]: string } = {}
 for _, tab in TABS do
 	for _, section in tab.sections do
 		for _, row in section.rows do
 			assert(not BY_ID[row.id], "duplicate setting id " .. row.id)
 			BY_ID[row.id] = row
-			TAB_OF[row.id] = tab.id
 		end
 	end
 end
@@ -692,10 +690,7 @@ end
 return table.freeze({
 	TABS = TABS,
 	BY_ID = BY_ID,
-	TAB_OF = TAB_OF,
 	keyLabel = keyLabel,
-	-- columns of a keybind row
-	KEY_COLUMNS = { "KEYBOARD", "ALT", "CONTROLLER" },
 	-- saving (Shared/PlayerSettings, Lobby SettingsService)
 	MAX_BYTES = 8000, -- a save request's JSON may be at most this long
 	CONFIRM_SECONDS = 10, -- Force Controls: time to press KEEP before it goes back

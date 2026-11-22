@@ -88,10 +88,6 @@ local function onPhase()
 	end
 end
 
-function SpawnHoldController.isHolding(): boolean
-	return holding
-end
-
 function SpawnHoldController.start()
 	MatchState.changed("Phase"):Connect(onPhase)
 	onPhase()

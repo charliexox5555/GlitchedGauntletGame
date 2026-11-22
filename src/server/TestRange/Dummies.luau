@@ -523,20 +523,4 @@ function Dummies.start(
 	end
 end
 
--- Every dummy back to full health at its spot.
-function Dummies.resetAll()
-	generation += 1
-	for i, d in dummies do
-		dummies[i] = nil
-		d.model:Destroy()
-	end
-	for i = 1, #TestRange.DUMMIES do
-		makeDummy(i)
-	end
-end
-
-function Dummies.isDummy(model: Model): boolean
-	return CollectionService:HasTag(model, Dummies.TAG)
-end
-
 return Dummies

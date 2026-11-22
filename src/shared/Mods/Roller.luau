@@ -352,17 +352,6 @@ module.trigger = function(player: Player, _level: string): boolean
 	return any
 end
 
--- Is one of `player`'s Rollers rolling (the client asks before a second
--- press becomes a trigger; it reads the parts, this is the server's view).
-function Roller.rolling(player: Player): boolean
-	for _, bot in bots do
-		if bot.ctx.player == player and bot.part.Parent then
-			return true
-		end
-	end
-	return false
-end
-
 module.server = function(_api: Types.ServerApi)
 	if not RunService:IsServer() then
 		return

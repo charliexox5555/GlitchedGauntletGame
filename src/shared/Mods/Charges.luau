@@ -9,11 +9,6 @@
 
 local Charges = {}
 
--- Whether spent charges come back during the round.
-function Charges.recharges(cooldown: number): boolean
-	return cooldown > 0
-end
-
 -- Charges available at `now`, and the next recharge time.
 function Charges.settle(
 	charges: number,

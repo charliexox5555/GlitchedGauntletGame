@@ -43,7 +43,6 @@ for _, m in MODES do
 end
 
 return table.freeze({
-	MATCH_PLACE_ID = 133387545285290, -- the match place (71551303511506 is this Lobby place); checked by content 2026-11-05
 	TEAMDATA_VERSION = 1,
 
 	MODES = MODES,

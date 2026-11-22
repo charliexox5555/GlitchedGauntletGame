@@ -221,46 +221,8 @@ end
 -- Models -------------------------------------------------------------------------------
 -- A clean, anchored copy laid out the same way for every item (longest side
 -- left-right, thinnest toward the camera: a bat lies along, a fan shows its
--- open face), with its pivot at its centre so it turns about its middle.
-local function presentable(source: Model): Model
-	local m = source:Clone()
-	-- lay it out by its own pivot first (that carries "upright" for guns),
-	-- then drop the PrimaryPart: with one set, the pivot comes from that part
-	-- and WorldPivot is ignored, and the display copy must turn about its centre
-	m:PivotTo(CFrame.new())
-	m.PrimaryPart = nil
-	m.WorldPivot = CFrame.new()
-	for _, d in m:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = true
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-		elseif d:IsA("Script") or d:IsA("LocalScript") then
-			d:Destroy()
-		end
-	end
-	m:PivotTo(CFrame.new())
-	local _, size = m:GetBoundingBox()
-	local axes = { { "X", size.X }, { "Y", size.Y }, { "Z", size.Z } }
-	table.sort(axes, function(a, b)
-		return a[2] > b[2]
-	end)
-	local target: { [string]: Vector3 } = {
-		[axes[1][1]] = Vector3.zAxis,
-		[axes[2][1]] = Vector3.yAxis,
-		[axes[3][1]] = Vector3.xAxis,
-	}
-	local vx, vy, vz = target.X, target.Y, target.Z
-	if vx:Cross(vy):Dot(vz) < 0 then
-		vz = -vz -- a rotation, not a mirror
-	end
-	m:PivotTo(CFrame.fromMatrix(Vector3.zero, vx, vy, vz))
-	local box = m:GetBoundingBox()
-	m.WorldPivot = CFrame.new(box.Position)
-	m:PivotTo(CFrame.new())
-	return m
-end
+-- open face), with its pivot at its centre so it turns about its middle. (Util/ItemStage)
+local presentable = require(script.Parent.Parent.Util.ItemStage).presentable
 
 -- A live picture of a model (skin tiles): side view, framed to fit.
 local function thumb(parent: GuiObject, model: Model, w: number, h: number, pos: UDim2)

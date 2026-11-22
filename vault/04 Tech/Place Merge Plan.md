@@ -65,6 +65,16 @@ The owner's call: **the Lobby and the match become one place.** Everything runs 
 - **Winners clipping into props:** a box check of the five winner spots on all 12 maps found six that clashed. Their WinnerStage parts moved to the nearest clear, flat spot on the same floor with the same facing: OldTown4 2 studs (pot bush), Foundry4 2 (coil), Snowpeak4 4 (drift), Wharf 12 (container), CanyonOutpost 18 (inside the trading post), Rooftops4 26 (curbs, lamp, catwalk). All 12 are clear now. Saved in Studio (place version 959).
 - **Slide "mostly just crouches":** the slide only started if the crouch press landed on a frame where you were already in the run, so an early press or a press in the 0.6 s cooldown became a crouch. The press is now buffered (`Movement.SLIDE_BUFFER` 0.25 s, field `CrouchPressAt`), and the run keeps going while it waits. Tested: a press 20 ms after W slides, a press in the cooldown slides when it ends, C standing still crouches at once.
 - **Empty-hands run "clunky":** it used the gun sprint's legs (0.36 s cycle, 15 degree lean: a hunched scamper). It now has its own `SprintRunUnarmed` legs (0.42 s cycle, 6 degree lean; foot lock 98.8%, slip 0.25 vs the gun sprint's 95.8% and 0.93) and calmer arms (SprintUnarmed v3). The walk swing is a touch bigger (v3).
+- **Cleanup (2026-11-22, owner: "get rid of all unused outdated code").** An audit of every module found nothing orphaned (every Service and Controller is loaded by a folder scan or MatchRunner). Removed:
+  - **Two-place leftovers:** the legacy-place branches in ServerRole; `MATCH_PLACE_ID`; `MATCH_END.lobbyPlaceId` (now `game.PlaceId`); the StarterGui fallback in MatchScreens; the unused `LobbyClient.SharedUi` Rojo mapping.
+  - **Duplicate code:** the lobby's copy of ServerInfoService (one shared service now); four copies of `Ui.make`; the Locker's copy of `ItemStage.presentable`.
+  - **Unused code:** 15 exported functions nobody called; 5 config keys nobody read.
+  - **Kept on purpose:**
+    - `server/WeaponBuild` (the gun pipeline's builder).
+    - The Studio "would teleport" stand-ins (Studio can't teleport).
+    - The lobby HUD's `setBadge` and `setTasks` hooks.
+    - Unused texture and theme ids, possibly planned UI or VFX.
+    - Files with another lane's uncommitted edits: Viewmodel/WeaponController, Config/Viewmodel, Config/SkinPreview.
 
 ### What to test (owner)
 1. Lobby Studio: Play. You spawn in the LobbyV5 hub.

@@ -25,12 +25,9 @@ local SHARED_SERVICES: { [string]: boolean } = {
 	ModEntities = true,
 	MovementService = true,
 	SkinPreviewService = true,
+	ServerInfoService = true,
 	StatusService = true,
 	WeaponService = true,
-}
--- Match servers only (a Lobby server has the lobby's own).
-local MATCH_ONLY: { [string]: boolean } = {
-	ServerInfoService = true,
 }
 
 local role = ServerRole.get()
@@ -39,10 +36,7 @@ local Services = script:FindFirstChild("Services")
 local loaded: { [string]: any } = {}
 if Services then
 	for _, child in Services:GetChildren() do
-		if
-			child:IsA("ModuleScript")
-			and (SHARED_SERVICES[child.Name] or (role == "Match" and MATCH_ONLY[child.Name]))
-		then
+		if child:IsA("ModuleScript") and SHARED_SERVICES[child.Name] then
 			loaded[child.Name] = require(child) :: any
 		end
 	end

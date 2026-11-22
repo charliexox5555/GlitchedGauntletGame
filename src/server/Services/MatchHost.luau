@@ -253,18 +253,6 @@ function MatchHost.startDuel(
 	return id
 end
 
--- Ends a pad duel now (everyone gone, or an admin).
-function MatchHost.endDuel(id: string)
-	local entry = running[id]
-	if entry and not entry.ownsServer then
-		teardown(entry)
-	end
-end
-
-function MatchHost.isRunning(id: string): boolean
-	return running[id] ~= nil
-end
-
 local function startPractice()
 	local id = MatchHost.PRACTICE_ID
 	local stateFolder = MatchState.createFolder(folder(ReplicatedStorage, MatchState.MATCHES), id)

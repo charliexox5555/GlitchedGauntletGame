@@ -65,16 +65,7 @@ local function number(inst: Instance, name: string): number
 	return if typeof(v) == "number" then v else 0
 end
 
-local function make(className: string, props: { [string]: any }, parent: Instance?): any
-	local inst = Instance.new(className)
-	for k, v in props do
-		(inst :: any)[k] = v
-	end
-	if parent then
-		inst.Parent = parent
-	end
-	return inst
-end
+local make = require(script.Parent.Parent.Util.Ui).make
 
 local function build(): ScreenGui
 	local screen = make("ScreenGui", {

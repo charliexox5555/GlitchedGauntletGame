@@ -85,7 +85,6 @@ return table.freeze({
 		time = 20,
 		botRematchChance = 0.94,
 		botRematchDelay = { 0.8, 3 },
-		lobbyPlaceId = 71551303511506, -- the Lobby place (this match place is 133387545285290)
 		teleportAttempts = 3,
 		retryBackoff = { 1, 2, 4 },
 		emptyWait = 30, -- time to retry Lobby teleports after the results screen

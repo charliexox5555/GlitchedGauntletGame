@@ -262,13 +262,6 @@ function DeathScreen.killedBy(k: KilledBy)
 	setShown(s.killed, true)
 end
 
-function DeathScreen.hideKilledBy()
-	local s = state
-	if s then
-		setShown(s.killed, false)
-	end
-end
-
 function DeathScreen.spectate(f: Fighter)
 	local s = state
 	if not s then

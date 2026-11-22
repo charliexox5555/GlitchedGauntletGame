@@ -2,10 +2,8 @@
 -- Where the match's Studio-built screens live (place merge 2026-11-21, vault/04 Tech/Place Merge Plan.md).
 -- In the merged place they sit in ReplicatedStorage.MatchScreens, not StarterGui (StarterGui would copy them to
 -- every lobby player); the match client copies them into PlayerGui when it starts (client/init.client.luau).
--- The retired match place still has them in StarterGui, so lookups fall back to it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui = game:GetService("StarterGui")
 
 local MatchScreens = {}
 
@@ -21,12 +19,8 @@ end
 
 -- The template screen named `name` (yields until it exists).
 function MatchScreens.source(name: string): ScreenGui
-	local folder = MatchScreens.folder()
-	local found = if folder then folder:FindFirstChild(name) else StarterGui:FindFirstChild(name)
-	if not found then
-		found = if folder then folder:WaitForChild(name) else StarterGui:WaitForChild(name)
-	end
-	return found :: ScreenGui
+	local folder = ReplicatedStorage:WaitForChild(MatchScreens.FOLDER)
+	return folder:WaitForChild(name) :: ScreenGui
 end
 
 -- Copies every screen (bar the self-copied ones) into `playerGui`, replacing older copies. Returns the copies.

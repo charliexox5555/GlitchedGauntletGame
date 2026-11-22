@@ -34,16 +34,7 @@ type Bar = {
 local bars: { [Instance]: Bar } = {}
 local playerGui: Instance? = nil
 
-local function make(className: string, props: { [string]: any }, parent: Instance?): any
-	local inst = Instance.new(className)
-	for k, v in props do
-		(inst :: any)[k] = v
-	end
-	if parent then
-		inst.Parent = parent
-	end
-	return inst
-end
+local make = require(script.Parent.Parent.Util.Ui).make
 
 local function fillColor(fraction: number): Color3
 	if fraction <= 0.25 then

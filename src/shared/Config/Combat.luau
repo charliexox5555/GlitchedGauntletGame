@@ -71,7 +71,6 @@ return table.freeze({
 	HEAVY_WINDUP_MIN = 0.20,
 	HEAVY_WINDUP_MAX = 0.85,
 	RELOAD_LEAD = 0.1, -- reloads (and each shell of a shell-by-shell one) count this much early
-	HISTORY_SECONDS = 1, -- how much hitbox history is kept
 	REWIND_EXTRA = 0.15, -- rewind window = 2 x the shooter's ping + this...
 	REWIND_MAX = 0.6, -- ...capped here (seconds)
 	MAX_HITS_PER_SHOT = 20, -- at least the most pellets a gun fires (Shorty: 15)

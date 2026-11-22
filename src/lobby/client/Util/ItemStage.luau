@@ -265,13 +265,4 @@ function ItemStage.run(self: Stage, on: boolean)
 	end
 end
 
-function ItemStage.destroy(self: Stage)
-	self:run(false)
-	for _, c in self.conns do
-		c:Disconnect()
-	end
-	table.clear(self.conns)
-	self.view:Destroy()
-end
-
 return ItemStage

@@ -28,10 +28,7 @@
           "$path": "src/client"
         },
         "LobbyClient": {
-          "$path": "src/lobby/client",
-          "SharedUi": {
-            "$path": "src/client/Util/Ui.luau"
-          }
+          "$path": "src/lobby/client"
         }
       }
     },

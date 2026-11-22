@@ -93,7 +93,7 @@ local function teleport(players: { Player }, data: LobbyReturn)
 	local ok, err = pcall(
 		TeleportService.TeleportAsync,
 		TeleportService,
-		E.lobbyPlaceId,
+		game.PlaceId, -- the lobby: this same place (one place since 2026-11-21)
 		list,
 		optionsFor(data)
 	)
@@ -302,7 +302,7 @@ function MatchEndService.init()
 					local ok, err = pcall(
 						TeleportService.TeleportAsync,
 						TeleportService,
-						E.lobbyPlaceId,
+						game.PlaceId, -- the lobby: this same place (one place since 2026-11-21)
 						{ player },
 						options or optionsFor(data)
 					)

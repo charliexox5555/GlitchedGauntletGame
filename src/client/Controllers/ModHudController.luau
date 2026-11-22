@@ -118,16 +118,7 @@ local altButton: TextButton? = nil
 local slots: { SlotUi } = {}
 local shownHint = ""
 
-local function make(className: string, props: { [string]: any }, parent: Instance?): any
-	local inst = Instance.new(className)
-	for k, v in props do
-		(inst :: any)[k] = v
-	end
-	if parent then
-		inst.Parent = parent
-	end
-	return inst
-end
+local make = Ui.make
 
 local function text(props: { [string]: any }, parent: Instance): TextLabel
 	props.BackgroundTransparency = 1

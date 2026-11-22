@@ -116,17 +116,6 @@ function CameraController.setOverrideFov(fov: number?)
 	overrideFov = fov
 end
 
-function CameraController.setBaseFov(fov: number)
-	if fov ~= fov or fov == math.huge or fov == -math.huge then
-		return
-	end
-	baseFov = math.clamp(fov, CameraConfig.MIN_FOV, CameraConfig.MAX_FOV)
-end
-
-function CameraController.getBaseFov(): number
-	return baseFov
-end
-
 -- A scope's FOV: `zoom`x magnification of the player's own FOV.
 function CameraController.scopeFov(zoom: number): number
 	return 2 * math.deg(math.atan(math.tan(math.rad(baseFov / 2)) / math.max(zoom, 1)))
@@ -136,11 +125,6 @@ end
 function CameraController.setZoom(fov: number?, alpha: number)
 	zoomFov = fov
 	zoomAlpha = math.clamp(alpha, 0, 1)
-end
-
-function CameraController.currentFov(): number
-	local cam = Workspace.CurrentCamera
-	return if cam then cam.FieldOfView else baseFov
 end
 
 -- One shot of recoil. `up`/`side` in degrees; `recover` = share that comes
@@ -205,10 +189,6 @@ function CameraController.freeMouse(reason: string, on: boolean)
 	if button then
 		button.Visible = cursorVisible
 	end
-end
-
-function CameraController.isMouseFree(): boolean
-	return cursorVisible
 end
 
 -- Shows the OS cursor while a menu is open (the menus share one reason).

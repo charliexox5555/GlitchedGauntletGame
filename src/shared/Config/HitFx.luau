@@ -18,7 +18,6 @@ local HitFx = {}
 HitFx.COLOR = table.freeze({
 	white = hex("FFFFFF"),
 	red = hex("FF4D5E"), -- headshot and kill markers, headshot numbers
-	deepRed = hex("FF2E3D"), -- the kill flash
 	fire = hex("FF7A1F"), -- the headshot flash after its white frame
 	blocked = hex("A9BCD6"), -- a guard took the hit: no damage
 	outline = hex("06080C"),

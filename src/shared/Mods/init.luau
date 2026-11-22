@@ -43,10 +43,6 @@ function Mods.isBuilt(id: string): boolean
 	return modules[id] ~= nil
 end
 
-function Mods.isLevel(level: string): boolean
-	return Config.CHAIN[level] ~= nil
-end
-
 function Mods.stats(id: string, level: string): Types.Stats?
 	local key = id .. ":" .. level
 	local cached = cache[key]

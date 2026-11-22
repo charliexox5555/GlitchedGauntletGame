@@ -504,10 +504,9 @@ local function requeueFromMatch(player: Player)
 	if not ok or typeof(joinData) ~= "table" then
 		return
 	end
-	-- From a match server: a reserved server of this place since the merge, or
-	-- the retired match place.
+	-- From a match server (a reserved server of this same place).
 	local source = (joinData :: any).SourcePlaceId
-	if source ~= game.PlaceId and source ~= Config.MATCH_PLACE_ID then
+	if source ~= game.PlaceId then
 		return
 	end
 	local data = (joinData :: any).TeleportData

@@ -136,10 +136,6 @@ function UiSfx.setEnabled(on: boolean)
 	enabled = on
 end
 
-function UiSfx.isEnabled(): boolean
-	return enabled
-end
-
 local preloaded = false
 function UiSfx.preload()
 	if preloaded then
