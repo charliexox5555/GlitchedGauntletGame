@@ -52,6 +52,8 @@ The owner's call: **the Lobby and the match become one place.** Everything runs 
 - **Match role in the Lobby place** (Studio Workspace attr `ServerRole = "Match"`, `BotMatch = "1v1"`). The whole match runs through `MatchHost` → `MatchRunner`: map, draft, rounds; lobby screens off.
 - **Step 3, pad duels.** Standing on Bay_05 side A (Studio `PadDuelSolo`) gave A=1, a 3 s count, then a duel `443387b0` in slot 1: Arena at x 24,500 in `Workspace.Matches`, its own state folder, a bot, the draft screen, rounds counting. The lobby's own state was untouched.
 
+- **Wrap-up (2026-11-21, late).** Everyone wears the skinned classic body, lobby included, and runs and slides there. The lobby has its own **unarmed** animation set: a relaxed idle, an arm swing in step with the legs for walk / run / sprint, loose crouch arms, and an unarmed slide in and out (Third Person Overhaul §26). Looking up leans the body from the waist (§25). **Rojo:** `lobby.project.json` became **`default.project.json`** (the one place, port 34873). The retired match place's project moved to `archive/match-place.project.json`. CI builds the one project. The match place's Rojo server is gone; the owner archives that place. **Final Studio checks (merged code, solo):** lobby spawn in the S15 body; unarmed idle, sprint into slide (unarmed clips, no rifle ones); range in and out; a pad duel start to finish with the return to the lobby; the bot match in the Match role.
+
 ### What to test (owner)
 1. Lobby Studio: Play. You spawn in the LobbyV5 hub.
 2. Walk into the range hologram: first person, your guns, P for the gun picker, shoot the training bots (they come back). Walk out through the exit gate: your avatar, lobby UI.
@@ -64,3 +66,6 @@ The owner's call: **the Lobby and the match become one place.** Everything runs 
 - Mod walls and mod entities sit in shared folders. A duel that ends mid-round may leave a wall until its owner's next life.
 - Players watching a pad duel, and requeueing from the pad (Play Again), aren't built.
 - `MatchLift` (the lift plate on match found) no longer triggers, because pads don't search the global queue any more.
+- Phone players have no sprint / slide buttons in the lobby (they live in the match HUD).
+- Several duels at once share the Mods' server hooks (e.g. Updraft's and Roller's Heartbeat loops register once per duel). Fine for a handful of duels; worth a look before big servers.
+- Studio-only test switches (`PadDuelSolo`, `LockMap`, `ServerRole`, `BotMatch`) were cleared from the place at wrap-up (Lobby place saved v947); set them again on Workspace to test in Studio.

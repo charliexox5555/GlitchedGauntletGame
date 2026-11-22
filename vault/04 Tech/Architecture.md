@@ -6,8 +6,8 @@ For the current two-place ownership map and system walkthrough, see the [Develop
 ```
 GlitchedGauntletGame/
 ├── AGENTS.md              ← current project instructions
-├── default.project.json   ← Rojo: maps folders into Roblox
-├── lobby.project.json     ← Lobby Rojo project
+├── default.project.json   ← Rojo: the one place (lobby + match), port 34873
+├── archive/               ← the retired match place's Rojo project (2026-11-21)
 ├── rokit.toml             ← pinned tools (rojo, wally, selene, stylua)
 ├── wally.toml             ← Luau packages (none yet)
 ├── selene.toml / stylua.toml
@@ -96,7 +96,7 @@ For testers in a published place. Kept apart from the match code: everything liv
 8. Keep the format and lint checks clean: `stylua src` and `selene src`.
 
 ## Rojo notes
-- Run `rojo serve default.project.json` for Match (34872) and `rojo serve lobby.project.json` for Lobby (34873). Connect each Studio plugin to the matching port.
+- Run `rojo serve` (`default.project.json`, port 34873) and connect the Lobby place's Studio plugin. One place since 2026-11-21 ([Place Merge Plan](Place%20Merge%20Plan.md)): the match place (133387545285290) is retired and its project archived (`archive/match-place.project.json`).
 - Rojo **owns** `ReplicatedStorage.Shared`, `ReplicatedStorage.Assets`, `ServerScriptService.Server` and `StarterPlayerScripts.Client`. Anything made by hand inside those in Studio gets overwritten. Build maps and other Studio-only things in `Workspace` / `ServerStorage`.
 - **Rojo can't live-sync MeshParts** (the plugin can't set `MeshId`), and Rojo 7.4.4 can't read `.rbxm` files written by current Studio. So anything with meshes (all guns) lives in Studio-owned folders saved with the place: guns are in `ReplicatedStorage.Weapons`, with `.rbxm` backups in `art-source/weapons/Studio/`. **Save the place** after changing them.
 - Rigs: current R15 avatars use `AnimationConstraint` joints, not Motor6D. Code that poses limbs must accept both (both have `Transform`).

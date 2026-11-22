@@ -774,6 +774,14 @@ The body is now the S15 skinned classic body ([Match Avatar](Match%20Avatar.md#s
 - **Also fixed:** the standard head (bots, dummies, swapped oversized heads) was the bundle's dynamic head, which rendered **faceless**. It's now Roblox's classic head (`STANDARD_HEAD = 0`) with the default face (`DEFAULT_FACE` 144075659). A player's own empty face no longer overwrites it.
 - **Not verified / open:** the new up holds were only seen on posed preview copies without a gun, and offline. The real check is you aiming up at a bot or a second player in a playtest, from your angle. Run, slide and the down holds are unchanged; they bend smoothly on the skin. The IK prototype (Config/TpIk) stays off: on the S15 body it moved the right hand under the grip a little, but the support hand still can't reach long handguards.
 
+## 26. Unarmed set for the lobby (2026-11-21)
+Owner: "the animations when no gun is selected (in the lobby) looks bad, it is like it's holding a gun ... idle, running, make sliding available, crouching".
+- **Why it looked armed:** with no weapon `Simulation/Poses` fell back to the rifle's versions: the rifle sprint's low-ready arms, the rifle slide (one hand holding an invisible gun), and the Core idle's bladed stance with arms hanging stiff while walking.
+- **New clips (`tp_clips.py` "Unarmed"; FK arms; uploaded):** `UnarmedIdle` 87081146273969 (square to the front, loose arms, breathing), `UnarmedWalk` 86939525691218, `UnarmedRun` 87231109134826, `SprintUnarmed` 134786443023027 (Action2). Each arm swings opposite its leg on the shared stride phase, with more swing and elbow bend from walk to sprint and a small chest counter-turn. `UnarmedCrouch` 78467506175539 (v2: loose, low arms; v1 read as a boxer's guard). An **Unarmed slide kind**: `SlideUnarmed` 134814931400718, `SlideInUnarmed` 90446890986346, `SlideOutUnarmed` 71284722549961 (right arm ahead for balance, left hand on the floor). `tp_check`: no arms in the chest; slide numbers match the rifle and knife slides.
+- **Poses:** nothing in hand → idle / walk / run arms by speed, crouch arms, `SprintUnarmed`, the Unarmed slide kind. Walk and run arms follow the heaviest leg cycle's phase (`followStride`).
+- **Seen in Studio (lobby, own avatar):** a relaxed idle, pumping sprint arms, low crouch arms. Sprint → slide played SprintUnarmed → SlideInUnarmed → SlideUnarmed → SlideOutUnarmed and no rifle clip.
+- **Open:** armed walk / run has no upper-body bob (the holds only breathe); jump and fall use the Movement clips' arms.
+
 ## Progress log
 - 2026-11-12 03:05: §0 fixed. Plan written. Stopped at 03:10 (usage limit).
 - 2026-11-12 05:50 to 06:45: resumed. Body, accessory filter, rig tool, 40 clips, upload, wiring, engine review. Studio left in Edit with `TestMode = false`, `DevThirdPerson` cleared, preview folders removed. Nothing committed.

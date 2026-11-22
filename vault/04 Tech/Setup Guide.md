@@ -22,8 +22,8 @@ Open the existing Lobby and Match places from experience `10772880160`. Use one 
 
 | Place | Place ID | PowerShell | Address in the Studio Rojo plugin |
 |---|---|---|---|
-| Match | `133387545285290` | `rojo serve default.project.json` | `127.0.0.1:34872` |
-| Lobby | `71551303511506` | `rojo serve lobby.project.json` | `127.0.0.1:34873` |
+| The game (lobby + match, one place since 2026-11-21) | `71551303511506` | `rojo serve` (`default.project.json`) | `127.0.0.1:34873` |
+| ~~Match~~ (retired; project in `archive/`) | `133387545285290` | none | none |
 
 In each window select **Plugins → Rojo → Connect**, confirm the project name and review the proposed sync. For Match, check `ServerScriptService.Server`, `StarterPlayerScripts.Client` and `ReplicatedFirst.Loading.LoadingScreen`. For Lobby, check `LobbyServer`, `LobbyClient` and `ReplicatedStorage.Lobby`. Both should have `ReplicatedStorage.Shared`.
 
@@ -45,8 +45,7 @@ Run source checks before sharing changes.
 ```powershell
 stylua --check src
 selene src
-rojo build default.project.json -o "$env:TEMP/gauntlet-match-check.rbxl"
-rojo build lobby.project.json -o "$env:TEMP/gauntlet-lobby-check.rbxl"
+rojo build default.project.json -o "$env:TEMP/gauntlet-check.rbxl"
 ```
 
 - **Git.** Start with `git status --short --branch`, inspect `git diff` and `git diff --cached`, and use `git fetch origin` to refresh the remote refs when needed. Compare with `git log --left-right --oneline HEAD...origin/main`. Stage only the agreed paths. Coordinate integration of remote changes when there is local work. Use `git pull --ff-only` when a clean checkout can fast-forward. Push the intended commit or branch when agreed. CI checks formatting, lint and both code-only Rojo trees.

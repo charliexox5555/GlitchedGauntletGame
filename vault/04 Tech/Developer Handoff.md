@@ -15,9 +15,8 @@ Audit date **2026-11-17**. Sources are the current checkout, the project vault a
 
 | Location | What it owns | How to edit |
 |---|---|---|
-| `default.project.json` | Match Rojo tree. `src/server` → `ServerScriptService.Server`, `src/client` → `StarterPlayer.StarterPlayerScripts.Client`, `src/first` → `ReplicatedFirst.Loading` | Edit the mapped files on disk. Use Rojo on port 34872. |
-| `lobby.project.json` | Lobby Rojo tree. `src/lobby/server` → `LobbyServer`, `src/lobby/client` → `LobbyClient`, `src/lobby/shared` → `ReplicatedStorage.Lobby`. Maps `src/client/Util/Ui.luau` as `LobbyClient.SharedUi` | Edit the mapped files on disk. Use Rojo on port 34873. |
-| Both projects | `src/shared` → `ReplicatedStorage.Shared`, `assets` → `ReplicatedStorage.Assets` | Test shared changes in both places. Config is replicated. Keep secrets and decision-making on the server. |
+| `default.project.json` | The one place's Rojo tree (lobby + match, 2026-11-21): `src/server` → `ServerScriptService.Server`, `src/client` → `StarterPlayer.StarterPlayerScripts.Client`, `src/first` → `ReplicatedFirst.Loading`, `src/lobby/server` → `LobbyServer`, `src/lobby/client` → `LobbyClient`, `src/lobby/shared` → `ReplicatedStorage.Lobby` (maps `src/client/Util/Ui.luau` as `LobbyClient.SharedUi`) | Edit the mapped files on disk. Use Rojo on port 34873. The retired match place's tree is `archive/match-place.project.json`. |
+| Shared | `src/shared` → `ReplicatedStorage.Shared`, `assets` → `ReplicatedStorage.Assets` | Test shared changes in both places. Config is replicated. Keep secrets and decision-making on the server. |
 | Studio `Workspace` and `ServerStorage` | Lobby rooms, map models, staging layouts, builders and backups | Inspect Studio Explorer or MCP. Find the builder or Blender source first if the edited object is generated. |
 | Studio `StarterGui`, `ReplicatedStorage.UiTemplates` | Screen layouts and cloneable rows, cards or icons | Modify the builder and update the owning Studio template. Lua controllers bind its names and fill its state. |
 | Studio `ReplicatedStorage.Weapons`, `WeaponSkins`, `Abilities` | Mesh-heavy runtime objects. Both places carry weapons and skins. Match holds the ability assets. | Use the relevant art and import pipeline and verify IDs, pivots, attachments, collisions and names in Studio. |
