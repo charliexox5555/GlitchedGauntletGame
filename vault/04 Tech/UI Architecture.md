@@ -180,7 +180,9 @@ Owner list: the old phone HUD, kill feed, draft, spectate and ability hints are 
 **Scope:** the surround is a mask texture (`Config/Scope.MASK`, `tools/ui/make_scope_mask.py`) plus four black frames, instead of a 4000 px UIStroke.
 
 **Still to do / known:**
-- Lobby phones still used old code-built UI (v2 dock, QueueMenu, Panels) during this pass. Being moved to the Studio screens (part 4).
+- ~~Lobby phones on old code-built UI~~ Done (part 4): phones use the Studio lobby HUD and every menu. QueueMenu, Util/Layout, LobbyHud's v2 dock, Panels' placeholder Shop / Season Pass, the LobbyKit phone specs and all controller Fit code are deleted. ModHud's old slot faces, hint and status line are deleted too (the Recon charge meter stays, in its own small ScreenGui).
+- The last code-built lobby menu is Panels' **Range** placeholder ("COMING SOON", opened by the bar's Range button and the range entrance prompt). Its text is out of date now the range hall exists; it should become a Studio screen or open the real range.
+- Menu open / close no longer pops the Fit scale (UiLayout owns it); the wash fade remains. A pop on an inner UIScale can come back per menu.
 - Dense menus (Draft, MatchEnd, Shop, Settings) fit on phones now, but at 1080p proportions the text is small. They need phone-specific positions and boosts per screen, tuned in the Device Emulator or on a phone.
 - ModHud still builds its old slot faces (always hidden now) and the Recon charge meter in code; no Studio replacement for the meter yet.
 - "Controls don't feel smooth": the stick-follow and look-through are in; touch camera sensitivity and aim assist come after the owner's playtest.
