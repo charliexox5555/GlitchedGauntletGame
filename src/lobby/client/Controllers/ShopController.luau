@@ -25,7 +25,6 @@
 -- Every device; Shared/UiLayout sizes it (the Fit scales on Canvas, PopupCanvas, Top).
 
 local Players = game:GetService("Players")
-local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
@@ -52,6 +51,8 @@ local Release = require(game:GetService("ReplicatedStorage").Shared.Config.Relea
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
+local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
+local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
@@ -101,7 +102,6 @@ local isOpen = false
 local tab = "HOME"
 local counterShown = false -- starts off-screen (y -80); placeCounter brings it in
 local openCase: ShopCatalog.Case? = nil
-local casesRestricted = true -- until PolicyService says otherwise (fail closed)
 local resetClose: () -> () = function() end
 local openToken = 0
 
@@ -448,6 +448,31 @@ local function fillOdds(case: ShopCatalog.Case)
 	OddsList.fill(child(oddsPanel, "List") :: ScrollingFrame, case)
 end
 
+local function ticketWords(n: number): string
+	return `{n} TICKET{if n == 1 then "" else "S"}`
+end
+
+-- The icon in a price plate's row (a "Coin" frame with an "Art" image): the coin, the
+-- Robux mark (read from a Studio Robux plate), or none (Tickets until their icon exists).
+local robuxIcon: string? = nil
+local function priceIcon(button: Instance, kind: "coins" | "robux" | "tickets" | "none")
+	local plate = button:FindFirstChild("Price", true)
+	local row = plate and plate:FindFirstChild("Row")
+	local icon = row and row:FindFirstChild("Coin")
+	if not (icon and icon:IsA("GuiObject")) then
+		return
+	end
+	local art = icon:FindFirstChild("Art")
+	icon.Visible = kind == "coins" or (kind == "robux" and robuxIcon ~= nil)
+	if art and art:IsA("ImageLabel") then
+		if kind == "coins" then
+			art.Image = ShopCatalog.ART.coin
+		elseif kind == "robux" and robuxIcon then
+			art.Image = robuxIcon
+		end
+	end
+end
+
 local function setPlate(button: Instance, amount: string)
 	local plate = button:FindFirstChild("Price")
 	local row = plate and plate:FindFirstChild("Row")
@@ -465,9 +490,10 @@ local function openCasePopup(case: ShopCatalog.Case)
 	placeholder.Visible = case.art == nil
 	local art = child(casePanel, "Art") :: ImageLabel
 	art.Image = case.art or ""
-	setPlate(child(casePanel, "BuyCoins"), commas(case.coins))
-	setPlate(child(casePanel, "BuyRobux"), commas(case.robux))
-	setPlate(child(casePanel, "BuyRobux3"), commas(case.robux3))
+	-- cases cost Tickets only (Config/Economy.CASE_TICKETS; no Ticket icon yet: words)
+	local buy = child(casePanel, "BuyCoins")
+	setPlate(buy, ticketWords(Economy.CASE_TICKETS[case.id] or 0))
+	priceIcon(buy, "tickets")
 	showPanel(casePanel)
 end
 
@@ -500,11 +526,6 @@ local function buyCase(how: string, button: GuiObject?)
 	if not case then
 		return
 	end
-	if casesRestricted then
-		denied(button, false)
-		LobbyHud.toast("Cases aren't available where you are", "error")
-		return
-	end
 	if how ~= "BuyCoins" then
 		soon("Buying with Robux")
 		return
@@ -516,9 +537,9 @@ local function buyCase(how: string, button: GuiObject?)
 		LobbyHud.toast("Your save is still loading", "info")
 		return
 	end
-	if PlayerData.coins(player) < case.coins then
-		denied(button, true)
-		LobbyHud.toast("Not enough coins", "error")
+	if PlayerData.tickets(player) < (Economy.CASE_TICKETS[case.id] or math.huge) then
+		denied(button, false)
+		LobbyHud.toast("Not enough Tickets: claim daily rewards to earn more", "error")
 		return
 	end
 	lastBuyButton = button
@@ -976,6 +997,105 @@ local function hookLogin()
 	drawLogin()
 end
 
+-- The daily shop cards (DAILY tab, Item1..Item8): the player's own saved list, priced by
+-- tier (coins for Common / Rare, Robux above), OWNED once theirs. The picture big and
+-- spilling over the card's top like RIVALS' cells, on one flat colour of the tier.
+local dailyItems: Instance? = nil
+local function drawDaily()
+	local items = dailyItems
+	if not items then
+		return
+	end
+	local daily = PlayerData.daily(player)
+	local owned = PlayerData.skins(player)
+	for i = 1, DailyShop.SIZE do
+		local holder = items:FindFirstChild("Item" .. i)
+		local card = holder and holder:FindFirstChild("Card")
+		local pick = daily.picks[i]
+		if holder and holder:IsA("GuiObject") then
+			holder.Visible = pick ~= nil
+		end
+		if not (card and card:IsA("GuiButton") and pick) then
+			continue
+		end
+		local tier = DailyRoll.tier(pick)
+		local def = (Skins.TIERS :: any)[tier] or Skins.TIERS.Common
+		local art = card:FindFirstChild("Art")
+		if art and art:IsA("GuiObject") then
+			art.BackgroundColor3 = def.color:Lerp(Color3.fromHex("0E0F13"), 0.3)
+		end
+		local name = card:FindFirstChild("Name")
+		if name and name:IsA("TextLabel") then
+			name.Text = SkinCases.name(pick.gun, pick.line)
+		end
+		local tag = card:FindFirstChild("Tag")
+		local tagLabel = tag and tag:FindFirstChild("Label")
+		if tagLabel and tagLabel:IsA("TextLabel") then
+			tagLabel.Text = def.name .. " SKIN"
+		end
+		local coinPrice, robux = DailyRoll.price(pick)
+		if table.find(daily.bought, i) or PlayerData.owns(owned, pick.gun, pick.line) then
+			plateAmount(card, "OWNED")
+			priceIcon(card, "none")
+		elseif coinPrice then
+			plateAmount(card, commas(coinPrice))
+			priceIcon(card, "coins")
+		else
+			plateAmount(card, commas(robux or 0))
+			priceIcon(card, "robux")
+		end
+		local id = SkinArt.portrait(pick.gun, pick.line)
+		local pic = card:FindFirstChild("Pic") or Instance.new("ImageLabel")
+		if pic:IsA("ImageLabel") then
+			pic.Name = "Pic"
+			pic.BackgroundTransparency = 1
+			pic.Image = id or ""
+			pic.ScaleType = Enum.ScaleType.Fit
+			pic.AnchorPoint = Vector2.new(0.5, 0.5)
+			-- big, spilling over the top edge, clear of the name and price below
+			pic.Position = UDim2.fromScale(0.56, 0.3)
+			pic.Size = UDim2.fromScale(0.86, 0.95)
+			pic.ZIndex = 4 -- over the colour, under the words and the price
+			pic.Parent = card
+		end
+	end
+end
+
+local function buyDaily(slot: number, button: GuiObject)
+	local daily = PlayerData.daily(player)
+	local pick = daily.picks[slot]
+	if not PlayerData.ready(player) or not pick then
+		LobbyHud.toast("Today's shop is still loading", "info")
+		return
+	end
+	if
+		table.find(daily.bought, slot)
+		or PlayerData.owns(PlayerData.skins(player), pick.gun, pick.line)
+	then
+		LobbyHud.toast("You already own that skin", "info")
+		return
+	end
+	local coinPrice = DailyRoll.price(pick)
+	if not coinPrice then
+		soon("Buying with Robux")
+		return
+	end
+	if buying then
+		return
+	end
+	if PlayerData.coins(player) < coinPrice then
+		denied(button, true)
+		LobbyHud.toast("Not enough coins", "error")
+		return
+	end
+	lastBuyButton = button
+	buying = true
+	LobbyNet.event("ShopRequest"):FireServer("buyDaily", slot)
+	task.delay(8, function()
+		buying = false
+	end)
+end
+
 local function updateDaily()
 	local note = dailyNote
 	if not note then
@@ -1125,6 +1245,8 @@ function ShopController.init()
 		local holder = home:FindFirstChild("Case_" .. c.id, true)
 		local card = holder and holder:FindFirstChild("Card")
 		if card and card:IsA("GuiButton") then
+			plateAmount(card, ticketWords(Economy.CASE_TICKETS[c.id] or 0))
+			priceIcon(card, "tickets")
 			card.Activated:Connect(function()
 				openCasePopup(c)
 			end)
@@ -1197,9 +1319,6 @@ function ShopController.init()
 			soonOn("Pack" .. i, "Buying coins")
 		end
 	end
-	for i = 1, 8 do
-		soonOn("Item" .. i, "The daily shop")
-	end
 	for _, n in { "Charm_1", "Charm_2", "Charm_3", "Emote_1", "Emote_2", "Emote_3" } do
 		soonOn(n, "Buying cosmetics")
 	end
@@ -1214,47 +1333,24 @@ function ShopController.init()
 		end)
 	end
 	hookLogin()
-	-- today's items: real skins (placeholder stock), the picture big and spilling over
-	-- the card's top like RIVALS' shop cells, on one flat colour of the skin's tier
-	local dailyItems = pages.Daily:FindFirstChild("Items", true)
-	for i, d in ShopCatalog.DAILY do
+	-- today's items: the player's own saved list (Services/ShopService rolls it)
+	dailyItems = pages.Daily:FindFirstChild("Items", true)
+	for _, d in scroll:GetDescendants() do
+		if d:IsA("ImageLabel") and d.Name == "Robux" and d.Image ~= "" then
+			robuxIcon = d.Image
+			break
+		end
+	end
+	for i = 1, DailyShop.SIZE do
 		local holder = dailyItems and dailyItems:FindFirstChild("Item" .. i)
 		local card = holder and holder:FindFirstChild("Card")
 		if card and card:IsA("GuiButton") then
-			local tier = SkinCases.tierOf(d.gun, d.line) or "Common"
-			local def = Skins.TIERS[tier]
-			local art = card:FindFirstChild("Art")
-			if art and art:IsA("GuiObject") then
-				art.BackgroundColor3 = def.color:Lerp(Color3.fromHex("0E0F13"), 0.3)
-			end
-			local name = card:FindFirstChild("Name")
-			if name and name:IsA("TextLabel") then
-				name.Text = SkinCases.name(d.gun, d.line)
-			end
-			local tag = card:FindFirstChild("Tag")
-			local tagLabel = tag and tag:FindFirstChild("Label")
-			if tagLabel and tagLabel:IsA("TextLabel") then
-				tagLabel.Text = def.name .. " SKIN"
-			end
-			plateAmount(card, commas(ShopCatalog.DAILY_COINS[tier] or 900))
-			local id = SkinArt.portrait(d.gun, d.line)
-			if id then
-				local pic = card:FindFirstChild("Pic") or Instance.new("ImageLabel")
-				if pic:IsA("ImageLabel") then
-					pic.Name = "Pic"
-					pic.BackgroundTransparency = 1
-					pic.Image = id
-					pic.ScaleType = Enum.ScaleType.Fit
-					pic.AnchorPoint = Vector2.new(0.5, 0.5)
-					-- big, spilling over the top edge, clear of the name and price below
-					pic.Position = UDim2.fromScale(0.56, 0.3)
-					pic.Size = UDim2.fromScale(0.86, 0.95)
-					pic.ZIndex = 4 -- over the colour, under the words and the price
-					pic.Parent = card
-				end
-			end
+			card.Activated:Connect(function()
+				buyDaily(i, card)
+			end)
 		end
 	end
+	drawDaily()
 	local head = scroll:FindFirstChild("Head_TODAY'S ITEMS", true)
 	local note = head and head:FindFirstChild("Note")
 	dailyNote = if note and note:IsA("TextLabel") then note else nil
@@ -1378,6 +1474,16 @@ function ShopController.start()
 		return
 	end
 	StateValues.changed(player, "Coins"):Connect(placeCounter)
+	-- the daily shop redraws when the server publishes a new list or a purchase
+	task.spawn(function()
+		for _, name in { PlayerData.DAILY, PlayerData.SKINS } do
+			local v = player:WaitForChild(name, 60)
+			if v and v:IsA("StringValue") then
+				v.Changed:Connect(drawDaily)
+			end
+		end
+		drawDaily()
+	end)
 	-- login rewards: redraw on every change, answer the claim, nudge once per join
 	StateValues.changed(player, "LoginLast"):Connect(drawLogin)
 	StateValues.changed(player, "LoginStep"):Connect(drawLogin)
@@ -1423,6 +1529,9 @@ function ShopController.start()
 			return -- a case opening: the Backpack shows it (Controllers/BackpackController)
 		elseif p.kind == "coins" then
 			LobbyHud.toast(p.text or "Coins added", "success")
+		elseif p.kind == "skin" then
+			UiSfx.cue("Confirm")
+			LobbyHud.toast(`{p.text or "Skin"} is yours: equip it in the Locker`, "success")
 		elseif wasBuying then
 			denied(lastBuyButton, p.text == "Not enough coins")
 			LobbyHud.toast(p.text or "Purchase failed", "error")
@@ -1432,17 +1541,6 @@ function ShopController.start()
 		placeCounter()
 	end)
 	placeCounter()
-	-- cases: fail closed until Roblox says paid random items are allowed here
-	task.spawn(function()
-		local ok, info = pcall(function()
-			return PolicyService:GetPolicyInfoForPlayerAsync(player)
-		end)
-		casesRestricted = not (
-			ok
-			and typeof(info) == "table"
-			and info.ArePaidRandomItemsRestricted == false
-		)
-	end)
 end
 
 return ShopController

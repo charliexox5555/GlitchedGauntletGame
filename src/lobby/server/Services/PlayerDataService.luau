@@ -127,7 +127,8 @@ local function write(userId: number, txId: string, change: Change): (boolean, Da
 			local out: { [string]: any } = if typeof(old) == "table" then table.clone(old) else {}
 			out.v, out.coins, out.items, out.tx, out.skins, out.prog =
 				data.v, data.coins, data.items, data.tx, data.skins, data.prog
-			out.tickets, out.login = data.tickets, data.login
+			out.tickets, out.login, out.daily, out.earn =
+				data.tickets, data.login, data.daily, data.earn
 			return out, { userId }
 		end)
 	end)
@@ -264,6 +265,8 @@ function PlayerDataService.writeSettings(userId: number, changes: { [string]: an
 					skins = data.skins,
 					tickets = data.tickets,
 					login = data.login,
+					daily = data.daily,
+					earn = data.earn,
 				}
 			end
 			local merged: { [string]: any } = if typeof(out.settings) == "table"

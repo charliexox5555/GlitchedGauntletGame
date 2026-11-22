@@ -60,6 +60,11 @@ local function allPairs(): { Pair }
 	return out
 end
 
+-- Every skin cases can hold (bundle-only tiers left out): the daily shop's pool too.
+function SkinCases.all(): { Pair }
+	return allPairs()
+end
+
 -- The skins a case can give, by section (only sections the case has a chance for,
 -- only tiers it holds).
 function SkinCases.pool(caseId: string): { [Skins.SectionId]: { Pair } }

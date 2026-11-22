@@ -6,7 +6,9 @@
 --                                            owned and never stored; 2026-11-20)
 --     prog = Shared/Progress (level, XP, win streak, lost-streak offer; 2026-11-22),
 --     tickets = number (earn-only case currency, Config/Economy; 2026-11-22),
---     login = Shared/LoginRewards { last = UTC day, step } (2026-11-22) }
+--     login = Shared/LoginRewards { last = UTC day, step } (2026-11-22),
+--     daily = Shared/DailyShop { day, picks = { { gun, line } }, bought = { slot } },
+--     earn = { day = UTC day, coins = match coins earned that day } (2026-11-22) }
 -- Older saves have no `prog`: it starts at level 1 with no streak (no version bump:
 -- every write keeps the fields it doesn't know, so older servers never drop it).
 -- Written only by the Lobby's PlayerDataService, one UpdateAsync per change.
@@ -21,6 +23,7 @@
 --   StateValues "StreakSaveValue", "StreakSaveEnds" (os.time), "StreakSavePrice": the
 --               live lost-streak offer (0 / nil when there is none)
 --   StateValues "Tickets" the Ticket balance; "LoginLast", "LoginStep" the login board
+--   StringValue "DailyShop"  JSON of `daily` (the player's own daily shop)
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -33,6 +36,7 @@ local Progress = require(ReplicatedStorage.Shared.Progress)
 local ProgressionConfig = require(ReplicatedStorage.Shared.Config.Progression)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
+local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
@@ -45,6 +49,8 @@ export type Data = {
 	prog: Progress.Prog,
 	tickets: number,
 	login: LoginRewards.Login,
+	daily: DailyShop.Daily,
+	earn: { day: number, coins: number },
 }
 
 local PlayerData = {}
@@ -55,6 +61,7 @@ PlayerData.STORE = if RunService:IsStudio() then "PlayerDataV1_Studio" else "Pla
 PlayerData.VERSION = 1
 PlayerData.REPLICA = "Inventory"
 PlayerData.SKINS = "Skins"
+PlayerData.DAILY = "DailyShop"
 local MAX_LINES_PER_GUN = 64
 
 function PlayerData.key(userId: number): string
@@ -94,12 +101,22 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		prog = Progress.new(),
 		tickets = Economy.STARTING_TICKETS,
 		login = LoginRewards.new(),
+		daily = DailyShop.new(),
+		earn = { day = 0, coins = 0 },
 	}
 	if typeof(raw) ~= "table" then
 		return data
 	end
 	data.prog = Progress.clean((raw :: any).prog)
 	data.login = LoginRewards.clean((raw :: any).login)
+	data.daily = DailyShop.clean((raw :: any).daily)
+	local earn = (raw :: any).earn
+	if typeof(earn) == "table" then
+		local day, got = count(earn.day, 1e7), count(earn.coins, Inventory.MAX_COINS)
+		if day and got then
+			data.earn = { day = day, coins = got }
+		end
+	end
 	-- a save from before Tickets existed gets the starting Tickets too
 	data.tickets = if (raw :: any).tickets == nil
 		then Economy.STARTING_TICKETS
@@ -165,7 +182,10 @@ function PlayerData.valid(data: Data): boolean
 	then
 		return false
 	end
-	if not LoginRewards.valid(data.login) then
+	if not LoginRewards.valid(data.login) or not DailyShop.valid(data.daily) then
+		return false
+	end
+	if not whole(data.earn.day, 1e7) or not whole(data.earn.coins, Inventory.MAX_COINS) then
 		return false
 	end
 	for id, n in data.items do
@@ -250,6 +270,7 @@ function PlayerData.publish(player: Player, data: Data?)
 		end
 	end
 	setJson(player, PlayerData.SKINS, if data then data.skins else {})
+	setJson(player, PlayerData.DAILY, if data then data.daily else DailyShop.new())
 	-- Inventory last: clients listen to it, and the skins must already be there
 	setJson(player, PlayerData.REPLICA, shown)
 end
@@ -284,6 +305,16 @@ function PlayerData.skins(player: Player): Skins
 		return {}
 	end
 	return PlayerData.clean({ coins = 0, skins = decoded }).skins
+end
+
+-- The published daily shop (empty until the server rolls it).
+function PlayerData.daily(player: Player): DailyShop.Daily
+	local value = player:FindFirstChild(PlayerData.DAILY)
+	if not (value and value:IsA("StringValue")) or value.Value == "" then
+		return DailyShop.new()
+	end
+	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
+	return if ok then DailyShop.clean(decoded) else DailyShop.new()
 end
 
 function PlayerData.coins(player: Player): number

@@ -3,11 +3,10 @@
 -- and the economy will read too (prices, case contents and odds). PLACEHOLDER
 -- content until the owner fills it: names, prices and weights are examples.
 --
--- Cases are paid random items (owner 2026-11-16: "paid cases, done right"):
--- every case lists every outcome with a weight; the shown odds are weight /
--- total, from this same table the server will roll from. No duplicates of
--- owned cosmetics (the economy re-rolls those). Cases are hidden for players
--- where PolicyService says paid random items are restricted.
+-- Cases cost Tickets only (Config/Economy.CASE_TICKETS; owner 2026-11-22). Tickets are
+-- earned and never sold, so a case is not a paid random item. NEVER put a case or
+-- Tickets inside anything bought with Robux or coins without the PolicyService gate.
+-- Odds still show for every case (Shared/SkinCases, the same table the server rolls).
 
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Exclusive"
 export type Kind = "Skin" | "Charm" | "Emote" | "Mod" | "Coins" | "Case"
@@ -26,9 +25,6 @@ export type Item = {
 export type Case = {
 	id: string,
 	name: string,
-	coins: number,
-	robux: number,
-	robux3: number, -- three at once
 	color: Color3,
 	art: string?, -- the case picture: a render of the 3D crate (tools/blender/crates/render_icons.py, cropped)
 	-- what it gives comes from the skin tiers: Shared/SkinCases.contents(id) (Config/Skins)
@@ -75,36 +71,24 @@ ShopCatalog.CASES = {
 		id = "Standard",
 		name = "STANDARD CASE",
 		art = "rbxassetid://122735078835784", -- the 3D crate render (art-source/ui/shop/crates/crate_standard_wide.png; the Home card uses crate_standard_card.png)
-		coins = 400,
-		robux = 99,
-		robux3 = 249,
 		color = Color3.fromHex("69696C"),
 	},
 	{
 		id = "Elite",
 		name = "ELITE CASE",
 		art = "rbxassetid://120685505151159", -- crate_elite_wide.png
-		coins = 900,
-		robux = 199,
-		robux3 = 499,
 		color = Color3.fromHex("6A3FC2"),
 	},
 	{
 		id = "Apex",
 		name = "APEX CASE",
 		art = "rbxassetid://87218064940726", -- crate_apex_wide.png
-		coins = 2000,
-		robux = 399,
-		robux3 = 999,
 		color = Color3.fromHex("C2412F"),
 	},
 	{
 		id = "Knife", -- knives only (owner 2026-11-20)
 		name = "KNIFE CASE",
 		art = "rbxassetid://75937518028942", -- crate_knife_wide.png
-		coins = 2500,
-		robux = 499,
-		robux3 = 1249,
 		color = Color3.fromHex("1E8A5C"),
 	},
 } :: { Case }
@@ -189,21 +173,8 @@ ShopCatalog.BUNDLES = {
 	},
 } :: { Bundle }
 
--- Today's items (the DAILY tab's eight cards). PLACEHOLDER stock with real skins so
--- the tab shows real pictures; the daily rotation (same for everyone, 00:00 UTC) and
--- buying come with the economy. Price in coins by the skin's tier (Config/Skins).
-ShopCatalog.DAILY = {
-	{ gun = "Phantom", line = "Playback" },
-	{ gun = "Sheriff", line = "Sealwork" },
-	{ gun = "Knife", line = "Giltfold" },
-	{ gun = "Vandal", line = "Redline" },
-	{ gun = "Vandal", line = "Prism" },
-	{ gun = "Spectre", line = "Rootglass" },
-	{ gun = "Odin", line = "Payload" },
-	{ gun = "Ghost", line = "Misprint" },
-} :: { { gun: string, line: string } }
-ShopCatalog.DAILY_COINS =
-	table.freeze({ Common = 600, Rare = 900, Epic = 1400, Legendary = 2000 }) :: { [string]: number }
+-- The daily shop is per player now (Shared/DailyShop, Shared/DailyRoll, prices in
+-- Config/Economy.DAILY_COINS / SKIN_ROBUX; owner 2026-11-22).
 
 -- What an item costs on its own, in Robux, when it has no price of its own
 -- (PLACEHOLDER prices). A bundle's "separately" total is the sum of these:

@@ -8,7 +8,8 @@
 --   ("decline", userId) | ("leave")
 -- PartyEvent (server -> one client): PartyEventPayload below
 -- LockerRequest (client -> server): ("equip", gunId, line) (Services/LockerService)
--- ShopRequest (client -> server): ("buyCase", caseId) | ("openCase", itemId) | ("devCoins") |
+-- ShopRequest (client -> server): ("buyCase", caseId) | ("openCase", itemId) |
+--   ("buyDaily", slot) | ("devCoins") |
 --   ("devSkins") (Services/ShopService)
 -- ShopEvent (server -> one client): ShopEventPayload below
 -- SettingsRequest (client -> server): ("save", values) (Services/SettingsService;
@@ -45,10 +46,10 @@ export type PartyEventPayload = {
 }
 
 export type ShopEventPayload = {
-	kind: "bought" | "opened" | "refunded" | "coins" | "failed",
+	kind: "bought" | "opened" | "refunded" | "coins" | "skin" | "failed", -- "skin": a daily shop skin
 	item: string?, -- "bought" / "opened": the Config/Inventory item id
-	count: number?, -- "bought": how many; "refunded": the coins given back
-	gun: string?, -- "opened": the skin's gun (Config/Weapons id)
+	count: number?, -- "bought": how many; "refunded": the Tickets given back
+	gun: string?, -- "opened" / "skin": the skin's gun (Config/Weapons id)
 	line: string?, -- "opened": the skin line
 	tier: string?, -- "opened": Config/Skins tier id
 	text: string?, -- the item's name, or a short message
@@ -62,6 +63,7 @@ export type ProgressEventPayload = {
 	streakFrom: number?,
 	streakTo: number?,
 	lostOffer: number?, -- "gain": a lost streak now on offer
+	coins: number?, -- "gain": match coins paid (Config/Economy.MATCH_COINS)
 	text: string?, -- "failed": why
 }
 

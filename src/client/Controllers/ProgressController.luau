@@ -71,7 +71,8 @@ local function play(g: { [string]: any })
 		levelLabel.Text = "LV " .. levelFrom
 	end
 	if gain then
-		gain.Text = "+" .. xp .. " XP"
+		local coins = num(g.coins, 0) -- match pay (Config/Economy.MATCH_COINS)
+		gain.Text = "+" .. xp .. " XP" .. (if coins > 0 then `  ·  +{coins} COINS` else "")
 	end
 	if xpLabel then
 		xpLabel.Text = string.format("%d / %d XP", xpNow, needNow)

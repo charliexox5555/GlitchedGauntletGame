@@ -33,6 +33,36 @@ Economy.LOGIN = table.freeze({
 Economy.CASE_TICKETS =
 	table.freeze({ Standard = 1, Elite = 3, Apex = 6, Knife = 8 }) :: { [string]: number }
 
+-- Match pay in coins (ProgressionService, in the same write as the XP). Leaving pays
+-- nothing; matches with no real player on the other side pay `botScale` of it. At most
+-- `dailyCap` coins a UTC day from matches.
+Economy.MATCH_COINS = table.freeze({ finish = 15, win = 20, botScale = 0.5, dailyCap = 400 })
+
+-- The daily shop: PER PLAYER, rolled by the server at the player's first visit of the
+-- UTC day and saved (PlayerData `daily`), so nothing off their list can be bought.
+-- One slot per entry: a tier, or "EpicOrLegendary" (a coin flip when both are free).
+-- Skins the player doesn't own come first; a slot with none left shows an owned one.
+Economy.DAILY_SLOTS = table.freeze({
+	"Common",
+	"Common",
+	"Common",
+	"Common",
+	"Rare",
+	"Rare",
+	"Epic",
+	"EpicOrLegendary",
+}) :: { string }
+-- Daily skins by tier: a coin price (Common, Rare) or Robux only (the rest).
+Economy.DAILY_COINS = table.freeze({ Common = 1000, Rare = 2500 }) :: { [string]: number }
+-- What a skin costs in Robux by tier (daily shop Epic and up; bundle items sold alone).
+Economy.SKIN_ROBUX = table.freeze({
+	Common = 199,
+	Rare = 349,
+	Epic = 449,
+	Legendary = 649,
+	Exclusive = 499,
+}) :: { [string]: number }
+
 function Economy.day(t: number): number
 	return t // Economy.DAY_SECONDS
 end
