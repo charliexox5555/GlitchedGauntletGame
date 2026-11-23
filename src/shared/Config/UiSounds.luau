@@ -124,4 +124,10 @@ return table.freeze({
 	MatchEnd = cue(9042702890, 0.296, nil, 9), -- APM "Victory Slam stinger 1" (8 s); the end cutscene gets cut to it (owner's pick)
 	ZoneWarn = cue(15675085146, 0.35, 0.72, 0.3), -- Roblox_UI_Indicator, low: outside the sudden-death circle
 	Score = cue(17208319162, 0.672), -- Roblox "GUI - Pickup": your team's score diamond fills (owner: keep looking)
+	-- The Shop's "YOU GOT" popup after a purchase (2026-11-22): the case reveal's stinger per
+	-- tier (Config/CaseOpening.REVEAL, the owner's picks 2026-11-20), so buying feels like opening.
+	RewardCommon = cue(17208323435, 0.6, nil, 0.5), -- Roblox "GUI - Equip"
+	RewardRare = cue(9042542887, 0.35, nil, 0.5), -- APM "Universal Flip - Hit"
+	RewardEpic = cue(9043151109, 0.35, nil, 0.5), -- APM "Get Up And Go - Hit"
+	RewardLegendary = cue(9047100306, 0.4, nil, 0.5), -- APM "Hustler Sting 2"
 })

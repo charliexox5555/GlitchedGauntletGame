@@ -6,10 +6,15 @@
 --   kind "coins"   a coin pack: `coins`, plus `case` (a Config/Inventory item) where paid
 --                  random items are allowed, else `caseCoins` more coins
 --   kind "bundle"  a ShopCatalog bundle by `bundle` id: all its skins
---   kind "starter" the Starter Bundle, once per player: `coins` + `case` (as packs)
+--   kind "starter" the Starter Bundle, once per player: `coins`, plus `caseCount` x `case` and
+--                  `tickets` where paid random items are allowed, else `fallbackCoins` more
+--                  (Tickets bought with Robux would make Ticket cases paid random too)
+--   kind "case"    `count` x `case` (a Config/Inventory item) for shop case `caseId`; only
+--                  prompted where paid random items are allowed (owner 2026-11-22: case
+--                  prices show Robux first, Tickets as the second option)
 --   kind "skin"    one skin at this price; WHICH skin is the intent the server saved in
 --                  the player's data before the prompt (daily shop slot / bundle item)
-export type Kind = "coins" | "bundle" | "starter" | "skin"
+export type Kind = "coins" | "bundle" | "starter" | "skin" | "case"
 export type Product = {
 	id: number,
 	kind: Kind,
@@ -18,6 +23,11 @@ export type Product = {
 	coins: number?,
 	case: string?,
 	caseCoins: number?,
+	caseCount: number?,
+	tickets: number?,
+	fallbackCoins: number?,
+	count: number?,
+	caseId: string?,
 	bundle: string?,
 }
 
@@ -87,9 +97,84 @@ Products.LIST = table.freeze({
 		kind = "starter",
 		robux = 67,
 		name = "STARTER BUNDLE",
-		coins = 1000,
+		coins = 1500, -- owner 2026-11-22: 2 cases + 1,500 coins + 3 Tickets
 		case = "CaseStandard",
-		caseCoins = 400,
+		caseCount = 2,
+		tickets = 3,
+		fallbackCoins = 1100, -- instead of the cases and Tickets where they can't be sold
+	}),
+	-- cases (Robux first; Tickets in the case popup), one or three at a time
+	table.freeze({
+		id = 3734930052,
+		kind = "case",
+		robux = 99,
+		name = "STANDARD CASE",
+		case = "CaseStandard",
+		caseId = "Standard",
+		count = 1,
+	}),
+	table.freeze({
+		id = 3734930066,
+		kind = "case",
+		robux = 199,
+		name = "ELITE CASE",
+		case = "CaseElite",
+		caseId = "Elite",
+		count = 1,
+	}),
+	table.freeze({
+		id = 3734930086,
+		kind = "case",
+		robux = 399,
+		name = "APEX CASE",
+		case = "CaseApex",
+		caseId = "Apex",
+		count = 1,
+	}),
+	table.freeze({
+		id = 3734930104,
+		kind = "case",
+		robux = 499,
+		name = "KNIFE CASE",
+		case = "CaseKnife",
+		caseId = "Knife",
+		count = 1,
+	}),
+	table.freeze({
+		id = 3734930120,
+		kind = "case",
+		robux = 249,
+		name = "3 STANDARD CASES",
+		case = "CaseStandard",
+		caseId = "Standard",
+		count = 3,
+	}),
+	table.freeze({
+		id = 3734930135,
+		kind = "case",
+		robux = 499,
+		name = "3 ELITE CASES",
+		case = "CaseElite",
+		caseId = "Elite",
+		count = 3,
+	}),
+	table.freeze({
+		id = 3734930145,
+		kind = "case",
+		robux = 999,
+		name = "3 APEX CASES",
+		case = "CaseApex",
+		caseId = "Apex",
+		count = 3,
+	}),
+	table.freeze({
+		id = 3734930160,
+		kind = "case",
+		robux = 1249,
+		name = "3 KNIFE CASES",
+		case = "CaseKnife",
+		caseId = "Knife",
+		count = 3,
 	}),
 	-- one skin, by price
 	table.freeze({ id = 3734910801, kind = "skin", robux = 349, name = "WEAPON SKIN" }),
@@ -102,6 +187,7 @@ Products.PACKS = {} :: { Product }
 Products.SKIN_BY_PRICE = {} :: { [number]: Product }
 Products.BUNDLE = {} :: { [string]: Product }
 Products.STARTER = nil :: Product?
+Products.CASES = {} :: { [string]: { [number]: Product } } -- [caseId][count]
 for _, p in Products.LIST do
 	Products.BY_ID[p.id] = p
 	if p.kind == "coins" then
@@ -112,6 +198,9 @@ for _, p in Products.LIST do
 		Products.BUNDLE[p.bundle] = p
 	elseif p.kind == "starter" then
 		Products.STARTER = p
+	elseif p.kind == "case" and p.caseId and p.count then
+		Products.CASES[p.caseId] = Products.CASES[p.caseId] or {}
+		Products.CASES[p.caseId][p.count] = p
 	end
 end
 

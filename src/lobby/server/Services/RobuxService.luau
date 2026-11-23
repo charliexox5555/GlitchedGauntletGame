@@ -8,6 +8,7 @@
 --     ("item", bundleId, i)  item i of a bundle on its own
 --     ("daily", slot)        a Robux-priced slot of the player's saved daily shop
 --     ("starter")            the Starter Bundle (once per player)
+--     ("case", caseId, 1|3)  cases for Robux (only where paid random items are allowed)
 --   The server checks the ask against its own tables and the player's save, then prompts.
 --   For the shared skin products (one per price) it first saves WHICH skin in the player's
 --   data (`buys.intents`, one per product), so the receipt always knows what was paid
@@ -61,6 +62,7 @@ local REASON_TEXT: { [string]: string } = {
 	busy = "Still finishing your last purchase",
 	notSold = "That isn't sold for Robux",
 	promptOpen = "Finish the purchase that's open first",
+	notHere = "Cases can't be bought with Robux where you are: use Tickets",
 }
 
 local function reject(reason: string)
@@ -82,9 +84,14 @@ local function compensation(product: Products.Product): number
 end
 
 -- Paid random items allowed for this player? Fails closed (an error = no).
-local function casesAllowed(player: Player): boolean
+-- (answered, allowed): answered = false when the policy call failed (the request side
+-- treats that as not allowed; a receipt waits and Roblox sends it again).
+local function casesAllowed(player: Player): (boolean, boolean)
 	local ok, info = pcall(PolicyService.GetPolicyInfoForPlayerAsync, PolicyService, player)
-	return ok and typeof(info) == "table" and (info :: any).ArePaidRandomItemsRestricted == false
+	if not ok or typeof(info) ~= "table" then
+		return false, false
+	end
+	return true, (info :: any).ArePaidRandomItemsRestricted == false
 end
 
 local function prompt(player: Player, product: Products.Product)
@@ -234,6 +241,21 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 			return
 		end
 		promptSkin(player, product, pick.gun, pick.line, slot)
+	elseif what == "case" then
+		local byCount = if typeof(a) == "string" and #a <= 24
+			then Products.CASES[a :: string]
+			else nil
+		local product = if byCount and (b == 1 or b == 3) then byCount[b :: number] else nil
+		if not product then
+			reject("badArgs")
+			return
+		end
+		local _, allowed = casesAllowed(player)
+		if not allowed then
+			fail(player, "notHere")
+			return
+		end
+		prompt(player, product)
 	elseif what == "starter" then
 		local product = Products.STARTER
 		if not product then
@@ -254,19 +276,30 @@ local function grant(data: PlayerData.Data, product: Products.Product, allowCase
 	local function addCoins(n: number)
 		data.coins = math.min(data.coins + n, Inventory.MAX_COINS)
 	end
-	local function addCase(itemId: string?, instead: number?): string?
+	-- `n` cases where allowed and there's room in the stack, `insteadEach` coins for any not given
+	-- `n` cases where allowed and there's room in the stack; for any not given, their share
+	-- of `insteadTotal` coins (all of it when none were given)
+	local function addCases(itemId: string?, n: number, insteadTotal: number): number
 		local def = if itemId then Inventory.ITEMS[itemId] else nil
-		if def and allowCase and (data.items[def.id] or 0) < def.maxStack then
-			data.items[def.id] = (data.items[def.id] or 0) + 1
-			return def.name
+		local given = 0
+		if def and allowCase and n > 0 then
+			local held = data.items[def.id] or 0
+			given = math.clamp(def.maxStack - held, 0, n)
+			if given > 0 then
+				data.items[def.id] = held + given
+			end
 		end
-		addCoins(instead or 0)
-		return nil
+		if n > 0 and given < n then
+			addCoins(
+				if given == 0 then insteadTotal else math.floor(insteadTotal * (n - given) / n)
+			)
+		end
+		return given
 	end
 	if product.kind == "coins" then
 		addCoins(product.coins or 0)
-		local case = addCase(product.case, product.caseCoins)
-		return `+{product.coins} coins` .. (if case then ` and a {case}` else "")
+		local got = addCases(product.case, if product.case then 1 else 0, product.caseCoins or 0)
+		return `+{product.coins} coins` .. (if got > 0 then " and a case" else "")
 	elseif product.kind == "starter" then
 		if data.buys.starter then
 			addCoins(compensation(product))
@@ -274,8 +307,23 @@ local function grant(data: PlayerData.Data, product: Products.Product, allowCase
 		end
 		data.buys.starter = true
 		addCoins(product.coins or 0)
-		local case = addCase(product.case, product.caseCoins)
-		return `Starter Bundle: +{product.coins} coins` .. (if case then ` and a {case}` else "")
+		if allowCase then
+			local n = product.caseCount or 0
+			local got = addCases(product.case, n, product.fallbackCoins or 0)
+			data.tickets = math.min(data.tickets + (product.tickets or 0), Economy.MAX_TICKETS)
+			return `Starter Bundle: {got} cases, {product.coins} coins and {product.tickets} Tickets`
+		end
+		addCoins(product.fallbackCoins or 0)
+		return `Starter Bundle: {(product.coins or 0) + (product.fallbackCoins or 0)} coins`
+	elseif product.kind == "case" then
+		local n = math.max(product.count or 1, 1)
+		local got = addCases(product.case, n, compensation(product))
+		return if got == n
+			then `{product.name} added to your Backpack`
+			elseif
+				got > 0
+			then `{got} of {n} cases added (your Backpack is full); coins for the rest`
+			else `+{compensation(product)} coins (cases can't be sold here)`
 	elseif product.kind == "bundle" then
 		local bundle = if product.bundle then ShopCatalog.bundle(product.bundle) else nil
 		local got = 0
@@ -324,14 +372,30 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 		warn(`[Robux] receipt for an unknown product {info.ProductId}`)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
-	local allowCase = product.case ~= nil and casesAllowed(player)
+	local allowCase = false
+	if product.case ~= nil then
+		local answered, allowed = casesAllowed(player)
+		if not answered then
+			-- don't turn a paid case into coins because the policy call hiccuped: retry later
+			return Enum.ProductPurchaseDecision.NotProcessedYet
+		end
+		allowCase = allowed
+	end
 	local text = ""
+	local gotGun: string?, gotLine: string? = nil, nil
 	local purchaseId = string.sub(tostring(info.PurchaseId), 1, 62)
 	local txId = "r:" .. purchaseId
 	local ok, why = PlayerDataService.transact(player, txId, function(data)
 		-- receipts have their own memory (the shared `tx` list only keeps the last few writes)
 		if table.find(data.buys.receipts, purchaseId) then
 			return false, "granted"
+		end
+		gotGun, gotLine = nil, nil
+		if product.kind == "skin" then
+			local intent = data.buys.intents[tostring(product.id)]
+			if intent and not PlayerData.owns(data.skins, intent.gun, intent.line) then
+				gotGun, gotLine = intent.gun, intent.line
+			end
 		end
 		text = grant(data, product, allowCase)
 		table.insert(data.buys.receipts, 1, purchaseId)
@@ -347,7 +411,13 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 		warn(`[Robux] receipt {info.PurchaseId} not saved: {why}`)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
-	send(player, { kind = "robux", text = if text ~= "" then text else "Purchase complete" })
+	send(player, {
+		kind = "robux",
+		text = if text ~= "" then text else "Purchase complete",
+		product = product.id,
+		gun = gotGun,
+		line = gotLine,
+	})
 	return Enum.ProductPurchaseDecision.PurchaseGranted
 end
 

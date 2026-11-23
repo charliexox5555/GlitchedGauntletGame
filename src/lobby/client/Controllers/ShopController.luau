@@ -25,6 +25,7 @@
 -- Every device; Shared/UiLayout sizes it (the Fit scales on Canvas, PopupCanvas, Top).
 
 local Players = game:GetService("Players")
+local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
@@ -53,6 +54,7 @@ local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local Products = require(ReplicatedStorage.Shared.Config.Products)
+local Fx = require(script.Parent.Parent.Util.Fx)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
@@ -86,7 +88,11 @@ local tabPlates: { [string]: GuiButton } = {}
 local dim: Frame
 local popCanvas: Frame
 local casePanel: Frame
+-- Robux cases are paid random items: shown only once Roblox says they're allowed here
+-- (display only, fail closed; Services/RobuxService checks again)
+local casesRestricted = true
 local confirmPanel: Frame
+local rewardPanel: Frame
 local oddsPanel: Frame
 local itemCard: Frame
 local coinsGui: ScreenGui
@@ -426,7 +432,7 @@ local popupOpen: Frame? = nil
 local function showPanel(panel: Frame?)
 	local was = popupOpen
 	popupOpen = panel
-	for _, p in { casePanel, oddsPanel, confirmPanel } do
+	for _, p in { casePanel, oddsPanel, confirmPanel, rewardPanel } do
 		if p ~= panel then
 			p.Visible = false
 		end
@@ -509,8 +515,25 @@ local function openCasePopup(case: ShopCatalog.Case)
 	placeholder.Visible = case.art == nil
 	local art = child(casePanel, "Art") :: ImageLabel
 	art.Image = case.art or ""
-	-- cases cost Tickets only (Config/Economy.CASE_TICKETS; no Ticket icon yet: words)
-	local buy = child(casePanel, "BuyCoins")
+	-- Robux first (one / three), Tickets second (owner 2026-11-22); where paid random items
+	-- aren't allowed only Tickets (Config/Products.CASES, Config/Economy.CASE_TICKETS)
+	local byCount = Products.CASES[case.id] or {}
+	local one, three = byCount[1], byCount[3]
+	local robuxOk = not casesRestricted and one ~= nil
+	local r1, r3 =
+		child(casePanel, "BuyRobux") :: GuiObject, child(casePanel, "BuyRobux3") :: GuiObject
+	r1.Visible = robuxOk
+	r3.Visible = robuxOk and three ~= nil
+	if one then
+		setPlate(r1, commas(one.robux))
+	end
+	if three then
+		setPlate(r3, commas(three.robux))
+	end
+	local buy = child(casePanel, "BuyCoins") :: GuiObject
+	-- only X moves: the pop setup has re-anchored the button to its centre
+	buy.Position =
+		UDim2.new(0, if robuxOk then 660 else 410, buy.Position.Y.Scale, buy.Position.Y.Offset)
 	setPlate(buy, ticketWords(Economy.CASE_TICKETS[case.id] or 0))
 	priceIcon(buy, "tickets")
 	showPanel(casePanel)
@@ -540,13 +563,14 @@ end
 -- The server checks everything again (Services/ShopService); these checks only
 -- save a round trip and say why. One purchase in flight at a time.
 local buying = false
+local askRobux: (what: string, a: any?, b: any?) -> () -- defined with the confirm popup
 local function buyCase(how: string, button: GuiObject?)
 	local case = openCase
 	if not case then
 		return
 	end
-	if how ~= "BuyCoins" then
-		soon("Buying with Robux")
+	if how == "BuyRobux" or how == "BuyRobux3" then
+		askRobux("case", case.id, if how == "BuyRobux3" then 3 else 1)
 		return
 	end
 	if buying then
@@ -579,6 +603,47 @@ local function plateAmount(button: Instance, amount: string)
 	if label and label:IsA("TextLabel") then
 		label.Text = amount
 	end
+end
+
+-- OWNED (owner 2026-11-22: "it should say owned if it is owned and look good"): every
+-- card that can be owned registers a check; they rerun when skins or the Starter change.
+local ownedChecks: { () -> () } = {}
+local function refreshOwned()
+	for _, check in ownedChecks do
+		check()
+	end
+end
+-- a price plate as OWNED: the word, no icon, the quiet panel colour
+local function plateOwned(button: Instance, owned: boolean, price: string, kind: "coins" | "robux")
+	-- a Robux plate's own icon (Price.Row.Robux) hides with the price
+	local robuxMark = button:FindFirstChild("Robux", true)
+	if robuxMark and robuxMark:IsA("GuiObject") then
+		robuxMark.Visible = not owned
+	end
+	if owned then
+		plateAmount(button, "OWNED")
+		priceIcon(button, "none")
+		local plate = button:FindFirstChild("Price", true)
+		if plate and plate:IsA("GuiObject") then
+			plate.BackgroundColor3 = ShopTheme.INNER
+		end
+	else
+		plateAmount(button, price)
+		priceIcon(button, kind)
+	end
+end
+local function ownsAll(bundle: ShopCatalog.Bundle): boolean
+	local skins = PlayerData.skins(player)
+	local any = false
+	for _, item in bundle.items do
+		if item.kind == "Skin" and item.gun and item.line then
+			any = true
+			if not PlayerData.owns(skins, item.gun, item.line) then
+				return false
+			end
+		end
+	end
+	return any
 end
 
 local function kindWord(item: ShopCatalog.Item): string
@@ -658,8 +723,12 @@ local function selectPreview(index: number)
 	local itemPrice = ShopCatalog.itemRobux(item)
 	buyItem.Visible = itemPrice ~= nil
 	if itemPrice then
-		plateAmount(buyItem, commas(itemPrice))
+		local owned = item.gun ~= nil
+			and item.line ~= nil
+			and PlayerData.owns(PlayerData.skins(player), item.gun, item.line)
+		plateOwned(buyItem, owned, commas(itemPrice), "robux")
 	end
+	plateOwned(child(actions, "BuyBundle"), ownsAll(bundle), commas(bundle.robux), "robux")
 	-- the strip: the open item is up and bright, the rest a touch back
 	for i, c in previewCells do
 		local on = i == index
@@ -1131,12 +1200,81 @@ local function confirmBuy(button: GuiObject)
 end
 
 -- A Robux buy: the server checks it and opens Roblox's purchase prompt.
-local function askRobux(what: string, a: any?, b: any?)
+local lastAsk = -math.huge
+askRobux = function(what: string, a: any?, b: any?)
 	if not PlayerData.ready(player) then
 		LobbyHud.toast("Your save is still loading", "info")
 		return
 	end
+	lastAsk = os.clock()
 	LobbyNet.event("RobuxRequest"):FireServer(what, a, b)
+end
+
+-- Case tiles on HOME: the Robux price first where cases can be sold for Robux, else Tickets.
+local caseCards: { { card: GuiButton, case: ShopCatalog.Case } } = {}
+local function drawCasePrices()
+	for _, cc in caseCards do
+		local one = (Products.CASES[cc.case.id] or {})[1]
+		if one and not casesRestricted then
+			plateAmount(cc.card, commas(one.robux))
+			priceIcon(cc.card, "robux")
+		else
+			plateAmount(cc.card, ticketWords(Economy.CASE_TICKETS[cc.case.id] or 0))
+			priceIcon(cc.card, "tickets")
+		end
+	end
+end
+
+-- The YOU GOT popup after a purchase (owner 2026-11-22: "much better feedback and fun for
+-- somebody who buys a bundle so it feels satisfying"): the picture pops in with a light
+-- sweep, the case reveal's stinger for its tier plays (Config/UiSounds Reward*), COLLECT.
+local rewardSweep: (() -> ())? = nil
+local function celebrate(name: string, art: string?, tier: string?)
+	(child(rewardPanel, "Title") :: TextLabel).Text = "YOU GOT";
+	(child(rewardPanel, "ItemName") :: TextLabel).Text = name
+	local pic = child(rewardPanel, "Art") :: ImageLabel
+	pic.Image = art or ""
+	showPanel(rewardPanel)
+	local cue = if tier == "Legendary" or tier == "Exclusive"
+		then "RewardLegendary"
+		elseif tier == "Epic" then "RewardEpic"
+		elseif tier == "Rare" then "RewardRare"
+		else "RewardCommon"
+	UiSfx.cue(cue)
+	Fx.pop(pic, 1.3)
+	if not rewardSweep then
+		rewardSweep = Fx.shine(pic, Color3.new(1, 1, 1), 0.6)
+	end
+	local sweep = rewardSweep
+	if sweep then
+		task.delay(0.15, sweep)
+	end
+end
+local function celebrateSkin(gun: string, line: string)
+	celebrate(SkinCases.name(gun, line), SkinArt.portrait(gun, line), SkinCases.tierOf(gun, line))
+end
+local function celebrateProduct(p: LobbyNet.ShopEventPayload)
+	local product = if typeof(p.product) == "number" then Products.BY_ID[p.product] else nil
+	if not product then
+		celebrate(p.text or "Purchase complete", nil, "Rare")
+	elseif product.kind == "skin" and p.gun and p.line then
+		celebrateSkin(p.gun, p.line)
+	elseif product.kind == "bundle" then
+		local bundle = if product.bundle then ShopCatalog.bundle(product.bundle) else nil
+		local n = if bundle then #bundle.items else 0
+		celebrate(`{product.name} BUNDLE · {n} SKINS`, bundle and bundle.hero, "Legendary")
+	elseif product.kind == "case" then
+		local case = if product.caseId then ShopCatalog.case(product.caseId) else nil
+		celebrate(product.name, case and case.art, "Rare")
+	elseif product.kind == "starter" then
+		celebrate(string.upper(p.text or product.name), ShopCatalog.ART.coinStack, "Epic")
+	else
+		celebrate(
+			product.name,
+			ShopCatalog.ART.coinStack,
+			if (product.robux or 0) >= 499 then "Epic" else "Rare"
+		)
+	end
 end
 
 -- The daily shop cards (DAILY tab, Item1..Item8): the player's own saved list, priced by
@@ -1390,6 +1528,12 @@ end
 -- Vandal, side-on) big on the left, one tile per item on the right; hovering a tile shows
 -- the item, clicking it opens the bundle's page on that item.
 local function fillBundleCard(card: GuiButton, bundle: ShopCatalog.Bundle)
+	-- the banner art behind everything, when it exists (else the flat theme colour)
+	local back = card:FindFirstChild("Art")
+	if bundle.banner and back and back:IsA("ImageLabel") then
+		back.Image = bundle.banner
+		back.ScaleType = Enum.ScaleType.Crop
+	end
 	local heroPic = card:FindFirstChild("Hero")
 	local first = bundle.items[1]
 	if heroPic and heroPic:IsA("ImageLabel") and first and first.line then
@@ -1474,6 +1618,7 @@ function ShopController.init()
 	popCanvas = child(gui, "PopupCanvas")
 	casePanel = child(popCanvas, "CasePanel")
 	confirmPanel = child(popCanvas, "ConfirmPanel")
+	rewardPanel = child(popCanvas, "RewardPanel")
 	oddsPanel = child(popCanvas, "OddsPanel")
 	itemCard = child(canvas, "ItemCard")
 	coinsTop = child(coinsGui, "Top")
@@ -1497,19 +1642,19 @@ function ShopController.init()
 		end
 	end
 
-	-- cases
+	-- cases (prices drawn by drawCasePrices, again once the paid-random-items check is back)
 	local home = pages.Home
 	for _, c in ShopCatalog.CASES do
 		local holder = home:FindFirstChild("Case_" .. c.id, true)
 		local card = holder and holder:FindFirstChild("Card")
 		if card and card:IsA("GuiButton") then
-			plateAmount(card, ticketWords(Economy.CASE_TICKETS[c.id] or 0))
-			priceIcon(card, "tickets")
+			table.insert(caseCards, { card = card, case = c })
 			card.Activated:Connect(function()
 				openCasePopup(c)
 			end)
 		end
 	end
+	drawCasePrices()
 	-- bundles
 	for _, b in ShopCatalog.BUNDLES do
 		local holder = pages.Bundles:FindFirstChild("Bundle_" .. b.id, true)
@@ -1535,6 +1680,12 @@ function ShopController.init()
 			plateAmount(card, commas(b.robux))
 			priceIcon(card, "robux")
 			fillBundleCard(card, b)
+			if b.slot ~= "Starter" then
+				local c = card
+				table.insert(ownedChecks, function()
+					plateOwned(c, ownsAll(b), commas(b.robux), "robux")
+				end)
+			end
 			if b.slot == "Starter" then
 				local heroPic = card:FindFirstChild("Hero")
 				if heroPic and heroPic:IsA("ImageLabel") then
@@ -1583,7 +1734,7 @@ function ShopController.init()
 		end
 		openConfirm({
 			title = "STARTER BUNDLE",
-			name = `{commas(starter.coins or 0)} COINS + A STANDARD CASE`,
+			name = `{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`,
 			art = ShopCatalog.ART.coinStack,
 			price = starter.robux,
 			currency = "robux",
@@ -1597,7 +1748,8 @@ function ShopController.init()
 	if offerCard and offerCard:IsA("GuiButton") and starter then
 		local sub = offerCard:FindFirstChild("Sub")
 		if sub and sub:IsA("TextLabel") then
-			sub.Text = `{commas(starter.coins or 0)} COINS + A STANDARD CASE`
+			sub.Text =
+				`{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`
 		end
 		plateAmount(offerCard, commas(starter.robux))
 		offerCard.Activated:Connect(buyStarter)
@@ -1607,11 +1759,35 @@ function ShopController.init()
 	if starterCard and starterCard:IsA("GuiButton") then
 		starterCard.Activated:Connect(buyStarter)
 	end
+	if starter then
+		local cards: { Instance } = {}
+		if offerCard then
+			table.insert(cards, offerCard)
+		end
+		if starterCard then
+			table.insert(cards, starterCard)
+		end
+		table.insert(ownedChecks, function()
+			local bought = StateValues.get(player, "StarterBought") == true
+			for _, c in cards do
+				plateOwned(c, bought, commas(starter.robux), "robux")
+			end
+		end)
+	end
 	-- coin packs (Config/Products.PACKS, in Pack1..Pack6 order)
 	for i, pack in Products.PACKS do
 		local holder = scroll:FindFirstChild("Pack" .. i, true)
 		local card = holder and holder:FindFirstChild("Card")
 		if card and card:IsA("GuiButton") then
+			local packArt = card:FindFirstChild("PackArt")
+			if packArt and packArt:IsA("ImageLabel") and ShopCatalog.PACK_ART[i] then
+				packArt.Image = ShopCatalog.PACK_ART[i]
+			end
+			local back = card:FindFirstChild("Art")
+			if back and back:IsA("ImageLabel") and ShopCatalog.PACK_BACKDROP ~= "" then
+				back.Image = ShopCatalog.PACK_BACKDROP
+				back.ScaleType = Enum.ScaleType.Crop
+			end
 			local amount = card:FindFirstChild("Amount")
 			if amount and amount:IsA("TextLabel") then
 				amount.Text = "+" .. commas(pack.coins or 0)
@@ -1698,6 +1874,24 @@ function ShopController.init()
 		confirmOpen = nil
 		showPanel(nil)
 	end)
+	CloseButton.hook(child(rewardPanel, "Close") :: GuiButton, function()
+		showPanel(nil)
+	end)
+	do
+		local collect = child(rewardPanel, "Collect") :: GuiButton
+		local sc = pop(collect)
+		collect.MouseEnter:Connect(function()
+			rest(sc, KM.hover)
+		end)
+		collect.MouseLeave:Connect(function()
+			rest(sc, 1)
+		end)
+		collect.Activated:Connect(function()
+			press(sc)
+			UiSfx.cue("Confirm")
+			showPanel(nil)
+		end)
+	end
 	do
 		local buy = child(confirmPanel, "Buy") :: GuiButton
 		local sc = pop(buy)
@@ -1815,6 +2009,21 @@ function ShopController.init()
 			if not bundle then
 				return
 			end
+			if n == "BuyBundle" and ownsAll(bundle) then
+				LobbyHud.toast("You already own this whole bundle", "info")
+				return
+			end
+			local cur = bundle.items[previewIndex]
+			if
+				n == "BuyItem"
+				and cur
+				and cur.gun
+				and cur.line
+				and PlayerData.owns(PlayerData.skins(player), cur.gun, cur.line)
+			then
+				LobbyHud.toast("You already own this skin", "info")
+				return
+			end
 			if n == "BuyBundle" then
 				openConfirm({
 					title = "BUNDLE",
@@ -1877,6 +2086,31 @@ function ShopController.start()
 	-- login rewards: redraw on every change, answer the claim, nudge once per join
 	StateValues.changed(player, "LoginLast"):Connect(drawLogin)
 	StateValues.changed(player, "FreeDailyUsed"):Connect(drawDaily)
+	StateValues.changed(player, "StarterBought"):Connect(refreshOwned)
+	task.spawn(function()
+		local skins = player:WaitForChild(PlayerData.SKINS, 60)
+		if skins and skins:IsA("StringValue") then
+			skins.Changed:Connect(function()
+				refreshOwned()
+				if previewBundle then
+					selectPreview(previewIndex) -- BUY ITEM / BUY BUNDLE turn OWNED
+				end
+			end)
+		end
+		refreshOwned()
+	end)
+	-- Robux cases: fail closed until Roblox says paid random items are allowed here
+	task.spawn(function()
+		local ok, info = pcall(function()
+			return PolicyService:GetPolicyInfoForPlayerAsync(player)
+		end)
+		casesRestricted = not (
+			ok
+			and typeof(info) == "table"
+			and info.ArePaidRandomItemsRestricted == false
+		)
+		drawCasePrices()
+	end)
 	StateValues.changed(player, "LoginStep"):Connect(drawLogin)
 	LobbyNet.event("LoginEvent").OnClientEvent:Connect(function(p: LobbyNet.LoginEventPayload)
 		if typeof(p) ~= "table" then
@@ -1914,19 +2148,17 @@ function ShopController.start()
 		local wasBuying = buying -- a failure here may be the Backpack's opening, not ours
 		buying = false
 		if p.kind == "bought" then
-			UiSfx.cue("Confirm")
-			LobbyHud.toast(`{p.text or "Item"} added to your Backpack`, "success")
+			local def = if p.item then Inventory.ITEMS[p.item] else nil
+			celebrate(`{p.text or "Item"} · IN YOUR BACKPACK`, def and def.icon, "Rare")
 		elseif p.kind == "opened" then
 			return -- a case opening: the Backpack shows it (Controllers/BackpackController)
 		elseif p.kind == "coins" then
 			LobbyHud.toast(p.text or "Coins added", "success")
-		elseif p.kind == "skin" or p.kind == "free" then
-			UiSfx.cue("Confirm")
-			LobbyHud.toast(`{p.text or "Skin"} is yours: equip it in the Locker`, "success")
+		elseif (p.kind == "skin" or p.kind == "free") and p.gun and p.line then
+			celebrateSkin(p.gun, p.line)
 		elseif p.kind == "robux" then
-			UiSfx.cue("Confirm")
-			LobbyHud.toast(p.text or "Purchase complete", "success")
-		elseif wasBuying then
+			celebrateProduct(p)
+		elseif wasBuying or (p.kind == "failed" and os.clock() - lastAsk < 6) then
 			denied(lastBuyButton, p.text == "Not enough coins")
 			LobbyHud.toast(p.text or "Purchase failed", "error")
 		end

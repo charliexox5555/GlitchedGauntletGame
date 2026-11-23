@@ -41,6 +41,7 @@ export type Bundle = {
 	sub: string?, -- one line under the name (what's in it)
 	soon: boolean?, -- contents not decided yet: the card says so and doesn't open
 	hero: string?, -- the card's big picture (a Studio hero render, tools/studio/RenderHeroShots.luau)
+	banner: string?, -- the card's background art (Gemini / ChatGPT, vault Shop Economy → Art prompts); flat colour until set
 }
 
 local Products = require(game:GetService("ReplicatedStorage").Shared.Config.Products)
@@ -50,6 +51,12 @@ local ShopCatalog = {}
 -- Shared art ids (art-source/ui/shop/, uploaded 2026-11-16) for screens that
 -- show shop things outside the Shop (the Season Pass). The Shop's builder has
 -- its own copy in tools/studio/BuildShop.luau.
+-- Coin pack pictures, Pack1..Pack6 (vault Shop Economy → Art prompts). Empty = the Studio
+-- picture stays; paste the uploaded image ids here when the new art is in.
+ShopCatalog.PACK_ART = table.freeze({}) :: { string }
+-- The coin pack cards' backdrop (one image for all six); "" = the flat card colour.
+ShopCatalog.PACK_BACKDROP = ""
+
 ShopCatalog.ART = table.freeze({
 	coin = "rbxassetid://126250416946442",
 	coinStack = "rbxassetid://77893326046955",
@@ -172,7 +179,7 @@ ShopCatalog.BUNDLES = {
 		color = Color3.fromHex("2E7D5B"),
 		slot = "Starter",
 		tag = "NEW PLAYERS",
-		sub = "1,000 COINS + A STANDARD CASE", -- Config/Products.STARTER grants it
+		sub = "2 CASES + 1,500 COINS + 3 TICKETS", -- Config/Products.STARTER grants it
 		items = {},
 	},
 } :: { Bundle }

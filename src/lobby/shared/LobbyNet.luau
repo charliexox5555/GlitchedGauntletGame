@@ -53,6 +53,7 @@ export type ShopEventPayload = {
 	line: string?, -- "opened": the skin line
 	tier: string?, -- "opened": Config/Skins tier id
 	text: string?, -- the item's name, or a short message
+	product: number?, -- "robux": the Config/Products id granted (the YOU GOT popup)
 }
 
 export type ProgressEventPayload = {
@@ -68,7 +69,7 @@ export type ProgressEventPayload = {
 }
 
 -- RobuxRequest (client -> server): ("pack", n) | ("bundle", id) | ("item", id, i) | ("daily", slot)
---   | ("starter") (Services/RobuxService; answers on ShopEvent)
+--   | ("starter") | ("case", caseId, 1|3) (Services/RobuxService; answers on ShopEvent)
 -- LoginClaim (client -> server): no arguments (Services/LoginRewardService)
 -- LoginEvent (server -> one client): LoginEventPayload
 export type LoginEventPayload = {
