@@ -30,7 +30,7 @@ export type Prog = {
 export type Result = {
 	won: boolean,
 	left: boolean, -- left before the end: a loss, no XP
-	counts: boolean, -- a real player on the other side (streaks move only then)
+	counts: boolean, -- a real player on the other side (full XP; streaks move either way)
 	roundsWon: number,
 	kills: number,
 	opponents: { number }, -- real opponents' UserIds
@@ -185,9 +185,10 @@ function Progress.apply(p: Prog, r: Result, now: number): Gain
 		p.wins = math.min(p.wins + 1, p.matches)
 	end
 	p.kills = math.min(p.kills + math.max(math.floor(r.kills), 0), BIG)
-	-- Wins add to the streak only against a real opponent (no farming bots); any loss or leave breaks it,
-	-- bots or not (owner 2026-11-22: losing must end the streak and offer the save).
-	if r.counts and r.won then
+	-- Every win adds to the streak, bots or not (owner 2026-11-22: "count bot wins"; real opponents still
+	-- count at most STREAK.sameOpponentPerDay times a day each); any loss or leave ends it and opens the
+	-- save offer (owner 2026-11-22: losing must end the streak).
+	if r.won then
 		if p.vs.day ~= day(now) then
 			p.vs = { day = day(now), ids = {} }
 		end

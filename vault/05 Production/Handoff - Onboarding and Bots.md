@@ -138,7 +138,7 @@ Owner: live lobby and a live Beginner 2v2 both sat on "LOADING YOUR DATA" a long
 
 ## Phase 3 (part) + streak fix (2026-11-22, code only; owner tests)
 - **Beginner red enemies built:** `Controllers/BeginnerHighlightController` (match client). In a Beginner 2v2 (`MatchState "Mode"` = `beginner`, now set by MatchService at the match start) every enemy body, player or bot, gets a solid red Highlight on your screen (`Config/Onboarding.RED_ENEMY`), held as one Instance through `Util/LimbHold` so arms and legs are red too; your first confirmed hit on that enemy (`HitConfirm` victim: guns, knife, Mods) clears it for the rest of the match, respawns included; per viewer. Ability hints: not built yet (ask the owner first, per the brief).
-- **Win streak:** losses vs bots never ended the streak (it only moved with a real opponent), so the save offer never showed. Now any loss or leave ends it and offers the save (streak ≥ 3); wins still add only vs a real opponent. Design note updated ([Progression](../01%20Design/Progression.md) → B.8).
+- **Win streak:** losses vs bots never ended the streak (it only moved with a real opponent), so the save offer never showed. Now any loss or leave ends it and offers the save (streak ≥ 3); wins add vs bots too (owner: "count bot wins"), a real opponent at most 3 times a day. Design note updated ([Progression](../01%20Design/Progression.md) → B.8).
 - Not tested by Claude (owner testing): the highlight in a live Beginner match, the streak loss → SAVE WINSTREAK popup.
 
 ## Done when

@@ -33,7 +33,7 @@ Status: **built and tested in Studio (2026-11-22).** The owner took every sugges
 
 ### B. Win streak
 7. **What counts**: **one streak across all modes (1v1, 2v2, 3v3 queue and pad duels), like RIVALS.** Or one streak per mode.
-8. **Win with bots**: ~~a match only counts (win or loss) if at least one opponent is a real player~~. **Changed 2026-11-22 (owner: losing didn't end the streak):** a **win** adds only against a real opponent (no bot farming); **any loss or leave ends the streak**, bots or not, and opens the save offer (streak ≥ 3). `Shared/Progress.apply`.
+8. **Win with bots**: ~~a match only counts (win or loss) if at least one opponent is a real player~~. **Changed 2026-11-22 (owner: losing didn't end the streak):** **every win adds** (bot wins too, owner's call the same day; a real opponent still counts at most 3 times a day); **any loss or leave ends the streak**, bots or not, and opens the save offer (streak ≥ 3). `Shared/Progress.apply`.
 9. **Leaving a match early** = **a loss (breaks the streak).** A match that ends from a server problem changes nothing.
 10. **Party queue** counts the same as solo (suggested **yes**).
 
