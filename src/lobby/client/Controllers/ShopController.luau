@@ -55,7 +55,8 @@ local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local Products = require(ReplicatedStorage.Shared.Config.Products)
 local ShopRewardFx = require(script.Parent.Parent.Util.ShopRewardFx)
-local rewardConfig = require(ReplicatedStorage.Shared.Config.ShopFx).reward
+local ShopFx = require(ReplicatedStorage.Shared.Config.ShopFx)
+local rewardConfig = ShopFx.reward
 local OfferCarousel = require(script.Parent.Parent.Util.OfferCarousel)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
@@ -1692,6 +1693,37 @@ local function applyLayout()
 	end
 end
 
+type HeroLayout = { position: UDim2, size: UDim2, rotation: number }
+
+local function sizeHero(hero: ImageLabel, layout: HeroLayout)
+	hero.AnchorPoint = Vector2.new(0.5, 0.5)
+	hero.Position = layout.position
+	hero.Size = layout.size
+	hero.Rotation = layout.rotation
+	hero.ScaleType = Enum.ScaleType.Fit
+end
+
+-- Reuse the Studio emblem from the bundle details on the offer cards.
+local function cardEmblem(card: GuiButton, position: UDim2): ImageLabel
+	local previewFrame = child(canvas, "Preview") :: Frame
+	local head = child(previewFrame, "Head") :: Frame
+	local template = child(head, "Emblem") :: ImageLabel
+	local badge = template:Clone()
+	badge.AnchorPoint = Vector2.zero
+	badge.Position = position
+	badge.Size = UDim2.fromOffset(ShopFx.art.emblemSize, ShopFx.art.emblemSize)
+	badge.ZIndex = (child(card, "Title") :: TextLabel).ZIndex
+	badge.Parent = card
+	return badge
+end
+
+local function drawCardEmblem(badge: ImageLabel, line: string?)
+	local id = if line then Locker.EMBLEMS[line] else nil
+	badge.Visible = id ~= nil and id ~= ""
+	badge.Image = id or ""
+	badge.ImageColor3 = if line then Locker.COLORS[line] or WHITE else WHITE
+end
+
 -- A skin bundle card (owner 2026-11-22, RIVALS' Skins tab): the hero picture (the line's
 -- Vandal, side-on) big on the left, one tile per item on the right; hovering a tile shows
 -- the item, clicking it opens the bundle's page on that item.
@@ -1705,7 +1737,15 @@ local function fillBundleCard(card: GuiButton, bundle: ShopCatalog.Bundle)
 	end
 	local heroPic = card:FindFirstChild("Hero")
 	local first = bundle.items[1]
+	local line = first and first.line
+	if line and Locker.EMBLEMS[line] then
+		local emblem = cardEmblem(card, ShopFx.art.bundleEmblemPosition)
+		drawCardEmblem(emblem, line)
+		local title = child(card, "Title") :: TextLabel
+		title.Position += UDim2.fromOffset(ShopFx.art.emblemSize + ShopFx.art.emblemTitleGap, 0)
+	end
 	if heroPic and heroPic:IsA("ImageLabel") and first and first.line then
+		sizeHero(heroPic, ShopFx.art.featured)
 		local guns: { string } = {}
 		for _, item in bundle.items do
 			if item.gun then
@@ -1722,10 +1762,20 @@ local function fillBundleCard(card: GuiButton, bundle: ShopCatalog.Bundle)
 		end
 	end
 	local tiles = card:FindFirstChild("Tiles")
-	if not tiles then
+	if not (tiles and tiles:IsA("Frame")) then
 		return
 	end
-	for i = 1, 6 do
+	local art = ShopFx.art
+	local grid = tiles:FindFirstChildOfClass("UIGridLayout")
+	if grid then
+		tiles.Size = UDim2.fromOffset(
+			art.tileColumns * art.tileSize + (art.tileColumns - 1) * art.tileGap,
+			art.tileRows * art.tileSize + (art.tileRows - 1) * art.tileGap
+		)
+		grid.CellSize = UDim2.fromOffset(art.tileSize, art.tileSize)
+		grid.CellPadding = UDim2.fromOffset(art.tileGap, art.tileGap)
+	end
+	for i = 1, art.tileColumns * art.tileRows do
 		local t = tiles:FindFirstChild("Tile" .. i)
 		if not (t and t:IsA("GuiButton")) then
 			continue
@@ -1858,6 +1908,7 @@ function ShopController.init()
 			if b.slot == "Starter" then
 				local heroPic = card:FindFirstChild("Hero")
 				if heroPic and heroPic:IsA("ImageLabel") then
+					sizeHero(heroPic, ShopFx.art.starter)
 					heroPic.Image = ShopCatalog.ART.starterContents
 				end
 			end
@@ -1937,6 +1988,8 @@ function ShopController.init()
 		local sub = child(offerCard, "Sub") :: TextLabel
 		local back = child(offerCard, "Art") :: ImageLabel
 		local hero = child(offerCard, "Hero") :: ImageLabel
+		sizeHero(hero, ShopFx.art.home)
+		local emblem = cardEmblem(offerCard, ShopFx.art.homeEmblemPosition)
 		back.ScaleType = Enum.ScaleType.Crop
 		back.ImageColor3 = WHITE
 		local function renderSlide(index: number)
@@ -1945,6 +1998,8 @@ function ShopController.init()
 				return
 			end
 			local isStarter = bundle.slot == "Starter"
+			local first = bundle.items[1]
+			drawCardEmblem(emblem, first and first.line)
 			title.Text = bundle.name
 			sub.Text = bundle.sub or ""
 			back.Image = bundle.banner or ""

@@ -1,6 +1,31 @@
 --!strict
 
 return table.freeze({
+	art = table.freeze({
+		home = table.freeze({
+			position = UDim2.fromScale(0.70, 0.43),
+			size = UDim2.fromScale(0.56, 0.84),
+			rotation = 0,
+		}),
+		starter = table.freeze({
+			position = UDim2.fromScale(0.68, 0.48),
+			size = UDim2.fromScale(0.54, 1.18),
+			rotation = 0,
+		}),
+		featured = table.freeze({
+			position = UDim2.fromScale(0.32, 0.60),
+			size = UDim2.fromScale(0.64, 0.73),
+			rotation = -8,
+		}),
+		emblemSize = 36,
+		emblemTitleGap = 8,
+		homeEmblemPosition = UDim2.fromOffset(23, 99),
+		bundleEmblemPosition = UDim2.fromOffset(22, 22),
+		tileSize = 134,
+		tileGap = 12,
+		tileColumns = 3,
+		tileRows = 2,
+	}),
 	reward = table.freeze({
 		build = 0.4,
 		dimTransparency = 0.35,
