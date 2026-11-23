@@ -215,11 +215,16 @@ local function trackFor(animator: Animator, name: string): AnimationTrack
 		cache[animator] = byName
 	end
 	local track = byName[name]
-	if track and track.IsPlaying then
+	if track then
+		-- Loaded once per Animator and replayed, never loaded again (2026-11-23: a track that wasn't
+		-- playing was re-loaded every step, so one failed download re-requested the asset every frame for
+		-- every rig: a flood of "Animation failed to load" that also starved the server's DataStore reads).
+		if not track.IsPlaying then
+			track:Play(0, OFF, 1)
+		end
 		return track
 	end
 	-- After a rollback the Animator may already hold a matching track.
-	track = nil
 	for _, t in animator:GetPlayingAnimationTracks() do
 		if t.Animation and t.Animation.AnimationId == IDS[name] then
 			track = t
