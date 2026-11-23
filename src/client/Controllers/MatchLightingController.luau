@@ -21,7 +21,7 @@ end
 
 function MatchLightingController.start()
 	local id = PlayZone.matchId(player)
-	if not id then
+	if PlayZone.get(player) ~= "Match" or not id then
 		return -- a whole-server match, or the range
 	end
 	local matches = workspace:WaitForChild("Matches", 30)
@@ -30,14 +30,18 @@ function MatchLightingController.start()
 		return
 	end
 	local function onChild(child: Instance)
-		if isMatchMap(child, id) then
-			MapLighting.apply(MapLighting.matchBaseline(), child)
+		if
+			PlayZone.get(player) == "Match"
+			and PlayZone.matchId(player) == id
+			and isMatchMap(child, id)
+		then
+			MapLighting.applyMatch(child :: Model)
 		end
 	end
+	world.ChildAdded:Connect(onChild)
 	for _, child in world:GetChildren() do
 		onChild(child)
 	end
-	world.ChildAdded:Connect(onChild)
 end
 
 return MatchLightingController

@@ -238,7 +238,16 @@ local function startLaunch(
 			end
 		end
 	end)
-	local ok, err = pcall(Launcher.launch, match, hooks)
+	local ok, err = pcall(function()
+		-- Once found, new Mod changes are blocked. Let a choice already being
+		-- saved commit before the destination server reads the player's data.
+		for _, p in players do
+			while hooks.stillIn(p) and LockerService.isSavingMods(p) do
+				task.wait(0.1)
+			end
+		end
+		Launcher.launch(match, hooks)
+	end)
 	if not ok then
 		warn(`[Queue] launch {matchId} errored: {err}`)
 		for _, p in players do

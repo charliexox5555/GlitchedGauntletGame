@@ -25,6 +25,9 @@ PATTERNS = {                       # material name -> tile (tools/textures/make_
     "PL1 Thermal Foil": "Payload_Foil",
     "SW1 Vermilion Seal": "Sealwork_Ruby",
     "MF4 Violet Chamber": "Moltframe_Flow",
+    "RF_ObsidianForged": "Riftforge_Forged",
+    "RF_GripCarbon": "Payload_Carbon",
+    "RF_PlasmaCore": "Riftforge_Plasma",
 }
 
 def _hex(rgb):

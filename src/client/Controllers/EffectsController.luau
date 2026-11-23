@@ -37,6 +37,7 @@ local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local ShadowMist = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local Tempest = require(ReplicatedStorage.Shared.Config.SkinPreview).TEMPEST
+local Riftforge = require(ReplicatedStorage.Shared.Config.SkinPreview).RIFTFORGE
 local RuinBlightedPresentation = require(ReplicatedStorage.Shared.Config.RuinBlightedPresentation)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
@@ -49,7 +50,9 @@ local ImpactFx = require(script.Parent.Parent.Util.ImpactFx)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local MuzzleFx = require(script.Parent.Parent.Util.MuzzleFx)
 local TempestFx = require(script.Parent.Parent.Util.TempestFx)
+local RiftforgeFx = require(script.Parent.Parent.Util.RiftforgeFx)
 local TempestAudio = require(ReplicatedStorage.Shared.Config.TempestAudio)
+local RiftforgeAudio = require(ReplicatedStorage.Shared.Config.RiftforgeAudio)
 local ShellFx = require(script.Parent.Parent.Util.ShellFx)
 local ShotFxKit = require(script.Parent.Parent.Util.ShotFxKit)
 local TracerFx = require(script.Parent.Parent.Util.TracerFx)
@@ -107,17 +110,32 @@ local function shadowShot(config: WeaponConfig): Color3?
 		else nil
 end
 
--- Our own camera gun wears the Tempest-Strike line (first-person shot effects).
+-- Our own camera gun wears the Tempest-Strike or Riftforge line (first-person shot effects).
 local function tempestShot(): boolean
 	return cameraSkinLine() == Tempest.LINE
+end
+
+local function riftforgeShot(): boolean
+	return cameraSkinLine() == Riftforge.LINE
 end
 
 -- `own`: our own shot (a little fainter: it runs straight away from the eye;
 -- fainter still from a suppressed gun, which shows enemies no tracer at all).
 function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
-	local tempest = own == true and tempestShot()
-	local tint = if own then (if tempest then Tempest.SHOT_TINT else shadowShot(config)) else nil
-	TracerFx.tracer(from, to, config, own, tint, if tempest then Tempest.TRACER_WAKE else nil)
+	local line = if own == true then cameraSkinLine() else nil
+	local tempest = line == Tempest.LINE
+	local riftforge = line == Riftforge.LINE
+	local tint = if own
+		then (if tempest
+			then Tempest.SHOT_TINT
+			elseif riftforge then Riftforge.SHOT_TINT
+			else shadowShot(config))
+		else nil
+	local wake = if tempest
+		then Tempest.TRACER_WAKE
+		elseif riftforge then Riftforge.TRACER_WAKE
+		else nil
+	TracerFx.tracer(from, to, config, own, tint, wake)
 end
 
 -- A knife strike on the world: a long thin gouge along `along`, a short wide
@@ -147,7 +165,7 @@ function EffectsController.knifeSwipe(
 	sweep: number,
 	strength: number
 )
-	KnifeSwipeFx.swipe(arc, delay, sweep, strength)
+	KnifeSwipeFx.swipe(arc, delay, sweep, strength, cameraSkinLine())
 end
 
 -- The blade landing on a body: a small white flash, one frame after contact.
@@ -175,11 +193,16 @@ end
 -- orange flash.
 function EffectsController.ownImpact(position: Vector3, normal: Vector3, hit: Instance?)
 	local tempest = tempestShot()
-	ImpactFx.impact(position, normal, hit, nil, nil, false, false, tempest)
-	if tempest and hit and hit:IsA("BasePart") then
+	local riftforge = riftforgeShot()
+	ImpactFx.impact(position, normal, hit, nil, nil, false, false, tempest or riftforge)
+	if (tempest or riftforge) and hit and hit:IsA("BasePart") then
 		local model = hit:FindFirstAncestorOfClass("Model")
 		if not (model and model:FindFirstChildOfClass("Humanoid")) then
-			TempestFx.splash(position, normal) -- a wall, not a body (bodies keep the hit puff)
+			if tempest then
+				TempestFx.splash(position, normal)
+			else
+				RiftforgeFx.splash(position, normal)
+			end
 		end
 	end
 end
@@ -193,6 +216,7 @@ function EffectsController.localWallImpact(
 	size: number
 )
 	local tempest = tempestShot()
+	local riftforge = riftforgeShot()
 	ImpactFx.impact(
 		position,
 		normal,
@@ -201,13 +225,19 @@ function EffectsController.localWallImpact(
 		size,
 		false,
 		shadowShot(config) ~= nil,
-		tempest
+		tempest or riftforge
 	)
 	if tempest then
 		TempestFx.splash(position, normal)
 		local set = TempestAudio.guns[config.id]
 		if set then
 			AudioController.playSound(set.impact, "Foley", position) -- under the surface sound
+		end
+	elseif riftforge then
+		RiftforgeFx.splash(position, normal)
+		local set = RiftforgeAudio.guns[config.id]
+		if set then
+			AudioController.playSound(set.impact, "Foley", position)
 		end
 	end
 end
@@ -254,8 +284,16 @@ function EffectsController.localShot(config: WeaponConfig, side: string?, muzzle
 		local line = cameraSkinLine()
 		if line == Tempest.LINE then
 			TempestFx.flash(muzzle, scale)
-		elseif line == "Slipframe" and config.id == "Guardian" then
+		elseif line == "Slipframe" then
 			MuzzleFx.flash(muzzle, config, true, nil, nil, "Slipframe")
+		elseif line == "Moltframe" then
+			MuzzleFx.flash(muzzle, config, true, nil, nil, "Moltframe")
+		elseif line == "Playback" then
+			MuzzleFx.flash(muzzle, config, true, nil, nil, "Playback")
+		elseif line == "Sundial" then
+			MuzzleFx.flash(muzzle, config, true, nil, nil, "Sundial")
+		elseif line == Riftforge.LINE then
+			RiftforgeFx.flash(muzzle, scale)
 		else
 			MuzzleFx.flash(muzzle, config, true, nil, shadowShot(config))
 		end
@@ -666,6 +704,7 @@ function EffectsController.start()
 		ImpactFx.step(dt)
 		MuzzleFx.step(dt) -- advances the effects clock, then barrel wisps and light pops
 		TempestFx.step(dt)
+		RiftforgeFx.step(dt)
 	end)
 end
 

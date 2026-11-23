@@ -76,11 +76,14 @@ local LINES: { [string]: Line } = {
 	Inkshift = { tier = "Rare", kind = "shape" },
 	Payload = { tier = "Rare", kind = "shape" },
 	Giltfold = { tier = "Rare", kind = "shape", guns = { Knife = "Epic" } }, -- the Fan opens and shuts
-	Moltframe = { tier = "Rare", kind = "shape" }, -- Legendary once the chamber flow ships
 	Breakwater = { tier = "Rare", kind = "shape" }, -- rescue hardware, pump inspect
 	-- animated
-	Playback = { tier = "Epic", kind = "animated" }, -- reel window, animated inspect
-	Sundial = { tier = "Epic", kind = "animated" }, -- turning dial
+	Moltframe = { tier = "Epic", kind = "animated" }, -- flowing violet chambers, surge VFX, violet muzzle & close accents
+	Playback = { tier = "Epic", kind = "animated" }, -- reactive reels & VU meter, deck VFX, retro muzzle, tape audio & custom tanto
+	Sundial = { tier = "Epic", kind = "animated" }, -- escapement dial, solar VFX, golden muzzle, horological audio & astrolabe dagger
+	Slipframe = { tier = "Epic", kind = "animated", guns = { Knife = "Legendary" } },
+	-- legendary (cases + featured)
+	Riftforge = { tier = "Legendary", kind = "animated" }, -- floating reactor core, flaring prongs & suppressor vents, plasma VFX & heavy audio
 	-- bundles only
 	RuinBlighted = { tier = "Exclusive", kind = "animated" },
 	TempestStrike = { tier = "Exclusive", kind = "animated" }, -- Vandal, Stinger, Marshal, Bucky, Sheriff, Katana (owner 2026-11-22: final)

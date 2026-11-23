@@ -1,0 +1,335 @@
+{
+ "variant": "Playback Knife v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-22",
+ "gun": "Knife",
+ "source_blend": "Knife_Playback_v02.blend",
+ "fbx": "Knife_Playback_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [
+  {
+   "lift": "PBK_ReelRear_Hub|PB2 Tape Amber",
+   "over": "PBK_ReelRear_Spokes|PB2 Machined Silver",
+   "faces": 2
+  },
+  {
+   "lift": "PBK_ReelFront_Hub|PB2 Tape Amber",
+   "over": "PBK_ReelFront_Spokes|PB2 Machined Silver",
+   "faces": 2
+  }
+ ],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Root_01": {
+   "color": "1A1D24",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Deck Core",
+   "triangles": 60,
+   "size": [
+    0.558,
+    0.045,
+    0.1439
+   ],
+   "center": [
+    0.699,
+    0.0,
+    0.026
+   ]
+  },
+  "SK_Root_02": {
+   "color": "22242C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Grip Charcoal",
+   "triangles": 630,
+   "size": [
+    0.6804,
+    0.1,
+    0.2028
+   ],
+   "center": [
+    -0.003,
+    0.0,
+    -0.0026
+   ]
+  },
+  "SK_Root_03": {
+   "color": "4A505E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Gunmetal",
+   "triangles": 16,
+   "size": [
+    0.1146,
+    0.092,
+    0.1146
+   ],
+   "center": [
+    -0.435,
+    0.0,
+    -0.005
+   ]
+  },
+  "SK_Root_ReelFrontRim": {
+   "color": "4A505E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Gunmetal",
+   "triangles": 60,
+   "size": [
+    0.0813,
+    0.049,
+    0.0813
+   ],
+   "center": [
+    0.845,
+    0.0,
+    0.012
+   ]
+  },
+  "SK_Root_ReelRearRim": {
+   "color": "4A505E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Gunmetal",
+   "triangles": 60,
+   "size": [
+    0.0813,
+    0.049,
+    0.0813
+   ],
+   "center": [
+    0.595,
+    0.0,
+    0.008
+   ]
+  },
+  "SK_Root_04": {
+   "color": "D5DAE2",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Machined Silver",
+   "triangles": 292,
+   "size": [
+    1.984,
+    0.116,
+    0.293
+   ],
+   "center": [
+    0.448,
+    0.0,
+    -0.0015
+   ]
+  },
+  "SK_Root_ReelFrontSpokes": {
+   "color": "D5DAE2",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Machined Silver",
+   "triangles": 96,
+   "size": [
+    0.072,
+    0.057,
+    0.072
+   ],
+   "center": [
+    0.845,
+    0.0,
+    0.012
+   ]
+  },
+  "SK_Root_ReelRearSpokes": {
+   "color": "D5DAE2",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Machined Silver",
+   "triangles": 96,
+   "size": [
+    0.072,
+    0.057,
+    0.072
+   ],
+   "center": [
+    0.595,
+    0.0,
+    0.008
+   ]
+  },
+  "SK_Root_05": {
+   "color": "5E4866",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Plum Casing",
+   "triangles": 236,
+   "size": [
+    1.984,
+    0.12,
+    0.23
+   ],
+   "center": [
+    0.448,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_06": {
+   "color": "C4BCB0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Putty Deck",
+   "triangles": 336,
+   "size": [
+    1.815,
+    0.12,
+    0.293
+   ],
+   "center": [
+    0.5325,
+    0.0,
+    -0.0015
+   ]
+  },
+  "SK_Root_07": {
+   "color": "E64B3C",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Rec Coral",
+   "triangles": 40,
+   "size": [
+    0.054,
+    0.126,
+    0.036
+   ],
+   "center": [
+    0.339,
+    0.0,
+    0.054
+   ]
+  },
+  "SK_Root_08": {
+   "color": "E0943E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Tape Amber",
+   "triangles": 24,
+   "size": [
+    0.28,
+    0.045,
+    0.06
+   ],
+   "center": [
+    1.14,
+    0.0,
+    0.002
+   ]
+  },
+  "SK_Root_ReelFrontHub": {
+   "color": "E0943E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Tape Amber",
+   "triangles": 40,
+   "size": [
+    0.026,
+    0.061,
+    0.03
+   ],
+   "center": [
+    0.845,
+    0.0,
+    0.012
+   ]
+  },
+  "SK_Root_ReelRearHub": {
+   "color": "E0943E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 Tape Amber",
+   "triangles": 40,
+   "size": [
+    0.026,
+    0.061,
+    0.03
+   ],
+   "center": [
+    0.595,
+    0.0,
+    0.008
+   ]
+  },
+  "SK_Root_09": {
+   "color": "8FE34E",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 VU Lime",
+   "triangles": 80,
+   "size": [
+    0.586,
+    0.128,
+    0.124
+   ],
+   "center": [
+    0.073,
+    0.0,
+    -0.01
+   ]
+  },
+  "SK_Root_MeterSweep": {
+   "color": "8FE34E",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PB2 VU Lime",
+   "triangles": 40,
+   "size": [
+    0.17,
+    0.05,
+    0.014
+   ],
+   "center": [
+    0.53,
+    0.0,
+    0.088
+   ]
+  }
+ }
+}

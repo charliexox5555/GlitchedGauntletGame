@@ -4,6 +4,10 @@ Owner's brief (pasted 2026-11-16): full overhaul of the lobby UI and every lobby
 
 References: [Rivals Reference → UI and Client](../03%20Research/Rivals%20Reference/UI%20and%20Client.md) (numbers), [UI References](../03%20Research/UI%20References/00%20UI%20References.md) (video study), [Style Bible](Style%20Bible.md) → UI, [UI Theme v4 Soft Edge](UI%20Theme%20v4%20Soft%20Edge.md), [UI Shop](UI%20Shop.md) → Plate look passes 1-6 (the chunky look this builds on), screen notes ([Lobby HUD](UI%20Lobby%20HUD.md), [Play and Party](UI%20Play%20and%20Party%20Menus.md), [Locker](UI%20Locker.md), [Battle Pass](UI%20Battle%20Pass.md), [Notifications](UI%20Notifications.md)). LihFolk `05 UI and UX` (Menu Archetypes, UI Motion Language and Timing, Safe Areas and Insets, Responsive UI).
 
+## Backpack bar icon (2026-11-20)
+
+Generated a warm-orange (`#FF8F3D`) faceted tactical backpack to match the v2 locker, shop, range and settings icons. Broad chamfered flap, large buckled front pocket, charcoal side straps, steel buckles, polygonal carry loop and side pouch. Delivered [transparent PNG](../../art-source/ui/lobby-icons/backpack_v2.png) and [dark-grey preview](../../art-source/ui/lobby-icons/backpack_v2_dark.png), both 512 x 512. Alpha and dark-background appearance checked. Source art only; upload and in-game wiring remain pending.
+
 ## What RIVALS does (studied in its file, 2026-11-16)
 - **Layout:** each cluster is a full-screen frame with a 1:1 aspect constraint, so its contents size from the screen's short side (`size = 0.075 scale + 40 px` of that square). Our equivalent: one `Fit` UIScale per cluster (Util/Layout). Kept.
 - **Pages:** live outside the gui until opened, one at a time (PageSystem), open from 0.75 scale. Every page gives a close request and a default gamepad element.

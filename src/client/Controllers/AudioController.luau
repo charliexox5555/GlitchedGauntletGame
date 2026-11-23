@@ -8,7 +8,6 @@
 -- Fire and tail voices can overlap to the end of each shot or tail fade.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -19,6 +18,11 @@ local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local RuinedReaverAudio = require(ReplicatedStorage.Shared.Config.RuinedReaverAudio)
 local SharedSoundAssets = require(ReplicatedStorage.Shared.Config.SharedSoundAssets)
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
+local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
+local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
+local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
+local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
+local RiftforgeAudio = require(ReplicatedStorage.Shared.Config.RiftforgeAudio)
 local TempestAudio = require(ReplicatedStorage.Shared.Config.TempestAudio)
 local SkinPreviewConfig = require(ReplicatedStorage.Shared.Config.SkinPreview)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
@@ -68,6 +72,11 @@ local BANKS: { [string]: SoundBank } = {
 	shadow = { takes = {}, voices2d = {}, voices3d = {} },
 	reaver = { takes = {}, voices2d = {}, voices3d = {} },
 	tempest = { takes = {}, voices2d = {}, voices3d = {} },
+	slipframe = { takes = {}, voices2d = {}, voices3d = {} },
+	moltframe = { takes = {}, voices2d = {}, voices3d = {} },
+	playback = { takes = {}, voices2d = {}, voices3d = {} },
+	sundial = { takes = {}, voices2d = {}, voices3d = {} },
+	riftforge = { takes = {}, voices2d = {}, voices3d = {} },
 }
 
 local groups: { [string]: SoundGroup } = {}
@@ -576,12 +585,16 @@ end
 
 function AudioController.init()
 	buildGroups()
-	if RunService:IsStudio() and game.PlaceId == SkinPreviewConfig.PLACE_ID then
+	local combatPlace = SkinPreviewConfig.supportsPlace(game.PlaceId)
+	if combatPlace then
 		preloadBank(BANKS.shadow, nil, ShadowMistAudio.takes)
-	end
-	if game.PlaceId == SkinPreviewConfig.PLACE_ID then
 		preloadBank(BANKS.reaver, nil, RuinedReaverAudio.takes)
 		preloadBank(BANKS.tempest, nil, TempestAudio.takes)
+		preloadBank(BANKS.slipframe, nil, SlipframeAudio.takes)
+		preloadBank(BANKS.moltframe, nil, MoltframeAudio.takes)
+		preloadBank(BANKS.playback, nil, PlaybackAudio.takes)
+		preloadBank(BANKS.sundial, nil, SundialAudio.takes)
+		preloadBank(BANKS.riftforge, nil, RiftforgeAudio.takes)
 	end
 	preloadBank(BANKS.gun, { "Vandal", "Classic", "Knife" })
 	preloadBank(BANKS.sfx)

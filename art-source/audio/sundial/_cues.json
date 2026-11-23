@@ -1,0 +1,23 @@
+{
+  "length": {
+    "ghost_shot": 0.12,
+    "guardian_shot": 0.12,
+    "marshal_shot": 0.12,
+    "operator_shot": 0.12,
+    "outlaw_shot": 0.12,
+    "sheriff_shot": 0.12,
+    "draw": 0.12102,
+    "mag_out": 0.12,
+    "mag_seat": 0.12,
+    "inspect": 0.153,
+    "knife_slash": 0.12
+  },
+  "shotVolume": {
+    "Ghost": 0.2,
+    "Guardian": 0.18,
+    "Marshal": 0.19,
+    "Operator": 0.18,
+    "Outlaw": 0.19,
+    "Sheriff": 0.2
+  }
+}

@@ -345,13 +345,14 @@ Recall.bindServer(function(api: ModTypes.ServerApi)
 	api.onRefill(rearm)
 end)
 
-function ModRecall.start()
-	Players.PlayerRemoving:Connect(function(player)
-		anchors[player] = nil
-		windups[player] = nil
-		crashUsed[player] = nil
-		graceUntil[player] = nil
-	end)
+function ModRecall.removePlayer(player: Player)
+	ModRecall.cancel(player)
+	anchors[player] = nil
+	rearm(player)
+	if player.Parent then
+		StateValues.set(player, "RecallAnchor", nil)
+		StateValues.set(player, "RecallTo", nil)
+	end
 end
 
 return ModRecall

@@ -18,6 +18,7 @@ local Config = require(ReplicatedStorage.Lobby.Config)
 local Health = require(ReplicatedStorage.Shared.Health)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local LockerService = require(script.Parent.LockerService)
 
 local PadDuelService = {}
 
@@ -89,7 +90,7 @@ end
 
 -- Who can be counted: in the lobby (not the range, not a duel), up and about, not searching the global queue.
 local function eligible(player: Player): BasePart?
-	if PlayZone.get(player) ~= "Lobby" then
+	if PlayZone.get(player) ~= "Lobby" or LockerService.isSavingMods(player) then
 		return nil
 	end
 	local status = StateValues.get(player, "QueueStatus")

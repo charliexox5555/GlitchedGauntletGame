@@ -1,0 +1,15 @@
+{
+  "parts": 13,
+  "inside_out": [],
+  "axes": [
+    "x",
+    "z",
+    "y"
+  ],
+  "triangles": 7264,
+  "max_manifest_bounds_error": 4.200577735902211e-05,
+  "bones": [
+    "Root",
+    "ArcPlate"
+  ]
+}

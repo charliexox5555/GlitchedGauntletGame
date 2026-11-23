@@ -1,0 +1,33 @@
+{
+  "Arc_Draw_Block": {
+    "frames": [
+      1,
+      15
+    ],
+    "samples": 29,
+    "duration_s": 0.583,
+    "max_plate_travel": 0,
+    "minimum_guide_engagement": 0.0218,
+    "markers": {
+      "SeamWake": 7,
+      "DrawSettle": 15
+    }
+  },
+  "Arc_Inspect_Block": {
+    "frames": [
+      1,
+      65
+    ],
+    "samples": 129,
+    "duration_s": 2.667,
+    "max_plate_travel": 0.018,
+    "minimum_guide_engagement": 0.0038,
+    "markers": {
+      "SeamWake": 14,
+      "PanelRelease": 18,
+      "RevealHold": 27,
+      "PanelSeat": 51,
+      "InspectSettle": 65
+    }
+  }
+}

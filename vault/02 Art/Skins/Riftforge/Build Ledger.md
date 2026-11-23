@@ -1,0 +1,15 @@
+# Riftforge build ledger
+
+## Phantom v01 (Hero) · 2026-11-22 · Installed & Verified
+
+- **Master & Export:** [model_riftforge_phantom.py](../../../../tools/blender/model_riftforge_phantom.py) → [Phantom_Riftforge_v01.blend](../../../../art-source/weapons/Skins/Riftforge/Phantom/v01/Phantom_Riftforge_v01.blend) + [Phantom_Riftforge_RobloxFlat.fbx](../../../../art-source/weapons/Skins/Riftforge/Phantom/v01/Phantom_Riftforge_RobloxFlat.fbx) (`3,404` tris, `24` flat-exported meshes + `9` kept reskinned stock control parts = `33` Studio MeshParts; `0` flipped/crossed faces verified via magenta backface-culled FBX re-import).
+- **Barrel/Suppressor Upgrade (from owner concept feedback):** Replaced the concept's wide forked gap with a sleek tapered octagonal obsidian suppressor matching the stock Phantom envelope (`x = 1.64..2.505`), stepped antique-bronze root & muzzle bore collars, deep lateral glowing violet plasma channels bridged by 3 beveled slate baffle ribs, and flush-seated animated top/bottom heat-vent louvers (`SK_Root_VentTop`, `SK_Root_VentBottom`).
+- **Studio Asset & Tagging:** Uploaded as `121905212656688`, installed into `ReplicatedStorage.WeaponSkins.Riftforge.Phantom`, tagged `GGAsset_LobbySkins_259` in [LobbySkins.luau](../../../../src/shared/Config/AssetData/LobbySkins.luau). Registered `Riftforge` as **Legendary** in `Config/Skins.luau`, swatch `#C84BFF` in `Shared/Locker.luau`, and dark-obsidian/violet-band casings in `Config/SkinCasings.luau`.
+- **UI Assets:** Rendered in Studio, resolved, and wired into `ItemIcons` (`rbxassetid://129280264562645`) and `ItemPortraits` (`rbxassetid://85270140867022`).
+- **Legendary First-Person Runtime (`Util/RiftforgeEffects.luau`, `Config/SkinPreview.luau → RIFTFORGE`, `Util/MuzzleFx.luau`, `Controllers/EffectsController.luau`, `Controllers/ViewmodelController.luau`):**
+  - Floating faceted octahedral plasma crystal (`SK_Root_CoreCrystal`) with levitation, continuous spin, and spray-heat glow shift (`#6D2299 → #DE9EFF`).
+  - Counter-rotating faceted hexagonal containment ring (`SK_Root_CoreRing`).
+  - 4 articulated containment prongs (`SK_Root_ProngUpper/Lower*`) + flush-seated top/bottom suppressor heat-vent louvers (`SK_Root_VentTop/Bottom`) driven by a damped mechanical spring — flaring progressively with spray heat, opening wide on `MagOut` and `Inspect`, and **slamming shut** on `MagIn`/`Close` and `Draw`.
+  - Subtle first-person plasma `PointLight`, crackling bay micro-arcs & sparks (auto-dimming in ADS so the sculpted open hex-arch iron sight stays crystal-clear), suppressed electric-violet plasma muzzle flash + twin lightning forks, and electric-violet first-person tracer tint.
+- **Heavy Industrial Audio (`tools/audio/design_riftforge.py` → `Config/RiftforgeAudio.luau`):** 5 licensed ProPack takes (`phantom_shot`, `draw`, `mag_out`, `mag_seat`, `inspect`), preloaded in `AudioController` (`10/10` live `SoundService` voices verified).
+- **Verification:** `stylua --check`, `selene` (0 errors, 0 warnings), `rojo build`, and Studio Play Solo stress test + Range equip cycle (0 console errors). Studio place remains unsaved pending owner review.

@@ -46,6 +46,7 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
+local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
@@ -55,6 +56,7 @@ export type Data = {
 	items: Items,
 	tx: { string },
 	skins: Skins,
+	mods: ModLoadout.Loadout,
 	prog: Progress.Prog,
 	tickets: number,
 	login: LoginRewards.Login,
@@ -85,6 +87,7 @@ PlayerData.STORE = if RunService:IsStudio() then "PlayerDataV2_Studio" else "Pla
 PlayerData.VERSION = 1
 PlayerData.REPLICA = "Inventory"
 PlayerData.SKINS = "Skins"
+PlayerData.MODS = "LockerMods"
 PlayerData.DAILY = "DailyShop"
 local MAX_LINES_PER_GUN = 64
 
@@ -161,6 +164,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		items = {},
 		tx = {},
 		skins = {},
+		mods = ModLoadout.clean(nil),
 		prog = Progress.new(),
 		tickets = Economy.STARTING_TICKETS,
 		login = LoginRewards.new(),
@@ -189,6 +193,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		then Economy.STARTING_TICKETS
 		else count((raw :: any).tickets, Economy.MAX_TICKETS) or 0
 	local t = raw :: { [string]: unknown }
+	data.mods = ModLoadout.clean(t.mods)
 	data.coins = count(t.coins, Inventory.MAX_COINS) or 0
 	if typeof(t.items) == "table" then
 		for id, n in t.items :: { [unknown]: unknown } do
@@ -347,6 +352,7 @@ function PlayerData.publish(player: Player, data: Data?)
 		end
 	end
 	setJson(player, PlayerData.SKINS, if data then data.skins else {})
+	setJson(player, PlayerData.MODS, if data then data.mods else {})
 	setJson(player, PlayerData.DAILY, if data then data.daily else DailyShop.new())
 	-- Inventory last: clients listen to it, and the skins must already be there
 	setJson(player, PlayerData.REPLICA, shown)
@@ -382,6 +388,17 @@ function PlayerData.skins(player: Player): Skins
 		return {}
 	end
 	return PlayerData.clean({ coins = 0, skins = decoded }).skins
+end
+
+function PlayerData.mods(player: Player): ModLoadout.Loadout
+	local value = player:FindFirstChild(PlayerData.MODS)
+	if value and value:IsA("StringValue") then
+		local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
+		if ok then
+			return ModLoadout.clean(decoded)
+		end
+	end
+	return ModLoadout.clean(nil)
 end
 
 -- The published daily shop (empty until the server rolls it).

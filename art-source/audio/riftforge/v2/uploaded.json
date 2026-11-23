@@ -1,0 +1,106 @@
+{
+  "RF_fire_01": {
+    "asset": "rbxassetid://129165960174206",
+    "length": 0.165
+  },
+  "RF_fire_02": {
+    "asset": "rbxassetid://80890137787522",
+    "length": 0.165
+  },
+  "RF_fire_03": {
+    "asset": "rbxassetid://115295130878645",
+    "length": 0.165
+  },
+  "RF_fire_04": {
+    "asset": "rbxassetid://116112996361254",
+    "length": 0.165
+  },
+  "RF_fire_05": {
+    "asset": "rbxassetid://91811681053091",
+    "length": 0.165
+  },
+  "RF_fire_06": {
+    "asset": "rbxassetid://87450273780725",
+    "length": 0.165
+  },
+  "RF_fireFirst_01": {
+    "asset": "rbxassetid://136979799378959",
+    "length": 0.165
+  },
+  "RF_fireLast_01": {
+    "asset": "rbxassetid://80825865404058",
+    "length": 1.65
+  },
+  "RF_tail_01": {
+    "asset": "rbxassetid://115442257066878",
+    "length": 1.55
+  },
+  "RF_fireFar_01": {
+    "asset": "rbxassetid://130798610537176",
+    "length": 0.165
+  },
+  "RF_fireFar_02": {
+    "asset": "rbxassetid://76778933191665",
+    "length": 0.165
+  },
+  "RF_fireFar_03": {
+    "asset": "rbxassetid://75422662976125",
+    "length": 0.165
+  },
+  "RF_draw_01": {
+    "asset": "rbxassetid://82206056213974",
+    "length": 0.75
+  },
+  "RF_drawLock_01": {
+    "asset": "rbxassetid://114925086316207",
+    "length": 0.58
+  },
+  "RF_magOut_01": {
+    "asset": "rbxassetid://89369131562308",
+    "length": 0.52
+  },
+  "RF_magOut_02": {
+    "asset": "rbxassetid://131052749842557",
+    "length": 0.52
+  },
+  "RF_magForm_01": {
+    "asset": "rbxassetid://82236586005952",
+    "length": 0.55
+  },
+  "RF_magIn_01": {
+    "asset": "rbxassetid://75807972791538",
+    "length": 0.48
+  },
+  "RF_magIn_02": {
+    "asset": "rbxassetid://76435674790005",
+    "length": 0.48
+  },
+  "RF_rack_01": {
+    "asset": "rbxassetid://75198476638641",
+    "length": 0.58
+  },
+  "RF_inspectStart_01": {
+    "asset": "rbxassetid://109417029131921",
+    "length": 0.9
+  },
+  "RF_inspectRoll_01": {
+    "asset": "rbxassetid://124749042603855",
+    "length": 0.95
+  },
+  "RF_inspectLock_01": {
+    "asset": "rbxassetid://111991941104648",
+    "length": 0.58
+  },
+  "RF_impact_01": {
+    "asset": "rbxassetid://84142045211562",
+    "length": 0.28
+  },
+  "RF_impact_02": {
+    "asset": "rbxassetid://85147127057284",
+    "length": 0.28
+  },
+  "RF_impact_03": {
+    "asset": "rbxassetid://129858742383468",
+    "length": 0.28
+  }
+}

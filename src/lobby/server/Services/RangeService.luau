@@ -17,12 +17,15 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Release = require(ReplicatedStorage.Shared.Config.Release)
 
 local RangeService = {}
+
+local STUDIO_REMOTE = "StudioRangeToggle"
 
 local COOLDOWN = 1.5 -- seconds between two trips for one player
 local SPREAD = 3 -- studs of random spread around a spawn point, so a crowd doesn't stack
@@ -269,10 +272,46 @@ prepareBot = function(bot: Model)
 end
 
 function RangeService.start()
-	if not Release.RANGE_OPEN then
+	local isStudio = RunService:IsStudio()
+	if not Release.RANGE_OPEN and not isStudio then
 		return -- closed for this update (shared/Config/Release)
 	end
 	match = loadMatch()
+
+	if isStudio then
+		local lobbyFolder = ReplicatedStorage:FindFirstChild("Lobby")
+		if lobbyFolder then
+			local existing = lobbyFolder:FindFirstChild(STUDIO_REMOTE)
+			local remote: RemoteEvent
+			if existing and existing:IsA("RemoteEvent") then
+				remote = existing
+			else
+				remote = Instance.new("RemoteEvent")
+				remote.Name = STUDIO_REMOTE
+				remote.Parent = lobbyFolder
+			end
+			remote.OnServerEvent:Connect(function(player: Player)
+				if not RunService:IsStudio() then
+					return
+				end
+				local character = player.Character
+				if not character then
+					return
+				end
+				local now = os.clock()
+				if now - (lastTrip[player] or 0) < COOLDOWN then
+					return
+				end
+				lastTrip[player] = now
+				local zone = PlayZone.get(player)
+				if zone == "Range" then
+					leave(player, character)
+				elseif zone == "Lobby" then
+					join(player, character)
+				end
+			end)
+		end
+	end
 
 	for tag, entering in { RangeEntry = true, RangeExit = false } do
 		for _, part in CollectionService:GetTagged(tag) do

@@ -1,0 +1,11 @@
+0.20  Ghost  stock, then Sundial
+2.32  Guardian  stock, then Sundial
+4.44  Marshal  stock, then Sundial
+6.56  Operator  stock, then Sundial
+8.68  Outlaw  stock, then Sundial
+10.80  Sheriff  stock, then Sundial
+12.92  draw
+13.54  mag out
+14.16  mag seat
+14.78  inspect
+15.43  knife slash

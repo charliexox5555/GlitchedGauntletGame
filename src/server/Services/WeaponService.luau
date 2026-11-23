@@ -231,12 +231,16 @@ WeaponService.setCharacterGunHidden = WorldModel.setCharacterHidden
 local function refreshWorldModel(player: Player)
 	local state = states[player]
 	local character = player.Character
-	if not state or not character then
+	if not state then
 		return
 	end
 	local slot = state.equipped and state.slots[state.equipped]
-	state.worldModel = WorldModel.attach(character, slot and slot.id or nil)
-	WorldModel.reapplyHidden(player)
+	if character then
+		state.worldModel = WorldModel.attach(character, slot and slot.id or nil)
+		WorldModel.reapplyHidden(player)
+	elseif not slot then
+		StateValues.set(player, "WeaponId", nil)
+	end
 	-- Read by the movement simulation (shared/Simulation/Movement).
 	StateValues.set(player, "MoveMult", if slot then slot.config.moveMultiplier else 1)
 	StateValues.set(player, "AdsMult", if slot then slot.config.adsMoveMultiplier else 1)
@@ -300,6 +304,10 @@ function WeaponService.disarm(player: Player)
 		seedBase = if old then old.seedBase else seedRng:NextInteger(1, 2 ^ 30),
 		shotIndex = if old then old.shotIndex else 0,
 	}
+	holsteredPlayers[player] = nil
+	busyUntil[player] = nil
+	Motion.forget(player)
+	WorldModel.forget(player)
 	refreshWorldModel(player)
 	sendState(player, true)
 	loadouts[player] = nil
@@ -980,7 +988,7 @@ local function onCharacter(player: Player, character: Model)
 	task.defer(function()
 		local humanoid = character:WaitForChild("Humanoid", 5) :: Humanoid?
 		character:WaitForChild("RightHand", 5)
-		if not humanoid or character.Parent == nil then
+		if not humanoid or character.Parent == nil or player.Character ~= character then
 			return
 		end
 		-- Lobby players carry nothing (PlayZone); the range and matches arm them.
@@ -1027,6 +1035,11 @@ function WeaponService.init()
 	Net.event("Fire").OnServerEvent:Connect(onFire)
 	Net.event("Reload").OnServerEvent:Connect(onReload)
 	Net.event("PickWeapon").OnServerEvent:Connect(onPickWeapon)
+	Net.event("WeaponState").OnServerEvent:Connect(function(player: Player)
+		if PlayZone.isArmed(player) and limiter:allow(player, "WeaponState") then
+			sendState(player, true)
+		end
+	end)
 	Net.unreliable("Aim").OnServerEvent:Connect(onAim)
 end
 

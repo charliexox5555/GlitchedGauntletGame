@@ -141,6 +141,7 @@ return table.freeze({
 	RATE = {
 		Fire = { 30, 40 },
 		FireResync = { 2, 1 }, -- limit full weapon state corrections
+		WeaponState = { 2, 2 }, -- a newly mounted combat client asks for its own snapshot
 		Equip = { 10, 10 },
 		Reload = { 5, 5 },
 		PickWeapon = { 3, 5 },

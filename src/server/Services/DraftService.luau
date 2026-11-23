@@ -21,9 +21,11 @@ local RunService = game:GetService("RunService")
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Dev = require(ReplicatedStorage.Shared.Config.Dev)
 local MatchState = require(script.Parent.Parent.MatchState)
+local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Net = Context.net
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Validate = require(ReplicatedStorage.Shared.Util.Validate)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -60,7 +62,6 @@ local open = false
 local rng = Random.new()
 local gunOffer: { string } = {}
 local gunOfferRound = 0
-local abilityPools: { { string } } = {}
 local abilityOfferCounts: { [string]: number } = {}
 
 local function shuffled(list: { string }): { string }
@@ -131,21 +132,20 @@ local function rollGuns(phase: Config.Phase, round: number): { string }
 	return offer
 end
 
-local function builtAbilities(): { { string } }
+local function abilityPools(loadout: ModLoadout.Loadout?): { { string } }
 	local pools: { { string } } = {}
 	for slot = 1, ModsConfig.SLOTS do
 		pools[slot] = {}
 	end
 	for id, def in ModsConfig.defs do
-		if Mods.isBuilt(id) then
+		if Mods.isBuilt(id) and ModLoadout.eligible(id, loadout) then
 			table.insert(pools[def.slot], id)
 		end
 	end
 	return pools
 end
 
-local function rollNewMod(slot: number, previous: string?): string?
-	local pool = abilityPools[slot]
+local function rollNewMod(pool: { string }, previous: string?): string?
 	local choices: { string } = {}
 	local bestCount = math.huge
 	for _, id in pool do
@@ -303,6 +303,17 @@ local function isPlayer(key: any): boolean
 	return typeof(key) == "Instance" and key:IsA("Player")
 end
 
+local function pruneKit(s: Seat, loadout: ModLoadout.Loadout?): boolean
+	local changed = false
+	for slot, id in s.kit do
+		if id ~= "" and not ModLoadout.eligible(id, loadout) then
+			s.kit[slot], s.levels[slot] = "", ""
+			changed = true
+		end
+	end
+	return changed
+end
+
 -- Sends a player their seat's cards (and what's already selected for them).
 local function sendOffer(player: Player, s: Seat)
 	StateValues.set(player, "DraftLocked", s.locked)
@@ -328,6 +339,12 @@ end
 -- on offer, else the first gun; the first ability card. Bots pick over it.
 local function deal(key: any)
 	local s = DraftService.seat(key)
+	local human = isPlayer(key)
+	local loadout = if human then PlayerData.mods(key) else nil
+	local pools = abilityPools(loadout)
+	if human then
+		pruneKit(s, loadout)
+	end
 	local phase = DraftService.phaseFor(dealt.round)
 	s.guns = gunOffer
 	s.abilities = {}
@@ -341,7 +358,7 @@ local function deal(key: any)
 		if s.kit[slot] ~= "" then
 			continue
 		end
-		local id = rollNewMod(slot, s.lastNewMods[slot])
+		local id = rollNewMod(pools[slot], s.lastNewMods[slot])
 		if id then
 			s.lastNewMods[slot] = id
 			table.insert(s.abilities, id)
@@ -350,7 +367,7 @@ local function deal(key: any)
 	s.upgrades = rollUpgrades(s)
 	s.ability = s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
 	s.dealtRound = dealt.round
-	if isPlayer(key) then
+	if human then
 		sendOffer(key, s)
 	end
 end
@@ -368,7 +385,6 @@ function DraftService.open(
 		gunOffer = rollGuns(phase, round)
 		gunOfferRound = round
 	end
-	abilityPools = builtAbilities()
 	table.clear(abilityOfferCounts)
 	dealt.round, dealt.endsAt, dealt.enemyKitOf = round, endsAt, enemyKitOf
 	local order = table.clone(keys)
@@ -397,8 +413,8 @@ end
 
 -- A seat changes hands (a player takes their bot stand-in's place, or a bot
 -- takes a leaver's): kit, levels, guns and this draft's cards go with it. A
--- player who takes a seat mid-draft gets the cards unlocked, the bot's picks
--- selected.
+-- player who takes a seat mid-draft gets the bot's picks unlocked, provided
+-- the seat only holds eligible Mods.
 function DraftService.transfer(from: any, to: any)
 	local s = seats[from]
 	if not s then
@@ -407,9 +423,20 @@ function DraftService.transfer(from: any, to: any)
 	seats[from] = nil
 	s.key = to
 	seats[to] = s
-	if isPlayer(to) and open then
-		s.locked = false
-		sendOffer(to, s)
+	if isPlayer(to) then
+		local loadout = PlayerData.mods(to)
+		local needsDeal = pruneKit(s, loadout)
+		if open then
+			for _, id in s.abilities do
+				needsDeal = needsDeal or not ModLoadout.eligible(id, loadout)
+			end
+			if needsDeal then
+				deal(to)
+			else
+				s.locked = false
+				sendOffer(to, s)
+			end
+		end
 	end
 end
 
@@ -491,7 +518,7 @@ local function onPick(player: Player, actionArg: unknown, idArg: unknown)
 		end
 		return
 	end
-	if typeof(idArg) ~= "string" or #idArg > 32 then
+	if typeof(idArg) ~= "string" or #idArg > ModLoadout.MAX_ID_LENGTH + #":A2" then
 		return
 	end
 	if action == "Gun" and table.find(s.guns, idArg) then

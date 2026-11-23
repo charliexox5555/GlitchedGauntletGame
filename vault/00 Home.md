@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Locker Abilities (2026-11-22).** All 12 free Mods are always equipped. Owned paid Mod choices persist and filter each player's match draft. Verified the tab and first draft in Studio Lobby and 1v1 pad-duel play. [Locker](02%20Art/UI%20Locker.md#abilities-tab-implementation-2026-11-22)
+
 - **Shop and Locker audit (2026-11-22).** Full roster artwork checks pass, Home advances on first open, and Backpack supports opening three held cases. Studio playtesting is pending. [Full Shop and Locker art audit](01%20Design/Shop%20Economy%20and%20Art%20v1.md#full-shop-and-locker-art-audit-2026-11-22)
 
 - **Onboarding phase 2: new-player flow (2026-11-22; code only, not play-tested; owner: when Studio is free run `tools/studio/BuildOnboardingUi.luau`, save the Lobby place, test with a fresh save).** Beginner 2v2 queue (below level 10, bots after 10 s), auto-queue on first join, PLAY → Beginner while new, PLAY bubble, Party/Shop/Backpack unlocks with NEW tags, favorite asks after match 1 and during match 2. [Handoff - Onboarding and Bots](05%20Production/Handoff%20-%20Onboarding%20and%20Bots.md) → Phase 2 results.

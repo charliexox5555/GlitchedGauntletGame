@@ -6,6 +6,14 @@ Status of every asset from model to in-game. Update it whenever something moves 
 
 Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
+**Draft Duels title logo (2026-11-22).** The owner approved Draft Ticket in Lobby Gold. The source pack includes a layered PSD, SVG, color and monochrome PNGs, aligned title sprites, and a motion preview. [Logo kit](../02%20Art/Draft%20Duels%20Logo.md#approved-title)
+
+**Draft Duels discovery art (2026-11-22).** Two 512 × 512 icon candidates, a layered icon master, and local avatar and map staging inputs. [Launch art](../02%20Art/Draft%20Duels%20Launch%20Art.md#outputs-and-verification)
+
+**Draft Duels thumbnail concepts (2026-11-22).** Twelve 1920 × 1080 scenes with neutral and cinematic lighting, plus a paired contact sheet. The Firewall and Updraft images include their current draft card art. [Exports and working files](../02%20Art/Draft%20Duels%20Launch%20Art.md#twelve-thumbnail-concepts)
+
+**Draft Duels launch art (2026-11-22).** Five 1920 x 1080 thumbnail candidates, three 512 x 512 icons, UI overlays, Blender scenes and Studio staging source. Studio captures with the shipped map textures are pending. [Launch art](../02%20Art/Draft%20Duels%20Launch%20Art.md)
+
 **OldTown4 (2026-11-21).** Built v1 in the match place (`Workspace.OldTown4`, builder `tools/studio/maps/OldTown4/Build.luau`); Blender kit of 22 pieces uploaded (asset 100833762894900, `ServerStorage.MapKit.OldTown4`); audits 0 / 0 / 0; concepts and kit close-ups in the note. Place not saved yet. [OldTown4](../01%20Design/Maps/OldTown4.md#build-v1-2026-11-21)
 
 **Combat feedback audio (2026-11-20).** Four audition masters cover standard headshots and eliminations. The Vandal comparison reels include the current cues and the two new pairs. [WAVs and credits](../02%20Art/Combat%20Feedback%20Audio.md)
@@ -17,6 +25,10 @@ Active Lobby and Match assets now get authored fields from the shared AssetData 
 ## Weapons
 
 **Slipframe Guardian r05fx (2026-11-21).** Group model `122077047011165` is installed in Lobby and Match Studio for Epic hero review. The 3,838-triangle Guardian r05 design keeps the stock rig, locators and actions. The Studio pass adds the first-person panel slide, seam sweep, shot pulse and magazine-seat light. [Rework ledger and captures](../02%20Art/Skins/Slipframe/Rework%20Ledger.md)
+
+**Slipframe roster (2026-11-21).** Guardian r05fx, Vandal r03x, Spectre r02x, Operator r04x and Classic r04x are installed in Lobby v913 and Match v1009. Each new Blender master scored 9/10. The five Epic skins have individual portraits, a shared emblem and first-person effect profiles. [Model and art IDs](../02%20Art/Skins/Slipframe/Rework%20Ledger.md#studio-roster) · [Per-gun Blender audits](../02%20Art/Skins/Slipframe/Rework%20Ledger.md#roster-rework)
+
+**Slipframe sound and Arc melee (2026-11-21).** The merged place v954 has the Legendary Arc, 7,264 triangles across 13 meshes from group model `74454399706306`, and portrait image `129500655642464`. Fourteen private ProPack-derived cues loaded, including the five Arc cues. [Arc installation](../02%20Art/Skins/Slipframe/Rework%20Ledger.md#arc-in-the-merged-place) · [Source art](../02%20Art/Skins/Slipframe/concept.md#faceted-export-and-motion-block)
 
 **Tempest-Strike line, Blender (2026-11-22).** Stinger s02x (6,143 tris), Marshal s02x (4,432 + stock lens), Bucky s02x (6,018) and Sheriff s02x (5,158) built on the stock RemasterV2 v05 models, graded 9/10, flat-exported with `TS_Rig` bones for the moving plates, crescents and gate (`art-source/weapons/Skins/TempestStrike/<Gun>/s02x/`). After the owner's playtest: Stinger s03x (action fix, fixed vents; asset 122767468165673) and the **Tempest-Strike Katana** s05x replacing the kunai (3,080 tris, `TS_Ring` / `TS_Charm`; asset 120180022604213), both installed in the match place (rows 342, 346). The other guns are installed from s02x; their VFX and animations were reworked in code ([playtest note](../05%20Production/Playtests/2026-11-22%20Tempest-Strike%20Line.md)). [Line Build Ledger](../02%20Art/Skins/TempestStrike/Line%20Build%20Ledger.md)
 
@@ -161,6 +173,8 @@ Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ (testers in published test-mode
 
 ## VFX, UI and audio
 
+**Tempest-Strike VFX source textures (2026-11-21).** Eight original white RGBA PNGs for cyan tinting in game, saved in `art-source/vfx/tempest/raw/`. The five 2×2 flipbooks use 512×512 cells in top-left, top-right, bottom-left, bottom-right order. Pixel checks verified transparent corners and gutters, matching left/right ribbon edges, and expanding, fading droplets and splash frames. Source art is ready for upload and Studio integration. [Contact sheet](../../art-source/vfx/tempest/raw/preview_sheet.png)
+
 **Knife case concept A (2026-11-20).** Owner selected the compact tactical case. [Concept comparison](../../art-source/ui/shop/crates/knife_case_concepts.png) and [six-view model sheet](../../art-source/ui/shop/crates/knife_case_sheet.png) are saved, including the open lid and empty knife-shaped foam recess. **Built 2026-11-20:** `build_knife_case.py` → `KnifeCase.blend`, 1.64 studs, 5,140 tris, asset 134286984339849, rigged `ReplicatedStorage.Crates.KnifeCase` (`BuildCrate.luau` WHICH), opens at 2x; renders card 111410900647363 / wide 75937518028942. Waiting: place save.
 
 
@@ -209,3 +223,9 @@ Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ (testers in published test-mode
 |---|---|---|
 | Professional lobby kit + signs | 🟡 Review | 6 original Blender pieces / 3,948 tris; asset 95814097679730. Three entrances, four leaderboard faces, sixteen bays, decorative trophy. Built in Lobby; awaiting creator visual feedback. |
 | Lobby coplanar surface repairs | ✅ Verified | 42 unique meshes / 193 placed instances; asset 101831697423135. Four-kit overlap scan passes; ranges and collision unchanged. Full before/after `.rbxm` backups. [Review](../05%20Production/Playtests/2026-11-04%20Lobby%20Professional%20Pass.md) |
+
+**Draft Duels thumbnail revision.** The paired 12-shot set is revised around fingerless Roblox hand geometry, corrected wrist and elbow fits, faceless team players, larger Mod cards and a neutral versus finished lighting comparison. [Second thumbnail pass](../02%20Art/Draft%20Duels%20Launch%20Art.md#second-thumbnail-pass)
+
+**Draft Duels polished thumbnails (2026-11-22).** Twelve 1920 × 1080 PNGs and one named contact sheet with 256 × 144 previews. Includes the shipped Firewall and Updraft artwork and the approved Bacon Lock-In wordmark. [Polished set](../02%20Art/Draft%20Duels%20Launch%20Art.md#polished-thumbnail-set)
+
+**Draft Duels featured thumbnails.** Updraft Crossfire, Gold Duelist and Draft Firewall each have a new 1920 × 1080 Blender-based export and a shared contact sheet. [Featured three thumbnails](../02%20Art/Draft%20Duels%20Launch%20Art.md#featured-three-thumbnails)

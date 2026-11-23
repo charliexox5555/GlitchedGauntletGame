@@ -13,13 +13,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Types = require(ReplicatedStorage.Shared.Types)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
-local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply) -- Optimized VFX
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
+local Slipframe = require(ReplicatedStorage.Shared.Config.Slipframe)
+local SkinPreview = require(ReplicatedStorage.Shared.Config.SkinPreview)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply) -- Optimized VFX
 
 local Kit = require(script.Parent.ShotFxKit)
 
 type WeaponConfig = Types.WeaponConfig
-type FlashStyle = "Slipframe"
+type FlashStyle = "Slipframe" | "Moltframe" | "Playback" | "Sundial" | "Riftforge"
 
 local MuzzleFx = {}
 
@@ -30,6 +32,10 @@ local SMOKE = Color3.fromHex("C9C7C2")
 local PUFF = Color3.fromHex("EEEDEA") -- suppressed / muzzle-device puff: light, reads on grey floors
 local SLIPFRAME_ICE = Color3.fromHex("E2F3FF")
 local SLIPFRAME_BLUE = Color3.fromHex("77C5FF")
+local MF = SkinPreview.CHAMBER_FLOW
+local PB = SkinPreview.PLAYBACK
+local SD = SkinPreview.SUNDIAL
+local RF = SkinPreview.RIFTFORGE
 
 local LIGHT_TIME = 0.05
 -- The flash sprites' Brightness: over 1 so they hold their colour against a
@@ -116,7 +122,8 @@ end
 
 local function slipframeFlash(
 	holder: Attachment,
-	scale: number
+	scale: number,
+	spread: number
 ): (ParticleEmitter, { ParticleEmitter })
 	local core = emitter(holder, VFX.GLOW, SLIPFRAME_ICE)
 	core.Name = "SlipframeFlashCore"
@@ -134,7 +141,7 @@ local function slipframeFlash(
 		local anchor = Instance.new("Attachment")
 		anchor.Name = "SlipframeFlashEdge"
 		anchor.CFrame = holder.CFrame
-			* CFrame.new(side * 0.105 * scale, 0.046 * scale, -0.05 * scale)
+			* CFrame.new(side * 0.105 * scale * spread, 0.046 * scale, -0.05 * scale)
 		anchor.Parent = holder.Parent
 		local flare = emitter(anchor, VFX.SPARK, SLIPFRAME_BLUE)
 		fire(flare)
@@ -142,7 +149,7 @@ local function slipframeFlash(
 		flare.LightEmission = 0.86
 		flare.Brightness = 1.75
 		flare.LockedToPart = true
-		flare.Rotation = NumberRange.new(-side * 36)
+		flare.Rotation = NumberRange.new(-side * 36 * spread)
 		flare.Lifetime = NumberRange.new(0.068)
 		flare.Size = curve({ 0, 0.43 * scale, 0.25, 0.58 * scale, 1, 0.19 * scale })
 		flare.Transparency = curve({ 0, 0, 0.52, 0.15, 1, 1 })
@@ -150,6 +157,156 @@ local function slipframeFlash(
 		table.insert(forks, flare)
 	end
 	return core, forks
+end
+
+local function moltframeFlash(
+	holder: Attachment,
+	scale: number
+): (ParticleEmitter, ParticleEmitter, { ParticleEmitter })
+	local burst = emitter(holder, VFX.FLASH_FRONT_2x2, MF.MUZZLE_OUTER)
+	burst.Name = "MoltframeFlashFront"
+	fire(burst)
+	flipbook(burst)
+	burst.Color = ColorSequence.new(MF.MUZZLE_CORE, MF.MUZZLE_OUTER)
+	burst.Brightness = FLASH_BRIGHTNESS
+	burst.LockedToPart = true
+	burst.Lifetime = NumberRange.new(0.052)
+	burst.Size = curve({ 0, 0.54 * scale, 0.3, 0.88 * scale, 1, 0.56 * scale })
+	burst.Transparency = curve({ 0, 0.02, 0.52, 0.16, 1, 1 })
+	burst.ZOffset = 0.13 * scale
+
+	local core = emitter(holder, VFX.GLOW, MF.MUZZLE_CORE)
+	core.Name = "MoltframeFlashCore"
+	fire(core)
+	core.Brightness = 1.62
+	core.LockedToPart = true
+	core.Lifetime = NumberRange.new(0.048)
+	core.Size = curve({ 0, 0.42 * scale, 0.25, 0.48 * scale, 1, 0.16 * scale })
+	core.Transparency = curve({ 0, 0.08, 0.45, 0.35, 1, 1 })
+	core.ZOffset = 0.15 * scale
+
+	local forks = {}
+	for _, side in { -1, 1 } do
+		local anchor = Instance.new("Attachment")
+		anchor.Name = "MoltframeFlashFang"
+		anchor.CFrame = holder.CFrame
+			* CFrame.new(side * 0.095 * scale, 0.032 * scale, -0.04 * scale)
+		anchor.Parent = holder.Parent
+		local flare = emitter(anchor, VFX.SPARK, MF.MUZZLE_OUTER)
+		fire(flare)
+		flare.Color = ColorSequence.new(MF.MUZZLE_CORE, MF.MUZZLE_DEEP)
+		flare.LightEmission = 0.85
+		flare.Brightness = 1.7
+		flare.LockedToPart = true
+		flare.Rotation = NumberRange.new(-side * 32)
+		flare.Lifetime = NumberRange.new(0.062)
+		flare.Size = curve({ 0, 0.36 * scale, 0.25, 0.50 * scale, 1, 0.15 * scale })
+		flare.Transparency = curve({ 0, 0.04, 0.5, 0.2, 1, 1 })
+		flare.ZOffset = 0.06 * scale
+		table.insert(forks, flare)
+	end
+	return burst, core, forks
+end
+
+local function playbackFlash(
+	holder: Attachment,
+	scale: number
+): (ParticleEmitter, ParticleEmitter, { ParticleEmitter })
+	local burst = emitter(holder, VFX.FLASH_FRONT_2x2, PB.MUZZLE_OUTER)
+	burst.Name = "PlaybackFlashFront"
+	fire(burst)
+	flipbook(burst)
+	burst.Color = ColorSequence.new(PB.MUZZLE_CORE, PB.MUZZLE_OUTER)
+	burst.Brightness = FLASH_BRIGHTNESS
+	burst.LockedToPart = true
+	burst.Lifetime = NumberRange.new(0.05)
+	burst.Size = curve({ 0, 0.52 * scale, 0.3, 0.84 * scale, 1, 0.50 * scale })
+	burst.Transparency = curve({ 0, 0.02, 0.52, 0.16, 1, 1 })
+	burst.ZOffset = 0.13 * scale
+
+	local core = emitter(holder, VFX.GLOW, PB.MUZZLE_CORE)
+	core.Name = "PlaybackFlashCore"
+	fire(core)
+	core.Brightness = 1.58
+	core.LockedToPart = true
+	core.Lifetime = NumberRange.new(0.045)
+	core.Size = curve({ 0, 0.38 * scale, 0.25, 0.44 * scale, 1, 0.15 * scale })
+	core.Transparency = curve({ 0, 0.08, 0.45, 0.32, 1, 1 })
+	core.ZOffset = 0.15 * scale
+
+	local forks = {}
+	for _, side in { -1, 1 } do
+		local anchor = Instance.new("Attachment")
+		anchor.Name = "PlaybackFlashSpark"
+		anchor.CFrame = holder.CFrame
+			* CFrame.new(side * 0.09 * scale, 0.024 * scale, -0.035 * scale)
+		anchor.Parent = holder.Parent
+		local flare = emitter(anchor, VFX.SPARK, PB.MUZZLE_ACCENT)
+		fire(flare)
+		flare.Color = ColorSequence.new(PB.MUZZLE_ACCENT, PB.MUZZLE_DEEP)
+		flare.LightEmission = 0.88
+		flare.Brightness = 1.65
+		flare.LockedToPart = true
+		flare.Rotation = NumberRange.new(-side * 24)
+		flare.Lifetime = NumberRange.new(0.056)
+		flare.Size = curve({ 0, 0.30 * scale, 0.25, 0.42 * scale, 1, 0.12 * scale })
+		flare.Transparency = curve({ 0, 0.04, 0.5, 0.22, 1, 1 })
+		flare.ZOffset = 0.06 * scale
+		table.insert(forks, flare)
+	end
+	return burst, core, forks
+end
+
+local function sundialFlash(
+	holder: Attachment,
+	scale: number
+): (ParticleEmitter, ParticleEmitter, { ParticleEmitter })
+	local burst = emitter(holder, VFX.FLASH_FRONT_2x2, SD.MUZZLE_OUTER)
+	burst.Name = "SundialFlashFront"
+	fire(burst)
+	flipbook(burst)
+	burst.Color = ColorSequence.new(SD.MUZZLE_CORE, SD.MUZZLE_OUTER)
+	burst.Brightness = FLASH_BRIGHTNESS
+	burst.LockedToPart = true
+	burst.Lifetime = NumberRange.new(0.054)
+	burst.Size = curve({ 0, 0.56 * scale, 0.3, 0.90 * scale, 1, 0.54 * scale })
+	burst.Transparency = curve({ 0, 0.02, 0.52, 0.15, 1, 1 })
+	burst.ZOffset = 0.13 * scale
+
+	local core = emitter(holder, VFX.GLOW, SD.MUZZLE_CORE)
+	core.Name = "SundialFlashCore"
+	fire(core)
+	core.Brightness = 1.65
+	core.LockedToPart = true
+	core.Lifetime = NumberRange.new(0.05)
+	core.Size = curve({ 0, 0.44 * scale, 0.25, 0.50 * scale, 1, 0.16 * scale })
+	core.Transparency = curve({ 0, 0.06, 0.45, 0.30, 1, 1 })
+	core.ZOffset = 0.15 * scale
+
+	-- 4-ray compass solar flares (angled gold sun-spikes)
+	local forks = {}
+	for _, spec in
+		{ { -1, 0.036, 36 }, { 1, 0.036, -36 }, { -1, -0.036, 144 }, { 1, -0.036, -144 } }
+	do
+		local anchor = Instance.new("Attachment")
+		anchor.Name = "SundialSolarRay"
+		anchor.CFrame = holder.CFrame
+			* CFrame.new(spec[1] * 0.088 * scale, spec[2] * scale, -0.035 * scale)
+		anchor.Parent = holder.Parent
+		local flare = emitter(anchor, VFX.SPARK, SD.MUZZLE_OUTER)
+		fire(flare)
+		flare.Color = ColorSequence.new(SD.MUZZLE_CORE, SD.MUZZLE_DEEP)
+		flare.LightEmission = 0.88
+		flare.Brightness = 1.7
+		flare.LockedToPart = true
+		flare.Rotation = NumberRange.new(spec[3])
+		flare.Lifetime = NumberRange.new(0.064)
+		flare.Size = curve({ 0, 0.32 * scale, 0.25, 0.46 * scale, 1, 0.13 * scale })
+		flare.Transparency = curve({ 0, 0.04, 0.5, 0.2, 1, 1 })
+		flare.ZOffset = 0.06 * scale
+		table.insert(forks, flare)
+	end
+	return burst, core, forks
 end
 
 local function buildRig(
@@ -166,8 +323,26 @@ local function buildRig(
 	end
 	local suppressed = config.suppressed == true
 	local puff = suppressed or config.muzzleDevice == true
-	local coolFlash = firstPerson and style == "Slipframe" and not puff
-	local s = scale * flashSize(config) * (if suppressed then 0.6 else 1)
+	local profile = if firstPerson and style == "Slipframe" then Slipframe[config.id] else nil
+	local moltframe = firstPerson and style == "Moltframe"
+	local playback = firstPerson and style == "Playback"
+	local sundial = firstPerson and style == "Sundial"
+	local riftforge = firstPerson and style == "Riftforge"
+	local coolFlash = profile ~= nil and not puff
+	local violetFlash = moltframe and not puff
+	local playbackFlashOn = playback and not puff
+	local sundialFlashOn = sundial and not puff
+	local riftforgeFlashOn = riftforge and not puff
+	local styledFlash = coolFlash
+		or violetFlash
+		or playbackFlashOn
+		or sundialFlashOn
+		or riftforgeFlashOn
+	local styledSkin = profile ~= nil or moltframe or playback or sundial or riftforge
+	local s = scale
+		* flashSize(config)
+		* (if suppressed then 0.6 else 1)
+		* (if profile then profile.flashScale else 1)
 
 	-- The flash is a billboard: centred on the opening, the barrel (or a
 	-- suppressor) hides its back half from first person and it seems to
@@ -183,18 +358,120 @@ local function buildRig(
 	local front: ParticleEmitter
 	local core: ParticleEmitter? = nil
 	local forks: { ParticleEmitter }? = nil
-	if coolFlash then
-		front, forks = slipframeFlash(holder, s)
+	if profile and not puff then
+		front, forks = slipframeFlash(holder, s, profile.flashSpread)
+	elseif violetFlash then
+		front, core, forks = moltframeFlash(holder, s)
+	elseif playbackFlashOn then
+		front, core, forks = playbackFlash(holder, s)
+	elseif sundialFlashOn then
+		front, core, forks = sundialFlash(holder, s)
+	elseif riftforgeFlashOn then
+		front, core, forks = moltframeFlash(holder, s * 1.08)
 	elseif puff then
-		-- A quick grey puff out of the can or brake, no flame.
-		front = emitter(holder, VFX.SMOKE_2x2, PUFF)
+		-- Styled suppressed guns keep a tight tinted forward puff + subtle glint.
+		front = emitter(
+			holder,
+			VFX.SMOKE_2x2,
+			if profile
+				then SLIPFRAME_ICE
+				elseif moltframe then MF.MUZZLE_CORE
+				elseif playback then PB.MUZZLE_CORE
+				elseif sundial then SD.MUZZLE_CORE
+				elseif riftforge then RF.MUZZLE_CORE
+				else PUFF
+		)
+		if profile then
+			front.Name = "SlipframeSuppressedPuff"
+			front.Color = ColorSequence.new(SLIPFRAME_ICE, SLIPFRAME_BLUE)
+			front.LightEmission = 0.18
+		elseif moltframe then
+			front.Name = "MoltframeSuppressedPuff"
+			front.Color = ColorSequence.new(MF.MUZZLE_CORE, MF.MUZZLE_OUTER)
+			front.LightEmission = 0.28
+			local glint = emitter(holder, VFX.GLOW, MF.MUZZLE_CORE)
+			glint.Name = "MoltframeSuppressedGlint"
+			fire(glint)
+			glint.Brightness = 1.35
+			glint.LockedToPart = true
+			glint.Lifetime = NumberRange.new(0.042)
+			glint.Size = curve({ 0, 0.24 * s, 0.3, 0.30 * s, 1, 0.10 * s })
+			glint.Transparency = curve({ 0, 0.28, 1, 1 })
+			glint.ZOffset = 0.08 * s
+			core = glint
+		elseif playback then
+			front.Name = "PlaybackSuppressedPuff"
+			front.Color = ColorSequence.new(PB.MUZZLE_CORE, PB.MUZZLE_ACCENT)
+			front.LightEmission = 0.24
+			local glint = emitter(holder, VFX.GLOW, PB.MUZZLE_ACCENT)
+			glint.Name = "PlaybackSuppressedGlint"
+			fire(glint)
+			glint.Brightness = 1.3
+			glint.LockedToPart = true
+			glint.Lifetime = NumberRange.new(0.04)
+			glint.Size = curve({ 0, 0.22 * s, 0.3, 0.28 * s, 1, 0.10 * s })
+			glint.Transparency = curve({ 0, 0.30, 1, 1 })
+			glint.ZOffset = 0.08 * s
+			core = glint
+		elseif sundial then
+			front.Name = "SundialSuppressedPuff"
+			front.Color = ColorSequence.new(SD.MUZZLE_CORE, SD.MUZZLE_OUTER)
+			front.LightEmission = 0.26
+			local glint = emitter(holder, VFX.GLOW, SD.MUZZLE_OUTER)
+			glint.Name = "SundialSuppressedGlint"
+			fire(glint)
+			glint.Brightness = 1.38
+			glint.LockedToPart = true
+			glint.Lifetime = NumberRange.new(0.044)
+			glint.Size = curve({ 0, 0.24 * s, 0.3, 0.32 * s, 1, 0.10 * s })
+			glint.Transparency = curve({ 0, 0.26, 1, 1 })
+			glint.ZOffset = 0.08 * s
+			core = glint
+		elseif riftforge then
+			front.Name = "RiftforgeSuppressedPuff"
+			front.Color = ColorSequence.new(RF.MUZZLE_CORE, RF.MUZZLE_OUTER)
+			front.LightEmission = 0.38
+			local glint = emitter(holder, VFX.GLOW, RF.MUZZLE_CORE)
+			glint.Name = "RiftforgeSuppressedGlint"
+			fire(glint)
+			glint.Brightness = 1.55
+			glint.LockedToPart = true
+			glint.Lifetime = NumberRange.new(0.048)
+			glint.Size = curve({ 0, 0.30 * s, 0.28, 0.40 * s, 1, 0.12 * s })
+			glint.Transparency = curve({ 0, 0.16, 1, 1 })
+			glint.ZOffset = 0.09 * s
+			core = glint
+			-- Twin crackling plasma forks snapping out of the baffled suppressor crown
+			local rfForks = {}
+			for _, side in { -1, 1 } do
+				local anchor = Instance.new("Attachment")
+				anchor.Name = "RiftforgePlasmaFork"
+				anchor.CFrame = holder.CFrame * CFrame.new(side * 0.08 * s, 0.015 * s, -0.025 * s)
+				anchor.Parent = holder.Parent
+				local flare = emitter(anchor, VFX.SPARK, RF.MUZZLE_OUTER)
+				fire(flare)
+				flare.Color = ColorSequence.new(RF.MUZZLE_CORE, RF.MUZZLE_DEEP)
+				flare.LightEmission = 0.92
+				flare.Brightness = 1.72
+				flare.LockedToPart = true
+				flare.Rotation = NumberRange.new(-side * 28)
+				flare.Lifetime = NumberRange.new(0.056)
+				flare.Size = curve({ 0, 0.28 * s, 0.25, 0.42 * s, 1, 0.10 * s })
+				flare.Transparency = curve({ 0, 0.06, 0.5, 0.24, 1, 1 })
+				flare.ZOffset = 0.06 * s
+				table.insert(rfForks, flare)
+			end
+			forks = rfForks
+		end
 		flipbook(front)
 		front.LockedToPart = true
 		front.EmissionDirection = Enum.NormalId.Front
 		front.Speed = NumberRange.new(2 * s, 4 * s)
 		front.Drag = 6
-		front.Lifetime = NumberRange.new(0.14, 0.22)
-		front.Size = curve({ 0, 0.5 * s, 1, 1.5 * s })
+		front.Lifetime = if styledSkin
+			then NumberRange.new(0.08, 0.14)
+			else NumberRange.new(0.14, 0.22)
+		front.Size = curve({ 0, 0.5 * s, 1, (if styledSkin then 1.24 else 1.5) * s })
 		front.Transparency = curve({ 0, 0.3, 0.4, 0.6, 1, 1 })
 		front.Rotation = NumberRange.new(0, 360)
 		front.ZOffset = 0.1 * s
@@ -234,7 +511,7 @@ local function buildRig(
 	local side: ParticleEmitter? = nil
 	local embers: ParticleEmitter? = nil
 	local darkFlame: ParticleEmitter? = nil
-	if not puff and not coolFlash then
+	if not puff and not styledFlash then
 		local sideSize = (if firstPerson then 0.8 else 1.15) * s
 		-- The side flame's texture starts at its bottom edge, so it sits half
 		-- its size ahead of the muzzle.
@@ -287,16 +564,56 @@ local function buildRig(
 		em.Lifetime = NumberRange.new(0.04, 0.1)
 		em.Drag = 5
 		embers = em
+	elseif violetFlash then
+		local em = Kit.sparkEmitter(holder, 0.068 * s)
+		em.Name = "MoltframeMuzzleEmbers"
+		em.Color = ColorSequence.new(MF.MUZZLE_CORE, MF.MUZZLE_DEEP)
+		em.Speed = NumberRange.new(28 * s, 52 * s)
+		em.SpreadAngle = Vector2.new(11, 11)
+		em.Lifetime = NumberRange.new(0.045, 0.10)
+		em.Drag = 5
+		embers = em
+	elseif playbackFlashOn then
+		local em = Kit.sparkEmitter(holder, 0.064 * s)
+		em.Name = "PlaybackMuzzleEmbers"
+		em.Color = ColorSequence.new(PB.MUZZLE_ACCENT, PB.MUZZLE_OUTER)
+		em.Speed = NumberRange.new(26 * s, 48 * s)
+		em.SpreadAngle = Vector2.new(10, 10)
+		em.Lifetime = NumberRange.new(0.04, 0.095)
+		em.Drag = 5
+		embers = em
+	elseif sundialFlashOn then
+		local em = Kit.sparkEmitter(holder, 0.072 * s)
+		em.Name = "SundialMuzzleEmbers"
+		em.Color = ColorSequence.new(SD.MUZZLE_CORE, SD.MUZZLE_DEEP)
+		em.Speed = NumberRange.new(30 * s, 56 * s)
+		em.SpreadAngle = Vector2.new(11, 11)
+		em.Lifetime = NumberRange.new(0.045, 0.105)
+		em.Drag = 5
+		embers = em
+	elseif riftforge then
+		local em = Kit.sparkEmitter(holder, 0.068 * s)
+		em.Name = "RiftforgeMuzzleEmbers"
+		em.Color = ColorSequence.new(RF.MUZZLE_CORE, RF.MUZZLE_DEEP)
+		em.Speed = NumberRange.new(28 * s, 52 * s)
+		em.SpreadAngle = Vector2.new(12, 12)
+		em.Lifetime = NumberRange.new(0.045, 0.10)
+		em.Drag = 5
+		embers = em
 	end
 
 	-- One grey puff per shot, drifting forward and up.
-	local smokeColor = if coolFlash
+	local smokeColor = if profile
 		then Color3.fromHex("BBCBDA")
+		elseif moltframe then MF.MUZZLE_SMOKE
+		elseif playback then PB.MUZZLE_SMOKE
+		elseif sundial then SD.MUZZLE_SMOKE
+		elseif riftforge then RF.MUZZLE_SMOKE
 		elseif spectral then Color3.fromRGB(109, 161, 153)
 		else SMOKE
 	local smoke = emitter(holder, VFX.SMOKE_2x2, smokeColor)
 	flipbook(smoke)
-	smoke.Lifetime = if coolFlash or spectral
+	smoke.Lifetime = if styledSkin or spectral
 		then NumberRange.new(0.21, 0.43)
 		else NumberRange.new(0.6, 1.1)
 	smoke.Speed = NumberRange.new(2 * s, 5 * s)
@@ -325,8 +642,21 @@ local function buildRig(
 	wisp.Transparency = curve({ 0, 1, 0.2, 0.86, 1, 1 })
 
 	local light = Instance.new("PointLight")
-	light.Color = if coolFlash then SLIPFRAME_BLUE else spectral or FIRE
-	light.Range = if coolFlash or spectral then 4.4 elseif puff then 4 else 10
+	light.Color = if coolFlash
+		then SLIPFRAME_BLUE
+		elseif moltframe then MF.MUZZLE_LIGHT
+		elseif playback then PB.MUZZLE_LIGHT
+		elseif sundial then SD.MUZZLE_LIGHT
+		elseif riftforge then RF.MUZZLE_LIGHT
+		else spectral or FIRE
+	light.Range = if coolFlash or spectral
+		then 4.4
+		elseif violetFlash then MF.MUZZLE_LIGHT_RANGE
+		elseif playbackFlashOn then PB.MUZZLE_LIGHT_RANGE
+		elseif sundialFlashOn then SD.MUZZLE_LIGHT_RANGE
+		elseif riftforge then RF.MUZZLE_LIGHT_RANGE
+		elseif puff then 4
+		else 10
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = holder
@@ -344,11 +674,20 @@ local function buildRig(
 		-- Fast guns pop a dimmer light, or the room strobes.
 		brightness = if coolFlash
 			then 1.65
+			elseif violetFlash then MF.MUZZLE_LIGHT_BRIGHTNESS
+			elseif playbackFlashOn then PB.MUZZLE_LIGHT_BRIGHTNESS
+			elseif sundialFlashOn then SD.MUZZLE_LIGHT_BRIGHTNESS
+			elseif riftforgeFlashOn then RF.MUZZLE_LIGHT_BRIGHTNESS
+			elseif riftforge and suppressed then 0.85
+			elseif (moltframe or playback or sundial) and suppressed then 0.55
 			elseif spectral then 2.4
 			elseif puff then (if suppressed then 0 else 0.5)
 			elseif config.fireInterval < 0.1 then 1.6
 			else 2.4,
-		smokeCount = if config.class == "Shotgun" or config.class == "Sniper" then 3 else 1,
+		smokeCount = if not styledSkin
+				and (config.class == "Shotgun" or config.class == "Sniper")
+			then 3
+			else 1,
 		heat = 0,
 		lastShot = -math.huge,
 	}

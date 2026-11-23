@@ -1,0 +1,21 @@
+{
+  "length": {
+    "vandal_shot": 0.12,
+    "phantom_shot": 0.12,
+    "spectre_shot": 0.12,
+    "judge_shot": 0.12,
+    "ares_shot": 0.12,
+    "sheriff_shot": 0.12,
+    "draw": 0.13,
+    "mag_seat": 0.12,
+    "inspect": 0.14002
+  },
+  "shotVolume": {
+    "Vandal": 0.16,
+    "Phantom": 0.2,
+    "Spectre": 0.21,
+    "Judge": 0.18,
+    "Ares": 0.17,
+    "Sheriff": 0.19
+  }
+}

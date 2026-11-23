@@ -1,0 +1,180 @@
+{
+  "parts": {
+    "Arc_Blade_SweptTitanium": {
+      "triangles": 1882,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_Hilt_ContinuousFrame": {
+      "triangles": 2476,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_Hilt_KeyedCollar": {
+      "triangles": 348,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_CobaltInlay_R": {
+      "triangles": 480,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_CobaltInlay_L": {
+      "triangles": 476,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_IceLane_R": {
+      "triangles": 92,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_IceLane_L": {
+      "triangles": 92,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_PlateGuide_1": {
+      "triangles": 44,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_PlateGuide_2": {
+      "triangles": 44,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_RevealContact_1": {
+      "triangles": 44,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_RevealContact_2": {
+      "triangles": 44,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_RevealContact_3": {
+      "triangles": 44,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GraphiteGrip_R": {
+      "triangles": 514,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GraphiteGrip_L": {
+      "triangles": 512,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GripKey_R": {
+      "triangles": 86,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GripKey_L": {
+      "triangles": 86,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    }
+  },
+  "total_triangles": 7264,
+  "frame_blade_seat_contact": true,
+  "guard_aperture_clear": true,
+  "collar_socket_clear": true,
+  "collar_seated_on_frame": true,
+  "insert_intersections": {
+    "Arc_CobaltInlay_R": false,
+    "Arc_CobaltInlay_L": false,
+    "Arc_IceLane_R": false,
+    "Arc_IceLane_L": false,
+    "Arc_PlateGuide_1": false,
+    "Arc_PlateGuide_2": false,
+    "Arc_GraphiteGrip_R": false,
+    "Arc_GraphiteGrip_L": false,
+    "Arc_GripKey_R": false,
+    "Arc_GripKey_L": false
+  },
+  "anchors": {
+    "Knife_RightGrip": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Knife_BladeBase": [
+      0.364,
+      0.0,
+      -0.0065
+    ],
+    "Knife_BladeTip": [
+      1.2714,
+      0.0,
+      0.0156
+    ],
+    "Arc_FX_VisualTip": [
+      1.271,
+      0.0,
+      0.133
+    ]
+  },
+  "actions": [
+    "Knife_Draw",
+    "Knife_Fire",
+    "Knife_HeavyStab",
+    "Knife_Inspect",
+    "Knife_Slash1",
+    "Knife_Slash2",
+    "Knife_Slash3"
+  ]
+}

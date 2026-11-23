@@ -16,12 +16,16 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
+local SkinPreview = require(ReplicatedStorage.Shared.Config.SkinPreview)
 
 local Kit = require(script.Parent.ShotFxKit)
 
 local KnifeSwipeFx = {}
 
 local WHITE = Kit.WHITE
+local STOCK_BODY = Color3.fromHex("34404F")
+local PB = SkinPreview.PLAYBACK
+local SD = SkinPreview.SUNDIAL
 
 type Swipe = {
 	part: BasePart,
@@ -124,7 +128,13 @@ function KnifeSwipeFx.cancel()
 	end
 end
 
-function KnifeSwipeFx.swipe(arc: { Vector3 }, delay: number, sweep: number, strength: number)
+function KnifeSwipeFx.swipe(
+	arc: { Vector3 },
+	delay: number,
+	sweep: number,
+	strength: number,
+	skinLine: string?
+)
 	local cam = Workspace.CurrentCamera
 	if not cam or #arc ~= 3 then
 		return
@@ -143,13 +153,21 @@ function KnifeSwipeFx.swipe(arc: { Vector3 }, delay: number, sweep: number, stre
 	a0.Parent = part
 	local a1 = Instance.new("Attachment")
 	a1.Parent = part
+	local coreColor = if skinLine == PB.LINE
+		then PB.SWIPE_CORE
+		elseif skinLine == SD.LINE then SD.SWIPE_CORE
+		else WHITE
+	local bodyColor = if skinLine == PB.LINE
+		then PB.SWIPE_BODY
+		elseif skinLine == SD.LINE then SD.SWIPE_BODY
+		else STOCK_BODY
 	local beams = {}
-	-- 1: the white core (narrow, glowing); 2: a dark steel body around it
+	-- 1: the glowing core (narrow); 2: a dark steel / line-tinted body around it
 	-- (LihFolk three tones: white rim, body, dark).
 	for k, look in
 		{
-			{ width = 0.09, color = WHITE, emission = 1 },
-			{ width = 0.3, color = Color3.fromHex("34404F"), emission = 0 }, -- dark steel: reads on bright floors
+			{ width = 0.09, color = coreColor, emission = 1 },
+			{ width = 0.3, color = bodyColor, emission = 0 }, -- dark body: reads on bright floors
 		}
 	do
 		local b = Instance.new("Beam")

@@ -67,8 +67,8 @@ function PlayZone.set(player: Player, zone: Zone, matchId: string?)
 	assert(RunService:IsServer(), "PlayZone.set is server only")
 	local previous = read(player)
 	applyCamera(player, zone)
-	player:SetAttribute(PlayZone.ATTRIBUTE, zone)
 	player:SetAttribute(PlayZone.MATCH_ID, if zone == "Match" then matchId else nil)
+	player:SetAttribute(PlayZone.ATTRIBUTE, zone)
 	if previous ~= zone then
 		changed:Fire(player, zone, previous)
 	end

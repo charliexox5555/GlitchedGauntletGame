@@ -2287,6 +2287,44 @@ return table.freeze({
 				key(1, ZERO, ZERO),
 			},
 		},
+		InspectSlipframeCompact = {
+			length = 2.2,
+			pivot = "Center",
+			own = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(
+					0.19,
+					Vector3.new(-0.28, 0.24, -0.34),
+					Vector3.new(8, 53, -9),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(0.33, Vector3.new(-0.29, 0.23, -0.34), Vector3.new(6, 51, -8)),
+				key(0.66, Vector3.new(-0.29, 0.25, -0.33), Vector3.new(8, 54, -9)),
+				key(0.84, Vector3.new(-0.24, 0.20, -0.28), Vector3.new(5, 46, -8)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		InspectSlipframeOperator = {
+			length = 2.65,
+			pivot = "Center",
+			own = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(
+					0.19,
+					Vector3.new(-0.42, 0.19, -0.56),
+					Vector3.new(3, 50, -10),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(0.34, Vector3.new(-0.41, 0.19, -0.56), Vector3.new(3, 48, -8)),
+				key(0.66, Vector3.new(-0.42, 0.21, -0.54), Vector3.new(5, 51, -10)),
+				key(0.84, Vector3.new(-0.34, 0.17, -0.45), Vector3.new(4, 44, -8)),
+				key(1, ZERO, ZERO),
+			},
+		},
 		InspectRuinGuardian = ruinInspect(
 			4.4,
 			Vector3.new(-0.42, 0.24, -0.98),
@@ -2315,6 +2353,115 @@ return table.freeze({
 			Vector3.new(0.01, -0.03, -0.06),
 			Vector3.new(-10, 22, 14)
 		),
+		-- Riftforge Legendary line (Prelude-to-Chaos industrial magnetic reactor choreography;
+		-- Util/RiftforgeEffects drives the armor cowls, suppressor vents, levitating core
+		-- crystal, dual gimbal rings, plasma beams and barrel shockwave on the same beats).
+		DrawRiftforge = {
+			length = 1.0,
+			pivot = "Grip",
+			smooth = true,
+			keys = {
+				key(0, Vector3.new(0.14, -0.68, 0.24), Vector3.new(-30, 14, 58)),
+				key(0.16, Vector3.new(0.02, -0.18, -0.06), Vector3.new(-8, 6, 22)),
+				-- brief left cant flashing the open reactor bay as the cowls snap shut
+				key(0.32, Vector3.new(-0.07, 0.085, -0.11), Vector3.new(10, 8, -18)),
+				key(0.45, Vector3.new(-0.03, 0.04, -0.05), Vector3.new(7, 3, -6)), -- cowl SLAM jolt
+				key(0.58, Vector3.new(0.012, -0.018, 0.012), Vector3.new(-2.8, -1, 3.5)),
+				key(0.76, Vector3.new(0, 0.009, -0.006), Vector3.new(1.1, 0, -0.8)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Tactical reload: no charging handle or bolt rack — tilt to vent the spent
+		-- energy cell, draw plasma into the magwell, slam the fresh cell home, and
+		-- snap the reactor armor cowls shut with an axial plasma surge kick.
+		ReloadRiftforge = {
+			length = 1.0,
+			pivot = "Center",
+			smooth = true,
+			marks = { MagOut = 0.16, MagIn = 0.48, Rack = 0.78 },
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.04, Vector3.new(0.012, -0.02, 0.01), Vector3.new(-2.5, -1.5, 3)),
+				key(0.12, Vector3.new(-0.10, 0.17, -0.14), Vector3.new(16, 10, -28)),
+				key(0.16, Vector3.new(-0.095, 0.16, -0.14), Vector3.new(14, 9, -26)),
+				key(0.19, Vector3.new(-0.085, 0.20, -0.15), Vector3.new(20, 10, -22)), -- MagOut plasma burst
+				key(0.28, Vector3.new(-0.10, 0.155, -0.14), Vector3.new(13, 10, -29)),
+				key(0.40, Vector3.new(-0.105, 0.145, -0.14), Vector3.new(11, 11, -31)), -- plasma cell forming
+				key(0.46, Vector3.new(-0.108, 0.132, -0.135), Vector3.new(9, 11, -32)), -- brace
+				key(0.50, Vector3.new(-0.08, 0.225, -0.16), Vector3.new(23, 8, -19)), -- MagIn heavy SLAM!
+				key(0.58, Vector3.new(-0.09, 0.17, -0.14), Vector3.new(14, 8, -22)),
+				key(0.72, Vector3.new(-0.045, 0.09, -0.08), Vector3.new(8, 4, -10)), -- cowls closing
+				key(0.78, Vector3.new(-0.015, 0.12, -0.04), Vector3.new(13, 2, -4)), -- cowl SLAM + barrel surge!
+				key(0.86, Vector3.new(0.012, -0.015, 0.014), Vector3.new(-3, -1, 3)),
+				key(0.94, Vector3.new(0, 0.008, -0.005), Vector3.new(1, 0, -1)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Empty reload: heavier reactor reboot! After MagIn slams home, the rifle
+		-- kicks sharply up-back as both armor cowls + suppressor vents slam shut
+		-- in a two-stage overdrive surge (no stock bolt rack!).
+		ReloadEmptyRiftforge = {
+			length = 1.0,
+			pivot = "Center",
+			smooth = true,
+			marks = { MagOut = 0.15, MagIn = 0.45, Rack = 0.76 },
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.04, Vector3.new(0.014, -0.025, 0.012), Vector3.new(-3, -2, 4)),
+				key(0.11, Vector3.new(-0.11, 0.18, -0.15), Vector3.new(18, 11, -30)),
+				key(0.15, Vector3.new(-0.105, 0.17, -0.15), Vector3.new(15, 10, -28)),
+				key(0.18, Vector3.new(-0.09, 0.215, -0.16), Vector3.new(22, 11, -24)), -- MagOut discharge
+				key(0.28, Vector3.new(-0.11, 0.16, -0.15), Vector3.new(13, 11, -31)),
+				key(0.41, Vector3.new(-0.115, 0.14, -0.145), Vector3.new(10, 12, -33)), -- brace
+				key(0.46, Vector3.new(-0.08, 0.245, -0.17), Vector3.new(25, 8, -18)), -- MagIn heavy SLAM!
+				key(0.56, Vector3.new(-0.095, 0.18, -0.15), Vector3.new(16, 9, -24)),
+				-- Reactor Overdrive Lock (replaces bolt rack): crisp pullback + snap level
+				key(0.68, Vector3.new(-0.055, 0.11, -0.10), Vector3.new(6, 5, -14)),
+				key(0.76, Vector3.new(-0.02, 0.155, -0.03), Vector3.new(17, 2, -3)), -- violent cowl SLAM kick!
+				key(0.84, Vector3.new(0.018, -0.028, 0.02), Vector3.new(-4.5, -1.5, 4.5)),
+				key(0.93, Vector3.new(-0.004, 0.012, -0.008), Vector3.new(1.5, 0, -1.2)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Inspect: showcase left Reactor Core Bay (cowls split wide, CoreCrystal
+		-- levitates UP spinning inside dual gimbal rings with crackling arcs),
+		-- whip muzzle-up into a 360-deg magnetic barrel roll across center, then
+		-- display right flank suppressor rails as crystal descends and cowls SLAM shut!
+		InspectRiftforge = {
+			length = 5.2,
+			pivot = "Center",
+			own = true,
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.045, Vector3.new(0.02, -0.04, -0.03), Vector3.new(-4, -5, 4)),
+				-- Left flank Reactor Core Bay showcase (0.14..0.44)
+				key(0.14, Vector3.new(-0.42, 0.26, -0.84), Vector3.new(14, 64, -20)),
+				key(0.22, Vector3.new(-0.39, 0.24, -0.82), Vector3.new(10, 58, -15)), -- cowls unlock!
+				key(0.32, Vector3.new(-0.41, 0.29, -0.86), Vector3.new(19, 55, -23)), -- crystal levitates!
+				key(0.42, Vector3.new(-0.39, 0.27, -0.84), Vector3.new(13, 60, -17)),
+				-- Sweeps muzzle-up for the magnetic 360 barrel roll
+				key(0.53, Vector3.new(-0.33, 0.38, -0.86), Vector3.new(46, 5, -4)),
+				-- Catch cleanly on right flank (0.63..0.87)
+				key(0.64, Vector3.new(-0.42, 0.21, -0.72), Vector3.new(-8, -58, 22)),
+				key(0.72, Vector3.new(-0.39, 0.19, -0.68), Vector3.new(-3, -50, 16)),
+				key(0.81, Vector3.new(-0.38, 0.23, -0.68), Vector3.new(9, -46, 11)), -- crystal seats + cowl SLAM!
+				key(0.88, Vector3.new(-0.40, 0.20, -0.69), Vector3.new(2, -52, 17)),
+				key(0.95, Vector3.new(0.02, -0.03, 0.02), Vector3.new(-3.5, 4, -3)),
+				key(1, ZERO, ZERO),
+			},
+			toss = {
+				key(0, ZERO, ZERO),
+				key(0.45, ZERO, ZERO),
+				key(0.485, Vector3.new(0, 0.055, 0), Vector3.new(0, 0, -85)),
+				key(0.53, Vector3.new(0, 0.09, 0), Vector3.new(0, 0, -220)),
+				key(0.575, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -338)),
+				key(0.60, Vector3.new(0, -0.006, 0), Vector3.new(0, 0, -364)),
+				key(0.63, ZERO, Vector3.new(0, 0, -360)),
+				key(1, ZERO, Vector3.new(0, 0, -360)),
+			},
+			tossPivot = Vector3.new(0, 0.22, -0.78),
+		},
 		-- Tempest-Strike Vandal (2026-11-22, our own design; Util/TempestIdle draws
 		-- the water on the same beats). Inspect: snap to the right side, tip the
 		-- top up, bring it to the middle where it lifts out of the hands and rolls
@@ -2748,6 +2895,23 @@ return table.freeze({
 				key(1, ZERO, ZERO),
 			},
 		},
+		ArcInspect = {
+			length = 64 / 24,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.11, Vector3.new(-0.112, 0.02, 0.075), Vector3.new(-5, 3, 7)),
+				key(0.24, Vector3.new(-0.627, 0.161, 0.374), Vector3.new(-45, 45, 35)),
+				key(0.39, Vector3.new(-0.684, 0.179, 0.391), Vector3.new(-47, 53, 34)),
+				key(0.58, Vector3.new(-0.695, 0.201, 0.376), Vector3.new(-37, 56, 39)),
+				key(0.76, Vector3.new(-0.638, 0.128, 0.352), Vector3.new(-49, 50, 31)),
+				key(0.86, Vector3.new(-0.355, 0.052, 0.205), Vector3.new(-22, 26, 16)),
+				key(1, ZERO, ZERO),
+			},
+		},
 		InspectMelee = {
 			length = 3.4,
 			pivot = "Grip",
@@ -2850,6 +3014,20 @@ return table.freeze({
 		-- hold. The clip's twirl (the owner turned down a slow 360 on 2026-11-08;
 		-- this one is quick and in the screen's plane). MELEE_DRAW_TRACK =
 		-- "DrawMeleeSwipe" puts back the old swipe-out.
+		ArcDraw = {
+			length = 14 / 24,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			keys = {
+				key(0, Vector3.new(0.227, -0.82, 0.21), Vector3.new(-42, -19, -23)),
+				key(0.21, Vector3.new(0.158, -0.47, 0.15), Vector3.new(-26, -11, -11)),
+				key(0.5, Vector3.new(-0.065, 0.064, 0.016), Vector3.new(11, 8, 11)),
+				key(0.72, Vector3.new(0.018, -0.036, 0.007), Vector3.new(-4, -2, -3)),
+				key(1, ZERO, ZERO),
+			},
+		},
 		DrawMelee = {
 			length = 0.75,
 			pivot = "Grip",

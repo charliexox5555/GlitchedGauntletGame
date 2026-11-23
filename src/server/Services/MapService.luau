@@ -40,21 +40,6 @@ local active: Model? = nil
 
 local KILL_CHECK = 0.2 -- seconds between checks
 
--- The place's own lighting, captured before the first map changes it
--- (whole-server matches only: a pad duel's players light their own view,
--- client/Controllers/MatchLightingController).
-local baseline: MapLighting.Baseline? = nil
-
-local function applyLighting(map: Model)
-	if not Context.ownsServer then
-		return
-	end
-	if not baseline then
-		baseline = MapLighting.matchBaseline()
-	end
-	MapLighting.apply(baseline :: MapLighting.Baseline, map)
-end
-
 local function mapsFolder(): Folder
 	local folder = ServerStorage:FindFirstChild("Maps")
 	if folder and folder:IsA("Folder") then
@@ -97,7 +82,9 @@ function MapService.load(id: string): boolean
 		return false
 	end
 	-- The template's lighting (the clone carries the same children).
-	applyLighting(source)
+	if Context.ownsServer then
+		MapLighting.applyMatch(source)
+	end
 	if active then
 		active:Destroy()
 	end
@@ -105,9 +92,7 @@ function MapService.load(id: string): boolean
 	-- A pad duel (MatchKit/Context): its own name and map slot, in its own world folder.
 	map.Name = if Context.ownsServer then "ActiveMap" else "ActiveMap_" .. Context.id
 	map:SetAttribute("MatchId", if Context.ownsServer then nil else Context.id)
-	if Context.offset ~= Vector3.zero then
-		map:PivotTo(map:GetPivot() + Context.offset)
-	end
+	map:PivotTo(map:GetPivot().Rotation + Context.mapOrigin)
 	-- Whole map loaded for everyone, so an enemy never streams out mid-fight. A
 	-- pad duel's map only for its own players (lobby players never need it).
 	if Context.ownsServer then
@@ -267,33 +252,7 @@ function MapService.spawnCentre(team: number): Vector3?
 	return sum / #spawns
 end
 
--- Maps are edited in Workspace (one Model per map, at its own spot). A
--- running server keeps only the loaded one in the world: the rest go to
--- ServerStorage.Maps at start (Config/Match MAPS ids and any model with
--- tagged team spawns), so a live server doesn't carry every map.
-local function stashMaps()
-	local folder = mapsFolder()
-	for _, child in workspace:GetChildren() do
-		if not child:IsA("Model") or child.Name == "ActiveMap" then
-			continue
-		end
-		local isMap = false
-		for _, d in child:GetDescendants() do
-			if d:IsA("SpawnLocation") and (d:HasTag(SPAWN_TAGS[1]) or d:HasTag(SPAWN_TAGS[2])) then
-				isMap = true
-				break
-			end
-		end
-		if isMap and not folder:FindFirstChild(child.Name) then
-			child.Parent = folder
-		end
-	end
-end
-
 function MapService.start()
-	if Context.ownsServer then
-		stashMaps()
-	end
 	RunService.Heartbeat:Connect(checkFalls)
 end
 

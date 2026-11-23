@@ -220,6 +220,8 @@ local function install(args: { [string]: any }): (Model, { string })
 					t.StudsPerTileV = tile.studs
 					if pattern == "Moltframe_Flow" then
 						t:SetAttribute("MoltframeFlowLayer", 1) -- camera guns drift it (Config.SkinPreview)
+					elseif pattern == "Riftforge_Plasma" then
+						t:SetAttribute("RiftforgePlasmaLayer", 1)
 					end
 					t.Parent = part
 				end

@@ -31,14 +31,7 @@ The deeper research and the reasoning behind these decisions are in [Design Rese
 Decide these Monday morning and don't reopen them this month.
 
 ### Name
-"Glitched Gauntlet" is too close to Valorant's mode name. Pick something original. Ideas:
-- **OVERWRITE**: you overwrite your kit every round.
-- **GLITCHLINE**
-- **PATCHWORK**
-- **HOTFIX**
-- **CORRUPTED**
-
-Check that the name is free on Roblox search first. The repo name can stay as it is.
+**Draft Duels** is the name the owner chose on November 22, 2026. The repository retains its current name. [Draft Duels Logo](../02%20Art/Draft%20Duels%20Logo.md)
 
 ### Fiction (keep it light)
 You're a "Runner" inside a broken combat simulation. Your abilities are **Mods**. Rare corrupted Mods are **Glitches**. Arenas are server rooms, firewalls and data caches. That gives a clean visual theme and explains why the rules change each round.
@@ -90,7 +83,7 @@ Each class has one gun at launch, and players can pick between guns in the same 
 | November | Ranked Duels, Squads (3v3/4v4), scheduled Gauntlet events |
 
 ### Money
-Cosmetics, sold directly. ~~No Robux loot boxes~~ **Changed 2026-11-16 (owner): paid cases are allowed, done right** (an odds list for every case, hidden for players where `PolicyService` says paid random items are restricted, no duplicate cosmetics; see [UI Shop](../02%20Art/UI%20Shop.md)). One currency, **Coins**, earned and sold in packs. Some Robux bundles carry exclusive Mods (owner: "somewhat pay to win but nothing too crazy"). **Changed 2026-11-15 (owner):** extra **Mods can be bought**; the base Mods stay free, a bought Mod joins your draft pool for good (it can't be unequipped), and Mod skins may follow. Every gun stays free. Open: whether bought Mods are earnable with in-game currency too, and whether ranked uses only base Mods (see [UI Locker](../02%20Art/UI%20Locker.md)).
+Cosmetics, sold directly. ~~No Robux loot boxes~~ **Changed 2026-11-16 (owner): paid cases are allowed, done right** (an odds list for every case, hidden for players where `PolicyService` says paid random items are restricted, no duplicate cosmetics; see [UI Shop](../02%20Art/UI%20Shop.md)). One currency, **Coins**, earned and sold in packs. Some Robux bundles carry exclusive Mods (owner: "somewhat pay to win but nothing too crazy"). **Changed 2026-11-15 (owner):** extra **Mods can be bought**; the base Mods stay free, an owned paid Mod joins your draft pool while equipped in the Locker (2026-11-22), and Mod skins may follow. Every gun stays free. Open: whether bought Mods are earnable with in-game currency too, and whether ranked uses only base Mods (see [UI Locker](../02%20Art/UI%20Locker.md)).
 
 ---
 

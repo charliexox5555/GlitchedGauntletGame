@@ -38,6 +38,7 @@ export type ModDef = {
 	id: string,
 	name: string,
 	role: string,
+	free: boolean, -- always available in the draft, without ownership or an equip
 	-- The one slot this ability lives in (1 = Q, 2 = E, 3 = T for now).
 	slot: number,
 	-- Names of path A, path B and the glitch path (draft cards, dev panel).

@@ -1,6 +1,9 @@
 --!strict
 -- The Slipframe receiver wakes up from rear to front. All moving pieces and
 -- light live in the camera clone and are solved with the gun in the same frame.
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Profiles = require(ReplicatedStorage.Shared.Config.Slipframe)
+
 local SlipframeEffects = {}
 
 type Pulse = "Fire" | "Seat"
@@ -14,30 +17,25 @@ type Finish = {
 type RailLight = { part: Part, joint: Motor6D }
 
 export type State = {
+	profile: Profiles.Profile,
 	panel: Motor6D,
 	insert: Finish,
 	seam: Finish,
-	foreEnd: Finish,
+	foreEnd: Finish?,
 	contacts: { Part },
 	railHead: RailLight,
 	railWake: RailLight,
 	light: PointLight,
 	scale: number,
 	pulse: Pulse?,
+	reloadSeated: boolean,
 	elapsed: number,
 	lit: boolean,
 }
 
-local FIRE_TIME = 0.17
-local SEAT_TIME = 0.16
 local ICE = Color3.fromRGB(191, 232, 255)
 local BLUE = Color3.fromRGB(100, 175, 245)
 local WHITE = Color3.fromRGB(227, 248, 255)
--- Center and orientation of the player-facing upper chamfer in Guardian r05fx,
--- relative to the blue fore-end mesh in its imported axes.
-local CHAMFER_Y = 0.0825
-local CHAMFER_Z = 0.078
-local CHAMFER_ANGLE = math.atan2(-0.8, 0.6)
 
 local function finish(part: MeshPart): Finish
 	return { part = part, color = part.Color, material = part.Material }
@@ -60,12 +58,17 @@ local function glowPart(model: Model, name: string, size: Vector3, placement: CF
 	return part
 end
 
-local function contactsInRecess(model: Model, seam: MeshPart, scale: number): { Part }
+local function contactsInRecess(
+	model: Model,
+	seam: MeshPart,
+	center: Vector2,
+	scale: number
+): { Part }
 	local contacts = {}
 	for i = 1, 3 do
 		-- +X points toward the shooter and +Z faces out of the left recess.
 		-- The contacts sit behind the closed blue insert's outer face.
-		local offset = CFrame.new((2 - i) * seam.Size.X * 0.29, 0.013 * scale, 0.006 * scale)
+		local offset = CFrame.new((2 - i) * seam.Size.X * 0.29, center.X * scale, center.Y * scale)
 		local contact = glowPart(
 			model,
 			"SlipframeContact" .. i,
@@ -98,21 +101,27 @@ local function railLight(
 	return { part = part, joint = joint }
 end
 
-function SlipframeEffects.new(model: Model, scale: number): State?
-	local insert = model:FindFirstChild("SK_Root_SFInspectPanel")
-	local seam = model:FindFirstChild("SK_Root_SFSeam")
-	-- Guardian r05fx's two installed blue fore-end faces share this MeshPart.
-	local foreEnd = model:FindFirstChild("SK_Root_02")
-	if
-		not insert
-		or not insert:IsA("MeshPart")
-		or not seam
-		or not seam:IsA("MeshPart")
-		or not foreEnd
-		or not foreEnd:IsA("MeshPart")
-	then
+function SlipframeEffects.new(model: Model, scale: number, gunId: string): State?
+	local profile = Profiles[gunId]
+	if not profile then
 		return nil
 	end
+	local prefix = "SK_" .. profile.bone .. "_"
+	local insert = model:FindFirstChild(prefix .. "SFInspectPanel")
+	local seam = model:FindFirstChild(prefix .. "SFSeam")
+	if not insert or not insert:IsA("MeshPart") or not seam or not seam:IsA("MeshPart") then
+		return nil
+	end
+	local foreEnd: MeshPart? = nil
+	if profile.foreEnd then
+		local part = model:FindFirstChild(profile.foreEnd)
+		if not part or not part:IsA("MeshPart") then
+			return nil
+		end
+		foreEnd = part
+	end
+	-- Classic has one continuous blue face. Its rail rides the fixed seam on Slide.
+	local railHost = foreEnd or seam
 	local weld = insert:FindFirstChild("SkinCosmeticWeld")
 	if not weld or not weld:IsA("Weld") or not weld.Part0 or weld.Part1 ~= insert then
 		return nil
@@ -136,27 +145,29 @@ function SlipframeEffects.new(model: Model, scale: number): State?
 	light.Parent = seam
 
 	return {
+		profile = profile,
 		panel = panel,
 		insert = finish(insert),
 		seam = finish(seam),
-		foreEnd = finish(foreEnd),
-		contacts = contactsInRecess(model, seam, scale),
+		foreEnd = if foreEnd then finish(foreEnd) else nil,
+		contacts = contactsInRecess(model, seam, profile.contacts, scale),
 		railHead = railLight(
 			model,
-			foreEnd,
+			railHost,
 			"SlipframeRailHead",
 			Vector3.new(0.060, 0.010, 0.0016) * scale,
 			WHITE
 		),
 		railWake = railLight(
 			model,
-			foreEnd,
+			railHost,
 			"SlipframeRailWake",
 			Vector3.new(0.25, 0.018, 0.0016) * scale,
 			BLUE
 		),
 		light = light,
 		scale = scale,
+		reloadSeated = false,
 		elapsed = 0,
 		lit = false,
 	}
@@ -165,6 +176,9 @@ end
 function SlipframeEffects.pulse(state: State, kind: Pulse)
 	state.pulse = kind
 	state.elapsed = 0
+	if kind == "Seat" then
+		state.reloadSeated = true
+	end
 end
 
 local function ease(progress: number, from: number, to: number): number
@@ -184,8 +198,12 @@ local function lightBody(state: State, receiver: number, foreEnd: number, bright
 	end
 	state.lit = lit
 	paint(state.seam, ICE, receiver, receiver >= 0.18)
-	paint(state.insert, BLUE, receiver * 0.70, false)
-	paint(state.foreEnd, ICE, foreEnd, false)
+	if state.foreEnd then
+		paint(state.insert, BLUE, receiver * 0.70, false)
+		paint(state.foreEnd, ICE, foreEnd, false)
+	else
+		paint(state.insert, BLUE:Lerp(ICE, foreEnd), math.max(receiver * 0.70, foreEnd), false)
+	end
 	state.light.Enabled = brightness > 0.03
 	state.light.Brightness = brightness
 end
@@ -201,10 +219,11 @@ local function drawRail(state: State, progress: number, opacity: number)
 		return
 	end
 	local scale = state.scale
-	local length = (0.28 - 0.085 * progress) * scale
-	local x = (0.5 - progress) * (state.foreEnd.part.Size.X - length - 0.17 * scale)
-	local frame = CFrame.new(x, CHAMFER_Y * scale, CHAMFER_Z * scale)
-		* CFrame.Angles(CHAMFER_ANGLE, 0, 0)
+	local profile = state.profile
+	local length = math.min(0.28 - 0.085 * progress, profile.railSpan * 0.56) * scale
+	local offset = (0.5 - progress) * (profile.railSpan * scale - length)
+	local frame = CFrame.new(profile.railCenter * scale + Vector3.new(offset, 0, 0))
+		* CFrame.Angles(profile.railTilt, 0, 0)
 	state.railWake.part.Size = Vector3.new(length, 0.018 * scale, 0.0016 * scale)
 	state.railWake.joint.Transform = frame * CFrame.new(0, 0, 0.0014 * scale)
 	state.railHead.joint.Transform = frame
@@ -216,8 +235,9 @@ end
 local function showInspect(state: State, progress: number)
 	local lift = ease(progress, 0.16, 0.22) - ease(progress, 0.78, 0.84)
 	local slide = ease(progress, 0.22, 0.31) - ease(progress, 0.70, 0.78)
+	local travel = state.profile.panelTravel
 	state.panel.Transform =
-		CFrame.new(Vector3.new(0.072 * slide, 0.018 * slide, 0.019 * lift) * state.scale)
+		CFrame.new(Vector3.new(travel.X * slide, travel.Y * slide, travel.Z * lift) * state.scale)
 
 	local fade = 1 - ease(progress, 0.63, 0.74)
 	for i, contact in state.contacts do
@@ -236,13 +256,32 @@ local function showInspect(state: State, progress: number)
 	drawRail(state, sweep, opacity)
 end
 
+local function showDraw(state: State, progress: number, dim: number)
+	local receiver = ease(progress, 0.30, 0.49) * (1 - ease(progress, 0.62, 0.91))
+	local forward = ease(progress, 0.53, 0.70) * (1 - ease(progress, 0.80, 0.99))
+	lightBody(state, receiver * 0.62 * dim, forward * 0.65 * dim, receiver * 0.53 * dim)
+	drawRail(state, ease(progress, 0.48, 0.88), forward * 0.86 * dim)
+end
+
+local function showReload(state: State, progress: number, dim: number)
+	local charge = ease(progress, 0.14, 0.36) * (1 - ease(progress, 0.55, 0.82))
+	local glow = charge * (0.23 + 0.07 * math.sin(progress * math.pi * 6)) * dim
+	lightBody(state, glow, 0.08 * charge * dim, glow * 1.15)
+	hideRail(state)
+end
+
 function SlipframeEffects.step(
 	state: State,
 	dt: number,
 	inspect: number?,
+	draw: number?,
+	reload: number?,
 	ads: number,
 	visible: boolean
 )
+	if not visible or not reload or reload < 0.14 then
+		state.reloadSeated = false
+	end
 	if visible and inspect then
 		state.pulse = nil
 		showInspect(state, inspect)
@@ -253,25 +292,35 @@ function SlipframeEffects.step(
 		contact.Transparency = 1
 	end
 
+	local dim = 1 - 0.44 * ads
 	local pulse = state.pulse
 	if visible and pulse then
-		local duration = if pulse == "Fire" then FIRE_TIME else SEAT_TIME
+		local duration = if pulse == "Fire" then state.profile.fireTime else state.profile.seatTime
 		local t = state.elapsed / duration
 		state.elapsed += dt
 		if t < 1 then
-			local fade = (1 - t) ^ 1.2 * (1 - 0.44 * ads)
+			local fade = (1 - t) ^ 1.2 * dim
 			if pulse == "Fire" then
 				local forward = (0.66 + 0.34 * ease(t, 0, 0.16)) * (1 - t) * (1 - 0.34 * ads)
 				lightBody(state, fade, forward, fade * 0.95)
 				drawRail(state, math.clamp(t / 0.85, 0, 1), (1 - t) * (1 - 0.38 * ads))
 			else
-				lightBody(state, fade * 0.72, fade * 0.24, fade * 0.45)
-				hideRail(state)
+				local forward = ease(t, 0.02, 0.28) * (1 - ease(t, 0.42, 1)) * dim
+				lightBody(state, fade * 0.88, forward * 0.86, fade * 0.76 + forward * 0.18)
+				drawRail(state, ease(t, 0.05, 0.79), forward)
 			end
 			return
 		end
 	end
 	state.pulse = nil
+	if visible and draw then
+		showDraw(state, draw, dim)
+		return
+	end
+	if visible and reload and not state.reloadSeated then
+		showReload(state, reload, dim)
+		return
+	end
 	hideRail(state)
 	lightBody(state, 0, 0, 0)
 end

@@ -1,0 +1,390 @@
+{
+ "variant": "Slipframe Classic r04x (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Classic",
+ "source_blend": "Classic_Slipframe_r04x.blend",
+ "fbx": "Classic_Slipframe_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "CharmLoop",
+  "Frame",
+  "Grip",
+  "MagNeon",
+  "MagRelease",
+  "Magazine",
+  "Pins",
+  "Slide",
+  "SlideCatch",
+  "SlideNeon",
+  "Trigger"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Barrel_01": {
+   "color": "242A32",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Barrel",
+   "blender_material": "SF Frame",
+   "triangles": 22,
+   "size": [
+    0.017,
+    0.0259,
+    0.0259
+   ],
+   "center": [
+    0.9885,
+    0.0,
+    0.3654
+   ]
+  },
+  "SK_Barrel_02": {
+   "color": "A1AEBB",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Barrel",
+   "blender_material": "SF Shell",
+   "triangles": 122,
+   "size": [
+    0.627,
+    0.062,
+    0.107
+   ],
+   "center": [
+    0.6835,
+    0.0,
+    0.3865
+   ]
+  },
+  "SK_Mag_01": {
+   "color": "A8844E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "Brass",
+   "triangles": 40,
+   "size": [
+    0.0868,
+    0.0412,
+    0.0476
+   ],
+   "center": [
+    -0.0316,
+    0.0,
+    0.172
+   ]
+  },
+  "SK_Mag_02": {
+   "color": "242A32",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "SF Frame",
+   "triangles": 188,
+   "size": [
+    0.4478,
+    0.14,
+    0.0858
+   ],
+   "center": [
+    -0.0421,
+    0.0,
+    -0.3383
+   ]
+  },
+  "SK_Mag_03": {
+   "color": "A1AEBB",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "SF Shell",
+   "triangles": 66,
+   "size": [
+    0.3817,
+    0.1058,
+    0.4904
+   ],
+   "center": [
+    -0.0311,
+    0.0,
+    -0.0508
+   ]
+  },
+  "SK_MagRelease_01": {
+   "color": "242A32",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "MagRelease",
+   "blender_material": "SF Frame",
+   "triangles": 80,
+   "size": [
+    0.0546,
+    0.017,
+    0.058
+   ],
+   "center": [
+    0.1961,
+    0.0685,
+    0.069
+   ]
+  },
+  "SK_Root_01": {
+   "color": "242A32",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SF Frame",
+   "triangles": 540,
+   "size": [
+    1.256,
+    0.1883,
+    0.296
+   ],
+   "center": [
+    0.343,
+    0.0222,
+    0.148
+   ]
+  },
+  "SK_Root_02": {
+   "color": "343B43",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SF Grip",
+   "triangles": 356,
+   "size": [
+    0.5286,
+    0.132,
+    0.472
+   ],
+   "center": [
+    -0.0173,
+    0.0,
+    -0.06
+   ]
+  },
+  "SK_Root_03": {
+   "color": "A1AEBB",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SF Shell",
+   "triangles": 112,
+   "size": [
+    0.6994,
+    0.1779,
+    0.0601
+   ],
+   "center": [
+    0.1293,
+    0.0129,
+    0.229
+   ]
+  },
+  "SK_Slide_01": {
+   "color": "286AA3",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "SF Face",
+   "triangles": 44,
+   "size": [
+    0.2276,
+    0.013,
+    0.0759
+   ],
+   "center": [
+    0.7595,
+    -0.0585,
+    0.3871
+   ]
+  },
+  "SK_Slide_SFInspectPanel": {
+   "color": "286AA3",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "SF Face",
+   "triangles": 56,
+   "size": [
+    0.8387,
+    0.013,
+    0.086
+   ],
+   "center": [
+    0.449,
+    0.0585,
+    0.39
+   ]
+  },
+  "SK_Slide_02": {
+   "color": "242A32",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "SF Frame",
+   "triangles": 327,
+   "size": [
+    1.267,
+    0.144,
+    0.1929
+   ],
+   "center": [
+    0.3665,
+    0.0,
+    0.3846
+   ]
+  },
+  "SK_Slide_Sight_03": {
+   "color": "242A32",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "SF Frame",
+   "triangles": 112,
+   "size": [
+    1.1882,
+    0.084,
+    0.048
+   ],
+   "center": [
+    0.3626,
+    0.0,
+    0.498
+   ]
+  },
+  "SK_Slide_SFSeam": {
+   "color": "B9E0EF",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "SF Seam",
+   "triangles": 40,
+   "size": [
+    0.5091,
+    0.009,
+    0.007
+   ],
+   "center": [
+    0.341,
+    0.0605,
+    0.3285
+   ]
+  },
+  "SK_Slide_Sight_04": {
+   "color": "B9E0EF",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "SF Seam",
+   "triangles": 36,
+   "size": [
+    1.1403,
+    0.063,
+    0.016
+   ],
+   "center": [
+    0.3424,
+    0.0,
+    0.505
+   ]
+  },
+  "SK_Slide_05": {
+   "color": "A1AEBB",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "SF Shell",
+   "triangles": 183,
+   "size": [
+    1.229,
+    0.144,
+    0.1929
+   ],
+   "center": [
+    0.3855,
+    0.0,
+    0.3846
+   ]
+  },
+  "SK_SlideCatch_01": {
+   "color": "A1AEBB",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "SlideCatch",
+   "blender_material": "SF Shell",
+   "triangles": 104,
+   "size": [
+    0.1443,
+    0.0135,
+    0.026
+   ],
+   "center": [
+    0.3598,
+    0.0767,
+    0.249
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "242A32",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "SF Frame",
+   "triangles": 12,
+   "size": [
+    0.02,
+    0.007,
+    0.04
+   ],
+   "center": [
+    0.385,
+    0.0,
+    0.108
+   ]
+  },
+  "SK_Trigger_02": {
+   "color": "A1AEBB",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "SF Shell",
+   "triangles": 108,
+   "size": [
+    0.0431,
+    0.022,
+    0.1088
+   ],
+   "center": [
+    0.3704,
+    0.0,
+    0.1156
+   ]
+  }
+ }
+}

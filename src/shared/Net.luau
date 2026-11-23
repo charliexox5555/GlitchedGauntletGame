@@ -4,6 +4,7 @@
 --
 -- Client -> server: Equip, Fire, Reload, PickWeapon (Studio / test mode), Aim (unreliable)
 -- Server -> client: WeaponState, HitConfirm, Damaged, Killed, ShotFx (unreliable)
+-- WeaponState also accepts a payload-free request for the sender's current snapshot.
 -- Mods (ModService): ModHold, ModUse, ModSteer, ModRecall, ModTrigger (client -> server), ModFx (server -> clients),
 -- ModReveal (server -> the caster's team only)
 -- Dev test panel (DevModService; Studio, test mode or the owner): DevMod (client -> server)
@@ -56,7 +57,7 @@ local UNRELIABLE = { "Aim", "ShotFx", "Look", "LookRelay" }
 -- (keep in step with shared/SkinPreview.allowed).
 local SkinPreviewConfig = require(script.Parent.Config.SkinPreview)
 if
-	game.PlaceId == SkinPreviewConfig.PLACE_ID
+	SkinPreviewConfig.supportsPlace(game.PlaceId)
 	and (RunService:IsStudio() or SkinPreviewConfig.LIVE)
 then
 	table.insert(RELIABLE, SkinPreviewConfig.REMOTE)

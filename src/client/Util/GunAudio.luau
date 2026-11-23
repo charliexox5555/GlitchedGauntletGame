@@ -20,6 +20,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
+local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
+local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
+local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
+local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
+local RiftforgeAudio = require(ReplicatedStorage.Shared.Config.RiftforgeAudio)
 local TempestAudio = require(ReplicatedStorage.Shared.Config.TempestAudio)
 local SkinPreviewConfig = require(ReplicatedStorage.Shared.Config.SkinPreview)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -56,6 +61,11 @@ export type ShotOptions = {
 	lastRound: boolean?, -- this shot empties the mag (only known for your own gun)
 	shadowMist: boolean?, -- local Shadow Mist audition in Match Studio
 	tempest: boolean?, -- the gun wears the Tempest-Strike line (its own designed shots)
+	slipframe: boolean?, -- close action layer on the equipped player's camera gun
+	moltframe: boolean?, -- subtle carapace / chamber layer on the equipped player's camera gun
+	playback: boolean?, -- subtle cassette transport layer on the equipped player's camera gun
+	sundial: boolean?, -- subtle brass escapement layer on the equipped player's camera gun
+	riftforge: boolean?, -- heavy industrial plasma layer on the equipped player's camera gun
 }
 
 -- Plays one shot of `config`'s gun for `key` (one per shooter).
@@ -118,6 +128,31 @@ function GunAudio.shot(key: any, config: WeaponConfig, options: ShotOptions?)
 		end
 	end
 
+	-- Riftforge Legendary line (Config/RiftforgeAudio.guns, design_riftforge_v2.py):
+	-- full replacement heavy industrial dark-matter plasma shots + tail; other players
+	-- hear its far take with the stock tail.
+	local riftforge = if o.riftforge then RiftforgeAudio.guns[config.id] else nil
+	if riftforge and riftforge.fire then
+		if o.at then
+			AudioController.playSound(riftforge.fireFar or riftforge.fire, group, o.at)
+			if set.tail then
+				st.tail = AudioController.playSound(set.tail, group, o.at)
+			end
+			return
+		end
+		local last = o.lastRound == true and riftforge.fireLast ~= nil
+		local skinShot = if last
+			then riftforge.fireLast
+			elseif first and riftforge.fireFirst then riftforge.fireFirst
+			else riftforge.fire
+		if AudioController.playSound(skinShot, "Gun") then
+			if not last and riftforge.tail then
+				st.tail = AudioController.playSound(riftforge.tail, "Gun")
+			end
+			return
+		end
+	end
+
 	local last = o.lastRound == true and set.fireLast ~= nil
 	local shot = if last
 		then set.fireLast
@@ -127,6 +162,17 @@ function GunAudio.shot(key: any, config: WeaponConfig, options: ShotOptions?)
 	-- 3D: suppressed guns carry a shorter way (Config/Audio SUPPRESSED_RANGE).
 	local range = if o.at and config.suppressed then Audio.SUPPRESSED_RANGE else nil
 	AudioController.playSound(shot, group, o.at, nil, nil, range)
+	if o.slipframe and not o.at then
+		AudioController.playSound(SlipframeAudio.shots[config.id], "Gun")
+	elseif o.moltframe and not o.at then
+		AudioController.playSound(MoltframeAudio.shots[config.id], "Gun")
+	elseif o.playback and not o.at then
+		AudioController.playSound(PlaybackAudio.shots[config.id], "Gun")
+	elseif o.sundial and not o.at then
+		AudioController.playSound(SundialAudio.shots[config.id], "Gun")
+	elseif o.riftforge and not o.at then
+		AudioController.playSound(RiftforgeAudio.shots[config.id], "Gun")
+	end
 	if set.tail and not last then
 		st.tail = AudioController.playSound(set.tail, group, o.at, nil, nil, range)
 	end

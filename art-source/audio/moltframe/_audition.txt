@@ -1,0 +1,9 @@
+0.20  Vandal  stock, then Moltframe
+2.32  Phantom  stock, then Moltframe
+4.44  Spectre  stock, then Moltframe
+6.56  Judge  stock, then Moltframe
+8.68  Ares  stock, then Moltframe
+10.80  Sheriff  stock, then Moltframe
+12.92  draw
+13.55  mag seat
+14.17  inspect

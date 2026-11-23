@@ -15,6 +15,10 @@ export type MapEntry = { id: string, minTeam: number, maxTeam: number, name: str
 
 return table.freeze({
 	MAP = "Arena", -- the default map: a Model in ServerStorage.Maps (or still in Workspace)
+	-- The merged lobby and range are below the arenas. Leave enough horizontal
+	-- room for two neighboring copies of the 6144-stud map backdrops.
+	ARENA_Y = 800,
+	ARENA_SPACING = 6600,
 	-- The map pool (vault/01 Design/Maps/00 Maps.md → Roster): before each match one
 	-- installed map is picked at random among those that fit the bigger team
 	-- (minTeam..maxTeam players), not the last one when there's a choice. Big

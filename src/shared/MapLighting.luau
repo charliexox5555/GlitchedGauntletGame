@@ -1,8 +1,9 @@
 --!strict
 -- Per-map lighting (vault/01 Design/Maps/00 Maps.md → How a map is built): a map may carry a Configuration named
 -- "Lighting" whose AssetData fields are Lighting properties (ClockTime = 17.5, Ambient = Color3, ...), and a Folder
--- named "LightingFx" of Sky / Atmosphere / post-processing effects. apply() puts the place's own lighting back
--- (captured the first time) and the map's on top; restore() puts the place's back alone.
+-- named "LightingFx" of Sky / Atmosphere / post-processing effects. Each map
+-- starts from the match lighting, and restore() brings the original lobby
+-- instances back so the lobby UI keeps its references to them.
 -- Used by the server for a whole-server match (MapService) and, since the place merge (2026-11-21), by each
 -- player's client for a pad duel in a lobby server (Lighting set on a client only changes that client's view).
 
@@ -44,77 +45,88 @@ local FX_CLASSES: { [string]: boolean } = {
 }
 local MAP_FX_ATTRIBUTE = "FromMap"
 
-export type Baseline = { props: { [string]: any }, fx: { Instance } }
+type Baseline = { props: { [string]: any }, fx: { [Instance]: boolean } }
+local original: Baseline? = nil
+local suspended: { Instance } = {}
+local installed: { Instance } = {}
 
--- The place's lighting as it is now.
-function MapLighting.capture(): Baseline
+function MapLighting.capture()
+	if original then
+		return
+	end
 	local props: { [string]: any } = {}
 	for _, name in LIGHTING_PROPS do
 		props[name] = (Lighting :: any)[name]
 	end
-	local fx: { Instance } = {}
+	local fx: { [Instance]: boolean } = {}
 	for _, child in Lighting:GetChildren() do
 		if FX_CLASSES[child.ClassName] then
-			table.insert(fx, child:Clone())
+			fx[child] = true
 		end
 	end
-	return { props = props, fx = fx }
+	original = { props = props, fx = fx }
 end
 
--- What every match map starts from (Config/MatchLighting: the old match place's lighting, no effects).
-function MapLighting.matchBaseline(): Baseline
-	return { props = table.clone(MatchLighting) :: any, fx = {} }
-end
-
--- The baseline back, then `map`'s own lighting on top (if it has any).
-function MapLighting.apply(base: Baseline, map: Instance?)
-	local config = map and map:FindFirstChild("Lighting")
-	local mapFx = map and map:FindFirstChild("LightingFx")
-	for name, value in base.props do
-		pcall(function()
+local function setProperties(props: { [string]: any })
+	for name, value in props do
+		local ok = pcall(function()
 			(Lighting :: any)[name] = value
 		end)
+		if not ok then
+			warn("[MapLighting] can't set Lighting." .. name)
+		end
 	end
-	-- Effects: the map's replace the place's of the same class.
-	local replace: { [string]: boolean } = {}
+end
+
+function MapLighting.applyMatch(map: Model)
+	MapLighting.capture()
+	local base = original :: Baseline
+	for child in base.fx do
+		if child.Parent == Lighting then
+			child.Parent = nil
+			table.insert(suspended, child)
+		end
+	end
+	for _, child in installed do
+		child:Destroy()
+	end
+	table.clear(installed)
+
+	setProperties(MatchLighting)
+	local config = map:FindFirstChild("Lighting")
+	if config and config:IsA("Configuration") then
+		setProperties(StateValues.all(config))
+	end
+	local mapFx = map:FindFirstChild("LightingFx")
 	if mapFx then
-		for _, child in mapFx:GetChildren() do
-			replace[child.ClassName] = true
-		end
-	end
-	for _, child in Lighting:GetChildren() do
-		if FX_CLASSES[child.ClassName] then
-			child:Destroy()
-		end
-	end
-	for _, fx in base.fx do
-		if not replace[fx.ClassName] then
-			fx:Clone().Parent = Lighting
-		end
-	end
-	if mapFx and map then
 		for _, child in mapFx:GetChildren() do
 			if FX_CLASSES[child.ClassName] then
 				local c = child:Clone()
 				StateValues.set(c, MAP_FX_ATTRIBUTE, map.Name)
 				c.Parent = Lighting
-			end
-		end
-	end
-	if config and config:IsA("Configuration") then
-		for name, value in StateValues.all(config) do
-			local ok = pcall(function()
-				(Lighting :: any)[name] = value
-			end)
-			if not ok then
-				warn("[MapLighting] can't set Lighting." .. name)
+				table.insert(installed, c)
 			end
 		end
 	end
 end
 
-function MapLighting.restore(base: Baseline)
-	MapLighting.apply(base, nil)
+function MapLighting.restore()
+	local base = original
+	if not base then
+		return
+	end
+	for _, child in Lighting:GetChildren() do
+		if FX_CLASSES[child.ClassName] and not base.fx[child] then
+			child:Destroy()
+		end
+	end
+	for _, child in suspended do
+		child.Parent = Lighting
+	end
+	setProperties(base.props)
+	table.clear(installed)
+	table.clear(suspended)
+	original = nil
 end
 
 return MapLighting

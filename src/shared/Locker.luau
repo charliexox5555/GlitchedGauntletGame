@@ -94,7 +94,7 @@ Locker.COLORS = table.freeze({
 	Redline = Color3.fromHex("FF4D5E"),
 	Nitrous = Color3.fromHex("3FE0F2"),
 	PopCircuit = Color3.fromHex("FF7AD9"),
-	Moltframe = Color3.fromHex("FF7A3D"),
+	Moltframe = Color3.fromHex("9F5AF2"),
 	Giltfold = Color3.fromHex("E8C46A"),
 	Sealwork = Color3.fromHex("2BD9A8"),
 	Payload = Color3.fromHex("9AA36B"),
@@ -107,6 +107,8 @@ Locker.COLORS = table.freeze({
 	Sundial = Color3.fromHex("B89A57"),
 	Poolside = Color3.fromHex("4DB6E4"),
 	Rootglass = Color3.fromHex("26745E"),
+	Slipframe = Color3.fromHex("77B8E9"),
+	Riftforge = Color3.fromHex("C84BFF"),
 	RuinBlighted = Color3.fromHex("5DE4CC"),
 	TempestStrike = Color3.fromHex("8DBCF7"),
 }) :: { [string]: Color3 }
@@ -127,6 +129,7 @@ Locker.EMBLEMS = table.freeze({
 	Sealwork = "rbxassetid://90587660646204",
 	Payload = "rbxassetid://74808720750414",
 	Inkshift = "rbxassetid://92911837408821",
+	Slipframe = "rbxassetid://104958460854328",
 	TempestStrike = "rbxassetid://95165319256972",
 	RuinBlighted = "rbxassetid://130399130528727",
 	Breakwater = "rbxassetid://84964799842794",
@@ -137,7 +140,6 @@ Locker.EMBLEMS = table.freeze({
 	Poolside = "rbxassetid://71177694364888",
 	Rootglass = "rbxassetid://115919299886550",
 	Sundial = "rbxassetid://110359861469161",
-	Slipframe = "rbxassetid://104958460854328",
 }) :: { [string]: string }
 
 -- The gun's model in ReplicatedStorage.Weapons (Studio-owned; the Lobby gets

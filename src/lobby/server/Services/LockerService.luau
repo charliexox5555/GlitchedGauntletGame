@@ -23,7 +23,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
+local Mods = require(ReplicatedStorage.Shared.Mods)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local Validate = require(ReplicatedStorage.Shared.Util.Validate)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 
@@ -45,6 +50,7 @@ local store = DataStoreService:GetDataStore(Locker.STORE)
 local records: { [Player]: Record } = {}
 local limiter = RateLimit.new(Config.RATE)
 local rejects: { [string]: number } = {}
+local savingMods: { [Player]: boolean } = {}
 
 local function reject(reason: string)
 	rejects[reason] = (rejects[reason] or 0) + 1
@@ -193,10 +199,57 @@ local function onRequest(player: Player, action: unknown, gunId: unknown, line: 
 	equip(player, gunId :: string, line :: string)
 end
 
+function LockerService.isSavingMods(player: Player): boolean
+	return savingMods[player] == true
+end
+
+local function saveModChoice(player: Player, idArg: unknown, equippedArg: unknown): boolean
+	local id = Validate.string(idArg, ModLoadout.MAX_ID_LENGTH)
+	local equipped = Validate.boolean(equippedArg)
+	local def = id and Mods.def(id)
+	local queueStatus = StateValues.get(player, "QueueStatus")
+	if
+		not id
+		or equipped == nil
+		or not def
+		or def.free
+		or not Mods.isBuilt(id)
+		or savingMods[player]
+		or PlayZone.get(player) ~= "Lobby"
+		or queueStatus == "found"
+		or queueStatus == "teleporting"
+	then
+		return false
+	end
+	local data = PlayerDataService.get(player)
+	if not data or not data.mods.owned[id] then
+		return false
+	end
+
+	savingMods[player] = true
+	local saved = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(latest)
+		if not latest.mods.owned[id] then
+			return false, "notOwned"
+		end
+		latest.mods.equipped[id] = if equipped then true else nil
+		return true
+	end)
+	savingMods[player] = nil
+	return saved
+end
+
 function LockerService.init() end
 
 function LockerService.start()
 	LobbyNet.event("LockerRequest").OnServerEvent:Connect(onRequest)
+	local modRequest = LobbyNet.event("LockerModRequest")
+	modRequest.OnServerEvent:Connect(function(player, id, equipped)
+		local saved = limiter:allow(player, "LockerModRequest")
+			and saveModChoice(player, id, equipped)
+		if player.Parent == Players then
+			modRequest:FireClient(player, saved)
+		end
+	end)
 	-- skins loaded or granted: re-filter what this player wears
 	PlayerDataService.changed:Connect(publish)
 	Players.PlayerAdded:Connect(load)

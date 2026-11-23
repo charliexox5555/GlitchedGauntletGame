@@ -90,14 +90,111 @@ The camera clone uses the existing Guardian r05fx panel, inlay and blue fore-end
 
 The owner liked the revised effect and reported that the support hand hid the front light during inspect. `InspectSlipframe` now owns a shorter 2.4 s presentation with a small left-facing turn. It skips the stock press-check clip, which moved the support hand off its grip. The panel still lifts, slides and returns. The three recessed contacts pass the light to a white leading edge with a blue wake along the upper titanium chamfer. A short receiver flash lands when the panel seats. The shot uses the same chamfer for its forward pulse.
 
-Offline checks sampled the default held camera, stock Grip and AimPoint frames, authored inspect keys, and both arm bounds through the sweep. Both light layers cleared the arms and stayed above the chamfer surface. The effect lifecycle, ADS attenuation, shot and reload resets, and first-person muzzle routing also passed offline. Studio appearance remains for owner review while Claude uses the place. The remaining roster is gated on Guardian approval.
+Offline checks sampled the default held camera, stock Grip and AimPoint frames, authored inspect keys, and both arm bounds through the sweep. Both light layers cleared the arms and stayed above the chamfer surface. The effect lifecycle, ADS attenuation, shot and reload resets, and first-person muzzle routing also passed offline.
+
+### Draw, reload and roster approval
+
+The owner approved continuing the line after a draw and reload effects pass. During the stock equip motion, the receiver seam comes up as the rifle clears the bottom of the screen. A softer blue wash and one short forward sweep follow as the rifle reaches its hold. During reload, charge builds briefly on the receiver. The existing magazine-seat beat triggers a brighter 260 ms sweep from the seam to the fore-end. Shot and inspect keep their existing cues. Custom foley remains a separate pass.
+
+The offline check passed draw and reload onset, sequencing, interruption and restoration, including an early magazine seat during an empty reload. The previous shot, muzzle and inspect checks also passed. Both Rojo projects built. Claude was using Studio, so this revision has no new live playtest or place save. Roster build order is Vandal, Spectre, Operator and Classic after Guardian.
+
+## Roster rework
+
+Masters start from each gun's RemasterV2 v05 in the live Blender 5.2.2 MCP session on `127.0.0.1:9000` (PID 38884). The session's unsaved Guardian work was saved in a separate local backup before opening stock Vandal. All guns inherit the Guardian's finish roles. The receiver insert, seam and forward faces are named separately so they can be animated after whole-line review.
+
+### Vandal r03
+
+The titanium shoulder steps down over the front trunnion into the blue fore-end. A shorter matching receiver insert sits above the charging channel. The titanium stock opens around a raked lower strut, the brake has a recessed facet on both sides, and the front saddle and rear aperture sit on the original sight line.
+
+- [r01 review](out/Vandal_r01_review.png) and [r02 review](out/Vandal_r02_review.png). The r01 audit identified two capped stock openings, a grip boundary and a disconnected charging handle. R02 continued the upper shell across the trunnion and recut the brake. R03 bridged the grip closure with matched edges.
+- [r03 master](../../../../art-source/weapons/Skins/Slipframe/Vandal/r03/Vandal_Slipframe_r03.blend), [matched review](out/Vandal_r03_review.png), [audit](out/Vandal_r03_views/audit.json), and [flat manifest](../../../../art-source/weapons/Skins/Slipframe/Vandal/r03x/manifest_flat.json).
+- 3,988 triangles versus 5,171 stock. Zero topology faults, floating islands or coplanar pairs. Five ADS rays cleared the approach, and the center line reached the stock front post. Bones, locator transforms and actions matched, with zero new intersections in 309 stock action frames. The 22 exported parts passed the [culled reimport and topology check](out/Vandal_r03x_flat_check/reimport_topology.json).
+- Self-grade by handoff rubric: silhouette 9, crispness 9, layering 9, connections 9, ADS 9, palette 9, budget 10, contract 9. Overall **9/10**.
+
+### Spectre r02
+
+The compact mantle frames the charging slot and ejection port. A shorter receiver insert and fore-end face carry the blue from the Guardian, with a faceted graphite suppressor between stepped titanium collars and a canted open stock.
+
+- [r01 review](out/Spectre_r01_review.png). R02 extended the ejection recess through the full bolt travel, gave the selector's two materials clearance, and adjusted the magazine neck to sit inside the unchanged stock well.
+- [r02 master](../../../../art-source/weapons/Skins/Slipframe/Spectre/r02/Spectre_Slipframe_r02.blend), [matched review](out/Spectre_r02_review.png), [audit](out/Spectre_r02_views/audit.json), and [flat manifest](../../../../art-source/weapons/Skins/Slipframe/Spectre/r02x/manifest_flat.json).
+- 3,312 triangles versus 3,389 stock. Zero topology faults, floating islands or coplanar pairs. Five approach rays cleared and the center line reached the stock front sight. Bones, locator transforms and actions matched, with zero new intersections in 271 stock action frames. The 20 exported parts passed the [culled reimport and topology check](out/Spectre_r02x_flat_check/reimport_topology.json). The aggregate signed-volume heuristic flagged an open magazine material partition. The closed-component check found zero inversions and zero inconsistent edges, and the magazine showed no holes in the culled views.
+- Self-grade by handoff rubric: silhouette 9, crispness 9, layering 9, connections 9, ADS 9, palette 9, budget 10, contract 9. Overall **9/10**.
+
+### Operator r04
+
+The longer handguard stays low under the optic. The matching receiver panel sits beneath the bolt channel, with a shallower ejection-side panel. Blue collars follow the stock scope's external bells. The brake has two raked pockets on each side, and the open rear frame carries a deep cheek-rest seat.
+
+- [r01 review](out/Operator_r01_review.png), [r02 review](out/Operator_r02_review.png), and [r03 review](out/Operator_r03_review.png). The first two revisions refined the stock receiver closures and magazine collar. R04 deepened the cheek-rest seat after the one-sided side views showed a weak join.
+- [r04 master](../../../../art-source/weapons/Skins/Slipframe/Operator/r04/Operator_Slipframe_r04.blend), [matched review](out/Operator_r04_review.png), [audit](out/Operator_r04_views/audit.json), and [flat manifest](../../../../art-source/weapons/Skins/Slipframe/Operator/r04x/manifest_flat.json).
+- 5,240 triangles including the original lenses versus 4,950 stock. Zero topology faults, floating islands or coplanar pairs. Both stock lens shells match the original vertex and material data and remain in the stock model during installation. Five approach rays and the long scope axis match stock. Bones, locator transforms and actions matched, with zero new intersections in 296 stock action frames. The 15 exported parts passed the [culled reimport and topology check](out/Operator_r04x_flat_check/reimport_topology.json).
+- Self-grade by handoff rubric: silhouette 9, crispness 9, layering 9, connections 9, ADS 9, palette 9, budget 10, contract 9. Overall **9/10**.
+
+### Classic r04
+
+The faceted titanium slide carries a longer blue cap and low silver inlay on the player-facing side, three raked serrations, and a smaller panel beside the ejection opening. The cap and inlay ride the stock Slide bone. The stock sights retain their shape and use `Sight` in the export names.
+
+- [r01 review](out/Classic_r01_review.png), [r02 review](out/Classic_r02_review.png), and [r03 review](out/Classic_r03_review.png). R02 seated the magazine heel. R03 cleared the full barrel sweep while keeping the hood supported. R04 added a concealed frame guide with a wider channel in the slide to cover the visible seam throughout its travel.
+- [r04 master](../../../../art-source/weapons/Skins/Slipframe/Classic/r04/Classic_Slipframe_r04.blend), [matched review](out/Classic_r04_review.png), [audit](out/Classic_r04_views/audit.json), and [flat manifest](../../../../art-source/weapons/Skins/Slipframe/Classic/r04x/manifest_flat.json).
+- 2,548 triangles versus 2,334 stock. Zero topology faults, floating islands or coplanar pairs. The physical sight ray passed through the rear notch to the stock front post. Classic uses alt fire, so there is no gameplay ADS check. Bones, locator transforms and actions matched, with zero new intersections in 234 stock action frames. All 19 exported parts passed the [culled reimport and topology check](out/Classic_r04x_flat_check/reimport_topology.json). The aggregate signed-volume heuristic flagged an open slide material partition. The closed-component check found zero inversions and zero inconsistent edges, and the slide showed no holes in the culled views.
+- Self-grade by handoff rubric: silhouette 9, crispness 9, layering 9, connections 9, physical sight line 9, palette 9, budget 10, contract 9. Overall **9/10**.
+
+The owner approved the [complete Slipframe roster](out/Slipframe_Roster_Review.png) for installation and the effects pass.
+
+## Studio roster
+
+The five Epic guns are in `ReplicatedStorage.WeaponSkins.Slipframe` in Lobby and Match. All use the stock rig and actions. Their Locker entries use a satin-blue swatch, five individual portraits and the Slipframe collection emblem. Both places resolve all five pairs through the Locker and list them in the Elite and Apex case pools.
+
+| Gun | Group model | Lobby authored row | Match authored row | First-person cue |
+| --- | ---: | --- | --- | --- |
+| Guardian r05fx | 122077047011165 | 243 | 347 | Standard ice-white fork and receiver-to-fore-end sweep |
+| Vandal r03x | 122325619319111 | 244 | 348 | Wider forks and a shorter shot pulse to suit its cadence |
+| Spectre r02x | 112457284331698 | 245 | 349 | Short blue suppressor puff and a quick body sweep |
+| Operator r04x | 92532245309065 | 246 | 350 | Tighter flash, longer fore-end sweep and stock lenses |
+| Classic r04x | 106789299448345 | 247 | 351 | Small fork and a short sweep mounted on the moving slide |
+
+`Config/Slipframe` defines the five mounted effect profiles. Each gun uses the draw wake-up, reload buildup, magazine seat and inspect reveal. Inspect lifts the player-facing insert, lights three recessed contacts and sends a sweep along the shell. Each effect restores the base finish when it finishes or is interrupted. The third-person effect path and weapon sounds still use the stock cues.
+
+Edit-mode checks in both places preloaded 96 meshes per place and verified the catalog, authored tags, per-part welds, attachment frames and the retained Operator lens. Match Edit mode ran the effect functions on scaled clones and verified the inspect, draw, reload, shot, ADS dimming, muzzle recipes, and Classic Slide attachment. An offline check sampled 210 light positions against the Blender surfaces. Both Rojo builds and changed-file lint passed. The owner requested the Studio pass without a playtest.
+
+Team Create saved Lobby **v913** and Match **v1009**. The saved builds are separate from the published places.
+
+| Art | Roblox image ID |
+| --- | ---: |
+| Guardian portrait | 70699969818687 |
+| Vandal portrait | 121492869454776 |
+| Spectre portrait | 113376297827501 |
+| Operator portrait | 71233783641578 |
+| Classic portrait | 94927383283154 |
+| Slipframe emblem | 104958460854328 |
+
+All six images passed an Edit-mode preload in both places after Roblox finished processing them.
+
+### Gun audio in the merged place
+
+Nine short recordings made from the licensed ProPack provide five shot accents and four shared handling cues. The firing layers sit about 20–26 dB below the stock shots in the comparison reel. Guardian has a firm metal tick, Vandal a brighter snap, Spectre a short, soft action tick, Operator a lower clack, and Classic a lighter click. Each mix is a separate private Roblox audio asset. The project keeps the licensed recordings and derived mixes out of public Git. [Audition](../../../../art-source/audio/slipframe/_audition.wav) · [Builder](../../../../tools/audio/design_slipframe.py)
+
+`Config/SlipframeAudio` owns the takes and timing. Draw plays during the light buildup, magazine seat uses the existing `MagIn` beat, and inspect plays at lift and reseat. The usual gun report, last-round take and room tail play underneath. Other players hear the stock spatial audio.
+
+All nine audio assets loaded in merged Studio Edit mode. The merged combat client and all five Slipframe model routes were verified in place 71551303511506. A local check exercised first and last shots, tails and first-person audio isolation. Both Rojo builds and changed-file lint passed. Rojo synced the audio during the active merge. The merge's place save and publishing remain with the owner.
+
+### Melee concept
+
+The owner asked for a new knife silhouette with Legendary as the goal. The [Arc r01 export and motion block](concept.md#faceted-export-and-motion-block) add a faceted collar, meet the 10,000-triangle budget, and block the draw and guided inspect in Blender. The r01x FBX and manifest are ready for local Studio import after motion review.
+
+### Arc in the merged place
+
+The 7,264-triangle r01x model is installed as `WeaponSkins/Slipframe/Knife` in place 71551303511506. Roblox group model `74454399706306` supplied 13 meshes and portrait image `129500655642464` passed preload. The Arc is Legendary in the Apex knife pool. The other five Slipframe skins are Epic. Stock grip and blade anchors were verified against the stock Knife.
+
+The Arc's screen-keyed first-person draw rolls into the stock grip and lights the seam. Inspect raises the panel through `ArcPlate`, lights the contacts and brings the finish back as the panel reseats. A short blade ribbon follows light slashes and a two-layer ribbon follows the heavy hit beat. The five licensed ProPack cues follow the draw, release, seat, slash and heavy events. Other players see the static Arc with stock motion and spatial audio.
+
+Edit mode drove the installed rig on a 1.2-scale clone. The panel moved 0.0216 studs along the outward axis, reseated, and cleared its lights on interruption. The effect and audio routes passed draw, inspect, and both swing checks. All 14 Slipframe clips loaded. The five guns each retained their close accent on first and last shots, their stock reports, and their stock spatial route. Team Create saved the merged place as **v954**. [Motion and effects code](../../../04%20Tech/Code%20Map.md) · [Migration parity](../../../04%20Tech/Place%20Merge%20Plan.md#weapon-skin-migration-audit-2026-11-21)
 
 ## Review and install gates
 
 1. Capture matched stock and candidate hero, left, right, top, underside, join details, first-person and ADS views for every version. Check Fire, Reload, ReloadEmpty and Inspect poses where the stock source provides them.
 2. Audit evaluated geometry for floating islands, same-facing coplanar faces, inverted closed meshes, crossed faces and visible holes. Verify the joins, `Sight` names, aim clearance and stock rig and attachment parity. Record evaluated triangle counts and all eight grades from the handoff. The lowest grade must be at least 9/10.
 3. Review the hero with the owner. Stage modifiers on a separate export copy and inspect the re-imported flat FBX with backface culling. Repeat the build and checks in roster order.
-4. After the whole line clears review, install in Lobby and Match. Record the asset IDs, portraits and emblem, Rare registration, playtest results and place save status.
+4. After the whole line clears review, install in Lobby and Match. Record the asset IDs, portraits and emblem, approved catalog rarity, playtest results and place save status.
 
 ## Project references
 

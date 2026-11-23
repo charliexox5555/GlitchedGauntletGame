@@ -27,6 +27,7 @@ local defs: { [string]: ModDef } = {
 	Dash = {
 		id = "Dash",
 		name = "Dash",
+		free = true,
 		role = "Mobility",
 		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Long Dash", B = "Ghost", G = "Desync" },
@@ -99,6 +100,7 @@ local defs: { [string]: ModDef } = {
 	Updraft = {
 		id = "Updraft",
 		name = "Updraft",
+		free = true,
 		role = "Mobility",
 		slot = 1, -- Q (vault/01 Design/Abilities/Upgrade Paths.md)
 		-- Upgrade Paths.md calls them Height / Charges / Slam.
@@ -144,6 +146,7 @@ local defs: { [string]: ModDef } = {
 	Molly = {
 		id = "Molly",
 		name = "Molly",
+		free = true,
 		role = "Damage",
 		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Recharge", B = "Bigger Fire", G = "Fork Fire" },
@@ -219,6 +222,7 @@ local defs: { [string]: ModDef } = {
 	Firewall = {
 		id = "Firewall",
 		name = "Firewall",
+		free = true,
 		role = "Control",
 		slot = 3, -- T (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Short Wall", B = "Long Wall", G = "Frost Wall" },
@@ -265,6 +269,7 @@ local defs: { [string]: ModDef } = {
 	Frost = {
 		id = "Frost",
 		name = "Frost",
+		free = true,
 		role = "Control",
 		slot = 3, -- T (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Stockpile", B = "Big Burst", G = "Freeze Frame" },
@@ -310,6 +315,7 @@ local defs: { [string]: ModDef } = {
 	Recon = {
 		id = "Recon",
 		name = "Recon",
+		free = true,
 		role = "Info",
 		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Recharge", B = "More Pulses", G = "Ping Spike" },
@@ -369,6 +375,7 @@ local defs: { [string]: ModDef } = {
 	HealOrb = {
 		id = "HealOrb",
 		name = "Heal Orb",
+		free = true,
 		role = "Sustain",
 		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Charges", B = "Long Heal", G = "Barrier" },
@@ -422,6 +429,7 @@ local defs: { [string]: ModDef } = {
 	Stim = {
 		id = "Stim",
 		name = "Stim",
+		free = true,
 		role = "Team buff",
 		slot = 1, -- Q (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Quick Stims", B = "Strong Stim", G = "Heal Zone" },
@@ -478,6 +486,7 @@ local defs: { [string]: ModDef } = {
 	Recall = {
 		id = "Recall",
 		name = "Recall",
+		free = true,
 		role = "Escape",
 		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Recharge", B = "Long Range", G = "Crash Recovery" },
@@ -536,6 +545,7 @@ local defs: { [string]: ModDef } = {
 	ShockDart = {
 		id = "ShockDart",
 		name = "Shock Dart",
+		free = true,
 		role = "Damage",
 		slot = 2, -- E, like Recon (same bow: you never hold both)
 		paths = { A = "Recharge", B = "More Darts", G = "Static" },
@@ -604,6 +614,7 @@ local defs: { [string]: ModDef } = {
 	Flash = {
 		id = "Flash",
 		name = "Flash",
+		free = true,
 		role = "Control",
 		slot = 1, -- Q
 		paths = { A = "More Flashes", B = "Recharge", G = "Exposure" },
@@ -683,6 +694,7 @@ local defs: { [string]: ModDef } = {
 	Roller = {
 		id = "Roller",
 		name = "Roller",
+		free = true,
 		role = "Damage",
 		slot = 3, -- T
 		paths = { A = "More Bots", B = "Faster", G = "Remote" },

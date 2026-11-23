@@ -32,7 +32,7 @@ Context.id = "server"
 Context.alive = true
 Context.ownsServer = true
 Context.padDuel = false
-Context.offset = Vector3.zero
+Context.mapOrigin = Vector3.zero
 Context.world = workspace :: Instance
 Context.plan = nil :: Plan?
 -- Called by MatchEndService when a pad duel ends (instead of teleporting): MatchHost sends everyone back.
@@ -231,7 +231,7 @@ export type Spec = {
 	id: string,
 	ownsServer: boolean,
 	padDuel: boolean,
-	offset: Vector3,
+	mapOrigin: Vector3,
 	world: Instance,
 	plan: Plan?,
 	players: { Player },
@@ -243,7 +243,7 @@ function Context.setup(spec: Spec)
 	Context.id = spec.id
 	Context.ownsServer = spec.ownsServer
 	Context.padDuel = spec.padDuel
-	Context.offset = spec.offset
+	Context.mapOrigin = spec.mapOrigin
 	Context.world = spec.world
 	Context.plan = spec.plan
 	Context.finish = spec.finish

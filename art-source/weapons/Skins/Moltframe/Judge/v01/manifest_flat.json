@@ -1,0 +1,436 @@
+{
+ "variant": "Moltframe Judge v01 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Judge",
+ "source_blend": "Judge_Moltframe_v01.blend",
+ "fbx": "Judge_Moltframe_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "Bolt",
+  "ChargingHandle",
+  "CharmLoop",
+  "FireSelector",
+  "Grip",
+  "Handguard",
+  "Mag",
+  "Neon",
+  "Pins",
+  "Receiver",
+  "Sights",
+  "Stock",
+  "Trigger"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [
+  {
+   "lift": "MFJ_ForendKeel|MF4 Polished Fold",
+   "over": "MFJ_ForendFluid|MF4 Core Graphite",
+   "faces": 1
+  }
+ ],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Bolt_01": {
+   "color": "4E5462",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Bolt",
+   "blender_material": "MF4 Steel",
+   "triangles": 44,
+   "size": [
+    0.297,
+    0.024,
+    0.08
+   ],
+   "center": [
+    0.5055,
+    -0.088,
+    0.48
+   ]
+  },
+  "SK_ChargingHandle_01": {
+   "color": "171A22",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "ChargingHandle",
+   "blender_material": "MF4 Core Graphite",
+   "triangles": 148,
+   "size": [
+    0.1752,
+    0.124,
+    0.064
+   ],
+   "center": [
+    0.7244,
+    0.012,
+    0.668
+   ]
+  },
+  "SK_ChargingHandle_02": {
+   "color": "4E5462",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "ChargingHandle",
+   "blender_material": "MF4 Steel",
+   "triangles": 108,
+   "size": [
+    0.4496,
+    0.1,
+    0.044
+   ],
+   "center": [
+    0.8692,
+    0.0,
+    0.654
+   ]
+  },
+  "SK_FireSelector_01": {
+   "color": "7C7290",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "FireSelector",
+   "blender_material": "MF4 Lilac Alloy",
+   "triangles": 28,
+   "size": [
+    0.084,
+    0.01,
+    0.0276
+   ],
+   "center": [
+    0.172,
+    0.099,
+    0.316
+   ]
+  },
+  "SK_FireSelector_02": {
+   "color": "4E5462",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "FireSelector",
+   "blender_material": "MF4 Steel",
+   "triangles": 62,
+   "size": [
+    0.037,
+    0.01,
+    0.037
+   ],
+   "center": [
+    0.1767,
+    0.093,
+    0.3162
+   ]
+  },
+  "SK_Mag_01": {
+   "color": "171A22",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "MF4 Core Graphite",
+   "triangles": 76,
+   "size": [
+    0.5484,
+    0.264,
+    0.6282
+   ],
+   "center": [
+    0.84,
+    0.0,
+    0.0059
+   ]
+  },
+  "SK_Mag_02": {
+   "color": "100A16",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "MF4 Gasket",
+   "triangles": 165,
+   "size": [
+    0.446,
+    0.298,
+    0.446
+   ],
+   "center": [
+    0.84,
+    0.0,
+    -0.034
+   ]
+  },
+  "SK_Mag_03": {
+   "color": "5A6170",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "MF4 Graphite Armour",
+   "triangles": 209,
+   "size": [
+    0.5977,
+    0.304,
+    0.5977
+   ],
+   "center": [
+    0.84,
+    0.0,
+    -0.034
+   ]
+  },
+  "SK_Mag_04": {
+   "color": "7C7290",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "MF4 Lilac Alloy",
+   "triangles": 48,
+   "size": [
+    0.1524,
+    0.344,
+    0.176
+   ],
+   "center": [
+    0.84,
+    0.0,
+    -0.034
+   ]
+  },
+  "SK_Mag_05": {
+   "color": "C3CAD6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "MF4 Polished Fold",
+   "triangles": 378,
+   "size": [
+    0.5977,
+    0.344,
+    0.5977
+   ],
+   "center": [
+    0.84,
+    0.0,
+    -0.034
+   ]
+  },
+  "SK_Mag_06": {
+   "color": "3A1458",
+   "material": "SmoothPlastic",
+   "reflectance": 0.12,
+   "pattern": "Moltframe_Flow",
+   "bone": "Mag",
+   "blender_material": "MF4 Violet Chamber",
+   "triangles": 64,
+   "size": [
+    0.446,
+    0.256,
+    0.446
+   ],
+   "center": [
+    0.84,
+    0.0,
+    -0.034
+   ]
+  },
+  "SK_Root_01": {
+   "color": "171A22",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Core Graphite",
+   "triangles": 530,
+   "size": [
+    2.384,
+    0.2105,
+    0.8954
+   ],
+   "center": [
+    0.946,
+    0.0033,
+    0.1363
+   ]
+  },
+  "SK_Root_Sight_02": {
+   "color": "171A22",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Core Graphite",
+   "triangles": 128,
+   "size": [
+    1.756,
+    0.08,
+    0.082
+   ],
+   "center": [
+    1.0461,
+    0.0,
+    0.669
+   ]
+  },
+  "SK_Root_03": {
+   "color": "100A16",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Gasket",
+   "triangles": 316,
+   "size": [
+    2.974,
+    0.2436,
+    0.765
+   ],
+   "center": [
+    0.441,
+    0.0004,
+    0.2452
+   ]
+  },
+  "SK_Root_04": {
+   "color": "5A6170",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Graphite Armour",
+   "triangles": 2017,
+   "size": [
+    3.216,
+    0.254,
+    0.9102
+   ],
+   "center": [
+    0.53,
+    0.0,
+    0.1739
+   ]
+  },
+  "SK_Root_05": {
+   "color": "23252F",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Grip",
+   "triangles": 48,
+   "size": [
+    0.2789,
+    0.128,
+    0.3648
+   ],
+   "center": [
+    -0.0344,
+    0.0,
+    -0.0446
+   ]
+  },
+  "SK_Root_Sight_06": {
+   "color": "BA63F2",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Indicator",
+   "triangles": 26,
+   "size": [
+    1.6419,
+    0.062,
+    0.0256
+   ],
+   "center": [
+    1.0053,
+    0.0,
+    0.6872
+   ]
+  },
+  "SK_Root_07": {
+   "color": "C3CAD6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Polished Fold",
+   "triangles": 1606,
+   "size": [
+    3.216,
+    0.254,
+    0.9102
+   ],
+   "center": [
+    0.53,
+    0.0,
+    0.1739
+   ]
+  },
+  "SK_Root_08": {
+   "color": "4E5462",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Steel",
+   "triangles": 132,
+   "size": [
+    0.025,
+    0.0082,
+    0.0379
+   ],
+   "center": [
+    1.202,
+    0.1061,
+    0.2594
+   ]
+  },
+  "SK_Root_09": {
+   "color": "3A1458",
+   "material": "SmoothPlastic",
+   "reflectance": 0.12,
+   "pattern": "Moltframe_Flow",
+   "bone": "Root",
+   "blender_material": "MF4 Violet Chamber",
+   "triangles": 81,
+   "size": [
+    2.974,
+    0.188,
+    0.7493
+   ],
+   "center": [
+    0.441,
+    0.0,
+    0.2374
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "4E5462",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "MF4 Steel",
+   "triangles": 108,
+   "size": [
+    0.0409,
+    0.024,
+    0.1027
+   ],
+   "center": [
+    0.3096,
+    0.0,
+    0.2106
+   ]
+  }
+ }
+}

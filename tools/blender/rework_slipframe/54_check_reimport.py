@@ -8,11 +8,12 @@ import bpy
 
 
 master = Path(bpy.data.filepath)
-version = master.stem.split("_")[-1] + "fx"
+gun = master.stem.split("_")[0]
+version = master.stem.split("_")[-1] + ("fx" if gun == "Guardian" else "x")
 directory = master.parent.with_name(version)
 root = master.parents[6]
-fbx = directory / "Guardian_Slipframe_RobloxFlat.fbx"
-target = root / f"vault/02 Art/Skins/Slipframe/out/Guardian_{version}_flat_check/reimport_topology.json"
+fbx = directory / f"{gun}_Slipframe_RobloxFlat.fbx"
+target = root / f"vault/02 Art/Skins/Slipframe/out/{gun}_{version}_flat_check/reimport_topology.json"
 bpy.ops.wm.read_homefile(use_empty=True, use_factory_startup=True)
 window = bpy.context.window_manager.windows[0]
 with bpy.context.temp_override(window=window):
@@ -54,4 +55,4 @@ bpy.ops.wm.open_mainfile(filepath=str(master))
 result = {"evidence": str(target), "objects": len(report),
           "inverted_closed": [n for n, values in report.items() if values["inverted_closed"]],
           "inconsistent_edges": [n for n, values in report.items() if values["inconsistent_edges"]],
-          "slipframe_parts": {n: report[n] for n in ("SK_Root_SFInspectPanel", "SK_Root_SFSeam")}}
+          "slipframe_parts": {n: report[n] for n in report if "SFInspectPanel" in n or "SFSeam" in n}}

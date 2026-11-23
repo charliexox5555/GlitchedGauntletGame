@@ -1,0 +1,158 @@
+[
+  {
+    "name": "RF_fire_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fire_01.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fire_02",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fire_02.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fire_03",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fire_03.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fire_04",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fire_04.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fire_05",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fire_05.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fire_06",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fire_06.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fireFirst_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fireFirst_01.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fireLast_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fireLast_01.wav",
+    "length": 1.65,
+    "channels": 2
+  },
+  {
+    "name": "RF_tail_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_tail_01.wav",
+    "length": 1.55,
+    "channels": 2
+  },
+  {
+    "name": "RF_fireFar_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fireFar_01.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fireFar_02",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fireFar_02.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_fireFar_03",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_fireFar_03.wav",
+    "length": 0.165,
+    "channels": 2
+  },
+  {
+    "name": "RF_draw_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_draw_01.wav",
+    "length": 0.75,
+    "channels": 1
+  },
+  {
+    "name": "RF_drawLock_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_drawLock_01.wav",
+    "length": 0.58,
+    "channels": 1
+  },
+  {
+    "name": "RF_magOut_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_magOut_01.wav",
+    "length": 0.52,
+    "channels": 1
+  },
+  {
+    "name": "RF_magOut_02",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_magOut_02.wav",
+    "length": 0.52,
+    "channels": 1
+  },
+  {
+    "name": "RF_magForm_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_magForm_01.wav",
+    "length": 0.55,
+    "channels": 1
+  },
+  {
+    "name": "RF_magIn_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_magIn_01.wav",
+    "length": 0.48,
+    "channels": 1
+  },
+  {
+    "name": "RF_magIn_02",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_magIn_02.wav",
+    "length": 0.48,
+    "channels": 1
+  },
+  {
+    "name": "RF_rack_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_rack_01.wav",
+    "length": 0.58,
+    "channels": 1
+  },
+  {
+    "name": "RF_inspectStart_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_inspectStart_01.wav",
+    "length": 0.9,
+    "channels": 1
+  },
+  {
+    "name": "RF_inspectRoll_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_inspectRoll_01.wav",
+    "length": 0.95,
+    "channels": 1
+  },
+  {
+    "name": "RF_inspectLock_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_inspectLock_01.wav",
+    "length": 0.58,
+    "channels": 1
+  },
+  {
+    "name": "RF_impact_01",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_impact_01.wav",
+    "length": 0.28,
+    "channels": 1
+  },
+  {
+    "name": "RF_impact_02",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_impact_02.wav",
+    "length": 0.28,
+    "channels": 1
+  },
+  {
+    "name": "RF_impact_03",
+    "path": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\audio\\riftforge\\v2\\RF_impact_03.wav",
+    "length": 0.28,
+    "channels": 1
+  }
+]

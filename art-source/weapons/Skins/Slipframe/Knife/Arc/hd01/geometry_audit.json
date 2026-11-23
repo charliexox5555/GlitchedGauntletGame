@@ -1,0 +1,128 @@
+{
+  "parts": {
+    "Arc_Blade_SweptTitanium": {
+      "triangles": 4936,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_Hilt_ContinuousFrame": {
+      "triangles": 7188,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_CobaltInlay_R": {
+      "triangles": 928,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_CobaltInlay_L": {
+      "triangles": 926,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_IceLane_R": {
+      "triangles": 156,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_IceLane_L": {
+      "triangles": 156,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GraphiteGrip_R": {
+      "triangles": 1036,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GraphiteGrip_L": {
+      "triangles": 1036,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GripKey_R": {
+      "triangles": 176,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    },
+    "Arc_GripKey_L": {
+      "triangles": 176,
+      "islands": 1,
+      "nonmanifold_edges": 0,
+      "zero_faces": 0,
+      "positive_volume": true,
+      "bone": "Root"
+    }
+  },
+  "total_triangles": 16714,
+  "frame_blade_seat_contact": true,
+  "guard_aperture_clear": true,
+  "insert_intersections": {
+    "Arc_CobaltInlay_R": false,
+    "Arc_CobaltInlay_L": false,
+    "Arc_IceLane_R": false,
+    "Arc_IceLane_L": false,
+    "Arc_GraphiteGrip_R": false,
+    "Arc_GraphiteGrip_L": false,
+    "Arc_GripKey_R": false,
+    "Arc_GripKey_L": false
+  },
+  "anchors": {
+    "Knife_RightGrip": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Knife_BladeBase": [
+      0.364,
+      0.0,
+      -0.0065
+    ],
+    "Knife_BladeTip": [
+      1.2714,
+      0.0,
+      0.0156
+    ],
+    "Arc_FX_VisualTip": [
+      1.271,
+      0.0,
+      0.133
+    ]
+  },
+  "actions": [
+    "Knife_Draw",
+    "Knife_Fire",
+    "Knife_HeavyStab",
+    "Knife_Inspect",
+    "Knife_Slash1",
+    "Knife_Slash2",
+    "Knife_Slash3"
+  ]
+}

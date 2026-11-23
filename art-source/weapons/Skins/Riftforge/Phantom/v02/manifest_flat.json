@@ -1,0 +1,573 @@
+{
+  "gun": "Phantom",
+  "item": "Phantom",
+  "line": "Riftforge",
+  "version": "v02",
+  "replaced_stock_prefixes": [
+    "Neon",
+    "Receiver",
+    "Handguard",
+    "Rail",
+    "Suppressor",
+    "Grip",
+    "Stock",
+    "Pins",
+    "Mag",
+    "Sights",
+    "ChargingHandle",
+    "Bolt"
+  ],
+  "parts": {
+    "SK_Mag_01": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "RF_Bronze",
+      "triangles": 38,
+      "size": [
+        0.296,
+        0.126,
+        0.07
+      ],
+      "center": [
+        0.686,
+        0.0,
+        -0.267
+      ]
+    },
+    "SK_Mag_02": {
+      "color": "0F1219",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "RF_Dark",
+      "triangles": 42,
+      "size": [
+        0.272,
+        0.112,
+        0.517
+      ],
+      "center": [
+        0.686,
+        0.0,
+        -0.0435
+      ]
+    },
+    "SK_Mag_03": {
+      "color": "1B1F2B",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": "Riftforge_Forged",
+      "bone": "Mag",
+      "blender_material": "RF_ObsidianForged",
+      "triangles": 40,
+      "size": [
+        0.264,
+        0.11,
+        0.453
+      ],
+      "center": [
+        0.686,
+        0.0,
+        -0.0115
+      ]
+    },
+    "SK_Mag_04": {
+      "color": "B438FF",
+      "material": "Neon",
+      "reflectance": 0.0,
+      "pattern": "Riftforge_Plasma",
+      "bone": "Mag",
+      "blender_material": "RF_PlasmaCore",
+      "triangles": 44,
+      "size": [
+        0.054,
+        0.09,
+        0.232
+      ],
+      "center": [
+        0.687,
+        0.0,
+        -0.088
+      ]
+    },
+    "SK_Mag_05": {
+      "color": "3D485E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "RF_Slate",
+      "triangles": 36,
+      "size": [
+        0.078,
+        0.112,
+        0.154
+      ],
+      "center": [
+        0.687,
+        0.0,
+        -0.085
+      ]
+    },
+    "SK_Mag_06": {
+      "color": "8A9AB5",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "RF_Steel",
+      "triangles": 120,
+      "size": [
+        0.264,
+        0.112,
+        0.453
+      ],
+      "center": [
+        0.686,
+        0.0,
+        -0.0115
+      ]
+    },
+    "SK_Root_01": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Bronze",
+      "triangles": 1059,
+      "size": [
+        3.6296,
+        0.194,
+        0.791
+      ],
+      "center": [
+        0.7108,
+        0.0,
+        0.0835
+      ]
+    },
+    "SK_Root_CoreRingB": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Bronze",
+      "triangles": 72,
+      "size": [
+        0.1564,
+        0.1105,
+        0.1425
+      ],
+      "center": [
+        0.455,
+        0.0,
+        0.296
+      ]
+    },
+    "SK_Root_CowlLeft_Brz": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Bronze",
+      "triangles": 26,
+      "size": [
+        0.2038,
+        0.02,
+        0.028
+      ],
+      "center": [
+        0.455,
+        0.108,
+        0.358
+      ]
+    },
+    "SK_Root_CowlRight_Brz": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Bronze",
+      "triangles": 26,
+      "size": [
+        0.2038,
+        0.02,
+        0.028
+      ],
+      "center": [
+        0.455,
+        -0.108,
+        0.358
+      ]
+    },
+    "SK_Root_VentBottom_Brz": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Bronze",
+      "triangles": 44,
+      "size": [
+        0.3812,
+        0.028,
+        0.01
+      ],
+      "center": [
+        2.0501,
+        0.0,
+        0.263
+      ]
+    },
+    "SK_Root_VentTop_Brz": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Bronze",
+      "triangles": 44,
+      "size": [
+        0.3812,
+        0.028,
+        0.01
+      ],
+      "center": [
+        2.0501,
+        0.0,
+        0.441
+      ]
+    },
+    "SK_Root_Sight_SightBase": {
+      "color": "C99A50",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Bronze",
+      "triangles": 92,
+      "size": [
+        0.1386,
+        0.112,
+        0.03
+      ],
+      "center": [
+        0.1715,
+        0.0,
+        0.471
+      ]
+    },
+    "SK_Root_02": {
+      "color": "0F1219",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Dark",
+      "triangles": 916,
+      "size": [
+        3.5976,
+        0.19,
+        0.776
+      ],
+      "center": [
+        0.7268,
+        0.0,
+        0.076
+      ]
+    },
+    "SK_Root_03": {
+      "color": "1E212B",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": "Payload_Carbon",
+      "bone": "Root",
+      "blender_material": "RF_GripCarbon",
+      "triangles": 34,
+      "size": [
+        1.274,
+        0.124,
+        0.694
+      ],
+      "center": [
+        -0.467,
+        0.0,
+        0.069
+      ]
+    },
+    "SK_Root_04": {
+      "color": "1B1F2B",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": "Riftforge_Forged",
+      "bone": "Root",
+      "blender_material": "RF_ObsidianForged",
+      "triangles": 482,
+      "size": [
+        3.5623,
+        0.1796,
+        0.7443
+      ],
+      "center": [
+        0.6772,
+        -0.0002,
+        0.0942
+      ]
+    },
+    "SK_Root_Sight_SightFront": {
+      "color": "1B1F2B",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": "Riftforge_Forged",
+      "bone": "Root",
+      "blender_material": "RF_ObsidianForged",
+      "triangles": 112,
+      "size": [
+        0.07,
+        0.092,
+        0.152
+      ],
+      "center": [
+        1.581,
+        0.0,
+        0.516
+      ]
+    },
+    "SK_Root_Sight_SightRear": {
+      "color": "1B1F2B",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": "Riftforge_Forged",
+      "bone": "Root",
+      "blender_material": "RF_ObsidianForged",
+      "triangles": 116,
+      "size": [
+        0.102,
+        0.128,
+        0.154
+      ],
+      "center": [
+        0.163,
+        0.0,
+        0.553
+      ]
+    },
+    "SK_Root_05": {
+      "color": "B438FF",
+      "material": "Neon",
+      "reflectance": 0.0,
+      "pattern": "Riftforge_Plasma",
+      "bone": "Root",
+      "blender_material": "RF_PlasmaCore",
+      "triangles": 264,
+      "size": [
+        2.436,
+        0.132,
+        0.276
+      ],
+      "center": [
+        1.15,
+        0.0,
+        0.338
+      ]
+    },
+    "SK_Root_CoreCrystal": {
+      "color": "B438FF",
+      "material": "Neon",
+      "reflectance": 0.0,
+      "pattern": "Riftforge_Plasma",
+      "bone": "Root",
+      "blender_material": "RF_PlasmaCore",
+      "triangles": 36,
+      "size": [
+        0.176,
+        0.112,
+        0.1143
+      ],
+      "center": [
+        0.455,
+        0.0,
+        0.296
+      ]
+    },
+    "SK_Root_06": {
+      "color": "EDC4FF",
+      "material": "Neon",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_PlasmaHot",
+      "triangles": 12,
+      "size": [
+        0.5,
+        0.028,
+        0.144
+      ],
+      "center": [
+        2.075,
+        0.0,
+        0.352
+      ]
+    },
+    "SK_Root_Sight_SightPips": {
+      "color": "EDC4FF",
+      "material": "Neon",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_PlasmaHot",
+      "triangles": 88,
+      "size": [
+        0.014,
+        0.108,
+        0.008
+      ],
+      "center": [
+        0.127,
+        0.0,
+        0.578
+      ]
+    },
+    "SK_Root_07": {
+      "color": "3D485E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Slate",
+      "triangles": 345,
+      "size": [
+        3.5667,
+        0.196,
+        0.5205
+      ],
+      "center": [
+        0.73,
+        0.0,
+        0.2077
+      ]
+    },
+    "SK_Root_CowlLeft_Slt": {
+      "color": "3D485E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Slate",
+      "triangles": 92,
+      "size": [
+        0.469,
+        0.036,
+        0.212
+      ],
+      "center": [
+        0.455,
+        0.09,
+        0.298
+      ]
+    },
+    "SK_Root_CowlRight_Slt": {
+      "color": "3D485E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Slate",
+      "triangles": 92,
+      "size": [
+        0.469,
+        0.036,
+        0.212
+      ],
+      "center": [
+        0.455,
+        -0.09,
+        0.298
+      ]
+    },
+    "SK_Root_VentBottom_Slt": {
+      "color": "3D485E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Slate",
+      "triangles": 92,
+      "size": [
+        0.599,
+        0.064,
+        0.022
+      ],
+      "center": [
+        2.0677,
+        0.0,
+        0.273
+      ]
+    },
+    "SK_Root_VentTop_Slt": {
+      "color": "3D485E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Slate",
+      "triangles": 92,
+      "size": [
+        0.599,
+        0.064,
+        0.022
+      ],
+      "center": [
+        2.0677,
+        0.0,
+        0.431
+      ]
+    },
+    "SK_Root_08": {
+      "color": "8A9AB5",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Steel",
+      "triangles": 308,
+      "size": [
+        3.5994,
+        0.196,
+        0.746
+      ],
+      "center": [
+        0.7137,
+        0.0,
+        0.095
+      ]
+    },
+    "SK_Root_CoreRingA": {
+      "color": "8A9AB5",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "RF_Steel",
+      "triangles": 96,
+      "size": [
+        0.2022,
+        0.1212,
+        0.19
+      ],
+      "center": [
+        0.455,
+        0.0,
+        0.296
+      ]
+    }
+  }
+}

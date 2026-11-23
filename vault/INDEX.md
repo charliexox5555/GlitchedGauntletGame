@@ -3,7 +3,7 @@
 One line per project note: path (relative to `vault/`) and what it answers. Search this first (`Grep`), then read only the section you need (`Grep -n` the heading, `Read` with offset/limit). LihFolk has its own index: `LihFolk/INDEX_SLIM.md` (212), `LihFolk/SYMPTOMS.md` (67), `LihFolk/ROUTER.md`. Size in KB after the path: above ~15 KB never read the note whole.
 
 ## Start
-- `00 Home.md` (15): current status, last results, what waits on the user, Locked decisions table, map of notes
+- `00 Home.md` (16): current status, last results, what waits on the user, Locked decisions table, map of notes
 - [State Values and Asset Data](04%20Tech/State%20Values%20and%20Asset%20Data.md): results snapshot, runtime values and shared authored configuration
 - [Tempest-Strike Line Sound Sets](02%20Art/Skins/TempestStrike/Line%20Sound%20Sets.md): electric inspect cues on each inspect's key moments; Stinger, Marshal, Bucky, Sheriff and Katana sets (designed shots, handling, swings), wiring
 - [Tempest-Strike Vandal Sound Set v2](02%20Art/Skins/TempestStrike/Vandal%20Sound%20Set%20v2.md): every Vandal cue layered from ProPack + Pole Position AKM/HK416 + CC0 water and electric recordings; audition reel, recipes, levels vs stock
@@ -13,7 +13,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [First-Person Guns Pass playtest](05%20Production/Playtests/2026-11-21%20First-Person%20Guns%20Pass.md): scope lens fix, slide lean as one piece, ADS tilt, smoother gun clips, Marshal hammer
 - [State Values playtest](05%20Production/Playtests/2026-11-19%20State%20Values.md): oversized results, 2v2 rematch, Lobby queue and current asset audit
 - `05 Production/Status History.md` (130): dated status log before 2026-11-05 (what was built when); grep only
-- `04 Tech/Code Map.md` (65): every Service/Controller, its remotes and attributes; pick code files from here
+- `04 Tech/Code Map.md` (66): every Service/Controller, its remotes and attributes; pick code files from here
 - `04 Tech/Architecture.md` (18): repo layout, shot validation walkthrough, match system, test range, Rojo/Studio gotchas, code rules
 - `04 Tech/Place Merge Plan.md` (22): the Lobby + match merge (2026-11-21): owner decisions, server roles, global queue, pad duels as in-server matches, range, Studio move, results
 - `04 Tech/Developer Handoff.md` (21): both places, player journey, edit map, Studio audit, troubleshooting and release handoff
@@ -45,7 +45,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Match HUD.md` (22): match HUD layout, v1 revert, phone arrangement
 - `01 Design/Lobby.md` (14): Lobby place design (Sunwell Bunker, compact, wings, queue)
 - `01 Design/Case Opening.md` (8): **in-world case opening** (RIVALS study numbers, our sequence: toss, shakes, latches, lid burst, skin rise + card, fly-in; CaseShow for others; tests; open sound picks)
-- `01 Design/Skin Lines at Launch.md` (8): every skin line by tier with its guns and knife, lines built but not in game (Slipframe, Kilnlock, Stacklight), gaps, proposed launch counts per rarity; waiting on the owner's placement
+- `01 Design/Skin Lines at Launch.md` (9): every skin line by tier with its guns and knife, lines built but not in game (Slipframe, Kilnlock, Stacklight), gaps, proposed launch counts per rarity; waiting on the owner's placement
 - `01 Design/Skin Tiers and Cases.md` (12): **skin tiers** (Common reskin / Rare shape / Epic animated / Legendary / Exclusive bundles), lines per tier (provisional), case tier odds, owned skins per gun, case opening flow and tests
 - `01 Design/Inventory and Crates.md` (25): **Inventory + crates**: coins and item stacks in `PlayerDataV1` (atomic UpdateAsync per change), buying cases for coins, crate ChatGPT prompts, crate model (Blender, rigged, tiers, icons), Backpack screen (replaced the Battle Pass on the bar), backpack icon prompt, Robux next
 - `01 Design/Lobby UI and Queue.md` (59): Lobby HUD, Play menu, queue rules, Figma frames; grep sections
@@ -71,7 +71,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Maps/Overnight Run 2026-11-16.md` (7): all 13 release maps built overnight: method, origins, incident and repair, status table (layout, greybox, kit, grade), checks, builder additions
 - `01 Design/Maps/Map Lineup Brainstorm 2026-11-16.md` (10): why RIVALS maps work (10 points with numbers), our extra needs (slide, Mods), a 12-map proposed lineup with duel/big pairs and a launch set of 6, owner questions
 - `01 Design/Maps/<Name>.md` and `<Name>2.md`: layout, callouts, props and build log per map. Original: Whitebox (15), Big Whitebox (2), Rooftops (19), Dockyard (21), Metro (24), Old Town (26), Bunker (24), Greenhouse (19), Snowpeak Lodge (20). Rebuilds to the standard: Rooftops2 (94), Dockyard2 (75), Metro2 (33), OldTown2 (10), Bunker2 (14), Greenhouse2 (25), Snowpeak2 (15)
-- `01 Design/Shop Economy and Art v1.md` (33): **Shop economy + art plan** (2026-11-22): Coins + earn-only Tickets (cases), skin prices by tier, daily shop rotation, login calendar, coin pack ladder, bundle prices, detail menu, banner art plan, Roblox paid-random-item rules, build order
+- `01 Design/Shop Economy and Art v1.md` (52): **Shop economy + art plan** (2026-11-22): Coins + earn-only Tickets (cases), skin prices by tier, daily shop rotation, login calendar, coin pack ladder, bundle prices, detail menu, banner art plan, Roblox paid-random-item rules, build order
 
 ## Art (02 Art)
 
@@ -96,7 +96,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/UI Battle Pass.md` (4): **Season Pass** screen: free + premium tracks, 30 tiers in pages of 7, the picked reward big (3D skins), CLAIM / CONTENTS / +5 LEVELS / UNLOCK PREMIUM; UI only (2026-11-16)
 - `02 Art/UI Settings.md` (24): **Settings v2**: five tabs, every setting and default, owner answers, saving in `PlayerDataV1`, colour picker, what to test (2026-11-21)
 - `02 Art/UI Shop.md` (40): **Shop** plan: HOME (paid cases with odds + region lock, season pass, offers, cosmetics), BUNDLES (some with exclusive Mods), DAILY (8 items + login rewards), COINS; one currency (Coins); motion; ChatGPT art prompts (2026-11-16); layout v2; **Release layout (2026-11-22)**: full layout recorded, launch layout behind `Release.SHOP_FULL_LAYOUT`
-- `02 Art/UI Locker.md` (23): **Locker** plan: weapons synced into the Lobby (`tools/studio/SyncWeapons.luau`), 3D gun on a hidden stage, per-gun skins, Abilities = your Mod collection (buyable Mods, changed Money decision) (2026-11-15)
+- `02 Art/UI Locker.md` (24): **Locker** plan: weapons synced into the Lobby (`tools/studio/SyncWeapons.luau`), 3D gun on a hidden stage, per-gun skins, Abilities = your Mod collection (buyable Mods, changed Money decision) (2026-11-15)
 - `02 Art/UI Notifications.md` (4): **match notifications** (long band under the top bar, match point, no 3-2-1) and the de-AI pass on the HUD (2026-11-14)
 - `02 Art/UI Combat HUD Mockup.md` (7): **health, ammo and Mod slots mockup** (2026-11-14) in the top bar style; states board, design, open questions
 - `02 Art/UI Mobile Controls.md` (23): **mobile touch controls concept** (2026-11-22): control list and sizes, default phone layout, icon look, layout editor saved as fractions, owner questions
@@ -116,7 +116,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Mod Props.md` (8), `02 Art/Mod Audio.md` (18): Mod models; Mod sound shortlist (unauditioned)
 - `02 Art/Sound Library Pick.md` (82): the bought pro gun sound pack (418 files) measured; picks per gun (shots, auto sets, reload parts), knife / hit / Mod candidates, processing and code plan, audition reel `art-source/audio/ProPack/PickReel.wav`
 - [Combat Feedback Audio](02%20Art/Combat%20Feedback%20Audio.md) has original headshot and standard elimination audition takes, comparisons and source credits.
-- `05 Production/Handoff - Onboarding and Bots.md` (14): brief for new-player onboarding (auto Beginner 2v2, red enemies until hit, favorite prompts, PLAY bubble, HUD unlocks, level-10 graduation) and the bots redesign (no-bots illusion, dynamic difficulty, leaver rule, performance); owner decisions, files, phases
+- `05 Production/Handoff - Onboarding and Bots.md` (26): brief for new-player onboarding (auto Beginner 2v2, red enemies until hit, favorite prompts, PLAY bubble, HUD unlocks, level-10 graduation) and the bots redesign (no-bots illusion, dynamic difficulty, leaver rule, performance); owner decisions, files, phases
 - `05 Production/Handoff - Stability, Loading and Preload.md` (20): brief for the stability pass: the owner's load / teleport / map-vote / skin reports, phases (fix game-breakers, branded loading screen + sound, preload manifest, optimization), files to start from, done-when
 - `05 Production/Handoff - Gun and Knife Feel from Videos.md` (6): brief for the session that studies the owner's gun / knife clips (video-analyzer): what to measure, where it lives in code, lanes, rules, done-when
 - `05 Production/Handoff - Feel Polish (Fable).md` (20): the next session's brief after the feel-videos passes: owner's taste and verdicts, the clips and their numbers, what exists (knife solver + pipeline, rigid fist + wrist, PCHIP tracks, toss, gun snap, Sheriff cylinder roll), how to test, the queue (knife polish, guns, Sheriff, Bat, headshot / crosshair / head flare)
@@ -140,6 +140,10 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [Ruin-Blighted audio playtest](05%20Production/Playtests/2026-11-20%20Ruin-Blighted%20Audio.md): approved gun mix, Reaver cue layers, Roblox source assets and Match client checks
 - [Rare line rework handoff](02%20Art/Skins/Rare%20Line%20Rework%20Handoff.md): rebuild Slipframe, Kilnlock, Stacklight (guns only) to the build rules from stock, per-gun gates and rubric, then install as Rare; paste-in prompt for a new chat
 - [Slipframe rework ledger](02%20Art/Skins/Slipframe/Rework%20Ledger.md) (30): five Epic guns, Blender reviews, per-gun effects and the Lobby and Match installation
+- `02 Art/Skins/Playback/Build Ledger.md` (6): Playback Epic upgrade (Knife v02 cassette tanto, live reactive reels & VU meter, deck VFX, retro muzzle/swipe/casings, ProPack audio)
+- `02 Art/Skins/Sundial/Build Ledger.md` (3): Sundial Epic upgrade (Knife v02 solar astrolabe dagger, live escapement dial, solar VFX, gold muzzle/swipe/casings, ProPack audio)
+- `02 Art/Skins/Riftforge/concept.md` (9): First Legendary bundle concept (Prelude-to-Chaos-inspired dark sci-fi reactor line, Hero Phantom concept sheet & build plan)
+- `02 Art/Skins/Riftforge/Build Ledger.md` (4): Riftforge Hero Phantom v01 Blender build, Studio install, Legendary reactor VFX/motion & ProPack audio
 - [Slipframe Arc Blender master and export](02%20Art/Skins/Slipframe/concept.md#faceted-export-and-motion-block) with guard renders, FBX reimport checks, and the first draw and inspect clips for the Legendary-target knife.
 - [Merged weapon skin audit](04%20Tech/Place%20Merge%20Plan.md#weapon-skin-migration-audit-2026-11-21) (22) records the 226 model routes, restored Ruin-Blighted metadata and Slipframe Arc installation.
 - [Tempest-Strike concept](02%20Art/Skins/TempestStrike/concept.md), [research archive](02%20Art/Skins/TempestStrike/Research.md) and [Vandal build handoff](02%20Art/Skins/TempestStrike/Build%20Handoff.md) (17): revised Kuronami-inspired elite hero, fluted shroud, laminar water, custom actions, chromas, round and shuriken charm; [Vandal Hero Plan](02%20Art/Skins/TempestStrike/Vandal%20Hero%20Plan.md) (29): 2026-11-21 restart plan, concept check, stock contract, r01 log; [Overnight Plan](02%20Art/Skins/TempestStrike/Overnight%20Plan.md): Studio VFX, animation and sound passes; [Tempest Audio](02%20Art/Skins/TempestStrike/Tempest%20Audio.md): foley cues, CC0 source ledger; [Line Blender Handoff](02%20Art/Skins/TempestStrike/Line%20Blender%20Handoff.md): Blender-only build of Stinger, Marshal, Bucky, Sheriff and the Kunai-Katana; [Kunai-Katana Concept](02%20Art/Skins/TempestStrike/Kunai-Katana%20Concept.md): owner melee concept; [Line Build Ledger](02%20Art/Skins/TempestStrike/Line%20Build%20Ledger.md) (39): per-item versions, grades, tri counts, review sheets and exports for the line; [Vandal Sound Guide](02%20Art/Skins/TempestStrike/Vandal%20Sound%20Guide.md): per-sound layering plan for the owner
@@ -165,7 +169,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Handoff - Ability Rework (Opus).md` (11): start here to continue the ability rework in a pure Opus chat: paste-ready opener, usage rules, what is done and Play-checked, what is left in order, Studio / Blender / git state, gotchas
 - `05 Production/Ability Rework 2026-11-15.md` (14): plan and status for the nine-Mod rework: model routing, live Blender MCP rules + shared core `tools/blender/rework/rw_core.py`, prop interfaces to keep, phases
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
-- `05 Production/Store Description.md` (3): Roblox store description draft for Draft Duels (built features only), what was left out and why, pre-launch additions
+- `05 Production/Store Description.md` (4): Roblox store description draft for Draft Duels (built features only), what was left out and why, pre-launch additions
 - `05 Production/Release Plan 2026-11-22.md`: release roadmap review, cut/add list, ordered steps, gates, open owner decisions
 - [2026-11-22 Antigravity Audit](05%20Production/Audits/2026-11-22%20Antigravity%20Audit.md) (40): setup status, full 97-skill map, ranked game-quality findings (Studio RIVALS/legacy bloat, monetization compliance, DataStore/race bugs, design drift), ranked usage-waste findings, next 5 actions and open owner questions
 - [Release Roadmap](05%20Production/Release%20Roadmap.md) (26): full pre-release checklist, build dependencies, test matrix and ranked deadline cuts
@@ -179,15 +183,15 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Codex Gun Remaster Brief 2026-11-07.md` (19): Codex job: remaster every gun and the knife in Blender (style, rig contract, sights, rounds, anims, renders); Akimbo dropped
 - `05 Production/Cleanup 2026-11-08.md` (6): the repo / code / place cleanup: what was tidied, what was left on purpose, how things are organized
 - `05 Production/Archive/`: finished one-off plans and briefs: `Handoff 2026-11-06 Release 1.md` (7), `Overnight 2026-11-04.md` (7), `Day Plan 2026-11-05.md` (9), `Codex Concept Brief 2026-11-05.md` (2)
-- `05 Production/Bugs & Ideas.md` (19): bug and idea capture, parked ideas
+- `05 Production/Bugs & Ideas.md` (20): bug and idea capture, parked ideas
 - `05 Production/LihFolk Gap Review 2026-11-05.md` (20): LihFolk advice the game isn't using yet, ranked
 - `05 Production/Daily Log/YYYY-MM-DD.md`: one note per work day (only 2026-10-26 so far)
 - `05 Production/Playtests/2026-11-14 Full-Length Gun Audio.md`: match-range roster checks, full Vandal tail and 70-shot positional overlap, hit and metallic headshot playback.
 - `05 Production/Playtests/2026-11-15 Gunplay Feel RIVALS.md`: RIVALS-style hit marker (kite blades, shrink spring), faceted headshot crown burst, crosshair slide tilt / air / Dash / bloom / ADS collapse, springy slide roll, RIVALS tracer timing; RIVALS numbers, grades, test list, parked calls.
 - `04 Tech/Prompts/2026-11-20 Docks Map Build.md` (6): owner calls + prompt for the new RIVALS-Docks-style regular map, the Pier/Dockyard see-through container fix, and pulling the 9 rejected overnight maps from rotation
 - `04 Tech/Prompts/2026-11-17 New Abilities (Free Pack).md`: **locked spec** for three new free Mods (Roller bot, Flash, Shock Dart): every level's numbers, the owner's 8 decisions, build order and per-Mod steps. Not built yet.
-- `04 Tech/Prompts/2026-11-22 Queue Tile Art Master Prompt (ChatGPT).md` (6): **one master prompt for ChatGPT** for the six Play menu tiles (Beginner 2v2 tall, 1v1-3v3 square, 4v4/5v5 wide): first person, our guns, solid-red enemies, our Arena; into `art-source/ui/queue/new/`
-- `04 Tech/Prompts/2026-11-22 Shop Art Master Prompt (ChatGPT).md` (5): **one master prompt for ChatGPT** to make all the launch Shop art (6 coin packs, pack backdrop, 3 bundle banners, Ticket icon) into `art-source/ui/shop/new/`
+- `04 Tech/Prompts/2026-11-22 Queue Tile Art Master Prompt (ChatGPT).md` (9): **one master prompt for ChatGPT** for the six Play menu tiles (Beginner 2v2 tall, 1v1-3v3 square, 4v4/5v5 wide): first person, our guns, solid-red enemies, our Arena; into `art-source/ui/queue/new/`
+- `04 Tech/Prompts/2026-11-22 Shop Art Master Prompt (ChatGPT).md` (6): **one master prompt for ChatGPT** to make all the launch Shop art (6 coin packs, pack backdrop, 3 bundle banners, Ticket icon) into `art-source/ui/shop/new/`
 - `05 Production/Handoff - New Abilities.md`: paste-to-start handoff for building those three Mods: phases (Shock Dart, Flash, Roller, finish), rules, gotchas from the rework.
 - `05 Production/Playtests/2026-11-17 Free Pack Build.md`: Shock Dart, Flash and Roller built and checked in Play at their levels; the fixes found in the test, grades, what still needs the 2-client test.
 - `05 Production/Spectate Replay Fix Plan.md` (40): the spectate + final-kill replay fix plan from a 74-agent study: causes per complaint (jittery aim, no skins, wrong animations, no hitmarkers, lag), workstreams A-H, decisions taken.
@@ -209,7 +213,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `03 Research/Notes/` : raw research: `ability_draft_design.md` (39), `gun_system_tech.md` (50), `matchmaking_queues.md` (50), `monetization_retention.md` (32), `top_roblox_shooters.md` (30)
 
 ## Assets (06 Assets)
-- `06 Assets/Asset Tracker.md` (84): every gun/map/VFX/sound and its status; grep the row, don't read whole
+- `06 Assets/Asset Tracker.md` (85): every gun/map/VFX/sound and its status; grep the row, don't read whole
 
 ## Templates and folder guides
 - `Templates/Daily Log.md`, `Playtest.md`, `Gun Spec.md`, `Mod Spec.md`: note templates

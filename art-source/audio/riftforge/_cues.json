@@ -1,0 +1,12 @@
+{
+  "length": {
+    "phantom_shot": 0.12,
+    "draw": 0.14,
+    "mag_out": 0.14502,
+    "mag_seat": 0.131,
+    "inspect": 0.195
+  },
+  "shotVolume": {
+    "Phantom": 0.28
+  }
+}

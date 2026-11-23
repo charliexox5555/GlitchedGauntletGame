@@ -68,7 +68,7 @@ for _, service in loaded do
 		task.spawn(service.start)
 	end
 end
-MatchHost.started(runnerId, Context)
+MatchHost.started(runnerId, Context, loaded.ModService and loaded.ModService.removePlayer)
 print(
 	`[MatchRunner] match {runnerId} running ({if spec.context.ownsServer
 		then "whole server"

@@ -1,0 +1,11 @@
+0.20  Ares  stock, then Playback
+2.32  Bulldog  stock, then Playback
+4.44  Classic  stock, then Playback
+6.56  Ghost  stock, then Playback
+8.68  Phantom  stock, then Playback
+10.80  Stinger  stock, then Playback
+12.92  draw
+13.54  mag out
+14.16  mag seat
+14.78  inspect
+15.44  knife slash

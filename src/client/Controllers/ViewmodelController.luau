@@ -42,7 +42,14 @@ local SettingsApplyConfig = require(ReplicatedStorage.Shared.Config.SettingsAppl
 local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local SkinPreview = require(ReplicatedStorage.Shared.SkinPreview)
 local MeleeSkins = require(ReplicatedStorage.Shared.Config.MeleeSkins)
+local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
+local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
+local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
+local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
+local RiftforgeAudio = require(ReplicatedStorage.Shared.Config.RiftforgeAudio)
 
+local ChamberFlow = require(script.Parent.Parent.Util.ChamberFlow)
+local RiftforgeEffects = require(script.Parent.Parent.Util.RiftforgeEffects)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local MagDrop = require(script.Parent.Parent.Util.MagDrop)
 local FanMotion = require(script.Parent.Parent.Util.FanMotion)
@@ -50,6 +57,7 @@ local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local ShadowMistIdle = require(script.Parent.Parent.Util.ShadowMistIdle)
 local TempestIdle = require(script.Parent.Parent.Util.TempestIdle)
 local TempestKatana = require(script.Parent.Parent.Util.TempestKatana)
+local SlipframeArc = require(script.Parent.Parent.Util.SlipframeArc)
 local SlipframeEffects = require(script.Parent.Parent.Util.SlipframeEffects)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
@@ -63,6 +71,7 @@ local ViewmodelMotion = require(script.Parent.Parent.Util.ViewmodelMotion)
 local SlideTilt = require(script.Parent.Parent.Util.SlideTilt)
 local ViewmodelRig = require(script.Parent.Parent.Util.ViewmodelRig)
 local ViewmodelTracks = require(script.Parent.Parent.Util.ViewmodelTracks)
+local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
 local MovementController = require(script.Parent.MovementController)
 
@@ -144,6 +153,11 @@ type Gun = {
 	shadowMist: ShadowMistIdle.State?,
 	tempest: TempestIdle.State?,
 	slipframe: SlipframeEffects.State?,
+	moltframe: boolean?,
+	playback: boolean?,
+	sundial: boolean?,
+	riftforge: RiftforgeEffects.State?,
+	arc: SlipframeArc.State?,
 	katana: TempestKatana.State?, -- the Tempest-Strike Katana (knife slot)
 	shadowActions: ShadowMistActions.State?,
 	cosmeticInspect: CosmeticInspect.State?,
@@ -1051,12 +1065,31 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	gun.reaver = RuinedReaver.new(m, scale)
 	gun.shadowMist = if gun.reaver then nil else ShadowMistIdle.new(m, scale)
 	gun.tempest = TempestIdle.new(m, scale)
-	if templateId == "Guardian" and StateValues.get(m, "SkinLine") == "Slipframe" then
-		gun.slipframe = SlipframeEffects.new(m, scale)
+	local skinLine = StateValues.get(m, "SkinLine")
+	if skinLine == "Slipframe" then
+		if templateId == "Knife" then
+			if not subject then
+				gun.arc = SlipframeArc.new(m, scale)
+			end
+		else
+			gun.slipframe = SlipframeEffects.new(m, scale, templateId)
+		end
+	elseif skinLine == "Moltframe" then
+		gun.moltframe = true
+	elseif skinLine == "Playback" then
+		gun.playback = true
+	elseif skinLine == "Sundial" then
+		gun.sundial = true
+	elseif skinLine == "Riftforge" and not subject then
+		gun.riftforge = RiftforgeEffects.new(m, scale)
 	end
 	gun.katana = TempestKatana.new(m, scale)
 	gun.shadowActions = ShadowMistActions.new(m, scale, weapon.id)
-	gun.cosmeticInspect = CosmeticInspect.new(m)
+	gun.cosmeticInspect = CosmeticInspect.new(
+		m,
+		if typeof(skinLine) == "string" then skinLine else nil,
+		subject == nil
+	)
 	local rg, lg = gun.rightGrip, gun.leftGrip
 	gun.pistol = rg ~= nil
 		and lg ~= nil
@@ -1247,10 +1280,19 @@ function ViewmodelController.unequip()
 	KnifeSwipeFx.cancel() -- a cut-short slash's streak goes with it
 	ViewmodelHeldMods.dropGestureProp(heldMods)
 	for _, gun in guns do
+		if gun.arc then
+			SlipframeArc.cancelInspect(gun.arc)
+		end
 		if gun.shadowActions then
 			ShadowMistActions.endInspect(gun.shadowActions)
 		elseif gun.reaver then
 			RuinedReaver.play(gun.reaver, "Idle")
+		end
+		if gun.cosmeticInspect then
+			CosmeticInspect.destroy(gun.cosmeticInspect)
+		end
+		if gun.riftforge then
+			RiftforgeEffects.destroy(gun.riftforge)
 		end
 		gun.model:Destroy()
 	end
@@ -1269,9 +1311,44 @@ function ViewmodelController.hasTempest(): boolean
 	return right ~= nil and (right.tempest ~= nil or right.katana ~= nil)
 end
 
+function ViewmodelController.hasRiftforge(): boolean
+	local right = guns.Right
+	return right ~= nil and right.riftforge ~= nil
+end
+
+function ViewmodelController.hasSlipframe(): boolean
+	local right = guns.Right
+	return subject == nil and right ~= nil and right.slipframe ~= nil
+end
+
+function ViewmodelController.hasMoltframe(): boolean
+	local right = guns.Right
+	return subject == nil and right ~= nil and right.moltframe == true
+end
+
+function ViewmodelController.hasPlayback(): boolean
+	local right = guns.Right
+	return subject == nil and right ~= nil and right.playback == true
+end
+
+function ViewmodelController.hasSundial(): boolean
+	local right = guns.Right
+	return subject == nil and right ~= nil and right.sundial == true
+end
+
+function ViewmodelController.hasRiftforge(): boolean
+	local right = guns.Right
+	return subject == nil and right ~= nil and right.riftforge ~= nil
+end
+
+function ViewmodelController.hasSlipframeArc(): boolean
+	local right = guns.Right
+	return subject == nil and right ~= nil and right.arc ~= nil
+end
+
 function ViewmodelController.hasShadowMist(): boolean
 	local right = guns.Right
-	return right ~= nil and right.shadowActions ~= nil
+	return subject == nil and right ~= nil and right.shadowActions ~= nil
 end
 
 -- The clip markers (gg_markers, set in Blender) that are foley beats, and
@@ -1435,6 +1512,82 @@ local function bump(kind: string)
 	end
 	if right and right.slipframe and kind == "MagIn" then
 		SlipframeEffects.pulse(right.slipframe, "Seat")
+	end
+	if right and right.slipframe and not subject and not hidden and config then
+		local cue = SlipframeAudio.handling[kind]
+		if cue then
+			AudioController.playSound(
+				cue,
+				"Foley",
+				nil,
+				nil,
+				SlipframeAudio.handlingPitch[config.id]
+			)
+		end
+	end
+	if right and right.moltframe then
+		if kind == "MagIn" or kind == "Close" then
+			ChamberFlow.pulse("Seat")
+		end
+		if not subject and not hidden and config then
+			local cue = MoltframeAudio.handling[kind]
+			if cue then
+				AudioController.playSound(
+					cue,
+					"Foley",
+					nil,
+					nil,
+					MoltframeAudio.handlingPitch[config.id]
+				)
+			end
+		end
+	elseif right and right.playback then
+		if right.cosmeticInspect and not subject then
+			if kind == "MagOut" then
+				CosmeticInspect.pulse(right.cosmeticInspect, "MagOut")
+			elseif kind == "MagIn" or kind == "Close" then
+				CosmeticInspect.pulse(right.cosmeticInspect, "Seat")
+			end
+		end
+		if not subject and not hidden and config then
+			local cue = PlaybackAudio.handling[kind]
+			if cue then
+				local pitch = if kind == "PlaybackHeavy"
+					then PlaybackAudio.heavyPitch
+					else PlaybackAudio.handlingPitch[config.id]
+				AudioController.playSound(cue, "Foley", nil, nil, pitch)
+			end
+		end
+	elseif right and right.sundial then
+		if right.cosmeticInspect and not subject then
+			if kind == "MagOut" then
+				CosmeticInspect.pulse(right.cosmeticInspect, "MagOut")
+			elseif kind == "MagIn" or kind == "Close" then
+				CosmeticInspect.pulse(right.cosmeticInspect, "Seat")
+			end
+		end
+		if not subject and not hidden and config then
+			local cue = SundialAudio.handling[kind]
+			if cue then
+				local pitch = if kind == "SundialHeavy"
+					then SundialAudio.heavyPitch
+					else SundialAudio.handlingPitch[config.id]
+				AudioController.playSound(cue, "Foley", nil, nil, pitch)
+			end
+		end
+	elseif right and right.riftforge then
+		if not subject and not hidden and config then
+			local cue = RiftforgeAudio.handling[kind]
+			if cue then
+				AudioController.playSound(
+					cue,
+					"Foley",
+					nil,
+					nil,
+					RiftforgeAudio.handlingPitch[config.id]
+				)
+			end
+		end
 	end
 	local b = VM.HANDLE_BUMPS[kind]
 	if not b then
@@ -1627,8 +1780,9 @@ function ViewmodelController.equip(
 	-- The knife's pull-out is its own screen-keyed track (VM.MELEE_DRAW_TRACK;
 	-- owner 2026-11-08: the Blender Draw clip's slow twirl read as an
 	-- unnatural 360). The free arm starts out of view and comes up last.
-	local drawTrack = if right.katana and VM.TRACKS.KatanaDraw
-		then "KatanaDraw"
+	local drawTrack = if right.arc
+		then "ArcDraw"
+		elseif right.katana and VM.TRACKS.KatanaDraw then "KatanaDraw"
 		else VM.MELEE_DRAW_TRACK
 	if right.fan then
 		FanMotion.play(right.fan, "Draw", time)
@@ -1642,9 +1796,13 @@ function ViewmodelController.equip(
 		playTurns("Draw", time)
 		-- Each class comes in its own way (VM.DRAW_TRACK).
 		local tempestDraw = if right.tempest then TempestIdle.track(right.tempest, "draw") else nil
+		local riftforgeDraw = if right.riftforge
+			then RiftforgeEffects.track(right.riftforge, "draw")
+			else nil
 		local draw = if right.shadowActions
 			then "DrawRuin" .. weapon.id
 			elseif tempestDraw then tempestDraw
+			elseif riftforgeDraw then riftforgeDraw
 			else VM.DRAW_TRACK[weapon.class] or "Draw"
 		ViewmodelTracks.play(playing, "Equip", draw, time)
 		local beats = turnBeats(clipBeats(right, "Draw"))
@@ -1656,11 +1814,50 @@ function ViewmodelController.equip(
 			"Draw",
 			time * (if right.shadowActions then ShadowMistStyle.DRAW_LOCK else VM.DRAW_BUMP_AT)
 		)
+		if right.slipframe and not subject then
+			queueBump("SlipframeDraw", time * SlipframeAudio.drawAt)
+		elseif right.moltframe and not subject then
+			ChamberFlow.pulse("Draw")
+			queueBump("MoltframeDraw", time * MoltframeAudio.drawAt)
+		elseif right.playback and not subject then
+			if right.cosmeticInspect then
+				CosmeticInspect.pulse(right.cosmeticInspect, "Draw")
+			end
+			queueBump("PlaybackDraw", time * PlaybackAudio.drawAt)
+		elseif right.sundial and not subject then
+			if right.cosmeticInspect then
+				CosmeticInspect.pulse(right.cosmeticInspect, "Draw")
+			end
+			queueBump("SundialDraw", time * SundialAudio.drawAt)
+		elseif right.riftforge and not subject then
+			RiftforgeEffects.pulse(right.riftforge, "Draw")
+			queueBump("RiftforgeDraw", time * RiftforgeAudio.drawAt)
+			queueBump("RiftforgeDrawLock", time * RiftforgeAudio.drawLockAt)
+		end
 		return beats
 	end
 	local raise = math.max(time * 1.4, VM.TRACKS.Equip.length)
 	ViewmodelTracks.play(playing, "Equip", "Equip", raise)
 	queueBump("Draw", raise * VM.DRAW_BUMP_AT)
+	if right.slipframe and not subject then
+		queueBump("SlipframeDraw", raise * SlipframeAudio.drawAt)
+	elseif right.moltframe and not subject then
+		ChamberFlow.pulse("Draw")
+		queueBump("MoltframeDraw", raise * MoltframeAudio.drawAt)
+	elseif right.playback and not subject then
+		if right.cosmeticInspect then
+			CosmeticInspect.pulse(right.cosmeticInspect, "Draw")
+		end
+		queueBump("PlaybackDraw", raise * PlaybackAudio.drawAt)
+	elseif right.sundial and not subject then
+		if right.cosmeticInspect then
+			CosmeticInspect.pulse(right.cosmeticInspect, "Draw")
+		end
+		queueBump("SundialDraw", raise * SundialAudio.drawAt)
+	elseif right.riftforge and not subject then
+		RiftforgeEffects.pulse(right.riftforge, "Draw")
+		queueBump("RiftforgeDraw", raise * RiftforgeAudio.drawAt)
+	end
 	return {}
 end
 
@@ -1722,6 +1919,12 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 	end
 	if gun.slipframe then
 		SlipframeEffects.pulse(gun.slipframe, "Fire")
+	elseif gun.moltframe and not subject then
+		ChamberFlow.pulse("Fire")
+	elseif gun.riftforge and not subject then
+		RiftforgeEffects.pulse(gun.riftforge, "Fire")
+	elseif gun.cosmeticInspect and not subject then
+		CosmeticInspect.pulse(gun.cosmeticInspect, "Fire")
 	end
 	gun.lockPending = empty == true
 		and config ~= nil
@@ -1865,10 +2068,17 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 	-- for their clip.
 	local own = if config then VM.TRACKS["Reload" .. config.id] else nil
 	local tempestReload = if right.tempest then TempestIdle.track(right.tempest, "reload") else nil
+	local riftforgeReload = if right.riftforge
+		then RiftforgeEffects.track(
+			right.riftforge,
+			if clip == "ReloadEmpty" then "reloadEmpty" else "reload"
+		)
+		else nil
 	local trackName = if right.shadowActions and right.shadowActions.hero
 		then "ReloadShadowMist"
 		elseif right.shadowActions and config then "ReloadRuin" .. config.id
 		elseif tempestReload then tempestReload
+		elseif riftforgeReload then riftforgeReload
 		elseif own and config then "Reload" .. config.id
 		elseif clip == "ReloadEmpty" then "ReloadEmpty"
 		else "Reload"
@@ -1879,10 +2089,22 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 		duration,
 		if config
 				and not tempestReload
+				and not riftforgeReload
 				and (not right.shadowActions or right.shadowActions.hero)
 			then VM.RELOAD_TRACK_TURN[config.id]
 			else nil
 	)
+	if right.riftforge and not subject then
+		-- Queue swirling magnetic plasma gather right after MagOut!
+		local magOutAt = 0.16
+		for _, beat in beats do
+			if beat.sound == "MagOut" then
+				magOutAt = beat.at
+				break
+			end
+		end
+		queueBump("RiftforgeMagForm", duration * math.min(0.95, magOutAt + 0.05))
+	end
 	if seatAt then
 		for _, beat in beats do
 			if beat.sound == "MagIn" then
@@ -2027,6 +2249,23 @@ function ViewmodelController.swing(attack: string?): number
 			if own then own.hit else nil
 		)
 	end
+	if right and not subject then
+		local heavy = attack == "HeavyStab"
+		if right.cosmeticInspect then
+			CosmeticInspect.pulse(right.cosmeticInspect, if heavy then "Heavy" else "Fire")
+		end
+		if right.playback then
+			queueBump(
+				if heavy then "PlaybackHeavy" else "PlaybackSlash",
+				math.max(hitDelay - 0.04, 0)
+			)
+		elseif right.sundial then
+			queueBump(
+				if heavy then "SundialHeavy" else "SundialSlash",
+				math.max(hitDelay - 0.04, 0)
+			)
+		end
+	end
 	-- The free hand comes in for the thrust only (owner's knife clip, 2026-11-14).
 	local window = VM.MELEE_HEAVY_HAND
 	local started = os.clock()
@@ -2083,7 +2322,11 @@ function ViewmodelController.inspect(): boolean
 		elseif
 			guns.Right.tempest and TempestIdle.track(guns.Right.tempest, "inspect")
 		then TempestIdle.track(guns.Right.tempest, "inspect") :: string
-		elseif guns.Right.slipframe then "InspectSlipframe"
+		elseif
+			guns.Right.riftforge and RiftforgeEffects.track(guns.Right.riftforge, "inspect")
+		then RiftforgeEffects.track(guns.Right.riftforge, "inspect") :: string
+		elseif guns.Right.slipframe then guns.Right.slipframe.profile.inspectTrack
+		elseif guns.Right.arc then "ArcInspect"
 		elseif guns.Right.fan then "InspectFan"
 		elseif guns.Right.katana and VM.TRACKS.KatanaInspect then "KatanaInspect"
 		elseif c.fireMode == "Melee" then "InspectMelee"
@@ -2095,6 +2338,28 @@ function ViewmodelController.inspect(): boolean
 	local ownTrack = VM.TRACKS[track].own == true
 	local clipTurns = not ownTrack and c.fireMode == "Melee" and guns.Right.animator:has("Inspect")
 	ViewmodelTracks.play(playing, "Inspect", track, length, if clipTurns then 0 else 1)
+	if guns.Right.slipframe and not subject then
+		queueBump("SlipframeInspectOpen", length * SlipframeAudio.inspectOpenAt)
+		queueBump("SlipframeInspectSeat", length * SlipframeAudio.inspectSeatAt)
+	elseif guns.Right.moltframe and not subject then
+		ChamberFlow.pulse("Inspect")
+		queueBump("MoltframeInspect", length * MoltframeAudio.inspectAt)
+	elseif guns.Right.playback and not subject then
+		if guns.Right.cosmeticInspect then
+			CosmeticInspect.pulse(guns.Right.cosmeticInspect, "Inspect")
+		end
+		queueBump("PlaybackInspect", length * PlaybackAudio.inspectAt)
+	elseif guns.Right.sundial and not subject then
+		if guns.Right.cosmeticInspect then
+			CosmeticInspect.pulse(guns.Right.cosmeticInspect, "Inspect")
+		end
+		queueBump("SundialInspect", length * SundialAudio.inspectAt)
+	elseif guns.Right.riftforge and not subject then
+		RiftforgeEffects.pulse(guns.Right.riftforge, "Inspect")
+		queueBump("RiftforgeInspectStart", length * RiftforgeAudio.inspectStartAt)
+		queueBump("RiftforgeInspectRoll", length * RiftforgeAudio.inspectRollAt)
+		queueBump("RiftforgeInspectLock", length * RiftforgeAudio.inspectLockAt)
+	end
 	if guns.Right.fan then
 		FanMotion.play(guns.Right.fan, "Inspect", length)
 	end
@@ -2115,6 +2380,9 @@ end
 
 function ViewmodelController.cancelInspect()
 	local right = guns.Right
+	if right and right.arc and playing.Inspect then
+		SlipframeArc.cancelInspect(right.arc)
+	end
 	if right and right.shadowActions then
 		ShadowMistActions.endInspect(right.shadowActions)
 	end
@@ -2401,6 +2669,9 @@ local function stepMags(gun: Gun)
 			if gun.tempest then
 				TempestIdle.endReload(gun.tempest)
 			end
+			if gun.riftforge then
+				RiftforgeEffects.endReload(gun.riftforge)
+			end
 			continue
 		end
 		local t = gun.animator:progress()
@@ -2425,6 +2696,17 @@ local function stepMags(gun: Gun)
 				showMag(mag, false)
 			elseif mag.gone and t >= TempestIdle.solidAt(timing.inAt, seat) then
 				showMag(mag, true) -- solid now (it was water from MagIn, Util/TempestCoat)
+			end
+			continue
+		end
+		-- Riftforge Legendary: spent energy cell bursts into violet plasma (no plastic drop),
+		-- plasma beads gather at the magwell, fresh cell slams home, cowls SLAM shut!
+		if gun.riftforge and mag.bone == "Mag" and mag.clip then
+			local rackAt = if mag.empty then 0.76 else 0.78
+			if RiftforgeEffects.reload(gun.riftforge, t, timing.outAt, timing.inAt, rackAt) then
+				showMag(mag, false)
+			elseif mag.gone and t >= timing.inAt then
+				showMag(mag, true)
 			end
 			continue
 		end
@@ -2895,10 +3177,35 @@ local function update(dt: number)
 				local progress = if inspect and not inspect.fading
 					then inspect.time / inspect.length
 					else nil
-				CosmeticInspect.step(gun.cosmeticInspect, progress)
+				CosmeticInspect.step(gun.cosmeticInspect, dt, progress)
+			end
+			if gun.riftforge then
+				local draw = playing.Equip
+				local reload = playing.Reload
+				local inspect = playing.Inspect
+				RiftforgeEffects.step(
+					gun.riftforge,
+					dt,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if reload and not reload.fading then reload.time / reload.length else nil,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					adsAlpha
+				)
 			end
 			local clipName = gun.animator.clipName
 			local visible = not hidden and lowerT < 0.9
+			if gun.arc then
+				local draw, inspect, swing = playing.Equip, playing.Inspect, playing.Swing
+				SlipframeArc.step(
+					gun.arc,
+					not subject and visible and lowerT < 0.1,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					if swing and not swing.fading then swing.time / swing.length else nil,
+					if swing then swing.track.hit else nil,
+					swing ~= nil and swing.track == VM.TRACKS.HeavyStab
+				)
+			end
 			if gun.slipframe then
 				local inspect = playing.Inspect
 				local draw = playing.Equip

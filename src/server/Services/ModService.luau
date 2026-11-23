@@ -980,6 +980,7 @@ end
 
 -- Connections that belong to one life (dropped when the character goes).
 local lifeConnections: { [Player]: { RBXScriptConnection } } = {}
+local characterConnections: { [Player]: { RBXScriptConnection } } = {}
 
 local function dropLife(player: Player)
 	local list = lifeConnections[player]
@@ -1001,13 +1002,21 @@ local function holdLife(player: Player, c: RBXScriptConnection)
 end
 
 local function onCharacter(player: Player, character: Model)
+	local state = states[player]
+	if not state or player.Character ~= character then
+		return
+	end
 	ModWalls.stop(player)
 	ModRecall.cancel(player)
 	release(player)
 	-- A new life: what the last one left in the world goes.
 	ModEntities.clear(player)
 	local humanoid = character:WaitForChild("Humanoid", 10)
-	if player.Parent ~= PlayersService or player.Character ~= character then
+	if
+		states[player] ~= state
+		or player.Parent ~= PlayersService
+		or player.Character ~= character
+	then
 		return -- left (or respawned) while we waited
 	end
 	if humanoid and humanoid:IsA("Humanoid") then
@@ -1025,8 +1034,12 @@ end
 
 local function onPlayer(player: Player)
 	assignTeam(player)
-	states[player] = newState()
+	local state = newState()
+	states[player] = state
 	player:WaitForChild("PlayerGui", 10)
+	if states[player] ~= state then
+		return
+	end
 	StateValues.set(player, "ModHeld", 0)
 	-- Test mode only, never in a match. Studio follows Config/Dev; a published
 	-- test-mode server, Config/TestRange.
@@ -1043,15 +1056,42 @@ local function onPlayer(player: Player)
 	if TestMode.isOn() then
 		ModService.setLoadout(player, Config.TEST_LOADOUT)
 	end
-	player.CharacterAdded:Connect(function(character)
-		onCharacter(player, character)
-	end)
-	player.CharacterRemoving:Connect(function(character)
-		carryCharges(player, character)
-		dropLife(player)
-	end)
+	characterConnections[player] = {
+		player.CharacterAdded:Connect(function(character)
+			onCharacter(player, character)
+		end),
+		player.CharacterRemoving:Connect(function(character)
+			carryCharges(player, character)
+			dropLife(player)
+		end),
+	}
 	if player.Character then
 		task.spawn(onCharacter, player, player.Character)
+	end
+end
+
+-- Leave this context before the next zone can read the Player's Mod state.
+function ModService.removePlayer(player: Player)
+	if not states[player] then
+		return
+	end
+	for _, connection in characterConnections[player] or {} do
+		connection:Disconnect()
+	end
+	characterConnections[player] = nil
+	dropLife(player)
+	ModService.clearRound(player)
+	ModRecall.removePlayer(player)
+	release(player)
+	ModService.setLoadout(player, {})
+	StateValues.set(player, "ModUnlimitedCharges", nil)
+	states[player] = nil
+	limiter:forget(player)
+	for i = #heals, 1, -1 do
+		if heals[i].from == player then
+			StatusService.healingEnded(heals[i].target, heals[i].id)
+			table.remove(heals, i)
+		end
 	end
 end
 
@@ -1068,17 +1108,7 @@ function ModService.start()
 	for _, player in Players:GetPlayers() do
 		onPlayer(player)
 	end
-	Players.PlayerRemoving:Connect(function(player)
-		states[player] = nil
-		limiter:forget(player)
-		dropLife(player)
-		for i = #heals, 1, -1 do
-			if heals[i].from == player then
-				StatusService.healingEnded(heals[i].target, heals[i].id)
-				table.remove(heals, i)
-			end
-		end
-	end)
+	Players.PlayerRemoving:Connect(ModService.removePlayer)
 	RunService.Heartbeat:Connect(stepHeals)
 	-- Mods' own server hooks (passives, damage rules, simulation landings).
 	local api: ModTypes.ServerApi = {

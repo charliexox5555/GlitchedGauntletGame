@@ -162,6 +162,7 @@ Owner: get the line into Studio and start VFX and animations in code and keyfram
 - **Katana, round 2 (owner check):** the inspect has no toss (wrist and forearm only, within 18° of the shoulder line). The draw is a wheel-up, and the thrust no longer spins. The VFX now use the glow band (decal 83697426300765 → image 97366507211773) for the edge sheath, a core line and the swing arcs. Motes, tip drips and a hit flare were added. See the [playtest note](../../../05%20Production/Playtests/2026-11-22%20Tempest-Strike%20Line.md#round-2-the-owners-katana-check-2026-11-22-rojo-connected).
 
 
+
 ## Final bundle (owner 2026-11-22: "push this as the final gun bundle")
 - **Line:** `Config/Skins` gets `TempestStrike` as a bundle-only line (tier "Exclusive", like Ruin-Blighted), so it never drops from cases.
 - **Shop:** the TEMPEST-STRIKE bundle in `ShopCatalog` now holds six items: Vandal, Stinger, Marshal, Bucky, Sheriff and the knife slot, shown as "TEMPEST-STRIKE KATANA". The card line reads "5 GUNS + THE KATANA". Its price is still the placeholder 1,499 Robux.

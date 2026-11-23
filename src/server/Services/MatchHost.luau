@@ -2,8 +2,8 @@
 -- MatchHost: starts and ends matches (place merge 2026-11-21, vault/04 Tech/Place Merge Plan.md).
 --  * Match server (shared/ServerRole): one whole-server match at start, as the match place always ran.
 --  * Lobby server: pad duels (PadDuelService), several at once. Each gets an id, its own MatchState folder
---    (ReplicatedStorage.Matches[id]), its own world folder (Workspace.Matches[id]) and a map slot far from the lobby
---    and from the other duels. Its players move to the "Match" PlayZone with that MatchId (their match client
+--    (ReplicatedStorage.Matches[id]), its own world folder (Workspace.Matches[id]) and an isolated arena slot.
+--    Its players move to the "Match" PlayZone with that MatchId (their match client
 --    starts fresh); when it ends they go back to the lobby with their own avatars and the duel is torn down.
 -- Each match runs in its own copy of MatchKit/MatchRunner (see there); KIT_SERVICES are the services it copies.
 
@@ -11,10 +11,14 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ServerStorage = game:GetService("ServerStorage")
 
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
+local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local CharacterService = require(script.Parent.CharacterService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -46,7 +50,6 @@ MatchHost.KIT_SERVICES = {
 MatchHost.PRACTICE_ID = "range"
 MatchHost.PRACTICE_SERVICES = { "DevModService", "ModRecall", "ModService", "ModSim", "ModWalls" }
 
-local SLOT_SPACING = 20000 -- studs along X between pad duel maps (maps are up to ~6,200 across)
 local EMPTY_GRACE = 8 -- seconds a pad duel may have none of its players before it's ended
 
 export type Plan = {
@@ -65,6 +68,7 @@ type Running = {
 	slot: number,
 	players: { Player },
 	context: any?,
+	cleanPlayer: ((Player) -> ())?,
 	ownsServer: boolean,
 	ending: boolean,
 	emptySince: number?,
@@ -95,6 +99,32 @@ local function freeSlot(): number
 	return slot
 end
 
+-- Start over the origin, then fill square rings around it. The slots are
+-- absolute so the map's position in Studio has no effect on a live duel.
+local function arenaOrigin(slot: number): Vector3
+	if slot == 1 then
+		return Vector3.new(0, MatchConfig.ARENA_Y, 0)
+	end
+	local ring = math.ceil((math.sqrt(slot) - 1) / 2)
+	local index = slot - (2 * ring - 1) ^ 2 - 1
+	local side, step = math.floor(index / (2 * ring)), index % (2 * ring)
+	local x, z
+	if side == 0 then
+		x, z = ring, step - ring
+	elseif side == 1 then
+		x, z = ring - step, ring
+	elseif side == 2 then
+		x, z = -ring, ring - step
+	else
+		x, z = step - ring, -ring
+	end
+	return Vector3.new(
+		x * MatchConfig.ARENA_SPACING,
+		MatchConfig.ARENA_Y,
+		z * MatchConfig.ARENA_SPACING
+	)
+end
+
 -- MatchRunner takes its match's spec once.
 function MatchHost.takeSpec(id: string): any
 	local spec = specs[id]
@@ -105,10 +135,11 @@ end
 -- Range players waiting for the practice context to start.
 local practiceWaiting: { [Player]: boolean } = {}
 
-function MatchHost.started(id: string, context: any)
+function MatchHost.started(id: string, context: any, cleanPlayer: ((Player) -> ())?)
 	local entry = running[id]
 	if entry then
 		entry.context = context
+		entry.cleanPlayer = cleanPlayer
 	end
 	if id == MatchHost.PRACTICE_ID then
 		for player in practiceWaiting do
@@ -132,10 +163,18 @@ local function launchRunner(id: string): Script
 end
 
 -- One player back in the lobby: their own avatar at the lobby spawn, no guns.
-local function sendHome(player: Player)
-	PlayZone.set(player, "Lobby")
+local function sendHome(entry: Running, player: Player)
+	if entry.cleanPlayer then
+		entry.cleanPlayer(player)
+	end
+	if entry.context then
+		entry.context.removePlayer(player)
+	end
+	StateValues.set(player, MatchState.COMBAT_LOCKED, nil)
+	StateValues.set(player, Teams.ATTRIBUTE, nil)
 	WeaponService.disarm(player)
 	player.RespawnLocation = nil
+	PlayZone.set(player, "Lobby")
 	task.spawn(CharacterService.spawn, player)
 end
 
@@ -150,7 +189,7 @@ local function teardown(entry: Running)
 	end
 	for _, player in entry.players do
 		if player.Parent == Players and PlayZone.matchId(player) == entry.id then
-			sendHome(player)
+			sendHome(entry, player)
 		end
 	end
 	-- Stops every thread and connection the match started.
@@ -178,8 +217,8 @@ local function teardown(entry: Running)
 		if entry.stateFolder then
 			entry.stateFolder:Destroy()
 		end
+		usedSlots[entry.slot] = nil
 	end)
-	usedSlots[entry.slot] = nil
 	running[entry.id] = nil
 	print(`[MatchHost] pad duel {entry.id} ended`)
 end
@@ -227,7 +266,7 @@ function MatchHost.startDuel(
 			id = id,
 			ownsServer = false,
 			padDuel = true,
-			offset = Vector3.new(SLOT_SPACING * slot, 0, 0),
+			mapOrigin = arenaOrigin(slot),
 			world = world,
 			plan = plan,
 			players = players,
@@ -236,10 +275,7 @@ function MatchHost.startDuel(
 			end,
 			sendHome = function(player: Player)
 				if PlayZone.matchId(player) == id then
-					if entry.context then
-						entry.context.removePlayer(player)
-					end
-					sendHome(player)
+					sendHome(entry, player)
 				end
 			end,
 		},
@@ -277,7 +313,7 @@ local function startPractice()
 			id = id,
 			ownsServer = false,
 			padDuel = false,
-			offset = Vector3.zero,
+			mapOrigin = Vector3.zero,
 			world = world,
 			plan = nil,
 			players = {},
@@ -285,9 +321,9 @@ local function startPractice()
 		},
 	}
 	-- In and out of the range: in and out of the practice context.
-	PlayZone.changed:Connect(function(player: Player, zone: string)
+	PlayZone.changed:Connect(function(player: Player)
 		local context = entry.context
-		if zone == "Range" then
+		if PlayZone.get(player) == "Range" then
 			if context then
 				context.addPlayer(player)
 			else
@@ -296,6 +332,9 @@ local function startPractice()
 		else
 			practiceWaiting[player] = nil
 			if context then
+				if context.owns(player) and entry.cleanPlayer then
+					entry.cleanPlayer(player)
+				end
 				context.removePlayer(player)
 			end
 		end
@@ -308,6 +347,19 @@ end
 
 function MatchHost.init()
 	folder(ReplicatedStorage, MatchState.MATCHES)
+	-- Hide all staged release templates in both roles. The live arena is a
+	-- clone, so no edit-position map can overlap it or cast shadows onto it.
+	local templates = folder(ServerStorage, "Maps")
+	for _, entry in MatchConfig.MAPS do
+		local model = workspace:FindFirstChild(entry.id)
+		if model and model:IsA("Model") then
+			if templates:FindFirstChild(entry.id) then
+				model:Destroy()
+			else
+				model.Parent = templates
+			end
+		end
+	end
 end
 
 function MatchHost.start()
@@ -332,7 +384,7 @@ function MatchHost.start()
 				id = id,
 				ownsServer = true,
 				padDuel = false,
-				offset = Vector3.zero,
+				mapOrigin = arenaOrigin(1),
 				world = workspace,
 				plan = nil,
 				players = {},

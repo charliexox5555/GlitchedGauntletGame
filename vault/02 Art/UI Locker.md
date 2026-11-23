@@ -33,7 +33,13 @@ Related: [UI Lobby HUD](UI%20Lobby%20HUD.md), [Lobby](../01%20Design/Lobby.md) (
 - **Stage:** a **hidden studio stage** (a separate lit set away from the map with a clean backdrop, like RIVALS); the camera cuts there while the Locker is open.
 - **Equip:** per gun.
 - **Ownership:** every ready skin free while testing; locks and prices come with the economy.
-- **Abilities tab = your Mod collection:** "you have your main mods... I will be adding new ones that you can buy... maybe in a future update we will add skins for mods. You can't unequip any mods." So: the base Mods are always yours; new Mods are bought and join your **draft pool** for good (no unequip); the tab shows every Mod (owned / locked with its price later), its stats and a preview; Mod skins later. **This changed the locked Money decision** (was cosmetics only): Home → Locked decisions and Game Plan §1 updated.
+- **Abilities tab = your Mod collection.** The 12 free Mods are locked as **ALWAYS EQUIPPED**. Owned paid Mods can be equipped and unequipped with no limit. This replaces the earlier permanent-equip rule for paid Mods. The tab shows each built Mod's icon, role, and base effect. No paid Mods are currently sold.
+
+### Abilities tab implementation (2026-11-22)
+
+The Lobby Locker mounts the collection beneath its existing tabs. `Config/Mods.free` identifies the always-available roster. `PlayerDataV2.mods` stores paid ownership and equip choices together. `LockerModRequest` saves each choice in a server transaction and `LockerMods` mirrors the result. DraftService builds offers per player from the free catalog and their saved, owned equips. Future paid grants set `data.mods.owned[id] = true` in the same player-data transaction system. An owned paid Mod starts unequipped until selected in the Locker.
+
+Desktop Studio lobby play showed all 12 locked cards and hid the weapon stage. The server rejected requests to unequip a free Mod or equip an unknown Mod. Round one of a Studio 1v1 pad duel against a bot dealt three free Mods. An isolated Luau fixture verified paid equip and unequip across a simulated save reload, multiple paid equips, filtering and bot takeover.
   - Open (owner): earnable with in-game currency as well as Robux? Ranked uses only base Mods (keeps "nothing that changes a fight is sold" for ranked)?
 
 ## Mockup v1 (2026-11-15, owner: "Build the mockup")

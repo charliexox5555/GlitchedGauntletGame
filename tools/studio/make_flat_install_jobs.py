@@ -27,6 +27,8 @@ TILES = {
     "Payload_Foil": (140526423579451, 0.5),     # v2 faceted foil (v1 103618884326351)
     "Sealwork_Ruby": (135106383206479, 0.4),
     "Moltframe_Flow": (96163927400875, 1.2),
+    "Riftforge_Forged": (115421153499187, 0.24),
+    "Riftforge_Plasma": (126367018987152, 0.45),
 }
 LATEST = {"Moltframe/Vandal": "v05"}
 KEPT = {  # Vandal installs keep the round-two stock finish on unreplaced parts

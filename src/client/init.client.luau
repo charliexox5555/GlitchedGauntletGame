@@ -12,8 +12,11 @@
 --    connections) and undoes what the match client changed on screen.
 
 local Players = game:GetService("Players")
+local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -21,6 +24,7 @@ local ServerRole = require(Shared:WaitForChild("ServerRole") :: ModuleScript)
 local PlayZone = require(Shared:WaitForChild("PlayZone") :: ModuleScript)
 local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
 local MapLighting = require(Shared:WaitForChild("MapLighting") :: ModuleScript)
+local CoreUi = require(Shared:WaitForChild("CoreUi") :: ModuleScript)
 
 -- The player's settings on this client (the lobby client starts it in lobby servers).
 if ServerRole.isMatch() then
@@ -29,6 +33,7 @@ end
 
 local RUNNER = "MatchClientRunner"
 local LOBBY_MODE = "LobbyOnly" -- runner attribute: start only LOBBY_CONTROLLERS
+local READY = "ControllersReady"
 -- What runs for a player walking the lobby (their dependencies are loaded, not started).
 local LOBBY_CONTROLLERS: { [string]: boolean } = {
 	FloorHoldController = true, -- held still until floor arrives under a (re)spawn
@@ -64,6 +69,7 @@ local function runControllers(lobbyOnly: boolean)
 		end
 	end
 
+	script:SetAttribute(READY, true)
 	for _, controller in loaded do
 		if typeof(controller.start) == "function" then
 			task.spawn(controller.start)
@@ -86,20 +92,36 @@ local playerGui = player:WaitForChild("PlayerGui")
 local runner: LocalScript? = nil
 local runnerArmed = false -- the running copy is a full match client (else the lobby set)
 local guisBefore: { [Instance]: boolean } = {}
-local lobbyLighting: MapLighting.Baseline? = nil -- the lobby's, while a pad duel lights this view
+local lobbyPlayerList: boolean? = nil
 
 -- What the match client may leave behind: its screens, the camera setup, the
 -- mouse lock, the viewmodel and effects under the camera.
 local function cleanUp()
+	CoreUi.menuMode(false)
+	if lobbyPlayerList ~= nil then
+		pcall(
+			StarterGui.SetCoreGuiEnabled,
+			StarterGui,
+			Enum.CoreGuiType.PlayerList,
+			lobbyPlayerList
+		)
+	end
 	for _, gui in playerGui:GetChildren() do
-		if not guisBefore[gui] and gui:IsA("LayerCollector") then
+		if
+			not guisBefore[gui]
+			and gui:IsA("LayerCollector")
+			and gui.Name ~= "ModState"
+			and gui.Name ~= "TouchGui"
+		then
 			gui:Destroy()
 		end
 	end
 	local camera = workspace.CurrentCamera
 	if camera then
 		for _, child in camera:GetChildren() do
-			child:Destroy()
+			if not child:IsA("AudioListener") then
+				child:Destroy()
+			end
 		end
 		camera.CameraType = Enum.CameraType.Custom
 		camera.FieldOfView = 70
@@ -114,7 +136,7 @@ local function cleanUp()
 	-- third-person view for a moment, then free the zoom again.
 	player.CameraMinZoomDistance = LOBBY_ZOOM
 	task.delay(0.2, function()
-		if not runner then
+		if PlayZone.get(player) == "Lobby" then
 			player.CameraMinZoomDistance = 0.5
 		end
 	end)
@@ -123,7 +145,7 @@ local function cleanUp()
 	-- The match client's touch controls hid Roblox's stick and jump button
 	-- (TouchController); the lobby walks on Roblox's own.
 	pcall(function()
-		game:GetService("GuiService").TouchControlsEnabled = true
+		GuiService.TouchControlsEnabled = true
 	end)
 end
 
@@ -133,16 +155,40 @@ local function stop()
 	runner = nil
 	runnerArmed = false
 	if old then
+		if wasArmed then
+			-- Clear focus while the old result buttons still exist.
+			GuiService.SelectedObject = nil
+		end
+		if wasArmed and old:GetAttribute(READY) then
+			local controllers = old:FindFirstChild("Controllers")
+			if controllers then
+				require(controllers.MatchEndController).stop()
+				require(controllers.TouchController).stop()
+			end
+		end
 		old:Destroy()
+		-- These named bindings belong to RunService/ContextActionService.
+		for _, name in
+			{
+				"GGMovementView",
+				"GGPosePitch",
+				"GGCamera",
+				"GGSlideTilt",
+				"GGViewmodel",
+				"GGWeapons",
+				"GGMods",
+				"TouchControls",
+			}
+		do
+			RunService:UnbindFromRenderStep(name)
+		end
+		ContextActionService:UnbindAction("SkinPreview")
 		-- The lobby set changes nothing on screen; only a match client is undone.
 		if wasArmed then
 			cleanUp()
 		end
 	end
-	if lobbyLighting then
-		MapLighting.restore(lobbyLighting)
-		lobbyLighting = nil
-	end
+	MapLighting.restore()
 end
 
 local function start(armed: boolean)
@@ -152,9 +198,10 @@ local function start(armed: boolean)
 		for _, gui in playerGui:GetChildren() do
 			guisBefore[gui] = true
 		end
-		if not lobbyLighting then
-			lobbyLighting = MapLighting.capture()
-		end
+		MapLighting.capture()
+		local ok, enabled =
+			pcall(StarterGui.GetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList)
+		lobbyPlayerList = if ok then enabled else nil
 	end
 	local copy = script:Clone()
 	copy.Name = "ClientRunner"
@@ -166,16 +213,22 @@ local function start(armed: boolean)
 end
 
 local zone: PlayZone.Zone = PlayZone.get(player)
-local function apply(newZone: PlayZone.Zone)
-	local previous = zone
-	zone = newZone
-	if previous ~= newZone or not runner then
+local matchId: string? = nil
+local function apply()
+	local newZone = PlayZone.get(player)
+	local newId = if newZone == "Match" then PlayZone.matchId(player) else nil
+	if newZone == "Match" and not newId then
+		return -- wait for both server attributes before binding match state
+	end
+	if zone ~= newZone or matchId ~= newId or not runner then
+		zone, matchId = newZone, newId
 		start(newZone ~= "Lobby")
 	end
 end
 
 PlayZone.onLocalChanged(apply)
-start(zone ~= "Lobby")
+player:GetAttributeChangedSignal(PlayZone.MATCH_ID):Connect(apply)
+apply()
 
 -- Studio check that the host is the only one of its kind.
 if RunService:IsStudio() then

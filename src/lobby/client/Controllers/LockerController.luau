@@ -32,6 +32,7 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
+local LockerAbilities = require(script.Parent.Parent.Util.LockerAbilities)
 local Pivot = require(script.Parent.Parent.Util.Pivot)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -107,6 +108,7 @@ local ICON_WIDTH: { [string]: number } = {
 
 local gui: ScreenGui
 local canvas: Frame
+local abilityCollection: Frame
 local gunsList: ScrollingFrame
 local tray: Frame
 local strip: ScrollingFrame
@@ -847,8 +849,14 @@ local function setTab(name: string)
 		stageView.Visible = weapons
 	end
 	floorShadow.Visible = weapons
-	soonLabel.Visible = not weapons
-	soonLabel.Text = if name == "ABILITIES" then "MOD COLLECTION  ·  SOON" else "EMOTES  ·  SOON"
+	local abilities = name == "ABILITIES"
+	abilityCollection.Visible = abilities
+	local side = canvas:FindFirstChild("Side")
+	if side and side:IsA("GuiObject") then
+		side.Visible = not abilities
+	end
+	soonLabel.Visible = not weapons and not abilities
+	soonLabel.Text = "EMOTES  ·  SOON"
 end
 
 -- Open / close -----------------------------------------------------------------------
@@ -1087,6 +1095,7 @@ function LockerController.init()
 	gui = g
 	gui.Enabled = false
 	canvas = child(gui, "Canvas")
+	abilityCollection = LockerAbilities.mount(canvas, player)
 	gunsList = child(canvas, "Guns")
 	tray = child(canvas, "Tray")
 	strip = child(tray, "Strip")
@@ -1221,7 +1230,7 @@ function LockerController.init()
 		end
 	end)
 	UserInputService.InputChanged:Connect(function(input: InputObject)
-		if not isOpen then
+		if not isOpen or tab ~= "WEAPONS" then
 			return
 		end
 		if

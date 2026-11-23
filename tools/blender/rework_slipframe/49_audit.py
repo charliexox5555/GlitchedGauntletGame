@@ -1,4 +1,4 @@
-"""Audit a live Slipframe Guardian master against the exact stock contract."""
+"""Audit each live Slipframe master against its exact RemasterV2 stock contract."""
 
 import json
 from itertools import combinations
@@ -13,15 +13,17 @@ from mathutils.bvhtree import BVHTree
 MASTER = Path(bpy.data.filepath)
 VERSION = MASTER.stem.split("_")[-1]
 ROOT = MASTER.parents[6]
-STOCK = ROOT / "art-source/weapons/RemasterV2/Guardian/Guardian_RemasterV2_v05.blend"
-OUT = ROOT / f"vault/02 Art/Skins/Slipframe/out/Guardian_{VERSION}_views"
+GUN = MASTER.stem.split("_")[0]
+ADS_DISTANCE = {"Guardian": 0.33, "Vandal": 0.36, "Spectre": 0.37, "Operator": 0.70}[GUN] if GUN != "Classic" else None
+STOCK = ROOT / f"art-source/weapons/RemasterV2/{GUN}/{GUN}_RemasterV2_v05.blend"
+OUT = ROOT / f"vault/02 Art/Skins/Slipframe/out/{GUN}_{VERSION}_views"
 OUT.mkdir(parents=True, exist_ok=True)
 helpers = {}
 exec((ROOT / "tools/blender/export_roblox_flat.py").read_text(encoding="utf-8"), helpers)
 
 
 def visible():
-    groups = [bpy.data.collections.get(n) for n in ("Guardian", "COL_Slipframe")]
+    groups = [bpy.data.collections.get(n) for n in (GUN, "COL_Slipframe")]
     return [o for group in groups if group for o in group.objects if o.type == "MESH" and not o.hide_render]
 
 
@@ -61,7 +63,7 @@ def pack_matrix(matrix):
 
 def contract(rig):
     locators = {o.name: (o.parent_bone, pack_matrix(o.matrix_world))
-                for o in bpy.data.collections["Guardian"].objects if o.type == "EMPTY"}
+                for o in bpy.data.collections[GUN].objects if o.type == "EMPTY"}
     bones = {b.name: (b.parent.name if b.parent else None, pack_matrix(b.matrix_local), round(b.length, 7))
              for b in rig.data.bones}
     actions = {}
@@ -75,7 +77,13 @@ def contract(rig):
                                 for k in curve.keyframe_points]
                         curves.append((curve.data_path, curve.array_index, keys))
         actions[action.name] = curves
-    return {"locators": locators, "bones": bones, "actions": actions}
+    result = {"locators": locators, "bones": bones, "actions": actions}
+    lens = bpy.data.objects.get(f"{GUN}_ScopeLens")
+    if lens:
+        result["lenses"] = (pack_matrix(lens.matrix_world), tuple(tuple(v.co) for v in lens.data.vertices),
+                            tuple((tuple(p.vertices), p.material_index) for p in lens.data.polygons),
+                            tuple(m.name if m else None for m in lens.data.materials))
+    return result
 
 
 def in_box(a, b, margin=0.0016):
@@ -110,12 +118,12 @@ def seats(first, second):
 
 
 def measure():
-    rig = bpy.data.objects["Guardian_Rig"]
+    rig = bpy.data.objects[f"{GUN}_Rig"]
     rig.data.pose_position = "REST"
     bpy.context.view_layer.update()
     deps = bpy.context.evaluated_depsgraph_get()
     meshes, shells, raw = {}, {}, []
-    triangles, bounds, faults = {}, {}, {}
+    triangles, bounds, faults, stock_open_lenses = {}, {}, {}, {}
     for obj in visible():
         bm = world_mesh(obj, deps)
         bm.verts.index_update()
@@ -140,8 +148,13 @@ def measure():
             group_faces = {f for v in group for f in v.link_faces}
             island = bmesh.new()
             verts = {v: island.verts.new(v.co) for v in sorted(group, key=lambda v: v.index)}
+            duplicates = []
             for face in sorted(group_faces, key=lambda f: f.index):
-                island.faces.new([verts[v] for v in face.verts])
+                loop = [verts[v] for v in face.verts]
+                if island.faces.get(loop):
+                    duplicates.append(face.index)
+                    continue
+                island.faces.new(loop)
             island.verts.ensure_lookup_table()
             island.faces.ensure_lookup_table()
             island.normal_update()
@@ -154,9 +167,13 @@ def measure():
             degenerate = sum(f.calc_area() < 1e-9 for f in island.faces)
             label = f"{obj.name}:{index}"
             shells[label] = (island, tree, part_bounds(island.verts), not open_edges and not nonmanifold)
-            if open_edges or nonmanifold or volume < -1e-8 or folded or degenerate:
-                faults[label] = {"open": open_edges, "nonmanifold": nonmanifold, "inverted": volume < -1e-8,
-                                 "self_intersections": sorted(folded), "degenerate": degenerate}
+            inverted = not open_edges and not nonmanifold and volume < -1e-8
+            if obj.name == f"{GUN}_ScopeLens" and open_edges and not (nonmanifold or folded or degenerate):
+                stock_open_lenses[label] = open_edges
+            elif open_edges or nonmanifold or inverted or folded or degenerate or duplicates:
+                faults[label] = {"open": open_edges, "nonmanifold": nonmanifold, "inverted": inverted,
+                                 "self_intersections": sorted(folded), "degenerate": degenerate, "duplicates": duplicates,
+                                 "bounds": shells[label][2]}
         if crossed:
             faults[obj.name] = {"crossed_polygon_indices": crossed}
         bm.free()
@@ -166,7 +183,7 @@ def measure():
         if seats(shells[a], shells[b]):
             contacts[a].add(b)
             contacts[b].add(a)
-    anchor = min((label for label in shells if label.startswith("Guardian_Receiver:")),
+    anchor = min((label for label in shells if label.startswith((f"{GUN}_Receiver:", f"{GUN}_Frame:", "SF_ReceiverMantle:", "SF_Frame:"))),
                  key=lambda label: shells[label][2][0][2])
     reached = {anchor}
     todo = [anchor]
@@ -185,29 +202,42 @@ def measure():
         bpy.data.meshes.remove(mesh)
 
     # Match the eye-to-sight segment and spread in findOccluders at scale 0.8.
-    aim = bpy.data.objects["Guardian_AimPoint"].matrix_world.translation
-    eye = aim - Vector((0.33 / 0.8, 0, 0))
-    offset = 0.012 / 0.8
-    forward = Vector((1, 0, 0))
-    rays = [eye + Vector((0, y, z)) for y, z in ((0, 0), (offset, 0), (-offset, 0), (0, offset), (0, -offset))]
-    ads_hits = [sorted(name for name, tree in meshes.items()
-                        if tree.ray_cast(origin, forward, (0.33 - 0.02) / 0.8)[0] is not None) for origin in rays]
-    post_hits = sorted(name for name, tree in meshes.items() if tree.ray_cast(eye, forward, 4)[0] is not None)
+    ads_hits, post_hits, physical_iron_hits = None, None, None
+    if ADS_DISTANCE is not None:
+        aim = bpy.data.objects[f"{GUN}_AimPoint"].matrix_world.translation
+        eye = aim - Vector((ADS_DISTANCE / 0.8, 0, 0))
+        offset = 0.012 / 0.8
+        forward = Vector((1, 0, 0))
+        rays = [eye + Vector((0, y, z)) for y, z in ((0, 0), (offset, 0), (-offset, 0), (0, offset), (0, -offset))]
+        ads_hits = [sorted(name for name, tree in meshes.items()
+                           if tree.ray_cast(origin, forward, (ADS_DISTANCE - 0.02) / 0.8)[0] is not None) for origin in rays]
+        post_hits = sorted(name for name, tree in meshes.items() if tree.ray_cast(eye, forward, 4)[0] is not None)
+    else:
+        # Classic's alternate input is burst fire. Check the physical notch and post.
+        eye = Vector((-0.565, 0, 0.509))
+        forward = Vector((1, 0, 0))
+        physical_iron_hits = sorted(name for name, tree in meshes.items()
+                                    if tree.ray_cast(eye, forward, 2)[0] is not None)
     return {"tris": sum(triangles.values()), "part_triangles": triangles, "bounds": bounds, "faults": faults,
-            "coplanar": coplanar, "floating": floaters, "new_part_contacts": {
+            "coplanar": coplanar, "floating": floaters, "stock_open_lenses": stock_open_lenses, "new_part_contacts": {
                 label: sorted(neighbors) for label, neighbors in contacts.items() if label.startswith("SF_")
-            }, "ads_eye_segment_hits": ads_hits, "post_ray_hits": post_hits}
+            }, "ads_eye_segment_hits": ads_hits, "post_ray_hits": post_hits, "physical_iron_hits": physical_iron_hits}
 
 
 def clips():
-    rig = bpy.data.objects["Guardian_Rig"]
+    rig = bpy.data.objects[f"{GUN}_Rig"]
     rig.data.pose_position = "POSE"
-    fixed = [o for o in visible() if o.name.startswith("SF_") and o.parent_bone == "Root"]
+    parts = visible()
     moving = [o for o in visible() if o.parent_bone != "Root" and o.parent_bone]
+    pairs = [(o, fixed) for o in moving for fixed in parts
+             if fixed.parent_bone == "Root" and (o.name.startswith("SF_") or fixed.name.startswith("SF_"))]
+    pairs.extend((a, b) for a, b in combinations(moving, 2)
+                 if a.parent_bone != b.parent_bone and any(o.name.startswith("SF_") for o in (a, b)))
+    collision_parts = {o for pair in pairs for o in pair}
     contact_frames = {}
     sampled = {}
     for action in sorted(bpy.data.actions, key=lambda a: a.name):
-        if not action.name.startswith("Guardian_"):
+        if not action.name.startswith(f"{GUN}_"):
             continue
         rig.animation_data_create()
         rig.animation_data.action = action
@@ -220,26 +250,24 @@ def clips():
         for frame in range(start, last + 1):
             bpy.context.scene.frame_set(frame)
             deps = bpy.context.evaluated_depsgraph_get()
-            static = {}
-            for obj in fixed:
+            geometry = {}
+            for obj in collision_parts:
                 mesh = world_mesh(obj, deps)
-                static[obj.name] = BVHTree.FromBMesh(mesh), part_bounds(mesh.verts)
+                geometry[obj] = BVHTree.FromBMesh(mesh), part_bounds(mesh.verts)
                 mesh.free()
             for obj in moving:
                 travel[obj.name] = max(travel[obj.name], (obj.matrix_world.translation - origins[obj.name]).length)
-                mesh = world_mesh(obj, deps)
-                movable = BVHTree.FromBMesh(mesh)
-                bounds = part_bounds(mesh.verts)
-                mesh.free()
-                for name, (tree, box) in static.items():
-                    if in_box(bounds, box, 0) and movable.overlap(tree):
-                        contact_frames.setdefault(action.name, {}).setdefault(f"{obj.name} → {name}", []).append(frame)
+            for a, b in pairs:
+                a_tree, a_bounds = geometry[a]
+                b_tree, b_bounds = geometry[b]
+                if in_box(a_bounds, b_bounds, 0) and a_tree.overlap(b_tree):
+                    contact_frames.setdefault(action.name, {}).setdefault(f"{a.name} → {b.name}", []).append(frame)
         sampled[action.name] = {"frames": [start, last], "max_travel": {n: round(v, 5) for n, v in travel.items()}}
     return contact_frames, sampled
 
 
 def get_contract():
-    rig = bpy.data.objects["Guardian_Rig"]
+    rig = bpy.data.objects[f"{GUN}_Rig"]
     rig.data.pose_position = "REST"
     bpy.context.view_layer.update()
     return contract(rig)
@@ -262,4 +290,5 @@ path = OUT / "audit.json"
 path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 result = {"report": str(path), "stock_tris": stock["tris"], "candidate_tris": candidate["tris"],
           "faults": len(candidate["faults"]), "floating": len(candidate["floating"]),
-          "coplanar": len(candidate["coplanar"]), "contract": report["contract_equal"], "animated": motion}
+          "coplanar": len(candidate["coplanar"]), "contract": report["contract_equal"], "animated_pairs": {action: {pair: len(frames) for pair, frames in pairs.items()}
+                             for action, pairs in motion.items()}}

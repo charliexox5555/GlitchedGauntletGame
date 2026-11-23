@@ -87,10 +87,18 @@ The owner's call: **the Lobby and the match become one place.** Everything runs 
 3. Studio **Test → 2 players**: both step on one 1v1 pad, one per half. The halves light blue and red and count down, then you fight on a map in the same server. At the end you're back in the lobby.
 4. Published place, two accounts in **different servers**: PLAY → 1v1 on both. You should land in the same private match server, then come back to a public lobby.
 
+### Arena placement and range return (2026-11-22)
+
+- Merged map templates still carried edit staging positions as far out as Z = 54,000. The duel loader added another 20,000 studs along X per slot. `MatchHost` now assigns absolute slots and `MapService` moves the map pivot there with its authored rotation. The first arena is 800 studs above the origin to clear the Lobby and range. Additional duels fill a horizontal grid in 6,600-stud steps. Studio bounds checks confirmed that all 12 installed release templates fit a slot.
+- Pad-duel lighting uses the map's authored properties and effects on its player's client. The lobby's original Lighting instances are restored when the player leaves the duel. The lobby menu keeps its effect references. [Lighting Technologies and Settings](../LihFolk/07%20Lighting%20VFX%20and%20Audio/Lighting%20Technologies%20and%20Settings.md)
+- Returning from a duel clears the combat lock, drafted Mods and weapons before the player respawns. The range client requests the server's current weapon snapshot after attaching its listener. The client host clears named render bindings and selection, restores lobby controls, and binds touch controls to the new screen on entry. Compact HUDs respond when the touch overlay toggles, so ammo and ability panels return for controller or keyboard input.
+- Merged Lobby Studio solo 1v1 on Foundry4, with the phone HUD forced. The map loaded at (0, 800, 0) with its 00:30 night preset. A completed five-round duel restored the lobby's 14.6 ClockTime and the same lobby menu blur instance. The range armed the player without drafted Mods and showed unlimited reserve. Firing through the shared input action changed server ammo from 25 to 23 and the phone HUD to `23/∞`. Switching the touch overlay off and back on restored and hid the compact ammo panel. The controller's ButtonY binding remained and its cycle action switched Vandal to Classic.
+- Studio whole-server Match role loaded CanyonOutpost at (0, 800, 0), with the authored 14.2 ClockTime, bloom and atmosphere on the client. During a stationary live sample, maximum camera-relative frame displacement was under 0.001 stud for both the gun handle and right arm. A separate range exit check cleared UI focus and restored native controls. Hardware gamepad and published server checks are pending.
+
 ### Known gaps / next
 - Lighting for pad duels is per player; the lobby lighting comes back when you leave. Whole-server matches use `Config/MatchLighting` (the old match place's values).
 - Callbacks into shared services from ended duels stay registered (they go quiet through `Context.alive`). That's a small leak per duel.
-- Mod walls and mod entities sit in shared folders. A duel that ends mid-round may leave a wall until its owner's next life.
+- Mod walls and Mod entities sit in shared folders. The duel return path clears the departing player's objects and timers before respawn.
 - Players watching a pad duel, and requeueing from the pad (Play Again), aren't built.
 - `MatchLift` (the lift plate on match found) no longer triggers, because pads don't search the global queue any more.
 - Phone players have no sprint / slide buttons in the lobby (they live in the match HUD).

@@ -1,0 +1,72 @@
+{
+  "Knife_Draw": {
+    "sampled_frames": [
+      1.0,
+      5.75,
+      10.5,
+      15.25,
+      20.0
+    ],
+    "max_relative_error": 1.1920928955078125e-07
+  },
+  "Knife_Fire": {
+    "sampled_frames": [
+      1.0,
+      3.75,
+      6.5,
+      9.25,
+      12.0
+    ],
+    "max_relative_error": 1.1920928955078125e-07
+  },
+  "Knife_HeavyStab": {
+    "sampled_frames": [
+      1.0,
+      6.75,
+      12.5,
+      18.25,
+      24.0
+    ],
+    "max_relative_error": 1.1920928955078125e-07
+  },
+  "Knife_Inspect": {
+    "sampled_frames": [
+      1.0,
+      17.5,
+      34.0,
+      50.5,
+      67.0
+    ],
+    "max_relative_error": 1.1920928955078125e-07
+  },
+  "Knife_Slash1": {
+    "sampled_frames": [
+      1.0,
+      4.25,
+      7.5,
+      10.75,
+      14.0
+    ],
+    "max_relative_error": 1.1920928955078125e-07
+  },
+  "Knife_Slash2": {
+    "sampled_frames": [
+      1.0,
+      4.25,
+      7.5,
+      10.75,
+      14.0
+    ],
+    "max_relative_error": 1.1920928955078125e-07
+  },
+  "Knife_Slash3": {
+    "sampled_frames": [
+      1.0,
+      5.25,
+      9.5,
+      13.75,
+      18.0
+    ],
+    "max_relative_error": 2.384185791015625e-07
+  }
+}

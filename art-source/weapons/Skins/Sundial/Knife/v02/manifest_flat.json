@@ -1,0 +1,191 @@
+{
+ "variant": "Sundial Knife v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-22",
+ "gun": "Knife",
+ "source_blend": "Knife_Sundial_v02.blend",
+ "fbx": "Knife_Sundial_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Root_01": {
+   "color": "A8803B",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Antique Brass",
+   "triangles": 40,
+   "size": [
+    0.1589,
+    0.043,
+    0.1589
+   ],
+   "center": [
+    0.565,
+    0.0,
+    0.002
+   ]
+  },
+  "SK_Root_DialGear": {
+   "color": "A8803B",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Antique Brass",
+   "triangles": 192,
+   "size": [
+    0.156,
+    0.04,
+    0.156
+   ],
+   "center": [
+    0.565,
+    0.0,
+    0.002
+   ]
+  },
+  "SK_Root_02": {
+   "color": "DFD5BD",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Champagne Ivory",
+   "triangles": 234,
+   "size": [
+    1.735,
+    0.118,
+    0.37
+   ],
+   "center": [
+    0.4925,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_03": {
+   "color": "1D1A23",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Grip Dark",
+   "triangles": 630,
+   "size": [
+    0.6804,
+    0.1,
+    0.2028
+   ],
+   "center": [
+    -0.003,
+    0.0,
+    -0.0026
+   ]
+  },
+  "SK_Root_04": {
+   "color": "33213B",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Plum Obsidian",
+   "triangles": 216,
+   "size": [
+    2.0025,
+    0.118,
+    0.2044
+   ],
+   "center": [
+    0.4582,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_05": {
+   "color": "FFB84D",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Solar Glow",
+   "triangles": 108,
+   "size": [
+    1.723,
+    0.12,
+    0.076
+   ],
+   "center": [
+    0.3985,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_DialCore": {
+   "color": "FFB84D",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Solar Glow",
+   "triangles": 76,
+   "size": [
+    0.0684,
+    0.034,
+    0.0684
+   ],
+   "center": [
+    0.565,
+    0.0,
+    0.002
+   ]
+  },
+  "SK_Root_06": {
+   "color": "D9A84E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Solar Gold",
+   "triangles": 892,
+   "size": [
+    2.003,
+    0.128,
+    0.37
+   ],
+   "center": [
+    0.4585,
+    0.0,
+    0.0
+   ]
+  },
+  "SK_Root_DialHand": {
+   "color": "FFF0C4",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SD2 Sun Noon",
+   "triangles": 64,
+   "size": [
+    0.106,
+    0.052,
+    0.014
+   ],
+   "center": [
+    0.584,
+    0.0,
+    0.002
+   ]
+  }
+ }
+}

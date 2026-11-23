@@ -1,0 +1,23 @@
+{
+  "length": {
+    "ares_shot": 0.12,
+    "bulldog_shot": 0.12,
+    "classic_shot": 0.12,
+    "ghost_shot": 0.12,
+    "phantom_shot": 0.12,
+    "stinger_shot": 0.12,
+    "draw": 0.12,
+    "mag_out": 0.122,
+    "mag_seat": 0.12,
+    "inspect": 0.15302,
+    "knife_slash": 0.12
+  },
+  "shotVolume": {
+    "Ares": 0.17,
+    "Bulldog": 0.18,
+    "Classic": 0.19,
+    "Ghost": 0.21,
+    "Phantom": 0.2,
+    "Stinger": 0.18
+  }
+}

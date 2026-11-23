@@ -1,0 +1,47 @@
+{
+  "vandal_shot": {
+    "asset": "rbxassetid://118525825306022",
+    "length": 0.12,
+    "gain": 1
+  },
+  "phantom_shot": {
+    "asset": "rbxassetid://82522501187559",
+    "length": 0.12,
+    "gain": 1
+  },
+  "spectre_shot": {
+    "asset": "rbxassetid://131621774079024",
+    "length": 0.12,
+    "gain": 1
+  },
+  "judge_shot": {
+    "asset": "rbxassetid://111046426890025",
+    "length": 0.12,
+    "gain": 1
+  },
+  "ares_shot": {
+    "asset": "rbxassetid://128834383592794",
+    "length": 0.12,
+    "gain": 1
+  },
+  "sheriff_shot": {
+    "asset": "rbxassetid://128715547809541",
+    "length": 0.12,
+    "gain": 1
+  },
+  "draw": {
+    "asset": "rbxassetid://121446243682176",
+    "length": 0.13,
+    "gain": 1
+  },
+  "mag_seat": {
+    "asset": "rbxassetid://125641787211175",
+    "length": 0.12,
+    "gain": 1
+  },
+  "inspect": {
+    "asset": "rbxassetid://75771204781966",
+    "length": 0.14002,
+    "gain": 1
+  }
+}

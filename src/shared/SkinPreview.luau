@@ -29,7 +29,7 @@ end
 
 -- Whether the preview runs in this server at all (match place; Studio or LIVE).
 function SkinPreview.allowed(): boolean
-	return game.PlaceId == Config.PLACE_ID and (RunService:IsStudio() or Config.LIVE)
+	return Config.supportsPlace(game.PlaceId) and (RunService:IsStudio() or Config.LIVE)
 end
 
 -- Whether `player` may pick a line with F7 (Studio: anyone; live: Config.USER_IDS only).

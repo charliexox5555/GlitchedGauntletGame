@@ -1,0 +1,290 @@
+{
+  "variant": "Slipframe Arc r01x",
+  "gun": "Knife",
+  "source_blend": "Knife_Slipframe_Arc_r01.blend",
+  "fbx": "Knife_Slipframe_RobloxFlat.fbx",
+  "replaced_stock_prefixes": [
+    "Blade",
+    "Hilt",
+    "Neon"
+  ],
+  "untouched_stock": [],
+  "joints": [
+    {
+      "name": "ArcPlate",
+      "parent": "Root",
+      "c0": [
+        0.555,
+        0.0154,
+        0.046,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "visual_tip": [
+    1.271,
+    0.0,
+    0.133
+  ],
+  "flipped_islands": {},
+  "coplanar_lifted": [],
+  "crossed_faces_fixed": {},
+  "crossed_faces_left": {},
+  "parts": {
+    "SK_ArcPlate_01": {
+      "color": "276DAB",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "ArcPlate",
+      "blender_material": "Arc \u00b7 Anodized cobalt",
+      "triangles": 362,
+      "size": [
+        0.5655,
+        0.0122,
+        0.0609
+      ],
+      "center": [
+        0.7789,
+        0.0215,
+        0.0393
+      ]
+    },
+    "SK_ArcPlate_02": {
+      "color": "173E66",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "ArcPlate",
+      "blender_material": "Arc \u00b7 Dark cobalt",
+      "triangles": 118,
+      "size": [
+        0.5655,
+        0.0102,
+        0.0609
+      ],
+      "center": [
+        0.7789,
+        0.0205,
+        0.0393
+      ]
+    },
+    "SK_ArcPlate_ArcInlay": {
+      "color": "9CD9ED",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "ArcPlate",
+      "blender_material": "Arc \u00b7 Ice inlay",
+      "triangles": 92,
+      "size": [
+        0.3994,
+        0.0016,
+        0.0169
+      ],
+      "center": [
+        0.7691,
+        0.0264,
+        0.0224
+      ]
+    },
+    "SK_ArcPlate_03": {
+      "color": "394654",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "ArcPlate",
+      "blender_material": "Arc \u00b7 Smoked alloy",
+      "triangles": 88,
+      "size": [
+        0.3155,
+        0.0238,
+        0.0212
+      ],
+      "center": [
+        0.72,
+        0.0051,
+        0.038
+      ]
+    },
+    "SK_Root_01": {
+      "color": "276DAB",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Anodized cobalt",
+      "triangles": 470,
+      "size": [
+        1.4308,
+        0.112,
+        0.0684
+      ],
+      "center": [
+        0.3462,
+        0.0,
+        0.0356
+      ]
+    },
+    "SK_Root_02": {
+      "color": "173E66",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Dark cobalt",
+      "triangles": 178,
+      "size": [
+        1.4308,
+        0.11,
+        0.0684
+      ],
+      "center": [
+        0.3462,
+        0.0,
+        0.0356
+      ]
+    },
+    "SK_Root_03": {
+      "color": "313840",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Graphite grip",
+      "triangles": 328,
+      "size": [
+        0.5767,
+        0.113,
+        0.0973
+      ],
+      "center": [
+        -0.1084,
+        0.0,
+        0.0003
+      ]
+    },
+    "SK_Root_04": {
+      "color": "9CD9ED",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Ice inlay",
+      "triangles": 92,
+      "size": [
+        0.3994,
+        0.0016,
+        0.0169
+      ],
+      "center": [
+        0.7691,
+        -0.0264,
+        0.0224
+      ]
+    },
+    "SK_Root_ArcContacts": {
+      "color": "9CD9ED",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Ice inlay",
+      "triangles": 132,
+      "size": [
+        0.1009,
+        0.0013,
+        0.0136
+      ],
+      "center": [
+        0.664,
+        0.0146,
+        0.04
+      ]
+    },
+    "SK_Root_05": {
+      "color": "C8D5E1",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Polished edge",
+      "triangles": 1500,
+      "size": [
+        1.731,
+        0.124,
+        0.296
+      ],
+      "center": [
+        0.4055,
+        0.0,
+        -0.014
+      ]
+    },
+    "SK_Root_06": {
+      "color": "1C2630",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Recess wall",
+      "triangles": 1098,
+      "size": [
+        1.4654,
+        0.111,
+        0.2319
+      ],
+      "center": [
+        0.3344,
+        0.0,
+        -0.0004
+      ]
+    },
+    "SK_Root_07": {
+      "color": "A1AEBB",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Satin titanium",
+      "triangles": 1854,
+      "size": [
+        1.731,
+        0.124,
+        0.265
+      ],
+      "center": [
+        0.4055,
+        0.0,
+        0.0015
+      ]
+    },
+    "SK_Root_08": {
+      "color": "394654",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "Arc \u00b7 Smoked alloy",
+      "triangles": 952,
+      "size": [
+        1.731,
+        0.113,
+        0.265
+      ],
+      "center": [
+        0.4055,
+        0.0,
+        0.0015
+      ]
+    }
+  }
+}

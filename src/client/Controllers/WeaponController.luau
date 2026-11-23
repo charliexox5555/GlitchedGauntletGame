@@ -35,6 +35,7 @@ local Net = require(Shared.Net)
 local SettingsApply = require(Shared.SettingsApply)
 local ShadowMistAudio = require(Shared.Config.ShadowMistAudio)
 local TempestAudio = require(Shared.Config.TempestAudio)
+local RiftforgeAudio = require(Shared.Config.RiftforgeAudio)
 local SkinPreviewConfig = require(Shared.Config.SkinPreview)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
@@ -58,7 +59,7 @@ local ShotLog = require(script.Parent.Parent.Util.ShotLog)
 
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 
-local studioSkinPreview = RunService:IsStudio() and game.PlaceId == SkinPreviewConfig.PLACE_ID
+local studioSkinPreview = RunService:IsStudio() and SkinPreviewConfig.supportsPlace(game.PlaceId)
 
 type Slot = Types.Slot
 type WeaponConfig = Types.WeaponConfig
@@ -292,7 +293,7 @@ local function playLocal(id: string?, group: AudioController.Group, volume: numb
 end
 
 local function usesRuinBlighted(): boolean
-	return studioSkinPreview and ViewmodelController.hasShadowMist()
+	return ViewmodelController.hasShadowMist()
 end
 
 -- The Tempest-Strike Vandal: its own designed shots and handling
@@ -300,6 +301,14 @@ end
 local function tempestSet(config: WeaponConfig): any
 	if ViewmodelController.hasTempest() then
 		return TempestAudio.guns[config.id]
+	end
+	return nil
+end
+
+-- Riftforge Legendary line: its own full replacement handling & shots (Config/RiftforgeAudio.guns).
+local function riftforgeSet(config: WeaponConfig): any
+	if ViewmodelController.hasRiftforge() then
+		return RiftforgeAudio.guns[config.id]
 	end
 	return nil
 end
@@ -315,6 +324,14 @@ local function playGun(
 	if tempest and tempest[name] then
 		local custom =
 			AudioController.playSound(tempest[name], group or "Foley", nil, nil, pitchScale)
+		if custom then
+			return custom
+		end
+	end
+	local riftforge = riftforgeSet(config)
+	if riftforge and riftforge[name] then
+		local custom =
+			AudioController.playSound(riftforge[name], group or "Foley", nil, nil, pitchScale)
 		if custom then
 			return custom
 		end
@@ -500,13 +517,14 @@ local function inspect()
 	if alive and s and not reloading and os.clock() >= equipReadyAt and not gunBlocked() then
 		if ViewmodelController.inspect() then
 			local reaver = ViewmodelController.hasRuinedReaver()
+			local arc = ViewmodelController.hasSlipframeArc()
 			-- (the Tempest-Strike Katana's inspect sounds are its own timeline)
 			local katana = s.config.fireMode == "Melee" and tempestSet(s.config) ~= nil
-			if not usesRuinBlighted() and not reaver and not katana then
+			if not usesRuinBlighted() and not reaver and not katana and not arc then
 				playGun(s.config, "inspect")
 			end
 			-- The knife's flips click as it's caught (Config/Viewmodel InspectMelee).
-			if s.config.fireMode == "Melee" and not reaver and not katana then
+			if s.config.fireMode == "Melee" and not reaver and not katana and not arc then
 				for _, at in Animations.KNIFE_FEEL.inspectFlips do
 					task.delay(at, function()
 						if ViewmodelController.isInspecting() then
@@ -541,7 +559,11 @@ local function applyEquip(slot: Slot)
 	local beats = ViewmodelController.equip(config, duration)
 	local shadow = usesRuinBlighted()
 	playGun(config, "draw")
-	if not shadow and not ViewmodelController.hasRuinedReaver() then
+	if
+		not shadow
+		and not ViewmodelController.hasRuinedReaver()
+		and not ViewmodelController.hasSlipframeArc()
+	then
 		playGun(config, "drawWhoosh")
 	end
 	local token = reloadToken
@@ -785,6 +807,11 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		lastRound = config.magSize > 0 and s.ammo <= 0,
 		shadowMist = usesRuinBlighted(),
 		tempest = tempestSet(config) ~= nil,
+		slipframe = ViewmodelController.hasSlipframe(),
+		moltframe = ViewmodelController.hasMoltframe(),
+		playback = ViewmodelController.hasPlayback(),
+		sundial = ViewmodelController.hasSundial(),
+		riftforge = ViewmodelController.hasRiftforge(),
 	})
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
 	local mag = config.magSize
@@ -994,7 +1021,13 @@ local function swingContact(
 			punch(look.kick.X)
 		end)
 	end
-	if not heavy and not reaver and look and look.swipe then
+	if
+		not heavy
+		and not reaver
+		and not ViewmodelController.hasSlipframeArc()
+		and look
+		and look.swipe
+	then
 		EffectsController.knifeSwipe(
 			look.swipe,
 			math.max(delay - feel.swipeSweep * 0.45, 0),
@@ -1085,7 +1118,7 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	end)
 	if heavy then
 		local look = (feel :: any)[attack]
-		if look and look.swipe and not reaver then
+		if look and look.swipe and not reaver and not ViewmodelController.hasSlipframeArc() then
 			EffectsController.knifeSwipe(
 				look.swipe,
 				math.max(hitDelay - feel.swipeSweep * 0.45, 0),
@@ -1738,7 +1771,8 @@ function WeaponController.start()
 		end
 		cycle(if input.Position.Z > 0 then -1 else 1)
 	end)
-	Net.event("WeaponState").OnClientEvent:Connect(onWeaponState)
+	local weaponState = Net.event("WeaponState")
+	weaponState.OnClientEvent:Connect(onWeaponState)
 	Net.event("HitConfirm").OnClientEvent:Connect(onHitConfirm)
 
 	player.CharacterAdded:Connect(onCharacter)
@@ -1746,6 +1780,7 @@ function WeaponController.start()
 	if player.Character then
 		task.spawn(onCharacter, player.Character)
 	end
+	weaponState:FireServer()
 	RunService:BindToRenderStep("GGWeapons", Enum.RenderPriority.Input.Value + 1, update)
 	RunService.Heartbeat:Connect(pollDowned)
 	-- Studio only: the Workspace attribute DevAction ("inspect", "reload",
