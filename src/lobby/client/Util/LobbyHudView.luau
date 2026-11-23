@@ -1088,15 +1088,25 @@ end
 -- A callout over a bar item ("NEW SKIN UNLOCKED") or the party row ("Party"), or nil
 -- to hide it. It pops in from its centre each time it moves to a new target.
 local calloutAt: string? = nil
+local CALLOUT_GAP = 14 -- px between the tag's pointer and the party circle
+local CALLOUT_MIN_W, CALLOUT_PER_CHAR = 56, 13 -- tag width: base + per letter
 function LobbyHudView.callout(id: string?, text: string?)
 	local s = state
 	if not s then
 		return
 	end
+	local home = StateValues.get(s.callout, "Home")
+	if typeof(home) ~= "UDim2" then
+		home = s.callout.Position
+		StateValues.set(s.callout, "Home", home)
+		StateValues.set(s.callout, "HomeSize", s.callout.Size)
+	end
 	local x: number? = nil
+	local y = home.Y.Offset
 	if id == "Party" then
-		-- over the first party circle (the row is left-anchored, circles 72 px)
+		-- over the first party circle (the row is left-anchored, middle-anchored, circles 72 px)
 		x = s.party.Position.X.Offset + 36
+		y = s.party.Position.Y.Offset - 36 - CALLOUT_GAP
 	elseif id then
 		local b = s.items[id]
 		x = if b then b.Position.X.Offset else nil
@@ -1108,7 +1118,12 @@ function LobbyHudView.callout(id: string?, text: string?)
 		if label and label:IsA("TextLabel") then
 			label.Text = string.upper(text)
 		end
-		s.callout.Position = UDim2.fromOffset(x, s.callout.Position.Y.Offset)
+		-- a short word gets a short tag (the plate was drawn for "NEW SKIN UNLOCKED")
+		local full = StateValues.get(s.callout, "HomeSize")
+		local h = if typeof(full) == "UDim2" then full.Y.Offset else s.callout.Size.Y.Offset
+		local w = if typeof(full) == "UDim2" then full.X.Offset else s.callout.Size.X.Offset
+		s.callout.Size = UDim2.fromOffset(math.min(w, CALLOUT_MIN_W + #text * CALLOUT_PER_CHAR), h)
+		s.callout.Position = UDim2.fromOffset(x, y)
 		local pop = s.callout:FindFirstChildOfClass("UIScale")
 		if pop and calloutAt ~= id then
 			popIn(pop, 0, 0.34)

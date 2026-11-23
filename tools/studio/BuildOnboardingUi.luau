@@ -17,7 +17,7 @@ local StarterGui = game:GetService("StarterGui")
 local WHITE = Color3.fromHex("F4F4F2")
 local INK = Color3.fromHex("1A1A1D")
 local RED = Color3.fromHex("FF4D5E")
-local W, H = 430, 46 -- the bubble's plate (design px)
+local W, H = 340, 46 -- the bubble's plate (design px), a little wider than PLAY
 local GAP = 16 -- px between the bubble's pointer tip and PLAY's top
 
 local function find(): Instance?
@@ -28,8 +28,10 @@ local function find(): Instance?
 	return bar
 end
 
-local function near(a: Color3, b: Color3): boolean
-	return math.abs(a.R - b.R) + math.abs(a.G - b.G) + math.abs(a.B - b.B) < 0.06
+-- The Callout's reds (its plate is a tinted Skin image, its pointer a Frame): any
+-- strong red counts, so a re-tinted plate still recolours.
+local function near(a: Color3, _b: Color3): boolean
+	return a.R > 0.8 and a.G < 0.5 and a.B < 0.55
 end
 
 local bar = find()

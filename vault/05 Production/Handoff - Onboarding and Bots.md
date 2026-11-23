@@ -79,6 +79,14 @@ Built as planned above. Files:
 - Checks: StyLua, selene (one old error in untouched `PlayMenuController` code: `Content`), `rojo build` OK. No Luau type checker is installed, so strict types were checked by eye and by a review agent.
 - Security review (roblox-reviewer): no critical or high issues; the level cap can't be bypassed and the save can't be corrupted. Fixed from it: `OnboardingService` checks the cached save before any write (no free DataStore calls), the auto-queue re-reads Matches before queuing, mode names may be up to 16 characters. Left: `LobbyHudView` still waits for `Bottom.Callout` with no timeout (it has always been there).
 
+**Studio test (2026-11-22, after the owner freed Studio).** `BuildOnboardingUi.luau` run (bubble 340 × 46, from the Callout); the Studio save was at 1 match, and other match counts were faked by setting the server's published values (the save itself untouched except below). Passed:
+- 1 match: bar shows only Locker + Settings (+ PLAY, Party row); white bubble with pointer over PLAY; PLAY's line BEGINNER 2V2; NEW tag over the party circle. The lobby favorite ask fired and was counted (`OnbFav` 0 → 1).
+- Clicking PLAY: straight into the Beginner queue (no menu), bubble hides, bar says 2V2 / BEGINNER 2V2; bots filled after 5 s (Studio), match found with mode `beginner` in the match contract ("would teleport" in Studio).
+- 3 matches: Shop + Backpack back, PLAY opens the menu, the Beginner tile is live (SOON gone, gold line). Opening the Party card saved `OnbSeen` = 1 and the NEW moved to Shop.
+- Level 10: the Beginner tile hides and the server answers "BEGINNER 2V2 is for players below level 10".
+- Fixed from the captures: the NEW tag was the Callout's full 250 px bar sitting across PLAY → now a short tag sized to its word, above the party circle; the bubble was narrowed from 430 to 340 px.
+Not tested: the auto-queue on a truly new save (the Studio save already has 1 match), the second favorite ask in match 2 (needs a match server), whether the favorite prompt itself shows in Studio, real teleports.
+
 **Owner: what to test** (Studio test key with a fresh save, or a published test):
 1. Join with 0 matches: after the loading screen you're searching **BEGINNER 2V2** (bar circle says 2V2) without touching anything; bots fill after 10 s (5 s in Studio).
 2. First lobby: only PLAY, Locker and Settings on the bar; no Party row.
