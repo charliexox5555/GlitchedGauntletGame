@@ -43,7 +43,7 @@
 2. **Onboarding flow** (auto-queue, Beginner 2v2 mode, PLAY shortcut, notifications, favorite prompts, HUD unlocks, saved state).
 3. **In-match beginner help** (red highlight per enemy, ability hints).
 4. **Bots:** illusion, dynamic difficulty, leaver rule, fill timing, performance.
-5. **Queue menu art (can come later):** new tile images from our real maps, guns and bodies (Studio captures, not AI-looking), Beginner 2v2 tall and highlighted like the reference. Prompts for ChatGPT go in this note if image generation is used (memory: ChatGPT/Codex for images, owner pastes prompts).
+5. **Queue menu art (can come later):** new tile images from our real maps, guns and bodies (Studio captures, not AI-looking), Beginner 2v2 tall and highlighted like the reference. Prompts for ChatGPT go in this note if image generation is used (memory: ChatGPT/Codex for images, owner pastes prompts). **Master prompt ready (2026-11-22):** [Queue Tile Art Master Prompt](../04%20Tech/Prompts/2026-11-22%20Queue%20Tile%20Art%20Master%20Prompt%20(ChatGPT).md) (six tiles into `art-source/ui/queue/new/`; then Claude wires them and fixes the crop size).
 
 ## Phase 1 results: research (2026-11-22)
 **RIVALS (read-only study of the RIVALS file; study, don't copy):**
