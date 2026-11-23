@@ -33,6 +33,10 @@ return table.freeze({
 	assetWait = 3, -- longest wait for the logo images and this config before the reveal plays anyway
 	watchdogLobby = 30, -- closes whatever happens (LihFolk: Streaming Joins - Frozen Players ... Teardown, 25 s)
 	watchdogMatch = 120, -- a match server can wait for teleporting players (Config/Bots JOIN_GRACE + READY_TIMEOUT)
+	-- Lobby join: after the fighter exists, ask Roblox to stream the area around it and wait for floor under its
+	-- feet (owner 2026-11-22: "stuck in a void"), at most this long; then look this far down for the floor.
+	streamWait = 8,
+	groundProbe = 40,
 	duelMin = 0.6, -- the pad-duel short version
 	duelMax = 4,
 	fadeOut = 0.8, -- the close: words drop out, the title zooms through, the backdrop fades as the blur clears

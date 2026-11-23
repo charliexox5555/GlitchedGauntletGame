@@ -105,12 +105,47 @@ local function ownerFolder(): Instance
 	return made
 end
 
-local function profile(): BotsConfig.Profile
+-- The difficulty a new bot starts on: the admin panel's server-wide pick
+-- (Workspace "AdminBotDifficulty", set only by the server's AdminService), else
+-- Studio's BotDifficulty, else Config/Bots.DIFFICULTY.
+local function profile(): (BotsConfig.Profile, string)
+	local admin = StateValues.get(workspace, "AdminBotDifficulty")
 	local wanted = StateValues.get(workspace, "BotDifficulty")
-	local name = if RunService:IsStudio() and typeof(wanted) == "string"
+	local name = if typeof(admin) == "string" and BotsConfig.PROFILES[admin]
+		then admin
+		elseif
+			RunService:IsStudio()
+			and typeof(wanted) == "string"
+			and BotsConfig.PROFILES[wanted]
 		then wanted
 		else BotsConfig.DIFFICULTY
-	return BotsConfig.PROFILES[name] or BotsConfig.PROFILES[BotsConfig.DIFFICULTY]
+	return BotsConfig.PROFILES[name], name
+end
+
+-- Admin panel (Services/AdminService in the lobby code, owner only): it writes
+-- "AdminDifficulty" / "AdminLevel" on a bot's owner Configuration; the bot picks
+-- them up here at once (its brain reads bot.profile on every think). The seat
+-- shows the current difficulty ("Difficulty") so the panel can list it.
+local function watchAdmin(bot: Bot)
+	StateValues.changed(bot.owner, "AdminDifficulty"):Connect(function()
+		local name = StateValues.get(bot.owner, "AdminDifficulty")
+		local p = if typeof(name) == "string" then BotsConfig.PROFILES[name] else nil
+		if p and byKey[bot.key] == bot then
+			bot.profile = p
+			StateValues.set(bot.seat, "Difficulty", name)
+		end
+	end)
+	StateValues.changed(bot.owner, "AdminLevel"):Connect(function()
+		local level = StateValues.get(bot.owner, "AdminLevel")
+		if typeof(level) ~= "number" or byKey[bot.key] ~= bot then
+			return
+		end
+		StateValues.set(bot.owner, "Level", level)
+		StateValues.set(bot.seat, "Level", level)
+		if bot.model then
+			StateValues.set(bot.model, "Level", level)
+		end
+	end)
 end
 
 -- The owner's PlayContext: the same actions a player's has (Config/Input),
@@ -166,11 +201,13 @@ local function newBot(team: number): Bot
 	seat.Parent = folder
 	local inputs = buildInputs(owner)
 	owner.Parent = ownerFolder()
+	local startProfile, startName = profile()
+	StateValues.set(seat, "Difficulty", startName)
 	local bot: Bot = {
 		key = table.freeze({ name = name }),
 		name = name,
 		team = team,
-		profile = profile(),
+		profile = startProfile,
 		avatar = nil,
 		avatarPending = true,
 		seat = seat,
@@ -698,6 +735,7 @@ function BotService.add(team: number, count: number): { any }
 		local bot = newBot(team)
 		table.insert(bots, bot)
 		byKey[bot.key] = bot
+		watchAdmin(bot)
 		table.insert(keys, bot.key)
 		task.spawn(prepareAvatar, bot)
 	end

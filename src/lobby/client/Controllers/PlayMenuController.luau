@@ -206,7 +206,17 @@ local ZOOM = 1.08
 local LIFT_PX = 5
 local cropOf: { [Tile]: { size: Vector2, centre: Vector2 } } = {}
 
-local ART_PX = Vector2.new(840, 940) -- the mode pictures' size (refined below when readable)
+local ART_PX = Vector2.new(840, 940) -- the old mode pictures' size (refined below when readable)
+-- The queue tile pictures' real sizes (art-source/ui/queue/upload, 2026-11-22): EditableImage
+-- can't read them in a live game, so the crop needs them written down.
+local ART_SIZE: { [string]: Vector2 } = {
+	["1v1"] = Vector2.new(1024, 1024),
+	["2v2"] = Vector2.new(1024, 1024),
+	["3v3"] = Vector2.new(1024, 1024),
+	["4v4"] = Vector2.new(1024, 612),
+	["5v5"] = Vector2.new(1024, 612),
+	Beginner2v2 = Vector2.new(572, 1024),
+}
 
 local function applyCrop(t: Tile, dims: Vector2)
 	local art = t.art
@@ -229,7 +239,11 @@ local function setupCrop(t: Tile)
 	if not art then
 		return
 	end
-	applyCrop(t, ART_PX)
+	local known = ART_SIZE[t.button.Name]
+	applyCrop(t, known or ART_PX)
+	if known then
+		return
+	end
 	-- new mode art may have another size: read it in the background, and keep
 	-- the default if the client can't (EditableImage may be unavailable)
 	task.spawn(function()

@@ -37,10 +37,15 @@ local MUTED, INK, WHITE = hex("B8B8BB"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local CENTRE = Vector2.new(0.5, 0.5)
 -- mode art (the ChatGPT art the old queue menu used; Controllers/QueueMenu, deleted 2026-11-22)
+-- Queue tile pictures (2026-11-22, art-source/ui/queue/upload; image ids, not the decal ids; ChatGPT master prompt in
+-- vault/04 Tech/Prompts/2026-11-22 Queue Tile Art Master Prompt (ChatGPT).md).
 local ART = {
-	["1v1"] = "rbxassetid://132175332386485",
-	["2v2"] = "rbxassetid://88838344441665",
-	["3v3"] = "rbxassetid://91043835690868",
+	["1v1"] = "rbxassetid://105644746983400",
+	["2v2"] = "rbxassetid://91017153854263",
+	["3v3"] = "rbxassetid://119760929979530",
+	["4v4"] = "rbxassetid://91589943227727",
+	["5v5"] = "rbxassetid://90988771366400",
+	beginner = "rbxassetid://134591148608644",
 }
 
 local function text(
@@ -437,7 +442,7 @@ do
 	local X0, Y0, G = 264, 232, 14
 	local TW, TH = 360, 330 + G + 300
 	local beginner = tile("Beginner2v2", X0, Y0, TW, TH, {
-		art = ART["2v2"],
+		art = ART.beginner,
 		artTone = 0.5,
 		title = "BEGINNER",
 		titleSize = 46,
@@ -470,7 +475,7 @@ do
 	end
 	local W2 = (RW - G) / 2
 	tile("4v4", RX, Y0 + 330 + G, W2, 300, {
-		art = ART["3v3"],
+		art = ART["4v4"],
 		artTone = 0.38,
 		title = "4V4",
 		titleSize = 84,
@@ -478,7 +483,7 @@ do
 		order = 4,
 	})
 	tile("5v5", RX + W2 + G, Y0 + 330 + G, W2, 300, {
-		art = ART["2v2"],
+		art = ART["5v5"],
 		artTone = 0.38,
 		title = "5V5",
 		titleSize = 84,

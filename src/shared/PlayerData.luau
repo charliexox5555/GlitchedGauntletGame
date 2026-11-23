@@ -79,7 +79,9 @@ PlayerData.RECEIPT_MEMORY = 100
 
 -- Studio play (API access on) saves to its own store, so test coins and test
 -- purchases never land in a live save.
-PlayerData.STORE = if RunService:IsStudio() then "PlayerDataV1_Studio" else "PlayerDataV1"
+-- Owner 2026-11-22: "reset all player data" = new store names (V1 -> V2). The V1 stores are left as
+-- they were, so switching these names back restores every old save.
+PlayerData.STORE = if RunService:IsStudio() then "PlayerDataV2_Studio" else "PlayerDataV2"
 PlayerData.VERSION = 1
 PlayerData.REPLICA = "Inventory"
 PlayerData.SKINS = "Skins"

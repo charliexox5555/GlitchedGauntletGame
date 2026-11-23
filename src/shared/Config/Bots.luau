@@ -158,8 +158,51 @@ local profiles: { [string]: Profile } = {
 	},
 }
 
+-- Beyond Hard, for the owner's admin panel (owner 2026-11-22: "even past hard ... ultra hard").
+-- Not used by matchmaking. Reaction can't go under REACTION_FLOOR (0.15 s) whatever the profile says.
+profiles.Insane = {
+	perception = { reaction = 0.16, hearing = 80, memory = 10, fov = 170 },
+	aim = {
+		aimSmooth = 0.07,
+		errorStart = 2.2,
+		errorFloor = 0.5,
+		errorSettle = 0.15,
+		trackLag = 0.04,
+		firstMisses = 0,
+		maxHitsPerSec = 8,
+		easeLowHealth = 1,
+		headChance = 0.55,
+		recoilControl = 0.97,
+	},
+	tactics = { aggression = 0.92, coverHealth = 0.5, coverPatience = 0.35, flankChance = 0.85 },
+	mods = { abilityUse = 0.96, interval = 0.45, minScore = 0.6 },
+	movement = { strafePause = 0.05, slideChance = 0.88, slideJumpChance = 0.5, zoneLead = 2.2 },
+}
+profiles.Ultra = {
+	perception = { reaction = 0.15, hearing = 100, memory = 14, fov = 200 },
+	aim = {
+		aimSmooth = 0.045,
+		errorStart = 1.2,
+		errorFloor = 0.2,
+		errorSettle = 0.09,
+		trackLag = 0.01,
+		firstMisses = 0,
+		maxHitsPerSec = 15,
+		easeLowHealth = 0.9,
+		headChance = 0.75,
+		recoilControl = 1,
+	},
+	tactics = { aggression = 1, coverHealth = 0.5, coverPatience = 0.25, flankChance = 0.9 },
+	mods = { abilityUse = 1, interval = 0.3, minScore = 0.55 },
+	movement = { strafePause = 0.02, slideChance = 0.95, slideJumpChance = 0.65, zoneLead = 2.5 },
+}
+
+-- Easiest to hardest (the admin panel's buttons).
+local ORDER = { "Easy", "Normal", "Hard", "Insane", "Ultra" }
+
 return table.freeze({
 	PROFILES = profiles,
+	ORDER = table.freeze(ORDER),
 	DIFFICULTY = "Hard", -- testing default for every mode until difficulty selection is wired
 
 	-- Lobby → Match (vault/05 Production/Overnight 2026-11-04.md → contracts).

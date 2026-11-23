@@ -915,6 +915,22 @@ function LobbyHudView.refresh()
 		s.lastStatus = status
 		-- PLAY leaves while you're queued (the searching bar, Controllers/
 		-- PlayMenuController, takes over) and comes back when you're idle
+		-- PLAY's drop shadow (a sibling image) leaves and comes back with it
+		local shadow = s.bottom:FindFirstChild("PlayShadow")
+		local shade = if shadow and shadow:IsA("ImageLabel") then shadow else nil
+		if shade then
+			local home = StateValues.get(shade, "Home")
+			if typeof(home) ~= "number" then
+				home = shade.ImageTransparency
+				StateValues.set(shade, "Home", home)
+			end
+			if status == "idle" then
+				shade.Visible = true
+				tween(shade, 0.36, { ImageTransparency = home }, QUINT, OUT)
+			elseif was == "idle" then
+				tween(shade, 0.2, { ImageTransparency = 1 }, QUINT, IN)
+			end
+		end
 		if status == "idle" then
 			s.play.Visible = true
 			StateValues.set(s.playPop, "Rest", 1)
@@ -925,6 +941,9 @@ function LobbyHudView.refresh()
 			t.Completed:Once(function(playback: Enum.PlaybackState)
 				if playback == Enum.PlaybackState.Completed and QueueState.status() ~= "idle" then
 					s.play.Visible = false
+					if shade then
+						shade.Visible = false
+					end
 				end
 			end)
 		end

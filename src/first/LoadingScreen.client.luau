@@ -411,6 +411,10 @@ local function advance()
 	stepStarted = os.clock()
 end
 
+-- Until Config/Loading arrives: the lobby stage's streaming wait (s) and floor probe (studs).
+local STREAM_WAIT = 8
+local GROUND_PROBE = 40
+
 local function waitFor(check: () -> boolean, deadline: number): boolean
 	while not check() do
 		if os.clock() >= deadline then
@@ -629,6 +633,29 @@ else
 		local character = player.Character
 		return character ~= nil and character:FindFirstChild("HumanoidRootPart") ~= nil
 	end, deadline) and done
+	-- The lobby around the spawn streamed in before the screen opens (owner 2026-11-22: "stuck in a void for a
+	-- bit"): ask for the area, then wait for floor under the feet, up to STREAM_WAIT seconds (inside the watchdog).
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if root and root:IsA("BasePart") then
+		local streamFor = (cfg :: any).streamWait or STREAM_WAIT
+		local probe = (cfg :: any).groundProbe or GROUND_PROBE
+		local streamUntil = math.min(os.clock() + streamFor, deadline)
+		pcall(function()
+			player:RequestStreamAroundAsync(root.Position, streamFor)
+		end)
+		local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = { character :: Instance }
+		local grounded = waitFor(function()
+			return root.Parent ~= nil
+				and workspace:Raycast(root.Position, Vector3.new(0, -GROUND_PROBE, 0), params)
+					~= nil
+		end, streamUntil)
+		if not grounded then
+			warn("[Health] C loading: no floor under the spawn after streaming (continuing)")
+		end
+	end
 	advance()
 	stage("lobby", "OPENING THE LOBBY")
 	done = waitFor(function()
