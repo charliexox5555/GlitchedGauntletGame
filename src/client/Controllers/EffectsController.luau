@@ -107,19 +107,6 @@ local function shadowShot(config: WeaponConfig): Color3?
 		else nil
 end
 
--- The skin line of the gun model `a` sits on (its WeaponId model's SkinLine).
-local function skinLineOf(a: Instance): string?
-	local node: Instance? = a.Parent
-	while node and node ~= Workspace do
-		if node:IsA("Model") and StateValues.get(node, "WeaponId") ~= nil then
-			local line = StateValues.get(node, "SkinLine")
-			return if typeof(line) == "string" then line else nil
-		end
-		node = node.Parent
-	end
-	return nil
-end
-
 -- Our own camera gun wears the Tempest-Strike line (first-person shot effects).
 local function tempestShot(): boolean
 	return cameraSkinLine() == Tempest.LINE
@@ -445,7 +432,7 @@ end
 -- drawn like your own, from the view gun, and `onSpectatedShot` plays the
 -- view gun's fire clip.
 local spectated: Instance? = nil
-local onSpectatedShot: ((config: WeaponConfig, left: boolean) -> ())? = nil
+local onSpectatedShot: ((config: WeaponConfig, left: boolean) -> any)? = nil
 -- Seconds the spectated fighter's shots wait before they're drawn: their view
 -- is drawn a little in the past (SpectateController, the look stream), so
 -- the shot waits until the crosshair is where they fired from.
@@ -453,7 +440,7 @@ local spectatedDelay = 0
 
 function EffectsController.setSpectated(
 	shooter: Instance?,
-	onShot: ((config: WeaponConfig, left: boolean) -> ())?
+	onShot: ((config: WeaponConfig, left: boolean) -> any)?
 )
 	spectated = shooter
 	onSpectatedShot = onShot
@@ -488,9 +475,8 @@ local function drawSpectated(
 	ends: { Vector3 }
 )
 	local hook = onSpectatedShot
-	if hook then
-		hook(config, left)
-	end
+	-- the hook returns the shot's sound options for the watched gun's skin (Controllers/SpectateController)
+	local options = if hook then hook(config, left) else nil
 	if config.melee then
 		AudioController.playSound(GunSounds.get(weaponId).fire, "Gun")
 		return
@@ -503,8 +489,8 @@ local function drawSpectated(
 			elseif shooter:IsA("Model") then shooter
 			else nil
 	)
-	-- The spectated player's gun, as your own sounds (Util/GunAudio).
-	GunAudio.shot(shooter, config)
+	-- The spectated player's gun, as your own sounds, their skin's included (Util/GunAudio).
+	GunAudio.shot(shooter, config, if typeof(options) == "table" then options else nil)
 	local muzzleName = "Muzzle"
 	local muzzles = config.muzzles
 	if muzzles and #muzzles > 1 then
@@ -615,11 +601,9 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	end
 	-- Their shot, 3D at the muzzle: first shot, random takes, a tail with every
 	-- shot faded by the next (Util/GunAudio, per shooter).
-	GunAudio.shot(
-		shooter,
-		config,
-		{ at = from, tempest = muzzle ~= nil and skinLineOf(muzzle) == Tempest.LINE }
-	)
+	-- Always the stock sound for other players (owner 2026-11-23: skins sound different only on your own gun,
+	-- or the one you spectate).
+	GunAudio.shot(shooter, config, { at = from })
 	local maxPellets =
 		math.max(config.pellets, if config.altFire then config.altFire.pellets else 0)
 	for i, e in ends do

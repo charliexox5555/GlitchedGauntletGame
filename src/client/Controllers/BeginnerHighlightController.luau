@@ -78,7 +78,11 @@ end
 local function viewer(): (number?, { [string]: boolean })
 	local mine = Teams.of(player)
 	local holder, body = Watched.get()
-	if holder and body and holder ~= player and Teams.of(body) == mine then
+	-- only while you're out of the fight: alive, it's always your own view (a stale watch after a respawn
+	-- made every round look reset, owner 2026-11-23)
+	local me = player.Character
+	local out = me == nil or not Health.isAlive(me)
+	if out and holder and body and holder ~= player and Teams.of(body) == mine then
 		local who = if holder:IsA("Player") then holder else seatOf(body)
 		return mine, published(who)
 	end

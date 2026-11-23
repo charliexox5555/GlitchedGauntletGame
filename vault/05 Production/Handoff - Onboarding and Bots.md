@@ -149,5 +149,11 @@ Owner: live lobby and a live Beginner 2v2 both sat on "LOADING YOUR DATA" a long
 - Neon red fill + light outline, fill pulsing 0.05 ↔ 0.4 transparency every 1.1 s, `AlwaysOnTop` (through walls); numbers `Config/Onboarding.RED_ENEMY`.
 - Per fighter, server-side: MatchService records who each fighter (player or bot) has hit in a Beginner match and publishes "RedHits" on the Player / the bot's seat; the client shows the watched teammate's red enemies while spectating (Util/Watched), its own otherwise (plus its HitConfirm for an instant clear). Code only; owner tests.
 
+## Bots + spectate fixes (2026-11-23, code only; owner tests)
+- **Bots now die in Foundry's lava / off any map:** `MapService` checked only players against the kill depth; it now checks this match's bots too.
+- **Firewall crosses gaps:** `ModWalls.grow` treats a sudden floor drop (> 5 studs) or a lava surface (CrackedLava, or a part named *lava*) as a gap: it crosses at its height without pieces and resumes on the far side; a gap wider than 24 studs is a real drop and it carries on below.
+- **Spectating sounds like the watched gun:** the spectate hook returns that gun's skin sound options (Ruin-Blighted, Tempest-Strike, Slipframe ... read from the view gun, which wears their skin); the VFX already followed it. Other players' shots always use the stock sound now (Tempest's far take for others removed). Why spectated shots seemed silent wasn't found in code: recheck after this.
+- **Red enemies no longer reset each round:** the spectated (teammate's) view is used only while you're dead; a stale watch after respawning showed the teammate's red set.
+
 ## Done when
 A fresh account (Studio test key) goes join → Beginner 2v2 → lobby (favorite prompt, PLAY bubble) → second Beginner match → normal queue, with the HUD unlocking on schedule; bots feel like players and scale with who's in the match; leavers behave as decided; results, what the owner should test, and what wasn't tested are in this note, `00 Home.md` Status and `Bugs & Ideas.md`.

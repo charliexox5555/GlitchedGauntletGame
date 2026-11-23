@@ -188,6 +188,28 @@ end
 -- Falling off the map kills (the kill height above).
 local sinceCheck = 0
 local VOID_MARGIN = 50 -- studs above FallenPartsDestroyHeight
+
+-- Every fighter body to check: players' characters and this match's AI bots (Workspace.Dummies). Bots were
+-- missing here, so a bot that fell into Foundry's lava pit never died (owner 2026-11-23).
+local function fallBodies(): { Model }
+	local list: { Model } = {}
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		if character then
+			table.insert(list, character)
+		end
+	end
+	local dummies = workspace:FindFirstChild("Dummies")
+	if dummies then
+		for _, m in dummies:GetChildren() do
+			if m:IsA("Model") and StateValues.get(m, "IsBot") == true and Context.owns(m) then
+				table.insert(list, m)
+			end
+		end
+	end
+	return list
+end
+
 local function checkFalls(dt: number)
 	sinceCheck += dt
 	local map = active
@@ -199,9 +221,8 @@ local function checkFalls(dt: number)
 	-- before the engine deletes their parts (nobody dies on their own now).
 	if not map then
 		local voidY = workspace.FallenPartsDestroyHeight + VOID_MARGIN
-		for _, player in Players:GetPlayers() do
-			local character = player.Character
-			local root = character and character:FindFirstChild("HumanoidRootPart")
+		for _, character in fallBodies() do
+			local root = character:FindFirstChild("HumanoidRootPart")
 			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 			if
 				root
@@ -218,10 +239,9 @@ local function checkFalls(dt: number)
 	local depth = StateValues.get(map, "KillDepth")
 	local killY = map:GetPivot().Position.Y
 		- (if typeof(depth) == "number" then depth else MatchConfig.KILL_DEPTH)
-	for _, player in Players:GetPlayers() do
-		local character = player.Character
-		local root = character and character:FindFirstChild("HumanoidRootPart")
-		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	for _, character in fallBodies() do
+		local root = character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if
 			root
 			and root:IsA("BasePart")

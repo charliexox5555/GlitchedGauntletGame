@@ -39,6 +39,11 @@ local ModWalls = {}
 local GROUND_ABOVE = 8 -- a new point looks for the floor from this high...
 local GROUND_BELOW = 30 -- ...down to this far
 local START_AHEAD = 1.5 -- studs in front of the feet the wall starts
+-- Gaps (owner 2026-11-23: the wall "just stops at the lava pass"): a floor this far below the wall's head,
+-- or lava, is a gap; the wall crosses it at its height without pieces and resumes on the far side. A gap
+-- wider than GAP_MAX is a real drop: the wall carries on down there.
+local GAP_DROP = 5
+local GAP_MAX = 24
 local BODY_MARGIN = 1 -- a body this far out of a piece's thickness is in it
 local FADE = 0.5 -- the pieces stay this long after ExpiresAt (the flames sink)
 local HINDERED = StatusEffects.effects.Hinder.attribute
@@ -67,6 +72,7 @@ type Wall = {
 	streamed: Vector3?, -- the client's last ModSteer look
 	head: Vector3, -- the growing end (on the floor)
 	lastPoint: Vector3, -- where the newest piece ends
+	gapRun: number?, -- studs crossed over a gap so far (nil: on the floor)
 	length: number,
 	building: boolean,
 	pieces: { BasePart },
@@ -145,13 +151,19 @@ local function floorParams(): RaycastParams
 	return params
 end
 
-local function snap(at: Vector3, params: RaycastParams): Vector3
+-- The floor under `at`, and whether it's no floor to build on (nothing below, or lava).
+local function snap(at: Vector3, params: RaycastParams): (Vector3, boolean)
 	local hit = workspace:Raycast(
 		Vector3.new(at.X, at.Y + GROUND_ABOVE, at.Z),
 		Vector3.new(0, -(GROUND_ABOVE + GROUND_BELOW), 0),
 		params
 	)
-	return if hit then hit.Position else at
+	if not hit then
+		return at, true
+	end
+	local lava = hit.Material == Enum.Material.CrackedLava
+		or string.find(string.lower(hit.Instance.Name), "lava", 1, true) ~= nil
+	return hit.Position, lava
 end
 
 -- A piece of wall from `a` to `b` (both on the floor).
@@ -223,12 +235,31 @@ local function grow(wall: Wall, dt: number, params: RaycastParams)
 		finish(wall)
 		return
 	end
-	wall.head = snap(wall.head + wall.heading * step, params)
-	wall.length += step
-	local flatGap = ((wall.head - wall.lastPoint) * Vector3.new(1, 0, 1)).Magnitude
-	if flatGap >= stats.segment then
-		addPiece(wall, wall.lastPoint, wall.head)
+	local ahead = wall.head + wall.heading * step
+	local floor, noFloor = snap(ahead, params)
+	local gap = noFloor or floor.Y < wall.head.Y - GAP_DROP
+	if gap and (wall.gapRun or 0) + step <= GAP_MAX then
+		-- over a gap: keep the head's height, no pieces; close the piece before it
+		if not wall.gapRun then
+			addPiece(wall, wall.lastPoint, wall.head)
+		end
+		wall.gapRun = (wall.gapRun or 0) + step
+		wall.head = Vector3.new(ahead.X, wall.head.Y, ahead.Z)
 		wall.lastPoint = wall.head
+		wall.length += step
+	else
+		if wall.gapRun then
+			-- across (or a real drop): the wall picks up again from here
+			wall.gapRun = nil
+			wall.lastPoint = floor
+		end
+		wall.head = floor
+		wall.length += step
+		local flatGap = ((wall.head - wall.lastPoint) * Vector3.new(1, 0, 1)).Magnitude
+		if flatGap >= stats.segment then
+			addPiece(wall, wall.lastPoint, wall.head)
+			wall.lastPoint = wall.head
+		end
 	end
 	if wall.length >= stats.maxLength - 1e-3 then
 		finish(wall)

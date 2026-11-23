@@ -1051,7 +1051,10 @@ local function watchStep(cam: Camera, dt: number)
 	end
 end
 
-local function onSpectatedShot(config: WeaponConfig, left: boolean)
+-- The spectated fighter's shot. Returns the shot's sound options (Util/GunAudio): the view gun wears their
+-- skin, so its line picks the skinned sound like your own gun's (owner 2026-11-23: spectating a Ruin-Blighted
+-- gun should sound like one).
+local function onSpectatedShot(config: WeaponConfig, left: boolean): { [string]: any }?
 	local f = target
 	if config.fireMode == "Melee" then
 		-- A player's swings come from SwingAt / SwingStep (watchStep), which
@@ -1059,7 +1062,7 @@ local function onSpectatedShot(config: WeaponConfig, left: boolean)
 		if f and not f.holder:IsA("Player") then
 			ViewmodelController.swing("Slash1")
 		end
-		return
+		return nil
 	end
 	local now = os.clock()
 	heat = Accuracy.cool(config, heat, now - lastShotAt) + 1
@@ -1072,6 +1075,15 @@ local function onSpectatedShot(config: WeaponConfig, left: boolean)
 	if config.scope ~= nil and adsAlpha >= VM.SCOPE_AT then
 		HudController.scopeShot()
 	end
+	return {
+		shadowMist = ViewmodelController.hasShadowMist(),
+		tempest = ViewmodelController.hasTempest(),
+		slipframe = ViewmodelController.hasSlipframe(),
+		moltframe = ViewmodelController.hasMoltframe(),
+		playback = ViewmodelController.hasPlayback(),
+		sundial = ViewmodelController.hasSundial(),
+		riftforge = ViewmodelController.hasRiftforge(),
+	}
 end
 
 function watch(f: Fighter)
