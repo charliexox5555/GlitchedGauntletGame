@@ -27,6 +27,29 @@ Welcome to DRAFT DUELS, the shooter where every round is a new loadout! Draft a 
 👍 Like and favorite for updates!
 ```
 
+## Season 1 update (full release, Saturday 2026-11-28)
+
+Owner's update list, polished. Goes at the top of the description, above the feature list.
+
+```
+🏆 SEASON 1 IS HERE! 🏆
+Thank you for playing the Draft Duels soft launch! Season 1 brings the full release of the game:
+
+🎟️ NEW Season 1 Battle Pass: level up for free rewards!
+⭐ NEW Level-up rewards
+⚡ NEW Unlockable abilities
+🔑 NEW Gun charms
+🎯 NEW Range: practise your aim in the lobby
+🎁 2 NEW gun bundles
+💎 Tempest-Strike & Ruinblighted bundles now include charms and abilities (free if you already own them!)
+🏃 Smoother, improved movement
+🔧 Bug fixes
+```
+
+Promo text for launch week: `🏆 SEASON 1 IS LIVE! New Battle Pass, abilities & charms!`
+
+Check before posting: Battle Pass, charms and Range were parked or not built in the Release Plan of 2026-11-22. Only list what ships. Abilities sold in bundles need the pay-to-win check.
+
 ## Promotional text
 
 A short hook that sits on top of the description. Use it: it's the first thing people read. Make it about the draft (the one thing RIVALS-style shooters don't have), keep it short, and change it with each update.
