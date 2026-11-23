@@ -245,3 +245,21 @@ Owner: "Cases prices should show their Robux prices first, and then when you cli
 - Tested in Studio play: tiles 99 / 199 / 399 / 499; popup with both Robux buttons and Tickets ([capture](Shop%20Economy/case_popup_robux_first.jpg)); fake receipt "3 Elite Cases" → Elite cases 1 → 4 and the popup ([capture](Shop%20Economy/reward_popup.jpg)); owned bundles and the Starter read OWNED.
 - **Not tested:** the new Starter contents on a fresh account (this test account already has it), a real Robux purchase, a restricted account, phone.
 - Art slots ready: bundle `banner`, `ShopCatalog.PACK_ART`, `PACK_BACKDROP` (paste uploaded ids; no Studio work).
+
+## Launch art wired in (2026-11-22)
+ChatGPT made all 11 images from the [master prompt](../04%20Tech/Prompts/2026-11-22%20Shop%20Art%20Master%20Prompt%20(ChatGPT).md) (`art-source/ui/shop/new/`). Uploaded as Decals to group 11116787 (recorded in `art-source/uploads.json`), then resolved to image ids in Studio:
+
+| File | Decal | Image id (used in code) | Where |
+|---|---|---|---|
+| pack_1 … pack_6 | 109064291275452 · 86886520239434 · 78866372280146 · 75577400751519 · 92863181294549 · 110815832727983 | 133249202687167 · 92145452769066 · 90207390989766 · 80029818066118 · 100700481422006 · 132442670633809 | `ShopCatalog.PACK_ART` (Coins tab) |
+| pack_backdrop | 88697341024977 | 111801042683623 | `ShopCatalog.PACK_BACKDROP` |
+| banner_ruinblighted | 83121459082360 | 114348398658883 | RuinBlighted `banner` |
+| banner_tempeststrike | 93782407729732 | 131808642557103 | TempestStrike `banner` |
+| banner_starter | 115685547654856 | 96454339687407 | Starter `banner` + `ART.starterBanner` (Home's offer card) |
+| ticket | 100513340169712 | 118693853905400 | `ART.ticket`: price plates (Ticket case tiles, case popup WITH TICKETS) and login reward cells |
+
+- Titles, prices, hero renders and item tiles stay live UI on top. The cards' Studio `ImageColor3` tint (meant for the old grey placeholder) is cleared to white when real art is set, so the banners show their own colours.
+- Home's offer card got a `Hero` ImageLabel (coin pile on the right of the Starter banner; `tools/studio/ShopOfferHero.luau`). **Save the Lobby place.**
+- Prices, products, rewards and purchase rules unchanged.
+- Checks: StyLua, Selene (0/0), `rojo build` pass. Studio play, desktop: [Home](Shop%20Economy/art_home.jpg), [Bundles](Shop%20Economy/art_bundles.jpg), [Starter](Shop%20Economy/art_starter.jpg), [Coins](Shop%20Economy/art_coins.jpg), [Daily login](Shop%20Economy/art_login.jpg), [case popup](Shop%20Economy/art_case_popup.jpg).
+- **Not tested:** phone layout (no device emulation via MCP; banners use Crop, so narrow cards trim the sides of the scenery only), Ticket-priced case tiles on Home (only shown to restricted accounts; same `priceIcon` path as the popup's Ticket plate, which was seen).

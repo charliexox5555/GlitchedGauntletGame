@@ -4192,5 +4192,71 @@
   "name": "GG Shop Hero tempeststrike",
   "type": "Decal",
   "uploaded": "2026-11-22 17:36:02"
+ },
+ "art-source/ui/shop/new/banner_ruinblighted.png": {
+  "assetId": 83121459082360,
+  "name": "GG Shop banner_ruinblighted",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:30"
+ },
+ "art-source/ui/shop/new/banner_starter.png": {
+  "assetId": 115685547654856,
+  "name": "GG Shop banner_starter",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:44"
+ },
+ "art-source/ui/shop/new/banner_tempeststrike.png": {
+  "assetId": 93782407729732,
+  "name": "GG Shop banner_tempeststrike",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:37"
+ },
+ "art-source/ui/shop/new/pack_1.png": {
+  "assetId": 109064291275452,
+  "name": "GG Shop pack_1",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:45:42"
+ },
+ "art-source/ui/shop/new/pack_2.png": {
+  "assetId": 86886520239434,
+  "name": "GG Shop pack_2",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:45:49"
+ },
+ "art-source/ui/shop/new/pack_3.png": {
+  "assetId": 78866372280146,
+  "name": "GG Shop pack_3",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:45:55"
+ },
+ "art-source/ui/shop/new/pack_4.png": {
+  "assetId": 75577400751519,
+  "name": "GG Shop pack_4",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:01"
+ },
+ "art-source/ui/shop/new/pack_5.png": {
+  "assetId": 92863181294549,
+  "name": "GG Shop pack_5",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:07"
+ },
+ "art-source/ui/shop/new/pack_6.png": {
+  "assetId": 110815832727983,
+  "name": "GG Shop pack_6",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:14"
+ },
+ "art-source/ui/shop/new/pack_backdrop.png": {
+  "assetId": 88697341024977,
+  "name": "GG Shop pack_backdrop",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:24"
+ },
+ "art-source/ui/shop/new/ticket.png": {
+  "assetId": 100513340169712,
+  "name": "GG Shop ticket",
+  "type": "Decal",
+  "uploaded": "2026-11-22 18:46:50"
  }
 }

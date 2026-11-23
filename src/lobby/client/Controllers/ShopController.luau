@@ -472,7 +472,7 @@ local function ticketWords(n: number): string
 end
 
 -- The icon in a price plate's row (a "Coin" frame with an "Art" image): the coin, the
--- Robux mark (read from a Studio Robux plate), or none (Tickets until their icon exists).
+-- Robux mark (read from a Studio Robux plate), the Ticket, or none.
 local robuxIcon: string? = nil
 local ROBUX_PLATE = ShopTheme.ROBUX -- RIVALS-like green for anything Robux
 local coinPlate: Color3? = nil -- the Studio coin plate colour (read once)
@@ -488,10 +488,12 @@ local function priceIcon(button: Instance, kind: "coins" | "robux" | "tickets" |
 		return
 	end
 	local art = icon:FindFirstChild("Art")
-	icon.Visible = kind == "coins" or (kind == "robux" and robuxIcon ~= nil)
+	icon.Visible = kind == "coins" or kind == "tickets" or (kind == "robux" and robuxIcon ~= nil)
 	if art and art:IsA("ImageLabel") then
 		if kind == "coins" then
 			art.Image = ShopCatalog.ART.coin
+		elseif kind == "tickets" then
+			art.Image = ShopCatalog.ART.ticket
 		elseif kind == "robux" and robuxIcon then
 			art.Image = robuxIcon
 		end
@@ -1032,7 +1034,10 @@ local function rewardArt(r: Economy.Reward): string?
 	if r.coins then
 		return if r.coins >= 1000 then ShopCatalog.ART.coinStack else ShopCatalog.ART.coin
 	end
-	return nil -- Tickets: no icon until the Ticket art is made (plan step 3); the words say it
+	if r.tickets then
+		return ShopCatalog.ART.ticket
+	end
+	return nil
 end
 
 local function loginState(): (LoginRewards.Login, number)
@@ -1533,6 +1538,7 @@ local function fillBundleCard(card: GuiButton, bundle: ShopCatalog.Bundle)
 	if bundle.banner and back and back:IsA("ImageLabel") then
 		back.Image = bundle.banner
 		back.ScaleType = Enum.ScaleType.Crop
+		back.ImageColor3 = WHITE -- the Studio tint was for the old grey placeholder
 	end
 	local heroPic = card:FindFirstChild("Hero")
 	local first = bundle.items[1]
@@ -1752,6 +1758,16 @@ function ShopController.init()
 				`{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`
 		end
 		plateAmount(offerCard, commas(starter.robux))
+		local back = offerCard:FindFirstChild("Art")
+		if back and back:IsA("ImageLabel") then
+			back.Image = ShopCatalog.ART.starterBanner
+			back.ScaleType = Enum.ScaleType.Crop
+			back.ImageColor3 = WHITE
+		end
+		local offerHero = offerCard:FindFirstChild("Hero")
+		if offerHero and offerHero:IsA("ImageLabel") then
+			offerHero.Image = ShopCatalog.ART.coinStack
+		end
 		offerCard.Activated:Connect(buyStarter)
 	end
 	local starterRow = pages.Bundles:FindFirstChild("Bundle_Starter", true)
@@ -1787,6 +1803,7 @@ function ShopController.init()
 			if back and back:IsA("ImageLabel") and ShopCatalog.PACK_BACKDROP ~= "" then
 				back.Image = ShopCatalog.PACK_BACKDROP
 				back.ScaleType = Enum.ScaleType.Crop
+				back.ImageColor3 = WHITE
 			end
 			local amount = card:FindFirstChild("Amount")
 			if amount and amount:IsA("TextLabel") then

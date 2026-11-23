@@ -51,15 +51,24 @@ local ShopCatalog = {}
 -- Shared art ids (art-source/ui/shop/, uploaded 2026-11-16) for screens that
 -- show shop things outside the Shop (the Season Pass). The Shop's builder has
 -- its own copy in tools/studio/BuildShop.luau.
--- Coin pack pictures, Pack1..Pack6 (vault Shop Economy → Art prompts). Empty = the Studio
--- picture stays; paste the uploaded image ids here when the new art is in.
-ShopCatalog.PACK_ART = table.freeze({}) :: { string }
--- The coin pack cards' backdrop (one image for all six); "" = the flat card colour.
-ShopCatalog.PACK_BACKDROP = ""
+-- Coin pack pictures, Pack1..Pack6 (art-source/ui/shop/new/pack_1..6.png, ChatGPT 2026-11-22,
+-- vault Prompts/2026-11-22 Shop Art Master Prompt). Empty = the Studio picture stays.
+ShopCatalog.PACK_ART = table.freeze({
+	"rbxassetid://133249202687167", -- pack_1 small pile
+	"rbxassetid://92145452769066", -- pack_2 short stack
+	"rbxassetid://90207390989766", -- pack_3 two tall stacks
+	"rbxassetid://80029818066118", -- pack_4 pouch
+	"rbxassetid://100700481422006", -- pack_5 chest
+	"rbxassetid://132442670633809", -- pack_6 vault crate
+}) :: { string }
+-- The coin pack cards' backdrop (one image for all six; new/pack_backdrop.png); "" = flat colour.
+ShopCatalog.PACK_BACKDROP = "rbxassetid://111801042683623"
 
 ShopCatalog.ART = table.freeze({
 	coin = "rbxassetid://126250416946442",
 	coinStack = "rbxassetid://77893326046955",
+	ticket = "rbxassetid://118693853905400", -- the Ticket currency icon (new/ticket.png)
+	starterBanner = "rbxassetid://96454339687407", -- also on HOME's special offer card
 	seasonPass = "rbxassetid://129516715347397",
 })
 
@@ -129,6 +138,7 @@ ShopCatalog.BUNDLES = {
 		name = "RUIN-BLIGHTED",
 		robux = 999,
 		hero = "rbxassetid://110988773235195", -- art-source/ui/shop/heroes/hero_ruinblighted.png
+		banner = "rbxassetid://114348398658883", -- art-source/ui/shop/new/banner_ruinblighted.png
 		color = Color3.fromHex("2A6F6A"),
 		slot = "Featured",
 		tag = "EXCLUSIVE",
@@ -146,6 +156,7 @@ ShopCatalog.BUNDLES = {
 		name = "TEMPEST-STRIKE",
 		robux = 1099,
 		hero = "rbxassetid://122194641365122", -- art-source/ui/shop/heroes/hero_tempeststrike.png
+		banner = "rbxassetid://131808642557103", -- art-source/ui/shop/new/banner_tempeststrike.png
 		color = Color3.fromHex("2F5DB8"),
 		slot = "Featured",
 		tag = "NEW",
@@ -180,6 +191,7 @@ ShopCatalog.BUNDLES = {
 		slot = "Starter",
 		tag = "NEW PLAYERS",
 		sub = "2 CASES + 1,500 COINS + 3 TICKETS", -- Config/Products.STARTER grants it
+		banner = "rbxassetid://96454339687407", -- art-source/ui/shop/new/banner_starter.png (ART.starterBanner)
 		items = {},
 	},
 } :: { Bundle }
