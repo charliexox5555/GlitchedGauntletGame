@@ -24,6 +24,7 @@
 --   check fails) the case can't be bought; the server will enforce the same.
 -- Every device; Shared/UiLayout sizes it (the Fit scales on Canvas, PopupCanvas, Top).
 
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -1984,6 +1985,21 @@ function ShopController.init()
 			end
 		end
 		offerCard.Visible = #featured > 0
+		task.spawn(function()
+			local images: { string } = {}
+			for _, bundle in featured do
+				if bundle.banner then
+					table.insert(images, bundle.banner)
+				end
+				local image = if bundle.slot == "Starter"
+					then ShopCatalog.ART.starterContents
+					else bundle.hero
+				if image then
+					table.insert(images, image)
+				end
+			end
+			pcall(ContentProvider.PreloadAsync, ContentProvider, images)
+		end)
 		local title = child(offerCard, "Title") :: TextLabel
 		local sub = child(offerCard, "Sub") :: TextLabel
 		local back = child(offerCard, "Art") :: ImageLabel

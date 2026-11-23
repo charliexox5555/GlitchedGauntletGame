@@ -72,7 +72,8 @@ return table.freeze({
 	}),
 	carousel = table.freeze({
 		interval = 6,
-		transition = 0.35,
+		firstInterval = 4,
+		transition = 0.38,
 		slidePx = 24,
 		swipePx = 36,
 		swipeRatio = 1.3,

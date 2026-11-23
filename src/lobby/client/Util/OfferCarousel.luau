@@ -49,6 +49,9 @@ function OfferCarousel.new(
 	local connections: { RBXScriptConnection } = {}
 	local tweens: { Tween } = {}
 	local touch: InputObject? = nil
+	local hovering = false
+	local interval = C.firstInterval
+	local outgoing: ImageLabel? = nil
 	local origin = Vector2.zero
 
 	local function resetMotion()
@@ -56,6 +59,10 @@ function OfferCarousel.new(
 			tween:Cancel()
 		end
 		table.clear(tweens)
+		if outgoing then
+			outgoing:Destroy()
+			outgoing = nil
+		end
 		for i, object in moving do
 			object.Position = homes[i]
 		end
@@ -66,6 +73,23 @@ function OfferCarousel.new(
 	local function change(to: number, direction: number?)
 		elapsed = 0
 		resetMotion()
+		if direction then
+			local previous = art:Clone()
+			previous.Name = "PreviousOfferArt"
+			previous.Active = false
+			previous.ZIndex = art.ZIndex - 1
+			previous.Parent = card
+			outgoing = previous
+			local fade = UiMotion.tween(previous, C.transition, { ImageTransparency = 1 })
+			table.insert(tweens, fade)
+			fade.Completed:Once(function()
+				if outgoing == previous then
+					outgoing = nil
+					previous:Destroy()
+				end
+			end)
+			interval = C.interval
+		end
 		index = to
 		draw(index)
 		for i, dot in markers do
@@ -82,7 +106,7 @@ function OfferCarousel.new(
 				table.insert(tweens, UiMotion.tween(object, C.transition, { Position = homes[i] }))
 			end
 		end
-		art.ImageTransparency, hero.ImageTransparency = C.startTransparency, C.startTransparency
+		art.ImageTransparency, hero.ImageTransparency = 1, C.startTransparency
 		title.TextTransparency, sub.TextTransparency = C.startTransparency, C.startTransparency
 		table.insert(tweens, UiMotion.tween(art, C.transition, { ImageTransparency = artAlpha }))
 		table.insert(tweens, UiMotion.tween(hero, C.transition, { ImageTransparency = heroAlpha }))
@@ -136,6 +160,8 @@ function OfferCarousel.new(
 			if #connections > 0 or count == 0 then
 				return
 			end
+			hovering = false
+			interval = C.firstInterval
 			change(index)
 			table.insert(
 				connections,
@@ -182,21 +208,26 @@ function OfferCarousel.new(
 					end
 				end)
 			)
+			local function mouseInside(): boolean
+				return inside(card, Input:GetMouseLocation() - GuiService:GetGuiInset())
+			end
+			table.insert(
+				connections,
+				Input.InputChanged:Connect(function(input: InputObject)
+					if input.UserInputType == Enum.UserInputType.MouseMovement then
+						hovering = mouseInside()
+					end
+				end)
+			)
 			table.insert(
 				connections,
 				RunService.Heartbeat:Connect(function(dt: number)
-					if
-						blocked()
-						or touch
-						or (
-							Input.MouseEnabled
-							and inside(card, Input:GetMouseLocation() - GuiService:GetGuiInset())
-						)
-					then
-						elapsed = 0
-					elseif count > 1 then
+					if hovering and not mouseInside() then
+						hovering = false
+					end
+					if count > 1 and not hovering and not touch and not blocked() then
 						elapsed += dt
-						if elapsed >= C.interval then
+						if elapsed >= interval then
 							step(1)
 						end
 					end
