@@ -4258,5 +4258,11 @@
   "name": "GG Shop ticket",
   "type": "Decal",
   "uploaded": "2026-11-22 18:46:50"
+ },
+ "art-source/ui/shop/new/starter_contents.png": {
+  "assetId": 134519819682766,
+  "name": "GG Shop starter_contents",
+  "type": "Decal",
+  "uploaded": "2026-11-22 21:20:39"
  }
 }

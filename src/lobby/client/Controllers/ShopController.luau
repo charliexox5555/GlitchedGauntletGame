@@ -1378,25 +1378,38 @@ local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 		if fallback then
 			celebrateCoins(fallback, nil, "Epic")
 		elseif caseCount and base and ticketCount then
+			local cases = tonumber(caseCount) or 0
+			local expectedCases = product.caseCount or cases
+			local exchanged = if expectedCases > cases
+				then math.floor(
+					(product.fallbackCoins or 0) * (expectedCases - cases) / expectedCases
+				)
+				else 0
 			local items: { ShopRewardFx.Item } = {}
 			local def = if product.case then Inventory.ITEMS[product.case] else nil
-			if tonumber(caseCount) ~= 0 then
+			if cases > 0 then
 				addRewardItem(items, def and def.icon)
 			end
-			addRewardItem(items, ShopCatalog.PACK_ART[3], true)
+			local coinArt = ShopCatalog.PACK_ART[3]
+			addRewardItem(items, coinArt, true)
 			addRewardItem(items, ShopCatalog.ART.ticket)
+			local contents = "+%s COINS"
+			if cases > 0 then
+				contents ..= ` · {cases} CASE{if cases == 1 then "" else "S"}`
+			end
+			contents ..= " · " .. ticketWords(tonumber(ticketCount) or 0)
 			celebrate({
-				name = `+%s COINS · {caseCount} CASES · {ticketCount} TICKETS`,
-				image = ShopCatalog.ART.coinStack,
+				name = contents,
+				image = if cases > 0 then ShopCatalog.ART.starterContents else coinArt,
 				tier = "Epic",
 				color = ShopTheme.GOLD,
-				coins = tonumber(base),
+				coins = (tonumber(base) or 0) + exchanged,
 				items = items,
 			})
 		else
 			celebrate({
 				name = message,
-				image = ShopCatalog.ART.coinStack,
+				image = ShopCatalog.ART.starterContents,
 				tier = "Epic",
 				color = ShopTheme.GOLD,
 			})
@@ -1845,7 +1858,7 @@ function ShopController.init()
 			if b.slot == "Starter" then
 				local heroPic = card:FindFirstChild("Hero")
 				if heroPic and heroPic:IsA("ImageLabel") then
-					heroPic.Image = ShopCatalog.ART.coinStack
+					heroPic.Image = ShopCatalog.ART.starterContents
 				end
 			end
 			-- the Starter is bought through Products.STARTER below (buyStarter)
@@ -1891,7 +1904,7 @@ function ShopController.init()
 		openConfirm({
 			title = "STARTER BUNDLE",
 			name = `{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`,
-			art = ShopCatalog.ART.coinStack,
+			art = ShopCatalog.ART.starterContents,
 			price = starter.robux,
 			currency = "robux",
 			go = function()
@@ -1935,7 +1948,7 @@ function ShopController.init()
 			title.Text = bundle.name
 			sub.Text = bundle.sub or ""
 			back.Image = bundle.banner or ""
-			hero.Image = if isStarter then ShopCatalog.ART.coinStack else bundle.hero or ""
+			hero.Image = if isStarter then ShopCatalog.ART.starterContents else bundle.hero or ""
 			local owned = if isStarter
 				then StateValues.get(player, "StarterBought") == true
 				else ownsAll(bundle)

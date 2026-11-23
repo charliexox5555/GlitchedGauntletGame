@@ -67,6 +67,7 @@ ShopCatalog.PACK_BACKDROP = "rbxassetid://111801042683623"
 ShopCatalog.ART = table.freeze({
 	coin = "rbxassetid://126250416946442",
 	coinStack = "rbxassetid://77893326046955",
+	starterContents = "rbxassetid://97381557374007",
 	ticket = "rbxassetid://118693853905400", -- the Ticket currency icon (new/ticket.png)
 	starterBanner = "rbxassetid://96454339687407", -- also on HOME's special offer card
 	seasonPass = "rbxassetid://129516715347397",
