@@ -411,7 +411,9 @@ local function advance()
 	stepStarted = os.clock()
 end
 
--- Until Config/Loading arrives: the lobby stage's streaming wait (s) and floor probe (studs).
+-- Until Config/Loading arrives: the longest wait for the save (s), the lobby stage's streaming wait (s) and floor
+-- probe (studs).
+local DATA_WAIT = 8
 local STREAM_WAIT = 8
 local GROUND_PROBE = 40
 
@@ -605,9 +607,15 @@ end, deadline) and done
 advance()
 
 stage("data", "LOADING YOUR DATA")
-done = waitFor(function()
+-- Capped (owner 2026-11-22: stuck on this stage, and a match started without him): the screens that need the
+-- save (Shop, onboarding) wait for DataReady themselves, so a slow or failing save read never holds the player
+-- here; the [Health] line says it happened.
+local dataReady = waitFor(function()
 	return stateValue(player, "DataReady") == "t"
-end, deadline) and done
+end, math.min(deadline, os.clock() + ((cfg :: any).dataWait or DATA_WAIT)))
+if not dataReady then
+	warn("[Health] C loading: save not loaded yet, opening anyway (it keeps loading)")
+end
 advance()
 
 if isMatch then

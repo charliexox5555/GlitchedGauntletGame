@@ -36,6 +36,9 @@ return table.freeze({
 	-- Lobby join: after the fighter exists, ask Roblox to stream the area around it and wait for floor under its
 	-- feet (owner 2026-11-22: "stuck in a void"), at most this long; then look this far down for the floor.
 	streamWait = 8,
+	-- Longest the "LOADING YOUR DATA" stage waits for the save; then the screen opens and the save keeps loading
+	-- (the Shop and onboarding wait for it themselves).
+	dataWait = 8,
 	groundProbe = 40,
 	duelMin = 0.6, -- the pad-duel short version
 	duelMax = 4,

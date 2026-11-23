@@ -315,15 +315,24 @@ end
 
 -- Loads with backoff until it lands or the player leaves (the Shop waits for
 -- DataReady, so a failed load must not lock it for the whole session).
+local SLOW_READ = 1.5 -- seconds: a save read slower than this is logged
+
 local function load(player: Player)
 	local rec: Record = { data = nil, busy = false, settings = nil, settingsSeen = false }
 	records[player] = rec
 	PlayerData.publish(player, nil)
-	local pause = 10
+	-- between failed rounds (each round is 4 tries over ~7 s); short at first so a hiccup
+	-- costs seconds, not minutes (owner 2026-11-22: stuck on LOADING YOUR DATA)
+	local pause = 3
 	while records[player] == rec and not rec.data do
+		local readAt = os.clock()
 		local ok, raw = retry("load " .. player.UserId, function()
 			return store:GetAsync(PlayerData.key(player.UserId))
 		end)
+		local took = os.clock() - readAt
+		if took >= SLOW_READ then
+			warn(string.format("[Health] S save read for %s took %.1fs", player.Name, took))
+		end
 		if records[player] ~= rec or rec.data then
 			return -- left while loading, or a change already published fresher data
 		end
@@ -336,8 +345,9 @@ local function load(player: Player)
 			task.delay(REFRESH_AFTER, refresh, player, rec)
 			return
 		end
+		warn(`[Health] S save for {player.Name} not loaded yet; next try in {pause}s`)
 		task.wait(pause)
-		pause = math.min(pause * 2, 120)
+		pause = math.min(pause * 2, 30)
 	end
 end
 
