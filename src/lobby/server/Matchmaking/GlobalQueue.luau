@@ -44,7 +44,7 @@ type Ticket = {
 	match: MatchInfo?,
 }
 
-type ModeRule = { id: string, teamSize: number }
+type ModeRule = { id: string, teamSize: number, fillAfter: number? } -- fillAfter: this mode's own bot-fill wait
 
 local GlobalQueue = {}
 
@@ -201,7 +201,8 @@ local function matchPass()
 	for _, rule in modes do
 		local queue = byMode[rule.id]
 		while queue and #queue > 0 do
-			local pick = Matchmaker.pick(queue :: any, rule.teamSize, now, fillAfter)
+			local pick =
+				Matchmaker.pick(queue :: any, rule.teamSize, now, rule.fillAfter or fillAfter)
 			if not pick then
 				break
 			end

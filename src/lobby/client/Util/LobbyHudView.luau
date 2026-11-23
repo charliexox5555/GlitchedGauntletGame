@@ -107,6 +107,15 @@ local state: State? = nil
 
 local tween = UiMotion.tween
 
+-- Onboarding hooks (Controllers/OnboardingController; vault/05 Production/Handoff -
+-- Onboarding and Bots.md): PLAY's own action while new (queue Beginner 2v2 instead
+-- of the menu), PLAY's sub-line, and the bubble over PLAY.
+local playAction: (() -> boolean)? = nil -- returns true when it handled the click
+local playSubText: string? = nil
+local bubbleWanted = false
+local bubbleShown = false
+local bubbleToken = 0
+
 -- Motion is clean, not bouncy (owner, 2026-11-15: "cleaner, less glitchy"):
 -- Quint out for anything arriving, Quint in for leaving, no Back overshoot,
 -- and nothing snaps to a start value while a tween on it is still running.
@@ -759,6 +768,10 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	play.Activated:Connect(function()
 		press(s.playPop, 0.92)
 		if QueueState.status() == "idle" then
+			local act = playAction
+			if act and act() then
+				return
+			end
 			Router.toggle("Queue")
 		end
 	end)
@@ -920,7 +933,9 @@ function LobbyHudView.refresh()
 	s.playTitle.Text = "PLAY"
 	s.playTitle.TextSize = 44
 	s.playTitle.TextColor3 = INK
-	s.playSub.Text = if QueueState.isLeader() then "1V1  ·  2V2  ·  3V3" else "YOUR LEADER STARTS"
+	s.playSub.Text = if not QueueState.isLeader()
+		then "YOUR LEADER STARTS"
+		else playSubText or "1V1  ·  2V2  ·  3V3"
 	s.playSub.TextColor3 = INK
 	-- the bottom group slides away while a menu or MATCH FOUND is up
 	local away = Router.current() ~= nil or status == "found" or status == "teleporting"
@@ -931,6 +946,7 @@ function LobbyHudView.refresh()
 		}, QUINT, if away then IN else OUT)
 	end
 	LobbyHudView.placeCorners(false)
+	LobbyHudView.placeBubble()
 end
 
 -- The corners step up out of the way while a menu is open (its title and
@@ -1069,21 +1085,139 @@ function LobbyHudView.setBadge(id: string, count: number)
 	end
 end
 
--- A callout over a bar item ("NEW SKIN UNLOCKED"), or nil to hide it.
+-- A callout over a bar item ("NEW SKIN UNLOCKED") or the party row ("Party"), or nil
+-- to hide it. It pops in from its centre each time it moves to a new target.
+local calloutAt: string? = nil
 function LobbyHudView.callout(id: string?, text: string?)
 	local s = state
 	if not s then
 		return
 	end
-	local b = if id then s.items[id] else nil
-	s.callout.Visible = b ~= nil and text ~= nil
-	if b and text then
+	local x: number? = nil
+	if id == "Party" then
+		-- over the first party circle (the row is left-anchored, circles 72 px)
+		x = s.party.Position.X.Offset + 36
+	elseif id then
+		local b = s.items[id]
+		x = if b then b.Position.X.Offset else nil
+	end
+	local show = x ~= nil and text ~= nil
+	s.callout.Visible = show
+	if x and text then
 		local label = s.callout:FindFirstChild("Label")
 		if label and label:IsA("TextLabel") then
 			label.Text = string.upper(text)
 		end
-		s.callout.Position = UDim2.fromOffset(b.Position.X.Offset, s.callout.Position.Y.Offset)
+		s.callout.Position = UDim2.fromOffset(x, s.callout.Position.Y.Offset)
+		local pop = s.callout:FindFirstChildOfClass("UIScale")
+		if pop and calloutAt ~= id then
+			popIn(pop, 0, 0.34)
+		end
 	end
+	calloutAt = if show then id else nil
+end
+
+-- PLAY: `action` runs on a click while idle and returns true when it handled it
+-- (the Play menu doesn't open); `sub` replaces the "1V1 · 2V2 · 3V3" line.
+function LobbyHudView.setPlay(action: (() -> boolean)?, sub: string?)
+	playAction = action
+	playSubText = sub
+	LobbyHudView.refresh()
+end
+
+-- Shows or hides a HUD part an onboarding step hasn't unlocked yet: a bar item
+-- (Shop, Backpack, ...) or "Party" (the party row). The bar re-fits itself.
+function LobbyHudView.setUnlocked(id: string, on: boolean)
+	local s = state
+	if not s then
+		return
+	end
+	local target: GuiObject? = if id == "Party" then s.party else s.items[id]
+	if target then
+		if id == "Range" and not Release.RANGE_OPEN then
+			return -- closed for this update either way
+		end
+		target.Visible = on
+	end
+end
+
+-- The "Join the queue to start playing!" bubble over PLAY (Studio-built
+-- LobbyBar.Bottom.PlayBubble, tools/studio/BuildOnboardingUi.luau): shown while
+-- `on`, PLAY is showing and nothing covers the bar; it bobs gently.
+function LobbyHudView.bubble(on: boolean, text: string?)
+	bubbleWanted = on
+	local s = state
+	local b = s and s.bottom:FindFirstChild("PlayBubble")
+	if b and text then
+		local label = b:FindFirstChild("Label", true)
+		if label and label:IsA("TextLabel") then
+			label.Text = text
+		end
+	end
+	LobbyHudView.placeBubble()
+end
+
+local BOB_PX, BOB_TIME = 6, 0.55
+function LobbyHudView.placeBubble()
+	local s = state
+	if not s then
+		return
+	end
+	local b = s.bottom:FindFirstChild("PlayBubble")
+	if not (b and b:IsA("GuiObject")) then
+		return
+	end
+	local want = bubbleWanted and s.bottomShown and QueueState.status() == "idle"
+	if want == bubbleShown then
+		return
+	end
+	bubbleShown = want
+	bubbleToken += 1
+	local token = bubbleToken
+	local home = StateValues.get(b, "Home")
+	if typeof(home) ~= "UDim2" then
+		home = b.Position
+		StateValues.set(b, "Home", home)
+	end
+	local pop = b:FindFirstChildOfClass("UIScale")
+	if not want then
+		if pop then
+			local t = tween(pop, 0.16, { Scale = 0 }, QUINT, IN)
+			t.Completed:Once(function()
+				if bubbleToken == token then
+					b.Visible = false
+				end
+			end)
+		else
+			b.Visible = false
+		end
+		return
+	end
+	b.Position = home
+	b.Visible = true
+	if pop then
+		popIn(pop, 0.25, 0.34)
+	end
+	-- a gentle bob up and back while it shows (Sine, no overshoot)
+	task.spawn(function()
+		task.wait(0.6)
+		while bubbleToken == token do
+			local up = tween(
+				b,
+				BOB_TIME,
+				{ Position = home - UDim2.fromOffset(0, BOB_PX) },
+				Enum.EasingStyle.Sine,
+				OUT
+			)
+			up.Completed:Wait()
+			if bubbleToken ~= token then
+				break
+			end
+			local down = tween(b, BOB_TIME, { Position = home }, Enum.EasingStyle.Sine, IN)
+			down.Completed:Wait()
+			task.wait(0.35)
+		end
+	end)
 end
 
 -- Daily tasks: not built yet (no tasks system); the panel stays hidden.

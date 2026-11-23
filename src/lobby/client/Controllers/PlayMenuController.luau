@@ -4,14 +4,17 @@
 -- backup tools/studio/BuildLobbyMenus.luau); this only fills and animates them.
 --
 -- PLAY opens the menu as the Router's "Queue" menu (the world blurs behind).
--- Clicking a live tile (1V1 / 2V2 / 3V3, or keys 1-3) asks the server to queue
--- and closes the menu; SOON tiles (BEGINNER 2V2, 4V4, 5V5) only nudge. While
+-- Clicking a live tile (1V1 / 2V2 / 3V3, or keys 1-3; BEGINNER 2V2 below level 10,
+-- highlighted, onboarding 2026-11-22) asks the server to queue and closes the menu;
+-- SOON tiles (4V4, 5V5) only nudge. A tile is live when Lobby Config.MODE_BY_TILE
+-- names it (else its Studio "Live" attribute). While
 -- you're searching, the bar at the top shows the mode, the bot-fill countdown,
 -- the timer and a cancel button (anyone in a party can cancel; only the leader
 -- starts). The server decides everything (Services/QueueService).
 -- Every device; Shared/UiLayout sizes both (their Fit scales).
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+local Config = require(game:GetService("ReplicatedStorage").Lobby.Config)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -45,6 +48,9 @@ type Tile = {
 	dot: Frame?,
 	inQueue: GuiObject?,
 	home: UDim2,
+	hit: GuiButton?,
+	levelCap: number?, -- shown only below this level (Beginner 2v2)
+	featured: boolean, -- sits brighter than the others (Beginner 2v2)
 }
 
 local gui: ScreenGui
@@ -102,10 +108,23 @@ local nudge = UiMotion.nudge
 --------------------------------------------------------------------------------
 -- Tiles
 
+local function levelNow(): number
+	local v = StateValues.get(player, "Level")
+	return if typeof(v) == "number" then v else 1
+end
+
 local function refreshTiles()
 	local searching = QueueState.status() ~= "idle"
 	local queued = QueueState.mode()
+	local level = levelNow()
 	for _, t in tiles do
+		if t.levelCap then
+			local shown = level < t.levelCap
+			t.button.Visible = shown
+			if t.hit then
+				t.hit.Visible = shown
+			end
+		end
 		if t.live then
 			local n = QueueState.count(t.id)
 			if t.count then
@@ -155,11 +174,15 @@ end
 local WHITE = Color3.new(1, 1, 1)
 local DIM = Color3.fromRGB(150, 150, 158)
 local REST_LIFT = 0.35 -- live tiles at rest: their tone this far toward white
+local FEATURED_LIFT = 0.75 -- the Beginner tile while it's offered: the brightest at rest
+local FEATURED_SUB = Color3.fromHex("FFC83D") -- its sub-line in the PLAY gold
 local focused: Tile? = nil
 local shadeHome: { [Tile]: number } = {}
 
 local function artColour(t: Tile): Color3
-	local base = if t.live then t.tone:Lerp(WHITE, REST_LIFT) else t.tone
+	local base = if t.live
+		then t.tone:Lerp(WHITE, if t.featured then FEATURED_LIFT else REST_LIFT)
+		else t.tone
 	if focused == t then
 		return if t.live then WHITE else t.tone:Lerp(WHITE, 0.25)
 	elseif focused then
@@ -379,7 +402,7 @@ end
 local function updateBar()
 	local elapsed = QueueState.elapsed()
 	barTimer.Text = clock(elapsed)
-	local mode = string.upper(QueueState.mode() or "")
+	local mode = QueueState.label(QueueState.mode())
 	local left = QueueState.botFillAfter() - elapsed
 	barSub.Text = if left > 0
 		then string.format("%s  ·  BOTS FILL IN %s", mode, clock(left))
@@ -392,13 +415,13 @@ local function placeBar()
 	local want = QueueState.status() == "searching" and Router.current() == nil
 	if want == barShown then
 		if want then
-			barMode.Text = string.upper(QueueState.mode() or "")
+			barMode.Text = QueueState.label(QueueState.mode(), true)
 		end
 		return
 	end
 	barShown = want
 	if want then
-		barMode.Text = string.upper(QueueState.mode() or "")
+		barMode.Text = QueueState.label(QueueState.mode(), true)
 		updateBar()
 		bar.Visible = true
 		bar.Position = UDim2.new(0.5, 0, 0.5, -24)
@@ -445,25 +468,44 @@ function PlayMenuController.init()
 		if b:IsA("TextButton") then
 			local art = b:FindFirstChild("Art")
 			local count = b:FindFirstChild("Count")
+			local info = Config.MODE_BY_TILE[b.Name]
+			local live = if info then info.enabled else StateValues.get(b, "Live") == true
 			local t: Tile = {
-				id = b.Name,
+				id = if info then info.id else b.Name,
 				button = b,
 				pop = child(b, "Pop"),
 				art = if art and art:IsA("ImageLabel") and art.Visible then art else nil,
 				tone = if art and art:IsA("ImageLabel")
 					then art.ImageColor3
 					else Color3.new(1, 1, 1),
-				live = StateValues.get(b, "Live") == true,
+				live = live,
 				count = maybe(count, "Label") :: TextLabel?,
 				dot = maybe(count, "Dot") :: Frame?,
 				inQueue = maybe(b, "InQueue") :: GuiObject?,
 				home = b.Position,
+				levelCap = if info then info.maxLevel else nil,
+				featured = info ~= nil and info.maxLevel ~= nil,
 			}
+			if info and live then
+				-- a Studio SOON tile the config made live (Beginner 2V2)
+				local soon = b:FindFirstChild("Soon")
+				if soon and soon:IsA("GuiObject") then
+					soon.Visible = false
+				end
+			end
+			if t.featured then
+				local sub = b:FindFirstChild("Sub")
+				if sub and sub:IsA("TextLabel") then
+					sub.TextColor3 = FEATURED_SUB
+				end
+			end
 			table.insert(tiles, t)
 		end
 	end
 	for _, t in tiles do
-		hookTile(t, hitFor(t.button))
+		local hit = hitFor(t.button)
+		t.hit = hit
+		hookTile(t, hit)
 		setupCrop(t)
 	end
 	table.sort(tiles, function(a, b)
@@ -508,6 +550,8 @@ function PlayMenuController.start()
 		refreshTiles()
 		placeBar()
 	end)
+	StateValues.changed(player, "Level"):Connect(refreshTiles)
+	refreshTiles()
 	Router.onChanged(function()
 		placeBar()
 	end)

@@ -65,3 +65,12 @@ Paths below are in the RIVALS file. `UI.` = `StarterPlayer.StarterPlayerScripts.
 
 ## Case opening (2026-11-20)
 `StarterPlayerScripts.Modules.Functions.LootboxEffect` + `Assets.Lootboxes` (read only): the box is tossed ~7 studs out over 2 s (eased glide, ~1.5 decaying bounces), plays its own clip (`Animation` attributes `Duration` / `RevealDelay`: skin case 4.85 / 2.0, weapon crate 5.55 / 2.25, chests 8-9 / ~4), the reward card (10-stud BillboardGui, ~8 studs up) grows in 0.5 s Quint Out with a rarity-coloured trail and a rarity stinger, holds 4 s, shrinks (Back In) and flies into the player (1.9 s Quint In) into collect particles. Everyone sees it; others at half volume. Our build: [Case Opening](../../01%20Design/Case%20Opening.md).
+
+## First-time flow (study 2026-11-22, for onboarding)
+- Beginner 2v2 = queue `2v2_beginner` in `ReplicatedStorage.Modules.DuelLibrary` (`add_queue`): sorted first, no lobby pad, one map (Arena), 1 real player per team, title "Beginner". Shown in the Play page while duel wins < `CONSTANTS.BEGINNER_QUEUE_WINS` (10), then Ranked takes its slot (`Modules.Pages.Matchmaking._UpdateBeginnerQueue`).
+- Play page while duels played < 3: a simpler centred duels frame (`CenterDuelsFrame`).
+- PLAY bubble "Join the queue to start playing!" while duels played ≤ 3 (`Modules.UserInterface.Lobby.Play`, `PlayButtonJoinBubble`).
+- Red enemies: `Modules.ClientReplicatedClasses.ClientDuel.BeginnerDuel` sets `SetRedFigureMode(true)` on every non-team fighter at `RoundStarting` / `RoundStarted`, Beginner queue only.
+- Favorite prompt: `Controllers.LobbyController._PromptStuff`, 1 s after landing in the lobby, once per session, at duels played = 5 or the first win; notification opt-in at 8 played / 2nd win.
+- What we took: [Handoff - Onboarding and Bots](../../05%20Production/Handoff%20-%20Onboarding%20and%20Bots.md) → Phase 1 results.
+

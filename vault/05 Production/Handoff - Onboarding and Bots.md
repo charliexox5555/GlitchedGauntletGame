@@ -45,5 +45,50 @@
 4. **Bots:** illusion, dynamic difficulty, leaver rule, fill timing, performance.
 5. **Queue menu art (can come later):** new tile images from our real maps, guns and bodies (Studio captures, not AI-looking), Beginner 2v2 tall and highlighted like the reference. Prompts for ChatGPT go in this note if image generation is used (memory: ChatGPT/Codex for images, owner pastes prompts).
 
+## Phase 1 results: research (2026-11-22)
+**RIVALS (read-only study of the RIVALS file; study, don't copy):**
+- Beginner 2v2 is a queue like any other (`DuelLibrary` `add_queue("2v2_beginner", …)`): sorted first, no lobby pad, **one map only** (Arena), 2 teams × **1 real player per team** (bots make up the 2v2), title "Beginner".
+- Shown in the Play page while the player has **fewer than 10 duel wins** (`CONSTANTS.BEGINNER_QUEUE_WINS = 10`); when it hides, the Ranked tile takes its place. Ours: shown below level 10 (owner).
+- Play page while **fewer than 3 duels played**: a simpler centred duels frame (no extras), its own close button.
+- PLAY bubble "Join the queue to start playing!" shows while **duels played ≤ 3** (same slot also says "Your free weapon trial is ready!").
+- Red enemies (`ClientDuel.BeginnerDuel`): when the round starts (`RoundStarting` / `RoundStarted`), every fighter not on your team gets `SetRedFigureMode(true)`, only in the "Beginner" queue. (Phase 3: ours drops per enemy on your first hit, owner's rule.)
+- Favorite prompt (`LobbyController._PromptStuff`): back in the lobby, 1 s after the duel ends, **once per session**, when duels played = 5 or on the first win; `PromptSetFavorite(placeId, Asset, true)`. Notifications opt-in later (8 played / 2nd win). They also pay a reward for favoriting (Rewards page). Ours: after match 1, again in match 2 if declined (owner).
+**LihFolk** (`05 UI and UX/Onboarding and FTUE - Tutorials That Keep Players`, `Tutorial Step Design Patterns - Teach by Doing`, `HUD Design` §4, `58 Player QoL/Skippable Tutorials and Replayable Tips`, `37 Avatars and UGC/AvatarEditorService and In-Game Avatar Editors`, `04 Data and Persistence/Schema Migrations - Worked Case Studies`):
+- Join → control in ~10 s, first reward under 60 s; never stack pop-ups on the first join.
+- Show only the HUD buttons the step needs; every target must still have a visible route; "NEW" badges sparingly (red dot = "something useful to do now").
+- Hints: one verb, ≤ 8 words, once each, retire when the player does it unaided.
+- `PromptSetFavorite` doesn't yield: listen to `PromptSetFavoriteCompleted`; wrap `GetFavoriteAsync` in `pcall`. No vault note on favorite-prompt policy: keep it rare (owner's 2 asks max).
+- New save fields: pure, total `clean()` with defaults; a failed read is not "new player"; store seen flags as a small bitset.
+- Note: [Release Plan 2026-11-22](Release%20Plan%202026-11-22.md) said "2v2 beginner mode stays cut"; the owner's later decision in this note (Beginner 2v2 + auto-queue) wins.
+
+## Phase 2 plan: onboarding flow
+- **Numbers:** `src/shared/Config/Onboarding.luau` (auto-queue while matches = 0, PLAY shortcut while matches < 2, Party at 1, the rest at 3, bubble while matches < 4 like RIVALS' ≤ 3, Beginner shown below level 10, favorite asks max 2).
+- **Beginner mode:** Lobby `Config.MODES` gets `beginner` (team size 2, tile `Beginner2v2`, `fillAfter` 10 s / Studio 5, `maxLevel` 10). `QueueService` + `GlobalQueue` use a per-mode fill time; the server refuses Beginner at level ≥ 10 (whole party). `Config/Bots.MODES.beginner = 2` so match servers accept the plan.
+- **Saved state:** `PlayerData.onb = { fav = asks so far, favDone = bool, seen = bitset of NEW pops }` (no version bump, `clean()` defaults), published as `OnbFav`, `OnbFavDone`, `OnbSeen`. Matches played = existing `prog.matches` (`Matches`). New `OnboardingService` (lobby) handles one remote `OnboardingRequest` (`favAsked` with the prompt result, `seen` with a bit): types checked, rate-limited, only ever raises counters.
+- **Client:** new `OnboardingController` (lobby): auto-queue Beginner after the loading screen (leader only, idle, matches = 0); favorite prompt 2 s into the lobby after match 1 (skipped if already favorited); PLAY bubble while idle; HUD gating (Locker = "Weapons" + Settings + PLAY first; Party at 1; Shop / Backpack at 3) with the existing `Callout` as the "NEW" pop until opened. PLAY goes straight to Beginner while matches < 2 (its sub-line says BEGINNER 2V2). Play menu: the Beginner tile goes live (was SOON) and gets a highlight while level < 10, hidden after.
+- **Studio UI:** `tools/studio/BuildOnboardingUi.luau` adds `LobbyBar.Bottom.PlayBubble` (Studio-built, from the Callout style); run when Studio is free. Code skips the bubble if it isn't there.
+- **Match side (second favorite ask):** in the match client during match 2 if declined (between rounds), sent through the same saved state.
+
+## Phase 2 results: onboarding flow (2026-11-22, code only, not play-tested)
+Built as planned above. Files:
+- Rules and numbers: `src/shared/Onboarding.luau`, `src/shared/Config/Onboarding.luau`.
+- Save: `PlayerData.onb` (+ `PlayerDataService` writes it), published `OnbFav` / `OnbFavDone` / `OnbSeen`.
+- Server: `src/lobby/server/Services/OnboardingService.luau` (remote `OnboardingRequest`, also runs on match servers), `QueueService` (Beginner mode, per-mode fill, level cap for the whole party, Play Again from a Beginner match falls back to 2v2 at level 10), `GlobalQueue` (per-mode fill), Lobby `Config` (`beginner` mode, `MODE_BY_TILE`), `Config/Bots.MODES.beginner = 2`.
+- Client: `src/lobby/client/Controllers/OnboardingController.luau`; hooks in `Util/LobbyHudView` (`setPlay`, `setUnlocked`, `callout` over Party too, `bubble`); `PlayMenuController` (Beginner tile live, brighter, gold sub-line, hidden at level 10); `QueueState.label` ("BEGINNER 2V2" / "2V2" in the bar and the teleport screen); `src/shared/FavoritePrompt.luau`; match side `src/client/Controllers/FavoriteAskController.luau`.
+- Studio UI: `tools/studio/BuildOnboardingUi.luau` (adds `LobbyBar.Bottom.PlayBubble` from the Callout, white plate + ink words, and a `Pop` UIScale on the Callout). **Not run yet** (Studio was in use); until it runs the bubble just doesn't show.
+- Checks: StyLua, selene (one old error in untouched `PlayMenuController` code: `Content`), `rojo build` OK. No Luau type checker is installed, so strict types were checked by eye and by a review agent.
+- Security review (roblox-reviewer): no critical or high issues; the level cap can't be bypassed and the save can't be corrupted. Fixed from it: `OnboardingService` checks the cached save before any write (no free DataStore calls), the auto-queue re-reads Matches before queuing, mode names may be up to 16 characters. Left: `LobbyHudView` still waits for `Bottom.Callout` with no timeout (it has always been there).
+
+**Owner: what to test** (Studio test key with a fresh save, or a published test):
+1. Join with 0 matches: after the loading screen you're searching **BEGINNER 2V2** (bar circle says 2V2) without touching anything; bots fill after 10 s (5 s in Studio).
+2. First lobby: only PLAY, Locker and Settings on the bar; no Party row.
+3. Back after match 1: favorite prompt about 2.5 s in; Party row back with a red **NEW** over it until you open the Party card; the white bubble bobs over PLAY; PLAY's sub-line says BEGINNER 2V2 and clicking it queues straight away.
+4. Decline the favorite → during match 2, at the first round break, it asks again (once). Favorite → never again.
+5. After match 2: PLAY opens the menu; the tall Beginner tile is bright with a gold line and queues Beginner 2v2.
+6. After match 3: Shop and Backpack come back, NEW over Shop then Backpack until each is opened. The bubble stops once 4 matches are played (RIVALS: after 3).
+7. Level 10: the Beginner tile is gone and the server refuses Beginner (also for a party with any level-10 member).
+
+**Not tested:** everything above in play (Studio was busy); real teleports and the global queue (need a publish); `GetFavoriteAsync` / `PromptSetFavorite` behaviour in Studio (may not show there).
+
 ## Done when
 A fresh account (Studio test key) goes join → Beginner 2v2 → lobby (favorite prompt, PLAY bubble) → second Beginner match → normal queue, with the HUD unlocking on schedule; bots feel like players and scale with who's in the match; leavers behave as decided; results, what the owner should test, and what wasn't tested are in this note, `00 Home.md` Status and `Bugs & Ideas.md`.

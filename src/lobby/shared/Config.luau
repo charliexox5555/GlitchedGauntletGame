@@ -3,7 +3,9 @@
 -- backfill, the match-found beat, teleport retries and remote rate limits.
 -- Lobby-only, so it lives in ReplicatedStorage.Lobby rather than Shared/Config.
 
-export type Mode = "1v1" | "2v2" | "3v3"
+local Onboarding = require(game:GetService("ReplicatedStorage").Shared.Config.Onboarding)
+
+export type Mode = "1v1" | "2v2" | "3v3" | "beginner"
 
 export type ModeInfo = {
 	id: Mode,
@@ -11,6 +13,13 @@ export type ModeInfo = {
 	title: string,
 	blurb: string,
 	enabled: boolean,
+	-- the Play menu tile (StarterGui.PlayMenu.Canvas.Modes child), when not named `id`
+	tile: string?,
+	-- seconds before bots fill this mode (else botFillAfter / botFillAfterStudio)
+	fillAfter: number?,
+	fillAfterStudio: number?,
+	-- only players below this level may queue it (the whole party)
+	maxLevel: number?,
 }
 
 local MODES: { ModeInfo } = {
@@ -35,11 +44,27 @@ local MODES: { ModeInfo } = {
 		blurb = "Full squads. Combo your Mods.",
 		enabled = true,
 	},
+	-- New players (vault/05 Production/Handoff - Onboarding and Bots.md): 2v2 where real
+	-- beginners go first and bots fill the rest after 10 s; below level 10 only
+	-- (Config/Onboarding.BEGINNER_MAX_LEVEL). New players are queued here on arrival.
+	{
+		id = "beginner",
+		teamSize = 2,
+		title = "BEGINNER 2V2",
+		blurb = "Your first fights. Learn the ropes.",
+		enabled = true,
+		tile = "Beginner2v2",
+		fillAfter = 10,
+		fillAfterStudio = 5,
+		maxLevel = Onboarding.BEGINNER_MAX_LEVEL,
+	},
 }
 
 local BY_ID: { [string]: ModeInfo } = {}
+local BY_TILE: { [string]: ModeInfo } = {}
 for _, m in MODES do
 	BY_ID[m.id] = m
+	BY_TILE[m.tile or m.id] = m
 end
 
 return table.freeze({
@@ -47,6 +72,7 @@ return table.freeze({
 
 	MODES = MODES,
 	MODE_BY_ID = BY_ID,
+	MODE_BY_TILE = BY_TILE, -- Play menu tile name → mode
 
 	-- Seconds the oldest player in a mode waits before the match starts with
 	-- bots in the empty slots. Studio uses the short value so the flow is testable.

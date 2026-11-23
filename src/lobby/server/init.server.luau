@@ -10,6 +10,7 @@ local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 
 local MATCH_SERVICES: { [string]: boolean } = {
 	LockerService = true,
+	OnboardingService = true, -- the second favorite ask is during match 2
 	PlayerDataService = true,
 	ProgressionService = true,
 	SettingsService = true,

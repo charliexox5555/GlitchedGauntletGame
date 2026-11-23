@@ -9,6 +9,7 @@
 --     login = Shared/LoginRewards { last = UTC day, step } (2026-11-22),
 --     daily = Shared/DailyShop { day, picks = { { gun, line } }, bought = { slot } },
 --     earn = { day = UTC day, coins = match coins earned that day } (2026-11-22),
+--     onb = Shared/Onboarding { fav, favDone, seen } (new-player flow; 2026-11-22),
 --     buys = { starter = bool (Starter Bundle bought), free = bool (the one free daily
 --              skin used), intents = { [productId] = { product, gun, line, slot?, at } }
 --              (the skin each shared "skin" product pays for, saved before its prompt;
@@ -30,6 +31,7 @@
 --   StateValues "Tickets" the Ticket balance; "LoginLast", "LoginStep" the login board
 --   StringValue "DailyShop"  JSON of `daily` (the player's own daily shop)
 --   StateValues "FreeDailyUsed", "StarterBought" (buys.free, buys.starter)
+--   StateValues "OnbFav", "OnbFavDone", "OnbSeen" (onb: favorite asks, NEW pops seen)
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -43,6 +45,7 @@ local ProgressionConfig = require(ReplicatedStorage.Shared.Config.Progression)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
+local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
@@ -58,6 +61,7 @@ export type Data = {
 	daily: DailyShop.Daily,
 	earn: { day: number, coins: number },
 	buys: Buys,
+	onb: Onboarding.Onb,
 }
 -- `intent`: the skin a shared skin product pays for (Services/RobuxService)
 export type Intent = { product: number, gun: string, line: string, slot: number?, at: number }
@@ -161,6 +165,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		daily = DailyShop.new(),
 		earn = { day = 0, coins = 0 },
 		buys = { starter = false, free = false, intents = {}, receipts = {} },
+		onb = Onboarding.new(),
 	}
 	if typeof(raw) ~= "table" then
 		return data
@@ -169,6 +174,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	data.login = LoginRewards.clean((raw :: any).login)
 	data.daily = DailyShop.clean((raw :: any).daily)
 	data.buys = PlayerData.cleanBuys((raw :: any).buys)
+	data.onb = Onboarding.clean((raw :: any).onb)
 	local earn = (raw :: any).earn
 	if typeof(earn) == "table" then
 		local day, got = count(earn.day, 1e7), count(earn.coins, Inventory.MAX_COINS)
@@ -241,7 +247,11 @@ function PlayerData.valid(data: Data): boolean
 	then
 		return false
 	end
-	if not LoginRewards.valid(data.login) or not DailyShop.valid(data.daily) then
+	if
+		not LoginRewards.valid(data.login)
+		or not DailyShop.valid(data.daily)
+		or not Onboarding.valid(data.onb)
+	then
 		return false
 	end
 	if not whole(data.earn.day, 1e7) or not whole(data.earn.coins, Inventory.MAX_COINS) then
@@ -314,6 +324,10 @@ function PlayerData.publish(player: Player, data: Data?)
 	StateValues.set(player, "LoginStep", if data then data.login.step else 0)
 	StateValues.set(player, "FreeDailyUsed", if data then data.buys.free else true)
 	StateValues.set(player, "StarterBought", if data then data.buys.starter else true)
+	-- before data loads: as if every ask and pop is done (nothing pops on a missing save)
+	StateValues.set(player, "OnbFav", if data then data.onb.fav else 0)
+	StateValues.set(player, "OnbFavDone", if data then data.onb.favDone else true)
+	StateValues.set(player, "OnbSeen", if data then data.onb.seen else 0)
 	local was = StateValues.get(player, "DataReady") == true
 	if data and not was then
 		HealthLog.stage("data ready", player)

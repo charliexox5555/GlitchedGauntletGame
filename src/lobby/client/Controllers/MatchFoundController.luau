@@ -102,7 +102,7 @@ local function setTeleportGui()
 	local mode = canvas and canvas:FindFirstChild("Mode")
 	local id = QueueState.mode()
 	if mode and mode:IsA("TextLabel") and typeof(id) == "string" then
-		mode.Text = string.format(LoadingConfig.modeLine, string.upper(id))
+		mode.Text = string.format(LoadingConfig.modeLine, QueueState.label(id))
 		mode.Visible = true
 	end
 	local stage = canvas and canvas:FindFirstChild("Stage", true)

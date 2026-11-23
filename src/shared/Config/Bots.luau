@@ -163,7 +163,8 @@ return table.freeze({
 	DIFFICULTY = "Hard", -- testing default for every mode until difficulty selection is wired
 
 	-- Lobby → Match (vault/05 Production/Overnight 2026-11-04.md → contracts).
-	MODES = { ["1v1"] = 1, ["2v2"] = 2, ["3v3"] = 3 } :: { [string]: number },
+	-- "beginner" = Beginner 2v2 (new players; vault/05 Production/Handoff - Onboarding and Bots.md)
+	MODES = { ["1v1"] = 1, ["2v2"] = 2, ["3v3"] = 3, beginner = 2 } :: { [string]: number },
 	-- Seconds from the first arrival to wait for an absent teleport seat before a bot fills in (20 until 2026-11-22:
 	-- a phone teleport can take longer; LihFolk Parties and Group Teleports uses 45).
 	JOIN_GRACE = 45,

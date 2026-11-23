@@ -31,13 +31,36 @@ local Launcher = require(script.Parent.Parent.Matchmaking.Launcher)
 local Matchmaker = require(script.Parent.Parent.Matchmaking.Matchmaker)
 local Parties = require(script.Parent.Parent.Matchmaking.Parties)
 local LockerService = require(script.Parent.LockerService)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 
 type Status = "idle" | "searching" | "found" | "teleporting"
 type State = { status: Status, mode: string?, matchId: string? }
 
 local QueueService = {}
 
-local FILL_AFTER = if RunService:IsStudio() then Config.botFillAfterStudio else Config.botFillAfter
+local IS_STUDIO = RunService:IsStudio()
+local FILL_AFTER = if IS_STUDIO then Config.botFillAfterStudio else Config.botFillAfter
+
+-- Seconds before bots fill a mode (Beginner 2v2 has its own, shorter wait).
+local function fillFor(info: Config.ModeInfo): number
+	local own = if IS_STUDIO then info.fillAfterStudio or info.fillAfter else info.fillAfter
+	return own or FILL_AFTER
+end
+
+-- A mode with a level cap (Beginner 2v2): every member's save loaded and below it.
+local function levelOk(members: { Player }, info: Config.ModeInfo): boolean
+	local cap = info.maxLevel
+	if not cap then
+		return true
+	end
+	for _, m in members do
+		local level = StateValues.get(m, "Level")
+		if not PlayerData.ready(m) or typeof(level) ~= "number" or level >= cap then
+			return false
+		end
+	end
+	return true
+end
 
 local states: { [Player]: State } = {}
 local queues: { [string]: { Matchmaker.Entry } } = {}
@@ -309,7 +332,7 @@ local function tick()
 	end
 	local now = os.clock()
 	for _, info in Config.MODES do
-		local pick = Matchmaker.pick(queues[info.id], info.teamSize, now, FILL_AFTER)
+		local pick = Matchmaker.pick(queues[info.id], info.teamSize, now, fillFor(info))
 		if pick then
 			task.spawn(launch, info, pick)
 		end
@@ -350,6 +373,13 @@ local function join(player: Player, info: Config.ModeInfo)
 		send(player, {
 			kind = "failed",
 			text = `Your party has {#members} players: pick {#members}V{#members}`,
+		})
+		return
+	end
+	if not levelOk(members, info) then
+		send(player, {
+			kind = "failed",
+			text = `{info.title} is for players below level {info.maxLevel}`,
 		})
 		return
 	end
@@ -433,7 +463,7 @@ local function onPartyChanged(players: { Player })
 			continue
 		end
 		local members = Parties.members(anchor)
-		if info and #members <= info.teamSize and free(members) then
+		if info and #members <= info.teamSize and free(members) and levelOk(members, info) then
 			enqueue(members, info, r.since)
 			for _, m in members do
 				if not table.find(r.was, m) then
@@ -476,7 +506,7 @@ local function onRequest(player: Player, action: unknown, mode: unknown)
 		return
 	end
 	if action == "join" then
-		if typeof(mode) ~= "string" or #mode > 8 then
+		if typeof(mode) ~= "string" or #mode > 16 then
 			reject("badMode")
 			return
 		end
@@ -514,10 +544,20 @@ local function requeueFromMatch(player: Player)
 		return
 	end
 	local mode = data.requeue
-	if typeof(mode) ~= "string" or #mode > 8 then
+	if typeof(mode) ~= "string" or #mode > 16 then
 		return
 	end
 	local info = Config.MODE_BY_ID[mode]
+	if info and info.maxLevel then
+		-- Beginner 2v2 grown out of (or a party member is): the normal mode of that size
+		local t0 = os.clock()
+		while not PlayerData.ready(player) and player.Parent == Players and os.clock() - t0 < 15 do
+			task.wait(0.25)
+		end
+		if not levelOk(Parties.members(player), info) then
+			info = Config.MODE_BY_ID[`{info.teamSize}v{info.teamSize}`]
+		end
+	end
 	if info and info.enabled and Parties.leader(player) == player then
 		join(player, info)
 	end
@@ -556,7 +596,10 @@ function QueueService.start()
 	local rules = {}
 	for _, m in Config.MODES do
 		if m.enabled then
-			table.insert(rules, { id = m.id :: string, teamSize = m.teamSize })
+			table.insert(
+				rules,
+				{ id = m.id :: string, teamSize = m.teamSize, fillAfter = fillFor(m) }
+			)
 		end
 	end
 	GlobalQueue.onMatched(onGlobalMatch)
