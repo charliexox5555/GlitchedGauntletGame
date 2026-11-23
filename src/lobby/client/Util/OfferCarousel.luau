@@ -2,6 +2,7 @@
 -- Animates the existing Studio offer card. Only its visible Home session owns input and time.
 
 local RS = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
 local Input = game:GetService("UserInputService")
 local UiMotion = require(RS.Shared.UiMotion)
@@ -140,7 +141,7 @@ function OfferCarousel.new(
 				connections,
 				card.Activated:Connect(function(input: InputObject)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						click(Input:GetMouseLocation())
+						click(Vector2.new(input.Position.X, input.Position.Y))
 					elseif input.UserInputType ~= Enum.UserInputType.Touch then
 						click(nil)
 					end
@@ -187,7 +188,10 @@ function OfferCarousel.new(
 					if
 						blocked()
 						or touch
-						or (Input.MouseEnabled and inside(card, Input:GetMouseLocation()))
+						or (
+							Input.MouseEnabled
+							and inside(card, Input:GetMouseLocation() - GuiService:GetGuiInset())
+						)
 					then
 						elapsed = 0
 					elseif count > 1 then

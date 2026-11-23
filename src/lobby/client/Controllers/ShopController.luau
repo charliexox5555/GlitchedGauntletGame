@@ -1267,6 +1267,9 @@ local function celebrate(reward: ShopRewardFx.Reveal)
 		)
 		return
 	end
+	if reward.coins then
+		showCounter(true)
+	end
 	showPanel(rewardPanel)
 	rewardSession = ShopRewardFx.play(rewardPanel, reward, commas)
 end
@@ -2084,9 +2087,7 @@ function ShopController.init()
 				input.UserInputType == Enum.UserInputType.MouseButton1
 				or input.UserInputType == Enum.UserInputType.Touch
 			then
-				local point = if input.UserInputType == Enum.UserInputType.MouseButton1
-					then UserInputService:GetMouseLocation()
-					else Vector2.new(input.Position.X, input.Position.Y)
+				local point = Vector2.new(input.Position.X, input.Position.Y)
 				local lo = rewardPanel.AbsolutePosition
 				local hi = lo + rewardPanel.AbsoluteSize
 				if point.X < lo.X or point.X > hi.X or point.Y < lo.Y or point.Y > hi.Y then
