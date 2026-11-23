@@ -2,7 +2,8 @@
 -- Studio Edit command. Returns the same client-safe art inventory it prints to Output.
 
 local RS = game:GetService("ReplicatedStorage")
-local SkinCases = require(RS.Shared.SkinCases)
+local Weapons = require(RS.Shared.Config.Weapons)
+local SkinConfig = require(RS.Shared.Config.SkinPreview)
 local SkinArt = require(RS.Shared.SkinArt)
 local ItemPortraits = require(RS.Shared.ItemPortraits)
 local ItemIcons = require(RS.Shared.ItemIcons)
@@ -28,7 +29,7 @@ local function check(gun: string, line: string)
 	table.insert(guns, gun)
 	lines[line] = guns
 
-	if not present(ItemPortraits.get(gun, line)) then
+	if line ~= "Stock" and not present(ItemPortraits.get(gun, line)) then
 		table.insert(findings, "Missing portrait: " .. key)
 	end
 	local sideGun = if gun == "Knife" and line == "PopCircuit" then "Bat" else gun
@@ -37,8 +38,10 @@ local function check(gun: string, line: string)
 	end
 end
 
-for _, skin in SkinCases.all() do
-	check(skin.gun, skin.line)
+for gun in Weapons.list do
+	for _, line in Locker.linesFor(gun) do
+		check(gun, line)
+	end
 end
 
 local bundlesChecked = 0
@@ -67,9 +70,10 @@ for _, bundle in ShopCatalog.BUNDLES do
 end
 
 local linesChecked = 0
-for line, guns in lines do
+for _, line in SkinConfig.LINES do
 	linesChecked += 1
-	if not present(SkinArt.line(line, guns)) then
+	local guns = lines[line]
+	if guns and not present(SkinArt.line(line, guns)) then
 		table.insert(findings, "Missing line picture (SkinArt.line): " .. line)
 	end
 	if not present(Locker.EMBLEMS[line]) then
@@ -81,7 +85,7 @@ table.sort(findings)
 table.insert(
 	findings,
 	1,
-	`[AuditShopArt] {pairsChecked} skins, {bundlesChecked} active bundles, {linesChecked} lines, {#findings} findings`
+	`[AuditShopArt] {pairsChecked} weapon looks, {bundlesChecked} active bundles, {linesChecked} lines, {#findings} findings`
 )
 local output = table.concat(findings, "\n")
 print(output)

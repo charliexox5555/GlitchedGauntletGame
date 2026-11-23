@@ -129,6 +129,15 @@ Locker.EMBLEMS = table.freeze({
 	Inkshift = "rbxassetid://92911837408821",
 	TempestStrike = "rbxassetid://95165319256972",
 	RuinBlighted = "rbxassetid://130399130528727",
+	Breakwater = "rbxassetid://84964799842794",
+	Faultline = "rbxassetid://128787840857556",
+	Misprint = "rbxassetid://96187507434082",
+	Oilwake = "rbxassetid://125775381559413",
+	Playback = "rbxassetid://130848648730200",
+	Poolside = "rbxassetid://71177694364888",
+	Rootglass = "rbxassetid://115919299886550",
+	Sundial = "rbxassetid://110359861469161",
+	Slipframe = "rbxassetid://104958460854328",
 }) :: { [string]: string }
 
 -- The gun's model in ReplicatedStorage.Weapons (Studio-owned; the Lobby gets

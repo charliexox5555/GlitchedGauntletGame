@@ -234,6 +234,7 @@ local IDS: { [string]: string } = table.freeze({
 	["Sheriff/Moltframe"] = "rbxassetid://108039379323890",
 	["Spectre/Slipframe"] = "rbxassetid://117280495291179",
 	["Vandal/Slipframe"] = "rbxassetid://125486873649697",
+	["Knife/RuinBlighted"] = "rbxassetid://105046520704903",
 })
 function ItemPortraits.get(gunId: string, line: string): string?
 	return IDS[gunId .. "/" .. line]

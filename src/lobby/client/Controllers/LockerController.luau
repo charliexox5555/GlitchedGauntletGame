@@ -25,7 +25,7 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
-local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
+local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
@@ -508,7 +508,7 @@ local function refreshGunCards()
 		-- like RIVALS' list), the flat silhouette if there's no picture
 		local icon = card:FindFirstChild("Icon")
 		if icon and icon:IsA("ImageLabel") then
-			local pic = ItemIcons.get(gunId, equippedLine(gunId))
+			local pic = SkinArt.side(gunId, equippedLine(gunId))
 			icon.Image = pic or Theme.GUN[gunId] or ""
 			StateValues.set(icon, "Rendered", pic ~= nil)
 		end
@@ -690,7 +690,7 @@ local function buildTiles()
 		t.Name = line
 		t.LayoutOrder = i
 		local w, h = t.Size.X.Offset, t.Size.Y.Offset
-		local pic = ItemIcons.get(selectedGun, line)
+		local pic = SkinArt.side(selectedGun, line)
 		local model = if pic then nil else Locker.skinModel(selectedGun, line)
 		if pic then
 			local art = Instance.new("ImageLabel")

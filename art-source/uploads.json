@@ -4182,16 +4182,16 @@
   "uploaded": "2026-11-22 22:04:44"
  },
  "art-source/ui/shop/heroes/hero_ruinblighted.png": {
-  "assetId": 71311115838552,
-  "name": "GG Shop Hero ruinblighted",
-  "type": "Decal",
-  "uploaded": "2026-11-22 17:35:59"
+  "assetId": 122434274434504,
+  "name": "GG hero ruinblighted",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:45"
  },
  "art-source/ui/shop/heroes/hero_tempeststrike.png": {
-  "assetId": 107976826330113,
-  "name": "GG Shop Hero tempeststrike",
-  "type": "Decal",
-  "uploaded": "2026-11-22 17:36:02"
+  "assetId": 78378943251206,
+  "name": "GG hero tempeststrike",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:46"
  },
  "art-source/ui/shop/new/banner_ruinblighted.png": {
   "assetId": 83121459082360,
@@ -5643,5 +5643,1511 @@
   "name": "GG Shop HD Vandal Sealwork",
   "type": "Image",
   "uploaded": "2026-11-22 22:10:51"
+ },
+ "art-source/ui/collection-emblems/emblem_breakwater.png": {
+  "assetId": 84964799842794,
+  "name": "GG emblem breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:47"
+ },
+ "art-source/ui/collection-emblems/emblem_faultline.png": {
+  "assetId": 128787840857556,
+  "name": "GG emblem faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:47"
+ },
+ "art-source/ui/collection-emblems/emblem_misprint.png": {
+  "assetId": 96187507434082,
+  "name": "GG emblem misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:48"
+ },
+ "art-source/ui/collection-emblems/emblem_oilwake.png": {
+  "assetId": 125775381559413,
+  "name": "GG emblem oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:48"
+ },
+ "art-source/ui/collection-emblems/emblem_playback.png": {
+  "assetId": 130848648730200,
+  "name": "GG emblem playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:49"
+ },
+ "art-source/ui/collection-emblems/emblem_poolside.png": {
+  "assetId": 71177694364888,
+  "name": "GG emblem poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:49"
+ },
+ "art-source/ui/collection-emblems/emblem_rootglass.png": {
+  "assetId": 115919299886550,
+  "name": "GG emblem rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:49"
+ },
+ "art-source/ui/collection-emblems/emblem_sundial.png": {
+  "assetId": 110359861469161,
+  "name": "GG emblem sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:49"
+ },
+ "art-source/ui/item-icons/Ares_Faultline.png": {
+  "assetId": 86795990867936,
+  "name": "GG Ares Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Misprint.png": {
+  "assetId": 82704219102151,
+  "name": "GG Ares Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Moltframe.png": {
+  "assetId": 74381043595613,
+  "name": "GG Ares Moltframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Nitrous.png": {
+  "assetId": 123924291429778,
+  "name": "GG Ares Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Oilwake.png": {
+  "assetId": 75422693932413,
+  "name": "GG Ares Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Payload.png": {
+  "assetId": 87134414972391,
+  "name": "GG Ares Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Playback.png": {
+  "assetId": 99006719791580,
+  "name": "GG Ares Playback Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Poolside.png": {
+  "assetId": 116154955172551,
+  "name": "GG Ares Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_PopCircuit.png": {
+  "assetId": 135821714438929,
+  "name": "GG Ares PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Prism.png": {
+  "assetId": 81235690987506,
+  "name": "GG Ares Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:13"
+ },
+ "art-source/ui/item-icons/Ares_Redline.png": {
+  "assetId": 79538406758121,
+  "name": "GG Ares Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Ares_Rootglass.png": {
+  "assetId": 135895408917427,
+  "name": "GG Ares Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Ares_Stock.png": {
+  "assetId": 101255434494308,
+  "name": "GG Ares Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Bat_PopCircuit.png": {
+  "assetId": 79374592405685,
+  "name": "GG Bat PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:47"
+ },
+ "art-source/ui/item-icons/Bucky_Breakwater.png": {
+  "assetId": 138371692862396,
+  "name": "GG Bucky Breakwater Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Bucky_Faultline.png": {
+  "assetId": 107538160021825,
+  "name": "GG Bucky Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Bucky_Misprint.png": {
+  "assetId": 88751376115021,
+  "name": "GG Bucky Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Bucky_Nitrous.png": {
+  "assetId": 132992270469721,
+  "name": "GG Bucky Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Bucky_Oilwake.png": {
+  "assetId": 88362390687951,
+  "name": "GG Bucky Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Bucky_Poolside.png": {
+  "assetId": 123436447696234,
+  "name": "GG Bucky Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:15"
+ },
+ "art-source/ui/item-icons/Bucky_PopCircuit.png": {
+  "assetId": 115214376808763,
+  "name": "GG Bucky PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:16"
+ },
+ "art-source/ui/item-icons/Bucky_Prism.png": {
+  "assetId": 84418500163118,
+  "name": "GG Bucky Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bucky_Redline.png": {
+  "assetId": 96584155906323,
+  "name": "GG Bucky Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bucky_Rootglass.png": {
+  "assetId": 81952265294145,
+  "name": "GG Bucky Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bucky_Stock.png": {
+  "assetId": 134985032254175,
+  "name": "GG Bucky Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bucky_TempestStrike.png": {
+  "assetId": 99508116555512,
+  "name": "GG Bucky TempestStrike Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bulldog_Faultline.png": {
+  "assetId": 80769554592786,
+  "name": "GG Bulldog Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bulldog_Misprint.png": {
+  "assetId": 79237878353155,
+  "name": "GG Bulldog Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bulldog_Nitrous.png": {
+  "assetId": 97459865253689,
+  "name": "GG Bulldog Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bulldog_Oilwake.png": {
+  "assetId": 131514678498570,
+  "name": "GG Bulldog Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:21"
+ },
+ "art-source/ui/item-icons/Bulldog_Payload.png": {
+  "assetId": 121158722880213,
+  "name": "GG Bulldog Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:18"
+ },
+ "art-source/ui/item-icons/Bulldog_Playback.png": {
+  "assetId": 133941986143387,
+  "name": "GG Bulldog Playback Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:24"
+ },
+ "art-source/ui/item-icons/Bulldog_Poolside.png": {
+  "assetId": 110192109588406,
+  "name": "GG Bulldog Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:24"
+ },
+ "art-source/ui/item-icons/Bulldog_PopCircuit.png": {
+  "assetId": 127861856821088,
+  "name": "GG Bulldog PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:24"
+ },
+ "art-source/ui/item-icons/Bulldog_Prism.png": {
+  "assetId": 136843424372787,
+  "name": "GG Bulldog Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:24"
+ },
+ "art-source/ui/item-icons/Bulldog_Redline.png": {
+  "assetId": 70816694964870,
+  "name": "GG Bulldog Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:21"
+ },
+ "art-source/ui/item-icons/Bulldog_Rootglass.png": {
+  "assetId": 98077877011948,
+  "name": "GG Bulldog Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:21"
+ },
+ "art-source/ui/item-icons/Bulldog_Stock.png": {
+  "assetId": 127157119568345,
+  "name": "GG Bulldog Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:21"
+ },
+ "art-source/ui/item-icons/Classic_Faultline.png": {
+  "assetId": 136471482951171,
+  "name": "GG Classic Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Giltfold.png": {
+  "assetId": 123007239742009,
+  "name": "GG Classic Giltfold Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Misprint.png": {
+  "assetId": 90781215329572,
+  "name": "GG Classic Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Nitrous.png": {
+  "assetId": 130134333424619,
+  "name": "GG Classic Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Oilwake.png": {
+  "assetId": 124872897956726,
+  "name": "GG Classic Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Payload.png": {
+  "assetId": 79497488415550,
+  "name": "GG Classic Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Playback.png": {
+  "assetId": 136122725999283,
+  "name": "GG Classic Playback Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Poolside.png": {
+  "assetId": 76979161764513,
+  "name": "GG Classic Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_PopCircuit.png": {
+  "assetId": 112970009605415,
+  "name": "GG Classic PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Prism.png": {
+  "assetId": 72357544589962,
+  "name": "GG Classic Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:15"
+ },
+ "art-source/ui/item-icons/Classic_Redline.png": {
+  "assetId": 83245081139419,
+  "name": "GG Classic Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:21"
+ },
+ "art-source/ui/item-icons/Classic_Rootglass.png": {
+  "assetId": 112385394857741,
+  "name": "GG Classic Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:21"
+ },
+ "art-source/ui/item-icons/Classic_Slipframe.png": {
+  "assetId": 70621126516220,
+  "name": "GG Classic Slipframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:21"
+ },
+ "art-source/ui/item-icons/Classic_Stock.png": {
+  "assetId": 81840767296017,
+  "name": "GG Classic Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:21"
+ },
+ "art-source/ui/item-icons/Ghost_Faultline.png": {
+  "assetId": 86156335272356,
+  "name": "GG Ghost Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:24"
+ },
+ "art-source/ui/item-icons/Ghost_Giltfold.png": {
+  "assetId": 110532434802856,
+  "name": "GG Ghost Giltfold Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:21"
+ },
+ "art-source/ui/item-icons/Ghost_Misprint.png": {
+  "assetId": 134340191702516,
+  "name": "GG Ghost Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:23"
+ },
+ "art-source/ui/item-icons/Ghost_Nitrous.png": {
+  "assetId": 116814040185184,
+  "name": "GG Ghost Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:23"
+ },
+ "art-source/ui/item-icons/Ghost_Oilwake.png": {
+  "assetId": 87468856471553,
+  "name": "GG Ghost Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:23"
+ },
+ "art-source/ui/item-icons/Ghost_Payload.png": {
+  "assetId": 131675037396746,
+  "name": "GG Ghost Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:23"
+ },
+ "art-source/ui/item-icons/Ghost_Playback.png": {
+  "assetId": 108746236977961,
+  "name": "GG Ghost Playback Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:24"
+ },
+ "art-source/ui/item-icons/Ghost_Poolside.png": {
+  "assetId": 102703938329528,
+  "name": "GG Ghost Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:26"
+ },
+ "art-source/ui/item-icons/Ghost_PopCircuit.png": {
+  "assetId": 122876800438917,
+  "name": "GG Ghost PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Ghost_Prism.png": {
+  "assetId": 103424615411507,
+  "name": "GG Ghost Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:26"
+ },
+ "art-source/ui/item-icons/Ghost_Redline.png": {
+  "assetId": 117510797158966,
+  "name": "GG Ghost Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:26"
+ },
+ "art-source/ui/item-icons/Ghost_Rootglass.png": {
+  "assetId": 96051967703875,
+  "name": "GG Ghost Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Ghost_Stock.png": {
+  "assetId": 121316064495542,
+  "name": "GG Ghost Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:26"
+ },
+ "art-source/ui/item-icons/Ghost_Sundial.png": {
+  "assetId": 129861852291286,
+  "name": "GG Ghost Sundial Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:30"
+ },
+ "art-source/ui/item-icons/Guardian_Faultline.png": {
+  "assetId": 80766756710321,
+  "name": "GG Guardian Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:26"
+ },
+ "art-source/ui/item-icons/Guardian_Misprint.png": {
+  "assetId": 102683407567455,
+  "name": "GG Guardian Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:26"
+ },
+ "art-source/ui/item-icons/Guardian_Nitrous.png": {
+  "assetId": 71057330774690,
+  "name": "GG Guardian Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:26"
+ },
+ "art-source/ui/item-icons/Guardian_Oilwake.png": {
+  "assetId": 136720243378525,
+  "name": "GG Guardian Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Guardian_Poolside.png": {
+  "assetId": 89357011809197,
+  "name": "GG Guardian Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Guardian_PopCircuit.png": {
+  "assetId": 100104674405033,
+  "name": "GG Guardian PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Guardian_Prism.png": {
+  "assetId": 114006272599569,
+  "name": "GG Guardian Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Guardian_Redline.png": {
+  "assetId": 129911807610964,
+  "name": "GG Guardian Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Guardian_Rootglass.png": {
+  "assetId": 79438688139702,
+  "name": "GG Guardian Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:47"
+ },
+ "art-source/ui/item-icons/Guardian_Sealwork.png": {
+  "assetId": 72972238832473,
+  "name": "GG Guardian Sealwork Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Guardian_Slipframe.png": {
+  "assetId": 79274547330830,
+  "name": "GG Guardian Slipframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:29"
+ },
+ "art-source/ui/item-icons/Guardian_Stock.png": {
+  "assetId": 117761326926077,
+  "name": "GG Guardian Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:31"
+ },
+ "art-source/ui/item-icons/Guardian_Sundial.png": {
+  "assetId": 133609383068023,
+  "name": "GG Guardian Sundial Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:31"
+ },
+ "art-source/ui/item-icons/Judge_Breakwater.png": {
+  "assetId": 104129456799721,
+  "name": "GG Judge Breakwater Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:35"
+ },
+ "art-source/ui/item-icons/Judge_Faultline.png": {
+  "assetId": 78730043959322,
+  "name": "GG Judge Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:35"
+ },
+ "art-source/ui/item-icons/Judge_Misprint.png": {
+  "assetId": 87525526563457,
+  "name": "GG Judge Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:32"
+ },
+ "art-source/ui/item-icons/Judge_Moltframe_HD.png": {
+  "assetId": 138033395255504,
+  "name": "GG Judge Moltframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:32"
+ },
+ "art-source/ui/item-icons/Judge_Nitrous.png": {
+  "assetId": 76424485292718,
+  "name": "GG Judge Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:32"
+ },
+ "art-source/ui/item-icons/Judge_Oilwake.png": {
+  "assetId": 72772281929870,
+  "name": "GG Judge Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:35"
+ },
+ "art-source/ui/item-icons/Judge_Poolside.png": {
+  "assetId": 87061377676302,
+  "name": "GG Judge Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:35"
+ },
+ "art-source/ui/item-icons/Judge_PopCircuit.png": {
+  "assetId": 116195780740501,
+  "name": "GG Judge PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:32"
+ },
+ "art-source/ui/item-icons/Judge_Prism.png": {
+  "assetId": 92751250466999,
+  "name": "GG Judge Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Judge_Redline.png": {
+  "assetId": 110403375701003,
+  "name": "GG Judge Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Judge_Rootglass.png": {
+  "assetId": 127090770584469,
+  "name": "GG Judge Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:34"
+ },
+ "art-source/ui/item-icons/Judge_Stock.png": {
+  "assetId": 136262636904455,
+  "name": "GG Judge Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Knife_Breakwater.png": {
+  "assetId": 85572111836798,
+  "name": "GG Knife Breakwater Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:34"
+ },
+ "art-source/ui/item-icons/Knife_Giltfold.png": {
+  "assetId": 133041886529601,
+  "name": "GG Knife Giltfold Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:52:17"
+ },
+ "art-source/ui/item-icons/Knife_Inkshift.png": {
+  "assetId": 139919939099969,
+  "name": "GG Knife Inkshift Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:35"
+ },
+ "art-source/ui/item-icons/Knife_Moltframe.png": {
+  "assetId": 97861259549834,
+  "name": "GG Knife Moltframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Knife_Playback_HD.png": {
+  "assetId": 112876157557016,
+  "name": "GG Knife Playback Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Knife_Prism.png": {
+  "assetId": 98147315704467,
+  "name": "GG Knife Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Knife_Redline.png": {
+  "assetId": 124166877290673,
+  "name": "GG Knife Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Knife_Rootglass.png": {
+  "assetId": 139632038171866,
+  "name": "GG Knife Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:37"
+ },
+ "art-source/ui/item-icons/Knife_RuinBlighted.png": {
+  "assetId": 84744153269665,
+  "name": "GG Knife RuinBlighted Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:38"
+ },
+ "art-source/ui/item-icons/Knife_Sealwork.png": {
+  "assetId": 139974807198274,
+  "name": "GG Knife Sealwork Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:39"
+ },
+ "art-source/ui/item-icons/Knife_Slipframe.png": {
+  "assetId": 107637520298913,
+  "name": "GG Knife Slipframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:47"
+ },
+ "art-source/ui/item-icons/Knife_Stock.png": {
+  "assetId": 117406392840854,
+  "name": "GG Knife Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:39"
+ },
+ "art-source/ui/item-icons/Knife_Sundial_HD.png": {
+  "assetId": 132746138620510,
+  "name": "GG Knife Sundial Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Knife_TempestStrike.png": {
+  "assetId": 84321718088113,
+  "name": "GG Knife TempestStrike Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Marshal_Faultline.png": {
+  "assetId": 110943923556497,
+  "name": "GG Marshal Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Marshal_Giltfold.png": {
+  "assetId": 75827486537341,
+  "name": "GG Marshal Giltfold Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Marshal_Misprint.png": {
+  "assetId": 116495660071953,
+  "name": "GG Marshal Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Marshal_Nitrous.png": {
+  "assetId": 137512246217659,
+  "name": "GG Marshal Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Marshal_Oilwake.png": {
+  "assetId": 111824945691185,
+  "name": "GG Marshal Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Marshal_Poolside.png": {
+  "assetId": 94011781351095,
+  "name": "GG Marshal Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:40"
+ },
+ "art-source/ui/item-icons/Marshal_PopCircuit.png": {
+  "assetId": 92197618045391,
+  "name": "GG Marshal PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:42"
+ },
+ "art-source/ui/item-icons/Marshal_Prism.png": {
+  "assetId": 95524996093722,
+  "name": "GG Marshal Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:42"
+ },
+ "art-source/ui/item-icons/Marshal_Redline.png": {
+  "assetId": 104909344231299,
+  "name": "GG Marshal Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:42"
+ },
+ "art-source/ui/item-icons/Marshal_Rootglass.png": {
+  "assetId": 96823266543932,
+  "name": "GG Marshal Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:42"
+ },
+ "art-source/ui/item-icons/Marshal_Sealwork.png": {
+  "assetId": 104429319934180,
+  "name": "GG Marshal Sealwork Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:42"
+ },
+ "art-source/ui/item-icons/Marshal_Stock.png": {
+  "assetId": 112264093877039,
+  "name": "GG Marshal Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:42"
+ },
+ "art-source/ui/item-icons/Marshal_Sundial.png": {
+  "assetId": 126805911308502,
+  "name": "GG Marshal Sundial Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:43"
+ },
+ "art-source/ui/item-icons/Marshal_TempestStrike.png": {
+  "assetId": 96875393108893,
+  "name": "GG Marshal TempestStrike Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:42"
+ },
+ "art-source/ui/item-icons/Odin_Breakwater.png": {
+  "assetId": 122085202843865,
+  "name": "GG Odin Breakwater Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:43"
+ },
+ "art-source/ui/item-icons/Odin_Faultline.png": {
+  "assetId": 81322659562285,
+  "name": "GG Odin Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:43"
+ },
+ "art-source/ui/item-icons/Odin_Inkshift.png": {
+  "assetId": 90803712895077,
+  "name": "GG Odin Inkshift Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Misprint.png": {
+  "assetId": 101933917969014,
+  "name": "GG Odin Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Nitrous.png": {
+  "assetId": 90228279440679,
+  "name": "GG Odin Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Oilwake.png": {
+  "assetId": 130786507119313,
+  "name": "GG Odin Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Payload.png": {
+  "assetId": 123111094100097,
+  "name": "GG Odin Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Poolside.png": {
+  "assetId": 92263909938044,
+  "name": "GG Odin Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_PopCircuit.png": {
+  "assetId": 116541785280513,
+  "name": "GG Odin PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Prism.png": {
+  "assetId": 106152068265611,
+  "name": "GG Odin Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Redline.png": {
+  "assetId": 139975608854790,
+  "name": "GG Odin Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:45"
+ },
+ "art-source/ui/item-icons/Odin_Rootglass.png": {
+  "assetId": 96188421165959,
+  "name": "GG Odin Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:46"
+ },
+ "art-source/ui/item-icons/Odin_Stock.png": {
+  "assetId": 102176018850193,
+  "name": "GG Odin Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:47"
+ },
+ "art-source/ui/item-icons/Operator_Faultline.png": {
+  "assetId": 130240283645794,
+  "name": "GG Operator Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:47"
+ },
+ "art-source/ui/item-icons/Operator_Misprint.png": {
+  "assetId": 131297052546868,
+  "name": "GG Operator Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:47"
+ },
+ "art-source/ui/item-icons/Operator_Nitrous.png": {
+  "assetId": 104250189353253,
+  "name": "GG Operator Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:48"
+ },
+ "art-source/ui/item-icons/Operator_Oilwake.png": {
+  "assetId": 129185338189481,
+  "name": "GG Operator Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:48"
+ },
+ "art-source/ui/item-icons/Operator_Payload.png": {
+  "assetId": 73753491733491,
+  "name": "GG Operator Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:48"
+ },
+ "art-source/ui/item-icons/Operator_Poolside.png": {
+  "assetId": 140182400181091,
+  "name": "GG Operator Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:12"
+ },
+ "art-source/ui/item-icons/Operator_PopCircuit.png": {
+  "assetId": 109041968937366,
+  "name": "GG Operator PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:12"
+ },
+ "art-source/ui/item-icons/Operator_Prism.png": {
+  "assetId": 120233769165372,
+  "name": "GG Operator Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:12"
+ },
+ "art-source/ui/item-icons/Operator_Redline.png": {
+  "assetId": 82978407707800,
+  "name": "GG Operator Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:13"
+ },
+ "art-source/ui/item-icons/Operator_Rootglass.png": {
+  "assetId": 72325208333064,
+  "name": "GG Operator Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:14"
+ },
+ "art-source/ui/item-icons/Operator_Slipframe.png": {
+  "assetId": 129672469604997,
+  "name": "GG Operator Slipframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:14"
+ },
+ "art-source/ui/item-icons/Operator_Stock.png": {
+  "assetId": 121812772676798,
+  "name": "GG Operator Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:14"
+ },
+ "art-source/ui/item-icons/Operator_Sundial.png": {
+  "assetId": 92232382908799,
+  "name": "GG Operator Sundial Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:14"
+ },
+ "art-source/ui/item-icons/Outlaw_Faultline.png": {
+  "assetId": 77013639595212,
+  "name": "GG Outlaw Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:14"
+ },
+ "art-source/ui/item-icons/Outlaw_Misprint.png": {
+  "assetId": 140431209029681,
+  "name": "GG Outlaw Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:14"
+ },
+ "art-source/ui/item-icons/Outlaw_Nitrous.png": {
+  "assetId": 98440286211972,
+  "name": "GG Outlaw Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:15"
+ },
+ "art-source/ui/item-icons/Outlaw_Oilwake.png": {
+  "assetId": 71770133424693,
+  "name": "GG Outlaw Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:15"
+ },
+ "art-source/ui/item-icons/Outlaw_Poolside.png": {
+  "assetId": 82083893119673,
+  "name": "GG Outlaw Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:15"
+ },
+ "art-source/ui/item-icons/Outlaw_PopCircuit.png": {
+  "assetId": 139288662700611,
+  "name": "GG Outlaw PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:15"
+ },
+ "art-source/ui/item-icons/Outlaw_Prism.png": {
+  "assetId": 70730277990295,
+  "name": "GG Outlaw Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Outlaw_Redline.png": {
+  "assetId": 88352662777565,
+  "name": "GG Outlaw Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Outlaw_Rootglass.png": {
+  "assetId": 96876128138702,
+  "name": "GG Outlaw Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Outlaw_Stock.png": {
+  "assetId": 85103087761162,
+  "name": "GG Outlaw Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Outlaw_Sundial.png": {
+  "assetId": 71041617122908,
+  "name": "GG Outlaw Sundial Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Phantom_Faultline.png": {
+  "assetId": 115722939913647,
+  "name": "GG Phantom Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Phantom_Inkshift.png": {
+  "assetId": 97781299730444,
+  "name": "GG Phantom Inkshift Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Phantom_Misprint.png": {
+  "assetId": 103487967106847,
+  "name": "GG Phantom Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:17"
+ },
+ "art-source/ui/item-icons/Phantom_Moltframe_HD.png": {
+  "assetId": 95494752809680,
+  "name": "GG Phantom Moltframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:18"
+ },
+ "art-source/ui/item-icons/Phantom_Nitrous.png": {
+  "assetId": 117198816219431,
+  "name": "GG Phantom Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:18"
+ },
+ "art-source/ui/item-icons/Phantom_Oilwake.png": {
+  "assetId": 109224598683070,
+  "name": "GG Phantom Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:19"
+ },
+ "art-source/ui/item-icons/Phantom_Playback.png": {
+  "assetId": 115390856787134,
+  "name": "GG Phantom Playback Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Phantom_Poolside.png": {
+  "assetId": 97159668324333,
+  "name": "GG Phantom Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Phantom_PopCircuit.png": {
+  "assetId": 103332149347600,
+  "name": "GG Phantom PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Phantom_Prism.png": {
+  "assetId": 87503971186890,
+  "name": "GG Phantom Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Phantom_Redline.png": {
+  "assetId": 88268444122500,
+  "name": "GG Phantom Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Phantom_Rootglass.png": {
+  "assetId": 93123117115536,
+  "name": "GG Phantom Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Phantom_Stock.png": {
+  "assetId": 79368983913676,
+  "name": "GG Phantom Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:23"
+ },
+ "art-source/ui/item-icons/Sheriff_Faultline.png": {
+  "assetId": 89923546293036,
+  "name": "GG Sheriff Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Sheriff_Misprint.png": {
+  "assetId": 71372753240261,
+  "name": "GG Sheriff Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:20"
+ },
+ "art-source/ui/item-icons/Sheriff_Moltframe_HD.png": {
+  "assetId": 121285210929877,
+  "name": "GG Sheriff Moltframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:22"
+ },
+ "art-source/ui/item-icons/Sheriff_Nitrous.png": {
+  "assetId": 89068589879220,
+  "name": "GG Sheriff Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:22"
+ },
+ "art-source/ui/item-icons/Sheriff_Oilwake.png": {
+  "assetId": 108085349919322,
+  "name": "GG Sheriff Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:25"
+ },
+ "art-source/ui/item-icons/Sheriff_Poolside.png": {
+  "assetId": 83579808269235,
+  "name": "GG Sheriff Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:25"
+ },
+ "art-source/ui/item-icons/Sheriff_PopCircuit.png": {
+  "assetId": 115647827863582,
+  "name": "GG Sheriff PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:25"
+ },
+ "art-source/ui/item-icons/Sheriff_Prism.png": {
+  "assetId": 132505644281311,
+  "name": "GG Sheriff Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:26"
+ },
+ "art-source/ui/item-icons/Sheriff_Redline.png": {
+  "assetId": 132416668908812,
+  "name": "GG Sheriff Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:26"
+ },
+ "art-source/ui/item-icons/Sheriff_Rootglass.png": {
+  "assetId": 111808546840889,
+  "name": "GG Sheriff Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:23"
+ },
+ "art-source/ui/item-icons/Sheriff_Sealwork.png": {
+  "assetId": 132678128283069,
+  "name": "GG Sheriff Sealwork Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:26"
+ },
+ "art-source/ui/item-icons/Sheriff_Stock.png": {
+  "assetId": 80350036404057,
+  "name": "GG Sheriff Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:28"
+ },
+ "art-source/ui/item-icons/Sheriff_Sundial.png": {
+  "assetId": 101764652129339,
+  "name": "GG Sheriff Sundial Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:28"
+ },
+ "art-source/ui/item-icons/Sheriff_TempestStrike.png": {
+  "assetId": 72655839536908,
+  "name": "GG Sheriff TempestStrike Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:26"
+ },
+ "art-source/ui/item-icons/Shorty_Breakwater.png": {
+  "assetId": 73196901172265,
+  "name": "GG Shorty Breakwater Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:29"
+ },
+ "art-source/ui/item-icons/Shorty_Faultline.png": {
+  "assetId": 107469125306147,
+  "name": "GG Shorty Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:31"
+ },
+ "art-source/ui/item-icons/Shorty_Inkshift.png": {
+  "assetId": 108386315766075,
+  "name": "GG Shorty Inkshift Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:28"
+ },
+ "art-source/ui/item-icons/Shorty_Misprint.png": {
+  "assetId": 101110762709172,
+  "name": "GG Shorty Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:28"
+ },
+ "art-source/ui/item-icons/Shorty_Nitrous.png": {
+  "assetId": 117198501824416,
+  "name": "GG Shorty Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:31"
+ },
+ "art-source/ui/item-icons/Shorty_Oilwake.png": {
+  "assetId": 76428138060281,
+  "name": "GG Shorty Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:31"
+ },
+ "art-source/ui/item-icons/Shorty_Poolside.png": {
+  "assetId": 96875083510400,
+  "name": "GG Shorty Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:31"
+ },
+ "art-source/ui/item-icons/Shorty_PopCircuit.png": {
+  "assetId": 139194274067351,
+  "name": "GG Shorty PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:32"
+ },
+ "art-source/ui/item-icons/Shorty_Prism.png": {
+  "assetId": 75972173193431,
+  "name": "GG Shorty Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:33"
+ },
+ "art-source/ui/item-icons/Shorty_Redline.png": {
+  "assetId": 127198930529279,
+  "name": "GG Shorty Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:34"
+ },
+ "art-source/ui/item-icons/Shorty_Rootglass.png": {
+  "assetId": 139964614225091,
+  "name": "GG Shorty Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:34"
+ },
+ "art-source/ui/item-icons/Shorty_Sealwork.png": {
+  "assetId": 84721183134373,
+  "name": "GG Shorty Sealwork Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:34"
+ },
+ "art-source/ui/item-icons/Shorty_Stock.png": {
+  "assetId": 137469638958126,
+  "name": "GG Shorty Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:35"
+ },
+ "art-source/ui/item-icons/Spectre_Breakwater.png": {
+  "assetId": 92260988497632,
+  "name": "GG Spectre Breakwater Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:34"
+ },
+ "art-source/ui/item-icons/Spectre_Faultline.png": {
+  "assetId": 115815316515784,
+  "name": "GG Spectre Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:34"
+ },
+ "art-source/ui/item-icons/Spectre_Misprint.png": {
+  "assetId": 97431378649393,
+  "name": "GG Spectre Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:34"
+ },
+ "art-source/ui/item-icons/Spectre_Moltframe.png": {
+  "assetId": 130585875852775,
+  "name": "GG Spectre Moltframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:34"
+ },
+ "art-source/ui/item-icons/Spectre_Nitrous.png": {
+  "assetId": 128710599652238,
+  "name": "GG Spectre Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:35"
+ },
+ "art-source/ui/item-icons/Spectre_Oilwake.png": {
+  "assetId": 95241160219229,
+  "name": "GG Spectre Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:36"
+ },
+ "art-source/ui/item-icons/Spectre_Poolside.png": {
+  "assetId": 80382389573399,
+  "name": "GG Spectre Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:36"
+ },
+ "art-source/ui/item-icons/Spectre_PopCircuit.png": {
+  "assetId": 74872045607203,
+  "name": "GG Spectre PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:36"
+ },
+ "art-source/ui/item-icons/Spectre_Prism.png": {
+  "assetId": 113865805844968,
+  "name": "GG Spectre Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:36"
+ },
+ "art-source/ui/item-icons/Spectre_Redline.png": {
+  "assetId": 108699368701932,
+  "name": "GG Spectre Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:36"
+ },
+ "art-source/ui/item-icons/Spectre_Rootglass.png": {
+  "assetId": 110574095823138,
+  "name": "GG Spectre Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:37"
+ },
+ "art-source/ui/item-icons/Spectre_Slipframe.png": {
+  "assetId": 84774613375526,
+  "name": "GG Spectre Slipframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:37"
+ },
+ "art-source/ui/item-icons/Spectre_Stock.png": {
+  "assetId": 135069454351847,
+  "name": "GG Spectre Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:37"
+ },
+ "art-source/ui/item-icons/Stinger_Faultline.png": {
+  "assetId": 75936453130554,
+  "name": "GG Stinger Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:47"
+ },
+ "art-source/ui/item-icons/Stinger_Giltfold.png": {
+  "assetId": 103858099753789,
+  "name": "GG Stinger Giltfold Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:37"
+ },
+ "art-source/ui/item-icons/Stinger_Inkshift.png": {
+  "assetId": 89025484812466,
+  "name": "GG Stinger Inkshift Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:37"
+ },
+ "art-source/ui/item-icons/Stinger_Misprint.png": {
+  "assetId": 110940479151953,
+  "name": "GG Stinger Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_Nitrous.png": {
+  "assetId": 136368943320591,
+  "name": "GG Stinger Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_Oilwake.png": {
+  "assetId": 75473031733036,
+  "name": "GG Stinger Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_Payload.png": {
+  "assetId": 86326158985492,
+  "name": "GG Stinger Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_Playback.png": {
+  "assetId": 131532162293807,
+  "name": "GG Stinger Playback Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_Poolside.png": {
+  "assetId": 117506356682850,
+  "name": "GG Stinger Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_PopCircuit.png": {
+  "assetId": 111902930931027,
+  "name": "GG Stinger PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_Prism.png": {
+  "assetId": 73493566557545,
+  "name": "GG Stinger Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:39"
+ },
+ "art-source/ui/item-icons/Stinger_Redline.png": {
+  "assetId": 118414411045629,
+  "name": "GG Stinger Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:40"
+ },
+ "art-source/ui/item-icons/Stinger_Rootglass.png": {
+  "assetId": 127349551308215,
+  "name": "GG Stinger Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:40"
+ },
+ "art-source/ui/item-icons/Stinger_Stock.png": {
+  "assetId": 70991339399679,
+  "name": "GG Stinger Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:41"
+ },
+ "art-source/ui/item-icons/Stinger_TempestStrike.png": {
+  "assetId": 120422905120681,
+  "name": "GG Stinger TempestStrike Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Breakwater.png": {
+  "assetId": 133402696524610,
+  "name": "GG Vandal Breakwater Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Faultline.png": {
+  "assetId": 111153185858244,
+  "name": "GG Vandal Faultline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Giltfold.png": {
+  "assetId": 76256487129673,
+  "name": "GG Vandal Giltfold Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Inkshift.png": {
+  "assetId": 100407182419715,
+  "name": "GG Vandal Inkshift Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Misprint.png": {
+  "assetId": 103378546049074,
+  "name": "GG Vandal Misprint Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Moltframe.png": {
+  "assetId": 108845035313663,
+  "name": "GG Vandal Moltframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Nitrous.png": {
+  "assetId": 102113661218232,
+  "name": "GG Vandal Nitrous Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Oilwake.png": {
+  "assetId": 89751739504976,
+  "name": "GG Vandal Oilwake Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:43"
+ },
+ "art-source/ui/item-icons/Vandal_Payload.png": {
+  "assetId": 136560050599874,
+  "name": "GG Vandal Payload Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:44"
+ },
+ "art-source/ui/item-icons/Vandal_Poolside.png": {
+  "assetId": 96919686716632,
+  "name": "GG Vandal Poolside Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:44"
+ },
+ "art-source/ui/item-icons/Vandal_PopCircuit.png": {
+  "assetId": 129276854040109,
+  "name": "GG Vandal PopCircuit Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:44"
+ },
+ "art-source/ui/item-icons/Vandal_Prism.png": {
+  "assetId": 89652817017115,
+  "name": "GG Vandal Prism Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:44"
+ },
+ "art-source/ui/item-icons/Vandal_Redline.png": {
+  "assetId": 120825378483692,
+  "name": "GG Vandal Redline Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:44"
+ },
+ "art-source/ui/item-icons/Vandal_Rootglass.png": {
+  "assetId": 80835166444028,
+  "name": "GG Vandal Rootglass Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:44"
+ },
+ "art-source/ui/item-icons/Vandal_Sealwork.png": {
+  "assetId": 90457740077938,
+  "name": "GG Vandal Sealwork Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:44"
+ },
+ "art-source/ui/item-icons/Vandal_Slipframe.png": {
+  "assetId": 127387324312570,
+  "name": "GG Vandal Slipframe Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:45"
+ },
+ "art-source/ui/item-icons/Vandal_Stock.png": {
+  "assetId": 118333608519962,
+  "name": "GG Vandal Stock Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:45"
+ },
+ "art-source/ui/item-icons/Vandal_TempestStrike.png": {
+  "assetId": 91504789937335,
+  "name": "GG Vandal TempestStrike Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:51:47"
+ },
+ "art-source/ui/item-portraits/Knife_RuinBlighted.png": {
+  "assetId": 105046520704903,
+  "name": "GG Knife RuinBlighted",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:50:38"
  }
 }
