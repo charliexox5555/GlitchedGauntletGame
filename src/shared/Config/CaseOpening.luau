@@ -17,6 +17,9 @@ local function s(id: number, volume: number, pitch: number?, cut: number?)
 end
 
 return table.freeze({
+	ANSWER_TIMEOUT = 30,
+	BATCH_BUTTON_WIDTH = 188,
+	BATCH_BUTTON_STEP = 215,
 	SCALE = 1.6, -- the crate model is 3.1 studs; RIVALS' skin case is ~6.4
 	DISTANCE = 6.5, -- studs in front of the player it lands
 	TRY_ANGLES = { 0, 35, -35, 70, -70, 110, -110, 180 }, -- degrees off the facing when blocked

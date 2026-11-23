@@ -2412,7 +2412,10 @@ function ShopController.start()
 		if typeof(p) ~= "table" then
 			return
 		end
-		local wasBuying = buying -- a failure here may be the Backpack's opening, not ours
+		if p.openRequest ~= nil then
+			return -- Backpack openings own their results and failure messages
+		end
+		local wasBuying = buying
 		buying = false
 		if p.kind == "bought" then
 			local def = if p.item then Inventory.ITEMS[p.item] else nil

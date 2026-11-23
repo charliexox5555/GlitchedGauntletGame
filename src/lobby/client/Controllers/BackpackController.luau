@@ -15,6 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
+local OpeningConfig = require(ReplicatedStorage.Shared.Config.CaseOpening)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
@@ -92,10 +93,25 @@ function BackpackController.init()
 	local first: GuiObject? = nil
 	local isOpen = false
 	local picked: string? = nil -- the item the popup shows
-	local opening = false -- one request at a time (cleared on its answer, or after 8 s)
-	local lastOpen = -math.huge -- answers within LATE_OK of an opening are ours, even slow ones
-	local LATE_OK = 30
-	local got: { gun: string, line: string }? = nil
+	local serial = 0
+	local pending: number? = nil
+	local revealed: { LobbyNet.CaseReward } = {}
+	local revealIndex = 1
+	local contentsButton = child(itemPanel, "Contents") :: GuiButton
+	local openOne = child(itemPanel, "Open") :: GuiButton
+	local openBatch = openOne:Clone() -- same plate and hover treatment as the Studio button
+	openBatch.Name = "OpenBatch"
+	openBatch.Visible = false
+	openBatch.Parent = itemPanel
+	local contentsPosition, contentsSize = contentsButton.Position, contentsButton.Size
+	local openPosition, openSize = openOne.Position, openOne.Size
+	local openOneLabel = child(openOne, "Label") :: TextLabel
+	local doneButton = child(reveal, "Done") :: GuiButton
+	local doneLabel = child(doneButton, "Label") :: TextLabel
+	local doneText = doneLabel.Text
+	local batchLabel = child(openBatch, "Label") :: TextLabel
+	batchLabel.Text = `OPEN {Inventory.BATCH_OPEN_COUNT}`
+	openOneLabel.Text = "OPEN 1"
 	local crate: CaseOpening.Handle? = nil -- the in-world opening in progress
 
 	local showItem: (def: Inventory.ItemDef, count: number) -> ()
@@ -222,6 +238,7 @@ function BackpackController.init()
 
 	-- the item popup: a case shows CONTENTS and OPEN
 	showItem = function(def: Inventory.ItemDef, count: number)
+		local wasVisible = itemPanel.Visible
 		picked = def.id
 		local case = if def.case then ShopCatalog.case(def.case) else nil;
 		(child(itemPanel, "Title") :: TextLabel).Text = def.name
@@ -230,20 +247,34 @@ function BackpackController.init()
 		local word = "×" .. tostring(count);
 		(child(itemPanel, "Count") :: TextLabel).Text = word;
 		(child(itemPanel, "CountShadow") :: TextLabel).Text = word
-		local isCase = def.kind == "Case" and case ~= nil;
-		(child(itemPanel, "Contents") :: GuiObject).Visible = isCase;
-		(child(itemPanel, "Open") :: GuiObject).Visible = isCase
+		local isCase = def.kind == "Case" and case ~= nil
+		contentsButton.Visible = isCase
+		openOne.Visible = isCase
+		local canBatch = isCase and count >= Inventory.BATCH_OPEN_COUNT
+		openBatch.Visible = canBatch
+		local offset = UDim2.fromOffset(OpeningConfig.BATCH_BUTTON_STEP, 0)
+		local middle = openPosition - UDim2.fromOffset(openPosition.X.Offset, 0)
+		local size =
+			UDim2.new(0, OpeningConfig.BATCH_BUTTON_WIDTH, openSize.Y.Scale, openSize.Y.Offset)
+		contentsButton.Position = if canBatch then middle - offset else contentsPosition
+		contentsButton.Size = if canBatch then size else contentsSize
+		openOne.Position = if canBatch then middle else openPosition
+		openOne.Size = if canBatch then size else openSize
+		openBatch.Position = middle + offset
+		openBatch.Size = size
 		contentsPanel.Visible = false
 		itemShade.Visible = true
 		itemPanel.Visible = true
-		pop(itemPanel)
+		if not wasVisible then
+			pop(itemPanel)
+		end
 	end
 	LobbyKit.button(child(itemPanel, "Close") :: GuiButton, hideItem)
 	LobbyKit.button(child(contentsPanel, "Close") :: GuiButton, function()
 		contentsPanel.Visible = false
 		itemPanel.Visible = true
 	end)
-	LobbyKit.button(child(itemPanel, "Contents") :: GuiButton, function()
+	LobbyKit.button(contentsButton, function()
 		local def = if picked then Inventory.ITEMS[picked] else nil
 		local case = if def and def.case then ShopCatalog.case(def.case) else nil
 		if not (def and case) then
@@ -257,12 +288,20 @@ function BackpackController.init()
 		pop(contentsPanel)
 	end)
 
-	LobbyKit.button(child(itemPanel, "Open") :: GuiButton, function()
-		if opening or not picked then
+	local function requestOpening(amount: number)
+		local selected = picked
+		if pending or not selected then
 			return
 		end
-		-- one opening at a time: the server answers in a moment, but the crate plays
-		-- on for several seconds (owner 2026-11-20: a second OPEN mid-animation broke)
+		if (PlayerData.items(player)[selected] or 0) < amount then
+			LobbyHud.toast(
+				if amount == 1
+					then "That case is no longer in your Backpack"
+					else `You need {amount} of that case`,
+				"info"
+			)
+			return
+		end
 		local busy = crate
 		if busy and not busy:isDead() then
 			UiSfx.cue("PurchaseDenied")
@@ -270,27 +309,61 @@ function BackpackController.init()
 			return
 		end
 		hideItem()
-		opening = true
-		lastOpen = os.clock()
-		-- the crate is tossed out in the world right away (it covers the round trip);
-		-- the menu steps aside so you watch it (Util/CaseOpening)
-		local def = Inventory.ITEMS[picked]
+		serial += 1
+		local id = serial
+		pending = id
+		local def = Inventory.ITEMS[selected]
 		Router.close()
 		crate = CaseOpening.start(player, if def then def.tier else 1, true)
-		LobbyNet.event("ShopRequest"):FireServer("openCase", picked)
-		task.delay(8, function() -- no answer: let them try again
-			opening = false
+		LobbyNet.event("ShopRequest"):FireServer("openCase", selected, amount, id)
+		task.delay(OpeningConfig.ANSWER_TIMEOUT, function()
+			if pending == id then
+				pending = nil
+				local active = crate
+				crate = nil
+				if active then
+					active:abort()
+				end
+				LobbyHud.toast(
+					"Couldn't confirm the opening. Check your Backpack and Locker.",
+					"info"
+				)
+			end
 		end)
+	end
+	LobbyKit.button(openOne, function()
+		requestOpening(1)
 	end)
+	LobbyKit.button(openBatch, function()
+		requestOpening(Inventory.BATCH_OPEN_COUNT)
+	end)
+
+	local function drawResult()
+		local result = revealed[revealIndex]
+		if not result then
+			showReveal(false)
+			return
+		end
+		fillReveal(result.gun, result.line, result.tier, result.name)
+		doneLabel.Text = if revealIndex < #revealed
+			then `NEXT {revealIndex}/{#revealed}`
+			else doneText
+		showReveal(true)
+	end
+
+	local function nextResult()
+		revealIndex += 1
+		drawResult()
+	end
+
 	LobbyKit.button(child(reveal, "Equip") :: GuiButton, function()
-		local g2 = got
-		if g2 then
-			LobbyNet.event("LockerRequest"):FireServer("equip", g2.gun, g2.line)
-			-- say so only once the server's equipped list shows it
+		local result = revealed[revealIndex]
+		if result then
+			LobbyNet.event("LockerRequest"):FireServer("equip", result.gun, result.line)
 			task.spawn(function()
 				local t = os.clock()
 				while os.clock() - t < 4 do
-					if Locker.equipped(player)[g2.gun] == g2.line then
+					if Locker.equipped(player)[result.gun] == result.line then
 						LobbyHud.toast("Equipped in your Locker", "success")
 						return
 					end
@@ -299,72 +372,66 @@ function BackpackController.init()
 				LobbyHud.toast("Couldn't equip it, try in the Locker", "error")
 			end)
 		end
-		showReveal(false)
+		nextResult()
 	end)
-	LobbyKit.button(child(reveal, "Done") :: GuiButton, function()
-		showReveal(false)
-	end)
+	LobbyKit.button(doneButton, nextResult)
+
 	LobbyNet.event("ShopEvent").OnClientEvent:Connect(function(p: LobbyNet.ShopEventPayload)
-		if typeof(p) ~= "table" then
+		if typeof(p) ~= "table" or not pending or p.openRequest ~= pending then
 			return
 		end
-		local ours = os.clock() - lastOpen < LATE_OK
-		if not ours then
-			return -- not an opening started here
-		end
+		local id = pending
+		pending = nil
 		local h = crate
-		if p.kind == "opened" then
-			opening = false
-			lastOpen = -math.huge
-			local text = p.text or ""
-			if typeof(p.gun) == "string" and typeof(p.line) == "string" then
-				got = { gun = p.gun, line = p.line }
-				fillReveal(p.gun, p.line, p.tier, text)
-			else
-				got = nil
-			end
-			-- it just ends once the skin has flown into you (owner 2026-11-20: no
-			-- panel afterwards; it's in the Locker)
-			local function finish()
-				crate = nil
-			end
-			if h and not h:isDead() and got then
-				h:reveal({
-					gun = (got :: any).gun,
-					line = (got :: any).line,
-					tier = if typeof(p.tier) == "string" then p.tier else "Common",
-					name = text,
-				}, finish)
-			else
-				-- no crate could be placed (no room): fall back to the result panel
-				if h then
-					h:abort()
+		local rewards = p.results
+		local firstReward = rewards and rewards[1]
+		if p.kind == "opened" and rewards and firstReward then
+			local function finish(showResults: boolean)
+				if serial ~= id then
+					return
 				end
 				crate = nil
+				if not showResults then
+					return
+				end
+				local back = p.ticketsBack or 0
+				if back > 0 then
+					LobbyHud.toast(
+						`{back} Ticket{if back == 1 then "" else "s"} returned for duplicate-only cases`,
+						"success"
+					)
+				end
+				local current = Router.current()
+				if current and current ~= "Backpack" then
+					LobbyHud.toast(
+						`{#rewards} new skin{if #rewards == 1 then "" else "s"} in your Locker`,
+						"success"
+					)
+					return
+				end
 				Router.open("Backpack")
-				task.defer(function()
+				if Router.current() == "Backpack" then
+					revealed = rewards
+					revealIndex = 1
 					UiSfx.cue("Confirm")
-					showReveal(true)
+					drawResult()
+				end
+			end
+			if h and not h:isDead() then
+				h:reveal(firstReward, function()
+					finish(p.count == Inventory.BATCH_OPEN_COUNT)
 				end)
+			else
+				finish(true)
 			end
-		elseif p.kind == "refunded" then
-			opening = false
-			lastOpen = -math.huge
+		else
 			if h then
 				h:abort()
-				crate = nil
 			end
-			UiSfx.cue("Confirm")
-			LobbyHud.toast(p.text or "Coins back", "success")
-		elseif p.kind == "failed" then
-			opening = false
-			lastOpen = -math.huge
-			if h then
-				h:abort()
-				crate = nil
-			end
-			UiSfx.cue("PurchaseDenied")
-			LobbyHud.toast(p.text or "Couldn't open it", "error")
+			crate = nil
+			local refund = p.kind == "refunded"
+			UiSfx.cue(if refund then "Confirm" else "PurchaseDenied")
+			LobbyHud.toast(p.text or "Couldn't open it", if refund then "success" else "error")
 		end
 	end)
 
@@ -398,6 +465,16 @@ function BackpackController.init()
 			value.Changed:Connect(function()
 				if isOpen then
 					render()
+					local id = picked
+					local def = id and Inventory.ITEMS[id]
+					if id and def and itemPanel.Visible then
+						local count = PlayerData.items(player)[id] or 0
+						if count > 0 then
+							showItem(def, count)
+						else
+							hideItem()
+						end
+					end
 				end
 			end)
 		end

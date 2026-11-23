@@ -74,6 +74,7 @@ end
 return table.freeze({
 	ITEMS = table.freeze(ITEMS),
 	BY_CASE = table.freeze(BY_CASE),
+	BATCH_OPEN_COUNT = 3,
 
 	-- Wallet: a new player's coins (owner 2026-11-22: "too free"; coins now come from login
 	-- rewards and match pay, vault/01 Design/Shop Economy and Art v1.md).

@@ -141,90 +141,113 @@ local function buyCase(player: Player, caseId: string)
 	end
 end
 
--- One opening. The roll runs inside the save write on the stored data, with a
--- seed fixed for this purchase id, so a retried write rolls the same skin and a
--- second server can't double-spend the case.
-local function openCase(player: Player, itemId: string)
+-- Roll the whole batch on the stored data. Each retry starts with the same seed,
+-- and each successful roll joins the owned set before the next case is rolled.
+local function openCase(player: Player, itemId: string, count: number, requestId: number?)
+	local function refuse(reason: string)
+		send(player, { kind = "failed", item = itemId, openRequest = requestId, text = reason })
+	end
+
 	local def = Inventory.ITEMS[itemId]
 	local caseId = if def and def.kind == "Case" then def.case else nil
 	if not def or not caseId then
 		reject("badItem")
+		refuse(REASON_TEXT.noCase)
 		return
 	end
-	-- cheap refusals from the loaded copy (the real checks are in the write)
+	local short = if count == 1 then REASON_TEXT.noCase else `You need {count} of that case`
 	local known = PlayerDataService.get(player)
-	if known and (known.items[itemId] or 0) < 1 then
-		send(player, { kind = "failed", text = REASON_TEXT.noCase })
+	if known and (known.items[itemId] or 0) < count then
+		refuse(short)
 		return
 	end
 	if not limiter:allow(player, "ShopWrite") then
-		send(player, { kind = "failed", text = REASON_TEXT.slow })
+		refuse(REASON_TEXT.slow)
 		return
 	end
 	local seed = Random.new():NextInteger(1, 2 ^ 30)
-	-- nothing left to give (the case pools overlap, so a held case can run dry):
-	-- the case is traded back for its Ticket price in the same write
 	local refund = Economy.CASE_TICKETS[caseId] or 0
-	local got: SkinCases.Pair? = nil
-	local refunded = false
+	local rewards: { LobbyNet.CaseReward } = {}
+	local ticketsBack = 0
 	local ok, why = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
-		got, refunded = nil, false
+		table.clear(rewards)
+		ticketsBack = 0
 		local held = data.items[itemId] or 0
-		if held < 1 then
+		if held < count then
 			return false, "noCase"
 		end
-		data.items[itemId] = if held > 1 then held - 1 else nil
-		local pair = SkinCases.roll(caseId, data.skins, Random.new(seed))
-		if not pair then
-			data.tickets = math.min(data.tickets + refund, Economy.MAX_TICKETS)
-			refunded = true
-			return true
+		data.items[itemId] = if held > count then held - count else nil
+		local rng = Random.new(seed)
+		local before = data.tickets
+		for _ = 1, count do
+			local pair = SkinCases.roll(caseId, data.skins, rng)
+			if pair then
+				PlayerData.grantSkin(data, pair.gun, pair.line)
+				table.insert(rewards, {
+					gun = pair.gun,
+					line = pair.line,
+					tier = pair.tier,
+					name = SkinCases.name(pair.gun, pair.line),
+				})
+			else
+				data.tickets = math.min(data.tickets + refund, Economy.MAX_TICKETS)
+			end
 		end
-		PlayerData.grantSkin(data, pair.gun, pair.line)
-		got = pair
+		ticketsBack = data.tickets - before
 		return true
 	end)
+
 	if not ok then
-		send(player, { kind = "failed", text = REASON_TEXT[why or ""] or "Couldn't open it" })
+		refuse(if why == "noCase" then short else REASON_TEXT[why or ""] or "Couldn't open it")
 		return
 	end
-	if refunded then
+	local first = rewards[1]
+	if not first then
 		send(player, {
 			kind = "refunded",
 			item = itemId,
-			count = refund,
-			text = `You own everything in it: {refund} Ticket{if refund == 1 then "" else "s"} back`,
+			openRequest = requestId,
+			count = ticketsBack,
+			ticketsBack = ticketsBack,
+			text = if ticketsBack > 0
+				then `You own everything in it: {ticketsBack} Ticket{if ticketsBack == 1
+					then ""
+					else "s"} back`
+				else "You already own everything in it",
 		})
 		return
 	end
-	local pair = got
-	-- the rolled skin's model goes out first, so every reveal shows it, never a stand-in
-	if pair then
-		SkinStoreService.sendTo(Players:GetPlayers(), pair.gun, pair.line)
+
+	-- Preload the reveal for the opener and the one cinematic reward spectators see.
+	local viewers = Players:GetPlayers()
+	SkinStoreService.sendTo(viewers, first.gun, first.line)
+	for i = 2, #rewards do
+		SkinStoreService.sendTo({ player }, rewards[i].gun, rewards[i].line)
 	end
-	-- everyone else in the lobby sees it open at this player (Controllers/CaseShowController)
-	if pair then
-		local show: LobbyNet.CaseShowPayload = {
-			userId = player.UserId,
-			crate = def.tier,
-			gun = pair.gun,
-			line = pair.line,
-			tier = pair.tier,
-			text = SkinCases.name(pair.gun, pair.line),
-		}
-		for _, other in Players:GetPlayers() do
-			if other ~= player then
-				caseShow:FireClient(other, show)
-			end
+	local show: LobbyNet.CaseShowPayload = {
+		userId = player.UserId,
+		crate = def.tier,
+		gun = first.gun,
+		line = first.line,
+		tier = first.tier,
+		text = first.name,
+	}
+	for _, other in viewers do
+		if other ~= player then
+			caseShow:FireClient(other, show)
 		end
 	end
 	send(player, {
 		kind = "opened",
 		item = itemId,
-		gun = if pair then pair.gun else nil,
-		line = if pair then pair.line else nil,
-		tier = if pair then pair.tier else nil,
-		text = if pair then SkinCases.name(pair.gun, pair.line) else "A new skin is in your Locker",
+		count = count,
+		openRequest = requestId,
+		gun = first.gun,
+		line = first.line,
+		tier = first.tier,
+		text = first.name,
+		results = rewards,
+		ticketsBack = ticketsBack,
 	})
 end
 
@@ -421,7 +444,13 @@ local function devCoins(player: Player)
 	)
 end
 
-local function onRequest(player: Player, action: unknown, arg: unknown)
+local function onRequest(
+	player: Player,
+	action: unknown,
+	arg: unknown,
+	count: unknown,
+	requestId: unknown
+)
 	if not limiter:allow(player, "ShopRequest") then
 		reject("rate")
 		return
@@ -441,7 +470,24 @@ local function onRequest(player: Player, action: unknown, arg: unknown)
 			reject("badArgs")
 			return
 		end
-		openCase(player, arg :: string)
+		local amount = if count == nil then 1 else count
+		if amount ~= 1 and amount ~= Inventory.BATCH_OPEN_COUNT then
+			reject("badCount")
+			return
+		end
+		if
+			requestId ~= nil
+			and (
+				typeof(requestId) ~= "number"
+				or requestId < 1
+				or requestId > 2 ^ 31
+				or requestId ~= math.floor(requestId)
+			)
+		then
+			reject("badRequestId")
+			return
+		end
+		openCase(player, arg :: string, amount :: number, requestId :: number?)
 	elseif action == "buyDaily" then
 		if
 			typeof(arg) ~= "number"
