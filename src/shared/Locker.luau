@@ -107,6 +107,8 @@ Locker.COLORS = table.freeze({
 	Sundial = Color3.fromHex("B89A57"),
 	Poolside = Color3.fromHex("4DB6E4"),
 	Rootglass = Color3.fromHex("26745E"),
+	RuinBlighted = Color3.fromHex("5DE4CC"),
+	TempestStrike = Color3.fromHex("8DBCF7"),
 }) :: { [string]: Color3 }
 
 -- Each line's emblem (owner 2026-11-15: skins need an identity besides
@@ -125,6 +127,8 @@ Locker.EMBLEMS = table.freeze({
 	Sealwork = "rbxassetid://90587660646204",
 	Payload = "rbxassetid://74808720750414",
 	Inkshift = "rbxassetid://92911837408821",
+	TempestStrike = "rbxassetid://95165319256972",
+	RuinBlighted = "rbxassetid://130399130528727",
 }) :: { [string]: string }
 
 -- The gun's model in ReplicatedStorage.Weapons (Studio-owned; the Lobby gets

@@ -4152,34 +4152,34 @@
   "uploaded": "2026-11-20 01:10:15"
  },
  "art-source/ui/item-portraits/Vandal_RuinBlighted.png": {
-  "assetId": 78493368702901,
-  "name": "GG Portrait Vandal RuinBlighted",
-  "type": "Decal",
-  "uploaded": "2026-11-22 17:35:43"
+  "assetId": 125977099028434,
+  "name": "GG Vandal RuinBlighted Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:41"
  },
  "art-source/ui/item-portraits/Spectre_RuinBlighted.png": {
-  "assetId": 85586196054455,
-  "name": "GG Portrait Spectre RuinBlighted",
-  "type": "Decal",
-  "uploaded": "2026-11-22 17:35:47"
+  "assetId": 78260225443975,
+  "name": "GG Spectre RuinBlighted Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:41"
  },
  "art-source/ui/item-portraits/Ghost_RuinBlighted.png": {
-  "assetId": 84614637195729,
-  "name": "GG Portrait Ghost RuinBlighted",
-  "type": "Decal",
-  "uploaded": "2026-11-22 17:35:50"
+  "assetId": 80938525179039,
+  "name": "GG Ghost RuinBlighted Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:41"
  },
  "art-source/ui/item-portraits/Guardian_RuinBlighted.png": {
-  "assetId": 73665386124791,
-  "name": "GG Portrait Guardian RuinBlighted",
-  "type": "Decal",
-  "uploaded": "2026-11-22 17:35:53"
+  "assetId": 95041516315550,
+  "name": "GG Guardian RuinBlighted Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:44"
  },
  "art-source/ui/item-portraits/Operator_RuinBlighted.png": {
-  "assetId": 137776618445189,
-  "name": "GG Portrait Operator RuinBlighted",
-  "type": "Decal",
-  "uploaded": "2026-11-22 17:35:56"
+  "assetId": 117674516613415,
+  "name": "GG Operator RuinBlighted Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:44"
  },
  "art-source/ui/shop/heroes/hero_ruinblighted.png": {
   "assetId": 71311115838552,
@@ -4264,5 +4264,76 @@
   "name": "GG Shop starter_contents",
   "type": "Decal",
   "uploaded": "2026-11-22 21:20:39"
+ },
+ "art-source/ui/item-icons/Ghost_RuinBlighted.png": {
+  "assetId": 91257779594132,
+  "name": "GG Ruin-Blighted Ghost Locker HD",
+  "type": "Image"
+ },
+ "art-source/ui/item-icons/Spectre_RuinBlighted.png": {
+  "assetId": 124957681903454,
+  "name": "GG Spectre RuinBlighted Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:41"
+ },
+ "art-source/ui/item-icons/Guardian_RuinBlighted.png": {
+  "assetId": 112331773283225,
+  "name": "GG Guardian RuinBlighted Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:41"
+ },
+ "art-source/ui/item-icons/Vandal_RuinBlighted.png": {
+  "assetId": 113939840386471,
+  "name": "GG Vandal RuinBlighted Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:41"
+ },
+ "art-source/ui/item-icons/Operator_RuinBlighted.png": {
+  "assetId": 93342554759044,
+  "name": "GG Operator RuinBlighted Locker HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:44"
+ },
+ "art-source/ui/item-portraits/Stinger_Faultline.png": {
+  "assetId": 98511938930732,
+  "name": "GG Stinger Faultline Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:44"
+ },
+ "art-source/ui/item-portraits/Knife_Slipframe_HD.png": {
+  "assetId": 127799487244621,
+  "name": "GG Knife Slipframe Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:44"
+ },
+ "art-source/ui/item-portraits/Vandal_TempestStrike.png": {
+  "assetId": 115796790305919,
+  "name": "GG Vandal TempestStrike Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:44"
+ },
+ "art-source/ui/collection-emblems/emblem_tempeststrike.png": {
+  "assetId": 95165319256972,
+  "name": "GG emblem tempeststrike Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:47"
+ },
+ "art-source/ui/collection-emblems/emblem_ruinblighted.png": {
+  "assetId": 130399130528727,
+  "name": "GG emblem ruinblighted Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:47"
+ },
+ "art-source/ui/item-portraits/Guardian_Rootglass.png": {
+  "assetId": 82482540756976,
+  "name": "GG Guardian Rootglass Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:47"
+ },
+ "art-source/ui/item-portraits/Knife_PopCircuit.png": {
+  "assetId": 70410597369912,
+  "name": "GG Knife PopCircuit Shop HD",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:04:48"
  }
 }

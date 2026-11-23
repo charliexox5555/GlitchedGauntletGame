@@ -187,6 +187,11 @@ local IDS: { [string]: string } = table.freeze({
 	["Vandal/Sealwork"] = "rbxassetid://75542829960239",
 	["Vandal/Stock"] = "rbxassetid://94988139459057",
 	["Vandal/TempestStrike"] = "rbxassetid://125410700662668",
+	["Ghost/RuinBlighted"] = "rbxassetid://91257779594132",
+	["Guardian/RuinBlighted"] = "rbxassetid://112331773283225",
+	["Operator/RuinBlighted"] = "rbxassetid://93342554759044",
+	["Spectre/RuinBlighted"] = "rbxassetid://124957681903454",
+	["Vandal/RuinBlighted"] = "rbxassetid://113939840386471",
 })
 
 -- The picture for `line` on `gunId`, or nil (then show the 3D view instead).
