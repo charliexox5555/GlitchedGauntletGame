@@ -49,11 +49,15 @@ return table.freeze({
 	-- Beginner 2v2: every enemy drawn solid red on your screen until YOU first hit them (owner 2026-11-22;
 	-- RIVALS' red figures). Per viewer, for the whole match (a hit enemy stays plain after respawning).
 	RED_ENEMY = table.freeze({
-		fill = Color3.fromRGB(229, 38, 46),
-		fillTransparency = 0, -- solid, very visible
-		outline = Color3.fromRGB(120, 12, 18),
+		-- neon (owner 2026-11-23: "more neon and pulsing a bit ... seen through walls")
+		fill = Color3.fromRGB(255, 28, 52),
+		outline = Color3.fromRGB(255, 120, 135),
 		outlineTransparency = 0,
-		scan = 0.25, -- seconds between passes that pick up spawns and respawns
+		fillLow = 0.05, -- fill transparency at the pulse's strongest
+		fillHigh = 0.4, -- ...and at its softest
+		pulseTime = 1.1, -- seconds per pulse
+		throughWalls = true, -- AlwaysOnTop: shown behind cover too
+		scan = 0.25, -- seconds between passes that pick up spawns, respawns and the watched view
 	}),
 
 	-- OnboardingRequest token bucket { perSecond, burst }.

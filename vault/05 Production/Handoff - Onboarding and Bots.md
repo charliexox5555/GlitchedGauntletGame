@@ -145,5 +145,9 @@ Owner: live lobby and a live Beginner 2v2 both sat on "LOADING YOUR DATA" a long
 - Cause (owner's F9): `MatchState.set("Mode")` (added for the red enemies) wasn't in `MatchState` FIELD_NAMES, so `set` asserted, MatchService stopped the match ("the match stopped on an error"), and everyone was sent back to the lobby. Fixed: "Mode" added; `MatchState.set` now warns once and carries on for an unknown field instead of stopping a live match.
 - The back-to-lobby teleport spam ("already in progress or throttled"): a teleport still on its way was retried every few seconds. `MatchEndService` now treats "already in progress" as in flight and `resendStranded` leaves a player alone for 20 s after a try.
 
+## Red enemies v2 (2026-11-23, owner: "more neon and pulsing a bit ... seen through walls"; spectating shows the teammate's view)
+- Neon red fill + light outline, fill pulsing 0.05 ↔ 0.4 transparency every 1.1 s, `AlwaysOnTop` (through walls); numbers `Config/Onboarding.RED_ENEMY`.
+- Per fighter, server-side: MatchService records who each fighter (player or bot) has hit in a Beginner match and publishes "RedHits" on the Player / the bot's seat; the client shows the watched teammate's red enemies while spectating (Util/Watched), its own otherwise (plus its HitConfirm for an instant clear). Code only; owner tests.
+
 ## Done when
 A fresh account (Studio test key) goes join → Beginner 2v2 → lobby (favorite prompt, PLAY bubble) → second Beginner match → normal queue, with the HUD unlocking on schedule; bots feel like players and scale with who's in the match; leavers behave as decided; results, what the owner should test, and what wasn't tested are in this note, `00 Home.md` Status and `Bugs & Ideas.md`.

@@ -482,6 +482,71 @@ end
 
 -- Lobby matches: every listed player who isn't here gets a bot stand-in, and
 -- the rest of each side fills with bots.
+-- Beginner 2v2 red enemies (Controllers/BeginnerHighlightController): who each fighter has hit this match,
+-- published as "RedHits" (comma-joined "p<UserId>" / "b<BotId>") on the Player or the bot's seat, so a
+-- spectator sees the watched teammate's red enemies, not their own.
+local redHits: { [Instance]: { [string]: boolean } } = {}
+
+local function fighterKey(body: Model): string?
+	local owner = Players:GetPlayerFromCharacter(body)
+	if owner then
+		return "p" .. owner.UserId
+	end
+	local botId = StateValues.get(body, "BotId")
+	return if botId ~= nil then "b" .. tostring(botId) else nil
+end
+
+-- Where a fighter's RedHits live: the Player, or the bot's seat (it outlives the bot's body).
+local function redHolder(attacker: Instance): Instance?
+	if attacker:IsA("Player") then
+		return attacker
+	end
+	local botId = StateValues.get(attacker, "BotId")
+	if botId == nil then
+		return nil
+	end
+	for _, seat in MatchState.botSeats() do
+		if StateValues.get(seat, "BotId") == botId then
+			return seat
+		end
+	end
+	return nil
+end
+
+local function noteRedHit(attacker: Instance, victim: Model, dealt: number)
+	if dealt <= 0 or MatchState.get("Mode") ~= "beginner" then
+		return
+	end
+	local holder = redHolder(attacker)
+	local key = fighterKey(victim)
+	if not holder or not key then
+		return
+	end
+	local set = redHits[holder]
+	if not set then
+		set = {}
+		redHits[holder] = set
+	end
+	if set[key] then
+		return
+	end
+	set[key] = true
+	local list = {}
+	for k in set do
+		table.insert(list, k)
+	end
+	StateValues.set(holder, "RedHits", table.concat(list, ","))
+end
+
+local function clearRedHits()
+	for holder in redHits do
+		if holder.Parent then
+			StateValues.set(holder, "RedHits", nil)
+		end
+	end
+	table.clear(redHits)
+end
+
 -- The bots' dynamic difficulty from this match's real players (Bots/AutoDifficulty): at the
 -- fill and at each round, with the score once the match is running.
 local function updateBotDifficulty(scores: { number }?)
@@ -809,6 +874,7 @@ local function runMatch(): boolean
 	matchKey = HttpService:GenerateGUID(false)
 	-- clients read the mode (Beginner 2v2's red enemies: Controllers/BeginnerHighlightController)
 	MatchState.set("Mode", matchMode())
+	clearRedHits()
 	table.clear(participants)
 	table.clear(reported)
 	noteHumans()
@@ -1254,10 +1320,11 @@ function MatchService.start()
 	WeaponService.onHit(
 		Context.filtered(
 			2,
-			function(attacker: Instance, victim: Model, _dealt: number, killed: boolean)
+			function(attacker: Instance, victim: Model, dealt: number, killed: boolean)
 				if killed then
 					lastKiller[victim] = attacker
 				end
+				noteRedHit(attacker, victim, dealt)
 				return nil
 			end
 		)
