@@ -14,7 +14,8 @@
 local RS = game:GetService("ReplicatedStorage")
 local SG = game:GetService("StarterGui")
 
-local COLS, ROWS = 5, 4
+local CELL_ASPECT = (1920 / 5) / (1080 / 4) -- original side-icon camera framing
+local DEFAULT_COLS, DEFAULT_ROWS = 2, 2
 
 local function presentable(source: Model): Model
 	local m = source:Clone()
@@ -55,7 +56,9 @@ local function find(path: string): Model?
 	return if node and node:IsA("Model") then node else nil
 end
 
-return function(list: { string }, white: boolean): string
+return function(list: { string }, white: boolean, cols: number?, rows: number?): string
+	local gridCols, gridRows = cols or DEFAULT_COLS, rows or DEFAULT_ROWS
+	assert(#list <= gridCols * gridRows, "Too many side-icon models for the grid")
 	local old = SG:FindFirstChild("_IconSheet")
 	if old then
 		old:Destroy()
@@ -71,6 +74,16 @@ return function(list: { string }, white: boolean): string
 	bg.BorderSizePixel = 0
 	bg.BackgroundColor3 = if white then Color3.new(1, 1, 1) else Color3.new(0, 0, 0)
 	bg.Parent = sg
+	local holder = Instance.new("Frame")
+	holder.Name = "Holder"
+	holder.BackgroundTransparency = 1
+	holder.AnchorPoint = Vector2.new(0.5, 0.5)
+	holder.Position = UDim2.fromScale(0.5, 0.5)
+	holder.Size = UDim2.fromScale(1, 1)
+	holder.Parent = bg
+	local constraint = Instance.new("UIAspectRatioConstraint")
+	constraint.AspectRatio = gridCols * CELL_ASPECT / gridRows
+	constraint.Parent = holder
 	local missing = {}
 	for i, path in list do
 		local src = find(path)
@@ -78,12 +91,12 @@ return function(list: { string }, white: boolean): string
 			table.insert(missing, path)
 			continue
 		end
-		local col, row = (i - 1) % COLS, (i - 1) // COLS
+		local col, row = (i - 1) % gridCols, (i - 1) // gridCols
 		local vf = Instance.new("ViewportFrame")
 		vf.Name = path
 		vf.BackgroundTransparency = 1
-		vf.Position = UDim2.fromScale(col / COLS, row / ROWS)
-		vf.Size = UDim2.fromScale(1 / COLS, 1 / ROWS)
+		vf.Position = UDim2.fromScale(col / gridCols, row / gridRows)
+		vf.Size = UDim2.fromScale(1 / gridCols, 1 / gridRows)
 		vf.Ambient = Color3.fromRGB(185, 185, 195)
 		vf.LightColor = Color3.new(1, 1, 1)
 		vf.LightDirection = Vector3.new(-0.4, -1, -0.5)
@@ -92,7 +105,7 @@ return function(list: { string }, white: boolean): string
 		m.Parent = vf
 		local cam = Instance.new("Camera")
 		cam.FieldOfView = 12
-		local aspect = (1920 / COLS) / (1080 / ROWS)
+		local aspect = CELL_ASPECT
 		-- the 3/4 tilt shows some depth (X) above and below: frame for it
 		local half = math.max((size.Y + size.X * 0.35) / 2, size.Z / 2 / aspect) * 1.2
 		local dist = half / math.tan(math.rad(cam.FieldOfView / 2)) + size.X
@@ -105,9 +118,13 @@ return function(list: { string }, white: boolean): string
 		cam.CFrame = CFrame.lookAt(dir * dist, Vector3.zero)
 		cam.Parent = vf
 		vf.CurrentCamera = cam
-		vf.Parent = bg
+		vf.Parent = holder
 	end
 	sg.Parent = SG
+	pcall(function()
+		game:GetService("ContentProvider"):PreloadAsync({ sg })
+	end)
+	task.wait(3)
 	return string.format(
 		"%d on the sheet, missing: %s",
 		#list - #missing,

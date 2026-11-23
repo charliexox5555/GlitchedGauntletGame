@@ -7,17 +7,18 @@
 --
 -- Lobby place, Edit mode, StarterGui.ShowDevelopmentGui = true while capturing (set it
 -- back to false after). Lays out up to COLS x ROWS items on StarterGui._IconSheet;
--- capture on black, set BG white, capture again; tools/render/icon_sheet.py --cols 5
--- --rows 3 cuts them (alpha from the two captures). Delete _IconSheet when done.
+-- capture on black, set BG white, capture again; tools/render/icon_sheet.py --cols 2 --rows 2
+-- --centered --square --minw 768 --maxw 1024 cuts them. Delete _IconSheet when done.
 --
 -- Call: paste this file's body into the command bar / MCP execute_luau with LIST set.
---   LIST: { "WeaponSkins/Prism/Vandal", "Weapons/Vandal", ... } (max 15)
+--   LIST: { "WeaponSkins/Prism/Vandal", "Weapons/Vandal", ... } (one model per cell)
 
 local RS = game:GetService("ReplicatedStorage")
 local SG = game:GetService("StarterGui")
 
 local LIST: { string } = {} -- fill in
-local COLS, ROWS = 5, 3
+local COLS, ROWS = 2, 2 -- use 1 row if Studio cannot show this grid at native size
+assert(#LIST <= COLS * ROWS, "Too many portrait models for the grid")
 local TILT = math.rad(35) -- muzzle up
 local YAW, PITCH = math.rad(28), math.rad(-8) -- front three-quarter, a little from below
 local FOV = 26
@@ -87,7 +88,8 @@ local ar = Instance.new("UIAspectRatioConstraint")
 ar.AspectRatio = COLS / ROWS
 ar.Parent = holder
 
-local dir = Vector3.new(-math.cos(YAW) * math.cos(PITCH), math.sin(PITCH), math.sin(YAW) * math.cos(PITCH))
+local dir =
+	Vector3.new(-math.cos(YAW) * math.cos(PITCH), math.sin(PITCH), math.sin(YAW) * math.cos(PITCH))
 local look = CFrame.lookAt(dir, Vector3.zero)
 local right, up = look.RightVector, look.UpVector
 local t = math.tan(math.rad(FOV / 2))
@@ -135,5 +137,5 @@ sg.Parent = SG
 pcall(function()
 	game:GetService("ContentProvider"):PreloadAsync({ sg })
 end)
-task.wait(7) -- SurfaceAppearance textures load late
+task.wait(3) -- SurfaceAppearance textures load late
 return string.format("%d on the sheet, missing: %s", #LIST - #missing, table.concat(missing, ", "))
