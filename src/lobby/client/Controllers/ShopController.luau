@@ -54,7 +54,8 @@ local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local Products = require(ReplicatedStorage.Shared.Config.Products)
-local Fx = require(script.Parent.Parent.Util.Fx)
+local ShopRewardFx = require(script.Parent.Parent.Util.ShopRewardFx)
+local rewardConfig = require(ReplicatedStorage.Shared.Config.ShopFx).reward
 local OfferCarousel = require(script.Parent.Parent.Util.OfferCarousel)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
@@ -440,9 +441,14 @@ end
 -- Popups: the case, its contents
 
 local popupOpen: Frame? = nil
+local rewardSession: ShopRewardFx.Session? = nil
 
 local function showPanel(panel: Frame?)
 	local was = popupOpen
+	if rewardSession then
+		rewardSession.destroy()
+		rewardSession = nil
+	end
 	popupOpen = panel
 	for _, p in { casePanel, oddsPanel, confirmPanel, rewardPanel } do
 		if p ~= panel then
@@ -454,13 +460,15 @@ local function showPanel(panel: Frame?)
 		popCanvas.Visible = true
 		if not was then
 			dim.BackgroundTransparency = 1
-			tween(dim, 0.2, { BackgroundTransparency = 0.35 })
 		end
+		tween(dim, if panel == rewardPanel then rewardConfig.build else 0.2, {
+			BackgroundTransparency = rewardConfig.dimTransparency,
+		})
 		panel.Visible = true
 		local sc = pop(panel)
 		if sc then
-			sc.Scale = 0.92
-			tween(sc, 0.24, { Scale = 1 })
+			sc.Scale = if panel == rewardPanel then rewardConfig.panelStartScale else 0.92
+			tween(sc, if panel == rewardPanel then rewardConfig.build else 0.24, { Scale = 1 })
 		end
 	else
 		local t = tween(dim, 0.16, { BackgroundTransparency = 1 }, QUINT, IN)
@@ -1248,52 +1256,175 @@ end
 -- The YOU GOT popup after a purchase (owner 2026-11-22: "much better feedback and fun for
 -- somebody who buys a bundle so it feels satisfying"): the picture pops in with a light
 -- sweep, the case reveal's stinger for its tier plays (Config/UiSounds Reward*), COLLECT.
-local rewardSweep: (() -> ())? = nil
-local function celebrate(name: string, art: string?, tier: string?)
-	(child(rewardPanel, "Title") :: TextLabel).Text = "YOU GOT";
-	(child(rewardPanel, "ItemName") :: TextLabel).Text = name
-	local pic = child(rewardPanel, "Art") :: ImageLabel
-	pic.Image = art or ""
+local function celebrate(reward: ShopRewardFx.Reveal)
+	if not isOpen then
+		Router.open("Shop", tab)
+	end
+	if not isOpen then
+		LobbyHud.toast(
+			if reward.coins then string.format(reward.name, commas(reward.coins)) else reward.name,
+			"success"
+		)
+		return
+	end
 	showPanel(rewardPanel)
-	local cue = if tier == "Legendary" or tier == "Exclusive"
-		then "RewardLegendary"
-		elseif tier == "Epic" then "RewardEpic"
-		elseif tier == "Rare" then "RewardRare"
-		else "RewardCommon"
-	UiSfx.cue(cue)
-	Fx.pop(pic, 1.3)
-	if not rewardSweep then
-		rewardSweep = Fx.shine(pic, Color3.new(1, 1, 1), 0.6)
-	end
-	local sweep = rewardSweep
-	if sweep then
-		task.delay(0.15, sweep)
-	end
+	rewardSession = ShopRewardFx.play(rewardPanel, reward, commas)
 end
+
 local function celebrateSkin(gun: string, line: string)
-	celebrate(SkinCases.name(gun, line), SkinArt.portrait(gun, line), SkinCases.tierOf(gun, line))
+	local tier = SkinCases.tierOf(gun, line)
+	celebrate({
+		name = SkinCases.name(gun, line),
+		image = SkinArt.portrait(gun, line),
+		tier = tier,
+		color = ShopCatalog.RARITY_COLOR[tier or "Common"] or WHITE,
+	})
 end
+
+local function addRewardItem(items: { ShopRewardFx.Item }, image: string?, isCoin: boolean?)
+	if image and image ~= "" then
+		table.insert(items, { image = image, coins = isCoin })
+	end
+end
+
+local function celebrateCoins(
+	amount: number,
+	art: string?,
+	tier: string,
+	items: { ShopRewardFx.Item }?,
+	suffix: string?
+)
+	celebrate({
+		name = "+%s COINS" .. (suffix or ""),
+		image = art or ShopCatalog.ART.coinStack,
+		coins = amount,
+		tier = tier,
+		color = ShopTheme.GOLD,
+		items = items,
+	})
+end
+
+local function celebrateLogin(p: LobbyNet.LoginEventPayload)
+	local reward: Economy.Reward = { coins = p.coins, tickets = p.tickets, item = p.item }
+	local art = rewardArt(reward)
+	local amount = reward.coins
+	if amount then
+		local remainder: Economy.Reward = { tickets = p.tickets, item = p.item }
+		local suffix = rewardWords(remainder)
+		local items: { ShopRewardFx.Item }? = nil
+		if suffix ~= "" then
+			local row: { ShopRewardFx.Item } = {}
+			addRewardItem(row, art, true)
+			addRewardItem(row, if p.tickets then ShopCatalog.ART.ticket else nil)
+			local def = if p.item then Inventory.ITEMS[p.item] else nil
+			addRewardItem(row, def and def.icon)
+			items = row
+		end
+		celebrateCoins(amount, art, "Rare", items, if suffix ~= "" then " + " .. suffix else nil)
+	else
+		local words = rewardWords(reward)
+		celebrate({
+			name = if words ~= "" then words else "REWARD CLAIMED",
+			image = art,
+			tier = "Rare",
+			color = ShopTheme.GOLD,
+		})
+	end
+end
+
 local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 	local product = if typeof(p.product) == "number" then Products.BY_ID[p.product] else nil
-	if not product then
-		celebrate(p.text or "Purchase complete", nil, "Rare")
-	elseif product.kind == "skin" and p.gun and p.line then
+	local message = p.text or "Purchase complete"
+	-- The receipt's existing text identifies substitutions (including duplicate purchases).
+	local compensation = if product and product.kind ~= "coins"
+		then tonumber(string.match(message, "%+(%d+) coins"))
+		else nil
+	if compensation then
+		celebrateCoins(compensation, nil, "Rare")
+	elseif product and product.kind == "skin" and p.gun and p.line then
 		celebrateSkin(p.gun, p.line)
-	elseif product.kind == "bundle" then
+	elseif product and product.kind == "bundle" then
 		local bundle = if product.bundle then ShopCatalog.bundle(product.bundle) else nil
-		local n = if bundle then #bundle.items else 0
-		celebrate(`{product.name} BUNDLE · {n} SKINS`, bundle and bundle.hero, "Legendary")
-	elseif product.kind == "case" then
+		local items: { ShopRewardFx.Item } = {}
+		if bundle then
+			for _, item in bundle.items do
+				if item.gun and item.line then
+					addRewardItem(items, SkinArt.portrait(item.gun, item.line))
+				end
+			end
+		end
+		celebrate({
+			name = if bundle then `{bundle.name} BUNDLE · {#bundle.items} SKINS` else product.name,
+			image = bundle and bundle.hero,
+			tier = "Legendary",
+			color = ShopTheme.GOLD,
+			items = items,
+		})
+	elseif product and product.kind == "case" then
 		local case = if product.caseId then ShopCatalog.case(product.caseId) else nil
-		celebrate(product.name, case and case.art, "Rare")
-	elseif product.kind == "starter" then
-		celebrate(string.upper(p.text or product.name), ShopCatalog.ART.coinStack, "Epic")
-	else
-		celebrate(
-			product.name,
-			ShopCatalog.ART.coinStack,
-			if (product.robux or 0) >= 499 then "Epic" else "Rare"
+		celebrate({
+			name = message,
+			image = case and case.art,
+			tier = "Rare",
+			color = case and case.color or ShopTheme.GOLD,
+		})
+	elseif product and product.kind == "starter" then
+		local caseCount, base, ticketCount =
+			string.match(message, "^Starter Bundle: (%d+) cases, (%d+) coins and (%d+) Tickets$")
+		local fallback = tonumber(string.match(message, "^Starter Bundle: (%d+) coins$"))
+		if fallback then
+			celebrateCoins(fallback, nil, "Epic")
+		elseif caseCount and base and ticketCount then
+			local items: { ShopRewardFx.Item } = {}
+			local def = if product.case then Inventory.ITEMS[product.case] else nil
+			if tonumber(caseCount) ~= 0 then
+				addRewardItem(items, def and def.icon)
+			end
+			addRewardItem(items, ShopCatalog.PACK_ART[3], true)
+			addRewardItem(items, ShopCatalog.ART.ticket)
+			celebrate({
+				name = `+%s COINS · {caseCount} CASES · {ticketCount} TICKETS`,
+				image = ShopCatalog.ART.coinStack,
+				tier = "Epic",
+				color = ShopTheme.GOLD,
+				coins = tonumber(base),
+				items = items,
+			})
+		else
+			celebrate({
+				name = message,
+				image = ShopCatalog.ART.coinStack,
+				tier = "Epic",
+				color = ShopTheme.GOLD,
+			})
+		end
+	elseif product and product.kind == "coins" and product.coins then
+		local art: string? = nil
+		for i, pack in Products.PACKS do
+			if pack.id == product.id then
+				art = ShopCatalog.PACK_ART[i]
+				break
+			end
+		end
+		local hasCase = string.find(message, " and a case", 1, true) ~= nil
+		local def = if hasCase and product.case then Inventory.ITEMS[product.case] else nil
+		local items: { ShopRewardFx.Item }? = nil
+		if def then
+			local row: { ShopRewardFx.Item } = {}
+			addRewardItem(row, art or ShopCatalog.ART.coinStack, true)
+			addRewardItem(row, def.icon)
+			items = row
+		end
+		local amount = product.coins + (if hasCase then 0 else product.caseCoins or 0)
+		celebrateCoins(
+			amount,
+			art,
+			if product.case then "Epic" else "Rare",
+			items,
+			if def then " + " .. string.upper(def.name) else nil
 		)
+	else
+		celebrate({ name = message, tier = "Rare", color = ShopTheme.GOLD })
 	end
 end
 
@@ -1939,17 +2070,29 @@ function ShopController.init()
 	end)
 	do
 		local collect = child(rewardPanel, "Collect") :: GuiButton
-		local sc = pop(collect)
-		collect.MouseEnter:Connect(function()
-			rest(sc, KM.hover)
-		end)
-		collect.MouseLeave:Connect(function()
-			rest(sc, 1)
-		end)
 		collect.Activated:Connect(function()
-			press(sc)
-			UiSfx.cue("Confirm")
+			if rewardSession then
+				rewardSession.collect(canvas, coinsAmount)
+			end
 			showPanel(nil)
+		end)
+		UserInputService.InputBegan:Connect(function(input: InputObject)
+			if popupOpen ~= rewardPanel then
+				return
+			end
+			if
+				input.UserInputType == Enum.UserInputType.MouseButton1
+				or input.UserInputType == Enum.UserInputType.Touch
+			then
+				local point = if input.UserInputType == Enum.UserInputType.MouseButton1
+					then UserInputService:GetMouseLocation()
+					else Vector2.new(input.Position.X, input.Position.Y)
+				local lo = rewardPanel.AbsolutePosition
+				local hi = lo + rewardPanel.AbsoluteSize
+				if point.X < lo.X or point.X > hi.X or point.Y < lo.Y or point.Y > hi.Y then
+					showPanel(nil)
+				end
+			end
 		end)
 	end
 	do
@@ -2177,12 +2320,7 @@ function ShopController.start()
 			return
 		end
 		if p.kind == "claimed" then
-			UiSfx.cue("Confirm")
-			local step = if typeof(p.step) == "number" then Economy.LOGIN[p.step] else nil
-			LobbyHud.toast(
-				if step then `Claimed: {rewardWords(step)}` else "Reward claimed",
-				"success"
-			)
+			celebrateLogin(p)
 		elseif p.kind == "failed" then
 			LobbyHud.toast(
 				if typeof(p.text) == "string" then p.text else "Couldn't claim, try again",
@@ -2209,7 +2347,12 @@ function ShopController.start()
 		buying = false
 		if p.kind == "bought" then
 			local def = if p.item then Inventory.ITEMS[p.item] else nil
-			celebrate(`{p.text or "Item"} · IN YOUR BACKPACK`, def and def.icon, "Rare")
+			celebrate({
+				name = `{p.text or "Item"} · IN YOUR BACKPACK`,
+				image = def and def.icon,
+				tier = "Rare",
+				color = ShopTheme.GOLD,
+			})
 		elseif p.kind == "opened" then
 			return -- a case opening: the Backpack shows it (Controllers/BackpackController)
 		elseif p.kind == "coins" then

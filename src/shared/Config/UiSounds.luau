@@ -57,6 +57,8 @@ end
 -- The shared theme. History (lobby, 2026-11-20): Kenney round taps and ticks
 -- were turned down ("a bubble, sci-fi cartoony", "high-pitched"); these real
 -- recordings were picked from the F4 board in rounds 4-5.
+local rewardVolume = require(script.Parent.ShopFx).reward.volume
+
 local Theme = {
 	Click = cue(9119717529, 0.3, 1, 0.04, 0.03), -- PSE "Toggle Button 1": any button / pick
 	Hover = cue(17208343514, 0.4, 1, 0.08, 0.03), -- Roblox "GUI - Hover 02": big items only (0.67 was too loud)
@@ -126,6 +128,17 @@ return table.freeze({
 	Score = cue(17208319162, 0.672), -- Roblox "GUI - Pickup": your team's score diamond fills (owner: keep looking)
 	-- The Shop's "YOU GOT" popup after a purchase (2026-11-22): the case reveal's stinger per
 	-- tier (Config/CaseOpening.REVEAL, the owner's picks 2026-11-20), so buying feels like opening.
+	-- Shop reveal auditions. The first asset in each pair is selected.
+	-- Whoosh: Roblox_UI_Whoosh_02 (15675028888), Roblox_UI_Whoosh_03 (15674975792).
+	RewardWhoosh = cue(15675028888, rewardVolume.whoosh),
+	-- Coin tick: Roblox GUI - Pickup (17208319162), PSE Relay Clicks 15 (9118138693).
+	RewardCoinTick = cue(17208319162, rewardVolume.coinTick),
+	-- Item tick: PSE Toggle Button 2 (9119717523), PSE Toggle Button 1 (9119717529).
+	RewardItemTick = cue(9119717523, rewardVolume.itemTick),
+	-- Final hit: APM Universal Flip - Hit (9042542887), APM Get Up And Go - Hit (9043151109).
+	RewardFinalHit = cue(9042542887, rewardVolume.finalHit),
+	-- Collect: Roblox GUI - Select (17208396156), Roblox GUI - Equip (17208323435).
+	RewardCollect = cue(17208396156, rewardVolume.collect),
 	RewardCommon = cue(17208323435, 0.6, nil, 0.5), -- Roblox "GUI - Equip"
 	RewardRare = cue(9042542887, 0.35, nil, 0.5), -- APM "Universal Flip - Hit"
 	RewardEpic = cue(9043151109, 0.35, nil, 0.5), -- APM "Get Up And Go - Hit"
