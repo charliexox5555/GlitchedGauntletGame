@@ -167,7 +167,7 @@ function Identity.collect(player: Player)
 end
 
 function Identity.prefetch()
-	warm()
+	task.delay(Config.PREFETCH_DELAY, warm)
 end
 
 function Identity.name(inUse: { [string]: boolean }): string

@@ -2,7 +2,7 @@
 -- Beginner 2v2 red enemies (owner 2026-11-22/23; vault/05 Production/Handoff - Onboarding and Bots.md → phase
 -- 3; RIVALS' Beginner queue draws enemies as solid red figures). In a Beginner match every enemy, player or
 -- bot, glows neon red and pulses, seen through walls, until the fighter whose view this is lands a first hit
--- on that enemy; from then on that enemy looks normal for the rest of the match, respawns included.
+-- on that enemy; then that enemy looks normal until the next round, when every enemy is red again (owner 2026-11-23).
 -- Whose view: your own, or, while you spectate a teammate (player or bot), theirs: the server publishes who
 -- each fighter has hit as "RedHits" on the Player or the bot's seat (MatchService). Your own hits also clear
 -- at once from your HitConfirm, without waiting for that.
@@ -30,7 +30,7 @@ local player = Players.LocalPlayer
 
 local ownHits: { [string]: boolean } = {} -- this player's hits, straight from HitConfirm
 local lit: { [Model]: Highlight } = {}
-local matchSeen: string? = nil
+local matchSeen: any = nil -- the round the hits belong to
 
 -- Who a body is, across respawns: a player's UserId, a bot's BotId (same keys as MatchService).
 local function keyOf(body: Model): string?
@@ -125,13 +125,11 @@ end
 
 local function pass()
 	local on = MatchState.get("Mode") == OnbConfig.BEGINNER_MODE
-	-- a new match (a rematch in this server) starts clean
+	-- every round starts red again (owner 2026-11-23): your own hits clear with the round
 	local round = MatchState.get("Round")
-	if round == 1 and matchSeen ~= "fresh" then
-		matchSeen = "fresh"
+	if round ~= matchSeen then
+		matchSeen = round
 		table.clear(ownHits)
-	elseif round ~= 1 and matchSeen == "fresh" then
-		matchSeen = "on"
 	end
 	local want: { [Model]: boolean } = {}
 	local team, hits = viewer()

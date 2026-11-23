@@ -916,6 +916,7 @@ local function runMatch(): boolean
 		MatchState.set("Round", round)
 		MatchState.set("RoundWinner", nil)
 		StatsService.newRound()
+		clearRedHits() -- Beginner red enemies light up again every round (owner 2026-11-23)
 		updateBotDifficulty(scores)
 		setAllLocked(true)
 		MapService.setBarriers(true)

@@ -5,8 +5,11 @@ return table.freeze({
 	BACKUP_USER_IDS = {} :: { number },
 	FRIENDS_PER_PLAYER = 64,
 	FRIEND_PAGES = 2,
-	AVATAR_TEMPLATES = 10,
-	AVATAR_WORKERS = 3,
+	-- Bot outfits built ahead (each a full avatar: many asset downloads). 2026-11-23: 10 / 3 at a cold server's
+	-- start flooded its downloads (animations and body meshes failed, a save read took ~58 s); a 2v2 needs <= 3.
+	AVATAR_TEMPLATES = 4,
+	AVATAR_WORKERS = 1,
+	PREFETCH_DELAY = 6, -- seconds after the server starts before outfits are built (players' own assets first)
 	FRIEND_ATTEMPTS = 20,
 	BACKUP_ATTEMPTS = 8,
 	FIRST_SPAWN_LOOK_WAIT = 5.5,

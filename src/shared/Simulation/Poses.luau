@@ -173,6 +173,7 @@ local OFF = 0.001
 
 local connection: RBXScriptConnection? = nil
 local animations: { [string]: Animation } = {}
+local retryDue: (id: string) -> boolean
 local cache: { [Animator]: { [string]: AnimationTrack } } = setmetatable({}, { __mode = "k" }) :: any
 local primed: { [Animator]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 -- The last Crash Down landing (UpdraftSlamAt) posed per character. Kept here,
@@ -207,6 +208,29 @@ local function animationFor(name: string): Animation
 	return a
 end
 
+-- Failed animation downloads: when each animation id may be loaded again (shared by every rig, so a bad minute
+-- costs one request per id per try, not one per rig per frame). Backs off 3, 6, 12 ... 60 s.
+local retryAt: { [string]: number } = {}
+local retryGap: { [string]: number } = {}
+local FIRST_GRACE = 3 -- seconds a fresh track may take to load before it counts as failed
+local firstSeen: { [string]: number } = {}
+
+function retryDue(id: string): boolean
+	local now = os.clock()
+	local seen = firstSeen[id]
+	if not seen then
+		firstSeen[id] = now
+		return false
+	end
+	if now - seen < FIRST_GRACE or now < (retryAt[id] or 0) then
+		return false
+	end
+	local gap = math.min((retryGap[id] or 1.5) * 2, 60)
+	retryGap[id] = gap
+	retryAt[id] = now + gap
+	return true
+end
+
 -- The playing track for pose `name`, loading and starting it if needed.
 local function trackFor(animator: Animator, name: string): AnimationTrack
 	local byName = cache[animator]
@@ -219,10 +243,18 @@ local function trackFor(animator: Animator, name: string): AnimationTrack
 		-- Loaded once per Animator and replayed, never loaded again (2026-11-23: a track that wasn't
 		-- playing was re-loaded every step, so one failed download re-requested the asset every frame for
 		-- every rig: a flood of "Animation failed to load" that also starved the server's DataStore reads).
-		if not track.IsPlaying then
-			track:Play(0, OFF, 1)
+		-- A load that failed (no length after a while) gets ONE fresh try per animation at a time, backing off
+		-- (retryDue), so a server that couldn't fetch assets for a minute recovers instead of T-posing.
+		if track.Length == 0 and retryDue(IDS[name]) then
+			track:Stop(0)
+			track:Destroy()
+			byName[name] = nil
+		else
+			if not track.IsPlaying then
+				track:Play(0, OFF, 1)
+			end
+			return track
 		end
-		return track
 	end
 	-- After a rollback the Animator may already hold a matching track.
 	for _, t in animator:GetPlayingAnimationTracks() do

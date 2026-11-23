@@ -155,5 +155,11 @@ Owner: live lobby and a live Beginner 2v2 both sat on "LOADING YOUR DATA" a long
 - **Spectating sounds like the watched gun:** the spectate hook returns that gun's skin sound options (Ruin-Blighted, Tempest-Strike, Slipframe ... read from the view gun, which wears their skin); the VFX already followed it. Other players' shots always use the stock sound now (Tempest's far take for others removed). Why spectated shots seemed silent wasn't found in code: recheck after this.
 - **Red enemies no longer reset each round:** the spectated (teammate's) view is used only while you're dead; a stale watch after respawning showed the teammate's red set.
 
+## Loading floods + red per round (2026-11-23, owner's server log: ~60 s of failed animation / body mesh / R15Anim loads, a 58 s save read, "sometimes")
+- **Cause (best reading of the log):** a cold reserved server was flooded with asset downloads at its start: 10 bot outfits (full avatars, 3 at a time) built at boot, plus every rig's pose animations, plus the players' own avatars. Downloads timed out (animations, S15 body meshes), and with Roblox's per-server request queue the DataStore read waited too. A failed pose track was then never loaded again (the earlier flood fix), so a body could stay un-animated.
+- **Fixes:** bot outfits built ahead 10 → 4, one at a time, starting 6 s after the server starts (`Bots/AppearanceConfig`); a pose track with no length after 3 s is reloaded once per animation id at a time, backing off 3 → 60 s, shared by every rig (`Simulation/Poses retryDue`).
+- **Red enemies now reset every round** (owner's correction): MatchService clears RedHits at each round start; the client clears its own hits on the Round change.
+- Preloading across servers: assets a client downloaded once are in its local cache, so after a teleport the preload is quick (still requested, but served locally). Server-side assets aren't shared between servers: each new server fetches its own.
+
 ## Done when
 A fresh account (Studio test key) goes join → Beginner 2v2 → lobby (favorite prompt, PLAY bubble) → second Beginner match → normal queue, with the HUD unlocking on schedule; bots feel like players and scale with who's in the match; leavers behave as decided; results, what the owner should test, and what wasn't tested are in this note, `00 Home.md` Status and `Bugs & Ideas.md`.
