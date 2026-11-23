@@ -149,3 +149,7 @@ Save it as `art-source/ui/lobby-icons/backpack_v2.png` (the other bar icons are 
 - 2026-11-20: created. Phases 1 and 2 built and tested; crate prompts written.
 - 2026-11-20 (evening): Shop case art = crate renders, backpack icon in, denied sound + nudge + red count, toasts over menus; Robux parked.
 - 2026-11-20 (later): crate model built, compacted, rigged and tiered; tier icons; Backpack screen replaces the Battle Pass on the bar; backpack icon prompt.
+
+## Opening three cases from the Backpack (2026-11-22)
+
+OPEN 3 appears alongside OPEN 1 when at least three cases of the selected type are held. The server validates the quantity and balance, then rolls the entire batch in one inventory write. Each grant updates ownership before the next roll. Cases whose pool is exhausted trade back for their Ticket value, subject to the wallet cap. The opener sees one crate animation and can page through the granted skins in the existing reveal panel. Local checks covered the grant rules, retries and refunds. Studio verification is pending.
