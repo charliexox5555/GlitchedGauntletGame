@@ -11,6 +11,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Config = require(script.Parent.Config.SkinPreview)
 local Locker = require(script.Parent.Locker)
+local SkinStore = require(script.Parent.SkinStore)
 
 local SkinPreview = {}
 
@@ -75,9 +76,12 @@ end
 function SkinPreview.observe(player: Player, onChange: () -> ()): () -> ()
 	local preview = StateValues.changed(player, Config.ATTRIBUTE):Connect(onChange)
 	local locker = Locker.observe(player, onChange)
+	-- a skin delivered on demand (Shared/SkinStore) redraws whatever showed the stock gun
+	local arrived = SkinStore.arrived:Connect(onChange)
 	return function()
 		preview:Disconnect()
 		locker()
+		arrived:Disconnect()
 	end
 end
 
@@ -115,16 +119,15 @@ function SkinPreview.resolve(id: string, line: string): (Model?, string)
 		return nil, "Stock"
 	end
 	if SkinPreview.allowed() and SkinPreview.valid(line) and line ~= "Stock" then
-		local skins = ReplicatedStorage:FindFirstChild("WeaponSkins")
-		local folder = skins and skins:FindFirstChild(line)
+		-- Shared/SkinStore: on a client nil until delivered (asked for here), then `observe` redraws
 		if id == "Knife" and line == "PopCircuit" then
-			local bat = folder and folder:FindFirstChild("Bat")
-			if bat and bat:IsA("Model") and StateValues.get(bat, "SkinReady") == true then
+			local bat = SkinStore.model(line, "Bat")
+			if bat then
 				return bat, line
 			end
 		end
-		local variant = folder and folder:FindFirstChild(id)
-		if variant and variant:IsA("Model") and StateValues.get(variant, "SkinReady") == true then
+		local variant = SkinStore.model(line, id)
+		if variant then
 			return variant, line
 		end
 	end

@@ -27,6 +27,7 @@ local UserInputService = game:GetService("UserInputService")
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -982,11 +983,24 @@ local function sweep(fromY: number, toY: number, time: number, atCover: () -> ()
 	end)
 end
 
+-- Every skin this player owns, asked for from the server (Shared/SkinStore: skins are delivered on
+-- demand; the equipped ones are usually here already). Arrivals redraw below.
+local function wantOwned()
+	local list: { { string } } = {}
+	for gun, lines in PlayerData.skins(player) do
+		for _, line in lines do
+			table.insert(list, { line, SkinStore.modelName(gun, line) })
+		end
+	end
+	SkinStore.want(list)
+end
+
 local function open()
 	if isOpen then
 		return
 	end
 	isOpen = true
+	wantOwned()
 	passToken += 1
 	local my = passToken
 	UiSfx.cue("LockerIn")
@@ -1145,6 +1159,26 @@ function LockerController.init()
 			if trayOpen then
 				refreshTiles()
 			end
+		end
+	end)
+	-- a skin delivered on demand: the gun on the stand and the tiles pick it up
+	local redrawQueued = false
+	SkinStore.arrived:Connect(function(line: string, name: string)
+		if not isOpen then
+			return
+		end
+		if line == previewLine and name == SkinStore.modelName(selectedGun, line) then
+			placeGun(selectedGun, previewLine, false)
+		end
+		if trayOpen and not redrawQueued then
+			redrawQueued = true
+			task.delay(0.2, function()
+				redrawQueued = false
+				if isOpen and trayOpen then
+					buildTiles()
+					refreshTiles()
+				end
+			end)
 		end
 	end)
 	-- a new skin (a case opening) adds a tile while the tray is open

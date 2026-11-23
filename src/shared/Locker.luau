@@ -6,13 +6,13 @@
 -- as { v = 1, skins = { [gunId] = line } }. The Lobby's LockerService writes
 -- it and both places mirror the equipped lines in a JSON StringValue.
 -- Lines are Config/SkinPreview.LINES ("Stock" = the base model); a line is
--- valid for a gun only if WeaponSkins/<Line>/<Gun> exists and is SkinReady.
+-- valid for a gun only if its skin is in Shared/SkinStore (the manifest on a client) and SkinReady.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local HttpService = game:GetService("HttpService")
 
 local SkinConfig = require(script.Parent.Config.SkinPreview)
+local SkinStore = require(script.Parent.SkinStore)
 local Weapons = require(script.Parent.Config.Weapons)
 
 local Locker = {}
@@ -142,20 +142,21 @@ function Locker.gunModel(gunId: string): Model?
 	return if m and m:IsA("Model") then m else nil
 end
 
--- The model for `line` on `gunId` ("Stock" = the base gun), or nil.
+-- The model for `line` on `gunId` ("Stock" = the base gun), or nil. Skins come from Shared/SkinStore
+-- (on a client: nil until delivered; asking for it starts the delivery, SkinStore.arrived says when).
 function Locker.skinModel(gunId: string, line: string): Model?
 	if line == "Stock" then
 		return Locker.gunModel(gunId)
 	end
-	local skins = ReplicatedStorage:FindFirstChild("WeaponSkins")
-	local folder = skins and skins:FindFirstChild(line)
-	-- the PopCircuit knife is the Bat (same rule as Shared/SkinPreview.resolve)
-	local name = if gunId == "Knife" and line == "PopCircuit" then "Bat" else gunId
-	local m = folder and folder:FindFirstChild(name)
-	if m and m:IsA("Model") and StateValues.get(m, "SkinReady") == true then
-		return m
+	return SkinStore.model(line, SkinStore.modelName(gunId, line))
+end
+
+-- Whether `line` exists and is ready for `gunId` (no model needed: the client reads the manifest).
+function Locker.hasSkin(gunId: string, line: string): boolean
+	if line == "Stock" then
+		return Locker.gunModel(gunId) ~= nil
 	end
-	return nil
+	return SkinStore.has(line, SkinStore.modelName(gunId, line))
 end
 
 function Locker.valid(gunId: unknown, line: unknown): boolean
@@ -165,14 +166,14 @@ function Locker.valid(gunId: unknown, line: unknown): boolean
 	if #gunId > 24 or #line > 32 or not table.find(SkinConfig.LINES, line) then
 		return false
 	end
-	return Locker.gunModel(gunId) ~= nil and Locker.skinModel(gunId, line) ~= nil
+	return Locker.gunModel(gunId) ~= nil and Locker.hasSkin(gunId, line)
 end
 
 -- Every line a gun can wear, Stock first, in Config order.
 function Locker.linesFor(gunId: string): { string }
 	local out: { string } = {}
 	for _, line in SkinConfig.LINES do
-		if Locker.skinModel(gunId, line) then
+		if Locker.hasSkin(gunId, line) then
 			table.insert(out, line)
 		end
 	end

@@ -15,6 +15,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local SkinStore = require(game:GetService("ReplicatedStorage").Shared.SkinStore)
 
 local LobbyGunDisplays = {}
 
@@ -95,9 +96,14 @@ local function place(anchor: BasePart, s: Shown)
 		return
 	end
 	clear(s)
-	local src = Locker.skinModel(s.gun, line) or Locker.gunModel(s.gun)
+	-- skins arrive on demand (Shared/SkinStore): the stock gun until this one lands, then a redraw
+	local skin = Locker.skinModel(s.gun, line)
+	local src = skin or Locker.gunModel(s.gun)
 	if not src then
 		return
+	end
+	if not skin then
+		line = "Stock"
 	end
 	local m = src:Clone()
 	strip(m)
@@ -244,11 +250,13 @@ function LobbyGunDisplays.start()
 	for _, a in CollectionService:GetTagged(TAG) do
 		track(a)
 	end
-	Locker.observe(Players.LocalPlayer, function()
+	local function redraw()
 		for anchor, s in shown do
 			place(anchor, s)
 		end
-	end)
+	end
+	Locker.observe(Players.LocalPlayer, redraw)
+	SkinStore.arrived:Connect(redraw)
 	RunService.RenderStepped:Connect(step)
 end
 

@@ -593,7 +593,8 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 			return
 		end
 		local top = land.Position + Vector3.new(0, 1.0 * scale, 0)
-		local src = Locker.skinModel(r.gun, r.line)
+		-- the stock gun only if the skin still hasn't landed (a very slow connection)
+		local src = Locker.skinModel(r.gun, r.line) or Locker.gunModel(r.gun)
 		if src then
 			local m = ItemStage.presentable(src)
 			local size = m:GetExtentsSize()
@@ -976,6 +977,8 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		end
 		result = r
 		onDone = done
+		-- skins are delivered on demand (Shared/SkinStore): ask now, the lid's strain gives it time to land
+		Locker.skinModel(r.gun, r.line)
 	end
 	function handle.abort(_self: Handle)
 		startSink()

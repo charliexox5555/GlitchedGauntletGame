@@ -71,6 +71,7 @@ export type ProgressEventPayload = {
 -- RobuxRequest (client -> server): ("pack", n) | ("bundle", id) | ("item", id, i) | ("daily", slot)
 --   | ("starter") | ("case", caseId, 1|3) (Services/RobuxService; answers on ShopEvent)
 -- LoginClaim (client -> server): no arguments (Services/LoginRewardService)
+-- SkinRequest (client -> server): ({ { line, gun } }) gun skins delivered on demand (Services/SkinStoreService)
 -- OnboardingRequest (client -> server): ("favAsked", favorited) | ("seen", bit)
 --   (Services/OnboardingService; new-player favorite asks and HUD NEW pops)
 -- LoginEvent (server -> one client): LoginEventPayload
@@ -119,6 +120,7 @@ local EVENTS = {
 	"OnboardingRequest",
 	"AdminRequest",
 	"AdminEvent",
+	"SkinRequest",
 }
 
 local folder: Instance

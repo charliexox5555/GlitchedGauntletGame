@@ -15,6 +15,7 @@ local MATCH_SERVICES: { [string]: boolean } = {
 	PlayerDataService = true,
 	ProgressionService = true,
 	SettingsService = true,
+	SkinStoreService = true, -- gun skins on demand (match clients need them too)
 }
 
 local role = ServerRole.get()
