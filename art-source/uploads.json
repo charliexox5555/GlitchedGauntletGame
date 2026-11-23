@@ -4335,5 +4335,1313 @@
   "name": "GG Knife PopCircuit Shop HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:04:48"
+ },
+ "art-source/ui/item-portraits/Ares_Oilwake.png": {
+  "assetId": 71660235675620,
+  "name": "GG Shop HD Ares Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Faultline.png": {
+  "assetId": 111726554245782,
+  "name": "GG Shop HD Ares Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Redline.png": {
+  "assetId": 109129437604433,
+  "name": "GG Shop HD Ares Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Nitrous.png": {
+  "assetId": 91274210200064,
+  "name": "GG Shop HD Ares Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Misprint.png": {
+  "assetId": 128582665478644,
+  "name": "GG Shop HD Ares Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Playback.png": {
+  "assetId": 107701059689458,
+  "name": "GG Shop HD Ares Playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Moltframe.png": {
+  "assetId": 108759545580426,
+  "name": "GG Shop HD Ares Moltframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Poolside.png": {
+  "assetId": 127514609833607,
+  "name": "GG Shop HD Ares Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Prism.png": {
+  "assetId": 74743103418685,
+  "name": "GG Shop HD Ares Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:43"
+ },
+ "art-source/ui/item-portraits/Ares_Rootglass.png": {
+  "assetId": 135703599660092,
+  "name": "GG Shop HD Ares Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:46"
+ },
+ "art-source/ui/item-portraits/Ares_PopCircuit.png": {
+  "assetId": 71433913794036,
+  "name": "GG Shop HD Ares PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:46"
+ },
+ "art-source/ui/item-portraits/Bucky_Misprint.png": {
+  "assetId": 103330421270712,
+  "name": "GG Shop HD Bucky Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:46"
+ },
+ "art-source/ui/item-portraits/Bucky_PopCircuit.png": {
+  "assetId": 121995300897714,
+  "name": "GG Shop HD Bucky PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:47"
+ },
+ "art-source/ui/item-portraits/Bucky_Breakwater.png": {
+  "assetId": 107774604904775,
+  "name": "GG Shop HD Bucky Breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:47"
+ },
+ "art-source/ui/item-portraits/Bucky_Prism.png": {
+  "assetId": 86189624840705,
+  "name": "GG Shop HD Bucky Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:47"
+ },
+ "art-source/ui/item-portraits/Bucky_Nitrous.png": {
+  "assetId": 134988230835752,
+  "name": "GG Shop HD Bucky Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:47"
+ },
+ "art-source/ui/item-portraits/Bucky_Poolside.png": {
+  "assetId": 132127389470540,
+  "name": "GG Shop HD Bucky Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:47"
+ },
+ "art-source/ui/item-portraits/Bucky_Oilwake.png": {
+  "assetId": 103454761640462,
+  "name": "GG Shop HD Bucky Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:47"
+ },
+ "art-source/ui/item-portraits/Bucky_Faultline.png": {
+  "assetId": 116437592164334,
+  "name": "GG Shop HD Bucky Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:47"
+ },
+ "art-source/ui/item-portraits/Bucky_Rootglass.png": {
+  "assetId": 131245490407446,
+  "name": "GG Shop HD Bucky Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:50"
+ },
+ "art-source/ui/item-portraits/Bucky_TempestStrike.png": {
+  "assetId": 127647719568855,
+  "name": "GG Shop HD Bucky TempestStrike",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:50"
+ },
+ "art-source/ui/item-portraits/Bulldog_Misprint.png": {
+  "assetId": 104320109746306,
+  "name": "GG Shop HD Bulldog Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:50"
+ },
+ "art-source/ui/item-portraits/Bulldog_Playback.png": {
+  "assetId": 121852796288965,
+  "name": "GG Shop HD Bulldog Playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:50"
+ },
+ "art-source/ui/item-portraits/Bulldog_Oilwake.png": {
+  "assetId": 135914372331202,
+  "name": "GG Shop HD Bulldog Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:50"
+ },
+ "art-source/ui/item-portraits/Bulldog_Payload.png": {
+  "assetId": 114929814872140,
+  "name": "GG Shop HD Bulldog Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:50"
+ },
+ "art-source/ui/item-portraits/Bulldog_Poolside.png": {
+  "assetId": 84686345567849,
+  "name": "GG Shop HD Bulldog Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:50"
+ },
+ "art-source/ui/item-portraits/Bucky_Redline.png": {
+  "assetId": 79612269814778,
+  "name": "GG Shop HD Bucky Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:51"
+ },
+ "art-source/ui/item-portraits/Bulldog_PopCircuit.png": {
+  "assetId": 89603471970065,
+  "name": "GG Shop HD Bulldog PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:53"
+ },
+ "art-source/ui/item-portraits/Bulldog_Redline.png": {
+  "assetId": 86505113570668,
+  "name": "GG Shop HD Bulldog Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:53"
+ },
+ "art-source/ui/item-portraits/Bulldog_Nitrous.png": {
+  "assetId": 127095678050895,
+  "name": "GG Shop HD Bulldog Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:53"
+ },
+ "art-source/ui/item-portraits/Bulldog_Faultline.png": {
+  "assetId": 85044979926976,
+  "name": "GG Shop HD Bulldog Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:53"
+ },
+ "art-source/ui/item-portraits/Classic_Misprint.png": {
+  "assetId": 137580455751151,
+  "name": "GG Shop HD Classic Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:53"
+ },
+ "art-source/ui/item-portraits/Bulldog_Prism.png": {
+  "assetId": 74515739067179,
+  "name": "GG Shop HD Bulldog Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:56"
+ },
+ "art-source/ui/item-portraits/Classic_Playback.png": {
+  "assetId": 93679430450384,
+  "name": "GG Shop HD Classic Playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:56"
+ },
+ "art-source/ui/item-portraits/Classic_Redline.png": {
+  "assetId": 126302373202806,
+  "name": "GG Shop HD Classic Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:57"
+ },
+ "art-source/ui/item-portraits/Classic_Faultline.png": {
+  "assetId": 73811710602107,
+  "name": "GG Shop HD Classic Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:57"
+ },
+ "art-source/ui/item-portraits/Bulldog_Rootglass.png": {
+  "assetId": 91683393540705,
+  "name": "GG Shop HD Bulldog Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:57"
+ },
+ "art-source/ui/item-portraits/Classic_Nitrous.png": {
+  "assetId": 124830713400927,
+  "name": "GG Shop HD Classic Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:57"
+ },
+ "art-source/ui/item-portraits/Classic_Oilwake.png": {
+  "assetId": 126658785566264,
+  "name": "GG Shop HD Classic Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:57"
+ },
+ "art-source/ui/item-portraits/Classic_Slipframe_HD.png": {
+  "assetId": 72520098354727,
+  "name": "GG Shop HD Classic Slipframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:08:59"
+ },
+ "art-source/ui/item-portraits/Classic_Poolside.png": {
+  "assetId": 121027815480603,
+  "name": "GG Shop HD Classic Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Classic_PopCircuit.png": {
+  "assetId": 133679720786572,
+  "name": "GG Shop HD Classic PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Classic_Prism.png": {
+  "assetId": 125981298893258,
+  "name": "GG Shop HD Classic Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Ghost_Faultline.png": {
+  "assetId": 73552530442276,
+  "name": "GG Shop HD Ghost Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Ghost_Nitrous.png": {
+  "assetId": 115986375365099,
+  "name": "GG Shop HD Ghost Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Ghost_Misprint.png": {
+  "assetId": 135059874856751,
+  "name": "GG Shop HD Ghost Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Ghost_Oilwake.png": {
+  "assetId": 102103587819408,
+  "name": "GG Shop HD Ghost Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Ghost_Playback.png": {
+  "assetId": 86628528482843,
+  "name": "GG Shop HD Ghost Playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:00"
+ },
+ "art-source/ui/item-portraits/Classic_Rootglass.png": {
+  "assetId": 125183943429694,
+  "name": "GG Shop HD Classic Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Ghost_Poolside.png": {
+  "assetId": 79401135681286,
+  "name": "GG Shop HD Ghost Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Ghost_PopCircuit.png": {
+  "assetId": 96698147079341,
+  "name": "GG Shop HD Ghost PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Ghost_Prism.png": {
+  "assetId": 130760653621045,
+  "name": "GG Shop HD Ghost Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Ghost_Redline.png": {
+  "assetId": 119298988174934,
+  "name": "GG Shop HD Ghost Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Guardian_Faultline.png": {
+  "assetId": 76114065111338,
+  "name": "GG Shop HD Guardian Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Ghost_Sundial.png": {
+  "assetId": 128034036849139,
+  "name": "GG Shop HD Ghost Sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Ghost_Rootglass.png": {
+  "assetId": 90792582890451,
+  "name": "GG Shop HD Ghost Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Guardian_Misprint.png": {
+  "assetId": 91025527265224,
+  "name": "GG Shop HD Guardian Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Guardian_Nitrous.png": {
+  "assetId": 74071015646434,
+  "name": "GG Shop HD Guardian Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Guardian_Oilwake.png": {
+  "assetId": 110346127177923,
+  "name": "GG Shop HD Guardian Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Guardian_Poolside.png": {
+  "assetId": 86076038615286,
+  "name": "GG Shop HD Guardian Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Guardian_Prism.png": {
+  "assetId": 94630014894018,
+  "name": "GG Shop HD Guardian Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Guardian_PopCircuit.png": {
+  "assetId": 136246192518089,
+  "name": "GG Shop HD Guardian PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Guardian_Redline.png": {
+  "assetId": 132406920238522,
+  "name": "GG Shop HD Guardian Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Guardian_Slipframe_HD.png": {
+  "assetId": 85565363616378,
+  "name": "GG Shop HD Guardian Slipframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Guardian_Sundial.png": {
+  "assetId": 104695572179868,
+  "name": "GG Shop HD Guardian Sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Judge_Breakwater.png": {
+  "assetId": 77640232757550,
+  "name": "GG Shop HD Judge Breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:06"
+ },
+ "art-source/ui/item-portraits/Judge_Moltframe_HD.png": {
+  "assetId": 110737464098999,
+  "name": "GG Shop HD Judge Moltframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:09"
+ },
+ "art-source/ui/item-portraits/Judge_Poolside.png": {
+  "assetId": 82126610580714,
+  "name": "GG Shop HD Judge Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:09"
+ },
+ "art-source/ui/item-portraits/Judge_Faultline.png": {
+  "assetId": 111188367986790,
+  "name": "GG Shop HD Judge Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:09"
+ },
+ "art-source/ui/item-portraits/Judge_Misprint.png": {
+  "assetId": 91891778606565,
+  "name": "GG Shop HD Judge Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:10"
+ },
+ "art-source/ui/item-portraits/Knife_Breakwater.png": {
+  "assetId": 129813612353653,
+  "name": "GG Shop HD Knife Breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:12"
+ },
+ "art-source/ui/item-portraits/Judge_Nitrous.png": {
+  "assetId": 81827327602727,
+  "name": "GG Shop HD Judge Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:12"
+ },
+ "art-source/ui/item-portraits/Knife_Prism.png": {
+  "assetId": 114898661907129,
+  "name": "GG Shop HD Knife Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:12"
+ },
+ "art-source/ui/item-portraits/Judge_Oilwake.png": {
+  "assetId": 107972525804650,
+  "name": "GG Shop HD Judge Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:12"
+ },
+ "art-source/ui/item-portraits/Knife_Redline.png": {
+  "assetId": 105584425973015,
+  "name": "GG Shop HD Knife Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:13"
+ },
+ "art-source/ui/item-portraits/Judge_Prism.png": {
+  "assetId": 115083947371508,
+  "name": "GG Shop HD Judge Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:13"
+ },
+ "art-source/ui/item-portraits/Judge_PopCircuit.png": {
+  "assetId": 90277451388562,
+  "name": "GG Shop HD Judge PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:13"
+ },
+ "art-source/ui/item-portraits/Knife_TempestStrike.png": {
+  "assetId": 140119175226446,
+  "name": "GG Shop HD Knife TempestStrike",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:13"
+ },
+ "art-source/ui/item-portraits/Judge_Rootglass.png": {
+  "assetId": 124937829006273,
+  "name": "GG Shop HD Judge Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:13"
+ },
+ "art-source/ui/item-portraits/Judge_Redline.png": {
+  "assetId": 106257586322698,
+  "name": "GG Shop HD Judge Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:13"
+ },
+ "art-source/ui/item-portraits/Marshal_Faultline.png": {
+  "assetId": 83933035801301,
+  "name": "GG Shop HD Marshal Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:15"
+ },
+ "art-source/ui/item-portraits/Marshal_Misprint.png": {
+  "assetId": 111967786837575,
+  "name": "GG Shop HD Marshal Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:15"
+ },
+ "art-source/ui/item-portraits/Marshal_Nitrous.png": {
+  "assetId": 112949618928041,
+  "name": "GG Shop HD Marshal Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:15"
+ },
+ "art-source/ui/item-portraits/Marshal_Oilwake.png": {
+  "assetId": 104380784949770,
+  "name": "GG Shop HD Marshal Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:16"
+ },
+ "art-source/ui/item-portraits/Marshal_Poolside.png": {
+  "assetId": 130038222707229,
+  "name": "GG Shop HD Marshal Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:16"
+ },
+ "art-source/ui/item-portraits/Marshal_Rootglass.png": {
+  "assetId": 101446939797778,
+  "name": "GG Shop HD Marshal Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:16"
+ },
+ "art-source/ui/item-portraits/Marshal_Prism.png": {
+  "assetId": 87724383541867,
+  "name": "GG Shop HD Marshal Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:16"
+ },
+ "art-source/ui/item-portraits/Marshal_Redline.png": {
+  "assetId": 72034379459149,
+  "name": "GG Shop HD Marshal Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:16"
+ },
+ "art-source/ui/item-portraits/Marshal_Sundial.png": {
+  "assetId": 100863508110937,
+  "name": "GG Shop HD Marshal Sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:16"
+ },
+ "art-source/ui/item-portraits/Marshal_PopCircuit.png": {
+  "assetId": 122479796035764,
+  "name": "GG Shop HD Marshal PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:16"
+ },
+ "art-source/ui/item-portraits/Marshal_TempestStrike.png": {
+  "assetId": 77300904271378,
+  "name": "GG Shop HD Marshal TempestStrike",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:18"
+ },
+ "art-source/ui/item-portraits/Odin_Breakwater.png": {
+  "assetId": 96022428520513,
+  "name": "GG Shop HD Odin Breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:18"
+ },
+ "art-source/ui/item-portraits/Odin_Faultline.png": {
+  "assetId": 102574485661348,
+  "name": "GG Shop HD Odin Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_Misprint.png": {
+  "assetId": 99742975624142,
+  "name": "GG Shop HD Odin Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_Redline.png": {
+  "assetId": 103975627045542,
+  "name": "GG Shop HD Odin Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_Prism.png": {
+  "assetId": 94325687154063,
+  "name": "GG Shop HD Odin Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_Poolside.png": {
+  "assetId": 140700200379860,
+  "name": "GG Shop HD Odin Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_PopCircuit.png": {
+  "assetId": 116846968537772,
+  "name": "GG Shop HD Odin PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_Nitrous.png": {
+  "assetId": 117767989575495,
+  "name": "GG Shop HD Odin Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_Oilwake.png": {
+  "assetId": 116553830621430,
+  "name": "GG Shop HD Odin Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:19"
+ },
+ "art-source/ui/item-portraits/Odin_Rootglass.png": {
+  "assetId": 104109976839135,
+  "name": "GG Shop HD Odin Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:21"
+ },
+ "art-source/ui/item-portraits/Operator_Faultline.png": {
+  "assetId": 131639389360386,
+  "name": "GG Shop HD Operator Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Misprint.png": {
+  "assetId": 131061608730415,
+  "name": "GG Shop HD Operator Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Nitrous.png": {
+  "assetId": 116455092923766,
+  "name": "GG Shop HD Operator Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Oilwake.png": {
+  "assetId": 97517830835268,
+  "name": "GG Shop HD Operator Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_PopCircuit.png": {
+  "assetId": 108935083776999,
+  "name": "GG Shop HD Operator PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Poolside.png": {
+  "assetId": 137101740371817,
+  "name": "GG Shop HD Operator Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Prism.png": {
+  "assetId": 136036625228179,
+  "name": "GG Shop HD Operator Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Rootglass.png": {
+  "assetId": 94812035811319,
+  "name": "GG Shop HD Operator Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Redline.png": {
+  "assetId": 108944170124808,
+  "name": "GG Shop HD Operator Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:22"
+ },
+ "art-source/ui/item-portraits/Operator_Slipframe_HD.png": {
+  "assetId": 109500472280308,
+  "name": "GG Shop HD Operator Slipframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:24"
+ },
+ "art-source/ui/item-portraits/Operator_Sundial.png": {
+  "assetId": 109179948387308,
+  "name": "GG Shop HD Operator Sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:25"
+ },
+ "art-source/ui/item-portraits/Outlaw_Faultline.png": {
+  "assetId": 92018623646572,
+  "name": "GG Shop HD Outlaw Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:25"
+ },
+ "art-source/ui/item-portraits/Outlaw_Misprint.png": {
+  "assetId": 124727041668111,
+  "name": "GG Shop HD Outlaw Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:25"
+ },
+ "art-source/ui/item-portraits/Outlaw_Oilwake.png": {
+  "assetId": 124864170150513,
+  "name": "GG Shop HD Outlaw Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:25"
+ },
+ "art-source/ui/item-portraits/Outlaw_Nitrous.png": {
+  "assetId": 109215449961434,
+  "name": "GG Shop HD Outlaw Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:26"
+ },
+ "art-source/ui/item-portraits/Outlaw_Poolside.png": {
+  "assetId": 93471122887075,
+  "name": "GG Shop HD Outlaw Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:26"
+ },
+ "art-source/ui/item-portraits/Outlaw_PopCircuit.png": {
+  "assetId": 83141081076278,
+  "name": "GG Shop HD Outlaw PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:26"
+ },
+ "art-source/ui/item-portraits/Outlaw_Redline.png": {
+  "assetId": 77010808684287,
+  "name": "GG Shop HD Outlaw Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:26"
+ },
+ "art-source/ui/item-portraits/Outlaw_Prism.png": {
+  "assetId": 95872337042460,
+  "name": "GG Shop HD Outlaw Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:26"
+ },
+ "art-source/ui/item-portraits/Outlaw_Rootglass.png": {
+  "assetId": 89476375456057,
+  "name": "GG Shop HD Outlaw Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:28"
+ },
+ "art-source/ui/item-portraits/Outlaw_Sundial.png": {
+  "assetId": 111539077034347,
+  "name": "GG Shop HD Outlaw Sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:28"
+ },
+ "art-source/ui/item-portraits/Phantom_Misprint.png": {
+  "assetId": 77388306305486,
+  "name": "GG Shop HD Phantom Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:28"
+ },
+ "art-source/ui/item-portraits/Phantom_Faultline.png": {
+  "assetId": 124646722638136,
+  "name": "GG Shop HD Phantom Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:28"
+ },
+ "art-source/ui/item-portraits/Phantom_Oilwake.png": {
+  "assetId": 137349816433950,
+  "name": "GG Shop HD Phantom Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:29"
+ },
+ "art-source/ui/item-portraits/Phantom_Nitrous.png": {
+  "assetId": 74276355394469,
+  "name": "GG Shop HD Phantom Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:29"
+ },
+ "art-source/ui/item-portraits/Phantom_Moltframe_HD.png": {
+  "assetId": 137991347534310,
+  "name": "GG Shop HD Phantom Moltframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:29"
+ },
+ "art-source/ui/item-portraits/Phantom_Poolside.png": {
+  "assetId": 106647837871799,
+  "name": "GG Shop HD Phantom Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:29"
+ },
+ "art-source/ui/item-portraits/Phantom_PopCircuit.png": {
+  "assetId": 104131996547009,
+  "name": "GG Shop HD Phantom PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:29"
+ },
+ "art-source/ui/item-portraits/Phantom_Playback.png": {
+  "assetId": 110975398324232,
+  "name": "GG Shop HD Phantom Playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:29"
+ },
+ "art-source/ui/item-portraits/Phantom_Prism.png": {
+  "assetId": 133959648977936,
+  "name": "GG Shop HD Phantom Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:31"
+ },
+ "art-source/ui/item-portraits/Phantom_Redline.png": {
+  "assetId": 137423973253710,
+  "name": "GG Shop HD Phantom Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:31"
+ },
+ "art-source/ui/item-portraits/Phantom_Rootglass.png": {
+  "assetId": 83513726050021,
+  "name": "GG Shop HD Phantom Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:31"
+ },
+ "art-source/ui/item-portraits/Sheriff_Faultline.png": {
+  "assetId": 122117793312134,
+  "name": "GG Shop HD Sheriff Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:31"
+ },
+ "art-source/ui/item-portraits/Sheriff_Misprint.png": {
+  "assetId": 135393103899274,
+  "name": "GG Shop HD Sheriff Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:32"
+ },
+ "art-source/ui/item-portraits/Sheriff_Oilwake.png": {
+  "assetId": 114097083438677,
+  "name": "GG Shop HD Sheriff Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:32"
+ },
+ "art-source/ui/item-portraits/Sheriff_Moltframe_HD.png": {
+  "assetId": 108039379323890,
+  "name": "GG Shop HD Sheriff Moltframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:32"
+ },
+ "art-source/ui/item-portraits/Sheriff_Nitrous.png": {
+  "assetId": 122844879495130,
+  "name": "GG Shop HD Sheriff Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:32"
+ },
+ "art-source/ui/item-portraits/Sheriff_PopCircuit.png": {
+  "assetId": 94662273338975,
+  "name": "GG Shop HD Sheriff PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:32"
+ },
+ "art-source/ui/item-portraits/Sheriff_Poolside.png": {
+  "assetId": 100195810680254,
+  "name": "GG Shop HD Sheriff Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:32"
+ },
+ "art-source/ui/item-portraits/Sheriff_Prism.png": {
+  "assetId": 84688301534334,
+  "name": "GG Shop HD Sheriff Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:34"
+ },
+ "art-source/ui/item-portraits/Sheriff_Sundial.png": {
+  "assetId": 106849296824496,
+  "name": "GG Shop HD Sheriff Sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:34"
+ },
+ "art-source/ui/item-portraits/Sheriff_Rootglass.png": {
+  "assetId": 106665248656426,
+  "name": "GG Shop HD Sheriff Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:34"
+ },
+ "art-source/ui/item-portraits/Sheriff_TempestStrike.png": {
+  "assetId": 77217736425881,
+  "name": "GG Shop HD Sheriff TempestStrike",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:35"
+ },
+ "art-source/ui/item-portraits/Shorty_Breakwater.png": {
+  "assetId": 79124229069971,
+  "name": "GG Shop HD Shorty Breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:35"
+ },
+ "art-source/ui/item-portraits/Shorty_Nitrous.png": {
+  "assetId": 77568749211456,
+  "name": "GG Shop HD Shorty Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:35"
+ },
+ "art-source/ui/item-portraits/Shorty_Oilwake.png": {
+  "assetId": 94249912637214,
+  "name": "GG Shop HD Shorty Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:36"
+ },
+ "art-source/ui/item-portraits/Shorty_Misprint.png": {
+  "assetId": 114697393864084,
+  "name": "GG Shop HD Shorty Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:36"
+ },
+ "art-source/ui/item-portraits/Shorty_Poolside.png": {
+  "assetId": 116319229033690,
+  "name": "GG Shop HD Shorty Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:37"
+ },
+ "art-source/ui/item-portraits/Shorty_PopCircuit.png": {
+  "assetId": 73948712917306,
+  "name": "GG Shop HD Shorty PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:38"
+ },
+ "art-source/ui/item-portraits/Sheriff_Redline.png": {
+  "assetId": 73091087803583,
+  "name": "GG Shop HD Sheriff Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:38"
+ },
+ "art-source/ui/item-portraits/Shorty_Prism.png": {
+  "assetId": 86894047800054,
+  "name": "GG Shop HD Shorty Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:38"
+ },
+ "art-source/ui/item-portraits/Shorty_Rootglass.png": {
+  "assetId": 138152181613411,
+  "name": "GG Shop HD Shorty Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:38"
+ },
+ "art-source/ui/item-portraits/Shorty_Faultline.png": {
+  "assetId": 115275888456616,
+  "name": "GG Shop HD Shorty Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:38"
+ },
+ "art-source/ui/item-portraits/Spectre_Breakwater.png": {
+  "assetId": 98487648701076,
+  "name": "GG Shop HD Spectre Breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:39"
+ },
+ "art-source/ui/item-portraits/Spectre_Faultline.png": {
+  "assetId": 106192376177363,
+  "name": "GG Shop HD Spectre Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:39"
+ },
+ "art-source/ui/item-portraits/Spectre_Misprint.png": {
+  "assetId": 93776286981510,
+  "name": "GG Shop HD Spectre Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:39"
+ },
+ "art-source/ui/item-portraits/Spectre_Moltframe.png": {
+  "assetId": 124591942162968,
+  "name": "GG Shop HD Spectre Moltframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:40"
+ },
+ "art-source/ui/item-portraits/Spectre_Oilwake.png": {
+  "assetId": 106261936573358,
+  "name": "GG Shop HD Spectre Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:41"
+ },
+ "art-source/ui/item-portraits/Spectre_Poolside.png": {
+  "assetId": 80558082289035,
+  "name": "GG Shop HD Spectre Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:41"
+ },
+ "art-source/ui/item-portraits/Shorty_Redline.png": {
+  "assetId": 136647047450740,
+  "name": "GG Shop HD Shorty Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:41"
+ },
+ "art-source/ui/item-portraits/Spectre_PopCircuit.png": {
+  "assetId": 94391101802995,
+  "name": "GG Shop HD Spectre PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:42"
+ },
+ "art-source/ui/item-portraits/Spectre_Prism.png": {
+  "assetId": 139511837058159,
+  "name": "GG Shop HD Spectre Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:42"
+ },
+ "art-source/ui/item-portraits/Spectre_Redline.png": {
+  "assetId": 108813367285965,
+  "name": "GG Shop HD Spectre Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:42"
+ },
+ "art-source/ui/item-portraits/Spectre_Rootglass.png": {
+  "assetId": 134831135443873,
+  "name": "GG Shop HD Spectre Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:42"
+ },
+ "art-source/ui/item-portraits/Spectre_Slipframe_HD.png": {
+  "assetId": 117280495291179,
+  "name": "GG Shop HD Spectre Slipframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:42"
+ },
+ "art-source/ui/item-portraits/Stinger_Giltfold.png": {
+  "assetId": 133417527944505,
+  "name": "GG Shop HD Stinger Giltfold",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:43"
+ },
+ "art-source/ui/item-portraits/Spectre_Nitrous.png": {
+  "assetId": 127263086007209,
+  "name": "GG Shop HD Spectre Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:44"
+ },
+ "art-source/ui/item-portraits/Stinger_Inkshift.png": {
+  "assetId": 110607044402361,
+  "name": "GG Shop HD Stinger Inkshift",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:44"
+ },
+ "art-source/ui/item-portraits/Stinger_Misprint.png": {
+  "assetId": 92842576595051,
+  "name": "GG Shop HD Stinger Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:44"
+ },
+ "art-source/ui/item-portraits/Stinger_Nitrous.png": {
+  "assetId": 113831054572348,
+  "name": "GG Shop HD Stinger Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:45"
+ },
+ "art-source/ui/item-portraits/Stinger_Oilwake.png": {
+  "assetId": 94524187516027,
+  "name": "GG Shop HD Stinger Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:45"
+ },
+ "art-source/ui/item-portraits/Stinger_Payload.png": {
+  "assetId": 81768222996568,
+  "name": "GG Shop HD Stinger Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:45"
+ },
+ "art-source/ui/item-portraits/Stinger_Playback.png": {
+  "assetId": 105955855193571,
+  "name": "GG Shop HD Stinger Playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:45"
+ },
+ "art-source/ui/item-portraits/Stinger_Poolside.png": {
+  "assetId": 120600517211863,
+  "name": "GG Shop HD Stinger Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:45"
+ },
+ "art-source/ui/item-portraits/Stinger_PopCircuit.png": {
+  "assetId": 78200241067640,
+  "name": "GG Shop HD Stinger PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:45"
+ },
+ "art-source/ui/item-portraits/Stinger_Prism.png": {
+  "assetId": 117368471290675,
+  "name": "GG Shop HD Stinger Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:47"
+ },
+ "art-source/ui/item-portraits/Stinger_Rootglass.png": {
+  "assetId": 120396926712944,
+  "name": "GG Shop HD Stinger Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:09:47"
+ },
+ "art-source/ui/item-portraits/Stinger_Redline.png": {
+  "assetId": 134154950017020,
+  "name": "GG Shop HD Stinger Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:12"
+ },
+ "art-source/ui/item-portraits/Stinger_TempestStrike.png": {
+  "assetId": 132638884668609,
+  "name": "GG Shop HD Stinger TempestStrike",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:12"
+ },
+ "art-source/ui/item-portraits/Vandal_Faultline.png": {
+  "assetId": 117062683765826,
+  "name": "GG Shop HD Vandal Faultline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:12"
+ },
+ "art-source/ui/item-portraits/Vandal_Breakwater.png": {
+  "assetId": 125353826950407,
+  "name": "GG Shop HD Vandal Breakwater",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:12"
+ },
+ "art-source/ui/item-portraits/Vandal_Nitrous.png": {
+  "assetId": 90206010854060,
+  "name": "GG Shop HD Vandal Nitrous",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:13"
+ },
+ "art-source/ui/item-portraits/Vandal_Misprint.png": {
+  "assetId": 95344197075515,
+  "name": "GG Shop HD Vandal Misprint",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:13"
+ },
+ "art-source/ui/item-portraits/Vandal_Oilwake.png": {
+  "assetId": 80235855491270,
+  "name": "GG Shop HD Vandal Oilwake",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:13"
+ },
+ "art-source/ui/item-portraits/Vandal_Poolside.png": {
+  "assetId": 103185456548598,
+  "name": "GG Shop HD Vandal Poolside",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:13"
+ },
+ "art-source/ui/item-portraits/Vandal_PopCircuit.png": {
+  "assetId": 81059150188835,
+  "name": "GG Shop HD Vandal PopCircuit",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:15"
+ },
+ "art-source/ui/item-portraits/Vandal_Rootglass.png": {
+  "assetId": 80673044670409,
+  "name": "GG Shop HD Vandal Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:15"
+ },
+ "art-source/ui/item-portraits/Vandal_Redline.png": {
+  "assetId": 82421314531424,
+  "name": "GG Shop HD Vandal Redline",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:15"
+ },
+ "art-source/ui/item-portraits/Vandal_Slipframe_HD.png": {
+  "assetId": 125486873649697,
+  "name": "GG Shop HD Vandal Slipframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:15"
+ },
+ "art-source/ui/item-portraits/Vandal_Prism.png": {
+  "assetId": 114709443462324,
+  "name": "GG Shop HD Vandal Prism",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:15"
+ },
+ "art-source/ui/item-portraits/Knife_Giltfold.png": {
+  "assetId": 103980502071710,
+  "name": "GG Shop HD Knife Giltfold",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:44"
+ },
+ "art-source/ui/item-portraits/Guardian_Sealwork.png": {
+  "assetId": 118185602731716,
+  "name": "GG Shop HD Guardian Sealwork",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:44"
+ },
+ "art-source/ui/item-portraits/Ghost_Giltfold.png": {
+  "assetId": 131289057211721,
+  "name": "GG Shop HD Ghost Giltfold",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:44"
+ },
+ "art-source/ui/item-portraits/Knife_Inkshift.png": {
+  "assetId": 103072905118373,
+  "name": "GG Shop HD Knife Inkshift",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:44"
+ },
+ "art-source/ui/item-portraits/Knife_Moltframe.png": {
+  "assetId": 88809812659160,
+  "name": "GG Shop HD Knife Moltframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:44"
+ },
+ "art-source/ui/item-portraits/Ghost_Payload.png": {
+  "assetId": 112180810496799,
+  "name": "GG Shop HD Ghost Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:44"
+ },
+ "art-source/ui/item-portraits/Knife_Playback_HD.png": {
+  "assetId": 94454683391753,
+  "name": "GG Shop HD Knife Playback",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:45"
+ },
+ "art-source/ui/item-portraits/Ares_Payload.png": {
+  "assetId": 117105843985943,
+  "name": "GG Shop HD Ares Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:45"
+ },
+ "art-source/ui/item-portraits/Classic_Payload.png": {
+  "assetId": 88901226243215,
+  "name": "GG Shop HD Classic Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:45"
+ },
+ "art-source/ui/item-portraits/Classic_Giltfold.png": {
+  "assetId": 112524945165865,
+  "name": "GG Shop HD Classic Giltfold",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:45"
+ },
+ "art-source/ui/item-portraits/Knife_Rootglass.png": {
+  "assetId": 98138111987615,
+  "name": "GG Shop HD Knife Rootglass",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:47"
+ },
+ "art-source/ui/item-portraits/Knife_Sealwork.png": {
+  "assetId": 85889232422949,
+  "name": "GG Shop HD Knife Sealwork",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:47"
+ },
+ "art-source/ui/item-portraits/Knife_Sundial_HD.png": {
+  "assetId": 128487690084457,
+  "name": "GG Shop HD Knife Sundial",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:47"
+ },
+ "art-source/ui/item-portraits/Marshal_Sealwork.png": {
+  "assetId": 70661888073386,
+  "name": "GG Shop HD Marshal Sealwork",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:48"
+ },
+ "art-source/ui/item-portraits/Odin_Inkshift.png": {
+  "assetId": 98426647015459,
+  "name": "GG Shop HD Odin Inkshift",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:48"
+ },
+ "art-source/ui/item-portraits/Marshal_Giltfold.png": {
+  "assetId": 79351191300447,
+  "name": "GG Shop HD Marshal Giltfold",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:48"
+ },
+ "art-source/ui/item-portraits/Operator_Payload.png": {
+  "assetId": 75082130778935,
+  "name": "GG Shop HD Operator Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:48"
+ },
+ "art-source/ui/item-portraits/Odin_Payload.png": {
+  "assetId": 120211057299880,
+  "name": "GG Shop HD Odin Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:48"
+ },
+ "art-source/ui/item-portraits/Phantom_Inkshift.png": {
+  "assetId": 78339897942606,
+  "name": "GG Shop HD Phantom Inkshift",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:48"
+ },
+ "art-source/ui/item-portraits/Sheriff_Sealwork.png": {
+  "assetId": 74588901296542,
+  "name": "GG Shop HD Sheriff Sealwork",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:48"
+ },
+ "art-source/ui/item-portraits/Shorty_Inkshift.png": {
+  "assetId": 116678982668193,
+  "name": "GG Shop HD Shorty Inkshift",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:50"
+ },
+ "art-source/ui/item-portraits/Shorty_Sealwork.png": {
+  "assetId": 111200185525495,
+  "name": "GG Shop HD Shorty Sealwork",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:51"
+ },
+ "art-source/ui/item-portraits/Vandal_Giltfold.png": {
+  "assetId": 115079968291422,
+  "name": "GG Shop HD Vandal Giltfold",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:51"
+ },
+ "art-source/ui/item-portraits/Vandal_Moltframe.png": {
+  "assetId": 78083421940189,
+  "name": "GG Shop HD Vandal Moltframe",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:51"
+ },
+ "art-source/ui/item-portraits/Vandal_Inkshift.png": {
+  "assetId": 104798094832484,
+  "name": "GG Shop HD Vandal Inkshift",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:51"
+ },
+ "art-source/ui/item-portraits/Vandal_Payload.png": {
+  "assetId": 137439743416978,
+  "name": "GG Shop HD Vandal Payload",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:51"
+ },
+ "art-source/ui/item-portraits/Vandal_Sealwork.png": {
+  "assetId": 82554212015332,
+  "name": "GG Shop HD Vandal Sealwork",
+  "type": "Image",
+  "uploaded": "2026-11-22 22:10:51"
  }
 }
