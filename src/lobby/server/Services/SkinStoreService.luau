@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 
 local SkinStoreService = {}
@@ -105,22 +106,51 @@ local function onRequest(player: Player, list: unknown)
 	end
 end
 
--- The player's equipped skins, sent without being asked (their Locker replica).
-local function sendEquipped(player: Player)
-	for gun, line in Locker.equipped(player) do
+-- `owner`'s equipped skins (their Locker replica), sent to `to` without being asked.
+local function sendEquipped(owner: Player, to: Player)
+	for gun, line in Locker.equipped(owner) do
 		if line ~= "Stock" then
-			send(player, line, SkinStore.modelName(gun, line))
+			send(to, line, SkinStore.modelName(gun, line))
 		end
 	end
+end
+
+-- Who gets a player's equipped skins: themselves; in a match server everyone (spectating shows
+-- the watched player's gun in first person, so nobody's skin pops in mid-spectate).
+local function audience(owner: Player): { Player }
+	return if ServerRole.isMatch() then Players:GetPlayers() else { owner }
 end
 
 local function onPlayerAdded(player: Player)
 	sent[player] = {}
 	delivery(player)
 	Locker.observe(player, function()
-		sendEquipped(player)
+		for _, to in audience(player) do
+			sendEquipped(player, to)
+		end
 	end)
-	sendEquipped(player)
+	for _, to in audience(player) do
+		sendEquipped(player, to)
+	end
+	if ServerRole.isMatch() then
+		for _, other in Players:GetPlayers() do
+			if other ~= player then
+				sendEquipped(other, player)
+			end
+		end
+	end
+end
+
+-- A skin to these players right now (a case roll: it travels ahead of the result, so the reveal
+-- never shows a stand-in).
+function SkinStoreService.sendTo(players: { Player }, gun: string, line: string)
+	if line == "Stock" then
+		return
+	end
+	local name = SkinStore.modelName(gun, line)
+	for _, p in players do
+		send(p, line, name)
+	end
 end
 
 function SkinStoreService.init()

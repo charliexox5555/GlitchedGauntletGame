@@ -314,7 +314,17 @@ local function placeGun(gunId: string, line: string, animate: boolean)
 	if not view then
 		return
 	end
-	local source = Locker.skinModel(gunId, line) or Locker.gunModel(gunId)
+	-- never the stock gun standing in for a skin (Shared/SkinStore): an empty stand for the moment it's
+	-- still on its way, then the arrival handler places it
+	local skin = Locker.skinModel(gunId, line)
+	if not skin and line ~= "Stock" then
+		if gunOnStand then
+			gunOnStand:Destroy()
+			gunOnStand = nil
+		end
+		return
+	end
+	local source = skin or Locker.gunModel(gunId)
 	if not source then
 		return
 	end

@@ -40,6 +40,7 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local SkinStoreService = require(script.Parent.SkinStoreService)
 
 local ShopService = {}
 
@@ -197,6 +198,10 @@ local function openCase(player: Player, itemId: string)
 		return
 	end
 	local pair = got
+	-- the rolled skin's model goes out first, so every reveal shows it, never a stand-in
+	if pair then
+		SkinStoreService.sendTo(Players:GetPlayers(), pair.gun, pair.line)
+	end
 	-- everyone else in the lobby sees it open at this player (Controllers/CaseShowController)
 	if pair then
 		local show: LobbyNet.CaseShowPayload = {

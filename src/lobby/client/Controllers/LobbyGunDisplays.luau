@@ -96,14 +96,15 @@ local function place(anchor: BasePart, s: Shown)
 		return
 	end
 	clear(s)
-	-- skins arrive on demand (Shared/SkinStore): the stock gun until this one lands, then a redraw
+	-- skins arrive on demand (Shared/SkinStore): an empty spot for the moment one is on its way (never the
+	-- stock gun standing in), then the arrival redraw places it
 	local skin = Locker.skinModel(s.gun, line)
+	if not skin and line ~= "Stock" then
+		return
+	end
 	local src = skin or Locker.gunModel(s.gun)
 	if not src then
 		return
-	end
-	if not skin then
-		line = "Stock"
 	end
 	local m = src:Clone()
 	strip(m)

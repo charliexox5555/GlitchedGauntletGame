@@ -18,6 +18,7 @@
 
 local ContentProvider = game:GetService("ContentProvider")
 local GuiService = game:GetService("GuiService")
+local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
@@ -414,6 +415,7 @@ end
 -- Until Config/Loading arrives: the longest wait for the save (s), the lobby stage's streaming wait (s) and floor
 -- probe (studs).
 local DATA_WAIT = 8
+local SKIN_WAIT = 4
 local STREAM_WAIT = 8
 local GROUND_PROBE = 40
 
@@ -616,6 +618,45 @@ end, math.min(deadline, os.clock() + ((cfg :: any).dataWait or DATA_WAIT)))
 if not dataReady then
 	warn("[Health] C loading: save not loaded yet, opening anyway (it keeps loading)")
 end
+-- Your equipped gun skins (Shared/SkinStore: delivered on demand, the server sends these on join) are here
+-- before the screen opens, so no gun ever shows its stock look for a moment (owner 2026-11-22).
+local function json(v: Instance?): any
+	if not (v and v:IsA("StringValue")) or v.Value == "" then
+		return nil
+	end
+	local ok, data = pcall(HttpService.JSONDecode, HttpService, v.Value)
+	return if ok then data else nil
+end
+local function skinsReady(): boolean
+	local locker = json(player:FindFirstChild("LockerSkins"))
+	if typeof(locker) ~= "table" then
+		return false -- the Locker hasn't loaded yet
+	end
+	local manifest = json(ReplicatedStorage:FindFirstChild("SkinManifest"))
+	local delivery = playerGui:FindFirstChild("SkinDelivery")
+	for gun, line in locker :: { [any]: any } do
+		if typeof(gun) ~= "string" or typeof(line) ~= "string" or line == "Stock" then
+			continue
+		end
+		local name = if gun == "Knife" and line == "PopCircuit" then "Bat" else gun
+		local listed = false
+		if typeof(manifest) == "table" and typeof(manifest[line]) == "table" then
+			listed = table.find(manifest[line], name) ~= nil
+		end
+		if listed then
+			local folder = delivery and delivery:FindFirstChild(line)
+			if not (folder and folder:FindFirstChild(name)) then
+				return false
+			end
+		end
+	end
+	return true
+end
+if
+	not waitFor(skinsReady, math.min(deadline, os.clock() + ((cfg :: any).skinWait or SKIN_WAIT)))
+then
+	warn("[Health] C loading: equipped skins not all here yet, opening anyway")
+end
 advance()
 
 if isMatch then
@@ -657,8 +698,7 @@ else
 		params.FilterDescendantsInstances = { character :: Instance }
 		local grounded = waitFor(function()
 			return root.Parent ~= nil
-				and workspace:Raycast(root.Position, Vector3.new(0, -GROUND_PROBE, 0), params)
-					~= nil
+				and workspace:Raycast(root.Position, Vector3.new(0, -probe, 0), params) ~= nil
 		end, streamUntil)
 		if not grounded then
 			warn("[Health] C loading: no floor under the spawn after streaming (continuing)")

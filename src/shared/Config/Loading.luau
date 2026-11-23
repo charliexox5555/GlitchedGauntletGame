@@ -39,6 +39,8 @@ return table.freeze({
 	-- Longest the "LOADING YOUR DATA" stage waits for the save; then the screen opens and the save keeps loading
 	-- (the Shop and onboarding wait for it themselves).
 	dataWait = 8,
+	-- Then the longest wait for your equipped gun skins to arrive (Shared/SkinStore), so none shows stock first.
+	skinWait = 4,
 	groundProbe = 40,
 	duelMin = 0.6, -- the pad-duel short version
 	duelMax = 4,
