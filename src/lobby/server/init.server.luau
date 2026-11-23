@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 
 local MATCH_SERVICES: { [string]: boolean } = {
+	AdminService = true,
 	LockerService = true,
 	OnboardingService = true, -- the second favorite ask is during match 2
 	PlayerDataService = true,

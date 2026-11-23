@@ -3,10 +3,16 @@
 -- init() every controller in ./Controllers, then start() each in its own thread.
 
 -- In a Match server (shared/ServerRole) the lobby UI doesn't run at all: the
--- match client (StarterPlayerScripts.Client) has the screen.
+-- match client (StarterPlayerScripts.Client) has the screen. Only the owner's
+-- Admin Console boots there so it stays usable mid-match as well as in Lobby.
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local ServerRole = require(Shared:WaitForChild("ServerRole") :: ModuleScript)
 if ServerRole.isMatch() then
+	local controllers = script:FindFirstChild("Controllers")
+	local adminMod = controllers and controllers:FindFirstChild("AdminPanelController")
+	if adminMod and adminMod:IsA("ModuleScript") then
+		task.spawn((require(adminMod) :: any).start)
+	end
 	return
 end
 

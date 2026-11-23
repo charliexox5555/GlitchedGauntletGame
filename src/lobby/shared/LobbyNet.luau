@@ -93,6 +93,13 @@ export type CaseShowPayload = {
 	text: string, -- the skin's name
 }
 
+export type AdminEventPayload = {
+	ok: boolean,
+	action: string,
+	targetUserId: number,
+	text: string,
+}
+
 local FOLDER_NAME = "LobbyRemotes"
 local EVENTS = {
 	"QueueRequest",
@@ -110,6 +117,8 @@ local EVENTS = {
 	"LoginEvent",
 	"RobuxRequest",
 	"OnboardingRequest",
+	"AdminRequest",
+	"AdminEvent",
 }
 
 local folder: Instance
