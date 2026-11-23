@@ -11,6 +11,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
+local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local ContentProvider = game:GetService("ContentProvider")
 local LoadingConfig = require(ReplicatedStorage.Shared.Config.Loading)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local LoadingLayout =
@@ -122,18 +124,69 @@ local function showDuel(matchId: string)
 	end, LoadingConfig.duelMax)
 end
 
+-- The third-person body's animations (Config/Animations: poses, locomotion, the Animate set), as Animation
+-- instances for ContentProvider (made once; a second preload is served from the device's cache).
+local bodyAnimations: { Instance }? = nil
+local function animationList(): { Instance }
+	local list = bodyAnimations
+	if list then
+		return list
+	end
+	local made: { Instance } = {}
+	for _, group in { Animations.POSES, Animations.LOCOMOTION, Animations.ANIMATE } do
+		for _, animId in group :: { [string]: any } do
+			if typeof(animId) == "string" then
+				local a = Instance.new("Animation")
+				a.AnimationId = animId
+				table.insert(made, a)
+			end
+		end
+	end
+	bodyAnimations = made
+	return made
+end
+
+-- The lobby character moves with loaded animations: its Animator plays tracks and each has a length (a track
+-- still downloading has none and the body stands stiff).
+local function animated(character: Model): boolean
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+	if not animator then
+		return false
+	end
+	local tracks = animator:GetPlayingAnimationTracks()
+	if #tracks == 0 then
+		return false
+	end
+	for _, t in tracks do
+		if t.Length <= 0 then
+			return false
+		end
+	end
+	return true
+end
+
 -- Back to this server's lobby after a match (owner 2026-11-23: "go through the loading screen again just for that
--- transition"): until the lobby character stands on streamed-in floor.
+-- transition", and the lobby's 3D animations loaded before you're in): until the body animations are preloaded,
+-- the lobby character's are playing, and it stands on streamed-in floor.
 local function showHome()
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
+	local preloaded = false
+	task.spawn(function()
+		pcall(ContentProvider.PreloadAsync, ContentProvider, animationList())
+		preloaded = true
+	end)
 	show(LoadingConfig.stages.home, function(elapsed: number): boolean
 		if PlayZone.get(player) == "Match" then
 			return true -- straight into another match: its own screen takes over
 		end
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")
-		if not (root and root:IsA("BasePart")) or elapsed < LoadingConfig.homeMin then
+		if not (character and root and root:IsA("BasePart")) or elapsed < LoadingConfig.homeMin then
+			return false
+		end
+		if not preloaded or not animated(character) then
 			return false
 		end
 		params.FilterDescendantsInstances = { character :: Instance }

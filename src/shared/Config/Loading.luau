@@ -46,7 +46,7 @@ return table.freeze({
 	duelMin = 0.6, -- the pad-duel short version
 	duelMax = 4,
 	homeMin = 1, -- back from a match to this server's lobby: at least this long...
-	homeMax = 6, -- ...and at most this (it waits for floor under the lobby character)
+	homeMax = 10, -- ...and at most this (it waits for the body animations and floor under the lobby character)
 	fadeOut = 0.8, -- the close: words drop out, the title zooms through, the backdrop fades as the blur clears
 	fill = 0.4, -- one segment filling
 	blur = 24, -- the world behind blurs, then clears as the screen fades
