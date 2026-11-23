@@ -1,0 +1,77 @@
+[AuditShopArt] 225 skins, 3 active bundles, 20 lines, 76 findings
+Missing Starter hero: ShopCatalog.ART.starterContents
+Missing line emblem (Locker.EMBLEMS): Breakwater
+Missing line emblem (Locker.EMBLEMS): Faultline
+Missing line emblem (Locker.EMBLEMS): Misprint
+Missing line emblem (Locker.EMBLEMS): Oilwake
+Missing line emblem (Locker.EMBLEMS): Playback
+Missing line emblem (Locker.EMBLEMS): Poolside
+Missing line emblem (Locker.EMBLEMS): Rootglass
+Missing line emblem (Locker.EMBLEMS): RuinBlighted
+Missing line emblem (Locker.EMBLEMS): Sundial
+Missing line emblem (Locker.EMBLEMS): TempestStrike
+Missing side icon: Ares/Playback
+Missing side icon: Ares/Poolside
+Missing side icon: Ares/Rootglass
+Missing side icon: Bucky/Breakwater
+Missing side icon: Bucky/Poolside
+Missing side icon: Bucky/Rootglass
+Missing side icon: Bulldog/Playback
+Missing side icon: Bulldog/Poolside
+Missing side icon: Bulldog/Rootglass
+Missing side icon: Classic/Playback
+Missing side icon: Classic/Poolside
+Missing side icon: Classic/Rootglass
+Missing side icon: Classic/Slipframe
+Missing side icon: Ghost/Playback
+Missing side icon: Ghost/Poolside
+Missing side icon: Ghost/Rootglass
+Missing side icon: Ghost/RuinBlighted
+Missing side icon: Ghost/Sundial
+Missing side icon: Guardian/Poolside
+Missing side icon: Guardian/Rootglass
+Missing side icon: Guardian/RuinBlighted
+Missing side icon: Guardian/Slipframe
+Missing side icon: Guardian/Sundial
+Missing side icon: Judge/Breakwater
+Missing side icon: Judge/Poolside
+Missing side icon: Judge/Rootglass
+Missing side icon: Knife/Breakwater
+Missing side icon: Knife/Rootglass
+Missing side icon: Knife/Slipframe
+Missing side icon: Marshal/Poolside
+Missing side icon: Marshal/Rootglass
+Missing side icon: Marshal/Sundial
+Missing side icon: Odin/Breakwater
+Missing side icon: Odin/Poolside
+Missing side icon: Odin/Rootglass
+Missing side icon: Operator/Poolside
+Missing side icon: Operator/Rootglass
+Missing side icon: Operator/RuinBlighted
+Missing side icon: Operator/Slipframe
+Missing side icon: Operator/Sundial
+Missing side icon: Outlaw/Poolside
+Missing side icon: Outlaw/Rootglass
+Missing side icon: Outlaw/Sundial
+Missing side icon: Phantom/Playback
+Missing side icon: Phantom/Poolside
+Missing side icon: Phantom/Rootglass
+Missing side icon: Sheriff/Poolside
+Missing side icon: Sheriff/Rootglass
+Missing side icon: Sheriff/Sundial
+Missing side icon: Shorty/Breakwater
+Missing side icon: Shorty/Poolside
+Missing side icon: Shorty/Rootglass
+Missing side icon: Spectre/Breakwater
+Missing side icon: Spectre/Poolside
+Missing side icon: Spectre/Rootglass
+Missing side icon: Spectre/RuinBlighted
+Missing side icon: Spectre/Slipframe
+Missing side icon: Stinger/Playback
+Missing side icon: Stinger/Poolside
+Missing side icon: Stinger/Rootglass
+Missing side icon: Vandal/Breakwater
+Missing side icon: Vandal/Poolside
+Missing side icon: Vandal/Rootglass
+Missing side icon: Vandal/RuinBlighted
+Missing side icon: Vandal/Slipframe
