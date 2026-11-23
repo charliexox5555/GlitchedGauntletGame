@@ -141,5 +141,9 @@ Owner: live lobby and a live Beginner 2v2 both sat on "LOADING YOUR DATA" a long
 - **Win streak:** losses vs bots never ended the streak (it only moved with a real opponent), so the save offer never showed. Now any loss or leave ends it and offers the save (streak ≥ 3); wins add vs bots too (owner: "count bot wins"), a real opponent at most 3 times a day. Design note updated ([Progression](../01%20Design/Progression.md) → B.8).
 - Not tested by Claude (owner testing): the highlight in a live Beginner match, the streak loss → SAVE WINSTREAK popup.
 
+## Hotfix: every match stopped at the start (2026-11-23)
+- Cause (owner's F9): `MatchState.set("Mode")` (added for the red enemies) wasn't in `MatchState` FIELD_NAMES, so `set` asserted, MatchService stopped the match ("the match stopped on an error"), and everyone was sent back to the lobby. Fixed: "Mode" added; `MatchState.set` now warns once and carries on for an unknown field instead of stopping a live match.
+- The back-to-lobby teleport spam ("already in progress or throttled"): a teleport still on its way was retried every few seconds. `MatchEndService` now treats "already in progress" as in flight and `resendStranded` leaves a player alone for 20 s after a try.
+
 ## Done when
 A fresh account (Studio test key) goes join → Beginner 2v2 → lobby (favorite prompt, PLAY bubble) → second Beginner match → normal queue, with the HUD unlocking on schedule; bots feel like players and scale with who's in the match; leavers behave as decided; results, what the owner should test, and what wasn't tested are in this note, `00 Home.md` Status and `Bugs & Ideas.md`.

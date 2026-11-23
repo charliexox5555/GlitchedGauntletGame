@@ -45,6 +45,8 @@ local voters: { [Player]: boolean } = {} -- the real players when the match ende
 local present: { [Player]: boolean } = {} -- them and anyone who joined during the screen
 local outbound: { [Player]: LobbyReturn } = {} -- on their way to the Lobby (until they leave)
 local attempts: { [Player]: number } = {}
+local sentAt: { [Player]: number } = {} -- os.clock() of each player's last teleport try
+local IN_FLIGHT = 20 -- seconds a teleport may take before a resend
 local rematchBroken = false
 local botSeats = 0
 local botVoteAt: { number } = {}
@@ -76,6 +78,7 @@ local function teleport(players: { Player }, data: LobbyReturn)
 		if p.Parent == PlayersService then
 			outbound[p] = data
 			attempts[p] = (attempts[p] or 0) + 1
+			sentAt[p] = os.clock()
 			table.insert(list, p)
 		end
 	end
@@ -98,6 +101,9 @@ local function teleport(players: { Player }, data: LobbyReturn)
 		optionsFor(data)
 	)
 	if not ok then
+		if string.find(tostring(err), "already in progress", 1, true) then
+			return -- the earlier teleport is still on its way: nothing to retry
+		end
 		warn(`[MatchEnd] teleport for {#list} player(s) threw: {err}`)
 		for _, p in list do
 			local tries = attempts[p] or 1
@@ -181,6 +187,7 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 	table.clear(present)
 	table.clear(outbound)
 	table.clear(attempts)
+	table.clear(sentAt)
 	rematchBroken = false
 	mode = matchMode
 	for _, player in Players:GetPlayers() do
@@ -272,7 +279,8 @@ end
 -- while it waits for the server to empty).
 function MatchEndService.resendStranded()
 	for player, data in outbound do
-		if player.Parent == PlayersService then
+		-- a teleport sent in the last IN_FLIGHT seconds may still be going through: leave it
+		if player.Parent == PlayersService and os.clock() - (sentAt[player] or 0) >= IN_FLIGHT then
 			attempts[player] = 0
 			teleport({ player }, data)
 		end
@@ -331,6 +339,7 @@ function MatchEndService.start()
 		choices[player] = nil
 		attempts[player] = nil
 		outbound[player] = nil
+		sentAt[player] = nil
 		present[player] = nil
 	end)
 end

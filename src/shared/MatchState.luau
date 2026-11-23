@@ -83,6 +83,7 @@ local FIELD_NAMES = {
 	"RematchNeeded",
 	"RematchOpen",
 	"Zone",
+	"Mode", -- the queued mode ("beginner", "2v2", ...): Controllers/BeginnerHighlightController
 }
 
 -- A folder of every field, named `name`, under `parent` (made once).
@@ -207,9 +208,20 @@ function MatchState.botSeats(): { Configuration }
 	return seats
 end
 
+local warnedUnknown: { [string]: boolean } = {}
+
 function MatchState.set(name: string, value: any)
 	assert(RunService:IsServer(), "Only the server can publish match state")
-	local target = assert(field(name, false), "Unknown match field: " .. name)
+	local target = field(name, false)
+	if not target then
+		-- a field missing from FIELD_NAMES is a bug, but it must never stop a live match
+		-- (2026-11-23: "Mode" did, and every match fell back to the lobby)
+		if not warnedUnknown[name] then
+			warnedUnknown[name] = true
+			warn(`[MatchState] unknown match field {name}: add it to FIELD_NAMES`)
+		end
+		return
+	end
 	target.Value = if value == nil then "" else HttpService:JSONEncode(value)
 end
 
