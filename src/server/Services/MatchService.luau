@@ -547,6 +547,15 @@ local function clearRedHits()
 	table.clear(redHits)
 end
 
+-- Rounds a side needs to win the match. Studio test switch: Workspace attribute QuickMatch = true ends a match
+-- after one round (owner 2026-11-23: a quick way to test the match end).
+local function roundsToWin(): number
+	if RunService:IsStudio() and workspace:GetAttribute("QuickMatch") == true then
+		return 1
+	end
+	return Config.ROUNDS_TO_WIN
+end
+
 -- The bots' dynamic difficulty from this match's real players (Bots/AutoDifficulty): at the
 -- fill and at each round, with the score once the match is running.
 local function updateBotDifficulty(scores: { number }?)
@@ -1002,7 +1011,7 @@ local function runMatch(): boolean
 			string.format("%d:%s", winner, if typeof(phaseName) == "string" then phaseName else "")
 		)
 		MatchState.setList("RoundHistory", roundHistory)
-		if winner ~= 0 and scores[winner] >= Config.ROUNDS_TO_WIN then
+		if winner ~= 0 and scores[winner] >= roundsToWin() then
 			closeRound()
 			local ok, err = xpcall(playReplay, debug.traceback, winner, eliminated)
 			if not ok then
@@ -1038,7 +1047,7 @@ local function runMatch(): boolean
 	-- logged, everyone goes back behind the barrier and it is played again on
 	-- the same map. Too many in a row: the match ends on the current score.
 	local roundErrors = 0
-	while scores[1] < Config.ROUNDS_TO_WIN and scores[2] < Config.ROUNDS_TO_WIN do
+	while scores[1] < roundsToWin() and scores[2] < roundsToWin() do
 		local ok, outcome = xpcall(playRound, debug.traceback)
 		if ok then
 			roundErrors = 0

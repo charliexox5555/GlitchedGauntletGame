@@ -32,6 +32,7 @@ local Matchmaker = require(script.Parent.Parent.Matchmaking.Matchmaker)
 local Parties = require(script.Parent.Parent.Matchmaking.Parties)
 local LockerService = require(script.Parent.LockerService)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 
 type Status = "idle" | "searching" | "found" | "teleporting"
 type State = { status: Status, mode: string?, matchId: string? }
@@ -373,6 +374,10 @@ local function free(members: { Player }): boolean
 end
 
 local function join(player: Player, info: Config.ModeInfo)
+	-- only from the lobby (a player in a hosted match or a pad duel can't queue)
+	if PlayZone.get(player) ~= "Lobby" then
+		return
+	end
 	local members = Parties.members(player)
 	if members[1] ~= player then
 		send(player, { kind = "info", text = "Your party leader starts the search" })
@@ -602,6 +607,34 @@ function QueueService.start()
 	end)
 	Parties.onChanged(onPartyChanged)
 	Parties.start()
+	-- Play Again from a hosted match (Server MatchHost): that mode's queue, from this server's lobby; Beginner
+	-- grown out of falls back to the normal mode of that size.
+	task.spawn(function()
+		local server = game:GetService("ServerScriptService"):WaitForChild("Server", 10)
+		local services = server and server:FindFirstChild("Services")
+		local host = services and services:FindFirstChild("MatchHost")
+		if not (host and host:IsA("ModuleScript")) then
+			return
+		end
+		(require(host) :: any).onRequeue(function(player: Player, mode: string)
+			local info = Config.MODE_BY_ID[mode]
+			if info and info.maxLevel and not levelOk(Parties.members(player), info) then
+				info = Config.MODE_BY_ID[`{info.teamSize}v{info.teamSize}`]
+			end
+			-- sendHome sets the zone first; give it a beat
+			local t0 = os.clock()
+			while
+				PlayZone.get(player) ~= "Lobby"
+				and player.Parent == Players
+				and os.clock() - t0 < 5
+			do
+				task.wait(0.2)
+			end
+			if info and info.enabled and Parties.leader(player) == player then
+				join(player, info)
+			end
+		end)
+	end)
 	local rules = {}
 	for _, m in Config.MODES do
 		if m.enabled then

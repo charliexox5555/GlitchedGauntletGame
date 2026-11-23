@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 
@@ -115,10 +116,41 @@ local function sendEquipped(owner: Player, to: Player)
 	end
 end
 
--- Who gets a player's equipped skins: themselves; in a match server everyone (spectating shows
--- the watched player's gun in first person, so nobody's skin pops in mid-spectate).
+-- The players in `player`'s match (the whole server in the old Match role).
+local function matchMates(player: Player): { Player }
+	if ServerRole.isMatch() then
+		return Players:GetPlayers()
+	end
+	local id = PlayZone.matchId(player)
+	if PlayZone.get(player) ~= "Match" or not id then
+		return { player }
+	end
+	local list: { Player } = {}
+	for _, p in Players:GetPlayers() do
+		if PlayZone.matchId(p) == id and PlayZone.get(p) == "Match" then
+			table.insert(list, p)
+		end
+	end
+	return list
+end
+
+-- Who gets a player's equipped skins: themselves, and in a match everyone in it (spectating shows the watched
+-- player's gun in first person, so nobody's skin pops in mid-spectate).
 local function audience(owner: Player): { Player }
-	return if ServerRole.isMatch() then Players:GetPlayers() else { owner }
+	return matchMates(owner)
+end
+
+-- Joining a match (a hosted queued match, a pad duel): swap equipped skins with everyone in it.
+local function onZone(player: Player)
+	if PlayZone.get(player) ~= "Match" or not sent[player] then
+		return
+	end
+	for _, other in matchMates(player) do
+		if other ~= player and sent[other] then
+			sendEquipped(other, player)
+			sendEquipped(player, other)
+		end
+	end
 end
 
 local function onPlayerAdded(player: Player)
@@ -132,13 +164,7 @@ local function onPlayerAdded(player: Player)
 	for _, to in audience(player) do
 		sendEquipped(player, to)
 	end
-	if ServerRole.isMatch() then
-		for _, other in Players:GetPlayers() do
-			if other ~= player then
-				sendEquipped(other, player)
-			end
-		end
-	end
+	onZone(player)
 end
 
 -- A skin to these players right now (a case roll: it travels ahead of the result, so the reveal
@@ -161,6 +187,7 @@ end
 function SkinStoreService.start()
 	LobbyNet.event(SkinStore.REMOTE).OnServerEvent:Connect(onRequest)
 	Players.PlayerAdded:Connect(onPlayerAdded)
+	PlayZone.changed:Connect(onZone)
 	for _, p in Players:GetPlayers() do
 		task.spawn(onPlayerAdded, p)
 	end

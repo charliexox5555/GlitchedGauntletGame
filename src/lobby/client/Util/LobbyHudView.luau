@@ -39,6 +39,7 @@ local QueueState = require(script.Parent.QueueState)
 local Router = require(script.Parent.Router)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local Release = require(ReplicatedStorage.Shared.Config.Release)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local KM = UiMotion.M
 
 local LobbyHudView = {}
@@ -111,6 +112,7 @@ local tween = UiMotion.tween
 -- Onboarding and Bots.md): PLAY's own action while new (queue Beginner 2v2 instead
 -- of the menu), PLAY's sub-line, and the bubble over PLAY.
 local playAction: (() -> boolean)? = nil -- returns true when it handled the click
+local hubButton: GuiButton? = nil -- "To Hub" (hosted servers only)
 local playSubText: string? = nil
 local bubbleWanted = false
 local bubbleShown = false
@@ -765,6 +767,27 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 			end
 		end
 	end)
+	-- "To Hub" (Studio-built Bottom.ToHub, tools/studio/BuildToHubButton.luau): only in a hosted server (a queued
+	-- match's reserved server, where you stay in its lobby after the match); sends you to a public server.
+	local hub = bottom:FindFirstChild("ToHub")
+	if hub and hub:IsA("GuiButton") then
+		hubButton = hub
+		hub.Visible = false
+		local hubPop = hub:FindFirstChildWhichIsA("UIScale", true) :: UIScale?
+		hub.MouseEnter:Connect(function()
+			rest(hubPop, KM.hover)
+		end)
+		hub.MouseLeave:Connect(function()
+			rest(hubPop, 1)
+		end)
+		hub.Activated:Connect(function()
+			press(hubPop, 0.92)
+			if QueueState.status() == "idle" then
+				LobbyNet.event("HubRequest"):FireServer()
+				LobbyHudView.toast("Heading to the hub...", "info")
+			end
+		end)
+	end
 	play.Activated:Connect(function()
 		press(s.playPop, 0.92)
 		if QueueState.status() == "idle" then
@@ -966,6 +989,10 @@ function LobbyHudView.refresh()
 	end
 	LobbyHudView.placeCorners(false)
 	LobbyHudView.placeBubble()
+	local hb = hubButton
+	if hb then
+		hb.Visible = ServerRole.isHosted() and status == "idle"
+	end
 end
 
 -- The corners step up out of the way while a menu is open (its title and

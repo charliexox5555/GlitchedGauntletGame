@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local FavoritePrompt = require(ReplicatedStorage.Shared.FavoritePrompt)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local OnbConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local LobbyHudView = require(script.Parent.Parent.Util.LobbyHudView)
@@ -41,8 +42,10 @@ local function num(name: string, default: number): number
 end
 
 local function ready(): boolean
+	-- in the lobby only (a hosted server puts an arriving player straight into their queued match)
 	return StateValues.get(player, "DataReady") == true
 		and player:GetAttribute("LoadingScreen") ~= true
+		and PlayZone.get(player) == "Lobby"
 end
 
 local function seenBits(): number
@@ -161,6 +164,7 @@ function OnboardingController.start()
 		StateValues.changed(player, name):Connect(refresh)
 	end
 	player:GetAttributeChangedSignal("LoadingScreen"):Connect(refresh)
+	player:GetAttributeChangedSignal(PlayZone.ATTRIBUTE):Connect(refresh) -- back in the lobby after a match
 	-- opening an unlocked menu clears its NEW callout for good
 	Router.onChanged(function(current: string?)
 		for id, menu in MENU_OF do

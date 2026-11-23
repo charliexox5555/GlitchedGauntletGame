@@ -284,6 +284,7 @@ local function flash(color: Color3, strength: number)
 	end
 	local g = Instance.new("ScreenGui")
 	g.Name = "CaseFlash"
+	g:SetAttribute("LobbyGui", true) -- the match client never clears it (src/client init: armed-zone cleanup)
 	g.IgnoreGuiInset = true
 	g.ScreenInsets = Enum.ScreenInsets.None -- full-bleed, under the notch too
 	g.SafeAreaCompatibility = Enum.SafeAreaCompatibility.None

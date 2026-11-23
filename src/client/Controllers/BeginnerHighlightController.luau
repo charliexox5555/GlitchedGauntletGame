@@ -18,7 +18,6 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local OnbConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
-local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local LimbHold = require(script.Parent.Parent.Util.LimbHold)
@@ -189,9 +188,8 @@ local function onHitConfirm(confirm: any)
 end
 
 function BeginnerHighlightController.start()
-	if not ServerRole.isMatch() then
-		return -- Beginner 2v2 is only ever a queued match
-	end
+	-- (the match client runs while this player is in a match: a hosted queued match, a pad duel, the old
+	-- whole-server role; the mode check keeps it to Beginner 2v2)
 	Net.event("HitConfirm").OnClientEvent:Connect(onHitConfirm)
 	RunService.RenderStepped:Connect(pulse)
 	task.spawn(function()

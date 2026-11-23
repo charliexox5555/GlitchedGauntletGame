@@ -20,7 +20,14 @@ local function hide()
 		return
 	end
 	for _, gui in playerGui:GetChildren() do
-		if gui:IsA("ScreenGui") and gui.Enabled and not hidden[gui] then
+		-- lobby screens only (marked LobbyGui; 2026-11-23: a player arriving in a hosted server is in their match
+		-- before every lobby screen is up, so "whatever is up now" missed the coins top bar)
+		if
+			gui:IsA("ScreenGui")
+			and gui:GetAttribute("LobbyGui") == true
+			and gui.Enabled
+			and not hidden[gui]
+		then
 			gui.Enabled = false
 			hidden[gui] = gui:GetPropertyChangedSignal("Enabled"):Connect(function()
 				if gui.Enabled and PlayZone.isArmed(player) then
@@ -52,6 +59,13 @@ function ArmedHideController.start()
 	if PlayZone.isArmed(player) then
 		hide()
 	end
+	-- a lobby screen mounted or turned on while armed goes away too
+	local playerGui = player:WaitForChild("PlayerGui")
+	playerGui.ChildAdded:Connect(function(gui)
+		if gui:IsA("ScreenGui") and PlayZone.isArmed(player) then
+			task.defer(hide)
+		end
+	end)
 end
 
 return ArmedHideController

@@ -17,6 +17,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Config = require(ReplicatedStorage.Lobby.Config)
 local Health = require(ReplicatedStorage.Shared.Health)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local LockerService = require(script.Parent.LockerService)
 
@@ -196,6 +197,17 @@ function PadDuelService.start()
 		return
 	end
 	MatchHost = require(host) :: any
+	-- A hosted server (a queued match's reserved server, Shared/ServerRole.isHosted): no pad duels here, the
+	-- duels area is caged off (Studio-built ServerStorage.DuelsCage, tools/studio/BuildDuelsCage.luau).
+	if ServerRole.isHosted() then
+		local cage = game:GetService("ServerStorage"):FindFirstChild("DuelsCage")
+		if cage then
+			cage:Clone().Parent = workspace
+		else
+			warn("[PadDuel] hosted server: ServerStorage.DuelsCage missing (pads are off anyway)")
+		end
+		return
+	end
 	for _, zone in CollectionService:GetTagged(TAG) do
 		addPad(zone)
 	end

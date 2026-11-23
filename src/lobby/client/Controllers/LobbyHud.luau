@@ -40,6 +40,7 @@ function LobbyHud.init()
 		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
 		DisplayOrder = 1,
 	}, playerGui)
+	shadeGui:SetAttribute("LobbyGui", true) -- the match client never clears it
 	local shadeTop = Kit.make("Frame", {
 		Name = "ShadeTop",
 		Size = UDim2.new(1, 0, 0, 150),

@@ -19,7 +19,7 @@ local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OnbConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
-local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 
 local OnboardingService = {}
@@ -45,7 +45,7 @@ local function onFavAsked(player: Player, favorited: unknown)
 		reject("badFav")
 		return
 	end
-	local where = if ServerRole.isMatch() then "match" else "lobby"
+	local where = if PlayZone.get(player) == "Match" then "match" else "lobby"
 	-- the cached save first: a request that can't change anything never costs a write
 	local cached = PlayerDataService.get(player)
 	if not cached or not Onboarding.favAsk(cached.onb, cached.prog.matches, where) then

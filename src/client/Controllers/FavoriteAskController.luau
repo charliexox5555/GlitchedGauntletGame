@@ -8,7 +8,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FavoritePrompt = require(ReplicatedStorage.Shared.FavoritePrompt)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
-local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 
 local FavoriteAskController = {}
 
@@ -19,9 +18,7 @@ local asked = false
 function FavoriteAskController.init() end
 
 function FavoriteAskController.start()
-	if not ServerRole.isMatch() then
-		return -- pad duels in the lobby: the lobby asks
-	end
+	-- runs while this player is in a match (a hosted queued match since 2026-11-23, or a pad duel)
 	MatchState.changed("Phase"):Connect(function()
 		if asked or MatchState.get("Phase") ~= ROUND_BREAK then
 			return

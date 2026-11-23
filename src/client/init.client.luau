@@ -112,6 +112,7 @@ local function cleanUp()
 			and gui:IsA("LayerCollector")
 			and gui.Name ~= "ModState"
 			and gui.Name ~= "TouchGui"
+			and gui:GetAttribute("LobbyGui") ~= true
 		then
 			gui:Destroy()
 		end

@@ -117,6 +117,11 @@ function UiRoot.mount(group: Group, playerGui: Instance): { ScreenGui }
 		end
 		local copy = source:Clone()
 		copy.ResetOnSpawn = false
+		if group == "Lobby" then
+			-- the match client's armed-zone cleanup never clears lobby screens (a player who arrives in a
+			-- hosted server goes straight into their match, before these are mounted)
+			copy:SetAttribute("LobbyGui", true)
+		end
 		UiRoot.applyLayer(copy)
 		copy.Parent = playerGui
 		UiLayout.watch(copy) -- per-device overrides (Shared/UiLayout)

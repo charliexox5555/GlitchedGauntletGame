@@ -1117,6 +1117,7 @@ function LockerController.init()
 	-- the wipe (above everything, two screens tall, soft top and bottom edges)
 	local wipeGui = Instance.new("ScreenGui")
 	wipeGui.Name = "LockerWipe"
+	wipeGui:SetAttribute("LobbyGui", true) -- the match client never clears it (src/client init: armed-zone cleanup)
 	wipeGui.ResetOnSpawn = false
 	wipeGui.IgnoreGuiInset = true
 	wipeGui.ScreenInsets = Enum.ScreenInsets.None

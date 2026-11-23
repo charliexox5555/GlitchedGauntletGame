@@ -45,6 +45,7 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 		DisplayOrder = 19,
 		Enabled = false,
 	}, playerGui)
+	backdrop:SetAttribute("LobbyGui", true) -- the match client never clears it
 	local gui = Kit.make("ScreenGui", {
 		Name = name,
 		ResetOnSpawn = false,
@@ -54,6 +55,7 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 		DisplayOrder = 20,
 		Enabled = false,
 	}, playerGui)
+	gui:SetAttribute("LobbyGui", true) -- the match client never clears it
 	local scrim = Kit.make("TextButton", {
 		Name = "Scrim",
 		Size = UDim2.fromScale(1, 1),

@@ -64,11 +64,16 @@ end
 
 -- One try for `players` (a throw retries each on their own, with backoff).
 local function teleport(players: { Player }, data: LobbyReturn)
-	-- A pad duel in a lobby server (MatchKit/Context): back to the lobby here, no teleport.
+	-- A pad duel or a hosted queued match (MatchKit/Context): back to the lobby here, no teleport; Play Again
+	-- queues them again from here.
 	if Context.padDuel then
 		for _, p in players do
 			if p.Parent == PlayersService and Context.sendHome then
 				Context.sendHome(p)
+				local requeue = Context.requeue
+				if data.requeue and requeue then
+					task.spawn(requeue, p, data.requeue)
+				end
 			end
 		end
 		return

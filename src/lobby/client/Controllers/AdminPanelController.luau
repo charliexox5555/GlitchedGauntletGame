@@ -291,6 +291,7 @@ function AdminPanelController.start()
 
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "AdminPanelGui"
+	gui:SetAttribute("LobbyGui", true) -- the match client never clears it (src/client init: armed-zone cleanup)
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 80
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling

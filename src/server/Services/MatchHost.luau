@@ -1,6 +1,9 @@
 --!strict
 -- MatchHost: starts and ends matches (place merge 2026-11-21, vault/04 Tech/Place Merge Plan.md).
 --  * Match server (shared/ServerRole): one whole-server match at start, as the match place always ran.
+--  * Hosted (a reserved server for a queued match, Shared/ServerRole.isHosted; owner 2026-11-23): a Lobby server
+--    whose queued match runs as an instance like a pad duel, from the TeleportData plan; players join it as they
+--    arrive (bots take the seats nobody fills), and at the end they stay here in the lobby.
 --  * Lobby server: pad duels (PadDuelService), several at once. Each gets an id, its own MatchState folder
 --    (ReplicatedStorage.Matches[id]), its own world folder (Workspace.Matches[id]) and an isolated arena slot.
 --    Its players move to the "Match" PlayZone with that MatchId (their match client
@@ -20,6 +23,7 @@ local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
+local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local CharacterService = require(script.Parent.CharacterService)
 local WeaponService = require(script.Parent.WeaponService)
 local Spectated = require(script.Parent.Parent.Bots.Spectated)
@@ -51,6 +55,13 @@ MatchHost.PRACTICE_ID = "range"
 MatchHost.PRACTICE_SERVICES = { "DevModService", "ModRecall", "ModService", "ModSim", "ModWalls" }
 
 local EMPTY_GRACE = 8 -- seconds a pad duel may have none of its players before it's ended
+local HOSTED_EMPTY_GRACE = 60 -- a hosted match waits this long for its first player (teleports take time)
+
+-- Play Again from a hosted match: the Lobby's QueueService registers here (onRequeue).
+local requeueHooks: { (Player, string) -> () } = {}
+function MatchHost.onRequeue(fn: (Player, string) -> ())
+	table.insert(requeueHooks, fn)
+end
 
 export type Plan = {
 	matchId: string,
@@ -73,6 +84,8 @@ type Running = {
 	ending: boolean,
 	emptySince: number?,
 	practice: boolean?,
+	hosted: boolean?,
+	plan: Plan?,
 }
 
 local specs: { [string]: any } = {}
@@ -140,6 +153,14 @@ function MatchHost.started(id: string, context: any, cleanPlayer: ((Player) -> (
 	if entry then
 		entry.context = context
 		entry.cleanPlayer = cleanPlayer
+		-- a hosted match's players who arrived while its runner was starting
+		if entry.hosted then
+			for _, p in entry.players do
+				if p.Parent == Players and not context.has(p) then
+					context.addPlayer(p)
+				end
+			end
+		end
 	end
 	if id == MatchHost.PRACTICE_ID then
 		for player in practiceWaiting do
@@ -225,25 +246,11 @@ end
 
 -- Starts a pad duel in this lobby server. `teams`: the players on each side (real players only).
 -- `bots`: fill empty seats with bots (only the Studio solo test does; pads are real players only).
-function MatchHost.startDuel(
-	mode: string,
-	teamSize: number,
-	teams: { { Player } },
-	bots: boolean?
-): string?
-	if not ServerRole.isLobby() then
-		return nil
-	end
-	local id = string.sub(HttpService:GenerateGUID(false), 1, 8)
+-- Builds and starts one match instance in this Lobby server (a pad duel, or a hosted queued match).
+local function launchInstance(plan: Plan, players: { Player }, hosted: boolean): Running
+	local id = plan.matchId
+	local mode = plan.mode
 	local slot = freeSlot()
-	local players: { Player } = {}
-	local ids: { { number } } = { {}, {} }
-	for t, team in teams do
-		for _, p in team do
-			table.insert(players, p)
-			table.insert(ids[t], p.UserId)
-		end
-	end
 	local stateFolder = MatchState.createFolder(folder(ReplicatedStorage, MatchState.MATCHES), id)
 	local world = folder(folder(workspace, "Matches"), id)
 	local entry: Running = {
@@ -256,10 +263,10 @@ function MatchHost.startDuel(
 		context = nil,
 		ownsServer = false,
 		ending = false,
+		hosted = hosted,
+		plan = plan,
 	}
 	running[id] = entry
-	local plan: Plan =
-		{ matchId = id, mode = mode, size = teamSize, teams = ids, bots = bots == true }
 	specs[id] = {
 		stateFolder = stateFolder,
 		context = {
@@ -278,6 +285,12 @@ function MatchHost.startDuel(
 					sendHome(entry, player)
 				end
 			end,
+			hosted = hosted,
+			requeue = function(player: Player, requeueMode: string)
+				for _, fn in requeueHooks do
+					task.spawn(fn, player, requeueMode)
+				end
+			end,
 		},
 	}
 	-- The players join the match before the runner starts, so it finds them and their clients bind to it.
@@ -285,8 +298,143 @@ function MatchHost.startDuel(
 		PlayZone.set(p, "Match", id)
 	end
 	entry.runner = launchRunner(id)
-	print(`[MatchHost] pad duel {id} ({mode}, {#players} players) in slot {slot}`)
+	print(
+		`[MatchHost] {if hosted then "hosted match" else "pad duel"} {id} ({mode}, {#players} players) in slot {slot}`
+	)
+	return entry
+end
+
+function MatchHost.startDuel(
+	mode: string,
+	teamSize: number,
+	teams: { { Player } },
+	bots: boolean?
+): string?
+	if not ServerRole.isLobby() or ServerRole.isHosted() then
+		return nil -- a hosted server's duels area is caged
+	end
+	local id = string.sub(HttpService:GenerateGUID(false), 1, 8)
+	local players: { Player } = {}
+	local ids: { { number } } = { {}, {} }
+	for t, team in teams do
+		for _, p in team do
+			table.insert(players, p)
+			table.insert(ids[t], p.UserId)
+		end
+	end
+	local plan: Plan =
+		{ matchId = id, mode = mode, size = teamSize, teams = ids, bots = bots == true }
+	launchInstance(plan, players, false)
 	return id
+end
+
+-- Hosted: the queued match's plan (the first arrival's TeleportData, or the Studio HostedTest switch).
+local hostedEntry: Running? = nil
+
+-- The Lobby's TeleportData contract (same checks as Bots/MatchPlan.validate, which only loads inside a match):
+-- { v = 1, matchId, mode, teams = { { userId }, { userId } }, bots }. TeleportData travels through the client:
+-- shape and sizes only, nothing here grants anything.
+local MAX_ID = 64
+local function userIds(value: unknown, size: number, seen: { [number]: boolean }): { number }?
+	if typeof(value) ~= "table" then
+		return nil
+	end
+	local list: { number } = {}
+	local count = 0
+	for k, v in value :: { [unknown]: unknown } do
+		count += 1
+		if typeof(k) ~= "number" or typeof(v) ~= "number" then
+			return nil
+		end
+		local id = v :: number
+		if id ~= id or id <= 0 or id ~= math.floor(id) or id > 2 ^ 53 or seen[id] then
+			return nil
+		end
+		seen[id] = true
+		table.insert(list, id)
+	end
+	if count ~= #list or count > size then
+		return nil
+	end
+	return list
+end
+
+local function validatePlan(data: unknown): Plan?
+	if typeof(data) ~= "table" then
+		return nil
+	end
+	local d = data :: { [string]: unknown }
+	local matchId, mode, bots = d.matchId, d.mode, d.bots
+	if d.v ~= 1 or typeof(matchId) ~= "string" or #matchId == 0 or #matchId > MAX_ID then
+		return nil
+	end
+	if typeof(mode) ~= "string" or typeof(bots) ~= "boolean" then
+		return nil
+	end
+	local size = BotsConfig.MODES[mode]
+	local teams = d.teams
+	if not size or typeof(teams) ~= "table" or #(teams :: { unknown }) ~= 2 then
+		return nil
+	end
+	local seen: { [number]: boolean } = {}
+	local one = userIds((teams :: any)[1], size, seen)
+	local two = userIds((teams :: any)[2], size, seen)
+	if not one or not two then
+		return nil
+	end
+	return { matchId = matchId, mode = mode, size = size, teams = { one, two }, bots = bots }
+end
+
+local function planFor(player: Player): Plan?
+	local test = workspace:GetAttribute(ServerRole.HOSTED_TEST)
+	if game:GetService("RunService"):IsStudio() and typeof(test) == "string" then
+		local size = BotsConfig.MODES[test]
+		if size then
+			return {
+				matchId = "hosted-studio",
+				mode = test,
+				size = size,
+				teams = { { player.UserId }, {} },
+				bots = true,
+			}
+		end
+	end
+	local ok, joinData = pcall(function()
+		return player:GetJoinData()
+	end)
+	if not ok or typeof(joinData) ~= "table" then
+		return nil
+	end
+	return validatePlan((joinData :: any).TeleportData)
+end
+
+local function listed(plan: Plan, userId: number): boolean
+	return table.find(plan.teams[1], userId) ~= nil or table.find(plan.teams[2], userId) ~= nil
+end
+
+-- A player arriving in a hosted server: the first one with a plan starts the match; a listed player joins it
+-- (late arrivals take their seat back from a bot); anyone else just walks the lobby.
+local function hostedArrival(player: Player)
+	local entry = hostedEntry
+	if not entry then
+		local plan = planFor(player)
+		if not plan then
+			return
+		end
+		hostedEntry = launchInstance(plan, { player }, true)
+		return
+	end
+	if entry.ending or not entry.plan or not listed(entry.plan, player.UserId) then
+		return
+	end
+	if table.find(entry.players, player) then
+		return
+	end
+	table.insert(entry.players, player)
+	PlayZone.set(player, "Match", entry.id)
+	if entry.context then
+		entry.context.addPlayer(player)
+	end
 end
 
 local function startPractice()
@@ -395,6 +543,12 @@ function MatchHost.start()
 		return
 	end
 	startPractice()
+	if ServerRole.isHosted() then
+		Players.PlayerAdded:Connect(hostedArrival)
+		for _, p in Players:GetPlayers() do
+			task.spawn(hostedArrival, p)
+		end
+	end
 	-- Pad duels whose players have all gone end themselves.
 	while true do
 		task.wait(1)
@@ -414,7 +568,9 @@ function MatchHost.start()
 				entry.emptySince = nil
 			elseif not entry.emptySince then
 				entry.emptySince = now
-			elseif now - entry.emptySince > EMPTY_GRACE then
+			elseif
+				now - entry.emptySince > (if entry.hosted then HOSTED_EMPTY_GRACE else EMPTY_GRACE)
+			then
 				teardown(entry)
 			end
 		end

@@ -30,6 +30,7 @@ function StudioRangeController.start()
 
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "StudioRangeShortcut"
+	gui:SetAttribute("LobbyGui", true) -- the match client never clears it (src/client init: armed-zone cleanup)
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 25
 
