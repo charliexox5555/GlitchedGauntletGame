@@ -291,21 +291,31 @@ function AdminPanelController.start()
 
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "AdminPanelGui"
-	gui:SetAttribute("LobbyGui", true) -- the match client never clears it (src/client init: armed-zone cleanup)
+	-- KeepGui: the match client never clears it and ArmedHideController never hides it (usable mid-match)
+	gui:SetAttribute("KeepGui", true)
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 80
 	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	gui.Parent = playerGui
 
 	-- Sleek corner toggle button (bottom-right in Lobby; compact top-left in Match so it avoids ammo HUD)
-	local inMatch = ServerRole.isMatch()
+	-- in a match: the old Match role, or a hosted match / pad duel (PlayZone), re-placed when the zone changes
+	local function inMatchNow(): boolean
+		return ServerRole.isMatch() or localPlayer:GetAttribute("PlayZone") == "Match"
+	end
+	local inMatch = inMatchNow()
 	local toggleBtn = Instance.new("TextButton")
 	toggleBtn.Name = "AdminToggle"
-	toggleBtn.AnchorPoint = if inMatch then Vector2.new(0, 0) else Vector2.new(1, 1)
-	toggleBtn.Position = if inMatch then UDim2.fromOffset(14, 14) else UDim2.new(1, -18, 1, -18)
+	local function placeToggle()
+		inMatch = inMatchNow()
+		toggleBtn.AnchorPoint = if inMatch then Vector2.new(0, 0) else Vector2.new(1, 1)
+		toggleBtn.Position = if inMatch then UDim2.fromOffset(14, 14) else UDim2.new(1, -18, 1, -18)
+		toggleBtn.BackgroundTransparency = if inMatch then 0.25 else 0
+	end
 	toggleBtn.Size = UDim2.fromOffset(126, 36)
 	toggleBtn.BackgroundColor3 = C.surface
-	toggleBtn.BackgroundTransparency = if inMatch then 0.25 else 0
+	placeToggle()
+	localPlayer:GetAttributeChangedSignal("PlayZone"):Connect(placeToggle)
 	toggleBtn.Text = "ADMIN [F8]"
 	toggleBtn.TextColor3 = C.gold
 	toggleBtn.FontFace = FONT_HEAVY
@@ -2106,6 +2116,11 @@ function AdminPanelController.start()
 	end)
 
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
+		-- the hotkey even when the game took the key (in a match F8 is also the Mod dev panel's input action)
+		if input.KeyCode == AdminConfig.HOTKEY and UserInputService:GetFocusedTextBox() == nil then
+			setOpen(not isOpen)
+			return
+		end
 		if processed then
 			return
 		end

@@ -320,8 +320,15 @@ local function begin()
 	if active then
 		return
 	end
+	-- (owner 2026-11-23: "sometimes the final win cutscene does not play") the Results value can land a moment
+	-- after the MatchEnd phase: wait for it instead of skipping the whole ending
 	local results = MatchState.get("Results") :: Results?
-	if not results then
+	local waitUntil = os.clock() + 3
+	while not results and os.clock() < waitUntil and MatchState.phase() == "MatchEnd" do
+		task.wait(0.05)
+		results = MatchState.get("Results") :: Results?
+	end
+	if not results or active then
 		return
 	end
 	active = true
@@ -364,7 +371,13 @@ local function begin()
 	end
 	-- one positive ending song for everyone, winner or not (owner
 	-- 2026-11-20): the cutscene starts it and runs on its clock
+	-- the winners' bodies (a streamed-out body arrives a moment later) and the clips, each waited for briefly
 	local winners = winnersOf(winner)
+	local holdUntil = os.clock() + 2
+	while (#winners == 0 or not WinCutscene.isPreloaded()) and os.clock() < holdUntil do
+		task.wait(0.1)
+		winners = winnersOf(winner)
+	end
 	local guns: { [number]: string } = {}
 	for i, body in winners do
 		local line = lineOf(body)

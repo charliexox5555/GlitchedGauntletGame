@@ -828,6 +828,13 @@ end
 
 -- API ------------------------------------------------------------------------------
 
+local preloaded = false
+
+-- The clips and cues have been fetched (or the preload gave up); `play` waits a moment for it.
+function WinCutscene.isPreloaded(): boolean
+	return preloaded
+end
+
 function WinCutscene.preload()
 	task.spawn(function()
 		local list: { Instance } = {}
@@ -846,6 +853,7 @@ function WinCutscene.preload()
 		pcall(function()
 			ContentProvider:PreloadAsync(list)
 		end)
+		preloaded = true
 	end)
 end
 

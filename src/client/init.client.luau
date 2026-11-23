@@ -113,6 +113,7 @@ local function cleanUp()
 			and gui.Name ~= "ModState"
 			and gui.Name ~= "TouchGui"
 			and gui:GetAttribute("LobbyGui") ~= true
+			and gui:GetAttribute("KeepGui") ~= true
 		then
 			gui:Destroy()
 		end
