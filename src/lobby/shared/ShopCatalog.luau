@@ -143,13 +143,20 @@ ShopCatalog.BUNDLES = {
 		color = Color3.fromHex("2A6F6A"),
 		slot = "Featured",
 		tag = "EXCLUSIVE",
-		sub = "5 EXCLUSIVE SKINS",
+		sub = "5 GUNS + THE RUINED REAVER",
 		items = {
 			skin("RuinBlighted", "RUIN-BLIGHTED", "Vandal", "Exclusive"),
 			skin("RuinBlighted", "RUIN-BLIGHTED", "Spectre", "Exclusive"),
 			skin("RuinBlighted", "RUIN-BLIGHTED", "Ghost", "Exclusive"),
 			skin("RuinBlighted", "RUIN-BLIGHTED", "Guardian", "Exclusive"),
 			skin("RuinBlighted", "RUIN-BLIGHTED", "Operator", "Exclusive"),
+			{
+				kind = "Skin",
+				name = "RUINED REAVER",
+				gun = "Knife",
+				line = "RuinBlighted",
+				rarity = "Exclusive",
+			},
 		},
 	},
 	{

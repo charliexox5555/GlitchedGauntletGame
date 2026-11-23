@@ -294,3 +294,7 @@ ChatGPT made all 11 images from the [master prompt](../04%20Tech/Prompts/2026-11
 - Home preloads offer art, advances after four seconds on opening, and uses six seconds between subsequent slides. Pointer movement over the card arms the hover pause. The outgoing banner fades under the incoming one.
 - Backpack exposes OPEN 1 and OPEN 3 for a stack with at least three. The server consumes the requested quantity in a single write, gives distinct skins, and returns Tickets for exhausted case pools. The client plays one crate animation and pages through the three-case results using the existing reward panel. Shop purchase prices and throttling were retained.
 - Verified the offline art audit, Rojo build, targeted formatting and lint, and local harnesses for case grants and carousel lifecycle. Studio and mobile visuals, Roblox client asset delivery, and the integrated Backpack interaction still need playtesting after Rojo sync.
+
+### Ruined Reaver in the Ruin-Blighted bundle (2026-11-22)
+
+Ruined Reaver is the sixth item in the 999 Robux Ruin-Blighted bundle. The Shop card lists five guns plus Ruined Reaver, and uses the existing knife portrait on the sixth tile and in the reward reveal. A new bundle receipt grants `Knife/RuinBlighted` through the same catalog-driven receipt path as the five guns. The existing individual Knife price applies. Receipt history stores transaction IDs, so this catalog edit does not backfill old purchases.
