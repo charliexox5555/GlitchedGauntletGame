@@ -807,6 +807,8 @@ local function runMatch(): boolean
 	StatsService.reset()
 	humanSides = { false, false }
 	matchKey = HttpService:GenerateGUID(false)
+	-- clients read the mode (Beginner 2v2's red enemies: Controllers/BeginnerHighlightController)
+	MatchState.set("Mode", matchMode())
 	table.clear(participants)
 	table.clear(reported)
 	noteHumans()

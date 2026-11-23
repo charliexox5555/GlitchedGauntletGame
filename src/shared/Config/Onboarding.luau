@@ -46,6 +46,16 @@ return table.freeze({
 	FAV_LOBBY_DELAY = 2.5, -- seconds after the lobby is ready (after the HUD entrance)
 	FAV_MATCH_ON = 2, -- the in-match ask happens during this match (matches played + 1)
 
+	-- Beginner 2v2: every enemy drawn solid red on your screen until YOU first hit them (owner 2026-11-22;
+	-- RIVALS' red figures). Per viewer, for the whole match (a hit enemy stays plain after respawning).
+	RED_ENEMY = table.freeze({
+		fill = Color3.fromRGB(229, 38, 46),
+		fillTransparency = 0, -- solid, very visible
+		outline = Color3.fromRGB(120, 12, 18),
+		outlineTransparency = 0,
+		scan = 0.25, -- seconds between passes that pick up spawns and respawns
+	}),
+
 	-- OnboardingRequest token bucket { perSecond, burst }.
 	RATE = { 0.5, 4 },
 })

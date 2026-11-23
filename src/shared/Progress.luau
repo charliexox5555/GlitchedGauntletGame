@@ -185,11 +185,13 @@ function Progress.apply(p: Prog, r: Result, now: number): Gain
 		p.wins = math.min(p.wins + 1, p.matches)
 	end
 	p.kills = math.min(p.kills + math.max(math.floor(r.kills), 0), BIG)
-	if r.counts then
+	-- Wins add to the streak only against a real opponent (no farming bots); any loss or leave breaks it,
+	-- bots or not (owner 2026-11-22: losing must end the streak and offer the save).
+	if r.counts and r.won then
 		if p.vs.day ~= day(now) then
 			p.vs = { day = day(now), ids = {} }
 		end
-		if r.won then
+		do
 			-- Every real opponent under today's cap: the win adds to the streak.
 			local fresh = true
 			for _, id in r.opponents do
@@ -220,7 +222,9 @@ function Progress.apply(p: Prog, r: Result, now: number): Gain
 				p.streak = math.min(p.streak + 1, Config.STREAK.max)
 				p.best = math.max(p.best, p.streak)
 			end
-		elseif p.streak > 0 then
+		end
+	elseif not r.won then
+		if p.streak > 0 then
 			local live = Progress.offer(p, now)
 			if p.streak >= Config.SAVE.minStreak and (not live or p.streak >= live.value) then
 				p.lost = { value = p.streak, expires = now + Config.SAVE.seconds }
