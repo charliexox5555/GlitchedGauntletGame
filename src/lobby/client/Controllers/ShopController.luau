@@ -55,6 +55,7 @@ local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local Products = require(ReplicatedStorage.Shared.Config.Products)
 local Fx = require(script.Parent.Parent.Util.Fx)
+local OfferCarousel = require(script.Parent.Parent.Util.OfferCarousel)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
@@ -112,6 +113,17 @@ local counterShown = false -- starts off-screen (y -80); placeCounter brings it 
 local openCase: ShopCatalog.Case? = nil
 local resetClose: () -> () = function() end
 local openToken = 0
+local offerCarousel: { start: () -> (), stop: () -> (), refresh: () -> () }?
+local function updateOffers()
+	local carousel = offerCarousel
+	if carousel then
+		if isOpen and tab == "HOME" and not previewBundle then
+			carousel.start()
+		else
+			carousel.stop()
+		end
+	end
+end
 
 local tween = UiMotion.tween
 
@@ -795,6 +807,7 @@ end
 
 openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	previewBundle = bundle
+	updateOffers()
 	hideItemCard()
 	showPanel(nil)
 	-- the strip: one cell per item
@@ -907,6 +920,7 @@ local function closePreview()
 	pageTabs(false)
 	pages[PAGE_OF[tab]].Visible = true
 	scroll.ScrollingEnabled = true
+	updateOffers()
 	showCounter(scroll.CanvasPosition.Y < COUNTER_HIDE_AT)
 end
 
@@ -957,6 +971,7 @@ local function setTab(name: string, animate: boolean)
 	end
 	scroll.CanvasPosition = Vector2.zero
 	showCounter(true)
+	updateOffers()
 	if animate then
 		rise(pages[PAGE_OF[name]])
 	end
@@ -1478,6 +1493,7 @@ local function close()
 		return
 	end
 	isOpen = false
+	updateOffers()
 	openToken += 1
 	local my = openToken
 	closePreview()
@@ -1749,45 +1765,72 @@ function ShopController.init()
 			end,
 		})
 	end
-	local offer = scroll:FindFirstChild("Offer", true)
+	local offer = pages.Home:FindFirstChild("Offer", true)
 	local offerCard = offer and offer:FindFirstChild("Card")
-	if offerCard and offerCard:IsA("GuiButton") and starter then
-		local sub = offerCard:FindFirstChild("Sub")
-		if sub and sub:IsA("TextLabel") then
-			sub.Text =
-				`{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`
+	if offerCard and offerCard:IsA("GuiButton") then
+		local featured: { ShopCatalog.Bundle } = {}
+		local starterBundle = ShopCatalog.bundle("Starter")
+		if starter and starterBundle and not starterBundle.soon then
+			table.insert(featured, starterBundle)
 		end
-		plateAmount(offerCard, commas(starter.robux))
-		local back = offerCard:FindFirstChild("Art")
-		if back and back:IsA("ImageLabel") then
-			back.Image = ShopCatalog.ART.starterBanner
-			back.ScaleType = Enum.ScaleType.Crop
-			back.ImageColor3 = WHITE
+		for _, bundle in ShopCatalog.BUNDLES do
+			if
+				not bundle.soon
+				and #bundle.items > 0
+				and (
+					bundle.slot == "Featured"
+					or (Release.SHOP_FULL_LAYOUT and bundle.slot == "Limited")
+				)
+			then
+				table.insert(featured, bundle)
+			end
 		end
-		local offerHero = offerCard:FindFirstChild("Hero")
-		if offerHero and offerHero:IsA("ImageLabel") then
-			offerHero.Image = ShopCatalog.ART.coinStack
+		offerCard.Visible = #featured > 0
+		local title = child(offerCard, "Title") :: TextLabel
+		local sub = child(offerCard, "Sub") :: TextLabel
+		local back = child(offerCard, "Art") :: ImageLabel
+		local hero = child(offerCard, "Hero") :: ImageLabel
+		back.ScaleType = Enum.ScaleType.Crop
+		back.ImageColor3 = WHITE
+		local function renderSlide(index: number)
+			local bundle = featured[index]
+			if not bundle then
+				return
+			end
+			local isStarter = bundle.slot == "Starter"
+			title.Text = bundle.name
+			sub.Text = bundle.sub or ""
+			back.Image = bundle.banner or ""
+			hero.Image = if isStarter then ShopCatalog.ART.coinStack else bundle.hero or ""
+			local owned = if isStarter
+				then StateValues.get(player, "StarterBought") == true
+				else ownsAll(bundle)
+			plateOwned(offerCard, owned, commas(bundle.robux), "robux")
 		end
-		offerCard.Activated:Connect(buyStarter)
+		local carousel = OfferCarousel.new(offerCard, #featured, renderSlide, function(index)
+			local bundle = featured[index]
+			if bundle.slot == "Starter" then
+				buyStarter()
+			else
+				openBundle(bundle)
+			end
+		end, function()
+			return popupOpen ~= nil or not offerCard.Visible
+		end)
+		offerCarousel = carousel
+		table.insert(ownedChecks, carousel.refresh)
 	end
 	local starterRow = pages.Bundles:FindFirstChild("Bundle_Starter", true)
 	local starterCard = starterRow and starterRow:FindFirstChild("Card")
-	if starterCard and starterCard:IsA("GuiButton") then
+	if starter and starterCard and starterCard:IsA("GuiButton") then
 		starterCard.Activated:Connect(buyStarter)
-	end
-	if starter then
-		local cards: { Instance } = {}
-		if offerCard then
-			table.insert(cards, offerCard)
-		end
-		if starterCard then
-			table.insert(cards, starterCard)
-		end
 		table.insert(ownedChecks, function()
-			local bought = StateValues.get(player, "StarterBought") == true
-			for _, c in cards do
-				plateOwned(c, bought, commas(starter.robux), "robux")
-			end
+			plateOwned(
+				starterCard,
+				StateValues.get(player, "StarterBought") == true,
+				commas(starter.robux),
+				"robux"
+			)
 		end)
 	end
 	-- coin packs (Config/Products.PACKS, in Pack1..Pack6 order)
