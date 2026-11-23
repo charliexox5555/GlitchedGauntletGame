@@ -54,7 +54,8 @@ local function close(gui: ScreenGui, step: RBXScriptConnection)
 	end)
 end
 
-local function show(matchId: string)
+-- Shows the short loading screen with `text` until `finished(elapsed)` says so (or `maxTime`).
+local function show(text: string, finished: (elapsed: number) -> boolean, maxTime: number)
 	local template = ReplicatedFirst:FindFirstChild("DuelsLoading")
 	local playerGui = player:FindFirstChild("PlayerGui")
 	if not (template and template:IsA("ScreenGui") and playerGui) then
@@ -80,7 +81,7 @@ local function show(matchId: string)
 	end
 	local stage = canvas:FindFirstChild("Stage", true)
 	if stage and stage:IsA("TextLabel") then
-		stage.Text = LoadingConfig.stages.duel
+		stage.Text = text
 	end
 	local spinner = canvas:FindFirstChild("Spinner")
 	local stroke = spinner and spinner:FindFirstChildWhichIsA("UIStroke")
@@ -101,13 +102,7 @@ local function show(matchId: string)
 	task.spawn(function()
 		while mine == token do
 			local elapsed = os.clock() - started
-			local ready = player:GetAttribute("MatchScreensReady") == matchId
-			local gone = PlayZone.get(player) ~= "Match" or PlayZone.matchId(player) ~= matchId
-			if
-				gone
-				or elapsed >= LoadingConfig.duelMax
-				or (ready and elapsed >= LoadingConfig.duelMin)
-			then
+			if elapsed >= maxTime or finished(elapsed) then
 				break
 			end
 			task.wait(0.05)
@@ -118,14 +113,49 @@ local function show(matchId: string)
 	end)
 end
 
+-- Into a match (a pad duel, a hosted match): until its match screens are up.
+local function showDuel(matchId: string)
+	show(LoadingConfig.stages.duel, function(elapsed: number): boolean
+		local ready = player:GetAttribute("MatchScreensReady") == matchId
+		local gone = PlayZone.get(player) ~= "Match" or PlayZone.matchId(player) ~= matchId
+		return gone or (ready and elapsed >= LoadingConfig.duelMin)
+	end, LoadingConfig.duelMax)
+end
+
+-- Back to this server's lobby after a match (owner 2026-11-23: "go through the loading screen again just for that
+-- transition"): until the lobby character stands on streamed-in floor.
+local function showHome()
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	show(LoadingConfig.stages.home, function(elapsed: number): boolean
+		if PlayZone.get(player) == "Match" then
+			return true -- straight into another match: its own screen takes over
+		end
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if not (root and root:IsA("BasePart")) or elapsed < LoadingConfig.homeMin then
+			return false
+		end
+		params.FilterDescendantsInstances = { character :: Instance }
+		return workspace:Raycast(
+			root.Position,
+			Vector3.new(0, -LoadingConfig.groundProbe, 0),
+			params
+		) ~= nil
+	end, LoadingConfig.homeMax)
+end
+
 function DuelLoadingController.start()
 	local shownFor: string? = nil
 	local function refresh()
 		local id = PlayZone.matchId(player)
 		if PlayZone.get(player) == "Match" and id and id ~= shownFor then
 			shownFor = id
-			show(id)
+			showDuel(id)
 		elseif PlayZone.get(player) ~= "Match" then
+			if shownFor ~= nil and PlayZone.get(player) == "Lobby" then
+				showHome()
+			end
 			shownFor = nil
 		end
 	end
