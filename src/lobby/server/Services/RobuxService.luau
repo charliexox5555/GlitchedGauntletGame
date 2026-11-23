@@ -206,8 +206,17 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 		end
 		local item = bundle.items[b :: number]
 		local price = ShopCatalog.itemRobux(item)
-		local product = if price then Products.SKIN_BY_PRICE[price] else nil
-		if item.kind ~= "Skin" or not item.gun or not item.line or not product then
+		local product = if item.productId
+			then Products.BY_ID[item.productId]
+			elseif price then Products.SKIN_BY_PRICE[price]
+			else nil
+		if
+			item.kind ~= "Skin"
+			or not item.gun
+			or not item.line
+			or not product
+			or product.kind ~= "skin"
+		then
 			fail(player, "notSold")
 			return
 		end
@@ -215,7 +224,16 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 			fail(player, "owned")
 			return
 		end
-		promptSkin(player, product, item.gun, item.line, nil)
+		if item.productId then
+			local skin = product.skin
+			if not skin or skin.gun ~= item.gun or skin.line ~= item.line then
+				fail(player, "notSold")
+				return
+			end
+			prompt(player, product)
+		else
+			promptSkin(player, product, item.gun, item.line, nil)
+		end
 	elseif what == "daily" then
 		if typeof(a) ~= "number" or a ~= a or a ~= math.floor(a) or a < 1 or a > 16 then
 			reject("badArgs")
@@ -269,6 +287,21 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 	else
 		reject("badAction")
 	end
+end
+
+local function skinTarget(
+	data: PlayerData.Data,
+	product: Products.Product
+): (string?, string?, number?)
+	local skin = product.skin
+	if skin then
+		return skin.gun, skin.line, nil
+	end
+	local intent = data.buys.intents[tostring(product.id)]
+	if intent and intent.product == product.id then
+		return intent.gun, intent.line, intent.slot
+	end
+	return nil, nil, nil
 end
 
 -- The grant for one receipt, run inside the save write. Returns the toast line.
@@ -339,26 +372,27 @@ local function grant(data: PlayerData.Data, product: Products.Product, allowCase
 			return `You owned it all: +{compensation(product)} coins`
 		end
 		return `{product.name} is yours: equip it in the Locker`
-	else -- one skin: the saved intent says which
-		local key = tostring(product.id)
-		local intent = data.buys.intents[key]
-		data.buys.intents[key] = nil
-		if not intent or intent.product ~= product.id then
+	else -- one skin
+		local gun, line, slot = skinTarget(data, product)
+		if not product.skin then
+			data.buys.intents[tostring(product.id)] = nil
+		end
+		if not gun or not line then
 			addCoins(compensation(product))
 			return `+{compensation(product)} coins (we couldn't tell which skin)`
 		end
-		if not PlayerData.grantSkin(data, intent.gun, intent.line) then
+		if not PlayerData.grantSkin(data, gun, line) then
 			addCoins(compensation(product))
 			return `You already owned it: +{compensation(product)} coins`
 		end
-		local slot = intent.slot
 		if slot and data.daily.picks[slot] and not table.find(data.daily.bought, slot) then
 			local p = data.daily.picks[slot]
-			if p.gun == intent.gun and p.line == intent.line then
+			if p.gun == gun and p.line == line then
 				table.insert(data.daily.bought, slot)
 			end
 		end
-		return `{SkinCases.name(intent.gun, intent.line)} is yours: equip it in the Locker`
+		local name = if product.skin then product.name else SkinCases.name(gun, line)
+		return `{name} is yours: equip it in the Locker`
 	end
 end
 
@@ -392,9 +426,9 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 		end
 		gotGun, gotLine = nil, nil
 		if product.kind == "skin" then
-			local intent = data.buys.intents[tostring(product.id)]
-			if intent and not PlayerData.owns(data.skins, intent.gun, intent.line) then
-				gotGun, gotLine = intent.gun, intent.line
+			local gun, line = skinTarget(data, product)
+			if gun and line and not PlayerData.owns(data.skins, gun, line) then
+				gotGun, gotLine = gun, line
 			end
 		end
 		text = grant(data, product, allowCase)
@@ -432,7 +466,7 @@ function RobuxService.start()
 		function(userId: number, productId: number)
 			local p = Players:GetPlayerByUserId(userId)
 			local product = Products.BY_ID[productId]
-			if p and product and product.kind == "skin" then
+			if p and product and product.kind == "skin" and not product.skin then
 				skinPromptOpen[p] = nil
 			end
 		end

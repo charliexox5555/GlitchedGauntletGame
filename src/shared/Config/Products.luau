@@ -12,8 +12,8 @@
 --   kind "case"    `count` x `case` (a Config/Inventory item) for shop case `caseId`; only
 --                  prompted where paid random items are allowed (owner 2026-11-22: case
 --                  prices show Robux first, Tickets as the second option)
---   kind "skin"    one skin at this price; WHICH skin is the intent the server saved in
---                  the player's data before the prompt (daily shop slot / bundle item)
+--   kind "skin"    one skin from a fixed `skin` target or a saved purchase intent
+--                  (daily shop slot / bundle item sharing a price-based product)
 export type Kind = "coins" | "bundle" | "starter" | "skin" | "case"
 export type Product = {
 	id: number,
@@ -29,9 +29,18 @@ export type Product = {
 	count: number?,
 	caseId: string?,
 	bundle: string?,
+	skin: { gun: string, line: string }?,
 }
 
 local Products = {}
+
+Products.RUINED_REAVER = table.freeze({
+	id = 3735030099,
+	kind = "skin",
+	robux = 449,
+	name = "RUINED REAVER",
+	skin = table.freeze({ gun = "Knife", line = "RuinBlighted" }),
+}) :: Product
 
 Products.LIST = table.freeze({
 	-- coin packs, in the COINS tab's order (Pack1..Pack6)
@@ -176,7 +185,8 @@ Products.LIST = table.freeze({
 		caseId = "Knife",
 		count = 3,
 	}),
-	-- one skin, by price
+	Products.RUINED_REAVER,
+	-- shared skin products, by price
 	table.freeze({ id = 3734910801, kind = "skin", robux = 349, name = "WEAPON SKIN" }),
 	table.freeze({ id = 3734910821, kind = "skin", robux = 449, name = "WEAPON SKIN" }),
 	table.freeze({ id = 3734910842, kind = "skin", robux = 649, name = "WEAPON SKIN" }),
@@ -192,7 +202,7 @@ for _, p in Products.LIST do
 	Products.BY_ID[p.id] = p
 	if p.kind == "coins" then
 		table.insert(Products.PACKS, p)
-	elseif p.kind == "skin" then
+	elseif p.kind == "skin" and not p.skin then
 		Products.SKIN_BY_PRICE[p.robux] = p
 	elseif p.kind == "bundle" and p.bundle then
 		Products.BUNDLE[p.bundle] = p

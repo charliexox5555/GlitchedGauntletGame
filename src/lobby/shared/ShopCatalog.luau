@@ -20,6 +20,7 @@ export type Item = {
 	rarity: Rarity?,
 	weight: number?, -- cases only
 	robux: number?, -- its own price when sold alone (else ITEM_ROBUX by kind and rarity)
+	productId: number?, -- dedicated product when sold alone
 }
 
 export type Case = {
@@ -153,6 +154,7 @@ ShopCatalog.BUNDLES = {
 			{
 				kind = "Skin",
 				name = "RUINED REAVER",
+				productId = Products.RUINED_REAVER.id,
 				gun = "Knife",
 				line = "RuinBlighted",
 				rarity = "Exclusive",
@@ -218,6 +220,10 @@ ShopCatalog.ITEM_ROBUX = table.freeze({
 }) :: { [string]: { [string]: number } }
 
 function ShopCatalog.itemRobux(item: Item): number?
+	if item.productId then
+		local product = Products.BY_ID[item.productId]
+		return if product then product.robux else nil
+	end
 	if item.robux then
 		return item.robux
 	end

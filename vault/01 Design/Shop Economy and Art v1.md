@@ -297,4 +297,8 @@ ChatGPT made all 11 images from the [master prompt](../04%20Tech/Prompts/2026-11
 
 ### Ruined Reaver in the Ruin-Blighted bundle (2026-11-22)
 
-Ruined Reaver is the sixth item in the 999 Robux Ruin-Blighted bundle. The Shop card lists five guns plus Ruined Reaver, and uses the existing knife portrait on the sixth tile and in the reward reveal. A new bundle receipt grants `Knife/RuinBlighted` through the same catalog-driven receipt path as the five guns. The existing individual Knife price applies. Receipt history stores transaction IDs, so this catalog edit does not backfill old purchases.
+Ruined Reaver is the sixth item in the 999 Robux Ruin-Blighted bundle. The Shop card lists five guns plus Ruined Reaver, and uses the existing knife portrait on the sixth tile and in the reward reveal. A new bundle receipt grants `Knife/RuinBlighted` through the same catalog-driven receipt path as the five guns. Receipt history stores transaction IDs, so this catalog edit does not backfill old purchases.
+
+Ruined Reaver also has a dedicated 449 Robux developer product (`3735030099`) with its own Roblox product icon (`98157339938469`). Its bundle item prompts that product and the receipt grants `Knife/RuinBlighted` from the product ID. The 999 Robux bundle compares against 2,194 Robux separately (five guns at 349 Robux each and Ruined Reaver at 449 Robux).
+
+Verified the dedicated prompt, receipt grants and retries, ownership guard, and comparison total in a local Luau harness. The Rojo build passed. The updated Shop still needs to be published and tested in the Roblox client.
