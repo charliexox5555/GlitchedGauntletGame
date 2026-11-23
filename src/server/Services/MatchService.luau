@@ -32,6 +32,7 @@ local ModService = require(script.Parent.ModService)
 local BotService = require(script.Parent.BotService)
 local CharacterService = require(Globals.CharacterService)
 local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
+local AutoDifficulty = require(script.Parent.Parent.Bots.AutoDifficulty)
 local WeaponService = require(Globals.WeaponService)
 local LookStream = require(Globals.LookStream)
 local WeaponDamage = require(Globals.Weapon.Damage)
@@ -481,7 +482,42 @@ end
 
 -- Lobby matches: every listed player who isn't here gets a bot stand-in, and
 -- the rest of each side fills with bots.
+-- The bots' dynamic difficulty from this match's real players (Bots/AutoDifficulty): at the
+-- fill and at each round, with the score once the match is running.
+local function updateBotDifficulty(scores: { number }?)
+	local levels, streaks, mobile = {}, {}, 0
+	local teamsSeen: { [number]: boolean } = {}
+	for _, player in Players:GetPlayers() do
+		local team = Teams.of(player)
+		if team == 1 or team == 2 then
+			teamsSeen[team] = true
+			local level = StateValues.get(player, "Level")
+			local streak = StateValues.get(player, "WinStreak")
+			table.insert(levels, if typeof(level) == "number" then level else 1)
+			table.insert(streaks, if typeof(streak) == "number" then streak else 0)
+			if StateValues.get(player, "Device") == "Mobile" then
+				mobile += 1
+			end
+		end
+	end
+	local lead: number? = nil
+	if scores and teamsSeen[1] ~= teamsSeen[2] then
+		local mine = if teamsSeen[1] then 1 else 2
+		lead = scores[mine] - scores[3 - mine]
+	end
+	local plan = MatchPlan.current()
+	local name = AutoDifficulty.pick({
+		levels = levels,
+		mobile = mobile,
+		streaks = streaks,
+		mode = if plan then plan.mode else nil,
+		lead = lead,
+	})
+	BotService.setAuto(name)
+end
+
 local function fillSlots()
+	updateBotDifficulty(nil)
 	local plan = MatchPlan.current()
 	if not plan then
 		return
@@ -803,6 +839,7 @@ local function runMatch(): boolean
 		MatchState.set("Round", round)
 		MatchState.set("RoundWinner", nil)
 		StatsService.newRound()
+		updateBotDifficulty(scores)
 		setAllLocked(true)
 		MapService.setBarriers(true)
 		applyTakeovers()
@@ -816,6 +853,8 @@ local function runMatch(): boolean
 			runClock(Config.COUNTDOWN_TIME, forfeited)
 		end
 		if someoneOut() and not forfeited() then
+			-- someone died before the fight (fell while their map was still arriving): back in
+			spawnMissing()
 			runClock(Config.LATE_SPAWN_WAIT, function()
 				return not someoneOut() or forfeited()
 			end)

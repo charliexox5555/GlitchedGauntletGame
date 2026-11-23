@@ -31,6 +31,7 @@ local RUNNER = "MatchClientRunner"
 local LOBBY_MODE = "LobbyOnly" -- runner attribute: start only LOBBY_CONTROLLERS
 -- What runs for a player walking the lobby (their dependencies are loaded, not started).
 local LOBBY_CONTROLLERS: { [string]: boolean } = {
+	FloorHoldController = true, -- held still until floor arrives under a (re)spawn
 	AudioController = true,
 	CharacterFxController = true,
 	FootstepController = true,

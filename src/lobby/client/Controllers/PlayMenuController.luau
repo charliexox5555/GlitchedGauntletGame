@@ -8,8 +8,8 @@
 -- highlighted, onboarding 2026-11-22) asks the server to queue and closes the menu;
 -- SOON tiles (4V4, 5V5) only nudge. A tile is live when Lobby Config.MODE_BY_TILE
 -- names it (else its Studio "Live" attribute). While
--- you're searching, the bar at the top shows the mode, the bot-fill countdown,
--- the timer and a cancel button (anyone in a party can cancel; only the leader
+-- you're searching, the bar at the top shows the mode, "finding players" (no
+-- bot countdown since 2026-11-22), the timer and a cancel button (anyone in a party can cancel; only the leader
 -- starts). The server decides everything (Services/QueueService).
 -- Every device; Shared/UiLayout sizes both (their Fit scales).
 
@@ -416,11 +416,14 @@ end
 local function updateBar()
 	local elapsed = QueueState.elapsed()
 	barTimer.Text = clock(elapsed)
+	-- No bot countdown (owner 2026-11-22: players shouldn't be told who is a bot): the mode and a plain
+	-- "finding players" line, its dots stepping while it searches.
 	local mode = QueueState.label(QueueState.mode())
-	local left = QueueState.botFillAfter() - elapsed
-	barSub.Text = if left > 0
-		then string.format("%s  ·  BOTS FILL IN %s", mode, clock(left))
-		else string.format("%s  ·  FILLING WITH BOTS", mode)
+	barSub.Text = string.format(
+		"%s  ·  FINDING PLAYERS%s",
+		mode,
+		string.rep(".", math.floor(elapsed * 2) % 4)
+	)
 	barSpin.Rotation = (os.clock() * 220) % 360
 end
 

@@ -105,12 +105,16 @@ local function ownerFolder(): Instance
 	return made
 end
 
+-- This match's dynamic difficulty (BotService.setAuto from MatchService, Bots/AutoDifficulty).
+local autoName: string? = nil
+
 -- The difficulty a new bot starts on: the admin panel's server-wide pick
 -- (Workspace "AdminBotDifficulty", set only by the server's AdminService), else
--- Studio's BotDifficulty, else Config/Bots.DIFFICULTY.
+-- Studio's BotDifficulty, else the match's dynamic pick, else Config/Bots.DIFFICULTY.
 local function profile(): (BotsConfig.Profile, string)
 	local admin = StateValues.get(workspace, "AdminBotDifficulty")
 	local wanted = StateValues.get(workspace, "BotDifficulty")
+	local auto = autoName
 	local name = if typeof(admin) == "string" and BotsConfig.PROFILES[admin]
 		then admin
 		elseif
@@ -118,6 +122,7 @@ local function profile(): (BotsConfig.Profile, string)
 			and typeof(wanted) == "string"
 			and BotsConfig.PROFILES[wanted]
 		then wanted
+		elseif auto and BotsConfig.PROFILES[auto] then auto
 		else BotsConfig.DIFFICULTY
 	return BotsConfig.PROFILES[name], name
 end
@@ -729,6 +734,25 @@ end
 -- The match's API -----------------------------------------------------------------
 
 -- Adds `count` bots to `team`. Returns their keys.
+-- The match's dynamic difficulty (MatchService, Bots/AutoDifficulty): every bot the admin
+-- panel hasn't set by hand, and bots made later, play at `name`. An admin "all bots" pick
+-- (Workspace AdminBotDifficulty) wins over it.
+function BotService.setAuto(name: string)
+	if not BotsConfig.PROFILES[name] or autoName == name then
+		return
+	end
+	autoName = name
+	if typeof(StateValues.get(workspace, "AdminBotDifficulty")) == "string" then
+		return
+	end
+	for _, bot in bots do
+		if StateValues.get(bot.owner, "AdminDifficulty") == nil then
+			bot.profile = BotsConfig.PROFILES[name]
+			StateValues.set(bot.seat, "Difficulty", name)
+		end
+	end
+end
+
 function BotService.add(team: number, count: number): { any }
 	local keys = {}
 	for _ = 1, count do

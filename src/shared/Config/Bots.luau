@@ -203,6 +203,21 @@ local ORDER = { "Easy", "Normal", "Hard", "Insane", "Ultra" }
 return table.freeze({
 	PROFILES = profiles,
 	ORDER = table.freeze(ORDER),
+	-- Dynamic difficulty (Bots/AutoDifficulty; owner 2026-11-22: "default difficulty is still hard ... not dynamic
+	-- based on the player"). One difficulty for all of a match's bots, picked from its real players at the match
+	-- start and again each round; the admin panel overrides it. Never above Hard on its own.
+	AUTO = table.freeze({
+		steps = table.freeze({ "Easy", "Normal", "Hard" }),
+		-- the real players' average level: below `below` → that step (1 = Easy); above every row → Hard
+		levelSteps = table.freeze({
+			table.freeze({ below = 5, step = 1 }),
+			table.freeze({ below = 20, step = 2 }),
+		}),
+		beginnerMax = 1, -- Beginner 2v2 never goes above Easy (a first win likely, not free)
+		mobileShare = 0.5, -- this share of the real players on phones / tablets: one step easier
+		streakUp = 3, -- the players' average win streak at least this: one step harder
+		scoreMargin = 2, -- in the match, the real players' side ahead by this: one step harder; behind: easier
+	}),
 	DIFFICULTY = "Hard", -- testing default for every mode until difficulty selection is wired
 
 	-- Lobby → Match (vault/05 Production/Overnight 2026-11-04.md → contracts).

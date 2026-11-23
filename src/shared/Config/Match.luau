@@ -56,7 +56,11 @@ return table.freeze({
 	}),
 
 	ROUNDS_TO_WIN = 5,
-	LATE_SPAWN_WAIT = 3, -- seconds a slow spawn gets past the countdown
+	LATE_SPAWN_WAIT = 6, -- seconds a slow spawn gets past the countdown (3 until 2026-11-22: void spawns)
+	-- Floor hold (Controllers/FloorHoldController, owner 2026-11-22: "in a void ... every round ends right
+	-- away in a draw"): a fighter spawned before the map reached their screen is held still (root anchored on
+	-- their client) until floor shows up under them, for at most `max` seconds; `probe` studs down.
+	FLOOR_HOLD = table.freeze({ probe = 60, max = 15, check = 0.1 }),
 	MAX_EMPTY_ROUNDS = 3, -- rounds in a row with a side nobody could spawn on: the match ends
 	MAX_ROUND_ERRORS = 3, -- rounds in a row that stopped on a script error: the match ends on the score (MatchService)
 	KILL_DEPTH = 40, -- studs below a map's pivot that count as falling off (a map can set KillDepth)
