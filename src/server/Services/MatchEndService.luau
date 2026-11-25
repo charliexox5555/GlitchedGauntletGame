@@ -221,14 +221,16 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 		score2 = MatchState.get("Score2") or 0,
 		rounds = MatchState.getList("RoundHistory"),
 	})
-	MatchState.set("EndsAt", workspace:GetServerTimeNow() + E.time)
+	-- No rematch (a new player's in-server onboarding matches): a shorter screen, straight back to the lobby.
+	local screenTime = if rematchBroken then E.timeNoRematch else E.time
+	MatchState.set("EndsAt", workspace:GetServerTimeNow() + screenTime)
 	open = true
 	publish()
 	MatchState.set("Phase", "MatchEnd")
 
 	local rematch = false
 	local ok, err = pcall(function()
-		local deadline = os.clock() + E.time
+		local deadline = os.clock() + screenTime
 		while os.clock() < deadline do
 			-- Someone from the match left: no rematch with the same players.
 			for player in voters do

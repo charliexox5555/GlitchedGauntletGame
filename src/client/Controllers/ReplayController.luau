@@ -1256,7 +1256,9 @@ function ReplayController.start()
 	buildUi()
 	local function updateRecording()
 		local phase = MatchState.phase()
-		recording = not TestMode.isOn() and (phase == "Live" or phase == "SuddenDeath")
+		recording = R.enabled
+			and not TestMode.isOn()
+			and (phase == "Live" or phase == "SuddenDeath")
 		if phase == "Countdown" or phase == "Waiting" then
 			ReplayModFx.clear()
 		end

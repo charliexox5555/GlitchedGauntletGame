@@ -7,6 +7,9 @@
 return table.freeze({
 	-- The mode new players go to (Lobby Config.MODES id).
 	BEGINNER_MODE = "beginner",
+	-- A solo new player's first this-many Beginner matches start at once in this lobby server against bots
+	-- (QueueService → MatchHost), no queue and no teleport (owner 2026-11-25: match 2's queue lost 16%).
+	INSTANT_MATCHES = 2,
 	-- Beginner 2v2 is offered (Play menu tile, the server accepts it) below this level.
 	BEGINNER_MAX_LEVEL = 5,
 
@@ -37,6 +40,9 @@ return table.freeze({
 	CASE_CALLOUT_TEXT = "OPEN FREE CASE!",
 	EQUIP_CALLOUT_TEXT = "EQUIP SKIN!",
 	CASE_TOAST_TEXT = "YOU EARNED A FREE CASE! OPEN YOUR BACKPACK",
+	-- Back in the lobby with the free case unopened: the Backpack opens on it by itself after this many seconds,
+	-- once per session (owner 2026-11-25: 12.5% left between the hub and opening the Backpack).
+	CASE_AUTO_OPEN_DELAY = 1.5,
 
 	-- The bouncing "Join the queue to start playing!" bubble over PLAY: shown while
 	-- idle in the lobby with fewer matches played than this (RIVALS: ≤ 3 duels).

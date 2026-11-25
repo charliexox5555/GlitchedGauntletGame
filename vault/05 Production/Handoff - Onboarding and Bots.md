@@ -188,6 +188,21 @@ Built from Creator Hub ad funnel review (25.6% drop before First Draft, ~40% dro
 4. Returning to Lobby (`Matches == 1`): Backpack unlocks with badge `1` and `"OPEN FREE CASE!"` callout; opening Backpack pops `CaseStandard` with pulsing `OPEN 1` → reveal pulses `EQUIP` (or closing reveal guides Locker gun → skin → `EQUIP!`) → highlights `PLAY` bubble for Match 2 (`beginner` global queue in live).
 5. Set `Level >= 5` and open `PlayMenu`: verify `Beginner2v2` hides and `1v1–5v5` stretch cleanly across the full menu width. Also verify Shop opens straight to **DAILY** and scrolls down to **LOGIN REWARDS** when a daily claim is ready, and tapping Firewall (`LMB`) once sends it straight for full length.
 
+## First-match flow pass (2026-11-25)
+
+**Funnel read (owner screenshots, 2026-11-25).** Old flow, 323 players: queue → R1 draft −14% (fixed by the instant Match 0: 10/10 in the new funnel, small sample). The worst leaks were **between rounds**: R1 done → R2 live −18%, R3 done → R4 live −20%, against 6–10% during fights. Match 1 saved → hub −9%, hub → Backpack −12.5%, Match 2 queued → R1 live −16%. 13.9% reached Match 2 saved (new funnel: 36%, 11 players). Renaming a step in place mixes old and new players at that step number.
+
+**Changes:**
+- **No final-kill replay** (owner): last kill → `RoundEnd` for `MATCH_END_PAUSE = 2.5 s` (the fall plays out, the winner moves) → win cutscene. `REPLAY.enabled = false` (clients stop recording).
+- **Beginner gaps:** `SELECT_TIME_BY_MODE.beginner = 9` (R2+), `ROUND_END_TIME_BY_MODE.beginner = 2.5`. Studio: kill → next fight 11.7 s without locking in (was ~16–20 s).
+- **First match first to 3** (`FIRST_MATCH_ROUNDS_TO_WIN`; Beginner with every real player on 0 matches, read once at match start). Funnel steps 10–11 renamed "M1 R4 live/done or won" and sent at match end, so a 3-0 doesn't read as churn. Bots: Beginner already caps at Easy, the lowest step.
+- **Instant Match 2:** `Config/Onboarding.INSTANT_MATCHES = 2`: a solo new player's first two Beginner matches start in-server (`QueueService` → `MatchHost.startDuel`), counted by save or session (`instantUsed`). Match 2 still logs step 17.
+- **Results screen:** no-rematch matches `MATCH_END.timeNoRematch = 13 s` (8.15 s cutscene + results), was 20 s.
+- **Free case:** back in the lobby with it unopened, the Backpack opens on it after `CASE_AUTO_OPEN_DELAY = 1.5 s` (once a session, nothing else open, not searching).
+- **`MatchLeft` custom event** on a mid-match leave: value = round; fields = phase, "mine-theirs W/L/-", "first" or the mode. Read this before the next pacing change.
+
+**Verified:** stylua/selene/rojo build; Studio 1-round bot match (2.5 s RoundEnd → MatchEnd, no Replay phase, no errors) and a Beginner bot match (R2/R3 RoundEnd 2.6 s, Draft 6 s + 3-2-1). **Not testable on the owner's save:** first to 3, instant Match 2, Backpack auto-open, 13 s results. Check with a fresh account or in the live funnel.
+
 ## Matchmaking hangs, bot zero-damage & Firewall follow-up (2026-11-24)
 - **GlobalQueue & QueueService resilience:** Snapshotted `mine` ticket keys across `GlobalQueue.pollLoop` and `heartbeatLoop` yields so table updates never skip tickets; added retry backoff (`2, 4 s`) in `QueueService.writeTicket` and local fallback matching in `tick()` if an entry stays unticketed past `fillFor(info) + 5 s`. Added `QueueService` timeout auto-requeue (`recoverTimeout`, 45 s loop guard) so failed/timed-out queue launches notify and re-queue the party leader automatically.
 - **Cancel slow-loading matches & requeue everyone:** Added `Config/Match.LOAD_CANCEL_TIMEOUT = 22` and `MAP_LOAD_TIMEOUT = 15`, `MatchPlan.allWaived()`, `MatchEndService.cancelAndRequeue`, and `MatchService.cancelSlowLoad` (`Phase = "Cancelled"`). Live servers where `Arena` fails to load or present players stall waiting past the timeout cancel the match, send everyone back to the Lobby with `{ cancelled = true, requeue = mode }`, and `QueueService` auto-requeues them. Hardened `LoadingScreen` against slow `game:IsLoaded()` for hosted servers (`os.clock() + 6`), `"Cancelled"` phase exits, and late `PlayZone == "Match"` transitions.

@@ -214,6 +214,28 @@ local function tryCaseToast()
 	end
 end
 
+-- Back in the lobby with the free case unopened: open the Backpack on it (it selects the case itself), once
+-- per session, when nothing else is on screen and no search is running.
+local giftOpenTried = false
+local function tryOpenGift()
+	if giftOpenTried or not ready() or Router.current() ~= nil or not hasGiftCase() then
+		return
+	end
+	giftOpenTried = true
+	task.delay(OnbConfig.CASE_AUTO_OPEN_DELAY, function()
+		if
+			ready()
+			and Router.current() == nil
+			and hasGiftCase()
+			and QueueState.status() == "idle"
+		then
+			Router.open("Backpack")
+		else
+			giftOpenTried = false -- try again on the next change
+		end
+	end)
+end
+
 -- Back in the lobby after match 2 (or match 3 if declined): ask to favorite.
 local function tryFavorite()
 	if not ready() then
@@ -239,6 +261,7 @@ local function refresh()
 	apply()
 	tryAutoQueue()
 	tryCaseToast()
+	tryOpenGift()
 	tryFavorite()
 end
 

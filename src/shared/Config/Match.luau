@@ -109,6 +109,9 @@ return table.freeze({
 
 	ROUNDS_TO_WIN = 5,
 	ROUNDS_TO_WIN_BY_MODE = table.freeze({ beginner = 4 }) :: { [string]: number },
+	-- A player's very first match (Beginner, every real player on 0 matches): shorter still (owner 2026-11-25,
+	-- onboarding funnel: players left between rounds of match 1).
+	FIRST_MATCH_ROUNDS_TO_WIN = 3,
 	LATE_SPAWN_WAIT = 6, -- seconds a slow spawn gets past the countdown (3 until 2026-11-22: void spawns)
 	-- Seconds a player's own screen gets past the countdown to show their fighter (owner 2026-11-25: "camera in
 	-- the void, spectate the other bots for a second, and then finally load in"). The server can have the body while
@@ -132,6 +135,9 @@ return table.freeze({
 	-- 3-2-1 once everyone has locked in.
 	FIRST_SELECT_TIME = 22,
 	SELECT_TIME = 12,
+	-- Per mode, the select after round 1 (owner 2026-11-25: the gaps between rounds lost new players). Still skips
+	-- to the 3-2-1 once everyone has locked in.
+	SELECT_TIME_BY_MODE = table.freeze({ beginner = 9 }) :: { [string]: number },
 	COUNTDOWN_TIME = 3,
 	-- Spawn hold (vault/01 Design/Spawn Hold.md, 2026-11-16): through the select
 	-- and the 3-2-1 everyone stands at their spawn marker, can look but not
@@ -143,10 +149,17 @@ return table.freeze({
 	}),
 	ROUND_TIME = 50, -- then sudden death
 	ROUND_END_TIME = 4,
+	ROUND_END_TIME_BY_MODE = table.freeze({ beginner = 2.5 }) :: { [string]: number },
+	-- After the match's last kill (owner 2026-11-25: no final-kill replay): the loser's fall plays out and the
+	-- winner can move about for this long, then straight into the win cutscene (MatchEnd).
+	MATCH_END_PAUSE = 2.5,
 	-- The match-end screen (Services/MatchEndService): `time` seconds to pick
 	-- Rematch / Play Again / Leave, then everyone left goes to the Lobby.
 	MATCH_END = {
 		time = 20,
+		-- A match with no rematch (a new player's in-server onboarding matches): the 8.15 s win cutscene, then a
+		-- short look at the results before the lobby (owner 2026-11-25: the 20 s wait lost new players).
+		timeNoRematch = 13,
 		botRematchChance = 0.94,
 		botRematchDelay = { 0.8, 3 },
 		teleportAttempts = 3,
@@ -180,6 +193,9 @@ return table.freeze({
 	-- `beat`: seconds after the kill before the replay phase. `buffer`: seconds
 	-- each client keeps recorded, `rate`: frames per second.
 	REPLAY = {
+		-- Off (owner 2026-11-25): the match ends on a short beat and the win cutscene (MATCH_END_PAUSE); MatchService
+		-- no longer sends a replay, and clients don't record one. The player below stays for if it comes back.
+		enabled = false,
 		before = 2.9,
 		after = 0.55, -- seconds after the kill (the fall plays out; was 0.3)
 		slowFrom = 0.4,

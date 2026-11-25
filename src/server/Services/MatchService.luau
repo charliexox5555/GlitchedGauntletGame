@@ -35,8 +35,6 @@ local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
 local AutoDifficulty = require(script.Parent.Parent.Bots.AutoDifficulty)
 local WeaponService = require(Globals.WeaponService)
 local MovementGuard = require(Globals.MovementGuard)
-local LookStream = require(Globals.LookStream)
-local WeaponDamage = require(Globals.Weapon.Damage)
 local HealthService = require(Globals.HealthService)
 local Net = Context.net
 local ZoneService = require(script.Parent.ZoneService)
@@ -64,6 +62,7 @@ local SPAWN_TRIES = 4
 local SPAWN_BACKOFF = { 0.5, 1, 2 }
 local STREAM_WAIT = 6 -- seconds a spawn may wait for its area to stream to the player
 local spawning: { [Player]: boolean } = {}
+local firstMatch = false -- this match is a new player's first (isFirstMatch, set in runMatch)
 -- The body each player's own client last said is on its screen with floor under it (BodyReady).
 local bodyReady: { [Player]: Model } = {}
 local limiter = RateLimit.new(Config.RATE)
@@ -706,7 +705,9 @@ end
 -- The top-bar clock counts to the fight. Any round skips to the 3-2-1 once
 -- everyone has locked in.
 local function runDraft(round: number)
-	local total = if round == 1 then Config.FIRST_SELECT_TIME else Config.SELECT_TIME
+	local total = if round == 1
+		then Config.FIRST_SELECT_TIME
+		else Config.SELECT_TIME_BY_MODE[matchMode()] or Config.SELECT_TIME
 	local picking = math.max(total - Config.COUNTDOWN_TIME, 1)
 	local keys = seatKeys()
 	local now = workspace:GetServerTimeNow()
@@ -819,7 +820,27 @@ local function roundsToWin(): number
 	if RunService:IsStudio() and workspace:GetAttribute("QuickMatch") == true then
 		return 1
 	end
+	if firstMatch then
+		return Config.FIRST_MATCH_ROUNDS_TO_WIN
+	end
 	return Config.ROUNDS_TO_WIN_BY_MODE[matchMode()] or Config.ROUNDS_TO_WIN
+end
+
+-- A new player's very first match: Beginner, and every real player here has 0 matches saved. Read once at the
+-- match's start (runMatch) so a late joiner can't change the match's length.
+local function isFirstMatch(): boolean
+	if matchMode() ~= "beginner" then
+		return false
+	end
+	local any = false
+	for _, player in Players:GetPlayers() do
+		local matches = StateValues.get(player, "Matches")
+		if typeof(matches) ~= "number" or matches > 0 then
+			return false
+		end
+		any = true
+	end
+	return any
 end
 
 -- The bots' dynamic difficulty from this match's real players (Bots/AutoDifficulty): at the
@@ -957,6 +978,25 @@ local function onLeave(player: Player)
 			if typeof(score) == "number" then score else 0
 		)
 		Telemetry.mapLeftEarly(player, currentMapName, matchMode(), currentRound)
+		-- Where in the match they left (owner 2026-11-25, onboarding funnel): the phase, their score, the last
+		-- round's result, and whether this was their first match.
+		local theirs = MatchState.get(if leftTeam == 1 then "Score2" else "Score1")
+		local lastWinner = MatchState.get("RoundWinner")
+		Telemetry.matchLeft(
+			player,
+			currentRound,
+			tostring(MatchState.phase() or "?"),
+			string.format(
+				"%d-%d %s",
+				if typeof(score) == "number" then score else 0,
+				if typeof(theirs) == "number" then theirs else 0,
+				if lastWinner == leftTeam
+					then "W"
+					elseif typeof(lastWinner) == "number" and lastWinner ~= 0 then "L"
+					else "-"
+			),
+			if firstMatch then "first" else matchMode()
+		)
 	end
 	local wasPending = pendingTakeovers[player] ~= nil
 	pendingTakeovers[player] = nil
@@ -1023,78 +1063,6 @@ end
 -- Plays the final kill on every client (Controllers/ReplayController): the
 -- losing side's last fighter, if the round ended because that side was
 -- eliminated just now (no replay for a timeout or a health compare).
-local function playReplay(winner: number, eliminated: boolean)
-	local R = Config.REPLAY
-	local loser = if winner == 1 then 2 else 1
-	local down = lastDown[loser]
-	local now = workspace:GetServerTimeNow()
-	if not eliminated or not down or now - down.at > R.recentKill then
-		return
-	end
-	task.wait(R.beat)
-	if not down.body.Parent then
-		return -- they left during the beat
-	end
-	local startAt = workspace:GetServerTimeNow() + R.delay
-	local length = MatchState.replayLength()
-	-- The killer's view as the server recorded it (Services/LookStream: their
-	-- yaw / pitch, packed as f32 seconds from the kill + f32 yaw + f32 pitch),
-	-- how late their samples reach the server, and their hits (hit markers):
-	-- every client replays the same smooth aim. Clients fall back to their
-	-- own recording when these are missing.
-	-- Always first person: a gun (or knife) kill plays from the killer's
-	-- eyes; a fall, the zone or a Mod kill from the victim's. `pov` is that
-	-- fighter as the clients know them (a Player, or a bot's model).
-	local killer = lastKiller[down.body]
-	local from, to = down.at - R.before - 1, down.at + R.after + 0.5
-	local gunKill = false
-	if killer and killer.Parent then
-		for _, hit in WeaponDamage.hitsOf(killer, from, to) do
-			if hit.killed and hit.victim == down.body then
-				gunKill = hit.source == nil
-			end
-		end
-	end
-	local victimHolder: Instance = Players:GetPlayerFromCharacter(down.body) or down.body
-	local pov: Instance = if gunKill and killer then killer else victimHolder
-	local look: buffer? = nil
-	local samples = LookStream.window(pov, from, to)
-	if #samples >= 2 then
-		local b = buffer.create(#samples * 12)
-		for i, sample in samples do
-			local at = (i - 1) * 12
-			buffer.writef32(b, at, sample.t - down.at)
-			buffer.writef32(b, at + 4, sample.yaw)
-			buffer.writef32(b, at + 8, sample.pitch)
-		end
-		look = b
-	end
-	local lag = LookStream.lagOf(pov)
-	local function pack(list: { WeaponDamage.RecentHit }): { { [string]: any } }
-		local out: { { [string]: any } } = {}
-		for _, hit in list do
-			table.insert(out, {
-				dt = hit.t - down.at,
-				victim = hit.victim,
-				damage = hit.damage,
-				zone = hit.zone,
-				killed = hit.killed,
-				position = hit.position,
-				source = hit.source,
-				from = hit.from,
-			})
-		end
-		return out
-	end
-	-- The POV fighter's own hits (hit markers) and, from the victim's eyes,
-	-- the hits they took (damage arcs).
-	local hits = pack(WeaponDamage.hitsOf(pov, from, to))
-	local hurts = if pov == victimHolder then pack(WeaponDamage.hitsOn(down.body, from, to)) else {}
-	Net.event("Replay")
-		:FireAllClients(down.body, down.at, startAt, killer, look, lag, hits, pov, hurts)
-	setPhase("Replay", length)
-	task.wait(length)
-end
 
 -- The mode for Play Again ("1v1", "2v2", "3v3"): the Lobby plan's, else the
 -- bigger side's size.
@@ -1176,6 +1144,7 @@ local function runMatch(): boolean
 	if MatchPlan.current() then
 		fillSlots()
 	end
+	firstMatch = isFirstMatch()
 	inMatch = true
 	StatsService.reset()
 	humanSides = { false, false }
@@ -1386,16 +1355,18 @@ local function runMatch(): boolean
 		)
 		MatchState.setList("RoundHistory", roundHistory)
 		if winner ~= 0 and scores[winner] >= roundsToWin() then
+			-- No final-kill replay (owner 2026-11-25): a short beat on the last kill (the loser's fall plays
+			-- out, the winner can move about), then straight into the win cutscene (MatchEndService).
+			setPhase("RoundEnd", Config.MATCH_END_PAUSE)
+			BotService.setFighting(false, true)
+			runClock(Config.MATCH_END_PAUSE)
 			closeRound()
-			local ok, err = xpcall(playReplay, debug.traceback, winner, eliminated)
-			if not ok then
-				warn("[MatchService] final replay stopped:", err)
-			end
 			return "stop"
 		end
-		setPhase("RoundEnd", Config.ROUND_END_TIME)
+		local roundEnd = Config.ROUND_END_TIME_BY_MODE[matchMode()] or Config.ROUND_END_TIME
+		setPhase("RoundEnd", roundEnd)
 		BotService.setFighting(false, true)
-		runClock(Config.ROUND_END_TIME, forfeited)
+		runClock(roundEnd, forfeited)
 		closeRound()
 
 		if #Players:GetPlayers() == 0 then
@@ -1460,6 +1431,14 @@ local function runMatch(): boolean
 	BotService.setFighting(false)
 	local matchWinner = forfeitBy or (if scores[1] > scores[2] then 1 else 2)
 	MatchState.set("MatchWinner", matchWinner)
+	if firstMatch then
+		-- A first match is first to 3, so it can end before round 4: its funnel steps 10-11 ("M1 R4 ... or won")
+		-- fire for everyone still here (Telemetry.onboarding sends each step once).
+		for _, player in Players:GetPlayers() do
+			Telemetry.onboarding(player, 10)
+			Telemetry.onboarding(player, 11)
+		end
+	end
 	for userId, team in participants do
 		local player = Players:GetPlayerByUserId(userId)
 		local here = player ~= nil and Teams.of(player) == team
@@ -1705,6 +1684,7 @@ local function loop()
 		matchesPlayed += 1
 		local ok, result = xpcall(runMatch, debug.traceback)
 		inMatch = false
+		firstMatch = false
 		ZoneService.stop()
 		BotService.setFighting(false)
 		if #Players:GetPlayers() == 0 then

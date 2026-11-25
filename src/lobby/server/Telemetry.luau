@@ -19,8 +19,8 @@ local steps = {
 	"M1 R2 done",
 	"M1 R3 live",
 	"M1 R3 done",
-	"M1 R4 live",
-	"M1 R4 done",
+	"M1 R4 live or won", -- a first match is first to 3 (2026-11-25): a match that ends sooner counts here too
+	"M1 R4 done or won",
 	"Match 1 saved",
 	"Returned to hub",
 	"Backpack opened",
@@ -162,6 +162,21 @@ end
 function Telemetry.mapLeftEarly(player: Player, mapName: string, mode: string, round: number)
 	emit(function()
 		Analytics:LogCustomEvent(player, "MapLeftEarly", round, fields(mapName, mode))
+	end)
+end
+
+-- A player left mid-match (MatchService.onLeave): value = the round, fields = the phase they left in
+-- ("Draft", "Countdown", "Live", "RoundEnd", ...), their score "mine-theirs W/L/-" (the last round's result), and
+-- "first" for a new player's first match, else the mode. Shows which gap between fights loses players.
+function Telemetry.matchLeft(
+	player: Player,
+	round: number,
+	phase: string,
+	score: string,
+	kind: string
+)
+	emit(function()
+		Analytics:LogCustomEvent(player, "MatchLeft", round, fields(phase, score, kind))
 	end)
 end
 
