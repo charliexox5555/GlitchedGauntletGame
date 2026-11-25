@@ -7,7 +7,7 @@
 
 return table.freeze({
 	tips = table.freeze({
-		"DRAFT A NEW MOD EVERY ROUND",
+		"PICK A NEW POWER EVERY ROUND", -- PowerDuels (2026-11-25; was "DRAFT A NEW MOD EVERY ROUND")
 		"EVERY ROUND OPENS A NEW WEAPON TIER",
 		"YOUR PARTY QUEUES TOGETHER, ON ONE TEAM",
 		"THE SKINS YOU EQUIP IN THE LOCKER COME WITH YOU",
@@ -78,7 +78,7 @@ return table.freeze({
 
 	-- Sound, on SoundService.SettingsMusic (Settings MUSIC × MASTER). Licensed Creator Store audio (APMOfficial);
 	-- shortlist in the handoff note: the owner picks after the audition. These are the current picks.
-	sting = table.freeze({ id = "rbxassetid://9047207931", volume = 0.6, at = 0.21 }), -- "Outrunning - Hit"
+	sting = table.freeze({ id = "rbxassetid://9047207931", volume = 0.6, at = 0.235 }), -- "Outrunning - Hit" (on POWER's landing)
 	bed = table.freeze({
 		id = "rbxassetid://9042293789",
 		volume = 0.18,

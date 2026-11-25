@@ -4,8 +4,8 @@
 --  * Shows ReplicatedFirst.DuelsLoading (Studio-built, tools/studio/BuildDuelsLoading.luau), or takes over the copy
 --    Roblox showed during a teleport (MatchFoundController, or this script at a match's end) so nothing flashes.
 --  * Motion (v2.1, owner 2026-11-22: "longer" and "improved animation"): the diagonal slashes drift the whole time;
---    the brand band sweeps in; the Draft Duels two-beat reveal (vault/02 Art/Draft Duels Logo.md → Title motion)
---    with the sting on the lock-in beat over a quiet music bed; a shine crosses the title; the title floats while
+--    the brand band sweeps in; the PowerDuels reveal (2026-11-25, vault/02 Art/PowerDuels Logo.md: POWER from the
+--    upper left, then DUELS rises, then the sparks pop) with the sting on POWER's landing over a quiet music bed; a shine crosses the title; the title floats while
 --    it waits; the stage word slides up between stages; each of the four segments fills gold as its real stage
 --    finishes (the working one breathes); READY gets a second shine; the close zooms the title through and fades
 --    the backdrop while the blur clears.
@@ -108,6 +108,11 @@ local ticket = need(logo, "Ticket") :: ImageLabel
 local duels = need(logo, "Duels") :: ImageLabel
 local full = need(logo, "Full") :: ImageLabel
 local shine = need(logo, "Shine") :: ImageLabel
+-- Optional (PowerDuels, 2026-11-25): a copy built before the sparks has none.
+local sparksFound = logo:FindFirstChild("Sparks")
+local sparks: ImageLabel? = if sparksFound and sparksFound:IsA("ImageLabel")
+	then sparksFound
+	else nil
 local shineBand = need(shine, "Band") :: UIGradient
 local slash = need(canvas, "Slash") :: Frame
 local slashWipe = need(slash, "Wipe") :: UIGradient
@@ -184,6 +189,12 @@ local frame = RunService.RenderStepped:Connect(function(dt: number)
 		shine.Position = rest
 		full.Position = rest
 		ticket.Rotation = math.sin(t * motion("floatSpeed") * 0.75) * motion("swayDeg")
+		if sparks then
+			-- the sparks ride with the POWER badge and twinkle a little
+			sparks.Position = ticket.Position
+			sparks.Rotation = ticket.Rotation
+			sparks.ImageTransparency = 0.12 + 0.12 * math.sin(t * motion("floatSpeed") * 2.3)
+		end
 	end
 	local pulse = pipPulses[working]
 	if pulse then
@@ -290,14 +301,22 @@ local function hideLogo()
 	if reduced then
 		ticket.Visible, duels.Visible, full.Visible = false, false, true
 		full.ImageTransparency = 1
+		if sparks then
+			sparks.Visible = false -- the full mark holds the sparks
+		end
 	else
 		ticket.ImageTransparency, duels.ImageTransparency = 1, 1
+		if sparks then
+			sparks.ImageTransparency = 1
+		end
 		slashWipe.Offset = Vector2.new(-1, 0)
 	end
 end
 
--- The band sweeps in, then the two beats: DRAFT from the upper left (tilted, from 92%), the sting at the lock-in,
--- DUELS rising with a 2.5% punch; the whole title settles from 96%; a shine; then it floats.
+-- The band sweeps in, then the PowerDuels beats (art-source/ui/powerduels/powerduels-reveal.gif, times from the
+-- band's start + 0.12): POWER in from the upper left (tilted, from 92%) by 0.235 s with the sting on its landing;
+-- DUELS enters at 0.185 s and rises into place by 0.5 s with a small punch; the sparks pop from 0.34 s; the whole
+-- title settles from 96%; a shine; then it floats.
 local function reveal(sting: Sound?)
 	if reduced then
 		tween(full, 0.5, { ImageTransparency = 0 })
@@ -322,19 +341,19 @@ local function reveal(sting: Sound?)
 		end
 		tween(
 			ticket,
-			0.3,
+			0.235,
 			{ Position = REST, ImageTransparency = 0, Rotation = 0 },
 			Enum.EasingStyle.Back
 		)
 	end)
-	task.delay(0.12 + (if cfg.sting then cfg.sting.at else 0.21), function()
+	task.delay(0.12 + (if cfg.sting then cfg.sting.at else 0.235), function()
 		if sting then
 			sting:Play()
 		end
 	end)
 	duels.Position = UDim2.fromScale(0.5, 0.63)
-	task.delay(0.12 + 0.215, function()
-		tween(duels, 0.34, { Position = REST, ImageTransparency = 0 })
+	task.delay(0.12 + 0.185, function()
+		tween(duels, 0.315, { Position = REST, ImageTransparency = 0 })
 		if duelsPop then
 			duelsPop.Scale = 0.97
 			task.delay(0.14, function()
@@ -346,6 +365,19 @@ local function reveal(sting: Sound?)
 			end)
 		end
 	end)
+	local sp = sparks
+	if sp then
+		-- lihfolk-ignore: findfirstchild-chain (stored and nil-checked below)
+		local sparksPop = sp:FindFirstChild("Pop") :: UIScale?
+		task.delay(0.12 + 0.34, function()
+			sp.Position = REST
+			if sparksPop then
+				sparksPop.Scale = 0.7
+				tween(sparksPop, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+			end
+			tween(sp, 0.18, { ImageTransparency = 0 }, Enum.EasingStyle.Quad)
+		end)
+	end
 	task.delay(0.95, function()
 		sweepShine()
 		floatFrom = os.clock()
@@ -513,12 +545,20 @@ local function close(bed: Sound?)
 	local out = cfg.fadeOut or FALLBACK.fadeOut
 	floating = false
 	setWorking(0)
-	fadeAll(canvas, 0.25, 0, { [ticket] = true, [duels] = true, [full] = true, [shine] = true })
+	local titleImages = { ticket, duels, full, shine }
+	if sparks then
+		table.insert(titleImages, sparks)
+	end
+	local keep: { [Instance]: boolean } = {}
+	for _, image in titleImages do
+		keep[image] = true
+	end
+	fadeAll(canvas, 0.25, 0, keep)
 	if not reduced then
 		tween(logoPop, out * 0.6, { Scale = 1.1 }, QUINT, OUT)
 	end
 	-- The title is gone before the backdrop, so it never hangs over the world.
-	for _, image in { ticket, duels, full, shine } do
+	for _, image in titleImages do
 		tween(image, out * 0.55, { ImageTransparency = 1 }, Enum.EasingStyle.Quad, OUT)
 	end
 	if stripes then
@@ -599,7 +639,11 @@ end
 setWorking(1)
 -- The title and the config first (capped), so the reveal and its sting land together.
 task.spawn(function()
-	pcall(ContentProvider.PreloadAsync, ContentProvider, { ticket, duels, full, shine })
+	local title: { Instance } = { ticket, duels, full, shine }
+	if sparks then
+		table.insert(title, sparks)
+	end
+	pcall(ContentProvider.PreloadAsync, ContentProvider, title)
 end)
 waitFor(function()
 	return configReady

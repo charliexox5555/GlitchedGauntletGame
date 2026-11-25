@@ -7978,6 +7978,41 @@
   "type": "Decal",
   "uploaded": "2026-11-16 18:37:11"
  },
+ "art-source/ui/powerduels/ui/duels.png": {
+  "assetId": 120431138519485,
+  "imageId": 113740015524735,
+  "name": "GG PowerDuels duels",
+  "type": "Decal",
+  "uploaded": "2026-11-25 15:26:07"
+ },
+ "art-source/ui/powerduels/ui/full.png": {
+  "assetId": 139449726319345,
+  "imageId": 71296115628525,
+  "name": "GG PowerDuels full",
+  "type": "Decal",
+  "uploaded": "2026-11-25 15:26:09"
+ },
+ "art-source/ui/powerduels/ui/power.png": {
+  "assetId": 89151942774358,
+  "imageId": 108640302171695,
+  "name": "GG PowerDuels power",
+  "type": "Decal",
+  "uploaded": "2026-11-25 15:26:04"
+ },
+ "art-source/ui/powerduels/ui/shine-mask.png": {
+  "assetId": 106420837548370,
+  "imageId": 136775039864530,
+  "name": "GG PowerDuels shine-mask",
+  "type": "Decal",
+  "uploaded": "2026-11-25 15:26:12"
+ },
+ "art-source/ui/powerduels/ui/sparks.png": {
+  "assetId": 104639300067696,
+  "imageId": 90350576633615,
+  "name": "GG PowerDuels sparks",
+  "type": "Decal",
+  "uploaded": "2026-11-25 15:26:15"
+ },
  "art-source/ui/queue/upload/queue_1v1.png": {
   "assetId": 126703634563456,
   "name": "GG Queue tile 1v1",
