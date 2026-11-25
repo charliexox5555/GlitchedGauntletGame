@@ -118,7 +118,9 @@ return table.freeze({
 	-- a slow device hasn't got it yet; the client says so (BodyReady, Controllers/FloorHoldController) once its own
 	-- fighter is there with floor under it, and the fight waits for that. The select also won't skip early for it.
 	BODY_READY_WAIT = 12,
-	LOAD_CANCEL_TIMEOUT = 22, -- seconds a live waiting lobby may stall before cancelling & requeueing everyone
+	-- Seconds a live waiting match may stall before cancelling & requeueing everyone. 22 until 2026-11-25: a phone
+	-- still loading was cancelled (Config/Bots ALL_LOADING_TIMEOUT); a missing seat is filled by a bot long before.
+	LOAD_CANCEL_TIMEOUT = 45,
 	MAP_LOAD_TIMEOUT = 15, -- seconds initial map load may retry with players waiting before cancelling & requeueing
 	-- Floor hold (Controllers/FloorHoldController, owner 2026-11-22: "in a void ... every round ends right
 	-- away in a draw"): a fighter spawned before the map reached their screen is held still (root anchored on

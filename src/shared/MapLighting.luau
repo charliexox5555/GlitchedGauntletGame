@@ -44,6 +44,21 @@ local FX_CLASSES: { [string]: boolean } = {
 	BlurEffect = true,
 }
 local MAP_FX_ATTRIBUTE = "FromMap"
+-- Effects other scripts put in Lighting and take away themselves: never captured, suspended or cleared here.
+-- The loading screen's blur was captured, suspended by applyMatch, destroyed by the loading screen, and
+-- restore() then failed to put it back ("The Parent property of DuelsLoadingBlur is locked", ~270 live
+-- reports), leaving the lobby lighting half restored.
+local OWNED_ELSEWHERE: { [string]: boolean } = {
+	DuelsLoadingBlur = true,
+	MapVoteBlur = true,
+	ScopeBlur = true,
+	FirewallHazeBlur = true,
+	LobbyFoundBlur = true,
+}
+
+local function ours(child: Instance): boolean
+	return FX_CLASSES[child.ClassName] == true and not OWNED_ELSEWHERE[child.Name]
+end
 
 type Baseline = { props: { [string]: any }, fx: { [Instance]: boolean } }
 local original: Baseline? = nil
@@ -60,7 +75,7 @@ function MapLighting.capture()
 	end
 	local fx: { [Instance]: boolean } = {}
 	for _, child in Lighting:GetChildren() do
-		if FX_CLASSES[child.ClassName] then
+		if ours(child) then
 			fx[child] = true
 		end
 	end
@@ -116,12 +131,15 @@ function MapLighting.restore()
 		return
 	end
 	for _, child in Lighting:GetChildren() do
-		if FX_CLASSES[child.ClassName] and not base.fx[child] then
+		if ours(child) and not base.fx[child] then
 			child:Destroy()
 		end
 	end
 	for _, child in suspended do
-		child.Parent = Lighting
+		-- something else may have destroyed it meanwhile: its Parent is locked then
+		pcall(function()
+			child.Parent = Lighting
+		end)
 	end
 	setProperties(base.props)
 	table.clear(installed)

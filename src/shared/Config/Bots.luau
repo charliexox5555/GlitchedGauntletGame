@@ -231,6 +231,11 @@ return table.freeze({
 	-- that broke while loading must not hold everyone on the loading screen; it is dealt in when it catches up).
 	READY_TIMEOUT = 12,
 	READY_TIMEOUT_STUDIO = 15,
+	-- Seconds before a match where NO client has sent its ready signal is cancelled and everyone requeued
+	-- (MatchPlan.allWaived). A lone player on a phone is "every client": at READY_TIMEOUT (12 s) their match was
+	-- cancelled while they were still loading (live log 2026-11-24/25: "match load cancelled 12.5s ... all present
+	-- clients timed out waiting for MatchReady"). A client that is here is loading, not broken: give it time.
+	ALL_LOADING_TIMEOUT = 45,
 	-- Studio with no BotMatch attribute: a lone player still gets one bot.
 	STUDIO_SOLO_BOT = true,
 

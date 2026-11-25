@@ -229,9 +229,10 @@ function MatchPlan.allWaived(): boolean
 		return false
 	end
 	local studio = RunService:IsStudio()
+	-- Nobody ready at all: give a slow device far longer than one late seat gets (Config/Bots ALL_LOADING_TIMEOUT).
 	local readyTimeout = if studio
 		then BotsConfig.READY_TIMEOUT_STUDIO
-		else BotsConfig.READY_TIMEOUT
+		else BotsConfig.ALL_LOADING_TIMEOUT
 	local now = os.clock()
 	local ready, present, waived = 0, 0, 0
 	for team = 1, 2 do

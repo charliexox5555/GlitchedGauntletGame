@@ -43,6 +43,7 @@ local URGENT_LIVE = 10 -- the clock turns red this many seconds from the end
 local TICK_FROM: { [string]: number } = { Draft = 5, Countdown = 3, Live = 5 } -- the clock ticks (sound) from here
 local BOT_HEADSHOT = "rbxassetid://119185654291939" -- helmet stand-in for bots and test players
 local SHADOW_PAD = Vector2.new(56, 48) -- the soft shadow reaches this far past the bar
+local SCALE_STEP = 0.01 -- the fit scale only moves by more than this share (pixel rounding can't loop it)
 local VOTE_ORDER = 41 -- over the map vote screen (StarterGui.MapVote is 40)
 
 local WHITE = Color3.new(1, 1, 1)
@@ -251,7 +252,14 @@ function TopBarController.start()
 			local reserved = 0.46 * size.Y + 8
 			scale = math.min(0.115 * size.Y / 80, (size.X - 2 * reserved) / math.max(width, 1))
 		end
-		fit.Scale = math.min(scale, size.X * 0.96 / math.max(width, 1))
+		-- The bar's width is read back through this same scale, rounded to whole pixels, so every write
+		-- nudged the next read: on phones (where the scale depends on the width) it never settled, an
+		-- endless AbsoluteSize loop (live error log 2026-11-24/25: "exponential deferred event growth",
+		-- ~4,300 reports; lag and jumping UI on phones). A change under SCALE_STEP is that rounding: kept.
+		local target = math.min(scale, size.X * 0.96 / math.max(width, 1))
+		if math.abs(target - fit.Scale) > SCALE_STEP * fit.Scale then
+			fit.Scale = target
+		end
 		if infoLine and infoLine:IsA("GuiObject") then
 			infoLine.Visible = not phone
 		end
@@ -268,8 +276,12 @@ function TopBarController.start()
 
 	-- The soft shadow follows the bar's width (the bar grows with the team sizes).
 	local function fitShadow()
-		local width = bar.AbsoluteSize.X / math.max(fit.Scale, 0.01)
-		shadow.Size = UDim2.fromOffset(width + SHADOW_PAD.X, bar.Size.Y.Offset + SHADOW_PAD.Y)
+		local width = math.round(bar.AbsoluteSize.X / math.max(fit.Scale, 0.01))
+		local size = UDim2.fromOffset(width + SHADOW_PAD.X, bar.Size.Y.Offset + SHADOW_PAD.Y)
+		-- Only a real change (a fighter joined or left): pixel rounding through the scale isn't one.
+		if math.abs(shadow.Size.X.Offset - size.X.Offset) > 2 or shadow.Size.Y ~= size.Y then
+			shadow.Size = size
+		end
 	end
 	bar:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitShadow)
 	fitShadow()
