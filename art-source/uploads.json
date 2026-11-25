@@ -995,6 +995,210 @@
   "type": "Audio",
   "uploaded": "2026-11-22 19:09:38"
  },
+ "art-source/audio/riftforge/bundle_v1/RFO_cycle_01.wav": {
+  "assetId": 108236908299258,
+  "name": "RFO_cycle_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:53"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fireFar_01.wav": {
+  "assetId": 74381746243698,
+  "name": "RFO_fireFar_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:47"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fireFar_02.wav": {
+  "assetId": 83598260472819,
+  "name": "RFO_fireFar_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:50"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fireFar_v2_01.wav": {
+  "assetId": 72372525749855,
+  "name": "RFO_fireFar_v2_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 15:21:25"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fireFar_v2_02.wav": {
+  "assetId": 124871472598899,
+  "name": "RFO_fireFar_v2_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 15:21:27"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fire_01.wav": {
+  "assetId": 76937079407202,
+  "name": "RFO_fire_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:38"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fire_02.wav": {
+  "assetId": 127289961219807,
+  "name": "RFO_fire_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:41"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fire_03.wav": {
+  "assetId": 124111356063662,
+  "name": "RFO_fire_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:44"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fire_v2_01.wav": {
+  "assetId": 106750152238849,
+  "name": "RFO_fire_v2_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 15:21:16"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fire_v2_02.wav": {
+  "assetId": 92863609384743,
+  "name": "RFO_fire_v2_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 15:21:19"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFO_fire_v2_03.wav": {
+  "assetId": 128195765633410,
+  "name": "RFO_fire_v2_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 15:21:22"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSH_close_01.wav": {
+  "assetId": 80737955432934,
+  "name": "RFSH_close_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:24:08"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSH_fireFar_01.wav": {
+  "assetId": 137391894628511,
+  "name": "RFSH_fireFar_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:58"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSH_fireFar_02.wav": {
+  "assetId": 112337804199359,
+  "name": "RFSH_fireFar_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:24:01"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSH_fire_01.wav": {
+  "assetId": 140005707592671,
+  "name": "RFSH_fire_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:48"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSH_fire_02.wav": {
+  "assetId": 90720186995399,
+  "name": "RFSH_fire_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:51"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSH_fire_03.wav": {
+  "assetId": 134653890511064,
+  "name": "RFSH_fire_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:55"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSH_open_01.wav": {
+  "assetId": 133654666518579,
+  "name": "RFSH_open_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:24:04"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fireFar_01.wav": {
+  "assetId": 124171999940163,
+  "name": "RFSP_fireFar_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:42"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fireFar_02.wav": {
+  "assetId": 113288280915890,
+  "name": "RFSP_fireFar_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:45"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fireFirst_01.wav": {
+  "assetId": 117587664589131,
+  "name": "RFSP_fireFirst_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:30"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fireLast_01.wav": {
+  "assetId": 76158530726142,
+  "name": "RFSP_fireLast_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:36"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fire_01.wav": {
+  "assetId": 133132975923406,
+  "name": "RFSP_fire_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:17"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fire_02.wav": {
+  "assetId": 101361773446875,
+  "name": "RFSP_fire_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:21"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fire_03.wav": {
+  "assetId": 106905992440750,
+  "name": "RFSP_fire_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:24"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_fire_04.wav": {
+  "assetId": 130245102264788,
+  "name": "RFSP_fire_04",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:27"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFSP_tail_01.wav": {
+  "assetId": 78841569688920,
+  "name": "RFSP_tail_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:39"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFS_close_01.wav": {
+  "assetId": 96289120295281,
+  "name": "RFS_close_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:14"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFS_fireFar_01.wav": {
+  "assetId": 92361008551560,
+  "name": "RFS_fireFar_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:05"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFS_fireFar_02.wav": {
+  "assetId": 80820011268912,
+  "name": "RFS_fireFar_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:08"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFS_fire_01.wav": {
+  "assetId": 107805861739571,
+  "name": "RFS_fire_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:56"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFS_fire_02.wav": {
+  "assetId": 111624459866618,
+  "name": "RFS_fire_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:22:59"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFS_fire_03.wav": {
+  "assetId": 72603322369711,
+  "name": "RFS_fire_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:02"
+ },
+ "art-source/audio/riftforge/bundle_v1/RFS_open_01.wav": {
+  "assetId": 131794987546006,
+  "name": "RFS_open_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 02:23:11"
+ },
  "art-source/audio/riftforge/draw.wav": {
   "assetId": 90227173578556,
   "name": "riftforge_draw",
@@ -1006,6 +1210,96 @@
   "name": "riftforge_inspect",
   "type": "Audio",
   "uploaded": "2026-11-22 23:35:09"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_draw_01.wav": {
+  "assetId": 91226163896573,
+  "name": "RFK_draw_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:27:42"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_fire_01.wav": {
+  "assetId": 112272737195710,
+  "name": "RFK_fire_v2_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:55:05"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_fire_02.wav": {
+  "assetId": 101854944223968,
+  "name": "RFK_fire_v2_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:55:07"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_fire_03.wav": {
+  "assetId": 119488762657946,
+  "name": "RFK_fire_v2_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:55:10"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_heavy_01.wav": {
+  "assetId": 86530047848301,
+  "name": "RFK_heavy_v2_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:55:13"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_heavy_02.wav": {
+  "assetId": 104522922218474,
+  "name": "RFK_heavy_v2_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:55:16"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_hitBody_01.wav": {
+  "assetId": 103506424041835,
+  "name": "RFK_hitBody_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:00"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_hitBody_02.wav": {
+  "assetId": 113464592264369,
+  "name": "RFK_hitBody_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:06"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_hitBody_03.wav": {
+  "assetId": 77550242975025,
+  "name": "RFK_hitBody_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:12"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_hitWall_01.wav": {
+  "assetId": 95566695459194,
+  "name": "RFK_hitWall_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:03"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_hitWall_02.wav": {
+  "assetId": 83183424408170,
+  "name": "RFK_hitWall_02",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:09"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_hitWall_03.wav": {
+  "assetId": 80405049793005,
+  "name": "RFK_hitWall_03",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:15"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_inspectLock_01.wav": {
+  "assetId": 110938431483904,
+  "name": "RFK_inspectLock_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:23"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_inspectSpin_01.wav": {
+  "assetId": 127484923836746,
+  "name": "RFK_inspectTurn_v2_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:55:19"
+ },
+ "art-source/audio/riftforge/knife_v1/RFK_inspectStart_01.wav": {
+  "assetId": 125781035730958,
+  "name": "RFK_inspectStart_01",
+  "type": "Audio",
+  "uploaded": "2026-11-23 01:28:18"
  },
  "art-source/audio/riftforge/mag_out.wav": {
   "assetId": 122264997590799,
@@ -4169,6 +4463,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:51:49"
  },
+ "art-source/ui/collection-emblems/emblem_riftforge.png": {
+  "assetId": 118977310971468,
+  "name": "emblem_riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:34:26"
+ },
  "art-source/ui/collection-emblems/emblem_rootglass.png": {
   "assetId": 115919299886550,
   "name": "GG emblem rootglass",
@@ -5044,6 +5344,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:50:37"
  },
+ "art-source/ui/item-icons/Knife_Riftforge.png": {
+  "assetId": 105728587303892,
+  "name": "icon_Knife_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:34:31"
+ },
  "art-source/ui/item-icons/Knife_Rootglass.png": {
   "assetId": 139632038171866,
   "name": "GG Knife Rootglass Locker HD",
@@ -5308,6 +5614,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:51:13"
  },
+ "art-source/ui/item-icons/Operator_Riftforge.png": {
+  "assetId": 90713204120519,
+  "name": "icon_Operator_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:34:34"
+ },
  "art-source/ui/item-icons/Operator_Rootglass.png": {
   "assetId": 72325208333064,
   "name": "GG Operator Rootglass Locker HD",
@@ -5477,10 +5789,10 @@
   "uploaded": "2026-11-22 22:51:20"
  },
  "art-source/ui/item-icons/Phantom_Riftforge.png": {
-  "assetId": 70816903311620,
-  "name": "Icon_Phantom_Riftforge_v01",
+  "assetId": 123566411885898,
+  "name": "icon_Phantom_Riftforge",
   "type": "Decal",
-  "uploaded": "2026-11-22 23:33:20"
+  "uploaded": "2026-11-23 15:34:29"
  },
  "art-source/ui/item-icons/Phantom_Rootglass.png": {
   "assetId": 93123117115536,
@@ -5553,6 +5865,12 @@
   "name": "GG Sheriff Redline Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:51:26"
+ },
+ "art-source/ui/item-icons/Sheriff_Riftforge.png": {
+  "assetId": 70569162409663,
+  "name": "icon_Sheriff_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:34:40"
  },
  "art-source/ui/item-icons/Sheriff_Rootglass.png": {
   "assetId": 111808546840889,
@@ -5644,6 +5962,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:51:34"
  },
+ "art-source/ui/item-icons/Shorty_Riftforge.png": {
+  "assetId": 103736212325313,
+  "name": "icon_Shorty_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:34:52"
+ },
  "art-source/ui/item-icons/Shorty_Rootglass.png": {
   "assetId": 139964614225091,
   "name": "GG Shorty Rootglass Locker HD",
@@ -5721,6 +6045,12 @@
   "name": "GG Spectre Redline Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:51:36"
+ },
+ "art-source/ui/item-icons/Spectre_Riftforge.png": {
+  "assetId": 119820790255712,
+  "name": "icon_Spectre_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:34:46"
  },
  "art-source/ui/item-icons/Spectre_Rootglass.png": {
   "assetId": 110574095823138,
@@ -6538,6 +6868,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:13"
  },
+ "art-source/ui/item-portraits/Knife_Riftforge.png": {
+  "assetId": 108086266421353,
+  "name": "portrait_Knife_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:34:58"
+ },
  "art-source/ui/item-portraits/Knife_Rootglass.png": {
   "assetId": 98138111987615,
   "name": "GG Shop HD Knife Rootglass",
@@ -6790,6 +7126,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:22"
  },
+ "art-source/ui/item-portraits/Operator_Riftforge.png": {
+  "assetId": 96695777897015,
+  "name": "portrait_Operator_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:35:01"
+ },
  "art-source/ui/item-portraits/Operator_Rootglass.png": {
   "assetId": 94812035811319,
   "name": "GG Shop HD Operator Rootglass",
@@ -6953,10 +7295,10 @@
   "uploaded": "2026-11-22 22:09:31"
  },
  "art-source/ui/item-portraits/Phantom_Riftforge.png": {
-  "assetId": 105333922822109,
-  "name": "Portrait_Phantom_Riftforge_v01",
+  "assetId": 75025272607632,
+  "name": "portrait_Phantom_Riftforge",
   "type": "Decal",
-  "uploaded": "2026-11-22 23:40:05"
+  "uploaded": "2026-11-23 15:34:55"
  },
  "art-source/ui/item-portraits/Phantom_Rootglass.png": {
   "assetId": 83513726050021,
@@ -7023,6 +7365,12 @@
   "name": "GG Shop HD Sheriff Redline",
   "type": "Image",
   "uploaded": "2026-11-22 22:09:38"
+ },
+ "art-source/ui/item-portraits/Sheriff_Riftforge.png": {
+  "assetId": 87012155406754,
+  "name": "portrait_Sheriff_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:35:07"
  },
  "art-source/ui/item-portraits/Sheriff_Rootglass.png": {
   "assetId": 106665248656426,
@@ -7108,6 +7456,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:41"
  },
+ "art-source/ui/item-portraits/Shorty_Riftforge.png": {
+  "assetId": 91514435001090,
+  "name": "portrait_Shorty_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:35:15"
+ },
  "art-source/ui/item-portraits/Shorty_Rootglass.png": {
   "assetId": 138152181613411,
   "name": "GG Shop HD Shorty Rootglass",
@@ -7179,6 +7533,12 @@
   "name": "GG Shop HD Spectre Redline",
   "type": "Image",
   "uploaded": "2026-11-22 22:09:42"
+ },
+ "art-source/ui/item-portraits/Spectre_Riftforge.png": {
+  "assetId": 102862307458305,
+  "name": "portrait_Spectre_Riftforge",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:35:09"
  },
  "art-source/ui/item-portraits/Spectre_Rootglass.png": {
   "assetId": 134831135443873,
@@ -7467,6 +7827,150 @@
   "name": "GG Map Vote Whitebox",
   "type": "Decal",
   "uploaded": "2026-11-16 18:36:32"
+ },
+ "art-source/ui/mapvote/release-v2/Arena.jpg": {
+  "assetId": 135559409509990,
+  "name": "Draft Duels Arena Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:27"
+ },
+ "art-source/ui/mapvote/release-v2/BigArena.jpg": {
+  "assetId": 102197545033494,
+  "name": "Draft Duels BigArena Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:30"
+ },
+ "art-source/ui/mapvote/release-v2/CanyonOutpost.jpg": {
+  "assetId": 124512283416094,
+  "name": "Draft Duels CanyonOutpost Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:59"
+ },
+ "art-source/ui/mapvote/release-v2/Dockyard.jpg": {
+  "assetId": 116561770833734,
+  "name": "Draft Duels Dockyard Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:41"
+ },
+ "art-source/ui/mapvote/release-v2/Foundry4.jpg": {
+  "assetId": 109134810432116,
+  "name": "Draft Duels Foundry4 Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:56"
+ },
+ "art-source/ui/mapvote/release-v2/Greenhouse4.jpg": {
+  "assetId": 140089281796805,
+  "name": "Draft Duels Greenhouse4 Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:50"
+ },
+ "art-source/ui/mapvote/release-v2/Metro4.jpg": {
+  "assetId": 73931590449016,
+  "name": "Draft Duels Metro4 Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:13:11"
+ },
+ "art-source/ui/mapvote/release-v2/OldTown4.jpg": {
+  "assetId": 130871840153803,
+  "name": "Draft Duels OldTown4 Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:13:05"
+ },
+ "art-source/ui/mapvote/release-v2/Pier.jpg": {
+  "assetId": 74268298459543,
+  "name": "Draft Duels Pier Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:33"
+ },
+ "art-source/ui/mapvote/release-v2/Rooftops4.jpg": {
+  "assetId": 107050271027026,
+  "name": "Draft Duels Rooftops4 Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:47"
+ },
+ "art-source/ui/mapvote/release-v2/Snowpeak4.jpg": {
+  "assetId": 110283376465536,
+  "name": "Draft Duels Snowpeak4 Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:44"
+ },
+ "art-source/ui/mapvote/release-v2/Wharf.jpg": {
+  "assetId": 135994046087100,
+  "name": "Draft Duels Wharf Map Preview",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:12:39"
+ },
+ "art-source/ui/mapvote/release/Arena.jpg": {
+  "assetId": 72666456244041,
+  "name": "Draft Duels Map Vote Arena",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:25"
+ },
+ "art-source/ui/mapvote/release/BigArena.jpg": {
+  "assetId": 91811614979021,
+  "name": "Draft Duels Map Vote BigArena",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:31"
+ },
+ "art-source/ui/mapvote/release/CanyonOutpost.jpg": {
+  "assetId": 73537168604085,
+  "name": "Draft Duels Map Vote CanyonOutpost",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:34"
+ },
+ "art-source/ui/mapvote/release/Dockyard.jpg": {
+  "assetId": 117118553352305,
+  "name": "Draft Duels Map Vote Dockyard",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:37"
+ },
+ "art-source/ui/mapvote/release/Foundry4.jpg": {
+  "assetId": 118484703761220,
+  "name": "Draft Duels Map Vote Foundry4",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:40"
+ },
+ "art-source/ui/mapvote/release/Greenhouse4.jpg": {
+  "assetId": 90844780463279,
+  "name": "Draft Duels Map Vote Greenhouse4",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:43"
+ },
+ "art-source/ui/mapvote/release/Metro4.jpg": {
+  "assetId": 83355076179447,
+  "name": "Draft Duels Map Vote Metro4",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:46"
+ },
+ "art-source/ui/mapvote/release/OldTown4.jpg": {
+  "assetId": 82765359613767,
+  "name": "Draft Duels Map Vote OldTown4",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:49"
+ },
+ "art-source/ui/mapvote/release/Pier.jpg": {
+  "assetId": 130320115334827,
+  "name": "Draft Duels Map Vote Pier",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:52"
+ },
+ "art-source/ui/mapvote/release/Rooftops4.jpg": {
+  "assetId": 130847348810408,
+  "name": "Draft Duels Map Vote Rooftops4",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:46:55"
+ },
+ "art-source/ui/mapvote/release/Snowpeak4.jpg": {
+  "assetId": 114387018701857,
+  "name": "Draft Duels Map Vote Snowpeak4",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:47:01"
+ },
+ "art-source/ui/mapvote/release/Wharf.jpg": {
+  "assetId": 108677163914503,
+  "name": "Draft Duels Map Vote Wharf",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:47:05"
  },
  "art-source/ui/mapvote/stripes.png": {
   "assetId": 123196519179273,
@@ -8687,6 +9191,78 @@
   "type": "Decal",
   "uploaded": "2026-11-15 23:39:28"
  },
+ "art-source/weapons/Skins/Riftforge/Knife/v01/Knife_Riftforge_RobloxFlat.fbx": {
+  "assetId": 73624391071814,
+  "name": "Knife_Riftforge_v01",
+  "type": "Model",
+  "uploaded": "2026-11-23 01:25:43"
+ },
+ "art-source/weapons/Skins/Riftforge/Knife/v01/review/Knife_Riftforge_v01_icon.png": {
+  "assetId": 78200888477494,
+  "name": "Knife_Riftforge_v01_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 01:25:46"
+ },
+ "art-source/weapons/Skins/Riftforge/Knife/v01/review/Knife_Riftforge_v01_portrait.png": {
+  "assetId": 115798051674657,
+  "name": "Knife_Riftforge_v01_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 01:25:52"
+ },
+ "art-source/weapons/Skins/Riftforge/Knife/v02/Knife_Riftforge_RobloxFlat.fbx": {
+  "assetId": 90667664011299,
+  "name": "Knife_Riftforge_v02",
+  "type": "Model",
+  "uploaded": "2026-11-23 15:01:15"
+ },
+ "art-source/weapons/Skins/Riftforge/Knife/v02/review/Knife_Riftforge_v02_icon.png": {
+  "assetId": 137769548249225,
+  "name": "Knife_Riftforge_v02_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:01:18"
+ },
+ "art-source/weapons/Skins/Riftforge/Knife/v02/review/Knife_Riftforge_v02_portrait.png": {
+  "assetId": 131439880735176,
+  "name": "Knife_Riftforge_v02_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:01:24"
+ },
+ "art-source/weapons/Skins/Riftforge/Operator/v01/Operator_Riftforge_RobloxFlat.fbx": {
+  "assetId": 115958390642958,
+  "name": "Operator_Riftforge_v01",
+  "type": "Model",
+  "uploaded": "2026-11-23 02:10:19"
+ },
+ "art-source/weapons/Skins/Riftforge/Operator/v01/review/Operator_Riftforge_v01_icon.png": {
+  "assetId": 113014905228825,
+  "name": "Operator_Riftforge_v01_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:10:22"
+ },
+ "art-source/weapons/Skins/Riftforge/Operator/v01/review/Operator_Riftforge_v01_portrait.png": {
+  "assetId": 97970606816208,
+  "name": "Operator_Riftforge_v01_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:10:28"
+ },
+ "art-source/weapons/Skins/Riftforge/Operator/v02/Operator_Riftforge_RobloxFlat.fbx": {
+  "assetId": 78485979448282,
+  "name": "Operator_Riftforge_v02",
+  "type": "Model",
+  "uploaded": "2026-11-23 15:04:19"
+ },
+ "art-source/weapons/Skins/Riftforge/Operator/v02/review/Operator_Riftforge_v02_icon.png": {
+  "assetId": 74981390120953,
+  "name": "Operator_Riftforge_v02_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:04:22"
+ },
+ "art-source/weapons/Skins/Riftforge/Operator/v02/review/Operator_Riftforge_v02_portrait.png": {
+  "assetId": 81283253963146,
+  "name": "Operator_Riftforge_v02_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:04:28"
+ },
  "art-source/weapons/Skins/Riftforge/Phantom/v01/Phantom_Riftforge_RobloxFlat.fbx": {
   "assetId": 121905212656688,
   "name": "Phantom_Riftforge_v01_Flat",
@@ -8710,6 +9286,114 @@
   "name": "Phantom_Riftforge_v02_portrait",
   "type": "Decal",
   "uploaded": "2026-11-23 00:07:41"
+ },
+ "art-source/weapons/Skins/Riftforge/Sheriff/v01/Sheriff_Riftforge_RobloxFlat.fbx": {
+  "assetId": 139579450192253,
+  "name": "Sheriff_Riftforge_v01",
+  "type": "Model",
+  "uploaded": "2026-11-23 02:12:56"
+ },
+ "art-source/weapons/Skins/Riftforge/Sheriff/v01/review/Sheriff_Riftforge_v01_icon.png": {
+  "assetId": 72156259954051,
+  "name": "Sheriff_Riftforge_v01_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:12:59"
+ },
+ "art-source/weapons/Skins/Riftforge/Sheriff/v01/review/Sheriff_Riftforge_v01_portrait.png": {
+  "assetId": 126281517682016,
+  "name": "Sheriff_Riftforge_v01_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:13:06"
+ },
+ "art-source/weapons/Skins/Riftforge/Sheriff/v02/Sheriff_Riftforge_RobloxFlat.fbx": {
+  "assetId": 100990772562350,
+  "name": "Sheriff_Riftforge_v02",
+  "type": "Model",
+  "uploaded": "2026-11-23 15:15:30"
+ },
+ "art-source/weapons/Skins/Riftforge/Sheriff/v02/review/Sheriff_Riftforge_v02_icon.png": {
+  "assetId": 105197700450456,
+  "name": "Sheriff_Riftforge_v02_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:15:32"
+ },
+ "art-source/weapons/Skins/Riftforge/Sheriff/v02/review/Sheriff_Riftforge_v02_portrait.png": {
+  "assetId": 100538103304298,
+  "name": "Sheriff_Riftforge_v02_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:15:38"
+ },
+ "art-source/weapons/Skins/Riftforge/Shorty/v01/Shorty_Riftforge_RobloxFlat.fbx": {
+  "assetId": 72080392589558,
+  "name": "Shorty_Riftforge_v01",
+  "type": "Model",
+  "uploaded": "2026-11-23 02:16:44"
+ },
+ "art-source/weapons/Skins/Riftforge/Shorty/v01/review/Shorty_Riftforge_v01_icon.png": {
+  "assetId": 75298328370500,
+  "name": "Shorty_Riftforge_v01_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:16:46"
+ },
+ "art-source/weapons/Skins/Riftforge/Shorty/v01/review/Shorty_Riftforge_v01_portrait.png": {
+  "assetId": 110409106217999,
+  "name": "Shorty_Riftforge_v01_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:16:52"
+ },
+ "art-source/weapons/Skins/Riftforge/Shorty/v02/Shorty_Riftforge_RobloxFlat.fbx": {
+  "assetId": 138803858428966,
+  "name": "Shorty_Riftforge_v02",
+  "type": "Model",
+  "uploaded": "2026-11-23 15:17:14"
+ },
+ "art-source/weapons/Skins/Riftforge/Shorty/v02/review/Shorty_Riftforge_v02_icon.png": {
+  "assetId": 126031170215130,
+  "name": "Shorty_Riftforge_v02_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:17:16"
+ },
+ "art-source/weapons/Skins/Riftforge/Shorty/v02/review/Shorty_Riftforge_v02_portrait.png": {
+  "assetId": 85603439413679,
+  "name": "Shorty_Riftforge_v02_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:17:22"
+ },
+ "art-source/weapons/Skins/Riftforge/Spectre/v01/Spectre_Riftforge_RobloxFlat.fbx": {
+  "assetId": 90505640126145,
+  "name": "Spectre_Riftforge_v01",
+  "type": "Model",
+  "uploaded": "2026-11-23 02:15:09"
+ },
+ "art-source/weapons/Skins/Riftforge/Spectre/v01/review/Spectre_Riftforge_v01_icon.png": {
+  "assetId": 97754696031235,
+  "name": "Spectre_Riftforge_v01_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:15:12"
+ },
+ "art-source/weapons/Skins/Riftforge/Spectre/v01/review/Spectre_Riftforge_v01_portrait.png": {
+  "assetId": 99008652379453,
+  "name": "Spectre_Riftforge_v01_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 02:15:19"
+ },
+ "art-source/weapons/Skins/Riftforge/Spectre/v02/Spectre_Riftforge_RobloxFlat.fbx": {
+  "assetId": 76397216899972,
+  "name": "Spectre_Riftforge_v02",
+  "type": "Model",
+  "uploaded": "2026-11-23 15:15:49"
+ },
+ "art-source/weapons/Skins/Riftforge/Spectre/v02/review/Spectre_Riftforge_v02_icon.png": {
+  "assetId": 71587698095508,
+  "name": "Spectre_Riftforge_v02_icon",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:15:52"
+ },
+ "art-source/weapons/Skins/Riftforge/Spectre/v02/review/Spectre_Riftforge_v02_portrait.png": {
+  "assetId": 114866195704004,
+  "name": "Spectre_Riftforge_v02_portrait",
+  "type": "Decal",
+  "uploaded": "2026-11-23 15:15:59"
  },
  "art-source/weapons/Skins/RuinBlighted/Ghost/v03/Ghost_RuinBlighted_RobloxFlat.fbx": {
   "assetId": 102346201351206,

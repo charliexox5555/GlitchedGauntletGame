@@ -104,3 +104,6 @@ vault/05 Production/Playtests/*vs RIVALS*
 art-source/audio/tempest/vandal_v2/
 art-source/audio/slipframe/
 art-source/audio/tempest/line_v1/
+# Riftforge bundle and knife sounds: built from ProPack + Sonniss GDC 2016 (licensed, no redistribution); asset ids are in art-source/uploads.json
+art-source/audio/riftforge/bundle_v1/
+art-source/audio/riftforge/knife_v1/
