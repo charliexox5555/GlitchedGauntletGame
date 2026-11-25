@@ -1,6 +1,6 @@
 # Mobile controls: concept (2026-11-22)
 
-**Status (2026-11-22):** the real touch controls are built (v1, below) and tested in Studio. Waiting on the owner's phone playtest; then the layout editor.
+**Status (2026-11-25):** built and on the owner's phone; the stick and button pass is [below](#stick-and-button-pass-2026-11-25) (fixed stick base, analog speed, hit slop). Waiting on the owner's next phone test.
 **Owner brief (2026-11-22):** custom, good-looking touch UI with icons, similar to RIVALS (custom jump button and everything), changed where our game needs it. **On mobile, ADS and sprint are always toggles** (no hold option).
 
 Read first: [Rivals Mobile UI](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md) (video study + the 2026-11-22 Studio read of their editor), [UI Theme v4 Soft Edge](UI%20Theme%20v4%20Soft%20Edge.md) §6-7, [UI Architecture](../04%20Tech/UI%20Architecture.md) (layers, Touch layer), LihFolk *Mobile Button Layout Editor*, *Touch Gestures*, *Input - UserInputService and ContextActionService*.
@@ -239,7 +239,7 @@ Owner: "yes go ahead"; health = "the simple bar like in the mockup" (the old pan
 ## Fixes after the owner's phone review (2026-11-22)
 - **Look-through:** the buttons don't take touches (`Interactable = false`), so Roblox's camera turns with a touch that starts on Fire or a Mod; TouchController hit-tests the touch itself (circles 20% bigger than drawn) and fires the actions. The stick zone still blocks the camera.
 - **Highlight:** a held button shows a lit plate (`3B4454`) and presses to 0.94.
-- **Stick:** it follows the thumb past 1.6× its ring, so changing direction answers at once.
+- **Stick:** it follows the thumb past 1.6× its ring, so changing direction answers at once. *(Removed 2026-11-25: easing back read as reversing.)*
 - **Auto Sprint** (Settings, default on): the Sprint button and the stick's lock hint hide.
 - **Aim:** hidden on guns with `noAds`. On guns with `noAds` + `altFire` (Classic, Knife) it holds the alt fire, their right click.
 - **Inspect row:** placed from `GuiService.TopbarInset`, which is the free space between Roblox's buttons (Min.X = the right edge of Roblox's left buttons). The first version read it backwards and Inspect landed mid-screen.
@@ -262,6 +262,17 @@ The owner reported buttons that felt unresponsive or stuck, the inspect and tab 
 - **Test tools:** GUNS, TEST and SKINS (Studio and test mode only) sit in a row under it, away from the knife and fire buttons.
 - **Key chips:** no keyboard hints on touch anywhere (`Shared/InputGlyphs`).
 - **Match end:** 1.6× on phones, with the winner cards placed from the real canvas.
+
+## Stick and button pass (2026-11-25)
+Owner on a phone: "you can pull it so far so then it just follows you and then if you try to slow down it ends up going backwards if you pulled too far." Study: [RIVALS Mobile Controls](../03%20Research/Rivals%20Reference/Mobile%20Controls.md) (their stick is Roblox's dynamic thumbstick: the base stays put).
+- **Stick base stays where the thumb landed** for the whole touch (the follow from 2026-11-22 is gone). Past the ring the nub sits on its edge and the move is full speed that way; easing back slows down; only crossing the start point turns you around. Numbers in `Config/TouchControls` `STICK`: dead zone 0.08, full speed at 0.55 of the ring radius, linear in between, sprint lock unchanged.
+- **Real analog speed:** `Humanoid.MoveDirection` is always unit length (measured), so a half-pushed stick used to run at full speed. The movement sim now scales idle / walk / run / crouch speed by the push (`Simulation/Movement` `setOwnPush`); the auto run needs a push of `Movement.TOUCH_RUN_PUSH = 0.6` and builds from the walk. Keys and pads are unchanged (push 1).
+- **Stick under the thumb:** `InputObject.Position` and `AbsolutePosition` share one space (both start under the top bar, measured). We added `GetGuiInset` on top, so the stick was drawn 58 px below the thumb and the Mod cancel zone test was off by the same.
+- **Hit slop:** the nearest combat circle within 12 px of the touch (`HIT_SLOP`), by circle maths; inside overlapping square boxes the nearest circle wins. It replaced 16 extra GUI queries on every touch that missed (most camera swipes).
+- **Camera through buttons** (setting, default on) now means Fire, Aim and the Mods only (`CAMERA_THROUGH`). Jump, Slide, Reload, slots and the rest keep their touch, so tapping them never jerks the view (RIVALS: every button keeps its touch). `ModAltButton` no longer fires twice (an old `Activated` hook).
+- **Jump:** the touch Jump asks `MovementController.requestJump`, so it gets the jump buffer and coyote time like Space.
+- **Studio check** (phone layout, `ForceTouchUI`, 1v1 bot match, mouse as the finger): base lands on the thumb; pulled 500 px right it stays put at full speed; easing back walk speed falls 15.6 → 0.1 studs/s and reverses only past the start; a press 7 px outside Fire fires, 22 px outside doesn't; Jump from the button leaves the ground; combat gaps ≥ 8 px at phone scale.
+- **Not checked:** a real phone (multi-touch, thumb feel), camera sink on Jump with a real swipe (Studio's mouse can't pan the touch camera), tablets.
 
 ## 7. Build steps (after picks)
 1. Icon sheet (SVG) → owner review → upload.

@@ -6,6 +6,7 @@
 - [Maps and Lobby](Maps%20and%20Lobby.md): map file convention, per-map numbers (size, spawns, cover, heights, sightlines), what makes them play well, the lobby hub and queue pads.
 - [UI and Client](UI%20and%20Client.md): how the UI is stored and routed, motion numbers, 9-slice and font use, phones, client architecture.
 - [Body, Viewmodel, Guns and VFX](Body%2C%20Viewmodel%2C%20Guns%20and%20VFX.md): the third-person body (own R15 avatar + hand IK from the viewmodel), viewmodel springs, the gun attachment contract, ability models, VFX layer recipes.
+- [Mobile Controls](Mobile%20Controls.md): the touch stick (Roblox's dynamic thumbstick, fixed base), auto sprint, button hit test and touch handling, phone layout numbers (2026-11-25).
 - Earlier RIVALS studies: [UI References](../UI%20References/00%20UI%20References.md) (video study of the live UI), the LihFolk case study `vault/LihFolk/32 Case Studies of Top Roblox Games/Case Study - Rivals.md`.
 
 ## Sources (open in Studio)
