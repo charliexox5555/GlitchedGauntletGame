@@ -982,6 +982,13 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 			d.CanQuery = false
 			d.CanTouch = false
 			d.CastShadow = false
+			-- No Glass on a camera gun (owner 2026-11-25): the scope lens showed as a reflective circle in the
+			-- middle of the gun, and Roblox doesn't draw see-through things behind Glass, so the Firewall
+			-- and Frost Wall vanished behind it. Same colour, flat.
+			if d.Material == Enum.Material.Glass then
+				d.Material = Enum.Material.SmoothPlastic
+				d.Reflectance = 0
+			end
 		end
 	end
 	local aim = attachment(m, "AimPoint")

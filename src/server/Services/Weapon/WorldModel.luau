@@ -71,6 +71,11 @@ local function holdModel(
 			d.CanQuery = false
 			d.CanTouch = false
 			d.Massless = true
+			-- No Glass on a held gun: see-through things behind Glass (Mod walls) don't draw (ViewmodelController).
+			if d.Material == Enum.Material.Glass then
+				d.Material = Enum.Material.SmoothPlastic
+				d.Reflectance = 0
+			end
 		end
 	end
 	local grip = Instance.new("Motor6D")

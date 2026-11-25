@@ -197,9 +197,12 @@ function SkinPreview.apply(model: Model)
 			continue
 		end
 		part.Color = source.Color
-		part.Material = source.Material
+		-- Never Glass on a worn gun (owner 2026-11-25): a reflective lens circle, and see-through Mod walls
+		-- behind Glass don't draw. Same colour, flat (also ViewmodelController / Weapon/WorldModel builds).
+		local glass = source.Material == Enum.Material.Glass
+		part.Material = if glass then Enum.Material.SmoothPlastic else source.Material
 		part.MaterialVariant = source.MaterialVariant
-		part.Reflectance = source.Reflectance
+		part.Reflectance = if glass then 0 else source.Reflectance
 		part.TextureID = source.TextureID
 		for _, child in part:GetChildren() do
 			if child:IsA("SurfaceAppearance") then
