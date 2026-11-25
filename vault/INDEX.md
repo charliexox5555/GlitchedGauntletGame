@@ -224,3 +224,4 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [2026-11-21 Tempest-Strike Vandal Hold](05%20Production/Playtests/2026-11-21%20Tempest-Strike%20Vandal%20Hold.md): first-person hold, ADS and inspect check of the installed hero; AssetData row fix
 - [2026-11-21 Slipframe Guardian](05%20Production/Playtests/2026-11-21%20Slipframe%20Guardian.md): Match Studio hold, ADS, inspect reveal, firing, reload seat and interruption checks
 - `05 Production/Performance and Loading Audit 2026-11-26.md` (4): phone lag root cause (TopBar Fit fight with UiLayout), fixes, ranked loading and per-frame backlog
+- `05 Production/Fantasy and Retention Plan 2026-11-25.md` (12): live funnel break points (R1 fight, match 1 end, match 2, ad click→play), why the fantasy doesn't land, name options, ranked fixes and targets, sources
