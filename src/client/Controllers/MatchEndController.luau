@@ -58,6 +58,7 @@ type Results = {
 	score1: number,
 	score2: number,
 	rounds: { string },
+	gift: boolean?, -- a new player's first match: a free Starter Case waits in the lobby
 }
 
 local summary: { Line } = {}
@@ -204,6 +205,7 @@ local function screenData(results: Results): MatchEndScreen.Data
 		allies = allies,
 		enemies = enemies,
 		build = build,
+		gift = results.gift == true,
 	}
 end
 

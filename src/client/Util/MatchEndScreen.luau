@@ -43,6 +43,7 @@ export type Data = {
 	allies: { RowData },
 	enemies: { RowData },
 	build: { { id: string, level: string } },
+	gift: boolean?, -- a new player's first match: the main button sends them to their free case (Leave)
 }
 
 export type PlateData = { model: Model, name: string, ally: boolean, mvp: boolean }
@@ -94,6 +95,8 @@ type State = {
 	plateConn: RBXScriptConnection?,
 	cards: { Instance },
 	token: number,
+	gift: boolean, -- this screen's main button is OPEN FREE CASE (Data.gift)
+	rematchRow: GuiObject?,
 }
 
 local state: State? = nil
@@ -383,6 +386,8 @@ local function bind(gui: ScreenGui)
 		plateConn = nil,
 		cards = {},
 		token = 0,
+		gift = false,
+		rematchRow = nil,
 	}
 	-- A fit canvas: Shared/UiLayout sizes it per device; the shadows follow.
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
@@ -390,7 +395,9 @@ local function bind(gui: ScreenGui)
 	end)
 	hookButton(s, "PlayAgain", child(child(right, "PlayAgain"), "Button"))
 	local choices = child(right, "Choices") :: Frame
-	hookButton(s, "Rematch", child(child(choices, "Rematch"), "Button"))
+	local rematchRow = child(choices, "Rematch") :: Instance
+	s.rematchRow = if rematchRow:IsA("GuiObject") then rematchRow else nil
+	hookButton(s, "Rematch", child(rematchRow, "Button"))
 	hookButton(s, "Leave", child(child(choices, "Leave"), "Button"))
 	gui.Enabled = false
 	state = s
@@ -417,6 +424,12 @@ function MatchEndScreen.show(d: Data, onChoice: (name: string) -> ())
 		return
 	end
 	s.onChoice = onChoice
+	-- A new player's first match (owner 2026-11-25: a quarter left at match 1's end): no dead REMATCH, and the
+	-- main button is OPEN FREE CASE, which takes them to the lobby where the Backpack opens on it.
+	s.gift = d.gift == true
+	if s.rematchRow then
+		s.rematchRow.Visible = not s.gift
+	end
 	fillResult(s, d)
 	fillRounds(s, d.rounds)
 	local rows = fillBoard(s, d)
@@ -450,7 +463,8 @@ function MatchEndScreen.press(name: string)
 	tween(pop, 0.25, { Scale = 1 })
 	local fn = s.onChoice
 	if fn then
-		fn(name)
+		-- the free-case screen: every way forward is the lobby, where the case is
+		fn(if s.gift then "Leave" else name)
 	end
 end
 
@@ -490,7 +504,10 @@ function MatchEndScreen.refresh(
 		local on = name == picked
 		local label = child(b, "Label") :: TextLabel
 		if name == "PlayAgain" then
-			label.Text = if on then "JOINING…" else "PLAY AGAIN"
+			label.Text = if s.gift
+				then (if picked == "Leave" then "OPENING…" else "OPEN FREE CASE")
+				elseif on then "JOINING…"
+				else "PLAY AGAIN"
 		else
 			b.BackgroundColor3 = if on then NAVY_HI else NAVY
 			label.TextColor3 = if on then GOLD else WHITE

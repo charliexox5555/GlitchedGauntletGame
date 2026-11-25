@@ -20,7 +20,6 @@ local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local RunService = game:GetService("RunService")
 
-local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
@@ -88,14 +87,9 @@ local function clockText(seconds: number): string
 	return string.format("%d:%02d", math.floor(whole / 60), whole % 60)
 end
 
+-- An onboarding match deals later phases early (MatchState.phaseFor).
 local function tierName(round: number): string
-	local found = Config.PHASES[1]
-	for _, p in Config.PHASES do
-		if round >= p.fromRound then
-			found = p
-		end
-	end
-	return string.upper(found.name)
+	return string.upper(MatchState.phaseFor(round).name)
 end
 
 local function myTeam(): number

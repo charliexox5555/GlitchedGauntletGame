@@ -109,11 +109,17 @@ local SECTIONS: { [SectionId]: { name: string, order: number } } = {
 
 local CASES: { [string]: Case } = {
 	Standard = { tiers = { Common = 85, Rare = 15 }, sections = { Guns = 100 } },
+	-- Gift only, never sold (owner 2026-11-25): the free case for finishing match 1 always holds an Epic gun skin.
+	-- Its own case so the odds it shows are the odds it rolls (Config/Onboarding FIRST_MATCH_CASE).
+	Starter = { tiers = { Epic = 100 }, sections = { Guns = 100 } },
 	Elite = { tiers = { Common = 50, Rare = 40, Epic = 10 }, sections = { Guns = 100 } },
 	-- Legendary drops out (and Rare / Epic scale up) until a Legendary line exists
 	Apex = { tiers = { Rare = 65, Epic = 30, Legendary = 5 }, sections = { Guns = 97, Knives = 3 } },
 	-- 2% total for Legendary when all tiers are eligible, split among unowned Legendary knives.
-	Knife = { tiers = { Common = 48, Rare = 35, Epic = 15, Legendary = 2 }, sections = { Knives = 100 } },
+	Knife = {
+		tiers = { Common = 48, Rare = 35, Epic = 15, Legendary = 2 },
+		sections = { Knives = 100 },
+	},
 }
 
 return table.freeze({

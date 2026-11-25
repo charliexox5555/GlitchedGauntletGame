@@ -51,6 +51,7 @@ export type Seat = {
 	gun: string?,
 	ability: string?, -- a new ability's id, or an upgrade card's key
 	glitchBonus: number, -- the glitch chance's rise since the last glitch card
+	glitchDealt: boolean, -- this seat has been dealt a glitch card this match (the onboarding guarantee)
 	locked: boolean,
 	dealtRound: number, -- the round this seat was last dealt cards for (0: never)
 	offer: MatchState.DraftOffer?,
@@ -169,14 +170,9 @@ local function rollNewMod(pool: { string }, previous: string?): string?
 	return picked
 end
 
+-- An onboarding match (MatchState "PhaseBoost") deals later phases early (MatchState.phaseFor).
 function DraftService.phaseFor(round: number): Config.Phase
-	local found = Config.PHASES[1]
-	for _, p in Config.PHASES do
-		if round >= p.fromRound then
-			found = p
-		end
-	end
-	return found
+	return MatchState.phaseFor(round)
 end
 
 local function emptyKit(): { string }
@@ -195,8 +191,9 @@ local function card(id: string, slot: number, level: string): MatchState.Upgrade
 end
 
 -- The upgrade cards for a seat's filled slots: the next level of each ability,
--- and at level 1 its two paths plus, by chance, the glitch.
-local function rollUpgrades(s: Seat): { MatchState.UpgradeCard }
+-- and at level 1 its two paths plus, by chance, the glitch. `guarantee`: deal a
+-- glitch card if any slot can take one (the onboarding match's Glitched card).
+local function rollUpgrades(s: Seat, guarantee: boolean): { MatchState.UpgradeCard }
 	local cards: { MatchState.UpgradeCard } = {}
 	local glitch = Config.GLITCH
 	local eligible: { number } = {}
@@ -222,7 +219,7 @@ local function rollUpgrades(s: Seat): { MatchState.UpgradeCard }
 	if force then
 		s.glitchBonus = 0
 	elseif #eligible > 0 then
-		if rng:NextNumber() < chance then
+		if guarantee or rng:NextNumber() < chance then
 			local slot = eligible[rng:NextInteger(1, #eligible)]
 			table.insert(cards, card(s.kit[slot], slot, "G2"))
 			s.glitchBonus = 0
@@ -279,6 +276,7 @@ function DraftService.seat(key: any): Seat
 			lastNewMods = {},
 			locked = false,
 			glitchBonus = 0,
+			glitchDealt = false,
 			dealtRound = 0,
 		}
 		seats[key] = s
@@ -364,8 +362,23 @@ local function deal(key: any)
 			table.insert(s.abilities, id)
 		end
 	end
-	s.upgrades = rollUpgrades(s)
-	s.ability = s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
+	-- Onboarding (owner 2026-11-25): a new player is dealt a Glitched card by round GLITCH.onboardingRound, and it
+	-- comes preselected so the moment happens even if they don't look.
+	local guarantee = human
+		and not s.glitchDealt
+		and dealt.round >= Config.GLITCH.onboardingRound
+		and MatchState.get("PhaseBoost") == true
+	s.upgrades = rollUpgrades(s, guarantee)
+	local glitchCard: string? = nil
+	for _, c in s.upgrades do
+		if string.sub(c.level, 1, 1) == "G" then
+			s.glitchDealt = true
+			glitchCard = c.key
+		end
+	end
+	s.ability = if guarantee and glitchCard
+		then glitchCard
+		else s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
 	s.dealtRound = dealt.round
 	if human then
 		sendOffer(key, s)
@@ -382,7 +395,7 @@ function DraftService.open(
 )
 	local phase = DraftService.phaseFor(round)
 	if round ~= gunOfferRound then
-		gunOffer = rollGuns(phase, round)
+		gunOffer = rollGuns(phase, MatchState.phaseRound(round))
 		gunOfferRound = round
 	end
 	table.clear(abilityOfferCounts)

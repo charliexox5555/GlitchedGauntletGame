@@ -187,8 +187,9 @@ local function onChoice(player: Player, choice: unknown)
 	publish()
 end
 
--- Runs the MatchEnd phase. Returns true for a rematch on this server.
-function MatchEndService.run(winner: number, matchMode: string?): boolean
+-- Runs the MatchEnd phase. Returns true for a rematch on this server. `gift`: a new player's first match, whose
+-- finishers get the free Starter Case in the lobby (the results screen says so: Util/MatchEndScreen).
+function MatchEndService.run(winner: number, matchMode: string?, gift: boolean?): boolean
 	table.clear(choices)
 	table.clear(voters)
 	table.clear(present)
@@ -220,6 +221,7 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 		score1 = MatchState.get("Score1") or 0,
 		score2 = MatchState.get("Score2") or 0,
 		rounds = MatchState.getList("RoundHistory"),
+		gift = gift == true,
 	})
 	-- No rematch (a new player's in-server onboarding matches): a shorter screen, straight back to the lobby.
 	local screenTime = if rematchBroken then E.timeNoRematch else E.time

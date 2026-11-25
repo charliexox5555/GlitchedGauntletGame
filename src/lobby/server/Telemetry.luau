@@ -167,7 +167,7 @@ end
 
 -- A player left mid-match (MatchService.onLeave): value = the round, fields = the phase they left in
 -- ("Draft", "Countdown", "Live", "RoundEnd", ...), their score "mine-theirs W/L/-" (the last round's result), and
--- "first" for a new player's first match, else the mode. Shows which gap between fights loses players.
+-- "first" / "onboarding" / the mode, then ":" and the device ("first:Mobile"). Shows which gap loses players.
 function Telemetry.matchLeft(
 	player: Player,
 	round: number,

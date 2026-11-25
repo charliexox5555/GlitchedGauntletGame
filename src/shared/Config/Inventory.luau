@@ -33,6 +33,17 @@ local ITEMS: { [string]: ItemDef } = {
 		maxStack = 999,
 		icon = "rbxassetid://133624978874225",
 	},
+	-- The free case for finishing match 1 (Config/Onboarding FIRST_MATCH_CASE): an Epic gun skin every time.
+	-- Gift only: no ticket price (Economy.CASE_TICKETS) and no Shop card, so it can't be bought.
+	CaseStarter = {
+		id = "CaseStarter",
+		kind = "Case",
+		name = "STARTER CASE",
+		tier = 2, -- the Elite crate look
+		case = "Starter",
+		maxStack = 1,
+		icon = "rbxassetid://103320622297328", -- the Elite crate card until it has its own render
+	},
 	CaseElite = {
 		id = "CaseElite",
 		kind = "Case",

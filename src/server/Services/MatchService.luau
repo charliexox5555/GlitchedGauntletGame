@@ -63,6 +63,7 @@ local SPAWN_BACKOFF = { 0.5, 1, 2 }
 local STREAM_WAIT = 6 -- seconds a spawn may wait for its area to stream to the player
 local spawning: { [Player]: boolean } = {}
 local firstMatch = false -- this match is a new player's first (isFirstMatch, set in runMatch)
+local onboardingMatch = false -- every real player is under Config.ONBOARDING_MATCHES (set in runMatch)
 -- The body each player's own client last said is on its screen with floor under it (BodyReady).
 local bodyReady: { [Player]: Model } = {}
 local limiter = RateLimit.new(Config.RATE)
@@ -843,27 +844,32 @@ local function roundsToWin(): number
 	if RunService:IsStudio() and workspace:GetAttribute("QuickMatch") == true then
 		return 1
 	end
-	if firstMatch then
+	if firstMatch or onboardingMatch then
 		return Config.FIRST_MATCH_ROUNDS_TO_WIN
 	end
 	return Config.ROUNDS_TO_WIN_BY_MODE[matchMode()] or Config.ROUNDS_TO_WIN
 end
 
--- A new player's very first match: Beginner, and every real player here has 0 matches saved. Read once at the
--- match's start (runMatch) so a late joiner can't change the match's length.
-local function isFirstMatch(): boolean
+-- A Beginner match where every real player here has fewer than `below` matches saved (1: a new player's very
+-- first match; Config.ONBOARDING_MATCHES: an onboarding match). Read once at the match's start (runMatch) so a
+-- late joiner can't change the match.
+local function allPlayersBelow(below: number): boolean
 	if matchMode() ~= "beginner" then
 		return false
 	end
 	local any = false
 	for _, player in Players:GetPlayers() do
 		local matches = StateValues.get(player, "Matches")
-		if typeof(matches) ~= "number" or matches > 0 then
+		if typeof(matches) ~= "number" or matches >= below then
 			return false
 		end
 		any = true
 	end
 	return any
+end
+
+local function isFirstMatch(): boolean
+	return allPlayersBelow(1)
 end
 
 -- The bots' dynamic difficulty from this match's real players (Bots/AutoDifficulty): at the
@@ -896,6 +902,7 @@ local function updateBotDifficulty(scores: { number }?)
 		streaks = streaks,
 		mode = if plan then plan.mode else nil,
 		lead = lead,
+		onboarding = onboardingMatch or allPlayersBelow(Config.ONBOARDING_MATCHES),
 	})
 	BotService.setAuto(name)
 end
@@ -1018,7 +1025,12 @@ local function onLeave(player: Player)
 					elseif typeof(lastWinner) == "number" and lastWinner ~= 0 then "L"
 					else "-"
 			),
-			if firstMatch then "first" else matchMode()
+			-- "kind:device" (owner 2026-11-25): only three custom fields, and the funnel needs the phone split
+			string.format(
+				"%s:%s",
+				if firstMatch then "first" elseif onboardingMatch then "onboarding" else matchMode(),
+				tostring(StateValues.get(player, "Device") or "?")
+			)
 		)
 	end
 	local wasPending = pendingTakeovers[player] ~= nil
@@ -1168,6 +1180,9 @@ local function runMatch(): boolean
 		fillSlots()
 	end
 	firstMatch = isFirstMatch()
+	onboardingMatch = allPlayersBelow(Config.ONBOARDING_MATCHES)
+	-- before round 1's draft deals: onboarding matches deal the better guns early (MatchState.phaseFor)
+	MatchState.set("PhaseBoost", onboardingMatch)
 	inMatch = true
 	StatsService.reset()
 	humanSides = { false, false }
@@ -1483,7 +1498,8 @@ local function runMatch(): boolean
 			Telemetry.mapFunnel(player, matchKey, 3, "Match completed", currentMapName, matchMode())
 		end
 	end
-	return MatchEndService.run(matchWinner, matchMode())
+	-- a new player's first match: everyone who finishes it gets the free Starter Case (ProgressionService)
+	return MatchEndService.run(matchWinner, matchMode(), firstMatch)
 end
 
 local function cancelSlowLoad(reason: string)
@@ -1706,6 +1722,7 @@ local function loop()
 		local ok, result = xpcall(runMatch, debug.traceback)
 		inMatch = false
 		firstMatch = false
+		onboardingMatch = false
 		pendingMap = nil -- a match that stopped before round 1 keeps the map it has
 		ZoneService.stop()
 		BotService.setFighting(false)

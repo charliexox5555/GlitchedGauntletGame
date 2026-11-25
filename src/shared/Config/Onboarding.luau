@@ -35,11 +35,13 @@ return table.freeze({
 	NEW_WINDOW = 3,
 	NEW_TEXT = "NEW",
 
-	-- Free Standard Case granted on finishing Match 1 (guided open + equip before Match 2).
-	FIRST_MATCH_CASE = "CaseStandard",
+	-- Free case granted on finishing Match 1 (guided open + equip before Match 2). The Starter Case (owner
+	-- 2026-11-25): gift only, always an Epic gun skin (Config/Skins CASES.Starter), so a new player's first
+	-- unbox is a big one. Was the Standard Case.
+	FIRST_MATCH_CASE = "CaseStarter",
 	CASE_CALLOUT_TEXT = "OPEN FREE CASE!",
 	EQUIP_CALLOUT_TEXT = "EQUIP SKIN!",
-	CASE_TOAST_TEXT = "YOU EARNED A FREE CASE! OPEN YOUR BACKPACK",
+	CASE_TOAST_TEXT = "YOU EARNED A FREE EPIC CASE! OPEN YOUR BACKPACK",
 	-- Back in the lobby with the free case unopened: the Backpack opens on it by itself after this many seconds,
 	-- once per session (owner 2026-11-25: 12.5% left between the hub and opening the Backpack).
 	CASE_AUTO_OPEN_DELAY = 1.5,

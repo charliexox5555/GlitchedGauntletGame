@@ -6,6 +6,7 @@
 --   streak  the real players on a win streak → one step harder
 --   score   in this match, the real players' side ahead by scoreMargin → harder; behind → easier
 --   mode    Beginner 2v2 → never above beginnerMax
+--   onboarding  a new player's onboarding match → AUTO.onboarding (Rookie), whatever else is true
 -- Returns a Config/Bots.PROFILES name.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,6 +19,7 @@ export type Facts = {
 	streaks: { number }, -- each real player's win streak
 	mode: string?, -- the match plan's mode ("beginner", "2v2", ...)
 	lead: number?, -- the real players' side's score minus the other side's, when they're all on one side
+	onboarding: boolean?, -- every real player is in their onboarding matches (Config/Match ONBOARDING_MATCHES)
 }
 
 local AutoDifficulty = {}
@@ -36,6 +38,9 @@ end
 function AutoDifficulty.pick(f: Facts): string
 	local auto = BotsConfig.AUTO
 	local steps = auto.steps
+	if f.onboarding and BotsConfig.PROFILES[auto.onboarding] then
+		return auto.onboarding
+	end
 	if #f.levels == 0 then
 		return steps[1] -- nobody real here (a test): the gentlest
 	end

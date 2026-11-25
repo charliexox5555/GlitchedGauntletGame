@@ -197,6 +197,32 @@ profiles.Ultra = {
 	movement = { strafePause = 0.02, slideChance = 0.95, slideJumpChance = 0.65, zoneLead = 2.5 },
 }
 
+-- Rookie: onboarding matches only (AUTO.onboarding; owner 2026-11-25, 17% of new players quit during match 1's
+-- first fight). Easy with slower eyes, wider aim and more warning shots, so a new player's first two matches are
+-- likely wins while the bots still fight back. Not an admin button.
+do
+	local easy = profiles.Easy
+	profiles.Rookie = {
+		perception = table.clone(easy.perception),
+		aim = table.clone(easy.aim),
+		tactics = table.clone(easy.tactics),
+		mods = table.clone(easy.mods),
+		movement = table.clone(easy.movement),
+	}
+	local r = profiles.Rookie
+	r.perception.reaction = 0.6
+	r.perception.fov = 100
+	r.aim.errorStart = 7
+	r.aim.errorFloor = 2.2
+	r.aim.firstMisses = 3
+	r.aim.maxHitsPerSec = 1.5
+	r.aim.headChance = 0.03
+	r.aim.recoilControl = 0.5
+	r.tactics.aggression = 0.45
+	r.mods.abilityUse = 0.25
+	r.movement.slideChance = 0.1
+end
+
 -- Easiest to hardest (the admin panel's buttons).
 local ORDER = { "Easy", "Normal", "Hard", "Insane", "Ultra" }
 
@@ -214,6 +240,7 @@ return table.freeze({
 			table.freeze({ below = 20, step = 2 }),
 		}),
 		beginnerMax = 1, -- Beginner 2v2 never goes above Easy (a first win likely, not free)
+		onboarding = "Rookie", -- an onboarding match (Config/Match ONBOARDING_MATCHES): always this profile
 		mobileShare = 0.5, -- this share of the real players on phones / tablets: one step easier
 		streakUp = 3, -- the players' average win streak at least this: one step harder
 		scoreMargin = 2, -- in the match, the real players' side ahead by this: one step harder; behind: easier

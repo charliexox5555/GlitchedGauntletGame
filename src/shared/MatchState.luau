@@ -88,6 +88,7 @@ local FIELD_NAMES = {
 	"Zone",
 	"Mode", -- the queued mode ("beginner", "2v2", ...): Controllers/BeginnerHighlightController
 	"RoundsToWin",
+	"PhaseBoost", -- true in an onboarding match: rounds deal later weapon phases (phaseFor)
 }
 
 -- A folder of every field, named `name`, under `parent` (made once).
@@ -278,6 +279,29 @@ function MatchState.roundsToWin(): number
 		return Config.ROUNDS_TO_WIN_BY_MODE[mode]
 	end
 	return Config.ROUNDS_TO_WIN
+end
+
+-- The round whose weapon phase `round` deals. An onboarding match (field "PhaseBoost", or `boosted` when given)
+-- skips ahead (Config/Match ONBOARDING_PHASE_ROUNDS); any other match uses the round itself.
+function MatchState.phaseRound(round: number, boosted: boolean?): number
+	local boost = if boosted == nil then MatchState.get("PhaseBoost") == true else boosted
+	local list = Config.ONBOARDING_PHASE_ROUNDS
+	if not boost or round < 1 or #list == 0 then
+		return round
+	end
+	return math.max(round, list[math.min(round, #list)])
+end
+
+-- The weapon phase a round deals (see phaseRound).
+function MatchState.phaseFor(round: number, boosted: boolean?)
+	local at = MatchState.phaseRound(round, boosted)
+	local found = Config.PHASES[1]
+	for _, p in Config.PHASES do
+		if at >= p.fromRound then
+			found = p
+		end
+	end
+	return found
 end
 
 -- The shield a gun gives in a weapon phase (vault/01 Design/Gun Balance.md).

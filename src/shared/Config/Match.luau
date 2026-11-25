@@ -112,6 +112,13 @@ return table.freeze({
 	-- A player's very first match (Beginner, every real player on 0 matches): shorter still (owner 2026-11-25,
 	-- onboarding funnel: players left between rounds of match 1).
 	FIRST_MATCH_ROUNDS_TO_WIN = 3,
+	-- Onboarding matches (owner 2026-11-25, vault/05 Production/Fantasy and Retention Plan 2026-11-25.md): a Beginner
+	-- match where every real player has fewer saved matches than this. It is first to FIRST_MATCH_ROUNDS_TO_WIN
+	-- (match 2 lost a third of players at first to 4) and shows the better guns early: round N deals the weapon
+	-- phase of round ONBOARDING_PHASE_ROUNDS[N] (later rounds: the last entry), so Light from round 1, Heavy from
+	-- round 2, Elite from round 4.
+	ONBOARDING_MATCHES = 2,
+	ONBOARDING_PHASE_ROUNDS = { 2, 4, 4, 7, 7 } :: { number },
 	LATE_SPAWN_WAIT = 6, -- seconds a slow spawn gets past the countdown (3 until 2026-11-22: void spawns)
 	-- Seconds a player's own screen gets past the countdown to show their fighter (owner 2026-11-25: "camera in
 	-- the void, spectate the other bots for a second, and then finally load in"). The server can have the body while
@@ -254,7 +261,9 @@ return table.freeze({
 	-- column offers that ability's next level (empty slots offer a new ability).
 	-- At level 1 that is path A and path B. Each eligible seat can also roll
 	-- one glitch card, with a higher chance after each eligible miss.
-	GLITCH = { chance = 0.15, step = 0.05, cap = 0.40 },
+	-- `onboardingRound`: in an onboarding match a player is dealt a Glitched card (preselected) from this round's
+	-- draft on, once (owner 2026-11-25: the signature moment shows in match 1).
+	GLITCH = { chance = 0.15, step = 0.05, cap = 0.40, onboardingRound = 2 },
 
 	-- Studio: with nobody on the other team, a bot plays it (Config/Bots).
 

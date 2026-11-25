@@ -88,14 +88,9 @@ local function myTeam(): number
 	return Teams.of(player) or 1
 end
 
+-- An onboarding match deals later phases early (MatchState.phaseFor).
 local function tierFor(round: number): Config.Phase
-	local found = Config.PHASES[1]
-	for _, p in Config.PHASES do
-		if round >= p.fromRound then
-			found = p
-		end
-	end
-	return found
+	return MatchState.phaseFor(round)
 end
 
 local function bind(): Ui
@@ -223,7 +218,7 @@ local function refresh(ui: Ui)
 				else "They need one more round"
 		else
 			title = "GET READY"
-			sub = if round > 1 and tier.fromRound == round
+			sub = if round > 1 and tierFor(round - 1).name ~= tier.name
 				then string.format(
 					'<font color="#%s">NEW</font>  %s guns',
 					TONE.gold:ToHex(),

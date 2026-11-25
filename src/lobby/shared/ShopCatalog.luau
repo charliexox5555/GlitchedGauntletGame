@@ -96,6 +96,13 @@ ShopCatalog.CASES = {
 		art = "rbxassetid://122735078835784", -- the 3D crate render (art-source/ui/shop/crates/crate_standard_wide.png; the Home card uses crate_standard_card.png)
 		color = Color3.fromHex("69696C"),
 	},
+	-- gift only (Config/Skins CASES.Starter): listed so the Backpack can show and open it; the Shop has no card for it
+	{
+		id = "Starter",
+		name = "STARTER CASE",
+		art = "rbxassetid://120685505151159", -- the Elite crate render until it has its own
+		color = Color3.fromHex("6A3FC2"),
+	},
 	{
 		id = "Elite",
 		name = "ELITE CASE",
