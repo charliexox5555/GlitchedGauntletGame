@@ -35,7 +35,7 @@ Verified: stylua / selene 0/0 / rojo build; Studio phone-layout bot match: vote 
 
 ## Backlog, ranked (not done yet)
 
-1. **Vote → map swap:** set the phase (e.g. a short "Loading" step or straight to Draft) before `loadMap`, so the vote screen closes; or skip loading Arena at boot. Needs client handling for a new phase.
+1. ~~**Vote → map swap**~~ **Done 2026-11-26:** the voted map is now `pendingMap` and loads right after round 1's select opens (`openDraft` / `finishDraft` in `MatchService`), so `Phase = "Draft"` replicates before the map's instances and the download runs behind the select screen. Studio client timeline: Draft 6.74 s → map 6.76 s → fighter 6.92 s → Live; voted CanyonOutpost loaded, no errors. Still open: Arena loads at boot on match servers (small, 263 instances).
 2. **Fire `MatchReady` early** from a tiny module before the other controllers; build MapVote cards lazily; drop the 6 s map poll.
 3. **Stage the bootstrap:** require/init only what the vote and draft need first; defer Replay, Spectate, MatchEnd, ModFx, MapLife, SkinPreview.
 4. **Per-frame:** BodySkin bends every limb of every character every frame (cull by distance / off-screen, 15 Hz mid-range); TpIk has no distance culling; ModFeel / StimFx / FrostFx / Frozen / Dash / DashGhost / Footstep each poll every character every frame with their own arrays (one shared fighter list a frame, or change-driven); ModHud builds strings and finds labels every frame; ModFx loops all placed Mod objects every frame; StatusTray allocates every frame.

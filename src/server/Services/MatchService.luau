@@ -84,6 +84,10 @@ local sideEmptySince: { [number]: number? } = { nil, nil }
 local currentMapName = "Unknown"
 local currentRound = 0
 local lastMap: string? = nil
+-- The voted map, loaded once round 1's select is open (see playRound): the select screen reaches a slow phone
+-- before the map's download does, instead of the phone sitting on the vote screen while it arrives (owner
+-- 2026-11-26: "stuck on the vote map screen", phones).
+local pendingMap: string? = nil
 local mapLogged: { [number]: boolean } = {}
 local roundStartCounts = { 0, 0 }
 local clutchState: { [number]: { vs: number, actor: string }? } = { nil, nil }
@@ -704,7 +708,21 @@ end
 -- The select screen: SELECT time in all, the last COUNTDOWN of it the 3-2-1.
 -- The top-bar clock counts to the fight. Any round skips to the 3-2-1 once
 -- everyone has locked in.
-local function runDraft(round: number)
+-- Loads a map, never throwing: a map that fails to load keeps the one already loaded.
+local function loadMap(id: string): boolean
+	local ok, loaded = pcall(MapService.load, id)
+	if not ok then
+		HealthLog.problem("map load failed", nil, `{Context.id} {id}: {loaded}`)
+		return false
+	end
+	if loaded then
+		HealthLog.stage("map loaded", nil, `{Context.id} {id}`)
+	end
+	return loaded == true
+end
+
+-- Opens round `round`'s select (offers, bot picks, Phase "Draft") and returns its picking time.
+local function openDraft(round: number): number
 	local total = if round == 1
 		then Config.FIRST_SELECT_TIME
 		else Config.SELECT_TIME_BY_MODE[matchMode()] or Config.SELECT_TIME
@@ -721,6 +739,11 @@ local function runDraft(round: number)
 	MatchState.set("WeaponPhase", DraftService.phaseFor(round).name)
 	MatchState.set("EndsAt", now + total)
 	MatchState.set("Phase", "Draft")
+	return picking
+end
+
+-- Waits out the open select (or until everyone has locked in), then closes it and hands out the picks.
+local function finishDraft(picking: number)
 	runClock(picking, function()
 		-- Everyone locked in skips to the 3-2-1, unless someone's fighter isn't on their screen yet: the
 		-- select's own time is free waiting for them.
@@ -1151,7 +1174,7 @@ local function runMatch(): boolean
 	sideEmptySince[1] = nil
 	sideEmptySince[2] = nil
 	table.clear(mapLogged)
-	currentMapName = mapLabel(lastMap)
+	currentMapName = mapLabel(pendingMap or lastMap)
 	currentRound = 0
 	-- clients read the mode (Beginner 2v2's red enemies: Controllers/BeginnerHighlightController)
 	MatchState.set("Mode", matchMode())
@@ -1209,12 +1232,24 @@ local function runMatch(): boolean
 		MapService.resetGlass()
 		MapService.setBarriers(true)
 		applyTakeovers()
+		-- The select opens first; a voted map still to load attaches right after it (pendingMap), so its
+		-- download runs behind the select screen. Everyone spawns once it's in.
+		local picking = openDraft(round)
+		local nextMap = pendingMap
+		if nextMap then
+			pendingMap = nil
+			if loadMap(nextMap) then
+				lastMap = nextMap
+				MapService.resetGlass()
+				MapService.setBarriers(true)
+			end
+		end
 		spawnEveryone()
 		if not draftReported then
 			draftReported = true
 			reportStage(3, "R1 draft opened", 3)
 		end
-		runDraft(round)
+		finishDraft(picking)
 		noteFighters()
 
 		spawnMissing()
@@ -1624,19 +1659,6 @@ local function pickMap(): string?
 	return MapVoteService.run(fits, size, MatchState.botSeats(), matchMode())
 end
 
--- Loads a map, never throwing: a map that fails to load keeps the one already loaded.
-local function loadMap(id: string): boolean
-	local ok, loaded = pcall(MapService.load, id)
-	if not ok then
-		HealthLog.problem("map load failed", nil, `{Context.id} {id}: {loaded}`)
-		return false
-	end
-	if loaded then
-		HealthLog.stage("map loaded", nil, `{Context.id} {id}`)
-	end
-	return loaded == true
-end
-
 -- A match that stopped on an error never leaves its players frozen on the vote or the draft (before
 -- 2026-11-22 the loop just returned, with the Phase still "Vote"): a pad duel sends them back to the lobby here,
 -- a match server teleports them to the lobby (MatchEndService retries a failed teleport).
@@ -1677,14 +1699,14 @@ local function loop()
 		else
 			HealthLog.stage("vote done", nil, `{Context.id} {nextMap or lastMap or "?"}`)
 		end
-		if nextMap and nextMap ~= lastMap and loadMap(nextMap) then
-			lastMap = nextMap
-		end
+		-- Loaded once round 1's select is open (pendingMap), not here.
+		pendingMap = if nextMap and nextMap ~= lastMap then nextMap else nil
 		reportStage(2, "Map selected")
 		matchesPlayed += 1
 		local ok, result = xpcall(runMatch, debug.traceback)
 		inMatch = false
 		firstMatch = false
+		pendingMap = nil -- a match that stopped before round 1 keeps the map it has
 		ZoneService.stop()
 		BotService.setFighting(false)
 		if #Players:GetPlayers() == 0 then
