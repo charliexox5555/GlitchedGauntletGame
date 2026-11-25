@@ -8,7 +8,7 @@ local SoundAuditionController = {}
 
 function SoundAuditionController.start()
 	-- the match also gets the win cutscene's accents
-	SoundAudition.start({ "SHARED", "HITS", "CUTSCENE" })
+	SoundAudition.start({ "SHARED", "HITS", "CUTSCENE", "CASE" })
 end
 
 return SoundAuditionController

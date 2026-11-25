@@ -7,7 +7,9 @@
 -- since hit sounds are judged in a fight), CUTSCENE (match only: the win
 -- cutscene's sound accents, each heard on the song). Button 1 in each row is the
 -- current sound; the others are level-matched to it by measured
--- PlaybackLoudness. Tell Claude e.g. "LOCK IN 3, KILL 1". Nothing here runs
+-- PlaybackLoudness. CASE (lobby): plays a whole in-world case opening, with its
+-- sounds, at you (no purchase: CaseShowController's Studio preview, sample skins).
+-- Tell Claude e.g. "LOCK IN 3, KILL 1". Nothing here runs
 -- outside Studio. Candidates: Roblox's licensed Pro Sound Effects library,
 -- Roblox's own UI packs, APM Music, and our own hit takes (no user uploads).
 
@@ -22,7 +24,16 @@ local SoundAudition = {}
 type Layer = { id: number, vol: number, delay: number, pitch: number, from: number?, len: number? }
 -- one sound (id + vol), or layers played together (a designed sound: a thump
 -- under a tink, etc.; if picked, it gets baked into one asset)
-type Cand = { note: string, id: number?, vol: number?, layers: { Layer }?, preview: boolean? }
+-- case: a whole case opening (crate look 1-4, the skin tier it reveals, how many at once)
+type CaseRun = { crate: number, tier: string, count: number, knife: boolean? }
+type Cand = {
+	note: string,
+	id: number?,
+	vol: number?,
+	layers: { Layer }?,
+	preview: boolean?,
+	case: CaseRun?,
+}
 type Row = { section: string, name: string, list: { Cand } }
 
 local SHOT_ID = 128240759324250 -- the Vandal's first shot take (gun_semi_auto_rifle_shot_01)
@@ -367,6 +378,27 @@ for _, accent in ACCENTS do
 	table.insert(ROWS, { section = "CUTSCENE", name = accent.name, list = list })
 end
 
+-- CASE (lobby, 2026-11-25): the whole opening, toss to collect, with every sound in
+-- Config/CaseOpening. The board hides while it plays; F4 brings it back.
+table.insert(ROWS, {
+	section = "CASE",
+	name = "PLAY A CASE OPENING",
+	list = {
+		{ note = "Standard case: COMMON", case = { crate = 1, tier = "Common", count = 1 } },
+		{ note = "Standard case: RARE", case = { crate = 1, tier = "Rare", count = 1 } },
+		{
+			note = "Starter case: EPIC (first match gift)",
+			case = { crate = 2, tier = "Epic", count = 1 },
+		},
+		{ note = "Apex case: LEGENDARY", case = { crate = 3, tier = "Legendary", count = 1 } },
+		{
+			note = "Knife case: knife",
+			case = { crate = 4, tier = "Legendary", count = 1, knife = true },
+		},
+		{ note = "Batch open: x5 mixed", case = { crate = 1, tier = "mixed", count = 5 } },
+	},
+})
+
 local gui: ScreenGui? = nil
 local afterShot = true
 
@@ -431,6 +463,26 @@ local function audition(row: Row, c: Cand)
 		if string.find(row.name, "HEADSHOT", 1, true) then
 			play(BODY_ID, BODY_VOL, HIT_DELAY)
 		end
+	end
+	if c.case then
+		-- a whole case opening (lobby CaseShowController's Studio preview)
+		local run = c.case
+		StateValues.set(
+			workspace,
+			"PreviewCaseOpening",
+			string.format(
+				"%d|%s|%d|%s|%f",
+				run.crate,
+				run.tier,
+				run.count,
+				if run.knife then "knife" else "gun",
+				os.clock()
+			)
+		)
+		if gui then
+			gui.Enabled = false
+		end
+		return
 	end
 	if c.preview then
 		-- the whole win cutscene (MatchEndController's Studio preview)

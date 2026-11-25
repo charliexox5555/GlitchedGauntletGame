@@ -8,7 +8,7 @@ local SoundAuditionController = {}
 
 function SoundAuditionController.start()
 	-- One place since 2026-11-21: the lobby's board is the whole game's (the match tabs too).
-	SoundAudition.start({ "SHARED", "HITS", "CUTSCENE" }) -- CASE rows all picked (owner 2026-11-20)
+	SoundAudition.start({ "SHARED", "HITS", "CUTSCENE", "CASE" }) -- CASE = play a whole opening
 end
 
 return SoundAuditionController
