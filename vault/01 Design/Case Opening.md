@@ -95,7 +95,7 @@ Owner: "louder and more fun", better shake sounds, a more satisfying win. Loudne
 - Checked in Studio: a Legendary preview fires every layer in order (5 shakes × 4 layers, rising; full reveal stack at 5.35 s). Not heard by Claude: owner to listen.
 
 ## Open (owner)
-- **Sounds:** listen to Round 5 on F4 → CASE; if the crowd roar or sparkle is too much, drop it from `TIER_FX.*.extra`.
+- **Sounds:** Round 5 approved (owner 2026-11-25: "Sounds great").
 - Feel: toss length, shake count, hold time, flash strength per tier; higher tiers could get a longer build-up (RIVALS chests run 8 s).
 - Pictures for every skin (renders, not viewports) so the result panel never falls back to a letter.
 - **Save the Lobby place.**
