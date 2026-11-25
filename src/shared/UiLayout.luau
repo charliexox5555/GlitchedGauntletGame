@@ -387,7 +387,10 @@ function UiLayout.watch(gui: ScreenGui)
 		elseif ownedFit(d) then
 			local fit = d :: UIScale
 			fit:GetPropertyChangedSignal("Scale"):Connect(function()
-				if gui.Parent then
+				-- Checked again here: a controller that sets CustomFit after this hooked up owns its scale now.
+				-- Writing over it anyway made the two fight forever (TopBar 2026-11-25: "exponential deferred
+				-- event growth ... fitShadow", phones lagging and stuck on the vote screen).
+				if gui.Parent and ownedFit(fit) then
 					generalFit(fit, UiLayout.family(), gui.AbsoluteSize)
 				end
 			end)

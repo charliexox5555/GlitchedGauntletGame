@@ -188,6 +188,9 @@ function TopBarController.start()
 	local baseOrder = gui.DisplayOrder
 	local root = gui:WaitForChild("Root") :: Frame
 	local fit = root:WaitForChild("Fit") :: UIScale
+	-- This controller sets the bar's scale (phone-aware, below): Shared/UiLayout must not write it too. Both
+	-- writing it was an endless resize fight on phones (the live "exponential deferred event growth" error).
+	fit:SetAttribute("CustomFit", true)
 	local shadow = root:WaitForChild("Shadow") :: ImageLabel
 	local bar = root:WaitForChild("Bar") :: Frame
 	local timer = (bar:WaitForChild("Centre") :: Frame):WaitForChild("Timer") :: Frame
