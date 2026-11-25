@@ -223,4 +223,4 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Daily Log/README.md`, `05 Production/Playtests/README.md`: how those folders are used
 - [2026-11-21 Tempest-Strike Vandal Hold](05%20Production/Playtests/2026-11-21%20Tempest-Strike%20Vandal%20Hold.md): first-person hold, ADS and inspect check of the installed hero; AssetData row fix
 - [2026-11-21 Slipframe Guardian](05%20Production/Playtests/2026-11-21%20Slipframe%20Guardian.md): Match Studio hold, ADS, inspect reveal, firing, reload seat and interruption checks
-- [Performance and Loading Audit 2026-11-26](05%20Production/Performance%20and%20Loading%20Audit%202026-11-26.md) (4 KB): phone lag root cause (TopBar Fit fight with UiLayout), fixes, ranked loading/per-frame backlog
+- `05 Production/Performance and Loading Audit 2026-11-26.md` (4): phone lag root cause (TopBar Fit fight with UiLayout), fixes, ranked loading and per-frame backlog
