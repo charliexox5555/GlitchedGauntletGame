@@ -222,13 +222,41 @@ local function waitPath(root: Instance, path: { string }, timeout: number): Inst
 	return node
 end
 
+-- Studio sound audition (tools/studio/AuditionLoadingSounds.luau, 2026-11-25): Workspace attributes
+-- LoadingAuditionSting / Bed / Whoosh ("rbxassetid://…" or "none"), …Volume and LoadingAuditionHold swap the
+-- config's sounds (and hold) so each candidate is heard over the real reveal. Studio only; live never reads them.
+local function withAudition(loaded: any): any
+	if not RunService:IsStudio() then
+		return loaded
+	end
+	local out = table.clone(loaded)
+	for _, kind in { "Sting", "Bed", "Whoosh" } do
+		local id = workspace:GetAttribute("LoadingAudition" .. kind)
+		if typeof(id) == "string" and id ~= "" then
+			local key = string.lower(kind)
+			local base = if typeof(out[key]) == "table" then table.clone(out[key]) else {}
+			local volume = workspace:GetAttribute("LoadingAudition" .. kind .. "Volume")
+			base.id = id
+			if typeof(volume) == "number" then
+				base.volume = volume
+			end
+			out[key] = if id == "none" then nil else base
+		end
+	end
+	local hold = workspace:GetAttribute("LoadingAuditionHold") -- seconds, so a bed can be judged
+	if typeof(hold) == "number" and hold > 0 then
+		out.minHold = hold
+	end
+	return out
+end
+
 local configReady = false
 task.spawn(function()
 	local module = waitPath(ReplicatedStorage, { "Shared", "Config", "Loading" }, 10)
 	if module and module:IsA("ModuleScript") then
 		local ok, loaded = pcall(require, module)
 		if ok and typeof(loaded) == "table" then
-			cfg = loaded
+			cfg = withAudition(loaded)
 			scaleCanvas()
 			local tips = cfg.tips
 			if not revealed and tips and #tips > 0 then
@@ -317,7 +345,17 @@ end
 -- band's start + 0.12): POWER in from the upper left (tilted, from 92%) by 0.235 s with the sting on its landing;
 -- DUELS enters at 0.185 s and rises into place by 0.5 s with a small punch; the sparks pop from 0.34 s; the whole
 -- title settles from 96%; a shine; then it floats.
-local function reveal(sting: Sound?)
+local function reveal(sting: Sound?, whoosh: Sound?)
+	if whoosh and not reduced then
+		-- the optional whoosh under POWER's swing (Config/Loading.whoosh.at: seconds from POWER's start; default
+		-- the band's start)
+		local at = if typeof(cfg.whoosh) == "table" and typeof(cfg.whoosh.at) == "number"
+			then cfg.whoosh.at
+			else -0.12
+		task.delay(math.max(0, 0.12 + at), function()
+			whoosh:Play()
+		end)
+	end
 	if reduced then
 		tween(full, 0.5, { ImageTransparency = 0 })
 		if sting then
@@ -660,12 +698,15 @@ end
 local revealAt = os.clock()
 if not revealed then
 	local sting = sound(cfg.sting, false)
-	reveal(sting)
-	if sting then
-		task.delay(8, function()
-			sting:Destroy()
-		end)
-	end
+	local whoosh = sound(cfg.whoosh, false)
+	reveal(sting, whoosh)
+	task.delay(8, function()
+		for _, one in { sting, whoosh } do
+			if one then
+				one:Destroy()
+			end
+		end
+	end)
 end
 stepStarted = os.clock()
 

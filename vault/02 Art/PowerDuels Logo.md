@@ -45,6 +45,34 @@ Reduced motion hides the layers and fades in `Full`. Older copies without `Spark
 - The first loading tip is now "PICK A NEW POWER EVERY ROUND".
 - Player-facing "ability/abilities" text now says "power/powers": draft hint, enemy-kit line, Range blurb, Locker tab label (the instance stays `ABILITIES`), Locker save error, settings and touch-layout labels. Remote and data names are unchanged. "Mods" text is unchanged.
 
+**Sound audition (2026-11-25, owner: "use better sounds")**
+- The tool is [AuditionLoadingSounds.luau](../../tools/studio/AuditionLoadingSounds.luau). It plays each candidate over the real reveal, using Studio-only Workspace attributes that `LoadingScreen.client.luau` reads (`LoadingAuditionSting` / `Bed` / `Whoosh`, `…Volume`, `LoadingAuditionHold`).
+- To run it: press Play, switch the command bar to the client, set `PASS` (`stings`, `whoosh`, `beds` or `combo`), then paste and press Enter. The Output names each candidate.
+- All candidates are licensed Roblox partner audio and all 16 load (checked in Studio).
+- Stings:
+  1. Outrunning - Hit (9047207931, current)
+  2. There's No Stopping Us - Tag3 (9042539652)
+  3. There's No Stopping Us - Tag1 (9042539411)
+  4. There's No Stopping Us - Tag5 (9042539884)
+  5. Automata Sting 2 (9047064962)
+  6. Mech Madness Stinger 1 (127087932061391)
+  7. Totally Go For It - Hit4 (9038919815)
+  8. Spinning Around (b) (1839881844)
+- Whoosh under POWER's swing (new optional `Config/Loading.whoosh`, none for now):
+  - W0 none
+  - W1 Whoosh Fast Swish By 3 (9120714219)
+  - W2 Whoosh Fast Swish By 1 (9120710054)
+  - W3 Searing Bursts 15 (9118883081)
+- Beds:
+  1. Beginnings (9042293789, current)
+  2. There's No Stopping Us - Alt2 DrumsBass (9042539083)
+  3. There's No Stopping Us - Alt1 NoLead (9042539080)
+  4. Night Driver (a 30) (1842054459)
+  5. Round About Now, no percussion (9042294497)
+- Stings 2–4 and beds 2–3 come from one track ("There's No Stopping Us", big confident electro), so the sting and bed can match.
+- No licensed spark sound was good enough, so the sparks stay silent.
+- Checked in Studio: the override swaps the sounds. The whoosh starts at 0.03 s, the sting at 0.37 s (target 0.355 s), and the hold stretches for beds. Nobody has listened yet; the owner picks by ear.
+
 **Still to do (owner)**
 - Creator Dashboard: experience name "PowerDuels", description ([Store Description](../05%20Production/Store%20Description.md) still says Draft Duels), icon and thumbnails ([Launch Art](Draft%20Duels%20Launch%20Art.md) is Draft Duels art).
 - Group, badge and pass names if they say Draft Duels.

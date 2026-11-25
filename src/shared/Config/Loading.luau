@@ -79,6 +79,9 @@ return table.freeze({
 	-- Sound, on SoundService.SettingsMusic (Settings MUSIC × MASTER). Licensed Creator Store audio (APMOfficial);
 	-- shortlist in the handoff note: the owner picks after the audition. These are the current picks.
 	sting = table.freeze({ id = "rbxassetid://9047207931", volume = 0.6, at = 0.235 }), -- "Outrunning - Hit" (on POWER's landing)
+	-- Optional whoosh under POWER's swing-in ({ id, volume, at = seconds from POWER's start, default the band's
+	-- start }); none until the owner picks one (tools/studio/AuditionLoadingSounds.luau).
+	whoosh = nil :: { id: string, volume: number, at: number? }?,
 	bed = table.freeze({
 		id = "rbxassetid://9042293789",
 		volume = 0.18,
