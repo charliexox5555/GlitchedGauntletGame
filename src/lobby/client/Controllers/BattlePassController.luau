@@ -403,8 +403,12 @@ local function openContents()
 	if not c then
 		return
 	end
-	(child(oddsPanel, "Sub") :: TextLabel).Text = c.name;
-	OddsList.fill(child(oddsPanel, "List") :: ScrollingFrame, c, child(oddsPanel, "Note") :: TextLabel)
+	(child(oddsPanel, "Sub") :: TextLabel).Text = c.name
+	OddsList.fill(
+		child(oddsPanel, "List") :: ScrollingFrame,
+		c,
+		child(oddsPanel, "Note") :: TextLabel
+	)
 	showOdds(true)
 end
 
@@ -492,7 +496,9 @@ function BattlePassController.init()
 	end
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("BattlePass", 15)
 	if not g or not g:IsA("ScreenGui") then
-		warn("[BattlePass] StarterGui.BattlePass missing (tools/studio/archive/BuildBattlePass.luau)")
+		warn(
+			"[BattlePass] StarterGui.BattlePass missing (tools/studio/archive/BuildBattlePass.luau)"
+		)
 		return
 	end
 	gui = g

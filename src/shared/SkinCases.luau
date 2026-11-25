@@ -290,7 +290,9 @@ end
 
 -- "PRISM VANDAL" ("BAT" for the PopCircuit knife, like the Locker).
 function SkinCases.name(gunId: string, line: string): string
-	local gun = if gunId == "Knife" and line == "PopCircuit" then "BAT" else string.upper(Weapons.nameOf(gunId))
+	local gun = if gunId == "Knife" and line == "PopCircuit"
+		then "BAT"
+		else string.upper(Weapons.nameOf(gunId))
 	return string.upper(line) .. " " .. gun
 end
 

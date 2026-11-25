@@ -46,7 +46,9 @@ local function shiftX(obj: GuiObject, dx: number)
 end
 
 local function gunWord(gun: string, line: string): string
-	return if gun == "Knife" and line == "PopCircuit" then "BAT" else string.upper(Weapons.nameOf(gun))
+	return if gun == "Knife" and line == "PopCircuit"
+		then "BAT"
+		else string.upper(Weapons.nameOf(gun))
 end
 
 -- the picture spills over its tier-coloured square, like RIVALS' tiles; with no
@@ -270,8 +272,7 @@ local function render(
 		local hs = child(head, "Sub") :: TextLabel
 		hs.Text = if sec.odds == 0
 			then "ALL OWNED"
-			elseif sec.id == "Knives"
-			then "A TIER IS ROLLED FIRST, THEN A KNIFE IN IT"
+			elseif sec.id == "Knives" then "A TIER IS ROLLED FIRST, THEN A KNIFE IN IT"
 			else "A TIER IS ROLLED FIRST, THEN A SKIN LINE IN IT"
 		shiftX(hs, -66);
 		(child(head, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(sec.odds)
@@ -359,14 +360,7 @@ local function render(
 							kind
 						)
 					else
-						showInfo(
-							cell,
-							image,
-							tier.color,
-							string.upper(g.line),
-							availability,
-							kind
-						)
+						showInfo(cell, image, tier.color, string.upper(g.line), availability, kind)
 					end
 				end)
 				r.Parent = list
