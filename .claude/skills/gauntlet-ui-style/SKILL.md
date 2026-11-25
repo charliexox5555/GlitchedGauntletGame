@@ -1,6 +1,6 @@
 ---
 name: gauntlet-ui-style
-description: The owner's UI theme for GlitchedGauntletGame ("Soft Edge" v4.1 direction, 2026-11-12, from RIVALS and Valorant video research). Load before designing, building or reviewing any UI, HUD, menu, lobby screen, draft screen, SurfaceGui board, mobile/touch layout or Figma frame for this game. Covers the shapes (soft plates with one cut corner, HUD floating on fades, circles with rings, slash and » chevron accents), rejected looks (pills, hard boxes, generic AI fonts, glow), the fonts (Sarpanch + Titillium Web), colour, motion tokens, HUD slot map, mobile rules, the Figma boards and how to build it in Roblox.
+description: The owner's UI theme for GlitchedGauntletGame ("Soft Edge" v4.1 direction, 2026-11-12, from RIVALS and Valorant video research). Load before designing, building or reviewing any UI, HUD, menu, lobby screen, draft screen, Shop, SurfaceGui board or mobile/touch layout for this game. Covers shapes (soft plates with one cut corner, HUD on fades, circles with rings, slash and » accents), rejected looks (pills, outlines, glow, generic AI fonts), the font (Rubik Heavy/Bold), colour, motion, HUD slots, mobile rules and how to build it in Roblox.
 ---
 
 # Gauntlet UI style ("Soft Edge", v4.1 direction)
@@ -60,28 +60,8 @@ Reduced motion keeps fades and rings and drops the rest.
 - Frames at 1920x1080 and 667x375; check 844x390.
 
 ## 6. Working method
-1. Query, don't load: the spec note by section; LihFolk `05 UI and UX` through `lihfolk-lookup`. Load `roblox-ui-builder` / `lihfolk-figma` for builds.
-2. **Figma file:** `UbCKQXuZijn0Gpryt0uUxN` (memory `figma-ui-file`). It's on a starter plan with a 3-page limit, and the v4.1 boards are on "Foundations · v4 Soft Edge (draft)".
-3. **Figma tools:**
-   - Load the Figma `figma-use` skill before `use_figma`.
-   - Plates are vectors from a path helper (rounded corners + one chamfer).
-   - Fades are rectangles with a linear gradient.
-   - Rings are ellipses with `arcData` + `innerRadius`.
-   - Slashes and chevrons are small vector paths.
-4. **Self-review every frame from a screenshot:**
-   - overlaps, and a slash touching text;
-   - text under 12 px drawn;
-   - contrast over a bright world (add a fade or a text shadow);
-   - a pill or a hard box sneaking in;
-   - more than one gold thing.
-
-   Fix, then screenshot once.
-5. **In Roblox:**
-   - 9-slice plate images with the cut baked in;
-   - `UIGradient` fades;
-   - `UICorner(0.5,0)` rounds;
-   - one radial-ring util;
-   - tinted slash / chevron images;
-   - tokens in `Config/UiStyle`;
-   - one motion helper.
-6. Write results and open questions to the vault (spec §9, `vault/00 Home.md` Status).
+1. Query, don't load: the spec note by section; LihFolk `05 UI and UX` through `lihfolk-lookup`. Load `lihfolk:roblox-ui-builder` for builds.
+2. **Mock up as real ScreenGuis in Studio** (not Figma; owner's call): build under `StarterPlayerScripts.UI` / `UiRoot` (see `vault/04 Tech/UI Architecture.md`), the owner edits them in Studio, read the edits back. The old Figma file (`UbCKQXuZijn0Gpryt0uUxN`) is history only.
+3. **Self-review every screen from a capture** (preload first, memory `studio-capture-preload`): overlaps, a slash touching text, text under 12 px, contrast over a bright world (add a fade or text shadow), a pill / outline / hard box sneaking in, more than one gold thing. Fix, then capture once.
+4. **In Roblox:** 9-slice plate images with the cut baked in; `UIGradient` fades; one radial-ring util; tinted slash / chevron images; tokens in `Config/UiStyle` + `Config/Theme`; one motion helper (Quint, no overshoot; scale pops from the centre).
+5. Write results and open questions to the vault (the UI note, `vault/00 Home.md` Status).

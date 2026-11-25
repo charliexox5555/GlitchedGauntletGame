@@ -1,8 +1,8 @@
-# Measured check skills (rbx-*)
+# Measured checks (rbx-*)
 
-Installed 2026-11-20 from `roblox-development-skills.zip` (55 skills; 38 kept) into `.claude/skills/rbx-*`.
+Installed 2026-11-20 from `roblox-development-skills.zip` (55; 38 kept). **Moved 2026-11-25 from `.claude/skills/rbx-*` to `tools/checks/rbx-*`** (cleanup: as skills they put 38 lines into every chat's prompt and were almost never invoked; `tools/anim/tp_measure.py` is the only caller). Each folder has `README.md` (the recipe), `references/example.json` and `scripts/check.py`.
 
-Each skill is a short recipe plus a small Python checker. You capture real numbers from Studio or a playtest into a JSON file, run `python -I scripts/check.py capture.json`, and it returns 0 (clean), 1 (findings) or 2 (bad input). They **measure**; they don't build. Use them after a build or tune to prove it, alongside `lihfolk:quality-score` and the style skills. Our measured numbers and the Style Bible still win.
+Use: capture real numbers from Studio or a playtest into a JSON file shaped like the example, run `python -I tools/checks/<name>/scripts/check.py capture.json`; it returns 0 (clean), 1 (findings) or 2 (bad input). They **measure**; they don't build. Our measured numbers and the Style Bible still win.
 
 ## Security scan (2026-11-20)
 - The Python uses only the standard library, plus Pillow (texture preflight) and `bpy` (hair sampler, not installed). No network, shell, eval, env or credential access. Files are written only to the report path you pass in.

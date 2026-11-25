@@ -1,5 +1,5 @@
-"""Measured checks for every third-person clip, through the rbx-* skills
-(.claude/skills/rbx-*/scripts/check.py), on the rig in tp_rig.py (the same
+"""Measured checks for every third-person clip, through the rbx-* checkers
+(tools/checks/rbx-*/scripts/check.py), on the rig in tp_rig.py (the same
 poses tp_clips bakes and uploads; the rig matches the engine to 0.001 studs,
 Third Person Overhaul §4; tools/studio captures confirm it per pass).
 
@@ -37,7 +37,7 @@ from tp_check import PLANTED, sole_corners  # noqa: E402
 from tp_rig import FLOOR, fk  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SKILLS = os.path.join(ROOT, ".claude", "skills")
+SKILLS = os.path.join(ROOT, "tools", "checks")
 FPS = 60
 KEY_SPAN = 2 / 60  # acceleration measured across one 30 Hz key
 ACCEL_LIMIT = 900.0  # studs/s^2 over KEY_SPAN: about a 0.5 stud/frame velocity change at 60 Hz

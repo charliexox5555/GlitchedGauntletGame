@@ -1,48 +1,43 @@
 ---
 name: gauntlet-vault
-description: Load FIRST for any work on this Roblox game (GlitchedGauntletGame): design, code, maps, lobby, UI, art, models, animation, VFX, sound, bots, playtests, planning, or briefing agents. Maps each task to the project's Obsidian vault notes and the LihFolk Roblox knowledge base (about 1,300 notes, 22 skills) so work is grounded in the vault instead of done from memory.
+description: Load FIRST for any work on Draft Duels (GlitchedGauntletGame). Maps each kind of task to the vault notes, LihFolk folders and skills to use, with the read-lean rules.
 ---
 
 # Work from the vault
 
-The user's standing rule: **this game is built from the Obsidian vault (`vault/`)**. It holds our design, art standard, plans, playtests, and LihFolk, a large expert Roblox knowledge base with skills, build recipes, worked builds and case studies. Use it on every task, cite what you used, and write your plan and results back into it. Don't go off the top of your head.
+The game is built from the Obsidian vault (`vault/`). Use it, cite what you used, and write plans and results back into it. **Query it, don't load it.**
 
-## Read lean (the rule that keeps usage low)
-The vault is big. **Query it, don't load it.**
-- **Facts and decisions:** ask the `vault-lookup` agent (project notes + code, Haiku) with the question; it returns facts with note paths. For general Roblox facts use `lihfolk-lookup`. Do not read the notes yourself to get a number or a status.
-- **Find:** `vault/INDEX.md` (one line per project note, with sizes) and `vault/04 Tech/Code Map.md` (each Service/Controller, its remotes and attributes). `Grep -n` the keyword, then `Read` with `offset`/`limit`. Never read a note over ~15 KB whole.
-- **Whole notes only when you are about to edit them** (a plan, spec or playtest you will update), and then just the section you change.
-- **Code:** grep the symbol, read a line range; the Code Map says which file owns what.
-- `vault/00 Home.md` is short: top ~40 lines = current status and what waits on the user; the Locked decisions table is greppable. History: `vault/05 Production/Status History.md` (grep only).
-- Briefs for agents and sessions: the question, paths, "done" criteria, and the rows of the task map that apply. Not "read the vault".
+## Read lean
+- **Facts** (a number, decision, status, "where is X"): ask the `vault-lookup` agent (project) or `lihfolk:lihfolk-lookup` (general Roblox). Don't open notes for a single fact.
+- **Find:** `vault/INDEX.md` (one line per note, size in KB) and `vault/04 Tech/Code Map.md` (who owns what). `Grep -n`, then `Read` with `offset`/`limit`. Never read a note over ~15 KB whole.
+- Read a whole note only to edit it, and then only the section you change. Code: grep the symbol, read a line range.
+- `vault/00 Home.md`: top = Status; grep the Locked decisions table. Old history: `05 Production/Status History.md` (grep only).
+- Notes marked **[SUPERSEDED]** in INDEX are history: skip them unless asked.
+- Agent briefs: the question, paths, what "done" looks like, the task-map rows below. Never "read the vault".
 
 ## Every task
-1. Get the current state and the locked decisions that touch the task: `vault-lookup`, or the top of `vault/00 Home.md` and a grep of its Locked decisions table. Then the project note for the task (table below), by section.
-2. Look things up in LihFolk before non-trivial Roblox work. Use the `lihfolk-lookup` agent for quick facts, or the `lihfolk` router skill. LihFolk's own entry points: `vault/LihFolk/ROUTER.md`, `INDEX_SLIM.md`, `SYMPTOMS.md` (bug → note), `AI Skills Start Here.md`. The plugin keeps its original copy under `~/.claude/plugins/cache/lihfolk/`.
-3. Load the matching specialist skills (table below) and follow them.
-4. Plan in phases: write the plan with references in the vault; build a quick blockout or prototype and critique it with screenshots or tests; then do the full build. Results, playtests and a "what to test" checklist go in the vault (`vault/05 Production/Playtests/`, `Bugs & Ideas.md`).
-5. Project notes and measured numbers from our game win over LihFolk's general advice. Link the LihFolk notes your decision leans on.
-6. When you brief a sub-agent or a session, include this rule and the rows that apply.
+1. Current state + locked decisions for the topic (vault-lookup, or Home top + grep).
+2. Non-trivial Roblox work: LihFolk first (`lihfolk:lihfolk` router or lihfolk-lookup). Project notes and measured numbers beat LihFolk's general advice.
+3. Load the skills in the row below. Plan in the vault, blockout/prototype and check it, then build. Results go in the vault (`05 Production/Playtests/`, `Bugs & Ideas.md`).
 
 ## Task map
-| Task | Project notes | LihFolk folders / notes | Skills |
+| Task | Project notes | LihFolk folders | Skills |
 |---|---|---|---|
-| **Anything players see or hear (start here)** | `02 Art/Style Bible.md` (one page: pillars, models, guns, feedback/VFX, sound, UI) | — | `gauntlet-build-style` (models) or `gauntlet-ui-style` (UI) |
-| Lobby, maps, level layout | `01 Design/Lobby.md`, `01 Design/Maps/00 Maps.md`, `02 Art/Art Direction.md`, `02 Art/Lobby Art Plan.md` | `33 Level Design`, `06 World Building and Art`, `36 Narrative and Worldbuilding`, `32 Case Studies…/Case Study - Rivals.md`, `60 High-Craft Game Teardowns` | `gauntlet-build-style` (project skill: no curves/spheres, angled plates, carved ends, joints, reference interview `02 Art/Model Style Interview.md`), `lihfolk-worldbuilding`, `roblox-blender-modeling`, `roblox-asset-import` |
-| Models, stylized low-poly look | `02 Art/Art Direction.md` (model standard, import pipeline) | `14 3D Modeling`, `54 Untextured Stylised Modelling`, `55 Modelling Nuance and Readability`, `45 Procedural Blender Assets`, `44 Materials and Surfaces` | `gauntlet-build-style`, `roblox-blender-modeling`, `roblox-asset-import`, `lihfolk-assets` |
-| UI, HUD, menus | `02 Art/UI Theme v4 Soft Edge.md` (current draft theme), `03 Research/UI References/00 UI References.md` (RIVALS + Valorant video study), `01 Design/Lobby UI and Queue.md`, `Config/UiStyle.luau` + `Config/Theme.luau`, Figma file (memory `figma-ui-file`) | `05 UI and UX` (HUD Design, UI Motion Language and Timing, Menu Archetypes, Figma to Roblox UI, Responsive UI, Safe Areas), `21 LihFolk UI Design System` | `gauntlet-ui-style` (project skill: the owner's UI shape language), `roblox-ui-builder`, `lihfolk-figma`, `roblox-dev:roblox-ui` |
-| RIVALS reference (how RIVALS builds maps, lobby, pads, UI, body, viewmodel, guns, VFX) | `03 Research/Rivals Reference/00 Rivals Reference.md` and its three notes | `32 Case Studies…/Case Study - Rivals.md` | `rivals-reference` (study, don't copy; RIVALS file read-only) |
-| Studying videos (gameplay, UI, tutorials) | `04 Tech/Video Analyzer.md` (tool, CLI, gotchas) | — | — |
-| Animation | `01 Design/Gunplay.md`, memory `viewmodel-arms-style` | `08 Animation` (start at `Animation Start Here.md`), `18 Rigs and Skeletons` | — |
-| VFX, lighting, juice | `02 Art/Art Direction.md` | `07 Lighting VFX and Audio`, `47 Game Feel and Juice` | `lihfolk-vfx` |
-| Sounds | `Config/Sounds.luau`, memory `gun-audio-real-recordings` | `07 Lighting VFX and Audio` | `lihfolk-sfx` |
-| Gameplay systems, bots, queue, rounds | `01 Design/Match Flow.md`, `01 Design/Bots.md`, `04 Tech/Architecture.md` | `09 Gameplay Systems`, `43 Genre Systems End to End`, `24 Worked Builds` (Arena Shooter with Server-Checked Hits), `41 Multiplayer Services` | `roblox-system-builder`, `roblox-dev:new-system` |
-| Remotes, anti-cheat | `04 Tech/Architecture.md` | `22 Anti-Exploit and Security` | `roblox-secure-remotes`, `roblox-anti-exploit-review`, `roblox-dev:roblox-security` |
-| Data, purchases | — | `04 Data and Persistence`, `11 Monetization Publishing and Live Ops` | `roblox-datastore-safety`, `roblox-monetization-compliance` |
-| Performance, bugs | — | `12 Performance Testing and Debugging`, `23 Debugging Deep Dives`, `SYMPTOMS.md` | `roblox-performance-audit`, `roblox-debugging` |
-| Design, fun, retention | `05 Production/Game Plan.md`, `03 Research/` | `10 Game Design and Genres`, `32 Case Studies of Top Roblox Games`, `58 Player QoL and Game Tweaks` | `lihfolk-tutorial` |
-| Scoring built work | — | — | `lihfolk:quality-score` (min 8.5), `lihfolk:council` for big decisions |
-| Proving a build or tune with numbers (seams, floating props, hit feedback, FX cleanup, easing, gun audio peaks, frame time) | `04 Tech/Measured Check Skills.md` (which `rbx-*` skill per area) | — | the matching `rbx-*` skill: capture real JSON, run its checker |
+| Anything players see/hear (start here) | `02 Art/Style Bible.md` | — | `gauntlet-build-style` (models) / `gauntlet-ui-style` (UI) |
+| Lobby | `02 Art/Lobby V5 Plan.md` (by section), `01 Design/Lobby UI and Queue.md` | `33 Level Design`, `06 World Building and Art` | `gauntlet-build-style`, `gauntlet-model-joins`, `lihfolk:lihfolk-worldbuilding` |
+| Maps | `01 Design/Maps/00 Maps.md` | `33 Level Design`, `32 Case Studies…/Case Study - Rivals.md` | same as Lobby + `rivals-reference` |
+| Models, guns, skins, props | `02 Art/Art Direction.md` (standard + import pipeline), `01 Design/Weapons.md` | `14 3D Modeling`, `54 Untextured Stylised Modelling` | `gauntlet-build-style`, `gauntlet-model-joins`, `blender-director`, `lihfolk:roblox-blender-modeling`, `lihfolk:roblox-asset-import` |
+| UI, HUD, menus, Shop | `02 Art/Style Bible.md` §6, `04 Tech/UI Architecture.md`, `02 Art/UI Shop.md` / `UI Locker.md`, `Config/UiStyle.luau` + `Config/Theme.luau` | `05 UI and UX` | `gauntlet-ui-style`, `lihfolk:roblox-ui-builder` |
+| RIVALS reference | `03 Research/Rivals Reference/00 Rivals Reference.md` | `Case Study - Rivals.md` | `rivals-reference` (study, don't copy) |
+| Videos | `04 Tech/Video Analyzer.md` | — | — |
+| Gunplay, animation | `01 Design/Gunplay.md`, `01 Design/Third Person Overhaul.md` (by section) | `08 Animation` | — |
+| VFX / sound | `02 Art/Art Direction.md`, `Config/Sounds.luau` | `07 Lighting VFX and Audio`, `47 Game Feel and Juice` | `lihfolk:lihfolk-vfx` / `lihfolk:lihfolk-sfx` |
+| Rounds, Mods, bots, queue | `01 Design/Match Flow.md`, `01 Design/Abilities/00 Abilities.md`, `01 Design/Bots.md`, `04 Tech/Architecture.md` | `09 Gameplay Systems`, `24 Worked Builds` | `lihfolk:roblox-system-builder` |
+| Remotes, anti-cheat | `04 Tech/Architecture.md` | `22 Anti-Exploit and Security` | `lihfolk:roblox-secure-remotes`, `lihfolk:roblox-anti-exploit-review` |
+| Data, purchases | `01 Design/Shop Economy and Art v1.md` | `04 Data and Persistence`, `11 Monetization…` | `lihfolk:roblox-datastore-safety`, `lihfolk:roblox-monetization-compliance` |
+| Performance, bugs | — | `12 Performance…`, `SYMPTOMS.md` | `lihfolk:roblox-performance-audit`, `lihfolk:roblox-debugging` |
+| Proving a build with numbers | `04 Tech/Measured Check Skills.md` | — | `tools/checks/rbx-*` scripts (not skills) |
+| Scoring work (only when asked) | — | — | `lihfolk:quality-score` |
 
-## Keep the vault current
-After a task: update `vault/00 Home.md` → Status, the Asset Tracker row, and the design note plus the Locked decisions table if a decision changed (see CLAUDE.md → Vault upkeep).
+## After a task
+Update `vault/00 Home.md` → Status (keep it short; move older entries to Status History), the Asset Tracker row, INDEX for new notes, Code Map for new/renamed Services/Controllers/remotes, and the design note + Locked decisions if a decision changed.
