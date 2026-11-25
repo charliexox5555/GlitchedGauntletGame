@@ -6,7 +6,7 @@ Last updated 2026-11-12. Skills that enforce it:
 - `gauntlet-build-style`: models, maps, lobby, props
 - `gauntlet-ui-style`: UI, HUD, menus, boards
 
-**Draft Duels in one line.** Run-and-gun duels (1v1, 2v2 and 3v3) with an ability draft every round and shared weapon phases (Sidearm → Light → Heavy → Elite). Scheduled 16-player Gauntlet events come later. Use plain names and keep glitch effects to rare accents. See [Home](../00%20Home.md) → Locked decisions and [Draft Duels Logo](Draft%20Duels%20Logo.md) for title lettering.
+**PowerDuels in one line.** Run-and-gun duels (1v1, 2v2 and 3v3) with an ability draft every round and shared weapon phases (Sidearm → Light → Heavy → Elite). Scheduled 16-player Gauntlet events come later. Use plain names and keep glitch effects to rare accents. See [Home](../00%20Home.md) → Locked decisions and [PowerDuels Logo](PowerDuels%20Logo.md) for title lettering.
 
 ## 1. Pillars of the look and feel
 1. **Readable first.** Clear silhouettes, fixed HUD slots, one meaning per colour. You always know who, where, and what's ready.

@@ -6,7 +6,7 @@ Status of every asset from model to in-game. Update it whenever something moves 
 
 Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
-**Draft Duels title logo (2026-11-22).** The owner approved Draft Ticket in Lobby Gold. The source pack includes a layered PSD, SVG, color and monochrome PNGs, aligned title sprites, and a motion preview. [Logo kit](../02%20Art/Draft%20Duels%20Logo.md#approved-title)
+**PowerDuels title logo (2026-11-25).** Built the new stacked and horizontal marks, bolt badge, layered PSD, color and mono exports, aligned loading sprites, and motion preview. **In game (local Studio, not published):** loading sprites uploaded (images POWER 108640302171695, DUELS 113740015524735, sparks 90350576633615, full 71296115628525, shine 136775039864530), `ReplicatedFirst.DuelsLoading` and its builder updated, first join / pad duel / phone / desktop checked. Dashboard name, icon and thumbnails pending. [Logo kit](../02%20Art/PowerDuels%20Logo.md#roblox-integration-2026-11-25)
 
 **Draft Duels discovery art (2026-11-22).** Two 512 × 512 icon candidates, a layered icon master, and local avatar and map staging inputs. [Launch art](../02%20Art/Draft%20Duels%20Launch%20Art.md#outputs-and-verification)
 
