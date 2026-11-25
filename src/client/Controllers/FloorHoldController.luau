@@ -6,17 +6,29 @@
 -- character; while there is none it holds the root still (anchored on this client, which owns its movement)
 -- and asks Roblox to stream that spot, then lets go as soon as floor appears, or after FLOOR_HOLD.max seconds.
 -- Only the first moments after a spawn: a jump over a gap mid-round is never held.
+-- Once the fighter is on this screen with floor under it (or the hold gave up), it tells the server (BodyReady),
+-- which keeps the round's barrier up until every player's has (owner 2026-11-25: "camera in the void, spectate
+-- the other bots for a second, and then finally load in"; Config/Match BODY_READY_WAIT).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
+local Net = require(ReplicatedStorage.Shared.Net)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 
 local FloorHoldController = {}
 
 local HOLD = Config.FLOOR_HOLD
 local player = Players.LocalPlayer
 local tokens: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+-- This screen has `character` at `targetPos` (the ArenaSpawn it waited for; the server checks it's the current one).
+local function ready(character: Model, targetPos: Vector3?)
+	if player.Character == character and character.Parent and PlayZone.get(player) == "Match" then
+		Net.event("BodyReady"):FireServer(character, targetPos)
+	end
+end
 
 local function hold(character: Model, targetPos: Vector3?)
 	local root = character:WaitForChild("HumanoidRootPart", 10)
@@ -48,6 +60,7 @@ local function hold(character: Model, targetPos: Vector3?)
 		return workspace:Raycast(root.Position, Vector3.new(0, -HOLD.probe, 0), params) ~= nil
 	end
 	if floor() then
+		ready(character, targetPos)
 		return
 	end
 	local anchoredHere = false
@@ -77,6 +90,9 @@ local function hold(character: Model, targetPos: Vector3?)
 	end
 	if tokens[character] == my and os.clock() - started >= HOLD.max then
 		warn(string.format("[Health] C floor hold: no floor after %ds, let go", HOLD.max))
+	end
+	if tokens[character] == my then
+		ready(character, targetPos)
 	end
 end
 

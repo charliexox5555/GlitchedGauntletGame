@@ -46,6 +46,9 @@ local airSpring = newSpring() -- px
 local kickSpring = newSpring() -- px: Dash and shot kicks (target stays 0)
 local airborne = false
 local aimBlend = 0
+-- The sniper scope is up (HudController.setScope): it has its own reticle, so the crosshair stays off even
+-- with SHOW WHILE AIMING (owner 2026-11-25: a dot over the scope's).
+local scoped = false
 
 local function stepSpring(sp: Spring, dt: number)
 	local m = config.motion
@@ -117,6 +120,13 @@ function Crosshair.setState(_isSliding: boolean, isAirborne: boolean, aim: numbe
 	aimBlend = if aim == aim then math.clamp(aim, 0, 1) else 0
 end
 
+function Crosshair.setScoped(on: boolean)
+	scoped = on
+	if on then
+		alpha = 0
+	end
+end
+
 -- A shot: the gap kicks open by the gun's kick (`recoilUp`, Weapons recoil.up)
 -- and eases back; a spray stacks up to `bloomMax`.
 function Crosshair.shot(recoilUp: number)
@@ -179,7 +189,8 @@ function Crosshair.step(
 	-- Whole degrees (RIVALS rounds too): fewer half-pixel edges while it turns.
 	local shownTilt = Crosshair.tilt()
 	-- SHOW WHILE AIMING: the callers hide it on ADS, so the aim blend decides
-	local show = wanted or ((aiming == true or aimBlend > 0.05) and c.showWhileAiming)
+	local show = not scoped
+		and (wanted or ((aiming == true or aimBlend > 0.05) and c.showWhileAiming))
 	alpha += ((if show then 1 else 0) - alpha) * (1 - math.exp(-c.fadeRate * dt))
 	r.Visible = alpha > 0.02
 	if not r.Visible then

@@ -170,6 +170,7 @@ end
 -- The sniper scope overlay (WeaponController shows it once scoped in).
 function HudController.setScope(visible: boolean)
 	ScopeOverlay.set(visible)
+	Crosshair.setScoped(visible)
 end
 
 -- How far into the sights the gun is, 0..1: the screen's edges darken with it.

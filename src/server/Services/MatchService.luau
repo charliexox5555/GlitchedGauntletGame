@@ -43,6 +43,7 @@ local ZoneService = require(script.Parent.ZoneService)
 local StatsService = require(script.Parent.StatsService)
 local MatchEndService = require(script.Parent.MatchEndService)
 local Health = require(ReplicatedStorage.Shared.Health)
+local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 local HttpService = game:GetService("HttpService")
 -- Levels and streaks (LobbyServer, one copy per server; vault/01 Design/Progression.md)
@@ -63,6 +64,9 @@ local SPAWN_TRIES = 4
 local SPAWN_BACKOFF = { 0.5, 1, 2 }
 local STREAM_WAIT = 6 -- seconds a spawn may wait for its area to stream to the player
 local spawning: { [Player]: boolean } = {}
+-- The body each player's own client last said is on its screen with floor under it (BodyReady).
+local bodyReady: { [Player]: Model } = {}
+local limiter = RateLimit.new(Config.RATE)
 
 local enabled = false
 local matchesPlayed = 0
@@ -235,6 +239,53 @@ local function anyoneMissing(): boolean
 		end
 	end
 	return false
+end
+
+-- On the arena on the server AND on the player's own screen (BodyReady): what a round waits for before the
+-- fight, so nobody starts as a camera in the void watching bots (owner 2026-11-25).
+local function inView(player: Player): boolean
+	return onArena(player) and bodyReady[player] == player.Character
+end
+
+local function anyoneOutOfView(): boolean
+	for team = 1, 2 do
+		for _, player in playersOn(team) do
+			if not inView(player) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+local function finiteVector(v: Vector3): boolean
+	for _, n in { v.X, v.Y, v.Z } do
+		if n ~= n or n == math.huge or n == -math.huge then
+			return false
+		end
+	end
+	return true
+end
+
+-- Client (Controllers/FloorHoldController): `body` is on its screen with floor under it, at `at` (the
+-- ArenaSpawn it waited for). Only the current character counts, and only at the spot the server put it.
+local function onBodyReady(player: Player, body: unknown, at: unknown)
+	if not limiter:allow(player, "BodyReady") then
+		return
+	end
+	if typeof(body) ~= "Instance" or body ~= player.Character or not body:IsA("Model") then
+		return
+	end
+	local spawnAt = body:GetAttribute("ArenaSpawn")
+	if typeof(spawnAt) == "Vector3" then
+		if typeof(at) ~= "Vector3" or not finiteVector(at) or (at - spawnAt).Magnitude > 1 then
+			return -- a check from before the server moved it to the arena
+		end
+	end
+	if bodyReady[player] ~= body then
+		bodyReady[player] = body
+		HealthLog.stage("client has its body", player, Context.id)
+	end
 end
 
 local function spawnPlayer(player: Player, spawn: SpawnLocation?)
@@ -670,7 +721,9 @@ local function runDraft(round: number)
 	MatchState.set("EndsAt", now + total)
 	MatchState.set("Phase", "Draft")
 	runClock(picking, function()
-		return forfeited() or DraftService.allLocked(seatKeys())
+		-- Everyone locked in skips to the 3-2-1, unless someone's fighter isn't on their screen yet: the
+		-- select's own time is free waiting for them.
+		return forfeited() or (DraftService.allLocked(seatKeys()) and not anyoneOutOfView())
 	end)
 	DraftService.close(seatKeys())
 	applyDraft(seatKeys())
@@ -890,6 +943,8 @@ end
 -- else from the next round). A 1v1 leaver forfeits (forfeitWinner).
 local function onLeave(player: Player)
 	spawning[player] = nil
+	bodyReady[player] = nil
+	limiter:forget(player)
 	-- Leaving a match before its end is a loss (Progression.md).
 	local leftTeam = participants[player.UserId]
 	if inMatch and leftTeam and not reported[player.UserId] then
@@ -1207,6 +1262,27 @@ local function runMatch(): boolean
 				end
 				return (not someoneOut() and not anyoneMissing()) or forfeited()
 			end)
+		end
+		if anyoneOutOfView() and not forfeited() then
+			-- The server has them but their own screen doesn't show their fighter yet (a slow device, a big map
+			-- still arriving): the barrier stays up a little longer.
+			runClock(Config.BODY_READY_WAIT, function()
+				if anyoneMissing() then
+					spawnMissing()
+				end
+				return not anyoneOutOfView() or forfeited()
+			end)
+			for team = 1, 2 do
+				for _, player in playersOn(team) do
+					if not inView(player) then
+						HealthLog.problem(
+							"fight started before the client showed its fighter",
+							player,
+							`{Context.id} round {round}`
+						)
+					end
+				end
+			end
 		end
 
 		-- A side with nobody alive at the start isn't a fight: no point, go again.
@@ -1689,6 +1765,7 @@ function MatchService.start()
 	end
 	setAllLocked(true)
 	MatchPlan.start()
+	Net.event("BodyReady").OnServerEvent:Connect(onBodyReady)
 	-- Shared services hear every fighter in the server: only this match's count (MatchKit/Context).
 	WeaponService.onHit(
 		Context.filtered(

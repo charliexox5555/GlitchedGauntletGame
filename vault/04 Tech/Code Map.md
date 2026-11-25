@@ -27,6 +27,7 @@ Layout (one merged place `71551303511506` via `default.project.json`, port `3487
 | `Replay` (victim, kill time, start, killer, POV look track, lag, POV hits, POV fighter, hurts) | server → all | `MatchService` → `ReplayController` (always first person: the killer for a gun or knife kill, else the victim) |
 | `MatchSummary` / `MatchChoice` | server → all / client → server | `MatchEndService` |
 | `MatchReady` | client → server (client screens mounted for current match zone) | `Bots/MatchPlan` |
+| `BodyReady` (character, arena spawn) | client → server (own fighter on screen with floor; round waits for it) | `FloorHoldController` → `MatchService` |
 | `MapVote` / `Device` / `Scoreboard` / `CombatReport` | client → server / server → client | `MapVoteService` / `DeviceService` / `StatsService` |
 
 Lobby remotes (`src/lobby/shared/LobbyNet.luau`, folder `LobbyRemotes`): `QueueRequest` (client → server: `join`, mode / `leave`), `QueueEvent` (server → client: found / failed / studio / info), `Queued` (waiting counts folder), `PartyRequest` (`invite` / `accept` / `decline` / `leave`), `PartyEvent`, `LockerRequest` (`equip`, gunId, line), `ShopRequest` (`buyCase` / `openCase` / `buyDaily` / `devCoins`), `ShopEvent`, `CaseShow`, `RobuxRequest`, `LoginClaim` / `LoginEvent`, `SettingsRequest`, `StreakSave`, `ProgressEvent`.

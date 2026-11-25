@@ -46,6 +46,7 @@ local RELIABLE = {
 	"CombatReport", -- StatsService: your damage vs your killer, on death
 	"MatchChoice",
 	"MatchReady",
+	"BodyReady", -- client: its own fighter is on its screen with floor under it (MatchService waits for it)
 	"MapVote",
 	"Device",
 }

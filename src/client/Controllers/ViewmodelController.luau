@@ -1260,6 +1260,46 @@ local function finishGun(gun: Gun, weapon: WeaponConfig)
 	gun.rig = ViewmodelRig.new(gun.model, gun.handle)
 end
 
+-- A hidden gun's own light and particles (owner 2026-11-25: "a faint orb and spot while scoped into the
+-- rifles"): parts and their Textures hide by LocalTransparencyModifier, but the skin lines' lights, motes,
+-- beams and trails (Sundial's solar light, Riftforge's core, ...) kept glowing in front of the scope. While
+-- hidden they are switched off every frame (after the skins' own steps, which may switch them on); the ones
+-- this turned off come back when the gun shows. The outline Highlight and the ADS reticle have their own rules.
+local quietFx: { [Instance]: boolean } = {}
+
+local function isGunFx(d: Instance): boolean
+	return d:IsA("Light")
+		or d:IsA("ParticleEmitter")
+		or d:IsA("Beam")
+		or d:IsA("Trail")
+		or d:IsA("Fire")
+		or d:IsA("Smoke")
+		or d:IsA("Sparkles")
+end
+
+local function silenceGunFx()
+	for _, gun in guns do
+		for _, d in gun.model:GetDescendants() do
+			if isGunFx(d) and (d :: any).Enabled then
+				(d :: any).Enabled = false
+				if d:IsA("ParticleEmitter") then
+					d:Clear() -- motes already out would hang in the scope for their lifetime
+				end
+				quietFx[d] = true
+			end
+		end
+	end
+end
+
+local function restoreGunFx()
+	for d in quietFx do
+		if d.Parent then
+			(d :: any).Enabled = true
+		end
+	end
+	table.clear(quietFx)
+end
+
 local function setGunsVisible(visible: boolean)
 	local modifier = if visible then 0 else 1
 	for _, gun in guns do
@@ -1270,6 +1310,11 @@ local function setGunsVisible(visible: boolean)
 		end
 		gun.adsFade = -1 -- rewrite ADS fades next frame
 		gun.lensFade = -1
+	end
+	if visible then
+		restoreGunFx()
+	else
+		silenceGunFx()
 	end
 end
 
@@ -1306,6 +1351,7 @@ function ViewmodelController.unequip()
 		gun.model:Destroy()
 	end
 	guns = {}
+	table.clear(quietFx)
 	config = nil
 	table.clear(playing)
 	if arms then
@@ -3407,6 +3453,10 @@ local function update(dt: number)
 				end
 			end
 		end
+	end
+
+	if hidden then
+		silenceGunFx() -- after the skins' steps above (see quietFx)
 	end
 
 	-- 3. Hands and arms on the grips: gun space, from the same pass.

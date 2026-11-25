@@ -131,3 +131,18 @@ ReplicatedFirst caches decoded Locker and manifest values by revision, skips the
 - Leak & idle-loop cleanup: `UiLayout` / `InputGlyphs` `Destroying` cleanup, `"GGAutoShoot"` unbind + `MapVoteBlur` cleanup (`src/client/init.client.luau`, `MapVoteController`), and `PlayZone ~= "Lobby"` guards in `LobbyGunDisplays`, `LobbyPadFx`, `LobbyPathFx`, `WorldPrompts`, and `PadDuelController`.
 
 **Verified:** `stylua --check` (0 diffs on all 17 edited `.luau` files), `selene src` (0 errors, 0 warnings), `rojo build default.project.json`, and Studio MCP Play tests: Lobby join (`body ok +2.3 s`, `loading screen done +5.1 s`, `textFitFolders = 0`), `HostedTest = "2v2"` through Round 1 Live (`Phase = "Live"`, `Round = 1`, `bodyOk = true`, `hp = 100`, `pos = [-12, 803, 94]`, `duelLoading = false`, `textFitFolders = 0`, 0 script errors), and Lobby UI modal check (`249` `AutomaticSize` labels, `textFitFolders = 0`). Owner reminder: save/publish the place in Studio since Rojo was disconnected.
+
+## The fight waits for the player's own screen (2026-11-25)
+
+**Owner report:** "sometimes does not load the character, and the rounds start before them ... camera in the void, spectate the other bots for a second, and then finally load in."
+
+**Cause:** every round-start check was server-side. `MatchService.onArena` sees the character on the server, but a slow device (or a big map still streaming) can be several seconds behind, so `Live` began while `player.Character` was still nil on that client. `SpectateController.tick` then did what it does for a mid-fight join with no body: watched a teammate or bot, until the character arrived.
+
+**Change:**
+- New remote `BodyReady` (client → server, `(character, arenaSpawn)`). `FloorHoldController` fires it once its own fighter is on screen with floor under it (or the 15 s floor hold gave up), only in `PlayZone == "Match"`.
+- `MatchService.onBodyReady`: rate-limited (`Config/Match.RATE.BodyReady` 4/s, burst 8), must be the current `player.Character`, and its `at` must be finite and within 1 stud of the server's `ArenaSpawn` attribute (so a check made before the arena `PivotTo` doesn't count).
+- `inView(player)` = `onArena` and acked. The select no longer skips to the 3-2-1 early while anyone is out of view (the R1 select's 19 s are free waiting). After the countdown and the existing `LATE_SPAWN_WAIT`, the barrier stays up to `BODY_READY_WAIT = 12 s` more for anyone not in view; anyone still out logs `[Health] fight started before the client showed its fighter`.
+- A client that never acks can only hold its own match by up to 12 s a round.
+
+**Verified:** `stylua --check` + `selene` on edited files, `rojo build`. **Not yet run in Studio** (Rojo was disconnected): needs a `BotMatch` play with Rojo connected, and a live publish test on a slow device (watch F9 → Server for `client has its body` per round).
+

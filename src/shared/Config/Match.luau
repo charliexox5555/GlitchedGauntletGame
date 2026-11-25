@@ -110,6 +110,11 @@ return table.freeze({
 	ROUNDS_TO_WIN = 5,
 	ROUNDS_TO_WIN_BY_MODE = table.freeze({ beginner = 4 }) :: { [string]: number },
 	LATE_SPAWN_WAIT = 6, -- seconds a slow spawn gets past the countdown (3 until 2026-11-22: void spawns)
+	-- Seconds a player's own screen gets past the countdown to show their fighter (owner 2026-11-25: "camera in
+	-- the void, spectate the other bots for a second, and then finally load in"). The server can have the body while
+	-- a slow device hasn't got it yet; the client says so (BodyReady, Controllers/FloorHoldController) once its own
+	-- fighter is there with floor under it, and the fight waits for that. The select also won't skip early for it.
+	BODY_READY_WAIT = 12,
 	LOAD_CANCEL_TIMEOUT = 22, -- seconds a live waiting lobby may stall before cancelling & requeueing everyone
 	MAP_LOAD_TIMEOUT = 15, -- seconds initial map load may retry with players waiting before cancelling & requeueing
 	-- Floor hold (Controllers/FloorHoldController, owner 2026-11-22: "in a void ... every round ends right
@@ -243,5 +248,6 @@ return table.freeze({
 		MatchChoice = { 4, 6 },
 		Scoreboard = { 2, 4 },
 		MapVote = { 4, 6 },
+		BodyReady = { 4, 8 }, -- Controllers/FloorHoldController: once per spawn (and per spawn spot)
 	},
 })
