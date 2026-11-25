@@ -4,10 +4,19 @@
 -- by the replay, spectating and the match-end scene.
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+local PlayZone = require(game:GetService("ReplicatedStorage").Shared.PlayZone)
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local Fighters = {}
+
+local function inScope(inst: Instance): boolean
+	if RunService:IsClient() and Players.LocalPlayer then
+		return PlayZone.inSameScope(Players.LocalPlayer, inst)
+	end
+	return true
+end
 
 function Fighters.botBody(id: string): Model?
 	local folder = workspace:FindFirstChild("Dummies")
@@ -17,6 +26,7 @@ function Fighters.botBody(id: string): Model?
 				model:IsA("Model")
 				and StateValues.get(model, "IsBot") == true
 				and "b" .. tostring(StateValues.get(model, "BotId")) == id
+				and inScope(model)
 			then
 				return model
 			end
@@ -35,14 +45,14 @@ function Fighters.bodies(): { Model }
 	local list: { Model } = {}
 	for _, p in Players:GetPlayers() do
 		local body = p.Character
-		if body then
+		if body and inScope(p) then
 			table.insert(list, body)
 		end
 	end
 	local dummies = workspace:FindFirstChild("Dummies")
 	if dummies then
 		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and StateValues.get(m, "IsBot") == true then
+			if m:IsA("Model") and StateValues.get(m, "IsBot") == true and inScope(m) then
 				table.insert(list, m)
 			end
 		end
@@ -55,14 +65,14 @@ function Fighters.all(except: Player?): { Fighter }
 	local list: { Fighter } = {}
 	for _, p in Players:GetPlayers() do
 		local body = p.Character
-		if p ~= except and body then
+		if p ~= except and body and inScope(p) then
 			table.insert(list, { holder = p, body = body })
 		end
 	end
 	local dummies = workspace:FindFirstChild("Dummies")
 	if dummies then
 		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and StateValues.get(m, "IsBot") == true then
+			if m:IsA("Model") and StateValues.get(m, "IsBot") == true and inScope(m) then
 				table.insert(list, { holder = m, body = m })
 			end
 		end

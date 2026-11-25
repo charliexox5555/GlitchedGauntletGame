@@ -27,16 +27,22 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Health = require(ReplicatedStorage.Shared.Health)
+local InputMode = require(Shared.InputMode)
 local Bindings = require(Shared.Config.Input)
 local Charges = require(Shared.Mods.Charges)
 local Config = require(Shared.Config.Mods)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
+local Flash = require(Shared.Mods.Flash)
+local Frost = require(Shared.Mods.Frost)
 local HealOrb = require(Shared.Mods.HealOrb)
+local Molly = require(Shared.Mods.Molly)
 local Recall = require(Shared.Mods.Recall)
+local Recon = require(Shared.Mods.Recon)
 local Roller = require(Shared.Mods.Roller)
 local Stim = require(Shared.Mods.Stim)
+local SettingsApply = require(Shared.SettingsApply)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 
@@ -76,10 +82,17 @@ local current = 0 -- slot being held / used
 local phaseAt = 0 -- os.clock() the phase began
 local queued: ModTypes.UseMode? = nil -- a use pressed while still equipping
 local quickCast = false
+local smartSlot = 0 -- mobile Smart casting: slot whose button is currently held
+local smartAt = 0
+local smartCancelled = false
+local SMART_CHARGE_AT = 0.18 -- s: holding a bow Mod button past this starts charging
+local SMART_TAP_CHARGE = 0.30 -- matches server min-hold slack for a quick dart tap
 -- Steering (HeldSteer): how the wall was started, whether LMB was let go,
 -- and when the look was last sent.
 local steerMode: ModTypes.UseMode = "Primary"
 local steerStopped = false
+local steerTouchAuto = false
+local steerReleased = false
 local steerSentAt = -math.huge
 local STEER_RATE = 0.05 -- seconds between ModSteer looks (the server prefers its own camera copy)
 -- Charging (HeldCharge): when LMB went down, the bounces RMB picked, the hum.
@@ -105,8 +118,18 @@ local RECALL_CONFIRM = 0.35
 local stepRecallHold: (now: number) -> ()
 
 -- Held throws with an arc preview: each Mod's projectile options (the server
--- uses the same). The Molly has none: you just throw it (Molly.md).
-local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {}
+-- uses the same).
+local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
+	Molly = Molly.options,
+	Frost = Frost.options,
+	Flash = function(stats: ModTypes.Stats): Projectile.Options
+		return Flash.options(stats, false)
+	end,
+}
+
+local function smartTouchCast(): boolean
+	return InputMode.touch() and SettingsApply.get("touchModCast") ~= "Equip"
+end
 -- Held placements: each Mod's spot check and box (the server uses the same).
 type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams, OverlapParams?) -> Placeable.Spot
 type PlaceDef = { find: Finder, size: (ModTypes.Stats) -> Vector3, bodies: boolean }
@@ -249,11 +272,10 @@ function ModController.keyLabel(slot: number): string
 end
 
 local function useLabels(): (string, string)
-	local last = UserInputService:GetLastInputType()
-	if string.find(last.Name, "Gamepad") then
-		return "RT", "LT"
-	elseif last == Enum.UserInputType.Touch then
+	if InputMode.touch() then
 		return "FIRE", "ALT"
+	elseif InputMode.gamepad() then
+		return "RT", "LT"
 	end
 	return "LMB", "RMB"
 end
@@ -289,10 +311,12 @@ local previewFolder: Folder? = nil
 local arcPool: VfxPool.Pool<Part>? = nil
 local arcParts: { Part } = {}
 local blastRing: Part? = nil
+local popOrb: Part? = nil
+local bounceOrbs: { Part } = {}
 local hologram: Part? = nil
 local lastSpot: Placeable.Spot? = nil
 local targetHighlight: Highlight? = nil
-local ARC_DOTS = 26
+local ARC_DOTS = 22
 
 local function previewParent(): Folder
 	local f = previewFolder
@@ -305,6 +329,8 @@ local function previewParent(): Folder
 	previewFolder = made
 	arcPool = nil
 	blastRing = nil
+	popOrb = nil
+	table.clear(bounceOrbs)
 	hologram = nil
 	return made
 end
@@ -335,6 +361,61 @@ local function hideArc()
 	if blastRing then
 		blastRing.Transparency = 1
 	end
+	if popOrb then
+		popOrb.Transparency = 1
+	end
+	for _, orb in bounceOrbs do
+		orb.Transparency = 1
+	end
+end
+
+local function ensureArcPool(): VfxPool.Pool<Part>
+	local pool = arcPool
+	if not pool then
+		local made = VfxPool.new(function(): Part
+			return newPreviewPart(Enum.PartType.Ball, Vector3.one * 0.18)
+		end, previewParent(), ARC_DOTS)
+		arcPool = made
+		pool = made
+	end
+	return pool
+end
+
+local function setDotCount(count: number)
+	local pool = ensureArcPool()
+	while #arcParts > count do
+		local p = table.remove(arcParts)
+		if p then
+			pool:release(p)
+		end
+	end
+	while #arcParts < count do
+		table.insert(arcParts, pool:acquire())
+	end
+end
+
+local function showPopOrb(at: Vector3, size: number, color: Color3, alpha: number)
+	local orb = popOrb
+	if not orb then
+		orb = newPreviewPart(Enum.PartType.Ball, Vector3.one)
+		popOrb = orb
+	end
+	orb.Size = Vector3.one * size
+	orb.CFrame = CFrame.new(at)
+	orb.Color = color
+	orb.Transparency = alpha
+end
+
+local function showBlastRing(at: Vector3, radius: number, color: Color3)
+	local ring = blastRing
+	if not ring then
+		ring = newPreviewPart(Enum.PartType.Cylinder, Vector3.new(0.05, 1, 1))
+		blastRing = ring
+	end
+	ring.Size = Vector3.new(0.06, radius * 2, radius * 2)
+	ring.CFrame = CFrame.new(at + Vector3.new(0, 0.06, 0)) * CFrame.Angles(0, 0, math.pi / 2)
+	ring.Color = color
+	ring.Transparency = 0.8
 end
 
 local function hidePlacement()
@@ -407,38 +488,133 @@ local function drawArc(id: string, stats: ModTypes.Stats)
 	local params = previewParams()
 	local origin, velocity = Projectile.throw(head, cam.CFrame.LookVector, "Primary", stats, params)
 	local path = Projectile.simulate(origin, velocity, options(stats), params)
-	local pool = arcPool
-	if not pool then
-		local made = VfxPool.new(function(): Part
-			return newPreviewPart(Enum.PartType.Ball, Vector3.one * 0.18)
-		end, previewParent(), ARC_DOTS)
-		arcPool = made
-		pool = made
-	end
 	local color = TeamColor.ALLY
 	local fuse = Projectile.endTime(path)
+	setDotCount(ARC_DOTS)
 	for i = 1, ARC_DOTS do
+		local frac = i / ARC_DOTS
 		local p = arcParts[i]
-		if not p then
-			p = pool:acquire()
-			arcParts[i] = p
-		end
-		local t = fuse * i / ARC_DOTS
-		p.CFrame = CFrame.new(Projectile.positionAt(path, t))
+		p.Size = Vector3.one * (0.14 + 0.06 * frac)
+		p.CFrame = CFrame.new(Projectile.positionAt(path, fuse * frac))
 		p.Color = color
-		p.Transparency = 0.15 + 0.5 * (i / ARC_DOTS)
+		p.Transparency = 0.15 + 0.5 * frac
 	end
-	local ring = blastRing
-	if not ring then
-		ring = newPreviewPart(Enum.PartType.Cylinder, Vector3.new(0.05, 1, 1))
-		blastRing = ring
+	for _, orb in bounceOrbs do
+		orb.Transparency = 1
 	end
 	local landing = Projectile.positionAt(path, fuse)
-	local r: number = stats.radius
-	ring.Size = Vector3.new(0.06, r * 2, r * 2)
-	ring.CFrame = CFrame.new(landing) * CFrame.Angles(0, 0, math.pi / 2)
-	ring.Color = color
-	ring.Transparency = 0.82
+	if typeof(stats.radius) == "number" then
+		if popOrb then
+			popOrb.Transparency = 1
+		end
+		showBlastRing(landing, stats.radius, color)
+	else
+		if blastRing then
+			blastRing.Transparency = 1
+		end
+		showPopOrb(landing, 0.65, Color3.fromHex("FFF0B3"), 0.35)
+	end
+end
+
+-- Mobile-only bounce trajectory preview for bow abilities (Recon / ShockDart).
+local function drawBowPreview(id: string, stats: ModTypes.Stats)
+	if not InputMode.touch() then
+		hideArc()
+		return
+	end
+	local head = headPosition()
+	local cam = Workspace.CurrentCamera
+	if not head or not cam then
+		hideArc()
+		return
+	end
+	local params = previewParams()
+	local charge = if phase == "Charging"
+		then math.clamp((os.clock() - chargeStart) / (stats.chargeTime or 1), 0, 1)
+		else 0.55
+	local origin, velocity = Recon.launch(head, cam.CFrame.LookVector, charge, stats, params)
+	local path = Projectile.simulate(origin, velocity, Recon.options(stats, chargeBounces), params)
+	local color = if id == "ShockDart" then Color3.fromHex("67E8F9") else TeamColor.ALLY
+	local fuse = Projectile.endTime(path)
+	setDotCount(ARC_DOTS)
+	for i = 1, ARC_DOTS do
+		local frac = i / ARC_DOTS
+		local p = arcParts[i]
+		p.Size = Vector3.one * (0.13 + 0.05 * frac)
+		p.CFrame = CFrame.new(Projectile.positionAt(path, fuse * frac))
+		p.Color = color
+		p.Transparency = 0.15 + 0.5 * frac
+	end
+	for k = 1, 2 do
+		local seg = path.segments[k + 1]
+		local orb = bounceOrbs[k]
+		if seg and not seg.rest then
+			if not orb then
+				orb = newPreviewPart(Enum.PartType.Ball, Vector3.one * 0.45)
+				orb.Color = Color3.fromHex("FFD166")
+				bounceOrbs[k] = orb
+			end
+			orb.CFrame = CFrame.new(seg.p)
+			orb.Transparency = 0.2
+		elseif orb then
+			orb.Transparency = 1
+		end
+	end
+	local landing = Projectile.positionAt(path, fuse)
+	if id == "ShockDart" and typeof(stats.radius) == "number" then
+		if popOrb then
+			popOrb.Transparency = 1
+		end
+		showBlastRing(landing, stats.radius, color)
+	else
+		if blastRing then
+			blastRing.Transparency = 1
+		end
+		showPopOrb(landing, 0.9, color, 0.25)
+	end
+end
+
+-- Ground-snapped forward strip preview for Firewall / Frost Wall.
+local function drawWallPreview(stats: ModTypes.Stats)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local cam = Workspace.CurrentCamera
+	if not (root and root:IsA("BasePart")) or not cam then
+		hideArc()
+		return
+	end
+	local flat = cam.CFrame.LookVector * Vector3.new(1, 0, 1)
+	if flat.Magnitude < 0.05 then
+		hideArc()
+		return
+	end
+	local dir = flat.Unit
+	local maxLen = math.min(if typeof(stats.maxLength) == "number" then stats.maxLength else 40, 40)
+	local count = math.clamp(math.floor(maxLen / 4), 1, 10)
+	local color = if stats.behaviour == "Frost"
+		then Color3.fromHex("7CE8FF")
+		else Color3.fromHex("FF8C3B")
+	local params = previewParams()
+	setDotCount(count)
+	for i = 1, count do
+		local probePos = root.Position + dir * (i * 4) + Vector3.new(0, 3, 0)
+		local down = Workspace:Raycast(probePos, Vector3.new(0, -14, 0), params)
+		local groundY = if down then down.Position.Y + 0.15 else root.Position.Y - 2.6
+		local p = arcParts[i]
+		p.Size = Vector3.one * 0.28
+		p.CFrame = CFrame.new(probePos.X, groundY, probePos.Z)
+		p.Color = color
+		p.Transparency = 0.18 + 0.45 * (i / count)
+	end
+	if blastRing then
+		blastRing.Transparency = 1
+	end
+	if popOrb then
+		popOrb.Transparency = 1
+	end
+	for _, orb in bounceOrbs do
+		orb.Transparency = 1
+	end
 end
 
 -- The hologram where a placed Mod would go: green when it can, red when not.
@@ -556,6 +732,10 @@ local function endHold(tellServer: boolean)
 	end
 	setPhase("Idle", 0)
 	queued = nil
+	smartSlot = 0
+	smartCancelled = false
+	steerTouchAuto = false
+	steerReleased = false
 	if throwPending then
 		-- Cancelled in the wind-up: nothing was sent (no charge spent), and the
 		-- hand eases back out of the throw instead of finishing it.
@@ -606,6 +786,17 @@ end
 
 -- Uses the held Mod (or queues the use while it's still coming up).
 local function use(mode: ModTypes.UseMode)
+	if
+		phase == "Steering"
+		and steerTouchAuto
+		and steerReleased
+		and mode == "Primary"
+		and not steerStopped
+	then
+		steerStopped = true
+		Net.event("ModSteer"):FireServer(current, 0, 0, true)
+		return
+	end
 	-- Mid-draw (Recon, owner 2026-11-15): RMB still cycles the bounces. The
 	-- charge keeps running and the release fires with the count shown then.
 	local drawing = phase == "Charging"
@@ -723,6 +914,8 @@ local function use(mode: ModTypes.UseMode)
 		setPhase("Steering", current)
 		steerMode = mode
 		steerStopped = false
+		steerTouchAuto = mode == "Primary" and InputMode.touch()
+		steerReleased = false
 		steerSentAt = -math.huge
 		ViewmodelController.setFreeHand("FirewallGuide")
 		ModAudio.play(wallSounds(stats).cast)
@@ -751,6 +944,14 @@ local function startHold(slot: number, view: SlotView)
 	local def = view.def :: ModTypes.ModDef
 	setPhase("Equipping", slot)
 	queued = nil
+	if smartTouchCast() then
+		smartSlot = slot
+		smartAt = os.clock()
+		smartCancelled = false
+	else
+		smartSlot = 0
+		smartCancelled = false
+	end
 	itemToken += 1
 	WeaponController.setHolstered("Mod", true)
 	if def.activation == "HeldSteer" then
@@ -802,6 +1003,7 @@ local function startHold(slot: number, view: SlotView)
 	end
 	if quickCast and def.quickCast then
 		-- Straight to the use: skip the raise.
+		smartSlot = 0
 		phase = "Held"
 		use(def.quickCast)
 	end
@@ -1065,7 +1267,10 @@ local function stepCharge(now: number)
 	if hum then
 		hum.sound.PlaybackSpeed = 0.8 + 0.6 * charge
 	end
-	if InputController.isDown("Fire") then
+	if
+		InputController.isDown("Fire")
+		or (smartSlot == current and InputController.isDown(PREFIXES[current]))
+	then
 		return
 	end
 	stopChargeHum()
@@ -1091,9 +1296,13 @@ local function stepSteer(now: number)
 		return
 	end
 	if not InputController.isDown("Fire") then
-		steerStopped = true
-		Net.event("ModSteer"):FireServer(current, 0, 0, true)
-		return
+		if steerTouchAuto then
+			steerReleased = true
+		else
+			steerStopped = true
+			Net.event("ModSteer"):FireServer(current, 0, 0, true)
+			return
+		end
 	end
 	local cam = Workspace.CurrentCamera
 	if cam and now - steerSentAt >= STEER_RATE then
@@ -1190,6 +1399,11 @@ local function update(_dt: number)
 			endHold(false)
 		else
 			stepCharge(now)
+			if phase == "Charging" then
+				drawBowPreview(view.id, view.stats)
+			else
+				hideArc()
+			end
 		end
 	end
 
@@ -1209,8 +1423,26 @@ local function update(_dt: number)
 			endHold(false)
 			return
 		end
+		if
+			phase == "Held"
+			and smartSlot ~= 0
+			and smartSlot == current
+			and def.activation == "HeldCharge"
+			and now - smartAt >= SMART_CHARGE_AT
+			and InputController.isDown(PREFIXES[current])
+		then
+			use("Primary")
+			if phase == "Charging" then
+				drawBowPreview(def.id, stats)
+			end
+			return
+		end
 		if def.activation == "HeldThrow" then
 			drawArc(def.id, stats)
+		elseif def.activation == "HeldCharge" then
+			drawBowPreview(def.id, stats)
+		elseif def.activation == "HeldSteer" then
+			drawWallPreview(stats)
 		elseif def.activation == "HeldPlace" then
 			drawPlacement(def.id, stats)
 		elseif def.activation == "HeldTarget" then
@@ -1227,6 +1459,45 @@ function ModController.hint(): (string?, boolean)
 	if f and os.clock() - f.at < 1.4 then
 		return f.text, true
 	end
+	if phase == "Steering" and steerTouchAuto and not steerStopped then
+		return "LOOK TO CURVE  ·  FIRE Lock straight", false
+	end
+	if smartSlot ~= 0 and (phase == "Equipping" or phase == "Held" or phase == "Charging") then
+		if smartCancelled then
+			return "RELEASE TO ✕ CANCEL", true
+		end
+		local view = ModController.slot(current)
+		local def = view.def
+		if not def then
+			return nil, false
+		end
+		if def.activation == "HeldSteer" then
+			return "RELEASE FOR WALL  ·  DRAG TO ✕ CANCEL", false
+		elseif def.activation == "HeldCharge" then
+			if phase == "Charging" then
+				return "RELEASE TO FIRE  ·  DRAG TO ✕ CANCEL", false
+			end
+			return "HOLD TO CHARGE  ·  RELEASE TO FIRE", false
+		elseif def.activation == "HeldPlace" then
+			return "RELEASE TO PLACE  ·  DRAG TO ✕ CANCEL", false
+		elseif def.activation == "HeldTarget" then
+			local barrier = def.id == "HealOrb"
+				and view.stats ~= nil
+				and HealOrb.isBarrier(view.stats)
+			local selfTarget = view.stats ~= nil and healTarget(view.stats) == player.Character
+			if barrier then
+				return if selfTarget
+					then "RELEASE BARRIER SELF  ·  DRAG TO ✕ CANCEL"
+					else "RELEASE BARRIER ALLY  ·  DRAG TO ✕ CANCEL",
+					false
+			end
+			return if selfTarget
+				then "RELEASE HEAL SELF  ·  DRAG TO ✕ CANCEL"
+				else "RELEASE HEAL ALLY  ·  DRAG TO ✕ CANCEL",
+				false
+		end
+		return "RELEASE TO THROW  ·  DRAG TO ✕ CANCEL", false
+	end
 	if phase ~= "Equipping" and phase ~= "Held" then
 		return nil, false
 	end
@@ -1236,8 +1507,12 @@ function ModController.hint(): (string?, boolean)
 		return nil, false
 	end
 	local lmb, rmb = useLabels()
+	local touch = InputMode.touch()
 	local parts = {}
 	local primary = def.hint.primary
+	if touch and def.activation == "HeldSteer" then
+		primary = "Cast & steer"
+	end
 	local barrier = def.id == "HealOrb" and view.stats ~= nil and HealOrb.isBarrier(view.stats)
 	if def.id == "HealOrb" and view.stats and healTarget(view.stats) == player.Character then
 		primary = if barrier then "Barrier self" else "Heal self"
@@ -1254,12 +1529,78 @@ function ModController.hint(): (string?, boolean)
 		end
 		table.insert(parts, rmb .. " " .. alt)
 	end
-	table.insert(parts, ModController.keyLabel(current) .. " Cancel")
+	table.insert(
+		parts,
+		if touch then "TAP MOD Cancel" else ModController.keyLabel(current) .. " Cancel"
+	)
 	return table.concat(parts, "  ·  "), false
 end
 
 function ModController.useAlt()
 	use("Alt")
+end
+
+function ModController.isSmartTouchActive(): boolean
+	return smartSlot ~= 0 and (phase == "Equipping" or phase == "Held" or phase == "Charging")
+end
+
+function ModController.isSmartCancelHover(): boolean
+	return smartSlot ~= 0 and smartCancelled
+end
+
+function ModController.setSmartCancelHover(hovering: boolean)
+	if smartSlot ~= 0 then
+		smartCancelled = hovering
+	else
+		smartCancelled = false
+	end
+end
+
+function ModController.onTouchModReleased(slot: number)
+	if smartSlot ~= slot then
+		return
+	end
+	local cancel = smartCancelled
+	smartSlot = 0
+	smartCancelled = false
+	if cancel or not Health.isAlive(player.Character) then
+		cancelByPlayer()
+		return
+	end
+	if phase == "Charging" then
+		stepCharge(os.clock())
+		hideArc()
+		return
+	end
+	if phase ~= "Equipping" and phase ~= "Held" then
+		return
+	end
+	local view = ModController.slot(slot)
+	local def, stats = view.def, view.stats
+	if not def or not stats then
+		endHold(true)
+		return
+	end
+	phase = "Held"
+	if def.activation == "HeldThrow" then
+		use("Primary")
+	elseif def.activation == "HeldSteer" then
+		use("Alt")
+	elseif def.activation == "HeldTarget" or def.activation == "HeldPlace" then
+		use("Primary")
+		if phase == "Held" then
+			endHold(true)
+		end
+	elseif def.activation == "HeldCharge" then
+		stopChargeHum()
+		sendUse(slot, "Primary", nil, SMART_TAP_CHARGE, chargeBounces)
+		setPhase("Using", slot)
+		hideArc()
+		ModAudio.play(bowSounds(view.id).fire)
+		ViewmodelController.setItemPart("Dart", 1)
+		ViewmodelController.releaseItem()
+		CameraController.kick(1.2, 0, 1, 0.25)
+	end
 end
 
 -- A charged Mod held up (Recon): how far it's charged (0..1, 0 until LMB

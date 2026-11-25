@@ -6,7 +6,7 @@
 -- tools/studio/BuildDraftScreen.luau); this module only fills and animates it.
 -- DraftController owns the logic (offer, keys, remote calls, the hint text,
 -- timeout rules) and feeds it through `show` and `refresh`.
--- Desktop only for now: phones keep DraftController's own layout.
+-- Shared desktop, touch and controller layout.
 
 local TweenService = game:GetService("TweenService")
 
@@ -14,6 +14,9 @@ local UiSound = require(script.Parent.UiSound)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 local WaitGui = require(script.Parent.WaitGui)
 local InputGlyphs = require(game:GetService("ReplicatedStorage").Shared.InputGlyphs) -- key chips follow the input
+local UiLayout = require(game:GetService("ReplicatedStorage").Shared.UiLayout)
+local InputMode = require(game:GetService("ReplicatedStorage").Shared.InputMode)
+local GuiService = game:GetService("GuiService")
 
 local DraftScreen = {}
 
@@ -91,6 +94,7 @@ type Pickable = {
 	id: string,
 	picked: boolean,
 	hover: boolean,
+	compact: boolean?,
 	baseFill: Color3?, -- guns: the face colour (NAVY / NAVY_HI when picked)
 }
 
@@ -149,7 +153,9 @@ end
 
 -- Where a card sits: up by LIFT when picked, a little on hover.
 local function place(p: Pickable, time: number)
-	local lift = if p.picked then LIFT elseif p.hover then HOVER_LIFT else 0
+	local liftMax = if p.compact then 5 else LIFT
+	local hoverMax = if p.compact then 2 else HOVER_LIFT
+	local lift = if p.picked then liftMax elseif p.hover then hoverMax else 0
 	tween(p.card, time, {
 		Position = UDim2.new(0.5, 0, 0.5, -lift),
 		GroupColor3 = if p.picked then WHITE elseif p.hover then HOVER else DIM,
@@ -209,8 +215,57 @@ local function hook(p: Pickable, onPick: () -> ())
 	end)
 end
 
--- The canvas is a fit canvas: Shared/UiLayout sizes it per device.
-local function fitCanvas(_s: State) end
+local function fitCanvas(s: State)
+	if UiLayout.family() ~= "Phone" then
+		if s.fit:GetAttribute("CustomFit") then
+			s.fit:SetAttribute("CustomFit", nil)
+			s.canvas.AnchorPoint = Vector2.new(0.5, 0.5)
+			s.canvas.Size = UDim2.fromScale(1, 1)
+			s.canvas.Position = UDim2.fromScale(0.5, 0.5)
+			UiLayout.apply(s.gui)
+		end
+		return
+	end
+	local full = GuiService:GetInsetArea(Enum.ScreenInsets.None)
+	local safe = GuiService:GetInsetArea(Enum.ScreenInsets.DeviceSafeInsets)
+	local left = math.max(0, safe.Min.X - full.Min.X) + 8
+	local right = s.gui.AbsoluteSize.X - math.max(0, full.Max.X - safe.Max.X) - 8
+	local topbar = GuiService.TopbarInset
+	local top = math.max(safe.Min.Y - full.Min.Y, if topbar.Height > 0 then topbar.Max.Y else 0) + 6
+	local bottom = s.gui.AbsoluteSize.Y - math.max(0, full.Max.Y - safe.Max.Y) - 8
+	if right <= left or bottom <= top then
+		return
+	end
+	s.fit:SetAttribute("CustomFit", true)
+	-- Bounds of the visible cards, lock control and hint on the authored 1920×1080 canvas.
+	s.fit.Scale = math.min((right - left) / 1300, (bottom - top) / 860)
+	s.canvas.AnchorPoint = Vector2.new(0.5, 0.5)
+	s.canvas.Size = UDim2.fromScale(1, 1)
+	s.canvas.Position = UDim2.fromOffset((left + right) / 2, (top + bottom) / 2 - 16 * s.fit.Scale)
+end
+
+local function fitLabel(
+	label: TextLabel,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+	cap: number,
+	wrap: boolean
+)
+	label.AnchorPoint = Vector2.zero
+	label.Position = UDim2.fromOffset(x, y)
+	label.Size = UDim2.fromOffset(w, h)
+	label.AutomaticSize = Enum.AutomaticSize.None
+	label.TextTruncate = Enum.TextTruncate.None
+	label.TextWrapped = wrap
+	label.TextScaled = true
+	local bounds = label:FindFirstChildOfClass("UITextSizeConstraint")
+		or Instance.new("UITextSizeConstraint")
+	bounds.MinTextSize = 1
+	bounds.MaxTextSize = cap
+	bounds.Parent = label
+end
 
 local function bind(gui: ScreenGui)
 	local canvas = child(gui, "Canvas") :: Frame
@@ -297,6 +352,27 @@ local function bind(gui: ScreenGui)
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		fitCanvas(s)
 	end)
+	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(function()
+		fitCanvas(s)
+	end)
+	InputMode.changed:Connect(function()
+		fitCanvas(s)
+	end)
+	s.hint.AnchorPoint = Vector2.new(0.5, 0.5)
+	s.hint.Position = UDim2.new(0.5, 0, 0.5, 405)
+	s.hint.Size = UDim2.fromOffset(1180, 38)
+	s.hint.AutomaticSize = Enum.AutomaticSize.None
+	s.hint.TextTruncate = Enum.TextTruncate.None
+	s.hint.TextWrapped = true
+	s.hint.TextScaled = true
+	s.hint.TextXAlignment = Enum.TextXAlignment.Center
+	local hintBounds = s.hint:FindFirstChildOfClass("UITextSizeConstraint")
+		or Instance.new("UITextSizeConstraint")
+	hintBounds.MinTextSize = 1
+	hintBounds.MaxTextSize = 20
+	hintBounds.Parent = s.hint
+	fitLabel(s.lockPicks, 104, 44, 232, 24, 16, false)
+	s.lockPicks.TextXAlignment = Enum.TextXAlignment.Center
 	gui.Enabled = false
 	state = s
 end
@@ -357,6 +433,7 @@ end
 
 local function fillNew(p: Pickable, n: NewView)
 	p.id = n.key
+	p.compact = false
 	local c = p.card
 	local art = child(c, "Art") :: ImageLabel
 	art.Image = n.art
@@ -368,31 +445,83 @@ local function fillNew(p: Pickable, n: NewView)
 	role.Text = string.upper(n.role)
 	local note = child(c, "Note") :: TextLabel
 	note.Text = n.note
+	note.TextXAlignment = Enum.TextXAlignment.Left
+	note.TextYAlignment = Enum.TextYAlignment.Top
+	fitLabel(note, 24, 398, COL_W - 48, 58, 17, true)
 	local charges = child(c, "Charges") :: TextLabel
 	charges.Text = n.charges
 end
 
-local function fillPath(p: Pickable, v: PathView, y: number, h: number)
+local function constrain(label: TextLabel, minSize: number, maxSize: number, wrap: boolean)
+	label.AutomaticSize = Enum.AutomaticSize.None
+	label.TextTruncate = Enum.TextTruncate.None
+	label.TextWrapped = wrap
+	label.TextScaled = true
+	local bounds = label:FindFirstChildOfClass("UITextSizeConstraint")
+		or Instance.new("UITextSizeConstraint")
+	bounds.MinTextSize = minSize
+	bounds.MaxTextSize = maxSize
+	bounds.Parent = label
+end
+
+local function fillPath(p: Pickable, v: PathView, y: number, h: number, count: number)
 	p.id = v.key
+	p.compact = count >= 3
 	p.button.Position = UDim2.fromOffset(0, y)
 	p.button.Size = UDim2.fromOffset(COL_W, h)
 	local c = p.card
+	local oldBrief = c:FindFirstChild("Brief")
+	if oldBrief then
+		oldBrief:Destroy()
+	end
 	local art = child(c, "Art") :: ImageLabel
 	art.Image = v.art
+	art.ImageTransparency = 0
 	local band = child(c, "Band") :: Frame
+	band.AnchorPoint = Vector2.new(0.5, 1)
+	band.Position = UDim2.new(0.5, 0, 1, 156)
+	band.Size = UDim2.fromOffset(COL_W * 2, 260)
+	band.Rotation = -4
 	band.BackgroundColor3 = if v.glitch then MAGENTA else v.color
+	local panel = child(c, "Panel") :: Frame
+	panel.AnchorPoint = Vector2.new(0, 1)
+	panel.Position = UDim2.fromScale(0, 1)
+	panel.Size = UDim2.new(1, 0, 0, 40)
+	panel.BackgroundTransparency = 0
+	local titlePos = {
+		Title = UDim2.new(0, 24, 1, -84),
+		GlitchA = UDim2.new(0, 21, 1, -85),
+		GlitchB = UDim2.new(0, 27, 1, -83),
+	}
 	for _, name in { "Title", "GlitchA", "GlitchB" } do
 		local t = child(c, name) :: TextLabel
 		t.Text = string.upper(v.name)
+		t.AnchorPoint = Vector2.zero
+		t.Position = titlePos[name]
+		t.Size = UDim2.fromOffset(198, 34)
+		t.TextXAlignment = Enum.TextXAlignment.Left
+		constrain(t, 1, 28, false)
 		if name ~= "Title" then
 			t.Visible = v.glitch
 		end
 	end
 	local tag = child(c, "Tag") :: TextLabel
 	tag.Text = v.tag
+	tag.AnchorPoint = Vector2.new(1, 0)
+	tag.Position = UDim2.new(1, -18, 1, -74)
+	tag.Size = UDim2.fromOffset(160, 18)
+	tag.TextXAlignment = Enum.TextXAlignment.Right
+	constrain(tag, 1, 11, false)
 	local stat = child(c, "Stat") :: TextLabel
 	stat.Text = v.stat
 	stat.TextColor3 = if v.glitch then PINK else v.color
+	stat.AnchorPoint = Vector2.zero
+	stat.Position = UDim2.new(0, 18, 1, -35)
+	stat.Size = UDim2.fromOffset(COL_W - 36, 30)
+	stat.TextXAlignment = Enum.TextXAlignment.Left
+	stat.TextYAlignment = Enum.TextYAlignment.Center
+	constrain(stat, 1, 14, true)
+	stat.Visible = v.stat ~= ""
 end
 
 local function fillColumn(col: Column, v: ColumnView)
@@ -414,15 +543,19 @@ local function fillColumn(col: Column, v: ColumnView)
 		table.insert(col.shown, col.new)
 	elseif #paths > 0 then
 		local n = math.min(#paths, #col.paths)
-		local h = math.floor((CARD_H - PATH_GAP * (n - 1)) / n)
+		local gap = if n == 3 then 22 else PATH_GAP
+		local h = math.floor((CARD_H - gap * (n - 1)) / n)
 		for i = 1, n do
 			local p = col.paths[i]
-			fillPath(p, paths[i], (i - 1) * (h + PATH_GAP), h)
+			fillPath(p, paths[i], (i - 1) * (h + gap), h, n)
 			p.button.Visible = true
 			table.insert(col.shown, p)
 			local orLabel = col.ors[i]
 			if i < n and orLabel then
-				orLabel.Position = UDim2.fromOffset(COL_W / 2, i * (h + PATH_GAP) - PATH_GAP / 2)
+				orLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+				orLabel.Size = UDim2.fromOffset(44, 14)
+				orLabel.TextXAlignment = Enum.TextXAlignment.Center
+				orLabel.Position = UDim2.fromOffset(COL_W / 2, i * (h + gap) - gap / 2)
 				orLabel.Visible = true
 			end
 		end
@@ -470,6 +603,7 @@ function DraftScreen.show(view: View, handlers: Handlers)
 	if not s then
 		return
 	end
+	fitCanvas(s)
 	s.handlers = handlers
 	s.gunShown = math.min(#view.guns, #s.guns)
 	for i, p in s.guns do
@@ -521,15 +655,14 @@ function DraftScreen.refresh(
 			end
 			place(p, 0.2)
 			if p.picked and not was and s.open then
-				popScale(p.pop, 1.04)
+				popScale(p.pop, if p.compact then 1.02 else 1.04)
 			end
 		end
 		setKey(col.tab, any)
-		tween(
-			col.tab,
-			0.2,
-			{ Position = UDim2.fromOffset(COL_W / 2, -2 - (if topLifted then LIFT else 0)) }
-		)
+		local tabLift = if topLifted
+			then (if col.shown[1] and col.shown[1].compact then 5 else LIFT)
+			else 0
+		tween(col.tab, 0.2, { Position = UDim2.fromOffset(COL_W / 2, -2 - tabLift) })
 	end
 	local fill = if locked then READY_FILL elseif ready or gun ~= nil then GOLD else WAIT_FILL
 	for _, part in s.lockFill do

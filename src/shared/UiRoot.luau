@@ -93,7 +93,7 @@ end
 
 -- Copies every screen of `group` (bar the self-copied ones) into `playerGui`,
 -- replacing older copies. Returns the copies.
-function UiRoot.mount(group: Group, playerGui: Instance): { ScreenGui }
+function UiRoot.mount(group: Group, playerGui: Instance, only: string?): { ScreenGui }
 	local made: { ScreenGui } = {}
 	local folder = root():WaitForChild(group, 10)
 	if not folder then
@@ -101,7 +101,11 @@ function UiRoot.mount(group: Group, playerGui: Instance): { ScreenGui }
 		return made
 	end
 	for _, source in folder:GetChildren() do
-		if not source:IsA("ScreenGui") or UiRoot.SELF_COPIED[source.Name] then
+		if
+			not source:IsA("ScreenGui")
+			or UiRoot.SELF_COPIED[source.Name]
+			or (only and source.Name ~= only)
+		then
 			continue
 		end
 		if parked(source.Name) then

@@ -25,12 +25,25 @@ local Config = require(ReplicatedStorage.Shared.Config.Match)
 local MatchState = require(script.Parent.Parent.MatchState)
 local Net = Context.net
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
+local Telemetry = require(game:GetService("ServerScriptService").LobbyServer.Telemetry)
 
 local MapVoteService = {}
 
 local VOTE = Config.VOTE
 local ATTRIBUTE = "MapVote"
 local POLL = 0.1
+
+local function mapLabel(id: string): string
+	if id == VOTE.random then
+		return VOTE.random
+	end
+	for _, entry in Config.MAPS do
+		if entry.id == id then
+			return entry.name or entry.id
+		end
+	end
+	return id
+end
 
 local limiter = RateLimit.new(Config.RATE)
 local open = false
@@ -98,7 +111,12 @@ end
 
 -- Runs the vote over `pool` (map ids, at least one) for teams of `teamSize`
 -- and returns the pick. Yields for the vote and the chosen-map beat.
-function MapVoteService.run(pool: { string }, teamSize: number, botSeats: { Configuration }): string
+function MapVoteService.run(
+	pool: { string },
+	teamSize: number,
+	botSeats: { Configuration },
+	mode: string?
+): string
 	assert(#pool > 0, "MapVoteService.run: empty pool")
 	options = table.clone(pool)
 	if #pool > 1 then
@@ -142,6 +160,13 @@ function MapVoteService.run(pool: { string }, teamSize: number, botSeats: { Conf
 		task.wait(POLL)
 	end
 	open = false
+	local modeName = mode or `{teamSize}v{teamSize}`
+	for _, player in Players:GetPlayers() do
+		local vote = StateValues.get(player, ATTRIBUTE)
+		if typeof(vote) == "string" and table.find(options, vote) then
+			Telemetry.mapVoted(player, mapLabel(vote), modeName)
+		end
+	end
 
 	local chosen = draw(pool, botSeats)
 	setClock(VOTE.chosenSeconds)

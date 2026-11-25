@@ -20,6 +20,7 @@ local Config = require(ReplicatedStorage.Lobby.Config)
 
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Release = require(ReplicatedStorage.Shared.Config.Release)
 
 local WorldPrompts = {}
@@ -172,6 +173,9 @@ local function stepQueue(zone: StepZone, now: boolean)
 end
 
 local function checkSteps()
+	if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
+		return
+	end
 	local character = Players.LocalPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if not (root and root:IsA("BasePart")) then

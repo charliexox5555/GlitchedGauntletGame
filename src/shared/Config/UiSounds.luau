@@ -136,9 +136,15 @@ return table.freeze({
 	-- Item tick: PSE Toggle Button 2 (9119717523), PSE Toggle Button 1 (9119717529).
 	RewardItemTick = cue(9119717523, rewardVolume.itemTick),
 	-- Final hit: APM Universal Flip - Hit (9042542887), APM Get Up And Go - Hit (9043151109).
-	RewardFinalHit = cue(9042542887, rewardVolume.finalHit),
+	RewardFinalHit = layered(
+		cue(9042542887, rewardVolume.finalHit),
+		{ { 17208361335, rewardVolume.finalHit * 0.45, 0.03, 1.15 } }
+	),
 	-- Collect: Roblox GUI - Select (17208396156), Roblox GUI - Equip (17208323435).
-	RewardCollect = cue(17208396156, rewardVolume.collect),
+	RewardCollect = layered(
+		cue(17208396156, rewardVolume.collect),
+		{ { 17208361335, rewardVolume.collect * 0.35, 0.04, 1.2 } }
+	),
 	RewardCommon = cue(17208323435, 0.6, nil, 0.5), -- Roblox "GUI - Equip"
 	RewardRare = cue(9042542887, 0.35, nil, 0.5), -- APM "Universal Flip - Hit"
 	RewardEpic = cue(9043151109, 0.35, nil, 0.5), -- APM "Get Up And Go - Hit"

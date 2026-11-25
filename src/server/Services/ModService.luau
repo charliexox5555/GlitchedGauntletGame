@@ -75,7 +75,13 @@ local WeaponService = require(Globals.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
 
 type SlotState = { id: string?, level: string, charges: number, rechargeAt: number }
-type PlayerState = { slots: { SlotState }, held: number, heldAt: number }
+type PlayerState = {
+	slots: { SlotState },
+	held: number,
+	heldAt: number,
+	holdToken: number,
+	lastAppliedAt: number,
+}
 type Heal = { target: Model, from: Player, id: string, effect: SelfBuff.Timed }
 
 local MODES: { [string]: boolean } = { Primary = true, Alt = true }
@@ -132,7 +138,7 @@ local function newState(): PlayerState
 	for i = 1, Config.SLOTS do
 		slots[i] = { id = nil, level = "L1", charges = 0, rechargeAt = 0 }
 	end
-	return { slots = slots, held = 0, heldAt = 0 }
+	return { slots = slots, held = 0, heldAt = 0, holdToken = 0, lastAppliedAt = 0 }
 end
 
 local function settle(s: SlotState, stats: ModTypes.Stats, now: number)
@@ -184,15 +190,26 @@ local function showHeldItem(player: Player, id: string?)
 end
 
 -- Ends the hold. `busyFor`: the gun stays down this much longer (the throw /
--- heal animation the client plays after a use).
-local function release(player: Player, busyFor: number?)
+-- heal animation the client plays after a use). `keepItemFor`: keep the held
+-- third-person prop visible briefly during a throw/cast windup (even quick-cast).
+local function release(player: Player, busyFor: number?, keepItemFor: number?)
 	local state = states[player]
 	if state then
+		state.holdToken += 1
 		state.held = 0
 	end
 	WeaponService.setHolstered(player, false, busyFor)
 	StateValues.set(player, "ModHeld", 0)
-	showHeldItem(player, nil)
+	if keepItemFor and keepItemFor > 0 and state then
+		local token = state.holdToken
+		task.delay(keepItemFor, function()
+			if states[player] == state and state.holdToken == token and state.held == 0 then
+				showHeldItem(player, nil)
+			end
+		end)
+	else
+		showHeldItem(player, nil)
+	end
 end
 
 local function deny(player: Player, slot: number, reason: string)
@@ -507,6 +524,7 @@ local function onHold(player: Player, slotArg: unknown)
 		release(player)
 		return
 	end
+	state.holdToken += 1
 	state.held = slot
 	state.heldAt = os.clock()
 	WeaponService.setHolstered(player, true)
@@ -791,6 +809,7 @@ local function use(
 		StateValues.set(player, "ModUseKind", useKind)
 		StateValues.set(player, "ModUseAt", now)
 	end
+	state.lastAppliedAt = os.clock()
 	apply(ctx, req)
 end
 
@@ -798,16 +817,18 @@ end
 -- either way (a refused hold left behind would silently block its shots).
 -- The gun stays down for the use animation, on the server too.
 local function onUse(player: Player, ...: unknown)
+	local state = states[player]
+	local beforeApplied = if state then state.lastAppliedAt else 0
 	if limiter:allow(player, "ModUse") then
 		local ok, err = pcall(use, player, ...)
 		if not ok then
 			warn("[ModService] use failed:", err)
 		end
 	end
-	local state = states[player]
 	-- A wall still building keeps the hold (ModWalls lets go when it's built).
 	if state and state.held ~= 0 and not ModWalls.isBuilding(player) then
-		release(player, Config.USE_TIME)
+		local applied = state.lastAppliedAt > beforeApplied
+		release(player, Config.USE_TIME, if applied then 0.16 else nil)
 	end
 end
 
@@ -913,7 +934,7 @@ end
 
 -- ModSteer(slot, lookX, lookZ, stop): the Firewall's steering stream while
 -- LMB is held (the server prefers its own copy of the camera), and the
--- release that ends it early. Only for a wall that is building.
+-- release that locks it straight for the rest of its length (tap = straight).
 local function onSteer(
 	player: Player,
 	slotArg: unknown,
@@ -933,7 +954,7 @@ local function onSteer(
 		return
 	end
 	if stop then
-		ModWalls.steer(player, nil)
+		ModWalls.lockStraight(player)
 		return
 	end
 	local look = Vector3.new(x, 0, z)
@@ -1084,6 +1105,7 @@ function ModService.removePlayer(player: Player)
 	ModRecall.removePlayer(player)
 	release(player)
 	ModService.setLoadout(player, {})
+	StateValues.set(player, Teams.ATTRIBUTE, nil)
 	StateValues.set(player, "ModUnlimitedCharges", nil)
 	states[player] = nil
 	limiter:forget(player)

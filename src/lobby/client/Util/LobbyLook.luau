@@ -107,6 +107,10 @@ local TEMPLATES = {
 	"RewardRow",
 }
 
+local function isLobbyGui(g: ScreenGui): boolean
+	return g:GetAttribute("LobbyGui") == true or CELLS[g.Name] ~= nil
+end
+
 function LobbyLook.apply(playerGui: Instance)
 	local folder = UiRoot.findTemplates(5)
 	local lobby = folder and folder:FindFirstChild("Lobby")
@@ -121,22 +125,22 @@ function LobbyLook.apply(playerGui: Instance)
 			end
 		end
 	end
-	local seen: { [Instance]: boolean } = {}
+	local seen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local function take(g: Instance)
-		if g:IsA("ScreenGui") and not seen[g] then
+		if g:IsA("ScreenGui") and isLobbyGui(g) and not seen[g] then
 			seen[g] = true
 			Cards.watch(g, CELLS[g.Name] or {})
 			for _, d in g:GetDescendants() do
 				floorText(d)
 			end
 			g.DescendantAdded:Connect(floorText)
+			TextFit.watch(g)
 		end
 	end
 	for _, g in playerGui:GetChildren() do
 		take(g)
 	end
 	playerGui.ChildAdded:Connect(take) -- screens copied in after this runs
-	TextFit.watch(playerGui)
 end
 
 return LobbyLook

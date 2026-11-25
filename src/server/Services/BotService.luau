@@ -136,6 +136,8 @@ local function watchAdmin(bot: Bot)
 		local name = StateValues.get(bot.owner, "AdminDifficulty")
 		local p = if typeof(name) == "string" then BotsConfig.PROFILES[name] else nil
 		if p and byKey[bot.key] == bot then
+			bot.baseProfile = p
+			bot.botDuelAlpha = 0
 			bot.profile = p
 			StateValues.set(bot.seat, "Difficulty", name)
 		end
@@ -213,6 +215,8 @@ local function newBot(team: number): Bot
 		name = name,
 		team = team,
 		profile = startProfile,
+		baseProfile = startProfile,
+		botDuelAlpha = 0,
 		avatar = nil,
 		avatarPending = true,
 		seat = seat,
@@ -529,6 +533,96 @@ end
 local roamPoints: { [number]: Vector3 } = {}
 local patrol: { Vector3 } = {}
 
+-- Per-think scratch, reused (no allocations per frame).
+local botOnlySince: number? = nil
+local currentBotDuel = 0
+
+local function lowerBetter(base: number, target: number): number
+	return math.min(base, target)
+end
+
+local function higherBetter(base: number, target: number): number
+	return math.max(base, target)
+end
+
+local function lerp(a: number, b: number, t: number): number
+	return a + (b - a) * t
+end
+
+-- Smoothly escalates weaker bots toward `target` (monotonically: Hard/Insane/Ultra
+-- bots are never weakened during bot-only end-of-round cleanups).
+local function blendProfile(
+	base: BotsConfig.Profile,
+	target: BotsConfig.Profile,
+	alpha: number
+): BotsConfig.Profile
+	if alpha <= 0 then
+		return base
+	end
+	local bp, tp = base.perception, target.perception
+	local ba, ta = base.aim, target.aim
+	local bt, tt = base.tactics, target.tactics
+	local bm, tm = base.mods, target.mods
+	local bv, tv = base.movement, target.movement
+	return {
+		perception = {
+			reaction = lerp(bp.reaction, lowerBetter(bp.reaction, tp.reaction), alpha),
+			hearing = lerp(bp.hearing, higherBetter(bp.hearing, tp.hearing), alpha),
+			memory = lerp(bp.memory, higherBetter(bp.memory, tp.memory), alpha),
+			fov = lerp(bp.fov, higherBetter(bp.fov, tp.fov), alpha),
+		},
+		aim = {
+			aimSmooth = lerp(ba.aimSmooth, lowerBetter(ba.aimSmooth, ta.aimSmooth), alpha),
+			errorStart = lerp(ba.errorStart, lowerBetter(ba.errorStart, ta.errorStart), alpha),
+			errorFloor = lerp(ba.errorFloor, lowerBetter(ba.errorFloor, ta.errorFloor), alpha),
+			errorSettle = lerp(ba.errorSettle, lowerBetter(ba.errorSettle, ta.errorSettle), alpha),
+			trackLag = lerp(ba.trackLag, lowerBetter(ba.trackLag, ta.trackLag), alpha),
+			firstMisses = math.round(
+				lerp(ba.firstMisses, lowerBetter(ba.firstMisses, ta.firstMisses), alpha)
+			),
+			maxHitsPerSec = math.round(
+				lerp(ba.maxHitsPerSec, higherBetter(ba.maxHitsPerSec, ta.maxHitsPerSec), alpha)
+			),
+			easeLowHealth = lerp(
+				ba.easeLowHealth,
+				lowerBetter(ba.easeLowHealth, ta.easeLowHealth),
+				alpha
+			),
+			headChance = lerp(ba.headChance, higherBetter(ba.headChance, ta.headChance), alpha),
+			recoilControl = lerp(
+				ba.recoilControl,
+				higherBetter(ba.recoilControl, ta.recoilControl),
+				alpha
+			),
+		},
+		tactics = {
+			aggression = lerp(bt.aggression, higherBetter(bt.aggression, tt.aggression), alpha),
+			coverHealth = lerp(bt.coverHealth, lowerBetter(bt.coverHealth, tt.coverHealth), alpha),
+			coverPatience = lerp(
+				bt.coverPatience,
+				lowerBetter(bt.coverPatience, tt.coverPatience),
+				alpha
+			),
+			flankChance = lerp(bt.flankChance, higherBetter(bt.flankChance, tt.flankChance), alpha),
+		},
+		mods = {
+			abilityUse = lerp(bm.abilityUse, higherBetter(bm.abilityUse, tm.abilityUse), alpha),
+			interval = lerp(bm.interval, lowerBetter(bm.interval, tm.interval), alpha),
+			minScore = lerp(bm.minScore, lowerBetter(bm.minScore, tm.minScore), alpha),
+		},
+		movement = {
+			strafePause = lerp(bv.strafePause, lowerBetter(bv.strafePause, tv.strafePause), alpha),
+			slideChance = lerp(bv.slideChance, higherBetter(bv.slideChance, tv.slideChance), alpha),
+			slideJumpChance = lerp(
+				bv.slideJumpChance,
+				higherBetter(bv.slideJumpChance, tv.slideJumpChance),
+				alpha
+			),
+			zoneLead = lerp(bv.zoneLead, higherBetter(bv.zoneLead, tv.zoneLead), alpha),
+		},
+	}
+end
+
 local function worldFor(bot: Bot): Brain.World
 	local zone = Zone.read()
 	table.clear(enemyScratch)
@@ -549,7 +643,12 @@ local function worldFor(bot: Bot): Brain.World
 	if folder then
 		for _, model in folder:GetChildren() do
 			local t = StateValues.get(model, Teams.ATTRIBUTE)
-			if model ~= bot.model and model:IsA("Model") and typeof(t) == "number" then
+			if
+				model ~= bot.model
+				and model:IsA("Model")
+				and Context.owns(model)
+				and typeof(t) == "number"
+			then
 				if Health.isAlive(model:FindFirstChildOfClass("Humanoid")) then
 					table.insert(if t ~= bot.team then enemyScratch else allyScratch, model)
 				end
@@ -575,12 +674,14 @@ local function worldFor(bot: Bot): Brain.World
 		roam = BotService.roamPoint(bot.team),
 		patrol = patrol,
 		zone = zone,
+		botDuel = currentBotDuel,
 	}
 end
 
 -- Where a bot with no information heads: the enemy side (set by
 -- MatchService per map), else the middle of the map.
-function BotService.setRoamPoints(forTeam1: Vector3?, forTeam2: Vector3?)
+function BotService.setRoamPoints(map: Model?, forTeam1: Vector3?, forTeam2: Vector3?)
+	Nav.setMap(map)
 	table.clear(roamPoints)
 	table.clear(patrol)
 	if forTeam1 then
@@ -680,6 +781,55 @@ end
 local function step(dt: number)
 	local started = os.clock()
 	local now = started
+	local humanCount, aliveHumans = 0, 0
+	for _, player in Players:GetPlayers() do
+		local t = Teams.of(player)
+		if t == 1 or t == 2 then
+			humanCount += 1
+			local character = player.Character
+			if character and Health.isAlive(character:FindFirstChildOfClass("Humanoid")) then
+				aliveHumans += 1
+			end
+		end
+	end
+	local team1Bot, team2Bot = false, false
+	for _, bot in bots do
+		if bot.fighting and Health.isAlive(bot.humanoid) then
+			if bot.team == 1 then
+				team1Bot = true
+			elseif bot.team == 2 then
+				team2Bot = true
+			end
+		end
+	end
+	if humanCount > 0 and aliveHumans == 0 and team1Bot and team2Bot then
+		botOnlySince = botOnlySince or now
+		currentBotDuel = math.clamp(
+			(now - (botOnlySince :: number) - BotsConfig.BOT_DUEL.grace) / BotsConfig.BOT_DUEL.ramp,
+			0,
+			1
+		)
+		for _, bot in bots do
+			if
+				math.abs(currentBotDuel - bot.botDuelAlpha) >= 0.05
+				or (currentBotDuel == 1 and bot.botDuelAlpha < 1)
+			then
+				bot.profile =
+					blendProfile(bot.baseProfile, BotsConfig.BOT_DUEL.target, currentBotDuel)
+				bot.botDuelAlpha = currentBotDuel
+			end
+		end
+	else
+		botOnlySince = nil
+		currentBotDuel = 0
+		for _, bot in bots do
+			if bot.botDuelAlpha > 0 then
+				bot.profile = bot.baseProfile
+				bot.botDuelAlpha = 0
+			end
+		end
+	end
+
 	for _, bot in bots do
 		local model = bot.model
 		if not model or not model.Parent then
@@ -747,7 +897,12 @@ function BotService.setAuto(name: string)
 	end
 	for _, bot in bots do
 		if StateValues.get(bot.owner, "AdminDifficulty") == nil then
-			bot.profile = BotsConfig.PROFILES[name]
+			local nextProfile = BotsConfig.PROFILES[name]
+			bot.baseProfile = nextProfile
+			bot.profile = if currentBotDuel > 0
+				then blendProfile(nextProfile, BotsConfig.BOT_DUEL.target, currentBotDuel)
+				else nextProfile
+			bot.botDuelAlpha = currentBotDuel
 			StateValues.set(bot.seat, "Difficulty", name)
 		end
 	end
@@ -790,6 +945,8 @@ function BotService.remove(key: any)
 end
 
 function BotService.clear()
+	botOnlySince = nil
+	currentBotDuel = 0
 	for i = #bots, 1, -1 do
 		removeBot(bots[i])
 	end
@@ -889,10 +1046,18 @@ end
 
 -- Only fights during live rounds. Survivors can move during RoundEnd.
 function BotService.setFighting(on: boolean, postRound: boolean?)
+	if not on then
+		botOnlySince = nil
+		currentBotDuel = 0
+	end
 	for _, bot in bots do
 		bot.fighting = on
 		bot.postRound = postRound == true
 		if not on then
+			if bot.botDuelAlpha > 0 then
+				bot.profile = bot.baseProfile
+				bot.botDuelAlpha = 0
+			end
 			bot.target = nil
 			bot.zone = nil
 			bot.idleUntil = 0

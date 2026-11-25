@@ -27,13 +27,14 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local BallisticGlass = require(ReplicatedStorage.Shared.Util.BallisticGlass)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Net = require(ReplicatedStorage.Shared.Net)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Spring = require(ReplicatedStorage.Shared.Util.Spring)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Types = require(ReplicatedStorage.Shared.Types)
-local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local ShadowMist = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local Tempest = require(ReplicatedStorage.Shared.Config.SkinPreview).TEMPEST
@@ -45,6 +46,7 @@ local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local AudioController = require(script.Parent.AudioController)
 local GunAudio = require(script.Parent.Parent.Util.GunAudio)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
+local GlassFx = require(script.Parent.Parent.Util.GlassFx)
 local HitFx = require(script.Parent.Parent.Util.HitFx)
 local ImpactFx = require(script.Parent.Parent.Util.ImpactFx)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
@@ -452,7 +454,7 @@ local function remoteImpact(origin: Vector3, finish: Vector3, config: WeaponConf
 	if dist < 0.5 or dist > config.range + 1 then
 		return
 	end
-	local result = Workspace:Raycast(origin, offset * ((dist + 0.5) / dist), remoteParams)
+	local result = BallisticGlass.raycast(origin, offset * ((dist + 0.5) / dist), remoteParams)
 	if result then
 		EffectsController.impact(
 			result.Position,
@@ -562,6 +564,9 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	then
 		return
 	end
+	if not PlayZone.inSameScope(player, shooter) then
+		return
+	end
 	local config = Weapons.get(weaponId)
 	if not config then
 		return
@@ -668,15 +673,8 @@ end
 
 function EffectsController.start()
 	effectsFolder()
-	-- AudioController preloads the recordings, and this primes the shot textures.
-	task.spawn(function()
-		local preload: { string } = {}
-		for _, id in VFX do
-			table.insert(preload, id)
-		end
-		game:GetService("ContentProvider"):PreloadAsync(preload)
-	end)
 	Net.unreliable("ShotFx").OnClientEvent:Connect(onShotFx)
+	Net.unreliable("GlassShatter").OnClientEvent:Connect(GlassFx.play)
 	if RunService:IsStudio() then
 		StateValues.changed(Workspace, "VfxTimeScale"):Connect(function()
 			local value = StateValues.get(Workspace, "VfxTimeScale")

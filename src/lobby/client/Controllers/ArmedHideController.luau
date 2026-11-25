@@ -25,6 +25,7 @@ local function hide()
 		if
 			gui:IsA("ScreenGui")
 			and gui:GetAttribute("LobbyGui") == true
+			and gui.Name ~= "Settings"
 			and gui.Enabled
 			and not hidden[gui]
 		then

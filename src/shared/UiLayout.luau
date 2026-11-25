@@ -117,7 +117,14 @@ end
 
 local function fitCanvas(canvas: GuiObject, family: Family, size: Vector2)
 	local fit = canvas:FindFirstChild("Fit")
-	if not fit or not fit:IsA("UIScale") or size.X <= 0 or size.Y <= 0 then
+	if
+		not fit
+		or not fit:IsA("UIScale")
+		or fit:GetAttribute("Retired") == true
+		or fit:GetAttribute("CustomFit") == true
+		or size.X <= 0
+		or size.Y <= 0
+	then
 		return
 	end
 	-- AvoidTopbar: menus keep their content under Roblox's top-bar buttons
@@ -177,6 +184,7 @@ local function ownedFit(d: Instance): boolean
 	return d:IsA("UIScale")
 		and d.Name == "Fit"
 		and d:GetAttribute("Retired") ~= true
+		and d:GetAttribute("CustomFit") ~= true
 		and parent ~= nil
 		and parent:GetAttribute("FitCanvas") ~= true
 end
@@ -399,14 +407,19 @@ function UiLayout.watch(gui: ScreenGui)
 		end)
 	end
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(again)
-	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(again)
+	local topConn = GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(again)
 	-- Rows cloned in later (a ScreenScale inside them) get the current scale.
 	gui.DescendantAdded:Connect(function(d: Instance)
 		if d:IsA("UIScale") and d.Name == "ScreenScale" then
 			screenScale(d, UiLayout.family(), gui.AbsoluteSize.Y)
 		end
 	end)
-	InputMode.changed:Connect(again)
+	local inputConn = InputMode.changed:Connect(again)
+	gui.Destroying:Once(function()
+		topConn:Disconnect()
+		inputConn:Disconnect()
+		watched[gui] = nil
+	end)
 end
 
 return UiLayout

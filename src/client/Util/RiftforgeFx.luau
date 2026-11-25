@@ -10,6 +10,7 @@ local Debris = game:GetService("Debris")
 
 local Shared = ReplicatedStorage.Shared
 local Style = require(Shared.Config.SkinPreview).RIFTFORGE
+local VFX = require(Shared.Config.VfxTextures)
 local UiMotion = require(Shared.UiMotion)
 
 type Rig = {
@@ -18,6 +19,7 @@ type Rig = {
 	arc: ParticleEmitter,
 	ring: ParticleEmitter,
 	sparks: ParticleEmitter,
+	smoke: ParticleEmitter,
 	jets: { ParticleEmitter },
 	light: PointLight,
 	lit: number,
@@ -121,6 +123,24 @@ local function build(muzzle: Attachment, scale: number): Rig
 	sparks.Transparency = seq({ { 0, 0 }, { 0.65, 0.25 }, { 1, 1 } })
 	sparks.LockedToPart = false
 
+	-- 5b. Subtle dark-violet plasma vapor wisp curling off the hot suppressor crown!
+	local smoke = emitter(muzzle, "RiftforgeMuzzleVapor", VFX.SMOKE_2x2)
+	smoke.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+	smoke.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+	smoke.Color = ColorSequence.new(Style.MUZZLE_SMOKE, Style.PLASMA_DEEP)
+	smoke.LightEmission = 0.35
+	smoke.Brightness = 0.9
+	smoke.Lifetime = NumberRange.new(0.28, 0.44)
+	smoke.Speed = NumberRange.new(0.6 * scale, 1.3 * scale)
+	smoke.Drag = 4.5
+	smoke.Acceleration = Vector3.new(0, 1.8 * scale, 0)
+	smoke.SpreadAngle = Vector2.new(28, 28)
+	smoke.EmissionDirection = Enum.NormalId.Front
+	smoke.Rotation = NumberRange.new(0, 360)
+	smoke.Size = seq({ { 0, 0.10 * scale }, { 0.5, 0.24 * scale }, { 1, 0.36 * scale } })
+	smoke.Transparency = seq({ { 0, 0.65 }, { 0.45, 0.78 }, { 1, 1 } })
+	smoke.LockedToPart = false
+
 	-- 6. Sideways accelerator port plasma jets (Left + Right)
 	local jets: { ParticleEmitter } = {}
 	for _, dir in { Enum.NormalId.Left, Enum.NormalId.Right } do
@@ -155,6 +175,7 @@ local function build(muzzle: Attachment, scale: number): Rig
 		arc = arc,
 		ring = ring,
 		sparks = sparks,
+		smoke = smoke,
 		jets = jets,
 		light = light,
 		lit = -1,
@@ -171,7 +192,8 @@ function RiftforgeFx.flash(muzzle: Attachment, scale: number)
 	rig.arc:Emit(1)
 	if not UiMotion.reduced() then
 		rig.ring:Emit(1)
-		rig.sparks:Emit(math.random(4, 7))
+		rig.sparks:Emit(math.random(5, 8))
+		rig.smoke:Emit(1)
 		for _, jet in rig.jets do
 			jet:Emit(1)
 		end

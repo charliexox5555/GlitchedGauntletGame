@@ -27,6 +27,7 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Types = require(ReplicatedStorage.Shared.Types)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
@@ -46,6 +47,7 @@ local WeaponController = require(script.Parent.WeaponController)
 local ShotLog = require(script.Parent.Parent.Util.ShotLog)
 local ShotFxKit = require(script.Parent.Parent.Util.ShotFxKit)
 local BodyClone = require(script.Parent.Parent.Util.BodyClone)
+local ReplayModFx = require(script.Parent.Parent.Util.ReplayModFx)
 local Ui = require(script.Parent.Parent.Util.Ui)
 
 local ReplayController = {}
@@ -81,6 +83,8 @@ type Track = {
 	swingAt: { number },
 	swingStep: { number }, -- 1..3, the light chain
 	swingHeavy: { boolean },
+	dashing: boolean?,
+	updrafting: boolean?,
 }
 
 type Shot = { t: number, body: Model, weaponId: string, origin: Vector3, ends: { Vector3 } }
@@ -98,6 +102,11 @@ local recording = false
 local killerLag = 0 -- seconds the killer's look samples reached the server late (Replay event)
 local decodeLook: (look: unknown) -> any
 local decodeHits: (hits: unknown) -> { any }
+
+local function sameMatch(holder: Instance): boolean
+	return holder:GetAttribute("MatchId") == PlayZone.matchId(player)
+		and (not holder:IsA("Player") or PlayZone.get(holder) == "Match")
+end
 
 local function newTrack(body: Model): Track
 	local parts: { BasePart } = {}
@@ -166,15 +175,33 @@ local function record()
 	end
 	nextSample = math.max(nextSample + STEP, now - STEP) -- steady rate, no drift
 	local t = Workspace:GetServerTimeNow()
+	ReplayModFx.sample(t, t - R.buffer, PlayZone.matchId(player))
 	head = head % FRAMES + 1
 	times[head] = t
-	for _, body in Fighters.bodies() do
+	for _, fighter in Fighters.all() do
+		if not sameMatch(fighter.holder) then
+			continue
+		end
+		local body = fighter.body
 		local track = tracks[body]
 		if not track then
 			track = newTrack(body)
 			tracks[body] = track
 		end
 		track.lastSeen = t
+		local root = body:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") then
+			local dashing = StateValues.get(body, "Dashing") == true
+			local updrafting = StateValues.get(body, "Updrafting") == true
+			if dashing and not track.dashing then
+				ReplayModFx.capture("Dash", { at = root.Position }, t)
+			end
+			if updrafting and not track.updrafting then
+				ReplayModFx.capture("Updraft", { at = root.Position }, t)
+			end
+			track.dashing = dashing
+			track.updrafting = updrafting
+		end
 		local frame = track.frames[head]
 		if not frame then
 			frame = table.create(#track.parts)
@@ -216,6 +243,7 @@ local function addShot(body: Model?, weaponId: unknown, origin: unknown, ends: u
 		not recording
 		or playing
 		or not body
+		or not sameMatch(Players:GetPlayerFromCharacter(body) or body)
 		or typeof(weaponId) ~= "string"
 		or typeof(origin) ~= "Vector3"
 		or typeof(ends) ~= "table"
@@ -664,6 +692,7 @@ local function play(
 	local folder = Instance.new("Folder")
 	folder.Name = "ReplayActors"
 	session.folder = folder
+	local stepMods = ReplayModFx.stage(folder, from, to)
 	local actors: { Actor } = {}
 	local actorOf: { [Model]: Actor } = {}
 	for body, track in tracks do
@@ -1030,6 +1059,7 @@ local function play(
 	local function step(c: Camera, dt: number)
 		local elapsed = math.min(os.clock() - began, length)
 		local t, speed = recordedAt(elapsed, from, kill)
+		stepMods(t)
 		-- Tracers, impacts, the hit flash and the gun in hand run at the
 		-- replay's speed too.
 		ShotFxKit.setTimeScale(speed)
@@ -1227,10 +1257,24 @@ function ReplayController.start()
 	local function updateRecording()
 		local phase = MatchState.phase()
 		recording = not TestMode.isOn() and (phase == "Live" or phase == "SuddenDeath")
+		if phase == "Countdown" or phase == "Waiting" then
+			ReplayModFx.clear()
+		end
 	end
 	MatchState.changed("Phase"):Connect(updateRecording)
 	updateRecording()
 	RunService.PreRender:Connect(record)
+	Net.event("ModFx").OnClientEvent:Connect(function(kind: unknown, data: unknown)
+		if not recording or playing or typeof(kind) ~= "string" or typeof(data) ~= "table" then
+			return
+		end
+		local payload = data :: { [string]: any }
+		local caster = payload.caster
+		if typeof(caster) ~= "Instance" or not sameMatch(caster) then
+			return
+		end
+		ReplayModFx.capture(kind, payload, Workspace:GetServerTimeNow())
+	end)
 	Net.unreliable("ShotFx").OnClientEvent
 		:Connect(function(shooter: unknown, weaponId: unknown, origin: unknown, ends: unknown)
 			addShot(bodyOf(shooter), weaponId, origin, ends)

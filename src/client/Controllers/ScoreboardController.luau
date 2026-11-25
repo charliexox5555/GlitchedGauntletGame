@@ -56,6 +56,7 @@ end
 
 type State = {
 	gui: ScreenGui,
+	canvas: Frame,
 	fit: UIScale,
 	panel: Frame,
 	pop: UIScale,
@@ -156,6 +157,29 @@ local function row(s: State, order: number, line: Line, ally: boolean)
 	holder.Parent = s.panel
 end
 
+local function panelTargetScale(s: State): number
+	local fitScale = math.max(s.fit.Scale, 1e-3)
+	local availW = s.canvas.AbsoluteSize.X / fitScale - 24
+	local availH = s.canvas.AbsoluteSize.Y / fitScale - 24
+	if availW <= 0 or availH <= 0 then
+		return 1
+	end
+	local layout = s.panel:FindFirstChildOfClass("UIListLayout")
+	local gap = if layout then layout.Padding.Offset else 4
+	local baseW = math.max(s.panel.Size.X.Offset, 1040)
+	local baseH, count = 0, 0
+	for _, c in s.panel:GetChildren() do
+		if c:IsA("GuiObject") and c.Visible then
+			baseH += c.Size.Y.Offset
+			count += 1
+		end
+	end
+	if count > 1 then
+		baseH += gap * (count - 1)
+	end
+	return math.clamp(math.min(1, availW / baseW, availH / math.max(baseH, 1)), 0.5, 1)
+end
+
 local function render()
 	local s = state
 	if not s then
@@ -198,6 +222,7 @@ local function render()
 			spacer.Parent = s.panel
 		end
 	end
+	s.pop.Scale = panelTargetScale(s)
 end
 
 local function setOpen(on: boolean)
@@ -209,8 +234,9 @@ local function setOpen(on: boolean)
 	s.gui.Enabled = on
 	if on then
 		render() -- the last lines at once, fresh ones a moment later
-		s.pop.Scale = 0.96
-		TweenService:Create(s.pop, TweenInfo.new(0.18, Enum.EasingStyle.Quint), { Scale = 1 })
+		local target = panelTargetScale(s)
+		s.pop.Scale = target * 0.96
+		TweenService:Create(s.pop, TweenInfo.new(0.18, Enum.EasingStyle.Quint), { Scale = target })
 			:Play()
 		task.spawn(function()
 			while open do
@@ -226,8 +252,13 @@ local function bind(gui: ScreenGui)
 	local panel = child(canvas, "Panel") :: Frame
 	local top = child(panel, "Top") :: Frame
 	local score = child(top, "Score") :: Frame
+	-- Always render above the Touch controls ScreenGui (DisplayOrder 15) on phones.
+	if gui.DisplayOrder < 22 then
+		gui.DisplayOrder = 22
+	end
 	local s: State = {
 		gui = gui,
+		canvas = canvas,
 		fit = child(canvas, "Fit"),
 		panel = panel,
 		pop = child(panel, "Pop"),
@@ -239,6 +270,11 @@ local function bind(gui: ScreenGui)
 	-- A fit canvas: Shared/UiLayout sizes it per device.
 	gui.Enabled = false
 	state = s
+	canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		if open and state then
+			state.pop.Scale = panelTargetScale(state)
+		end
+	end)
 end
 
 function ScoreboardController.start()

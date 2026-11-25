@@ -37,8 +37,8 @@ local WHITE = Color3.new(1, 1, 1)
 -- Load the hit textures up front, or the first headshot shows a blank
 -- flash (seen in Studio, 2026-11-13).
 task.spawn(function()
-	game:GetService("ContentProvider")
-		:PreloadAsync({ Config.TEXTURES.headFlare, Config.TEXTURES.wedge })
+	local content = game:GetService("ContentProvider")
+	pcall(content.PreloadAsync, content, { Config.TEXTURES.headFlare, Config.TEXTURES.wedge })
 end)
 
 local function ease(k: number): number

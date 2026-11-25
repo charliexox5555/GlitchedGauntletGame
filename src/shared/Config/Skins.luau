@@ -112,8 +112,8 @@ local CASES: { [string]: Case } = {
 	Elite = { tiers = { Common = 50, Rare = 40, Epic = 10 }, sections = { Guns = 100 } },
 	-- Legendary drops out (and Rare / Epic scale up) until a Legendary line exists
 	Apex = { tiers = { Rare = 65, Epic = 30, Legendary = 5 }, sections = { Guns = 97, Knives = 3 } },
-	-- knives follow their line's tier now (round 6), so the Knife case has its own ladder
-	Knife = { tiers = { Common = 50, Rare = 35, Epic = 15 }, sections = { Knives = 100 } },
+	-- 2% total for Legendary when all tiers are eligible, split among unowned Legendary knives.
+	Knife = { tiers = { Common = 48, Rare = 35, Epic = 15, Legendary = 2 }, sections = { Knives = 100 } },
 }
 
 return table.freeze({

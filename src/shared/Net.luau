@@ -51,7 +51,7 @@ local RELIABLE = {
 }
 -- Look: a fighter's aim timeline (client -> server); LookRelay: relayed only
 -- to that fighter's spectators (server -> client). Services/LookStream.
-local UNRELIABLE = { "Aim", "ShotFx", "Look", "LookRelay" }
+local UNRELIABLE = { "Aim", "ShotFx", "GlassShatter", "Look", "LookRelay" }
 
 -- Skin preview remote: the match place, in Studio or with Config/SkinPreview LIVE
 -- (keep in step with shared/SkinPreview.allowed).

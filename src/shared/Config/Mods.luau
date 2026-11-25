@@ -55,16 +55,22 @@ local defs: { [string]: ModDef } = {
 				focusWindow = 0.6, -- Dash Focus: the first shot this soon after has no move/air spread
 			},
 			-- Long Dash keeps its +6 steps over the new L1.
-			A2 = { note = "Dash 22 studs instead of 16, just as fast", distance = 22 },
-			A3 = { note = "Dash 28 studs, just as fast, and 2 charges", distance = 28, charges = 2 },
+			A2 = { note = "Long Dash: dash 22 studs (was 16) at the same speed", distance = 22 },
+			A3 = {
+				note = "Long Dash: dash 28 studs at the same speed, plus 2 charges per round",
+				card = "DISTANCE 22 → 28 STUDS · 2 CHARGES",
+				distance = 28,
+				charges = 2,
+			},
 			B2 = {
-				note = "Bullets pass through you for 0.35 s from the press",
+				note = "Ghost: turn ghostly and block all hits for 0.35 s from cast",
 				card = "BULLETPROOF FOR 0.35 S",
 				dodgeWindow = 0.35, -- seconds from the press: every hit on you is blocked
 				ghostAlpha = 0.55, -- how see-through everyone sees you meanwhile (0..1)
 			},
 			B3 = {
-				note = "Vanish for 1 s after a dash (a shimmer up close), 2 charges",
+				note = "Ghost: vanish for 1 s after dashing (faint shimmer up close), plus 2 charges",
+				card = "CLOAK 1 S · 2 CHARGES",
 				cloakAfter = 1, -- seconds after the dash ends
 				cloakShimmer = 10, -- enemies this close still see a shimmer
 				cloakAlpha = 0.95, -- how see-through enemies further away see you
@@ -73,8 +79,8 @@ local defs: { [string]: ModDef } = {
 				charges = 2,
 			},
 			G2 = {
-				note = "Leave a decoy that keeps running for 1.5 s; no shots for 0.3 s",
-				card = "A DECOY RUNS ON FOR 1.5 S",
+				note = "Desync: leave a running decoy for 1.5 s; gun stays down 0.2 s longer",
+				card = "DECOY 1.5 S · SLOWER SHOT (0.3 S)",
 				behaviour = "Desync",
 				decoyTime = 1.5, -- seconds the decoy runs before it glitches out
 				decoyMinSpeed = 16, -- its run speed: yours before the dash, kept in this range
@@ -82,8 +88,8 @@ local defs: { [string]: ModDef } = {
 				fireDelay = 0.3,
 			},
 			G3 = {
-				note = "The decoy fires fake shots, and you vanish while it runs",
-				card = "DECOY SHOOTS  ·  YOU VANISH",
+				note = "Desync: decoy fires fake shots at enemies while you vanish for its 1.5 s run",
+				card = "DECOY SHOOTS · YOU VANISH 1.5 S",
 				decoyFires = true,
 				decoyShotRange = 150, -- it shoots at the nearest enemy this close, in sight
 				decoyShotDelay = 0.2, -- seconds after the dash before the first fake shot
@@ -120,14 +126,14 @@ local defs: { [string]: ModDef } = {
 				maxCarry = 24, -- most running speed carried into the air (a slide-jump's)
 				gunDown = 0.35, -- seconds the gun is down after the launch (the cost, not height-scaled)
 			},
-			A2 = { note = "High Rise: launch 50% higher, about 21 studs", peak = 21 },
-			A3 = { note = "High Rise: launch twice as high, about 28 studs", peak = 28 },
-			B2 = { note = "Second Wind: 2 Updrafts every round", charges = 2 },
-			B3 = { note = "Second Wind: 3 Updrafts every round", charges = 3 },
+			A2 = { note = "High Rise: launch 50% higher (21 studs)", peak = 21 },
+			A3 = { note = "High Rise: launch twice as high (28 studs)", peak = 28 },
+			B2 = { note = "Second Wind: 2 Updraft charges every round", charges = 2 },
+			B3 = { note = "Second Wind: 3 Updraft charges every round", charges = 3 },
 			G2 = {
 				-- Owner 2026-11-15: a second press of the Updraft key, not Crouch.
-				note = "Crash Down: press Updraft again mid-air to slam, 30 damage within 8 studs",
-				card = "PRESS AGAIN TO SLAM  ·  30 DAMAGE IN 8 STUDS",
+				note = "Crash Down: press Updraft again mid-air to slam for 30 damage in 8 studs",
+				card = "PRESS AGAIN: SLAM · 30 DMG (8 STUDS)",
 				behaviour = "Slam",
 				slamDamage = 30, -- enemies in sight of the landing (no self or team damage)
 				slamRadius = 8, -- studs from your root where you land (10 is the trial value)
@@ -136,7 +142,8 @@ local defs: { [string]: ModDef } = {
 				slamArm = 0.15, -- seconds after the launch before a slam starts (a press waits)
 			},
 			G3 = {
-				note = "Crash Down: 45 damage, Hinders for 1 s, 2 Updrafts a round",
+				note = "Crash Down: 45 slam damage, Hinders hit enemies 1 s, and 2 charges",
+				card = "SLAM 45 DMG + HINDER 1 S · 2 CHARGES",
 				slamDamage = 45,
 				slamHinder = 1, -- seconds of Hinder on everyone it hits
 				charges = 2,
@@ -181,11 +188,12 @@ local defs: { [string]: ModDef } = {
 			},
 			-- Recharge / Bigger Fire are numbers only (Mods/Charges, Util/MollyFx
 			-- scales the fire's look and sound to `radius` and `duration`).
-			A2 = { note = "Recharge: a used Molly comes back after 15 s", cooldown = 15 },
-			A3 = { note = "Recharge: your Molly comes back after only 10 s", cooldown = 10 },
-			B2 = { note = "Bigger Fire: the fire patch grows to 12 studs", radius = 12 },
+			A2 = { note = "Recharge: used Molly comes back after 15 s", cooldown = 15 },
+			A3 = { note = "Recharge: Molly comes back after just 10 s", cooldown = 10 },
+			B2 = { note = "Bigger Fire: fire patch expands to 12 studs", radius = 12 },
 			B3 = {
-				note = "Bigger Fire: a 14-stud patch that burns for 6 s",
+				note = "Bigger Fire: 14-stud fire patch that burns for 6 s",
+				card = "RADIUS 12 → 14 STUDS · DURATION 4 → 6 S",
 				radius = 14,
 				duration = 6,
 			},
@@ -193,8 +201,8 @@ local defs: { [string]: ModDef } = {
 			-- to rest it splits into `forks` bomblets (server RNG) that scatter,
 			-- hop off the floor and burst into small fires (same dps / duration).
 			G2 = {
-				note = "Fork Fire: splits into 3 bouncing firebombs; their fire burns you too",
-				card = "SPLITS INTO 3 FIREBOMBS",
+				note = "Fork Fire: splits into 3 bouncing 5-stud firebombs; full fire damage to you too",
+				card = "3 BOUNCING FIREBOMBS · BURNS YOU TOO",
 				behaviour = "Fork",
 				forks = 3,
 				forkRadius = 5,
@@ -211,8 +219,8 @@ local defs: { [string]: ModDef } = {
 			-- `hops`: the canister skips off the floor this many times before it
 			-- splits (the "bounces once more"); `bounces` 5 is one more wall bounce.
 			G3 = {
-				note = "Fork Fire: 5 firebombs, and it bounces once more before splitting",
-				card = "FIREBOMBS  3 → 5",
+				note = "Fork Fire: splits into 5 firebombs and hops once off the floor (+1 wall bounce) first",
+				card = "FIREBOMBS 3 → 5 · +1 BOUNCE",
 				forks = 5,
 				bounces = 5,
 				hops = 1,
@@ -231,7 +239,7 @@ local defs: { [string]: ModDef } = {
 		authority = "Server",
 		icon = "rbxassetid://75501045250826", -- ChatGPT icon (art-source/ui/chatgpt, vault/02 Art/UI Art Brief (ChatGPT).md)
 		glyph = "▮",
-		hint = { primary = "Hold: steer", alt = "Straight" },
+		hint = { primary = "Tap: straight · Hold: curve", alt = "Straight" },
 		quickCast = "Alt",
 		levels = {
 			L1 = {
@@ -249,21 +257,23 @@ local defs: { [string]: ModDef } = {
 				tick = 0.25,
 			},
 			A2 = {
-				note = "Short Wall: a 20-stud wall that recharges after 15 s",
+				note = "Short Wall: shorter 20-stud wall that recharges after 15 s",
+				card = "LENGTH 40 → 20 STUDS · RECHARGE 15 S",
 				cooldown = 15,
 				maxLength = 20,
 			},
 			A3 = { note = "Short Wall: recharges after just 6 s", cooldown = 6 },
-			B2 = { note = "Long Wall: a 60-stud wall (50% longer)", maxLength = 60 },
-			B3 = { note = "Long Wall: 2 walls per round", charges = 2 },
+			B2 = { note = "Long Wall: extends 50% farther to 60 studs", maxLength = 60 },
+			B3 = { note = "Long Wall: 2 long walls per round", charges = 2 },
 			-- Ice instead of fire (Services/ModWalls, Util/FrostWallFx).
 			G2 = {
-				note = "Frost Wall: a 60-stud ice wall; no damage, Hinders enemies 1.5 s",
+				note = "Frost Wall: 60-stud ice wall; no burn damage, Hinders touching enemies 1.5 s",
+				card = "ICE WALL (NO DMG) · HINDER 1.5 S · 60 STUDS",
 				behaviour = "Frost",
 				hinder = 1.5, -- seconds of Hinder (Config/StatusEffects), refreshed while they touch it
 				maxLength = 60,
 			},
-			G3 = { note = "Frost Wall: 2 ice walls per round", charges = 2 },
+			G3 = { note = "Frost Wall: 2 Frost Walls per round", charges = 2 },
 		},
 	},
 	Frost = {
@@ -299,13 +309,13 @@ local defs: { [string]: ModDef } = {
 				radius = 10,
 				hinder = 3, -- seconds of Hinder (Config/StatusEffects)
 			},
-			A2 = { note = "Stockpile: 2 canisters a round", charges = 2 },
-			A3 = { note = "Stockpile: 3 canisters a round", charges = 3 },
-			B2 = { note = "Big Burst: 14-stud burst, double the area", radius = 14 },
-			B3 = { note = "Big Burst: 17-stud burst, triple the area", radius = 17 },
+			A2 = { note = "Stockpile: 2 Frost canisters per round", charges = 2 },
+			A3 = { note = "Stockpile: 3 Frost canisters per round", charges = 3 },
+			B2 = { note = "Big Burst: 14-stud burst radius (double the area)", radius = 14 },
+			B3 = { note = "Big Burst: 17-stud burst radius (triple the area)", radius = 17 },
 			G2 = {
-				note = "Freeze Frame: frozen solid 1.5 s, can't move or shoot. Hits you too",
-				card = "FROZEN SOLID 1.5 S  ·  HITS YOU TOO",
+				note = "Freeze Frame: freezes everyone hit solid 1.5 s (no move/shoot/Mods). Hits you too",
+				card = "FREEZES SOLID 1.5 S · HITS YOU TOO",
 				behaviour = "Freeze", -- Frozen (Config/StatusEffects) instead of Hinder
 				freeze = 1.5, -- seconds frozen
 			},
@@ -350,14 +360,21 @@ local defs: { [string]: ModDef } = {
 			-- Upgrades (Upgrade Paths.md → 6. Recon; built in Mods/Recon and
 			-- client Util/UpgradeFx/Recon). The dart lives pulseDelay +
 			-- pulseGap * (pulses - 1) + 0.6 s, so More Pulses keeps it up longer.
-			A2 = { note = "Recharge: the dart comes back 20 s after use", cooldown = 20 },
-			A3 = { note = "Recharge: the dart comes back 12 s after use", cooldown = 12 },
-			B2 = { note = "More Pulses: the dart pulses 3 times, 1.5 s apart", pulses = 3 },
-			B3 = { note = "More Pulses: the dart pulses 5 times, 1.5 s apart", pulses = 5 },
+			A2 = { note = "Recharge: dart recharges in 20 s (was 30 s)", cooldown = 20 },
+			A3 = { note = "Recharge: dart recharges in just 12 s", cooldown = 12 },
+			B2 = {
+				note = "More Pulses: pulses 3 times (1.5 s apart) and stays active longer",
+				pulses = 3,
+			},
+			B3 = {
+				note = "More Pulses: pulses 5 times (1.5 s apart) for long area recon",
+				pulses = 5,
+			},
 			-- Spike: one pulse `pulseDelay` after sticking, every enemy within
 			-- `radius`, no line-of-sight check (it can still be shot down first).
 			G2 = {
-				note = "Ping Spike: one pulse finds every enemy in 60 studs through walls, 4 s",
+				note = "Ping Spike: one big pulse reveals all enemies in 60 studs through walls for 4 s",
+				card = "1 PULSE (60 STUDS) THROUGH WALLS · REVEAL 4 S",
 				behaviour = "Spike",
 				radius = 60,
 				reveal = 4,
@@ -366,8 +383,8 @@ local defs: { [string]: ModDef } = {
 			-- The caster's damage (guns and Mods) to enemies it revealed, while
 			-- the reveal lasts.
 			G3 = {
-				note = "Ping Spike: you deal +20% damage to enemies it revealed (4 s)",
-				card = "+20% DAMAGE TO REVEALED ENEMIES",
+				note = "Ping Spike: deal +20% gun and Mod damage to enemies it revealed",
+				card = "+20% DMG TO REVEALED ENEMIES",
 				bonusDamage = 0.2,
 			},
 		},
@@ -395,18 +412,20 @@ local defs: { [string]: ModDef } = {
 				selfHeal = 30, -- to yourself (half)
 				duration = 3, -- seconds the heal runs (it keeps going under fire)
 				range = 30,
-				aimAngle = 12, -- degrees from the crosshair an ally may be
+				aimAngle = 18, -- degrees from the crosshair an ally may be
 			},
-			A2 = { note = "Charges: 2 orbs a round", charges = 2 },
-			A3 = { note = "Charges: 3 orbs a round", charges = 3 },
+			A2 = { note = "Charges: 2 Heal Orbs per round", charges = 2 },
+			A3 = { note = "Charges: 3 Heal Orbs per round", charges = 3 },
 			B2 = {
-				note = "Long Heal: twice as long (6 s): an ally 120, yourself 60",
+				note = "Long Heal: twice as long (6 s) — 120 HP to an ally, 60 HP to yourself",
+				card = "HEAL 60 → 120 HP · 6 S",
 				duration = 6,
 				heal = 120,
 				selfHeal = 60,
 			},
 			B3 = {
-				note = "Long Heal: three times as long (9 s): an ally 180, yourself 90",
+				note = "Long Heal: 3x longer (9 s) — 180 HP to an ally, 90 HP to yourself",
+				card = "HEAL 120 → 180 HP · 9 S",
 				duration = 9,
 				heal = 180,
 				selfHeal = 90,
@@ -414,14 +433,14 @@ local defs: { [string]: ModDef } = {
 			G2 = {
 				-- No heal: a hex bubble on the target that takes whole enemy hits
 				-- (Mods/HealOrb). Lasts until used up, death or the next round.
-				note = "Barrier: no heal; a hex bubble blocks the target's next enemy hit",
-				card = "BLOCKS THE NEXT HIT  ·  NO HEAL",
+				note = "Barrier: no heal; hex bubble (usable at full HP) blocks the next enemy hit",
+				card = "BLOCKS 1 ENEMY HIT · NO HEAL",
 				behaviour = "Barrier",
 				barrierHits = 1,
 			},
 			G3 = {
-				note = "Barrier: the bubble blocks the next 2 enemy hits",
-				card = "HITS BLOCKED  1 → 2",
+				note = "Barrier: hex bubble blocks the next 2 enemy hits",
+				card = "BLOCKS 1 → 2 HITS",
 				barrierHits = 2,
 			},
 		},
@@ -442,7 +461,7 @@ local defs: { [string]: ModDef } = {
 		useKind = "Lob", -- third person: the underhand toss
 		levels = {
 			L1 = {
-				note = "Toss a stim beacon just ahead: you and your team in it fire and move 15% faster, swap and reload faster",
+				note = "Toss a stim beacon: +15% fire & move speed, faster swap/reload",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				radius = 10, -- studs (the zone, around the beacon)
@@ -459,28 +478,33 @@ local defs: { [string]: ModDef } = {
 				status = "Stimmed",
 			},
 			A2 = {
-				note = "Quick Stims: 2 charges; each zone lasts 4 s, 2 s after you leave",
+				note = "Quick Stims: 2 charges; each zone lasts 4 s and lingers 2 s after leaving",
+				card = "CHARGES 1 → 2 · DURATION 8 → 4 S",
 				charges = 2,
 				duration = 4,
 				linger = 2,
 			},
-			A3 = { note = "Quick Stims: 4 charges of the 4 s zone", charges = 4 },
+			A3 = { note = "Quick Stims: 4 charges of the quick 4 s stim zone", charges = 4 },
 			B2 = {
-				note = "Strong Stim: +25% speed and fire rate, much faster reloads and swaps",
+				note = "Strong Stim: +25% fire rate & move speed, much faster swaps and reloads",
 				card = "BOOST  15 → 25%",
 				status = "StimStrong",
 			},
 			B3 = {
-				note = "Strong Stim: the zone lasts 16 s (you stay stimmed 4 s after)",
+				note = "Strong Stim: zone lasts twice as long (16 s, lingers 4 s after leaving)",
 				duration = 16,
 			},
 			G2 = {
-				note = "Heal Zone: no stim; you and your team inside heal 60 HP over 8 s",
-				card = "TEAM HEALS 60 HP  ·  NO STIM",
+				note = "Heal Zone: no stim; you and allies inside heal 60 HP over 8 s (7.5 HP/s)",
+				card = "HEALS TEAM 60 HP / 8 S · NO STIM",
 				behaviour = "Heal", -- Mods/Stim: heals friendlies inside instead of a stim
 				healPerSecond = 7.5, -- via ctx.restore each tick (a Heal Orb's heal keeps running)
 			},
-			G3 = { note = "Heal Zone: 2 charges", charges = 2 },
+			G3 = {
+				note = "Heal Zone: 2 Heal Zones per round",
+				card = "2 HEAL ZONES PER ROUND",
+				charges = 2,
+			},
 		},
 	},
 	Recall = {
@@ -514,23 +538,23 @@ local defs: { [string]: ModDef } = {
 				life = 600, -- seconds (all round, until rounds exist)
 			},
 			-- Card text (`note`) stays under ~70 characters (the draft cards).
-			A2 = { note = "Recharge: teleport again after 10 s (was 20 s)", cooldown = 10 },
-			A3 = { note = "Recharge: teleport again after just 5 s", cooldown = 5 },
-			B2 = { note = "Long Range: teleport back from 60 studs away (was 40)", range = 60 },
-			B3 = { note = "Long Range: teleport back from 80 studs away", range = 80 },
+			A2 = { note = "Recharge: teleport recharges in 10 s (was 20 s)", cooldown = 10 },
+			A3 = { note = "Recharge: teleport recharges in just 5 s", cooldown = 5 },
+			B2 = { note = "Long Range: teleport back from up to 60 studs away", range = 60 },
+			B3 = { note = "Long Range: teleport back from up to 80 studs away", range = 80 },
 			-- Crash Recovery: a passive on top of the normal Recall (Services/
 			-- ModRecall.rescue): once a round, the hit that would kill you within
 			-- `range` of your standing anchor pulls you onto it instead, at
 			-- `rescueHealth`; the anchor breaks (no charge lost, plant again).
 			G2 = {
-				note = "Crash Recovery: once a round, die near your anchor: back on it at 1 HP",
-				card = "CHEAT DEATH ONCE  ·  BACK AT 1 HP",
+				note = "Crash Recovery: once a round, lethal damage near your anchor pulls you to it at 1 HP",
+				card = "CHEAT DEATH ONCE · RETURN AT 1 HP",
 				behaviour = "Crash",
 				rescueHealth = 1,
 				rescueGrace = 0.25, -- seconds nothing lands after a rescue (the trip; shots already fired)
 			},
 			G3 = {
-				note = "Crash Recovery: you come back with 40 HP instead of 1",
+				note = "Crash Recovery: rescue pulls you back with 40 HP instead of 1 HP",
 				card = "COMEBACK HP  1 → 40",
 				rescueHealth = 40,
 			},
@@ -557,7 +581,7 @@ local defs: { [string]: ModDef } = {
 		hint = { primary = "Hold: charge", alt = "Bounces" },
 		levels = {
 			L1 = {
-				note = "Shock dart: Recon's bow; the bolt explodes where it lands, 50 → 25 over 8 studs",
+				note = "Shock dart: bouncing bolt explodes on hit, 50 → 25 over 8 studs",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				chargeTime = 1, -- Recon's flight from here to maxFlight
@@ -574,16 +598,18 @@ local defs: { [string]: ModDef } = {
 				damage = 50, -- at the centre
 				edgeDamage = 25, -- at `radius`
 			},
-			A2 = { note = "Recharge: the dart comes back 15 s after use", cooldown = 15 },
-			A3 = { note = "Recharge: the dart comes back 6 s after use", cooldown = 6 },
+			A2 = { note = "Recharge: dart comes back 15 s after firing", cooldown = 15 },
+			A3 = { note = "Recharge: dart comes back in just 6 s", cooldown = 6 },
 			B2 = {
-				note = "More Darts: 2 darts a round, 42 → 21 damage",
+				note = "More Darts: 2 darts per round; slightly lower blast damage (42 → 21)",
+				card = "2 DARTS · DAMAGE 50 → 42",
 				charges = 2,
 				damage = 42,
 				edgeDamage = 21,
 			},
 			B3 = {
-				note = "More Darts: 4 darts a round, 36 → 18 damage",
+				note = "More Darts: 4 darts per round; lower per-dart damage (36 → 18)",
+				card = "4 DARTS · DAMAGE 42 → 36",
 				charges = 4,
 				damage = 36,
 				edgeDamage = 18,
@@ -591,15 +617,15 @@ local defs: { [string]: ModDef } = {
 			-- No damage: Hinder (Config/StatusEffects) on everyone in the radius
 			-- the impact can see, but you.
 			G2 = {
-				note = "Static: no damage; Hinders everyone in 8 studs for 2 s; recharges in 15 s",
-				card = "HINDERS INSTEAD OF DAMAGE",
+				note = "Static: no damage; Hinders everyone in 8 studs (except you) 2 s, recharges in 15 s",
+				card = "HINDER 2 S (NO DMG) · RECHARGE 15 S",
 				behaviour = "Static",
 				hinder = 2,
 				cooldown = 15,
 			},
 			G3 = {
-				note = "Static: Hinder 3 s in an 11-stud radius",
-				card = "HINDER 3 S  ·  RADIUS 8 → 11",
+				note = "Static: longer 3 s Hinder over a wider 11-stud blast radius",
+				card = "HINDER 2 → 3 S · RADIUS 8 → 11 STUDS",
 				hinder = 3,
 				radius = 11,
 			},
@@ -627,7 +653,7 @@ local defs: { [string]: ModDef } = {
 		quickCast = "Primary",
 		levels = {
 			L1 = {
-				note = "Flash: pops 0.9 s after the throw; blinds everyone who has it on screen with a clear line, up to 1.75 s",
+				note = "Flash: pops after throw; blinds everyone facing it up to 1.75 s",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				throwSpeed = 75, -- LMB
@@ -662,22 +688,22 @@ local defs: { [string]: ModDef } = {
 				glanceStrength = 0.55,
 				walls = 0, -- walls the flash reaches through
 			},
-			A2 = { note = "More Flashes: 2 a round", charges = 2 },
-			A3 = { note = "More Flashes: 3 a round", charges = 3 },
-			B2 = { note = "Recharge: comes back 15 s after use", cooldown = 15 },
-			B3 = { note = "Recharge: comes back 6 s after use", cooldown = 6 },
+			A2 = { note = "More Flashes: 2 Flashes per round", charges = 2 },
+			A3 = { note = "More Flashes: 3 Flashes per round", charges = 3 },
+			B2 = { note = "Recharge: Flash comes back 15 s after use", cooldown = 15 },
+			B3 = { note = "Recharge: Flash comes back in just 6 s", cooldown = 6 },
 			-- No blind: every enemy who would have been blinded is revealed
 			-- (Recon's outline for your team, DETECTED for them).
 			G2 = {
-				note = "Exposure: no blind; enemies who see it are revealed for 3 s; recharges in 15 s",
-				card = "REVEALS INSTEAD OF BLINDING",
+				note = "Exposure: no blind; enemies who see the pop are revealed 3 s, recharges in 15 s",
+				card = "REVEAL 3 S (NO BLIND) · RECHARGE 15 S",
 				behaviour = "Exposure",
 				reveal = 3,
 				cooldown = 15,
 			},
 			G3 = {
-				note = "Exposure: revealed for 5 s, and it reaches through one wall",
-				card = "REVEAL 3 → 5 S  ·  THROUGH 1 WALL",
+				note = "Exposure: reveals enemies for 5 s and reaches through 1 wall",
+				card = "REVEAL 3 → 5 S · THROUGH 1 WALL",
 				reveal = 5,
 				walls = 1,
 			},
@@ -707,7 +733,7 @@ local defs: { [string]: ModDef } = {
 		quickCast = "Primary",
 		levels = {
 			L1 = {
-				note = "Roller: a bot that rolls 5 s, locks on to an enemy ahead and explodes, 60 → 30",
+				note = "Roller: rolling bot seeks enemies ahead & explodes, 60 → 30",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				placeRange = 9, -- studs ahead it can be set down
@@ -730,16 +756,27 @@ local defs: { [string]: ModDef } = {
 				stepUp = 1.6, -- highest step it climbs
 				dropDown = 6, -- deepest drop it rolls off (deeper: it turns)
 			},
-			A2 = { note = "More Bots: 2 a round", charges = 2, maxActive = 2 },
-			A3 = { note = "More Bots: 4 a round", charges = 4, maxActive = 2 },
+			A2 = {
+				note = "More Bots: 2 bots per round, up to 2 rolling at once",
+				card = "2 BOTS PER ROUND · 2 ACTIVE AT ONCE",
+				charges = 2,
+				maxActive = 2,
+			},
+			A3 = {
+				note = "More Bots: 4 bots per round (still up to 2 active at once)",
+				charges = 4,
+				maxActive = 2,
+			},
 			B2 = {
-				note = "Faster: 125% speed for 7 s",
+				note = "Faster: rolls and chases 25% faster and patrols for 7 s",
+				card = "+25% SPEED · 7 S ROLL",
 				speed = 17.5,
 				lockSpeed = 27.5,
 				life = 7,
 			},
 			B3 = {
-				note = "Faster: 150% speed for 10 s",
+				note = "Faster: rolls and chases 50% faster and patrols for 10 s",
+				card = "+50% SPEED · 10 S ROLL",
 				speed = 21,
 				lockSpeed = 33,
 				life = 10,
@@ -747,13 +784,13 @@ local defs: { [string]: ModDef } = {
 			-- Remote: press the key again while it rolls to blow it up there
 			-- (no charge spent: ModTrigger). It still seeks on its own.
 			G2 = {
-				note = "Remote: press the key again to blow it up any time",
-				card = "PRESS AGAIN: DETONATE",
+				note = "Remote: press the key again while rolling to detonate early (still auto-locks)",
+				card = "PRESS AGAIN: DETONATE EARLY",
 				behaviour = "Remote",
 			},
 			G3 = {
-				note = "Remote: + recharges in 7 s, 125% speed, 7 s",
-				card = "RECHARGE 7 S  ·  125% SPEED",
+				note = "Remote: recharges in 7 s, rolls & chases 25% faster, and patrols for 7 s",
+				card = "RECHARGE 7 S · +25% SPEED · 7 S",
 				cooldown = 7,
 				speed = 17.5,
 				lockSpeed = 27.5,

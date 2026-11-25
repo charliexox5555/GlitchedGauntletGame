@@ -6,11 +6,8 @@
 -- simulation input, so the server poses our arms with the same pitch.
 
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
-
-local PoseSim = require(ReplicatedStorage.Shared.Simulation.Poses)
 
 local InputController = require(script.Parent.InputController)
 
@@ -36,7 +33,6 @@ local function update()
 end
 
 function PoseController.start()
-	PoseSim.initialize()
 	RunService:BindToRenderStep("GGPosePitch", Enum.RenderPriority.Camera.Value + 3, update)
 	Players.LocalPlayer.CharacterAdded:Connect(function()
 		lastSent = 0

@@ -54,7 +54,7 @@ local MODES: { ModeInfo } = {
 		blurb = "Your first fights. Learn the ropes.",
 		enabled = true,
 		tile = "Beginner2v2",
-		fillAfter = 10,
+		fillAfter = 5,
 		fillAfterStudio = 5,
 		maxLevel = Onboarding.BEGINNER_MAX_LEVEL,
 	},
@@ -80,7 +80,7 @@ return table.freeze({
 	botFillAfterStudio = 5,
 
 	-- The "match found" beat before the teleport (no cancel once found).
-	matchFoundDelay = 3.5,
+	matchFoundDelay = 2.0,
 	-- Still "found" this long after the beat (reserve retries hung, an error) →
 	-- back to the lobby with a message.
 	foundTimeout = 20,

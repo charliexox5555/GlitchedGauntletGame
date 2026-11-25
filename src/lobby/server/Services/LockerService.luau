@@ -19,6 +19,7 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
@@ -31,6 +32,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Validate = require(ReplicatedStorage.Shared.Util.Validate)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local LockerService = {}
 
@@ -135,10 +137,18 @@ local function publish(player: Player)
 	end
 end
 
+local function isFreshOnboarding(): boolean
+	return RunService:IsStudio() and workspace:GetAttribute("FreshOnboarding") == true
+end
+
 local function load(player: Player)
 	local rec: Record =
 		{ skins = {}, loaded = false, dirty = false, token = 0, saving = false, lastSave = 0 }
 	records[player] = rec
+	if isFreshOnboarding() then
+		publish(player)
+		return
+	end
 	local ok, data = retry("load " .. player.UserId, function()
 		return store:GetAsync(Locker.key(player.UserId))
 	end)
@@ -172,6 +182,29 @@ local function equip(player: Player, gunId: string, line: string)
 			save(player)
 		end
 	end)
+	if line ~= "Stock" then
+		local data = PlayerDataService.get(player)
+		if data and data.onb.caseGift and not data.onb.skinEquipped then
+			task.spawn(function()
+				local ok = PlayerDataService.transact(
+					player,
+					PlayerDataService.newTxId(),
+					function(latest)
+						if latest.onb.skinEquipped then
+							return false, "nothing"
+						end
+						latest.onb.skinEquipped = true
+						return true
+					end,
+					true
+				)
+				if ok then
+					Telemetry.onboarding(player, 16)
+					Telemetry.caseOnboarding(player, 4, "Skin equipped")
+				end
+			end)
+		end
+	end
 end
 
 local function onRequest(player: Player, action: unknown, gunId: unknown, line: unknown)
@@ -236,6 +269,31 @@ local function saveModChoice(player: Player, idArg: unknown, equippedArg: unknow
 	end)
 	savingMods[player] = nil
 	return saved
+end
+
+function LockerService.reset(player: Player)
+	local rec = records[player]
+	if not rec then
+		return
+	end
+	local hadAny = false
+	for gunId, line in rec.skins do
+		if line ~= "Stock" then
+			rec.skins[gunId] = "Stock"
+			hadAny = true
+		end
+	end
+	publish(player)
+	if hadAny and rec.loaded then
+		rec.dirty = true
+		rec.token += 1
+		local token = rec.token
+		task.delay(SAVE_DELAY, function()
+			if records[player] == rec and rec.token == token then
+				save(player)
+			end
+		end)
+	end
 end
 
 function LockerService.init() end

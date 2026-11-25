@@ -2,17 +2,19 @@
 -- Lobby place client entry. Same two-phase bootstrap as the match client:
 -- init() every controller in ./Controllers, then start() each in its own thread.
 
--- In a Match server (shared/ServerRole) the lobby UI doesn't run at all: the
--- match client (StarterPlayerScripts.Client) has the screen. Only the owner's
--- Admin Console boots there so it stays usable mid-match as well as in Lobby.
+-- The dedicated match role uses the same Settings screen and its top-bar
+-- control. The other lobby pages remain exclusive to the lobby client.
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local ServerRole = require(Shared:WaitForChild("ServerRole") :: ModuleScript)
+local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
+local player = game:GetService("Players").LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 if ServerRole.isMatch() then
-	local controllers = script:FindFirstChild("Controllers")
-	local adminMod = controllers and controllers:FindFirstChild("AdminPanelController")
-	if adminMod and adminMod:IsA("ModuleScript") then
-		task.spawn((require(adminMod) :: any).start)
-	end
+	UiRoot.mount("Lobby", playerGui, "Settings")
+	local controllers = script.Controllers
+	require(controllers.SettingsController).init()
+	task.spawn(require(controllers.MatchSettingsButton).start)
+	task.spawn(require(controllers.AdminPanelController).start)
 	return
 end
 
@@ -22,9 +24,6 @@ require(Shared:WaitForChild("SettingsApply") :: ModuleScript).start()
 
 -- The lobby's Studio-built screens (PlayerScripts.UI.Lobby) into PlayerGui,
 -- before any controller looks for them (Shared/UiRoot; vault/04 Tech/UI Architecture.md).
-local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
-local player = game:GetService("Players").LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 UiRoot.mount("Lobby", playerGui)
 
 -- the chunky cell look on every screen + re-measured self-sizing text

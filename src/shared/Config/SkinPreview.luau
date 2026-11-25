@@ -488,7 +488,7 @@ return table.freeze({
 		IMPACT_LIGHT = 1.7,
 		-- First-person tracer + legacy fallback color keys
 		SHOT_TINT = Color3.fromHex("D26BFF"),
-		TRACER_WAKE = Color3.fromHex("B83DFF"),
+		TRACER_WAKE = VFX.STIM_BOLT,
 		MUZZLE_CORE = Color3.fromHex("F7D9FF"),
 		MUZZLE_OUTER = Color3.fromHex("C44DFF"),
 		MUZZLE_DEEP = Color3.fromHex("6812A8"),

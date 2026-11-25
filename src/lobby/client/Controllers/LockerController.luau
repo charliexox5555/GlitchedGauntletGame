@@ -32,7 +32,9 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
+local LobbyHud = require(script.Parent.LobbyHud)
 local LockerAbilities = require(script.Parent.Parent.Util.LockerAbilities)
+local OnbHighlight = require(script.Parent.Parent.Util.OnbHighlight)
 local Pivot = require(script.Parent.Parent.Util.Pivot)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -147,6 +149,9 @@ local lastPos: Vector3? = nil
 local dragTween: Tween? = nil
 
 local resetClose: () -> () = function() end
+local closeButton: GuiButton? = nil
+local guideJustEquipped = false
+local refreshGuide: () -> () = function() end
 
 local tween = UiMotion.tween
 
@@ -554,6 +559,172 @@ local function hoverable(card: GuiButton, lift: number?)
 	end)
 end
 
+local function onboardingTarget(): (string?, string?)
+	if
+		StateValues.get(player, "OnbCaseGift") ~= true
+		or StateValues.get(player, "OnbCaseOpened") ~= true
+		or StateValues.get(player, "OnbSkinEquipped") == true
+	then
+		return nil, nil
+	end
+	local skins = PlayerData.skins(player)
+	local attrGun = player:GetAttribute("OnbNewSkinGun")
+	local attrLine = player:GetAttribute("OnbNewSkinLine")
+	if typeof(attrGun) == "string" and typeof(attrLine) == "string" then
+		if
+			Locker.gunModel(attrGun)
+			and PlayerData.owns(skins, attrGun, attrLine)
+			and equippedLine(attrGun) ~= attrLine
+		then
+			return attrGun, attrLine
+		end
+	end
+	for gun, lines in skins do
+		if Locker.gunModel(gun) then
+			for _, line in lines do
+				if line ~= "Stock" and equippedLine(gun) ~= line then
+					return gun, line
+				end
+			end
+		end
+	end
+	return nil, nil
+end
+
+local function fitScale(): number
+	local fit = canvas:FindFirstChild("Fit")
+	return if fit and fit:IsA("UIScale") and fit.Scale > 0 then fit.Scale else 1
+end
+
+local function scrollGunIntoView(card: GuiObject)
+	local holder = card.Parent
+	local target = if holder and StateValues.get(holder, "PivotHolder") == true
+		then holder :: GuiObject
+		else card
+	local k = fitScale()
+	local viewH = gunsList.AbsoluteSize.Y / k
+	local itemH = target.AbsoluteSize.Y / k
+	if viewH <= 0 or itemH <= 0 then
+		return
+	end
+	local relTop = (target.AbsolutePosition.Y - gunsList.AbsolutePosition.Y) / k
+		+ gunsList.CanvasPosition.Y
+	local desired = math.max(0, relTop - (viewH - itemH) * 0.5)
+	local maxY = math.max(0, gunsList.AbsoluteCanvasSize.Y / k - viewH)
+	gunsList.CanvasPosition = Vector2.new(0, math.min(desired, maxY))
+end
+
+local function scrollTileIntoView(tile: GuiObject)
+	local holder = tile.Parent
+	local target = if holder and StateValues.get(holder, "PivotHolder") == true
+		then holder :: GuiObject
+		else tile
+	local k = fitScale()
+	local viewW = strip.AbsoluteSize.X / k
+	local itemW = target.AbsoluteSize.X / k
+	if viewW <= 0 or itemW <= 0 then
+		return
+	end
+	local relLeft = (target.AbsolutePosition.X - strip.AbsolutePosition.X) / k
+		+ strip.CanvasPosition.X
+	local desired = math.max(0, relLeft - (viewW - itemW) * 0.5)
+	local maxX = math.max(0, strip.AbsoluteCanvasSize.X / k - viewW)
+	strip.CanvasPosition = Vector2.new(math.min(desired, maxX), 0)
+end
+
+refreshGuide = function()
+	if not isOpen then
+		OnbHighlight.clear("Locker")
+		return
+	end
+	if guideJustEquipped then
+		if closeButton then
+			OnbHighlight.focus(
+				"Locker",
+				closeButton,
+				{ tag = "DONE", tagPos = "bottom", stroke = true, scale = 1.08 }
+			)
+		else
+			OnbHighlight.clear("Locker")
+		end
+		return
+	end
+	local targetGun, targetLine = onboardingTarget()
+	if not targetGun or not targetLine then
+		OnbHighlight.clear("Locker")
+		return
+	end
+	if tab ~= "WEAPONS" then
+		local tabsFrame = canvas:FindFirstChild("Tabs")
+		local weaponsTab = tabsFrame and tabsFrame:FindFirstChild("WEAPONS")
+		if weaponsTab and weaponsTab:IsA("GuiObject") then
+			OnbHighlight.focus(
+				"Locker",
+				weaponsTab,
+				{ tag = "WEAPONS", tagPos = "bottom", stroke = true, scale = 1.05 }
+			)
+		else
+			OnbHighlight.clear("Locker")
+		end
+		return
+	end
+	if selectedGun ~= targetGun then
+		local card = gunCards[targetGun]
+		if card then
+			OnbHighlight.focus(
+				"Locker",
+				card,
+				{ tag = "NEW SKIN", tagPos = "insideTopRight", stroke = true, scale = 1.05 }
+			)
+			task.defer(function()
+				if isOpen and tab == "WEAPONS" and not trayOpen and card.Parent then
+					scrollGunIntoView(card)
+				end
+			end)
+		else
+			OnbHighlight.clear("Locker")
+		end
+		return
+	end
+	if not trayOpen then
+		local skinHolder = kinds:FindFirstChild("SKIN")
+		local skinTile = if skinHolder then Pivot.item(skinHolder) else nil
+		if skinTile and skinTile:IsA("GuiObject") then
+			OnbHighlight.focus(
+				"Locker",
+				skinTile,
+				{ tag = "OPEN SKINS", tagPos = "top", stroke = true, scale = 1.06 }
+			)
+		else
+			OnbHighlight.clear("Locker")
+		end
+		return
+	end
+	local tileBtn: GuiButton? = nil
+	for _, holder in strip:GetChildren() do
+		local t = Pivot.item(holder)
+		if t:IsA("GuiButton") and t.Name == targetLine then
+			tileBtn = t
+			break
+		end
+	end
+	if tileBtn then
+		local foundTile = tileBtn
+		OnbHighlight.focus(
+			"Locker",
+			foundTile,
+			{ tag = "EQUIP!", tagPos = "insideTopRight", stroke = true, scale = 1.07 }
+		)
+		task.defer(function()
+			if isOpen and trayOpen and foundTile.Parent then
+				scrollTileIntoView(foundTile)
+			end
+		end)
+	else
+		OnbHighlight.clear("Locker")
+	end
+end
+
 function LockerController.preview(line: string)
 	previewLine = line
 	placeGun(selectedGun, line, true)
@@ -564,6 +735,7 @@ local function selectGun(gunId: string)
 	selectedGun = gunId
 	refreshGunCards()
 	LockerController.preview(equippedLine(gunId))
+	refreshGuide()
 end
 
 local function buildGuns()
@@ -713,15 +885,22 @@ local function buildTiles()
 		name.Text = lineTitle(line)
 		t.Activated:Connect(function()
 			LockerController.preview(line)
+			local targetGun, targetLine = onboardingTarget()
 			if equippedLine(selectedGun) ~= line then
 				LobbyNet.event("LockerRequest"):FireServer("equip", selectedGun, line)
+				if targetGun == selectedGun and targetLine == line then
+					guideJustEquipped = true
+					LobbyHud.toast("SKIN EQUIPPED! HEAD BACK TO PLAY", "success")
+				end
 			end
 			refreshTiles()
+			refreshGuide()
 		end)
 		t.Parent = strip
 		hoverable(t, 1.04)
 	end
 	refreshTiles()
+	refreshGuide()
 end
 
 local function home(obj: GuiObject): UDim2
@@ -812,6 +991,7 @@ local function setTray(open: boolean)
 			LockerController.preview(equippedLine(selectedGun))
 		end
 	end
+	refreshGuide()
 end
 
 -- Tabs -------------------------------------------------------------------------------
@@ -857,6 +1037,7 @@ local function setTab(name: string)
 	end
 	soonLabel.Visible = not weapons and not abilities
 	soonLabel.Text = "EMOTES  ·  SOON"
+	refreshGuide()
 end
 
 -- Open / close -----------------------------------------------------------------------
@@ -956,6 +1137,8 @@ end
 
 local function conceal()
 	trayOpen = false
+	guideJustEquipped = false
+	OnbHighlight.clear("Locker")
 	gui.Enabled = false
 	gunsList.Position = home(gunsList)
 	kinds.Position = home(kinds)
@@ -1018,6 +1201,7 @@ local function open()
 		return
 	end
 	isOpen = true
+	guideJustEquipped = false
 	wantOwned()
 	passToken += 1
 	local my = passToken
@@ -1048,6 +1232,8 @@ local function close()
 		return
 	end
 	isOpen = false
+	guideJustEquipped = false
+	OnbHighlight.clear("Locker")
 	passToken += 1
 	local my = passToken
 	UiSfx.cue("LockerOut")
@@ -1144,7 +1330,9 @@ function LockerController.init()
 	wipeGui.Parent = playerGui
 	wipe = w
 	Router.register("Locker", { open = open, close = close, screen = "Locker" })
-	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
+	local closeBtn = child(canvas, "Close") :: GuiButton
+	closeButton = closeBtn
+	resetClose = CloseButton.hook(closeBtn, function()
 		Router.close()
 	end)
 	for _, b in (child(canvas, "Tabs") :: Frame):GetChildren() do
@@ -1179,8 +1367,16 @@ function LockerController.init()
 			if trayOpen then
 				refreshTiles()
 			end
+			refreshGuide()
 		end
 	end)
+	for _, name in { "OnbCaseGift", "OnbCaseOpened", "OnbSkinEquipped" } do
+		StateValues.changed(player, name):Connect(function()
+			if isOpen then
+				refreshGuide()
+			end
+		end)
+	end
 	-- a skin delivered on demand: the gun on the stand and the tiles pick it up
 	local redrawQueued = false
 	SkinStore.arrived:Connect(function(line: string, name: string)

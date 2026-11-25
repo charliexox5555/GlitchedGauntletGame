@@ -3,9 +3,7 @@
 -- Lobby Overhaul.md → Missing screens). Re-running replaces them.
 --   StarterGui.Profile  a player's card (Controllers/ProfileController),
 --                       opened from their row in the player list
---   StarterGui.Rewards  reward rows (Controllers/RewardsController),
---                       opened from the top bar's gift button
---   LobbyTopbar.Bar.Rewards  that gift button (drawn icon until real art)
+--   StarterGui.Rewards  reward rows (Controllers/RewardsController)
 --   UiTemplates.Lobby.ProfileSkin / RewardRow  their slots
 -- Structure studied from RIVALS' ViewProfile and Rewards pages (not copied);
 -- our look: wash over the blurred lobby, chunky cells, slanted plates,
@@ -399,73 +397,6 @@ text(
 rewards.Parent = SG
 
 ------------------------------------------------------------------------------
--- The top bar's gift button (drawn icon until real art: UI Art Brief)
-
-local topbar = SG:FindFirstChild("LobbyTopbar")
-local bar = topbar and topbar:FindFirstChild("Bar")
-if bar then
-	local oldBtn = bar:FindFirstChild("Rewards")
-	if oldBtn then
-		oldBtn:Destroy()
-	end
-	local refFound = bar:FindFirstChild("Settings")
-	local ref: TextButton? = if refFound and refFound:IsA("TextButton") then refFound else nil
-	local btn = make("TextButton", {
-		Name = "Rewards",
-		LayoutOrder = -1,
-		Size = UDim2.fromOffset(44, 44),
-		BackgroundTransparency = 1,
-		Text = "",
-		AutoButtonColor = false,
-		ZIndex = if ref then ref.ZIndex else 2,
-	}, bar)
-	local refFace = ref and ref:FindFirstChild("Face")
-	local face = if refFace then refFace:Clone() else make("Frame", { Name = "Face" })
-	face.Parent = btn
-	local icon = face:FindFirstChild("Icon")
-	if icon then
-		icon:Destroy()
-	end
-	-- a gift: a box, a lid, a ribbon down the middle, two bow loops
-	local gift = make("Frame", {
-		Name = "Icon",
-		AnchorPoint = CENTRE,
-		Position = UDim2.fromScale(0.5, 0.52),
-		Size = UDim2.fromOffset(24, 24),
-		BackgroundTransparency = 1,
-		ZIndex = 4,
-	}, face)
-	local function part(n: string, pos: UDim2, size: Vector2, rot: number?)
-		local f = make("Frame", {
-			Name = n,
-			AnchorPoint = CENTRE,
-			Position = pos,
-			Size = UDim2.fromOffset(size.X, size.Y),
-			Rotation = rot or 0,
-			BackgroundColor3 = WHITE,
-			BorderSizePixel = 0,
-			ZIndex = 4,
-		}, gift)
-		corner(f, 2)
-	end
-	part("Box", UDim2.new(0.5, 0, 0.5, 5), Vector2.new(18, 13))
-	part("Lid", UDim2.new(0.5, 0, 0.5, -3), Vector2.new(22, 6))
-	part("LoopL", UDim2.new(0.5, -4, 0.5, -9), Vector2.new(8, 5), 35)
-	part("LoopR", UDim2.new(0.5, 4, 0.5, -9), Vector2.new(8, 5), -35)
-	-- the ribbon is a gap: a dark line down the box and lid
-	local face2 = face :: Frame -- a Frame either way (cloned Face or made)
-	local ribbon = make("Frame", {
-		Name = "Ribbon",
-		AnchorPoint = CENTRE,
-		Position = UDim2.new(0.5, 0, 0.5, 2),
-		Size = UDim2.fromOffset(3, 21),
-		BackgroundColor3 = face2.BackgroundColor3,
-		BorderSizePixel = 0,
-		ZIndex = 5,
-	}, gift)
-	ribbon.BackgroundTransparency = face2.BackgroundTransparency
-end
-
 ------------------------------------------------------------------------------
 -- Templates
 
@@ -496,7 +427,7 @@ make("ImageLabel", {
 	ScaleType = Enum.ScaleType.Fit,
 	ZIndex = 6,
 }, ps)
-text(ps, "Gun", "VANDAL", 24, WHITE, {
+text(ps, "Gun", "HAVOC", 24, WHITE, {
 	Position = UDim2.fromOffset(14, 58),
 	Size = UDim2.fromOffset(180, 26),
 	TextXAlignment = Enum.TextXAlignment.Left,

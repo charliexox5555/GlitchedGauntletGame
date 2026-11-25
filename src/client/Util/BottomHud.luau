@@ -15,6 +15,7 @@ local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Bindings = require(ReplicatedStorage.Shared.Config.Input)
 local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 local WaitGui = require(script.Parent.WaitGui)
 
@@ -667,13 +668,14 @@ function BottomHud.start()
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end
-		if TouchHud.enabled() then
+		bind(gui)
+		local function syncTouch()
 			-- Touch: the touch screen has its own health bar, weapon slots,
 			-- ammo readout and Mod buttons (Util/TouchHud).
-			gui.Enabled = false
-			return
+			gui.Enabled = not TouchHud.enabled()
 		end
-		bind(gui)
+		syncTouch()
+		InputMode.changed:Connect(syncTouch)
 	end)
 end
 

@@ -58,6 +58,8 @@ export type Bot = {
 	name: string,
 	team: number,
 	profile: BotsConfig.Profile,
+	baseProfile: BotsConfig.Profile, -- restored outside bot-only escalations
+	botDuelAlpha: number,
 	avatar: Model?, -- undressed clone template, fixed for the bot seat
 	avatarPending: boolean,
 	seat: Configuration, -- public roster fields, available before the bot body

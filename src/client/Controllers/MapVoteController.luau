@@ -25,6 +25,7 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
@@ -250,7 +251,9 @@ local function refreshVotes()
 		end
 	end
 	for _, p in Players:GetPlayers() do
-		addVote(p)
+		if PlayZone.inSameScope(player, p) then
+			addVote(p)
+		end
 	end
 	for _, seat in MatchState.botSeats() do
 		addVote(seat)
@@ -523,6 +526,10 @@ function MapVoteController.start()
 	stage = child(canvas, "Stage") :: Frame
 
 	-- The world behind the vote blurs (ours, only while it's up).
+	local oldBlur = Lighting:FindFirstChild("MapVoteBlur")
+	if oldBlur then
+		oldBlur:Destroy()
+	end
 	blur = Instance.new("BlurEffect")
 	blur.Name = "MapVoteBlur"
 	blur.Size = 0
@@ -576,7 +583,50 @@ function MapVoteController.start()
 	if PlayZone.get(player) == "Range" then
 		return
 	end
+	for _ = 1, 2 do
+		RunService.Heartbeat:Wait()
+	end
 	local matchId = PlayZone.matchId(player) or "server"
+	local function findReplicatedMap(): Model?
+		local candidate: Instance? = nil
+		if matchId == "server" then
+			candidate = workspace:FindFirstChild("ActiveMap")
+		else
+			local matches = workspace:FindFirstChild("Matches")
+			local matchFolder = matches and matches:FindFirstChild(matchId)
+			if matchFolder then
+				for _, item in matchFolder:GetChildren() do
+					if item:IsA("Model") and item:GetAttribute("MatchId") == matchId then
+						candidate = item
+						break
+					end
+				end
+			end
+		end
+		if
+			candidate
+			and candidate:IsA("Model")
+			and candidate:FindFirstChildWhichIsA("BasePart", true)
+		then
+			return candidate
+		end
+		return nil
+	end
+	local mapDeadline = os.clock() + 6
+	local replicatedMap = findReplicatedMap()
+	while not replicatedMap and os.clock() < mapDeadline do
+		if PlayZone.get(player) ~= "Match" then
+			return
+		end
+		task.wait(0.05)
+		replicatedMap = findReplicatedMap()
+	end
+	if replicatedMap then
+		local origin = replicatedMap:GetPivot().Position
+		task.spawn(function()
+			pcall(player.RequestStreamAroundAsync, player, origin, 4)
+		end)
+	end
 	local ready = Net.event("MatchReady")
 	while StateValues.get(player, "MatchVoteReady") ~= matchId do
 		local phase = MatchState.phase()

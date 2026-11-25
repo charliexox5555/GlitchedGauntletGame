@@ -42,6 +42,7 @@ Context.sendHome = nil :: ((player: Player) -> ())?
 -- A queued match hosted in its reserved Lobby server (Shared/ServerRole.isHosted): ends like a pad duel (back to
 -- the lobby here), and Play Again queues the player again from here (`requeue`, the Lobby's QueueService).
 Context.hosted = false
+Context.noRematch = false
 Context.requeue = nil :: ((player: Player, mode: string) -> ())?
 
 local members: { [Player]: boolean } = {}
@@ -242,6 +243,7 @@ export type Spec = {
 	finish: ((players: { Player }) -> ())?,
 	sendHome: ((player: Player) -> ())?,
 	hosted: boolean?,
+	noRematch: boolean?,
 	requeue: ((player: Player, mode: string) -> ())?,
 }
 
@@ -255,6 +257,7 @@ function Context.setup(spec: Spec)
 	Context.finish = spec.finish
 	Context.sendHome = spec.sendHome
 	Context.hosted = spec.hosted == true
+	Context.noRematch = spec.noRematch == true
 	Context.requeue = spec.requeue
 	for _, p in spec.players do
 		members[p] = true

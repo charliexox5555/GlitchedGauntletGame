@@ -41,7 +41,7 @@ local function setEnabled(inst: Instance?, on: boolean?)
 	end
 end
 
-function CoreUi.menuMode(on: boolean)
+function CoreUi.menuMode(on: boolean, keepTouch: boolean?)
 	if not Style.FLAGS.hideCoreUiInMenus then
 		return
 	end
@@ -49,6 +49,12 @@ function CoreUi.menuMode(on: boolean)
 	local bar = config("ChatInputBarConfiguration")
 	if on then
 		if saved then
+			local touch = saved.touch
+			if touch ~= nil then
+				pcall(function()
+					GuiService.TouchControlsEnabled = keepTouch == true and touch
+				end)
+			end
 			return
 		end
 		local okList, list =
@@ -65,9 +71,11 @@ function CoreUi.menuMode(on: boolean)
 		-- Roblox's thumbstick and jump button take touches in their zones first
 		-- (LihFolk: Debugging UI Layout and Input); a full-screen screen doesn't
 		-- need them.
-		pcall(function()
-			GuiService.TouchControlsEnabled = false
-		end)
+		if not keepTouch then
+			pcall(function()
+				GuiService.TouchControlsEnabled = false
+			end)
+		end
 		pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList, false)
 		setEnabled(window, false)
 		setEnabled(bar, false)

@@ -8,11 +8,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
+local OpeningConfig = require(ReplicatedStorage.Shared.Config.CaseOpening)
 local CaseOpening = require(script.Parent.Parent.Util.CaseOpening)
 
 local CaseShowController = {}
-
-local MAX_DISTANCE = 140 -- studs from you
 
 function CaseShowController.start()
 	local me = Players.LocalPlayer
@@ -20,7 +20,11 @@ function CaseShowController.start()
 		if typeof(p) ~= "table" or typeof(p.userId) ~= "number" or p.userId == me.UserId then
 			return
 		end
-		if typeof(p.gun) ~= "string" or typeof(p.line) ~= "string" then
+		if
+			(p.count ~= 1 and p.count ~= Inventory.BATCH_OPEN_COUNT)
+			or typeof(p.results) ~= "table"
+			or #p.results == 0
+		then
 			return
 		end
 		local owner = Players:GetPlayerByUserId(p.userId)
@@ -31,18 +35,17 @@ function CaseShowController.start()
 		if not (owner and a and a:IsA("BasePart")) then
 			return
 		end
-		if b and b:IsA("BasePart") and (a.Position - b.Position).Magnitude > MAX_DISTANCE then
+		if
+			b
+			and b:IsA("BasePart")
+			and (a.Position - b.Position).Magnitude > OpeningConfig.VIEW_DISTANCE
+		then
 			return
 		end
-		local h =
-			CaseOpening.start(owner, if typeof(p.crate) == "number" then p.crate else 1, false)
+		local crateTier = if typeof(p.crate) == "number" then p.crate else 1
+		local h = CaseOpening.start(owner, crateTier, false, p.count)
 		if h then
-			h:reveal({
-				gun = p.gun,
-				line = p.line,
-				tier = if typeof(p.tier) == "string" then p.tier else "Common",
-				name = if typeof(p.text) == "string" then p.text else "",
-			})
+			h:reveal(p.results)
 		end
 	end)
 end

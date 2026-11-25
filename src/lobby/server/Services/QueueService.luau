@@ -31,8 +31,11 @@ local Launcher = require(script.Parent.Parent.Matchmaking.Launcher)
 local Matchmaker = require(script.Parent.Parent.Matchmaking.Matchmaker)
 local Parties = require(script.Parent.Parent.Matchmaking.Parties)
 local LockerService = require(script.Parent.LockerService)
+local OnboardingConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
+local Telemetry = require(script.Parent.Parent.Telemetry)
 
 type Status = "idle" | "searching" | "found" | "teleporting"
 type State = { status: Status, mode: string?, matchId: string? }
@@ -64,9 +67,27 @@ local function levelOk(members: { Player }, info: Config.ModeInfo): boolean
 end
 
 local states: { [Player]: State } = {}
+local localFirstMatchDone: { [Player]: boolean } = {}
+local writingTickets: { [Matchmaker.Entry]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local autoRetried: { [Player]: number } = {}
+local join: (player: Player, info: Config.ModeInfo) -> ()
 local queues: { [string]: { Matchmaker.Entry } } = {}
 for _, m in Config.MODES do
 	queues[m.id] = {}
+end
+
+local matchHostRef: any = nil
+local function getMatchHost(): any
+	if matchHostRef then
+		return matchHostRef
+	end
+	local server = game:GetService("ServerScriptService"):FindFirstChild("Server")
+	local services = server and server:FindFirstChild("Services")
+	local host = services and services:FindFirstChild("MatchHost")
+	if host and host:IsA("ModuleScript") then
+		matchHostRef = require(host)
+	end
+	return matchHostRef
 end
 
 local limiter = RateLimit.new(Config.RATE)
@@ -160,6 +181,7 @@ local function backToLobby(player: Player, matchId: string, text: string?)
 	end
 	setState(player, "idle")
 	if text then
+		Telemetry.queueStop(player, "Queue launch failed")
 		send(player, { kind = "failed", text = text })
 	end
 end
@@ -177,13 +199,11 @@ local function startLaunch(
 )
 	updateCounts()
 
-	-- save Locker equips now so the write lands before the teleport
-	for _, p in players do
-		LockerService.flush(p)
-	end
+	local startsAt = os.clock() + Config.matchFoundDelay
 	local startsAtServer = serverNow() + Config.matchFoundDelay
 	for _, p in players do
 		setState(p, "found", info.id, matchId)
+		Telemetry.queueStep(p, 2, "Match found")
 		StateValues.set(p, "QueueStartsAt", startsAtServer)
 		send(p, {
 			kind = "found",
@@ -193,6 +213,10 @@ local function startLaunch(
 			startsAt = startsAtServer,
 		})
 	end
+	-- Reserve the queue state before a Locker save can yield.
+	for _, p in players do
+		LockerService.flush(p)
+	end
 	print(`[Queue] match {matchId} found: {info.id}, {#players} player(s) here, bots {bots}`)
 
 	local match: Launcher.Match = {
@@ -201,23 +225,48 @@ local function startLaunch(
 		teamSize = info.teamSize,
 		players = players,
 		teams = teams,
-		startsAt = os.clock() + Config.matchFoundDelay,
+		startsAt = startsAt,
 		reservedServerId = reservedServerId,
 		bots = bots,
 	}
+	local function recoverTimeout(p: Player, text: string)
+		if
+			p.Parent == Players
+			and PlayZone.get(p) == "Lobby"
+			and Parties.leader(p) == p
+			and (not autoRetried[p] or os.clock() - autoRetried[p] > 45)
+		then
+			autoRetried[p] = os.clock()
+			backToLobby(p, matchId, nil)
+			send(p, { kind = "info", text = "Match took too long to load — re-queueing..." })
+			task.delay(1, function()
+				if p.Parent == Players and PlayZone.get(p) == "Lobby" then
+					join(p, info)
+				end
+			end)
+		else
+			backToLobby(p, matchId, text)
+		end
+	end
+
 	local hooks: Launcher.Hooks = {
 		stillIn = function(p: Player): boolean
 			local s = states[p]
-			return s ~= nil and s.matchId == matchId
+			return s ~= nil and s.matchId == matchId and PlayZone.get(p) == "Lobby"
 		end,
 		teleporting = function(p: Player)
 			local s = states[p]
 			if s and s.matchId == matchId then
+				Telemetry.queueStep(p, 3, "Teleport requested")
 				setState(p, "teleporting", info.id, matchId)
 			end
 		end,
 		failed = function(p: Player, text: string)
-			backToLobby(p, matchId, text)
+			if string.find(text, "too long", 1, true) then
+				recoverTimeout(p, text)
+			else
+				backToLobby(p, matchId, text)
+			end
 		end,
 		studio = function(p: Player, json: string)
 			send(p, { kind = "studio", mode = info.id, payload = json })
@@ -226,16 +275,12 @@ local function startLaunch(
 	}
 
 	-- A launch that errors or hangs (e.g. reserve retries) must never strand
-	-- players on "found": they go back to the lobby with a message.
+	-- players on "found": they go back to the lobby and re-queue cleanly.
 	task.delay(Config.matchFoundDelay + Config.foundTimeout, function()
 		for _, p in players do
 			local s = states[p]
 			if s and s.matchId == matchId and s.status == "found" then
-				backToLobby(
-					p,
-					matchId,
-					"Couldn't start the match. You're back in the lobby; try again."
-				)
+				recoverTimeout(p, "Couldn't start the match. You're back in the lobby; try again.")
 			end
 		end
 	end)
@@ -305,7 +350,14 @@ local function onGlobalMatch(ticket: string, match: GlobalQueue.MatchInfo)
 	removeEntry(found)
 	local players: { Player } = {}
 	for _, p in found.players do
-		if p.Parent == Players then
+		local s = states[p]
+		if
+			p.Parent == Players
+			and PlayZone.get(p) == "Lobby"
+			and s
+			and s.status == "searching"
+			and s.mode == match.mode
+		then
 			table.insert(players, p)
 		end
 	end
@@ -314,33 +366,65 @@ local function onGlobalMatch(ticket: string, match: GlobalQueue.MatchInfo)
 	end
 end
 
+local WRITE_BACKOFF = { 2, 4 }
+
 -- Writes a queued group's global ticket (yields; the group may be gone by then).
 local function writeTicket(mode: string, entry: Matchmaker.Entry)
-	if not GlobalQueue.isOn() then
+	if not GlobalQueue.isOn() or writingTickets[entry] then
 		return
 	end
+	writingTickets[entry] = true
 	local users: { number } = {}
 	for _, p in entry.players do
 		table.insert(users, p.UserId)
 	end
-	local ticket = GlobalQueue.add(mode, users, os.clock() - entry.since)
-	if not ticket then
-		return
+	for attempt = 1, 3 do
+		local queue = queues[mode]
+		if not queue or not table.find(queue, entry) or entry.ticket then
+			break
+		end
+		local ticket = GlobalQueue.add(mode, users, os.clock() - entry.since)
+		if ticket then
+			local latestQueue = queues[mode]
+			if latestQueue and table.find(latestQueue, entry) and not entry.ticket then
+				entry.ticket = ticket
+			else
+				GlobalQueue.remove(ticket)
+			end
+			break
+		end
+		if attempt < 3 then
+			task.wait(WRITE_BACKOFF[attempt])
+		end
 	end
-	local queue = queues[mode]
-	if queue and table.find(queue, entry) and not entry.ticket then
-		entry.ticket = ticket
-	else
-		GlobalQueue.remove(ticket)
-	end
+	writingTickets[entry] = nil
 end
 
 local function tick()
+	local now = os.clock()
 	if GlobalQueue.isOn() then
 		updateCounts() -- the global matchmaker does the matching
+		for _, info in Config.MODES do
+			local unticketed: { Matchmaker.Entry } = {}
+			for _, entry in queues[info.id] do
+				if entry.ticket == nil then
+					if not writingTickets[entry] and now - entry.since >= 4 then
+						task.spawn(writeTicket, info.id, entry)
+					end
+					if now - entry.since >= fillFor(info) + 5 then
+						table.insert(unticketed, entry)
+					end
+				end
+			end
+			if #unticketed > 0 then
+				local pick = Matchmaker.pick(unticketed, info.teamSize, now, fillFor(info))
+				if pick then
+					task.spawn(launch, info, pick)
+				end
+			end
+		end
 		return
 	end
-	local now = os.clock()
 	for _, info in Config.MODES do
 		local pick = Matchmaker.pick(queues[info.id], info.teamSize, now, fillFor(info))
 		if pick then
@@ -357,6 +441,13 @@ local function enqueue(members: { Player }, info: Config.ModeInfo, since: number
 	local sinceServer = serverNow() - (os.clock() - since)
 	for _, m in members do
 		setState(m, "searching", info.id)
+		Telemetry.queueStart(m, info.id)
+		local matches = StateValues.get(m, "Matches")
+		if info.id == "beginner" and matches == 0 and not localFirstMatchDone[m] then
+			Telemetry.onboarding(m, 2)
+		elseif matches == 1 or (matches == 0 and localFirstMatchDone[m]) then
+			Telemetry.onboarding(m, 17)
+		end
 		StateValues.set(m, "QueueSince", sinceServer)
 	end
 end
@@ -366,14 +457,19 @@ end
 local function free(members: { Player }): boolean
 	for _, m in members do
 		local s = states[m]
-		if not s or (s.status ~= "idle" and s.status ~= "searching") then
+		if
+			m.Parent ~= Players
+			or PlayZone.get(m) ~= "Lobby"
+			or not s
+			or (s.status ~= "idle" and s.status ~= "searching")
+		then
 			return false
 		end
 	end
 	return true
 end
 
-local function join(player: Player, info: Config.ModeInfo)
+join = function(player: Player, info: Config.ModeInfo)
 	-- only from the lobby (a player in a hosted match or a pad duel can't queue)
 	if PlayZone.get(player) ~= "Lobby" then
 		return
@@ -407,6 +503,24 @@ local function join(player: Player, info: Config.ModeInfo)
 	for _, m in members do
 		removeFromQueue(m) -- switching modes restarts the wait
 	end
+	local host = getMatchHost()
+	if
+		info.id == OnboardingConfig.BEGINNER_MODE
+		and ServerRole.isLobby()
+		and not ServerRole.isHosted()
+		and #members == 1
+		and StateValues.get(player, "Matches") == 0
+		and not localFirstMatchDone[player]
+		and host
+	then
+		localFirstMatchDone[player] = true
+		setState(player, "idle")
+		Telemetry.queueStop(player, "Queue switched")
+		updateCounts()
+		Telemetry.onboarding(player, 2)
+		host.startDuel(info.id, info.teamSize, { { player }, {} }, true, true)
+		return
+	end
 	enqueue(members, info, os.clock())
 	for i, m in members do
 		if i > 1 then
@@ -430,6 +544,7 @@ local function leave(player: Player)
 	for _, m in if entry then entry.players else { player } do
 		if m.Parent == Players and states[m] then
 			setState(m, "idle")
+			Telemetry.queueStop(m, "Queue cancelled")
 			if m ~= player then
 				send(m, {
 					kind = "info",
@@ -520,6 +635,7 @@ local function onRequest(player: Player, action: unknown, mode: unknown)
 		return
 	end
 	if action == "join" then
+		autoRetried[player] = nil
 		if typeof(mode) ~= "string" or #mode > 16 then
 			reject("badMode")
 			return
@@ -531,6 +647,7 @@ local function onRequest(player: Player, action: unknown, mode: unknown)
 			reject("unknownMode")
 		end
 	elseif action == "leave" then
+		autoRetried[player] = nil
 		leave(player)
 	else
 		reject("badAction")
@@ -549,8 +666,7 @@ local function requeueFromMatch(player: Player)
 		return
 	end
 	-- From a match server (a reserved server of this same place).
-	local source = (joinData :: any).SourcePlaceId
-	if source ~= game.PlaceId then
+	if joinData.SourcePlaceId ~= game.PlaceId or joinData.SourceGameId ~= game.GameId then
 		return
 	end
 	local data = (joinData :: any).TeleportData
@@ -573,6 +689,12 @@ local function requeueFromMatch(player: Player)
 		end
 	end
 	if info and info.enabled and Parties.leader(player) == player then
+		if data.cancelled == true then
+			send(
+				player,
+				{ kind = "info", text = "Previous match took too long to load — re-queueing!" }
+			)
+		end
 		join(player, info)
 	end
 end
@@ -580,6 +702,14 @@ end
 local function onPlayerAdded(player: Player)
 	setState(player, "idle")
 	task.defer(requeueFromMatch, player)
+end
+
+function QueueService.resetOnboarding(player: Player)
+	localFirstMatchDone[player] = nil
+	local state = states[player]
+	if state and state.status == "searching" then
+		leave(player)
+	end
 end
 
 function QueueService.init()
@@ -591,6 +721,11 @@ end
 
 function QueueService.start()
 	LobbyNet.event("QueueRequest").OnServerEvent:Connect(onRequest)
+	PlayZone.changed:Connect(function(player: Player, zone: string)
+		if zone ~= "Lobby" then
+			leave(player)
+		end
+	end)
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	for _, p in Players:GetPlayers() do
 		onPlayerAdded(p)
@@ -603,6 +738,8 @@ function QueueService.start()
 			updateCounts()
 		end
 		states[player] = nil
+		localFirstMatchDone[player] = nil
+		autoRetried[player] = nil
 		limiter:forget(player)
 	end)
 	Parties.onChanged(onPartyChanged)
@@ -616,7 +753,9 @@ function QueueService.start()
 		if not (host and host:IsA("ModuleScript")) then
 			return
 		end
-		(require(host) :: any).onRequeue(function(player: Player, mode: string)
+		local mod = require(host) :: any
+		matchHostRef = mod
+		mod.onRequeue(function(player: Player, mode: string)
 			local info = Config.MODE_BY_ID[mode]
 			if info and info.maxLevel and not levelOk(Parties.members(player), info) then
 				info = Config.MODE_BY_ID[`{info.teamSize}v{info.teamSize}`]

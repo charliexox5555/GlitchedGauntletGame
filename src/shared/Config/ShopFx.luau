@@ -27,7 +27,7 @@ return table.freeze({
 		tileRows = 2,
 	}),
 	reward = table.freeze({
-		build = 0.4,
+		build = 0.22,
 		dimTransparency = 0.35,
 		panelStartScale = 0.9,
 		revealFade = 0.22,

@@ -78,6 +78,9 @@ local function disconnectDrags()
 		c:Disconnect()
 	end
 	table.clear(dragConns)
+	if list then
+		list.ScrollingEnabled = true
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -444,22 +447,73 @@ local function fillSlider(control: Frame, row: Row)
 		end
 		valueBox.Text = fmt(row, values[row.id])
 	end)
-	track.InputBegan:Connect(function(input: InputObject)
+	-- Generous touch/click target over the 12 px visual track (leaves Value uncovered).
+	local hit = Instance.new("TextButton")
+	hit.Name = "Hit"
+	hit.Size = UDim2.new(0, track.Size.X.Offset + 28, 0, 56)
+	hit.AnchorPoint = Vector2.new(0, 0.5)
+	hit.Position = UDim2.new(track.Position.X.Scale, track.Position.X.Offset - 14, 0.5, 0)
+	hit.BackgroundTransparency = 1
+	hit.Text = ""
+	hit.AutoButtonColor = false
+	hit.ZIndex = track.ZIndex + 3
+	hit.Parent = s
+
+	hit.InputBegan:Connect(function(input: InputObject)
 		local t = input.UserInputType
 		if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then
 			return
 		end
-		UiSfx.claim() -- sliders are silent (owner: Settings sounds were too much)
-		setFromX(input.Position.X)
-		UiMotion.rest(knobPop, LobbyKit.M.hover)
 		disconnectDrags()
+		if t == Enum.UserInputType.MouseButton1 then
+			UiSfx.claim() -- sliders are silent (owner: Settings sounds were too much)
+			setFromX(input.Position.X)
+			UiMotion.rest(knobPop, LobbyKit.M.hover)
+			table.insert(
+				dragConns,
+				UserInputService.InputChanged:Connect(function(move: InputObject)
+					if move.UserInputType == Enum.UserInputType.MouseMovement then
+						setFromX(move.Position.X)
+					end
+				end)
+			)
+			table.insert(
+				dragConns,
+				UserInputService.InputEnded:Connect(function(done: InputObject)
+					if done.UserInputType == Enum.UserInputType.MouseButton1 then
+						UiMotion.rest(knobPop, 1)
+						disconnectDrags()
+					end
+				end)
+			)
+			return
+		end
+
+		-- Touch: distinguish vertical scrolling from horizontal slider scrubbing.
+		local activeInput = input
+		local startPos = Vector2.new(input.Position.X, input.Position.Y)
+		local mode: "pending" | "scrub" = "pending"
 		table.insert(
 			dragConns,
 			UserInputService.InputChanged:Connect(function(move: InputObject)
-				if
-					move.UserInputType == Enum.UserInputType.MouseMovement
-					or move.UserInputType == Enum.UserInputType.Touch
-				then
+				if move ~= activeInput then
+					return
+				end
+				local dx = move.Position.X - startPos.X
+				local dy = move.Position.Y - startPos.Y
+				if mode == "pending" then
+					if math.abs(dy) >= 8 and math.abs(dy) > math.abs(dx) then
+						disconnectDrags()
+						return
+					end
+					if math.abs(dx) >= 6 then
+						mode = "scrub"
+						list.ScrollingEnabled = false
+						UiSfx.claim()
+						UiMotion.rest(knobPop, LobbyKit.M.hover)
+						setFromX(move.Position.X)
+					end
+				elseif mode == "scrub" then
 					setFromX(move.Position.X)
 				end
 			end)
@@ -467,10 +521,15 @@ local function fillSlider(control: Frame, row: Row)
 		table.insert(
 			dragConns,
 			UserInputService.InputEnded:Connect(function(done: InputObject)
-				if done.UserInputType == t then
-					UiMotion.rest(knobPop, 1)
-					disconnectDrags()
+				if done ~= activeInput then
+					return
 				end
+				if mode == "pending" then
+					UiSfx.claim()
+					setFromX(done.Position.X)
+				end
+				UiMotion.rest(knobPop, 1)
+				disconnectDrags()
 			end)
 		)
 	end)
@@ -1012,6 +1071,10 @@ renderTab = function(i: number, keepScroll: boolean?)
 	local phone = UiLayout.family() == "Phone"
 	inspect.Visible = not wide
 	local width = if wide then LIST_WIDE else LIST_W
+	list.ScrollBarThickness = if phone then 16 else 10
+	list.ScrollBarImageTransparency = 0.25
+	list.ScrollBarImageColor3 = Color3.fromHex("C4C4CC")
+	list.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 	list.Size = if phone then UDim2.new(0, width, 1, -176) else UDim2.fromOffset(width, 740)
 	preview.Visible = i == CROSSHAIR_TAB
 
@@ -1124,6 +1187,10 @@ function SettingsController.init()
 	templates = lobby :: Folder
 	canvas = child(gui, "Canvas") :: Frame
 	list = child(canvas, "List") :: ScrollingFrame
+	list.ScrollBarThickness = if UiLayout.family() == "Phone" then 16 else 10
+	list.ScrollBarImageTransparency = 0.25
+	list.ScrollBarImageColor3 = Color3.fromHex("C4C4CC")
+	list.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 	inspect = child(canvas, "Inspect") :: Frame
 	head = child(inspect, "Head") :: TextLabel
 	desc = child(inspect, "Desc") :: TextLabel
@@ -1212,6 +1279,7 @@ function SettingsController.init()
 			return list:FindFirstChildWhichIsA("GuiButton", true)
 		end,
 		onOpen = function(arg: any?)
+			player:SetAttribute("GameSettingsOpen", true)
 			if arg == "crosshair" then
 				pick(CROSSHAIR_TAB)
 			elseif current == 0 then
@@ -1221,6 +1289,8 @@ function SettingsController.init()
 			end
 		end,
 		onClose = function()
+			player:SetAttribute("GameSettingsOpen", false)
+			disconnectDrags()
 			TouchEditor.cancel()
 			closePopups()
 			capture = nil

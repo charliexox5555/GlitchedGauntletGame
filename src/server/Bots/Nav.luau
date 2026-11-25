@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Zone = require(script.Parent.Parent.Zone)
+local MovementGuard = require(game:GetService("ServerScriptService").Server.Services.MovementGuard)
 local BotTypes = require(script.Parent.Types)
 
 type Bot = BotTypes.Bot
@@ -30,6 +31,16 @@ local path = PathfindingService:CreatePath({
 -- One path compute at a time across all bots (ComputeAsync yields): the
 -- shared Path object is reused, and a queue keeps the cost flat.
 local busy = false
+local activeMap: Model? = nil
+
+function Nav.setMap(map: Model?)
+	activeMap = map
+end
+
+function Nav.insideArena(point: Vector3): boolean
+	local map = activeMap
+	return not map or MovementGuard.contains(map, point)
+end
 
 function Nav.new(): Nav
 	local params = RaycastParams.new()
@@ -87,7 +98,11 @@ end
 
 function Nav.ground(bot: Bot, at: Vector3, down: number?): Vector3?
 	local hit = workspace:Raycast(at + UP * 2, -UP * (down or 16), bot.nav.params)
-	return if hit and hit.Normal.Y >= 0.65 then hit.Position else nil
+	if not hit or hit.Normal.Y < 0.65 or not Nav.insideArena(hit.Position) then
+		return nil
+	end
+	local map = activeMap
+	return if not map or hit.Instance:IsDescendantOf(map) then hit.Position else nil
 end
 
 function Nav.clearLine(bot: Bot, from: Vector3, to: Vector3): boolean
@@ -103,6 +118,9 @@ function Nav.canMove(bot: Bot, dir: Vector3, distance: number, jump: boolean?): 
 	end
 	local pos = root.Position
 	local heading = dir.Unit
+	if not Nav.insideArena(pos + heading * distance) then
+		return false
+	end
 	local lift = if jump then 2.2 else 0
 	if jump and not Nav.clearLine(bot, pos + UP * 1.3, pos + UP * 4.2) then
 		return false
@@ -159,6 +177,14 @@ local function compute(bot: Bot, nav: Nav, goal: Vector3, life: number, revision
 	local waypoints = if ok and path.Status == Enum.PathStatus.Success
 		then path:GetWaypoints()
 		else nil
+	if waypoints then
+		for _, waypoint in waypoints do
+			if not Nav.insideArena(waypoint.Position) then
+				waypoints = nil
+				break
+			end
+		end
+	end
 	busy = false
 	nav.computing = false
 	if bot.life ~= life or nav.revision ~= revision then

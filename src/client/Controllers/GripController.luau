@@ -30,6 +30,7 @@ local Workspace = game:GetService("Workspace")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Health = require(ReplicatedStorage.Shared.Health)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local GripController = {}
@@ -165,21 +166,26 @@ local function watch(character: Model)
 end
 
 local function scan()
+	local viewer = Players.LocalPlayer
 	for _, player in Players:GetPlayers() do
-		if player.Character then
+		if player.Character and (not viewer or PlayZone.inSameScope(viewer, player)) then
 			watch(player.Character)
 		end
 	end
 	local dummies = Workspace:FindFirstChild("Dummies")
 	if dummies then
 		for _, model in dummies:GetChildren() do
-			if model:IsA("Model") then
+			if model:IsA("Model") and (not viewer or PlayZone.inSameScope(viewer, model)) then
 				watch(model)
 			end
 		end
 	end
 	for character, rig in rigs do
-		if not character.Parent or not rig.humanoid.Parent then
+		if
+			not character.Parent
+			or not rig.humanoid.Parent
+			or (viewer and not PlayZone.inSameScope(viewer, character))
+		then
 			dropRig(character)
 		end
 	end

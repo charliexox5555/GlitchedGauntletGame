@@ -50,6 +50,7 @@ local RiftforgeAudio = require(ReplicatedStorage.Shared.Config.RiftforgeAudio)
 
 local ChamberFlow = require(script.Parent.Parent.Util.ChamberFlow)
 local RiftforgeEffects = require(script.Parent.Parent.Util.RiftforgeEffects)
+local RiftfangKnife = require(script.Parent.Parent.Util.RiftfangKnife)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local MagDrop = require(script.Parent.Parent.Util.MagDrop)
 local FanMotion = require(script.Parent.Parent.Util.FanMotion)
@@ -157,6 +158,7 @@ type Gun = {
 	playback: boolean?,
 	sundial: boolean?,
 	riftforge: RiftforgeEffects.State?,
+	riftfang: RiftfangKnife.State?, -- the Riftfang Legendary Knife (knife slot)
 	arc: SlipframeArc.State?,
 	katana: TempestKatana.State?, -- the Tempest-Strike Katana (knife slot)
 	shadowActions: ShadowMistActions.State?,
@@ -1081,7 +1083,11 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	elseif skinLine == "Sundial" then
 		gun.sundial = true
 	elseif skinLine == "Riftforge" and not subject then
-		gun.riftforge = RiftforgeEffects.new(m, scale)
+		if templateId == "Knife" then
+			gun.riftfang = RiftfangKnife.new(m, scale)
+		else
+			gun.riftforge = RiftforgeEffects.new(m, scale)
+		end
 	end
 	gun.katana = TempestKatana.new(m, scale)
 	gun.shadowActions = ShadowMistActions.new(m, scale, weapon.id)
@@ -1294,6 +1300,9 @@ function ViewmodelController.unequip()
 		if gun.riftforge then
 			RiftforgeEffects.destroy(gun.riftforge)
 		end
+		if gun.riftfang then
+			RiftfangKnife.destroy(gun.riftfang)
+		end
 		gun.model:Destroy()
 	end
 	guns = {}
@@ -1313,7 +1322,7 @@ end
 
 function ViewmodelController.hasRiftforge(): boolean
 	local right = guns.Right
-	return right ~= nil and right.riftforge ~= nil
+	return subject == nil and right ~= nil and (right.riftforge ~= nil or right.riftfang ~= nil)
 end
 
 function ViewmodelController.hasSlipframe(): boolean
@@ -1334,11 +1343,6 @@ end
 function ViewmodelController.hasSundial(): boolean
 	local right = guns.Right
 	return subject == nil and right ~= nil and right.sundial == true
-end
-
-function ViewmodelController.hasRiftforge(): boolean
-	local right = guns.Right
-	return subject == nil and right ~= nil and right.riftforge ~= nil
 end
 
 function ViewmodelController.hasSlipframeArc(): boolean
@@ -1575,7 +1579,7 @@ local function bump(kind: string)
 				AudioController.playSound(cue, "Foley", nil, nil, pitch)
 			end
 		end
-	elseif right and right.riftforge then
+	elseif right and (right.riftforge or right.riftfang) then
 		if not subject and not hidden and config then
 			local cue = RiftforgeAudio.handling[kind]
 			if cue then
@@ -1783,6 +1787,7 @@ function ViewmodelController.equip(
 	local drawTrack = if right.arc
 		then "ArcDraw"
 		elseif right.katana and VM.TRACKS.KatanaDraw then "KatanaDraw"
+		elseif right.riftfang and VM.TRACKS.RiftfangDraw then "RiftfangDraw"
 		else VM.MELEE_DRAW_TRACK
 	if right.fan then
 		FanMotion.play(right.fan, "Draw", time)
@@ -2094,8 +2099,8 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 			then VM.RELOAD_TRACK_TURN[config.id]
 			else nil
 	)
-	if right.riftforge and not subject then
-		-- Queue swirling magnetic plasma gather right after MagOut!
+	if right.riftforge and riftforgeReload and not subject then
+		-- Queue swirling magnetic plasma gather right after MagOut on mag-fed Riftforge guns!
 		local magOutAt = 0.16
 		for _, beat in beats do
 			if beat.sound == "MagOut" then
@@ -2104,6 +2109,9 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 			end
 		end
 		queueBump("RiftforgeMagForm", duration * math.min(0.95, magOutAt + 0.05))
+		if riftforgeReload == "ReloadRiftforgeEmpty" then
+			queueBump("RiftforgeReloadRoll", duration * RiftforgeAudio.reloadRollAt)
+		end
 	end
 	if seatAt then
 		for _, beat in beats do
@@ -2191,9 +2199,11 @@ function ViewmodelController.swing(attack: string?): number
 	ViewmodelController.cancelInspect()
 	local right = guns.Right
 	local hitDelay = 0
-	-- the Tempest-Strike Katana has its own cuts (Config/Viewmodel Katana*)
+	-- the Tempest-Strike Katana and Riftfang Knife have their own custom cuts
 	if right and right.katana and attack and VM.TRACKS["Katana" .. attack] then
 		attack = "Katana" .. attack
+	elseif right and right.riftfang and attack and VM.TRACKS["Riftfang" .. attack] then
+		attack = "Riftfang" .. attack
 	end
 	local own = attack and VM.TRACKS[attack]
 	local length = own and own.length or 0
@@ -2329,6 +2339,7 @@ function ViewmodelController.inspect(): boolean
 		elseif guns.Right.arc then "ArcInspect"
 		elseif guns.Right.fan then "InspectFan"
 		elseif guns.Right.katana and VM.TRACKS.KatanaInspect then "KatanaInspect"
+		elseif guns.Right.riftfang and VM.TRACKS.RiftfangInspect then "RiftfangInspect"
 		elseif c.fireMode == "Melee" then "InspectMelee"
 		else VM.INSPECT_TRACK[c.id] or "Inspect"
 	-- Akimbo: each gun gets a whole inspect, one after the other.
@@ -2359,6 +2370,10 @@ function ViewmodelController.inspect(): boolean
 		queueBump("RiftforgeInspectStart", length * RiftforgeAudio.inspectStartAt)
 		queueBump("RiftforgeInspectRoll", length * RiftforgeAudio.inspectRollAt)
 		queueBump("RiftforgeInspectLock", length * RiftforgeAudio.inspectLockAt)
+	elseif guns.Right.riftfang and not subject then
+		queueBump("RiftfangInspectStart", length * RiftforgeAudio.knifeInspectStartAt)
+		queueBump("RiftfangInspectSpin", length * RiftforgeAudio.knifeInspectSpinAt)
+		queueBump("RiftfangInspectLock", length * RiftforgeAudio.knifeInspectLockAt)
 	end
 	if guns.Right.fan then
 		FanMotion.play(guns.Right.fan, "Inspect", length)
@@ -2425,6 +2440,9 @@ function ViewmodelController.hitStop(seconds: number)
 	end
 	if right and right.reaver then
 		RuinedReaver.hitStop(right.reaver, seconds)
+	end
+	if right and right.riftfang then
+		RiftfangKnife.hit(right.riftfang)
 	end
 end
 
@@ -3183,13 +3201,15 @@ local function update(dt: number)
 				local draw = playing.Equip
 				local reload = playing.Reload
 				local inspect = playing.Inspect
+				local reloadEmpty = reload ~= nil and reload.track == VM.TRACKS.ReloadEmptyRiftforge
 				RiftforgeEffects.step(
 					gun.riftforge,
 					dt,
 					if draw and not draw.fading then draw.time / draw.length else nil,
 					if reload and not reload.fading then reload.time / reload.length else nil,
 					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
-					adsAlpha
+					adsAlpha,
+					reloadEmpty
 				)
 			end
 			local clipName = gun.animator.clipName
@@ -3270,6 +3290,27 @@ local function update(dt: number)
 							or sw.track == VM.TRACKS.KatanaHeavyStab
 						),
 					if sw then sw.track.hit else nil
+				)
+			end
+			if gun.riftfang then
+				local draw = playing.Equip
+				local inspect = playing.Inspect
+				local sw = playing.Swing
+				local cut = sw ~= nil and not sw.fading
+				RiftfangKnife.step(
+					gun.riftfang,
+					dt,
+					visible,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					if sw and cut then sw.time / sw.length else nil,
+					if sw then sw.track.hit else nil,
+					cut
+						and sw ~= nil
+						and (
+							sw.track == VM.TRACKS.HeavyStab
+							or sw.track == VM.TRACKS.RiftfangHeavyStab
+						)
 				)
 			end
 			if gun.shadowMist then
@@ -3562,7 +3603,7 @@ local function onSkinPick(owner: Player)
 		-- Same gun, new look: no draw.
 		ViewmodelController.equip(weapon, nil, { instant = true })
 		ViewmodelController.setHidden(wasHidden)
-	elseif subject then
+	else
 		for _, gun in guns do
 			SkinPreview.apply(gun.model)
 		end

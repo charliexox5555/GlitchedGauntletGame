@@ -1002,36 +1002,40 @@ end
 
 -- Call once on the server and once on each client.
 function PoseSim.initialize()
-	-- The latest caller owns the step. On a client the match client is
-	-- restarted per PlayZone (client/init.client.luau): the new copy starts
-	-- before the old one's connections are gone, so a "still connected" check
-	-- could skip the bind and leave nothing stepping once the old copy died
-	-- (no sprint, Roblox's default walk in the range; owner 2026-11-21).
-	if connection then
-		connection:Disconnect()
-		connection = nil
+	if connection and connection.Connected then
+		return
 	end
-	-- Priority 4000 runs after the movement step (default 2000) has written
-	-- this tick's MoveState, like Animate.
-	connection = RunService:BindToSimulation(step, Enum.StepFrequency.Hz60, 4000)
-	-- Load every clip up front: a one-shot that isn't loaded yet has length
-	-- 0 and ends at once, so the first slide / landing / dash would skip it.
+	-- Classic client ownership runs pose work in PreAnimation. Restricted
+	-- simulation callbacks reject animation initialization writes in this mode.
+	connection = if Authority.server()
+		then RunService:BindToSimulation(step, Enum.StepFrequency.Hz60, 4000)
+		else RunService.PreAnimation:Connect(step)
+	-- Visible locomotion warms naturally as its Animator starts the tracks.
+	-- Prime only the first local one-shots before the player needs them.
 	task.spawn(function()
 		local list: { Instance } = {}
-		for name in IDS do
-			table.insert(list, animationFor(name))
-		end
-		for kind, animId in USE_IDS do
-			local key = "Use" .. kind
-			if not animations[key] then
+		for _, kind in
+			{
+				"Land",
+				"SlideInUnarmed",
+				"SlideOutUnarmed",
+				"SlideIn",
+				"SlideOut",
+				"DashForward",
+				"Updraft",
+			}
+		do
+			local id = USE_IDS[kind]
+			if id then
 				local a = Instance.new("Animation")
-				a.Name = key
-				a.AnimationId = animId
-				animations[key] = a
+				a.AnimationId = id
+				table.insert(list, a)
 			end
-			table.insert(list, animations[key])
 		end
 		pcall(ContentProvider.PreloadAsync, ContentProvider, list)
+		for _, animation in list do
+			animation:Destroy()
+		end
 	end)
 end
 

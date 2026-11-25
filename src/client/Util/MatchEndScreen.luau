@@ -648,7 +648,7 @@ function MatchEndScreen.cards(list: { CardData })
 		then (column.AbsolutePosition.X - s.canvas.AbsolutePosition.X) / math.max(fit, 1e-3) - CARD_CLEAR
 		else (DESIGN.X - 484) * stretch
 	local zoneLeft = CARD_LEFT * stretch
-	type Slot = { data: CardData, x: number, w: number }
+	type Slot = { data: CardData, x: number, w: number, scale: number }
 	local slots: { Slot } = {}
 	for _, d in list do
 		local root = d.model:FindFirstChild("HumanoidRootPart")
@@ -657,25 +657,36 @@ function MatchEndScreen.cards(list: { CardData })
 			local p = cam:WorldToViewportPoint(root.Position)
 			x = ScreenPoint.toLocal(s.canvas, Vector2.new(p.X, p.Y)).X / fit
 		end
-		table.insert(slots, { data = d, x = x, w = CARD_W * (if d.lead then LEAD_SCALE else 1) })
+		local baseScale = if d.lead then LEAD_SCALE else 1
+		table.insert(slots, { data = d, x = x, w = CARD_W * baseScale, scale = baseScale })
 	end
 	table.sort(slots, function(a, b)
 		return a.x < b.x
 	end)
-	-- pushed apart, then the row moved into the zone
+	-- Fit within [zoneLeft, zoneRight]: shrink the whole row uniformly if needed,
+	-- then pack forward and backward so no card overlaps another or enters the Right column.
+	local zoneWidth = math.max(zoneRight - zoneLeft, 240)
+	local baseTotal = CARD_GAP * math.max(#slots - 1, 0)
+	for _, slot in slots do
+		baseTotal += slot.w
+	end
+	local rowScale = if baseTotal > zoneWidth then math.clamp(zoneWidth / baseTotal, 0.5, 1) else 1
+	local gap = CARD_GAP * rowScale
+	for _, slot in slots do
+		slot.w *= rowScale
+		slot.scale *= rowScale
+		slot.x = math.clamp(slot.x, zoneLeft + slot.w / 2, zoneRight - slot.w / 2)
+	end
 	for i = 2, #slots do
 		local a, b = slots[i - 1], slots[i]
-		b.x = math.max(b.x, a.x + (a.w + b.w) / 2 + CARD_GAP)
+		b.x = math.max(b.x, a.x + (a.w + b.w) / 2 + gap)
 	end
-	local left = slots[1].x - slots[1].w / 2
-	local right = slots[#slots].x + slots[#slots].w / 2
-	local shift = 0
-	if right > zoneRight then
-		shift = zoneRight - right
+	slots[#slots].x = math.min(slots[#slots].x, zoneRight - slots[#slots].w / 2)
+	for i = #slots - 1, 1, -1 do
+		local a, b = slots[i], slots[i + 1]
+		a.x = math.min(a.x, b.x - (a.w + b.w) / 2 - gap)
 	end
-	if left + shift < zoneLeft then
-		shift = zoneLeft - left
-	end
+	slots[1].x = math.max(slots[1].x, zoneLeft + slots[1].w / 2)
 	local layer = s.canvas:FindFirstChild("Cards")
 	if not layer then
 		local f = Instance.new("Frame")
@@ -712,16 +723,16 @@ function MatchEndScreen.cards(list: { CardData })
 		taken.Text = number(d.taken)
 		local badge = child(card, "Badge") :: CanvasGroup
 		badge.Visible = d.mvp
-		local home = UDim2.fromOffset(slot.x + shift, cardBottom)
+		local home = UDim2.fromOffset(slot.x, cardBottom)
 		card.Position = home + UDim2.fromOffset(0, ENTER_RISE)
 		local pop = child(card, "Pop") :: UIScale
-		pop.Scale = (if d.lead then LEAD_SCALE else 1) * ENTER_FROM
+		pop.Scale = slot.scale * ENTER_FROM
 		body.GroupTransparency = 1
 		badge.GroupTransparency = 1
 		card.Parent = layer
 		table.insert(s.cards, card)
 		tween(card, ENTER, { Position = home })
-		tween(pop, ENTER, { Scale = if d.lead then LEAD_SCALE else 1 })
+		tween(pop, ENTER, { Scale = slot.scale })
 		tween(body, ENTER, { GroupTransparency = 0 })
 		tween(badge, ENTER, { GroupTransparency = 0 })
 	end

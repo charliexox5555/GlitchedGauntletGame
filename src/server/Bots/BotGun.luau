@@ -12,13 +12,16 @@
 local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
 local Globals =
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
 local Ammo = require(Shared.Util.Ammo)
+local BallisticGlass = require(Shared.Util.BallisticGlass)
 local Penetration = require(Shared.Util.Penetration)
+local PlayZone = require(Shared.PlayZone)
 local Combat = require(Shared.Config.Combat)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
@@ -30,6 +33,7 @@ local Types = require(Shared.Types)
 local Weapons = require(Shared.Config.Weapons)
 local Health = require(Shared.Health)
 
+local MapGlass = require(Globals.MapGlass)
 local ModEntities = require(Globals.ModEntities)
 local WeaponService = require(Globals.WeaponService)
 
@@ -307,13 +311,18 @@ local function tracePellet(
 	tally: { [Model]: Tally },
 	objects: { [BasePart]: number }
 ): Vector3
-	rayParams.FilterDescendantsInstances = { shooter }
+	local limbs = workspace:FindFirstChild("GGBodyLimbs")
+	if limbs then
+		rayParams.FilterDescendantsInstances = { shooter, limbs }
+	else
+		rayParams.FilterDescendantsInstances = { shooter }
+	end
 	local from = origin
 	local remaining = config.range
 	local pierced = 0
 	local budget = Penetration.budget(config.penetration)
 	for _ = 1, 8 do
-		local result = workspace:Raycast(from, dir * remaining, rayParams)
+		local result = BallisticGlass.raycast(from, dir * remaining, rayParams, MapGlass.shatter)
 		if not result then
 			return from + dir * remaining
 		end
@@ -432,7 +441,12 @@ function BotGun.fire(
 	for i, dir in dirs do
 		ends[i] = tracePellet(character, config, origin, dir, tally, objects)
 	end
-	Net.unreliable("ShotFx"):FireAllClients(character, config.id, origin, ends)
+	local shotFx = Net.unreliable("ShotFx")
+	for _, other in Players:GetPlayers() do
+		if PlayZone.get(other) ~= "Lobby" and PlayZone.inSameScope(other, character) then
+			shotFx:FireClient(other, character, config.id, origin, ends)
+		end
+	end
 	for model, t in tally do
 		WeaponService.damageBy(character, model, t.amount, t.zone, config.id, t.position)
 	end

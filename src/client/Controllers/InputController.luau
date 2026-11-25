@@ -95,10 +95,14 @@ local function watchToggle(name: string, toggle: InputAction)
 end
 
 function InputController.init()
-	local ctx = Players.LocalPlayer:WaitForChild("PlayContext") :: InputContext
+	local player = Players.LocalPlayer
+	local ctx = player:WaitForChild("PlayContext") :: InputContext
 	for name, b in Bindings do
 		local action = ctx:WaitForChild(name, 10)
 		if action and action:IsA("InputAction") then
+			if action.Type == Enum.InputActionType.Bool and action:GetState() == true then
+				action:Fire(false)
+			end
 			actions[name] = action
 			watch(name, action)
 		end
@@ -116,8 +120,9 @@ function InputController.init()
 			end
 		end
 	end
+	ctx.Enabled = player:GetAttribute("GameSettingsOpen") ~= true
 	context = ctx
-	Players.LocalPlayer.CharacterAdded:Connect(InputController.releaseToggles)
+	player.CharacterAdded:Connect(InputController.releaseToggles)
 end
 
 function InputController.action(name: string): InputAction

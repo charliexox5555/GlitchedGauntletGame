@@ -140,6 +140,7 @@ Locker.EMBLEMS = table.freeze({
 	Poolside = "rbxassetid://71177694364888",
 	Rootglass = "rbxassetid://115919299886550",
 	Sundial = "rbxassetid://110359861469161",
+	Riftforge = "rbxassetid://132321027009678",
 }) :: { [string]: string }
 
 -- The gun's model in ReplicatedStorage.Weapons (Studio-owned; the Lobby gets

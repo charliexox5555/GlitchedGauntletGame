@@ -4,6 +4,7 @@
 local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
 local Players = Context.players
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 
 local Shared = ReplicatedStorage.Shared
 local Locker = require(Shared.Locker)
@@ -27,12 +28,17 @@ local friendAttempts = 0
 local backupAttempts = 0
 local readyCount = 0
 local pendingFriends = 0
+local backupWarmupElapsed = false
+local preferBackup = false
+local storedUses: { [Model]: boolean } = {}
 
 local function choose<T>(items: { T }): T
 	return items[rng:NextInteger(1, #items)]
 end
 
 local function build(description: HumanoidDescription): Model?
+	local wantedHead, wantedShirt, wantedPants =
+		description.Head, description.Shirt, description.Pants
 	local ok, model = pcall(
 		Players.CreateHumanoidModelFromDescriptionAsync,
 		Players,
@@ -43,16 +49,28 @@ local function build(description: HumanoidDescription): Model?
 	if ok and model then
 		local head = model:FindFirstChild("Head")
 		local root = model:FindFirstChild("HumanoidRootPart")
+		local humanoid = model:FindFirstChildOfClass("Humanoid")
 		-- A body part that didn't load comes back as a default limb: no stand-in like that (MatchBody.missingParts).
 		if
 			head
 			and head:IsA("BasePart")
 			and root
 			and root:IsA("BasePart")
-			and model:FindFirstChildOfClass("Humanoid")
+			and humanoid
 			and #MatchBody.missingParts(model) == 0
 		then
-			return model
+			local got, applied = pcall(humanoid.GetAppliedDescription, humanoid)
+			local complete = got
+				and applied
+				and (wantedHead == 0 or applied.Head == wantedHead)
+				and (wantedShirt == 0 or model:FindFirstChildOfClass("Shirt") ~= nil)
+				and (wantedPants == 0 or model:FindFirstChildOfClass("Pants") ~= nil)
+			if got and applied then
+				applied:Destroy()
+			end
+			if complete then
+				return model
+			end
 		end
 		model:Destroy()
 	end
@@ -63,23 +81,37 @@ local function available(id: number): boolean
 	return not attempted[id] and not playerSeen[id]
 end
 
+local function nextBackup(): number?
+	if
+		backupAttempts >= Config.BACKUP_ATTEMPTS or (pendingFriends > 0 and not backupWarmupElapsed)
+	then
+		return nil
+	end
+	local options: { number } = {}
+	for _, id in Config.BACKUP_USER_IDS do
+		if available(id) then
+			table.insert(options, id)
+		end
+	end
+	return if #options > 0 then choose(options) else nil
+end
+
 local function nextSource(): number?
-	local pool = {}
+	if preferBackup then
+		local backup = nextBackup()
+		if backup then
+			return backup
+		end
+	end
+	local friends: { number } = {}
 	if friendAttempts < Config.FRIEND_ATTEMPTS then
 		for id in candidates do
-			if available(id) then
-				table.insert(pool, id)
+			if available(id) and not table.find(Config.BACKUP_USER_IDS, id) then
+				table.insert(friends, id)
 			end
 		end
 	end
-	if #pool == 0 and pendingFriends == 0 and backupAttempts < Config.BACKUP_ATTEMPTS then
-		for _, id in Config.BACKUP_USER_IDS do
-			if id > 0 and id % 1 == 0 and available(id) then
-				table.insert(pool, id)
-			end
-		end
-	end
-	return if #pool > 0 then choose(pool) else nil
+	return if #friends > 0 then choose(friends) else nextBackup()
 end
 
 local function warm()
@@ -89,7 +121,8 @@ local function warm()
 			return
 		end
 		attempted[id] = true
-		if candidates[id] then
+		local isBackup = table.find(Config.BACKUP_USER_IDS, id) ~= nil
+		if candidates[id] and not isBackup then
 			friendAttempts += 1
 		else
 			backupAttempts += 1
@@ -97,10 +130,11 @@ local function warm()
 		workers += 1
 		task.spawn(function()
 			local ok, own = pcall(Players.GetHumanoidDescriptionFromUserIdAsync, Players, id)
+			local model: Model? = nil
 			if ok and own then
 				local fitted, desc = pcall(MatchBody.description, own)
 				own:Destroy()
-				local model = if fitted then build(desc) else nil
+				model = if fitted then build(desc) else nil
 				if model then
 					if playerSeen[id] then
 						model:Destroy()
@@ -110,10 +144,38 @@ local function warm()
 					end
 				end
 			end
+			preferBackup = model == nil
 			workers -= 1
 			warm()
 		end)
 	end
+end
+
+local function storedAvatar(): Model?
+	local folder = ServerStorage:FindFirstChild("BotAvatarBackups")
+	if not folder then
+		return nil
+	end
+	local fresh, all = {}, {}
+	for _, model in folder:GetChildren() do
+		if model:IsA("Model") then
+			local id = model:GetAttribute("BackupUserId")
+			if typeof(id) == "number" and playerSeen[id] then
+				continue
+			end
+			table.insert(all, model)
+			if not storedUses[model] and not (typeof(id) == "number" and used[id]) then
+				table.insert(fresh, model)
+			end
+		end
+	end
+	local options = if #fresh > 0 then fresh else all
+	if #options == 0 then
+		return nil
+	end
+	local source: Model = choose(options)
+	storedUses[source] = true
+	return source:Clone()
 end
 
 function Identity.collect(player: Player)
@@ -167,7 +229,10 @@ function Identity.collect(player: Player)
 end
 
 function Identity.prefetch()
-	task.delay(Config.PREFETCH_DELAY, warm)
+	task.delay(Config.PREFETCH_DELAY, function()
+		backupWarmupElapsed = true
+		warm()
+	end)
 end
 
 function Identity.name(inUse: { [string]: boolean }): string
@@ -281,6 +346,10 @@ function Identity.avatar(name: string, needed: () -> boolean): (Model?, string, 
 	if not needed() then
 		return nil, "Cancelled", nil
 	end
+	local cached = storedAvatar()
+	if cached then
+		return cached, "Stored", nil
+	end
 	local fallback = fallbackRig:Clone()
 	local colors = fallback:FindFirstChildOfClass("BodyColors") :: BodyColors
 	local skin = Color3.fromHex(string.format("%06x", choose(Config.FALLBACK_SKIN)))
@@ -298,6 +367,7 @@ end
 
 function Identity.releaseLooks()
 	table.clear(used)
+	table.clear(storedUses)
 end
 
 return Identity

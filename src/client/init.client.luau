@@ -14,6 +14,7 @@
 local Players = game:GetService("Players")
 local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
+local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
@@ -25,6 +26,9 @@ local PlayZone = require(Shared:WaitForChild("PlayZone") :: ModuleScript)
 local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
 local MapLighting = require(Shared:WaitForChild("MapLighting") :: ModuleScript)
 local CoreUi = require(Shared:WaitForChild("CoreUi") :: ModuleScript)
+local MovementSim =
+	require(Shared:WaitForChild("Simulation"):WaitForChild("Movement") :: ModuleScript)
+local PoseSim = require(Shared:WaitForChild("Simulation"):WaitForChild("Poses") :: ModuleScript)
 
 -- The player's settings on this client (the lobby client starts it in lobby servers).
 if ServerRole.isMatch() then
@@ -77,6 +81,12 @@ local function runControllers(lobbyOnly: boolean)
 	end
 end
 
+if script:GetAttribute(RUNNER) ~= true then
+	-- The host owns the movement and pose loops so neither drops when ClientRunner restarts across zones.
+	MovementSim.initialize()
+	PoseSim.initialize()
+end
+
 if ServerRole.isMatch() or script:GetAttribute(RUNNER) == true then
 	local lobbyOnly = script:GetAttribute(LOBBY_MODE) == true
 	runControllers(lobbyOnly)
@@ -111,11 +121,33 @@ local function cleanUp()
 			not guisBefore[gui]
 			and gui:IsA("LayerCollector")
 			and gui.Name ~= "ModState"
+			and gui.Name ~= "SkinDelivery"
 			and gui.Name ~= "TouchGui"
 			and gui:GetAttribute("LobbyGui") ~= true
 			and gui:GetAttribute("KeepGui") ~= true
 		then
 			gui:Destroy()
+		end
+	end
+	local settingsGui = playerGui:FindFirstChild("Settings")
+	if not (settingsGui and settingsGui:IsA("ScreenGui") and settingsGui.Enabled) then
+		if player:GetAttribute("GameSettingsOpen") == true then
+			player:SetAttribute("GameSettingsOpen", false)
+		end
+	end
+	local ctx = player:FindFirstChild("PlayContext")
+	if ctx and ctx:IsA("InputContext") then
+		for _, child in ctx:GetChildren() do
+			if
+				child:IsA("InputAction")
+				and child.Type == Enum.InputActionType.Bool
+				and child:GetState() == true
+			then
+				child:Fire(false)
+			end
+		end
+		if player:GetAttribute("GameSettingsOpen") ~= true then
+			ctx.Enabled = true
 		end
 	end
 	local camera = workspace.CurrentCamera
@@ -149,6 +181,10 @@ local function cleanUp()
 	pcall(function()
 		GuiService.TouchControlsEnabled = true
 	end)
+	local voteBlur = Lighting:FindFirstChild("MapVoteBlur")
+	if voteBlur then
+		voteBlur:Destroy()
+	end
 end
 
 local function stop()
@@ -161,11 +197,14 @@ local function stop()
 			-- Clear focus while the old result buttons still exist.
 			GuiService.SelectedObject = nil
 		end
-		if wasArmed and old:GetAttribute(READY) then
+		if old:GetAttribute(READY) then
 			local controllers = old:FindFirstChild("Controllers")
 			if controllers then
-				require(controllers.MatchEndController).stop()
-				require(controllers.TouchController).stop()
+				if wasArmed then
+					require(controllers.MatchEndController).stop()
+					require(controllers.TouchController).stop()
+				end
+				require(controllers.AudioController).stop()
 			end
 		end
 		old:Destroy()
@@ -179,6 +218,7 @@ local function stop()
 				"GGViewmodel",
 				"GGWeapons",
 				"GGMods",
+				"GGAutoShoot",
 				"TouchControls",
 			}
 		do

@@ -35,6 +35,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local TouchHud = require(script.Parent.Parent.Util.TouchHud)
 local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
+local ModHudController = require(script.Parent.ModHudController)
 local MovementController = require(script.Parent.MovementController)
 local ScoreboardController = require(script.Parent.ScoreboardController)
 
@@ -42,11 +43,13 @@ local TouchController = {}
 
 local player = Players.LocalPlayer
 
-local DEADZONE = 0.12
-local FOLLOW = 1.6 -- the stick follows the thumb past this x its ring
-local LOCK_PUSH = 1.25 -- the stick pulled this far past its ring, straight ahead...
-local LOCK_AHEAD = -0.9 -- ...(its direction's screen y at most this)...
-local LOCK_HOLD = 0.25 -- ...for this long locks sprint
+local DEADZONE = 0.08
+local FULL_RUN = 0.55 -- pushing 55% of the ring reaches full run speed
+local FOLLOW = 0.95 -- the stick follows the thumb past this x its ring
+local HIT_SLOP = 12 -- px edge forgiveness for primary combat buttons
+local LOCK_PUSH = 1.05 -- the stick pulled this far past its ring, straight ahead...
+local LOCK_AHEAD = -0.75 -- ...(its direction's screen y at most this)...
+local LOCK_HOLD = 0.2 -- ...for this long locks sprint
 local UNLOCK_BACK = 0.35 -- pulling back past this (screen y) unlocks it
 local SLIDE_PRESS = 0.25 -- s: how long a slide tap holds Crouch
 local HIDDEN_PHASES: { [string]: boolean } =
@@ -55,8 +58,11 @@ local HIDDEN_PHASES: { [string]: boolean } =
 local PLATE = Color3.fromHex("10141B")
 local WHITE = Color3.fromHex("F4F6F9")
 local PRESSED = Color3.fromHex("3B4454") -- a held button's lit plate
+local SPRINT_NUB = Color3.fromHex("FFE07D") -- subtle warm gold feedback while sprinting
 local REST = 0.45
 local PRESS = TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+local MOD_SLOT: { [string]: number } = { Mod1Button = 1, Mod2Button = 2, Mod3Button = 3 }
 
 -- Buttons that simply hold an input action while touched.
 local HOLD: { [string]: string } = {
@@ -190,6 +196,9 @@ local function placeStick(at: Vector2, faint: boolean)
 	if n then
 		n.Position = UDim2.fromScale(0.5, 0.5)
 		n.BackgroundTransparency = if faint then 0.55 else 0.12
+		if faint then
+			n.BackgroundColor3 = WHITE
+		end
 	end
 end
 
@@ -224,18 +233,38 @@ local function dragStick(at: Vector2)
 	-- change of direction answers at once (no dead travel back to the ring).
 	if dist > radius * FOLLOW then
 		origin = at - delta.Unit * radius * FOLLOW
-		delta = at - origin
-		dist = delta.Magnitude
 		local r0 = root
 		if r0 then
+			local leftHanded = SettingsApply.get("touchLeftHanded") == true
+			local minX = r0.AbsolutePosition.X
+				+ (if leftHanded then r0.AbsoluteSize.X * 0.45 else 0)
+				+ radius
+			local maxX = r0.AbsolutePosition.X
+				+ r0.AbsoluteSize.X * (if leftHanded then 1 else 0.55)
+				- radius
+			local minY = r0.AbsolutePosition.Y + radius
+			local maxY = r0.AbsolutePosition.Y + r0.AbsoluteSize.Y - radius
+			if maxX >= minX and maxY >= minY then
+				origin =
+					Vector2.new(math.clamp(origin.X, minX, maxX), math.clamp(origin.Y, minY, maxY))
+			end
 			local p = origin - r0.AbsolutePosition
 			s.Position = UDim2.fromOffset(p.X, p.Y)
 		end
+		delta = at - origin
+		dist = delta.Magnitude
 	end
 	local clamped = if dist > radius then delta.Unit * radius else delta
 	n.Position = UDim2.new(0.5, clamped.X, 0.5, clamped.Y)
 	local v = clamped / radius
-	moveVector = if v.Magnitude < DEADZONE then Vector2.zero else v
+	local mag = v.Magnitude
+	if mag <= DEADZONE then
+		moveVector = Vector2.zero
+	else
+		local u = math.clamp((mag - DEADZONE) / (FULL_RUN - DEADZONE), 0, 1)
+		local scaled = u * (0.45 + 0.55 * u)
+		moveVector = v.Unit * scaled
+	end
 	-- Sprint lock (timed in step, so a thumb held still past the ring locks too).
 	pushed = not autoSprint and dist > radius * LOCK_PUSH and delta.Unit.Y <= LOCK_AHEAD
 	if not pushed and sprintOn and moveVector.Y > UNLOCK_BACK then
@@ -259,6 +288,10 @@ local function step()
 	local g = gui
 	if not g or not g.Enabled then
 		return
+	end
+	local n = nub
+	if stickInput and n then
+		n.BackgroundColor3 = if MovementController.getState() == "Sprint" then SPRINT_NUB else WHITE
 	end
 	local moving = moveVector.Magnitude > 0
 	if moving or wasMoving then
@@ -293,6 +326,10 @@ local function down(name: string)
 	if action then
 		setAction(action, true)
 	elseif name == "AimButton" then
+		if ModController.heldSlot() ~= 0 then
+			ModController.useAlt()
+			return
+		end
 		if aimMode == "alt" then
 			setAction("Aim", true) -- the gun's alt fire (Classic's right click)
 		else
@@ -303,7 +340,10 @@ local function down(name: string)
 	elseif name == "SlideButton" then
 		local state = MovementController.getState()
 		if state ~= "Slide" then
-			if state == "Sprint" and not crouchOn then
+			local sprintingForward = (autoSprint or sprintOn)
+				and moveVector.Y < -0.35
+				and state ~= "Crouch"
+			if (state == "Sprint" or sprintingForward) and not crouchOn then
 				-- A short press: the movement code slides from a run.
 				setAction("Crouch", true)
 				task.delay(SLIDE_PRESS, function()
@@ -316,6 +356,9 @@ local function down(name: string)
 			end
 		end
 	elseif name == "JumpButton" then
+		if crouchOn then
+			setCrouch(false)
+		end
 		jumpHeld = true
 	elseif name == "ModAltButton" then
 		ModController.useAlt()
@@ -368,6 +411,30 @@ local function ownerButton(o: Instance): GuiButton?
 	return nil
 end
 
+local SLOP_BUTTONS: { [string]: boolean } = {
+	FireButton = true,
+	JumpButton = true,
+	AimButton = true,
+	SlideButton = true,
+	ReloadButton = true,
+	Mod1Button = true,
+	Mod2Button = true,
+	Mod3Button = true,
+	ModAltButton = true,
+	QuickMeleeButton = true,
+}
+
+local SLOP_DIRS = {
+	Vector2.new(1, 0),
+	Vector2.new(-1, 0),
+	Vector2.new(0, 1),
+	Vector2.new(0, -1),
+	Vector2.new(0.707, 0.707),
+	Vector2.new(-0.707, 0.707),
+	Vector2.new(0.707, -0.707),
+	Vector2.new(-0.707, -0.707),
+}
+
 local function hitFor(input: InputObject): GuiButton?
 	local g = gui
 	local pg = player:FindFirstChildOfClass("PlayerGui")
@@ -380,13 +447,37 @@ local function hitFor(input: InputObject): GuiButton?
 	if not ok then
 		return nil
 	end
+	local inStickZone = false
 	for _, o in list do
 		local mine = ownerButton(o)
 		if mine then
 			return if shown(mine) then mine else nil
 		end
-		if not o:IsDescendantOf(g) and o.Visible and (o.Active or o:IsA("GuiButton")) then
+		if o.Name == "StickZone" and o:IsDescendantOf(g) then
+			inStickZone = true
+		elseif not o:IsDescendantOf(g) and o.Visible and (o.Active or o:IsA("GuiButton")) then
 			return nil -- another screen's control is on top
+		end
+	end
+	if inStickZone then
+		return nil
+	end
+	for _, radius in { HIT_SLOP * 0.5, HIT_SLOP } do
+		for _, dir in SLOP_DIRS do
+			local okNear, nearList = pcall(function()
+				return pg:GetGuiObjectsAtPosition(
+					input.Position.X + dir.X * radius,
+					input.Position.Y + dir.Y * radius
+				)
+			end)
+			if okNear then
+				for _, o in nearList do
+					local mine = ownerButton(o)
+					if mine and SLOP_BUTTONS[mine.Name] and shown(mine) then
+						return mine
+					end
+				end
+			end
 		end
 	end
 	return nil
@@ -495,6 +586,7 @@ local function releaseAll()
 		touching[input] = nil
 		up(name)
 	end
+	ModController.setSmartCancelHover(false)
 	endTapFire()
 end
 
@@ -505,6 +597,12 @@ local function applyCameraThrough()
 	for d in isButton do
 		if d:IsA("GuiButton") then
 			d.Interactable = not through
+			d.Active = not through
+			for _, child in d:GetDescendants() do
+				if child:IsA("GuiObject") and not isButton[child] then
+					child.Active = false
+				end
+			end
 		end
 	end
 end
@@ -620,7 +718,14 @@ function TouchController.start()
 		local name = touching[input]
 		if name then
 			touching[input] = nil
+			local modSlot = MOD_SLOT[name]
+			if modSlot and ModController.isSmartTouchActive() then
+				ModController.setSmartCancelHover(ModHudController.cancelHitTest(guiPoint(input)))
+			end
 			up(name)
+			if modSlot then
+				ModController.onTouchModReleased(modSlot)
+			end
 		end
 		if input == tapFire then
 			endTapFire()
@@ -653,6 +758,25 @@ function TouchController.start()
 		end)
 	end
 	UserInputService.InputChanged:Connect(function(input: InputObject)
+		local name = touching[input]
+		if
+			not name
+			and RunService:IsStudio()
+			and input.UserInputType == Enum.UserInputType.MouseMovement
+		then
+			for heldInput, heldName in touching do
+				if
+					heldInput.UserInputType == Enum.UserInputType.MouseButton1
+					and MOD_SLOT[heldName]
+				then
+					name = heldName
+					break
+				end
+			end
+		end
+		if name and MOD_SLOT[name] and ModController.isSmartTouchActive() then
+			ModController.setSmartCancelHover(ModHudController.cancelHitTest(guiPoint(input)))
+		end
 		local held = stickInput
 		if not held then
 			return

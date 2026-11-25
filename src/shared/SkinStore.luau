@@ -52,11 +52,7 @@ local function serverRoot(): Instance?
 end
 
 local deliveryFolder: Instance? = nil
-local function clientRoot(): Instance?
-	local legacy = legacyRoot()
-	if legacy then
-		return legacy
-	end
+local function deliveryRoot(): Instance?
 	if deliveryFolder and deliveryFolder.Parent then
 		return deliveryFolder
 	end
@@ -71,6 +67,15 @@ local function ready(m: Instance?): Model?
 		return m
 	end
 	return nil
+end
+
+local function findModel(root: Instance?, line: string, name: string): Model?
+	local folder = root and root:FindFirstChild(line)
+	return ready(folder and folder:FindFirstChild(name))
+end
+
+local function clientModel(line: string, name: string): Model?
+	return findModel(deliveryRoot(), line, name) or findModel(legacyRoot(), line, name)
 end
 
 -- Manifest ---------------------------------------------------------------------
@@ -143,22 +148,19 @@ end
 -- Does this skin exist and is it ready (`name` = the stored model's name, SkinStore.modelName)?
 function SkinStore.has(line: string, name: string): boolean
 	if IS_SERVER then
-		local root = serverRoot()
-		local folder = root and root:FindFirstChild(line)
-		return ready(folder and folder:FindFirstChild(name)) ~= nil
-	end
-	local legacy = legacyRoot()
-	if legacy then
-		local folder = legacy:FindFirstChild(line)
-		return ready(folder and folder:FindFirstChild(name)) ~= nil
+		return findModel(serverRoot(), line, name) ~= nil
 	end
 	local set = readManifest()[line]
-	return set ~= nil and set[name] == true
+	if manifestText ~= "" then
+		return set ~= nil and set[name] == true
+	end
+	return clientModel(line, name) ~= nil
 end
 
 -- Client requests ------------------------------------------------------------------
 
-local requested: { [string]: boolean } = {} -- "line/name" asked for this session
+local requested: { [string]: number } = {} -- "line/name" -> os.clock() of last request
+local REQUEST_RETRY = 3
 local queue: { { string } } = {}
 local flushing = false
 
@@ -188,21 +190,29 @@ local function flush()
 	end
 end
 
--- Client: ask for skins (line, model name) that aren't here yet. Batched; each asked once.
+-- Client: ask for skins (line, model name) that aren't here yet. Batched; retries if missing.
 function SkinStore.want(pairs: { { string } })
-	if IS_SERVER or legacyRoot() then
+	if IS_SERVER then
 		return
 	end
+	local listed = readManifest()
+	local now = os.clock()
 	for _, p in pairs do
 		local line, name = p[1], p[2]
+		local k = if typeof(line) == "string" and typeof(name) == "string"
+			then key(line, name)
+			else ""
+		local last = requested[k]
 		if
 			typeof(line) == "string"
 			and typeof(name) == "string"
 			and line ~= "Stock"
-			and not requested[key(line, name)]
-			and SkinStore.has(line, name)
+			and (not last or now - last >= REQUEST_RETRY)
+			and listed[line]
+			and listed[line][name]
+			and not clientModel(line, name)
 		then
-			requested[key(line, name)] = true
+			requested[k] = now
 			table.insert(queue, { line, name })
 		end
 	end
@@ -214,10 +224,11 @@ end
 
 -- The skin model (stored name) on `line`, or nil. On a client a missing one is asked for.
 function SkinStore.model(line: string, name: string): Model?
-	local root = if IS_SERVER then serverRoot() else clientRoot()
-	local folder = root and root:FindFirstChild(line)
-	local found = ready(folder and folder:FindFirstChild(name))
-	if not found and not IS_SERVER then
+	if IS_SERVER then
+		return findModel(serverRoot(), line, name)
+	end
+	local found = clientModel(line, name)
+	if not found then
 		SkinStore.want({ { line, name } })
 	end
 	return found
@@ -234,16 +245,17 @@ function SkinStore.await(line: string, name: string, timeout: number): Model?
 	return found
 end
 
--- Client: fire `arrived` for each model as it lands in the delivery folder.
+-- Client: fire `arrived` for each model as it lands in the delivery container
+-- (watches ChildAdded on PlayerGui too so a recreated container is always hooked).
 if not IS_SERVER then
 	task.spawn(function()
 		local gui = Players.LocalPlayer:WaitForChild("PlayerGui")
-		local folder = gui:WaitForChild(SkinStore.DELIVERY, 60)
-		if not folder then
-			return
-		end
-		deliveryFolder = folder
+		local hooked: { [Instance]: boolean } = {}
 		local function watchLine(lineFolder: Instance)
+			if hooked[lineFolder] then
+				return
+			end
+			hooked[lineFolder] = true
 			local function landed(m: Instance)
 				if m:IsA("Model") then
 					-- a model arrives with its parts; give them a frame to finish replicating
@@ -257,10 +269,22 @@ if not IS_SERVER then
 			end
 			lineFolder.ChildAdded:Connect(landed)
 		end
-		for _, l in folder:GetChildren() do
-			watchLine(l)
+		local function watchContainer(folder: Instance)
+			if folder.Name ~= SkinStore.DELIVERY or hooked[folder] then
+				return
+			end
+			hooked[folder] = true
+			deliveryFolder = folder
+			for _, l in folder:GetChildren() do
+				watchLine(l)
+			end
+			folder.ChildAdded:Connect(watchLine)
 		end
-		folder.ChildAdded:Connect(watchLine)
+		local existing = gui:FindFirstChild(SkinStore.DELIVERY)
+		if existing then
+			watchContainer(existing)
+		end
+		gui.ChildAdded:Connect(watchContainer)
 	end)
 end
 

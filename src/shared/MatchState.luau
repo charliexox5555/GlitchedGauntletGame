@@ -56,6 +56,8 @@ export type DraftOffer = {
 	ability: string?, -- already selected (an id or an upgrade card's key)
 }
 
+export type RoundCallout = { tag: string, detail: string?, actor: string?, team: number }
+
 local MatchState = {}
 
 local FOLDER = "MatchState"
@@ -68,6 +70,7 @@ local FIELD_NAMES = {
 	"EndsAt",
 	"Round",
 	"RoundWinner",
+	"RoundCallout",
 	"Score1",
 	"Score2",
 	"MatchWinner",
@@ -84,6 +87,7 @@ local FIELD_NAMES = {
 	"RematchOpen",
 	"Zone",
 	"Mode", -- the queued mode ("beginner", "2v2", ...): Controllers/BeginnerHighlightController
+	"RoundsToWin",
 }
 
 -- A folder of every field, named `name`, under `parent` (made once).
@@ -261,6 +265,19 @@ end
 
 function MatchState.phase(who: Instance?): Phase?
 	return MatchState.get("Phase", who)
+end
+
+-- Rounds needed to win the current match (Beginner 2v2 = 4, others = 5).
+function MatchState.roundsToWin(): number
+	local n = MatchState.get("RoundsToWin")
+	if typeof(n) == "number" and n > 0 then
+		return n
+	end
+	local mode = MatchState.get("Mode")
+	if typeof(mode) == "string" and Config.ROUNDS_TO_WIN_BY_MODE[mode] then
+		return Config.ROUNDS_TO_WIN_BY_MODE[mode]
+	end
+	return Config.ROUNDS_TO_WIN
 end
 
 -- The shield a gun gives in a weapon phase (vault/01 Design/Gun Balance.md).

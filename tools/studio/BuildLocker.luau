@@ -357,7 +357,7 @@ text(canvas, "GunClass", "RIFLE", 18, ALLY, {
 	Position = UDim2.fromOffset(nameX, 44),
 	ZIndex = 4,
 })
-text(canvas, "GunName", "VANDAL", 84, WHITE, {
+text(canvas, "GunName", "HAVOC", 84, WHITE, {
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.fromOffset(nameX, 66),
 })
@@ -675,7 +675,7 @@ make("ImageLabel", {
 	ScaleType = Enum.ScaleType.Fit,
 	ZIndex = 4,
 }, gunCard)
-text(gunCard, "Name", "VANDAL", 16, WHITE, { Position = UDim2.fromOffset(16, GH - 42), ZIndex = 5 })
+text(gunCard, "Name", "HAVOC", 16, WHITE, { Position = UDim2.fromOffset(16, GH - 42), ZIndex = 5 })
 local skinLine = make("Frame", {
 	Name = "Skin",
 	Position = UDim2.fromOffset(16, GH - 22),

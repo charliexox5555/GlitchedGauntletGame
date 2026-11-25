@@ -15,6 +15,7 @@ local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local VfxTextures = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local BodyClone = require(script.Parent.Parent.Util.BodyClone)
@@ -250,15 +251,17 @@ function DeathFxController.start()
 	while true do
 		task.wait(TICK)
 		for _, p in Players:GetPlayers() do
-			local c = p.Character
-			if c then
-				step(c)
+			if PlayZone.inSameScope(player, p) then
+				local c = p.Character
+				if c then
+					step(c)
+				end
 			end
 		end
 		local dummies = Workspace:FindFirstChild("Dummies")
 		if dummies then
 			for _, m in dummies:GetChildren() do
-				if m:IsA("Model") then
+				if m:IsA("Model") and PlayZone.inSameScope(player, m) then
 					step(m)
 				end
 			end

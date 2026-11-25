@@ -10,6 +10,7 @@
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local WeaponShowcase = require(script.Parent.WeaponShowcase)
 
 local ItemStage = {}
 ItemStage.__index = ItemStage
@@ -27,6 +28,7 @@ export type Options = {
 	length: number?, -- the box an item is fitted to (studs)
 	height: number?,
 	distance: number?, -- camera distance (studs)
+	showcase: boolean?, -- brighter product lighting and optional skin effects
 }
 
 type Self = {
@@ -36,6 +38,8 @@ type Self = {
 	length: number,
 	height: number,
 	distance: number,
+	showcase: boolean,
+	effect: WeaponShowcase.Effect?,
 	dragTarget: CFrameValue,
 	dragShown: CFrame,
 	swap: CFrameValue,
@@ -113,6 +117,8 @@ function ItemStage.new(parent: GuiObject, opts: Options?): Stage
 		length = o.length or 5,
 		height = o.height or 2,
 		distance = o.distance or 11,
+		showcase = o.showcase == true,
+		effect = nil,
 		dragTarget = Instance.new("CFrameValue"),
 		dragShown = CFrame.new(),
 		swap = Instance.new("CFrameValue"),
@@ -143,7 +149,11 @@ end
 
 -- Shows `source` (or clears the stage with nil), fitted to the box; `small`
 -- shrinks it (melee). The new item swings in.
-function ItemStage.show(self: Stage, source: Model?, small: boolean?)
+function ItemStage.show(self: Stage, source: Model?, small: boolean?, skinLine: string?)
+	if self.effect then
+		self.effect.destroy()
+		self.effect = nil
+	end
 	if self.model then
 		self.model:Destroy()
 		self.model = nil
@@ -159,6 +169,10 @@ function ItemStage.show(self: Stage, source: Model?, small: boolean?)
 	m:ScaleTo(math.clamp(scale, 0.3, 4))
 	local box = m:GetBoundingBox()
 	m.WorldPivot = CFrame.new(box.Position) -- ScaleTo keeps the old origin
+	if self.showcase then
+		WeaponShowcase.light(self.view, skinLine)
+		self.effect = WeaponShowcase.mount(m, skinLine)
+	end
 	m.Parent = self.view
 	self.model = m
 	self.swap.Value = CFrame.new(0, -0.3, 0)
@@ -169,6 +183,9 @@ function ItemStage.show(self: Stage, source: Model?, small: boolean?)
 		})
 		:Play()
 	m:PivotTo(self:pose())
+	if self.effect then
+		self.effect.step(os.clock())
+	end
 end
 
 local function release(self: Stage)
@@ -256,6 +273,9 @@ function ItemStage.run(self: Stage, on: boolean)
 			local m = self.model
 			if m then
 				m:PivotTo(self:pose())
+			end
+			if self.effect then
+				self.effect.step(os.clock())
 			end
 		end)
 	elseif not on and self.running then

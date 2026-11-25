@@ -291,12 +291,20 @@ end
 local function pollLoop()
 	while true do
 		task.wait(POLL)
-		for id, data in mine do
+		local ids: { string } = {}
+		for id in mine do
+			table.insert(ids, id)
+		end
+		for _, id in ids do
+			local data = mine[id]
+			if not data then
+				continue
+			end
 			local ok, value = tryCall("poll", function()
 				-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 				return (tickets :: MemoryStoreSortedMap):GetAsync(id)
 			end)
-			if not ok or mine[id] == nil then
+			if not ok or mine[id] ~= data then
 				continue
 			end
 			if
@@ -324,7 +332,14 @@ end
 local function heartbeatLoop()
 	while true do
 		task.wait(HEARTBEAT)
+		local ids: { string } = {}
 		for id in mine do
+			table.insert(ids, id)
+		end
+		for _, id in ids do
+			if not mine[id] then
+				continue
+			end
 			tryCall("heartbeat", function()
 				-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 				local store = tickets :: MemoryStoreSortedMap

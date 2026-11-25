@@ -16,7 +16,9 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Progress = require(ReplicatedStorage.Shared.Progress)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
+local Onboarding = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local ProgressionService = {}
 
@@ -41,7 +43,12 @@ local function matchCoins(result: Progress.Result): number
 end
 
 -- Never yields the caller: the write runs on its own thread.
-function ProgressionService.report(matchKey: string, userId: number, result: Progress.Result)
+function ProgressionService.report(
+	matchKey: string,
+	userId: number,
+	result: Progress.Result,
+	mode: unknown
+)
 	if
 		typeof(matchKey) ~= "string"
 		or #matchKey == 0
@@ -55,14 +62,22 @@ function ProgressionService.report(matchKey: string, userId: number, result: Pro
 		local txId = string.sub(`m:{matchKey}:{userId}`, 1, 64)
 		local gain: Progress.Gain? = nil
 		local paid = 0
+		local gainedCase = false
 		local ok, why = false, nil :: string?
 		for attempt = 0, #RETRY_AFTER do
 			if attempt > 0 then
 				task.wait(RETRY_AFTER[attempt])
 			end
 			ok, why = PlayerDataService.transactUserId(userId, txId, function(data: PlayerData.Data)
+				gainedCase = false
 				local now = os.time()
 				gain = Progress.apply(data.prog, result, now)
+				if not result.left and data.prog.matches == 1 and not data.onb.caseGift then
+					data.onb.caseGift = true
+					local caseId = Onboarding.FIRST_MATCH_CASE
+					data.items[caseId] = (data.items[caseId] or 0) + 1
+					gainedCase = true
+				end
 				local today = Economy.day(now)
 				if data.earn.day ~= today then
 					data.earn = { day = today, coins = 0 }
@@ -85,6 +100,26 @@ function ProgressionService.report(matchKey: string, userId: number, result: Pro
 		local player = game:GetService("Players"):GetPlayerByUserId(userId)
 		local g = gain
 		if player and g then
+			local label = if type(mode) == "string" then mode else "Duel"
+			if
+				g.levelFrom < Onboarding.BEGINNER_MAX_LEVEL
+				and g.levelTo >= Onboarding.BEGINNER_MAX_LEVEL
+			then
+				Telemetry.event(player, "Beginner graduated", 1)
+			end
+			if not result.left then
+				Telemetry.funnel(player, "Match", matchKey, 12, "Match saved", label)
+				local data = PlayerDataService.get(player)
+				local matches = data and data.prog.matches
+				if matches == 1 then
+					Telemetry.onboarding(player, 12)
+				elseif matches == 2 then
+					Telemetry.onboarding(player, 19)
+				end
+				if gainedCase then
+					Telemetry.caseOnboarding(player, 1, "Free case granted")
+				end
+			end
 			progressEvent:FireClient(player, {
 				kind = "gain",
 				xp = g.xp,

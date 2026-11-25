@@ -4,15 +4,19 @@
 -- shot gets. A plain module: no init/start (the server boots only the
 -- ModuleScripts directly in Services; this one sits in the Weapon folder).
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local BallisticGlass = require(Shared.Util.BallisticGlass)
 local Combat = require(Shared.Config.Combat)
 local Health = require(Shared.Health)
 local Types = require(Shared.Types)
 
 local Penetration = require(Shared.Util.Penetration)
+local MapGlass = require(script.Parent.Parent.MapGlass)
+local ModEntities = require(script.Parent.Parent.ModEntities)
 local Targets = {}
 
 function Targets.liveHumanoid(model: Model?): Humanoid?
@@ -65,6 +69,52 @@ function Targets.wallExclusions(shooter: Model): { Instance }
 		table.insert(exclude, dummies)
 	end
 	return exclude
+end
+
+-- Glass can break on a miss, so follow the accepted pellet directions even
+-- when the client reported no hit. Stop at bodies and cover the round cannot pass.
+function Targets.shatterGlass(
+	shooter: Model,
+	origin: Vector3,
+	dirs: { Vector3 },
+	config: Types.WeaponConfig
+)
+	if config.melee or #CollectionService:GetTagged(BallisticGlass.TAG) == 0 then
+		return
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	for _, dir in dirs do
+		params.FilterDescendantsInstances = { shooter }
+		local budget = Penetration.budget(config.penetration)
+		local from = origin
+		local remaining = config.range
+		for _ = 1, 8 do
+			local hit = BallisticGlass.raycast(from, dir * remaining, params, MapGlass.shatter)
+			if not hit then
+				break
+			end
+			local part = hit.Instance
+			local model = combatantOf(part)
+			if model then
+				if Targets.liveHumanoid(model) and not config.pierceCharacters then
+					break
+				end
+				params:AddToFilter(model)
+			elseif
+				ModEntities.isObject(part) or not Penetration.pass(budget, part, hit.Position, dir)
+			then
+				break
+			else
+				params:AddToFilter(part)
+			end
+			remaining -= (hit.Position - from).Magnitude
+			from = hit.Position
+			if remaining <= 0 then
+				break
+			end
+		end
+	end
 end
 
 -- Traces a round from `from` to `to` through the world. Returns whether

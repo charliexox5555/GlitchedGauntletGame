@@ -307,12 +307,12 @@ make("TextLabel", {
 make("TextLabel", {
 	Name = "Info",
 	Position = UDim2.fromOffset(0, 52),
-	Size = UDim2.new(1, 0, 0, 18),
+	Size = UDim2.new(1, 0, 0, 20),
 	BackgroundTransparency = 1,
 	RichText = true,
 	Text = "ROUND 6 · HEAVY",
 	FontFace = Font.new(BX, Enum.FontWeight.Bold),
-	TextSize = 13,
+	TextSize = 15,
 	TextColor3 = Color3.fromHex("A3A3A6"),
 }, timer)
 

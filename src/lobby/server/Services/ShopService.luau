@@ -8,8 +8,8 @@
 --   ("buyCase", caseId)  pay the case's Ticket price, +1 of its inventory item
 --   ("buyDaily", slot)   buy slot 1..8 of the player's saved daily shop (coin tiers)
 --   ("claimFree", slot)  the one free daily skin (Shared/DailyShop.freeSlot must be slot)
---   ("openCase", itemId) use one held case: roll a skin you don't own from its
---                        tier odds (Shared/SkinCases), grant it, -1 case
+--   ("openCase", itemId, count?, requestId?) use one or three held cases and
+--                        grant unowned skins (Shared/SkinCases) or refund Tickets
 --   ("devCoins")         Studio only: + Inventory.STUDIO_GRANT coins
 --   ("devSkins")         Studio only: own every skin (testing the Locker)
 -- ShopEvent (server -> that client): ShopEventPayload in LobbyNet.
@@ -28,6 +28,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
+local OpeningConfig = require(ReplicatedStorage.Shared.Config.CaseOpening)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
@@ -40,11 +41,14 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local Telemetry = require(script.Parent.Parent.Telemetry)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SkinStoreService = require(script.Parent.SkinStoreService)
 
 local ShopService = {}
 
 local limiter = RateLimit.new(Config.RATE)
+local shopVisits: { [Player]: boolean } = {}
 local rejects: { [string]: number } = {}
 local shopEvent: RemoteEvent
 local caseShow: RemoteEvent
@@ -135,6 +139,7 @@ local function buyCase(player: Player, caseId: string)
 		return true
 	end)
 	if ok then
+		Telemetry.event(player, "Ticket case purchased", 1, caseId)
 		send(player, { kind = "bought", item = def.id, count = 1, text = def.name })
 	else
 		send(player, { kind = "failed", text = REASON_TEXT[why or ""] or "Purchase failed" })
@@ -169,14 +174,22 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 	local refund = Economy.CASE_TICKETS[caseId] or 0
 	local rewards: { LobbyNet.CaseReward } = {}
 	local ticketsBack = 0
-	local ok, why = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
+	local txId = PlayerDataService.newTxId()
+	local firstOnbOpen = false
+	Telemetry.funnel(player, "Case opening", txId, 1, "Eligible request", caseId)
+	local ok, why = PlayerDataService.transact(player, txId, function(data)
 		table.clear(rewards)
 		ticketsBack = 0
+		firstOnbOpen = false
 		local held = data.items[itemId] or 0
 		if held < count then
 			return false, "noCase"
 		end
 		data.items[itemId] = if held > count then held - count else nil
+		if data.onb.caseGift and not data.onb.caseOpened then
+			data.onb.caseOpened = true
+			firstOnbOpen = true
+		end
 		local rng = Random.new(seed)
 		local before = data.tickets
 		for _ = 1, count do
@@ -202,6 +215,12 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 		return
 	end
 	local first = rewards[1]
+	Telemetry.funnel(player, "Case opening", txId, 2, "Opening saved", caseId)
+	Telemetry.event(player, "Cases opened", count, caseId)
+	if firstOnbOpen then
+		Telemetry.onboarding(player, 15)
+		Telemetry.caseOnboarding(player, 3, "Case opened")
+	end
 	if not first then
 		send(player, {
 			kind = "refunded",
@@ -218,24 +237,37 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 		return
 	end
 
-	-- Preload the reveal for the opener and the one cinematic reward spectators see.
-	local viewers = Players:GetPlayers()
-	SkinStoreService.sendTo(viewers, first.gun, first.line)
-	for i = 2, #rewards do
-		SkinStoreService.sendTo({ player }, rewards[i].gun, rewards[i].line)
+	-- Deliver the reward models ahead of the cinematic to its audience.
+	local viewers = { player }
+	local character = player.Character
+	local origin = character and character:FindFirstChild("HumanoidRootPart")
+	if origin and origin:IsA("BasePart") then
+		for _, other in Players:GetPlayers() do
+			if other == player then
+				continue
+			end
+			local otherCharacter = other.Character
+			local root = otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart")
+			if
+				root
+				and root:IsA("BasePart")
+				and (root.Position - origin.Position).Magnitude <= OpeningConfig.VIEW_DISTANCE
+			then
+				table.insert(viewers, other)
+			end
+		end
+	end
+	for _, reward in rewards do
+		SkinStoreService.sendTo(viewers, reward.gun, reward.line)
 	end
 	local show: LobbyNet.CaseShowPayload = {
 		userId = player.UserId,
 		crate = def.tier,
-		gun = first.gun,
-		line = first.line,
-		tier = first.tier,
-		text = first.name,
+		count = count,
+		results = rewards,
 	}
-	for _, other in viewers do
-		if other ~= player then
-			caseShow:FireClient(other, show)
-		end
+	for i = 2, #viewers do
+		caseShow:FireClient(viewers[i], show)
 	end
 	send(player, {
 		kind = "opened",
@@ -332,6 +364,7 @@ local function buyDaily(player: Player, slot: number)
 	end)
 	local g = got
 	if ok and g then
+		Telemetry.event(player, "Daily skin purchased", 1)
 		send(player, {
 			kind = "skin",
 			gun = g.gun,
@@ -377,6 +410,7 @@ local function claimFree(player: Player, slot: number)
 	end)
 	local g = got
 	if ok and g then
+		Telemetry.event(player, "Free daily skin claimed", 1)
 		send(player, {
 			kind = "free",
 			gun = g.gun,
@@ -455,11 +489,25 @@ local function onRequest(
 		reject("rate")
 		return
 	end
+	if PlayZone.get(player) ~= "Lobby" then
+		reject("notLobby")
+		return
+	end
 	if typeof(action) ~= "string" then
 		reject("badAction")
 		return
 	end
-	if action == "buyCase" then
+	if action == "visit" then
+		if not shopVisits[player] then
+			shopVisits[player] = true
+			Telemetry.event(
+				player,
+				"Shop opened",
+				1,
+				if arg == "Display" then "Display" else "Menu"
+			)
+		end
+	elseif action == "buyCase" then
 		if typeof(arg) ~= "string" or #arg > 24 then
 			reject("badArgs")
 			return
@@ -542,6 +590,7 @@ function ShopService.start()
 	Players.PlayerRemoving:Connect(function(p)
 		limiter:forget(p)
 		rolling[p] = nil
+		shopVisits[p] = nil
 	end)
 	while true do
 		task.wait(Config.rejectLogInterval)

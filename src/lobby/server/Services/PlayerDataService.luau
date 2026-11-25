@@ -20,9 +20,11 @@ local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local Telemetry = require(script.Parent.Parent.Telemetry)
 
 type Data = PlayerData.Data
 
@@ -36,9 +38,14 @@ type Record = {
 	busy: boolean, -- one change at a time per player
 	settings: any, -- the save's raw `settings` field (SettingsService cleans it)
 	settingsSeen: boolean, -- a load or a change has read the stored value
+	ephemeral: boolean?, -- Studio FreshOnboarding: in-memory new save, never reads/writes DataStore
 }
 
 local PlayerDataService = {}
+
+local function isFreshOnboarding(): boolean
+	return RunService:IsStudio() and workspace:GetAttribute("FreshOnboarding") == true
+end
 
 -- Fires (player) after a load or a change published new data (the Locker
 -- re-filters equips when skins arrive or are granted).
@@ -182,6 +189,27 @@ function PlayerDataService.transact(
 	if rec.busy then
 		return false, "busy"
 	end
+	if rec.ephemeral then
+		local data = PlayerData.clean(rec.data, true)
+		if table.find(data.tx, txId) then
+			return true
+		end
+		local applied, why = change(data)
+		if not applied then
+			return false, why or "refused"
+		end
+		if not PlayerData.valid(data) then
+			return false, "invalid"
+		end
+		table.insert(data.tx, 1, txId)
+		while #data.tx > Inventory.TX_MEMORY do
+			table.remove(data.tx)
+		end
+		rec.data = data
+		PlayerData.publish(player, data)
+		changedEvent:Fire(player)
+		return true
+	end
 	rec.busy = true
 	local ok, result, refused, seenSettings = write(player.UserId, txId, change)
 	rec.busy = false
@@ -217,6 +245,9 @@ function PlayerDataService.transactUserId(
 		end
 		-- they left while it waited: write by UserId (the txId makes a repeat safe)
 	end
+	if isFreshOnboarding() then
+		return true
+	end
 	local ok, _, refused = write(userId, txId, change)
 	if not ok then
 		return false, "saving"
@@ -244,6 +275,9 @@ end
 -- reported as not written. Works by userId, so it also runs after the player
 -- left. Yields.
 function PlayerDataService.writeSettings(userId: number, changes: { [string]: any }): boolean
+	if isFreshOnboarding() then
+		return true
+	end
 	inFlight += 1
 	local skipped = false
 	local ok = retry("settings " .. userId, function()
@@ -270,6 +304,7 @@ function PlayerDataService.writeSettings(userId: number, changes: { [string]: an
 					daily = data.daily,
 					earn = data.earn,
 					buys = data.buys,
+					onb = data.onb,
 				}
 			end
 			local merged: { [string]: any } = if typeof(out.settings) == "table"
@@ -319,9 +354,23 @@ end
 local SLOW_READ = 1.5 -- seconds: a save read slower than this is logged
 
 local function load(player: Player)
+	local beganLoading = os.clock()
 	local rec: Record = { data = nil, busy = false, settings = nil, settingsSeen = false }
 	records[player] = rec
 	PlayerData.publish(player, nil)
+	if isFreshOnboarding() then
+		rec.ephemeral = true
+		rec.settings = nil
+		rec.settingsSeen = true
+		rec.data = PlayerData.clean(nil, true)
+		Telemetry.cohort(player, rec.data.onb.analytics == true)
+		Telemetry.onboarding(player, 1)
+		Telemetry.event(player, "Save ready seconds", os.clock() - beganLoading)
+		PlayerData.publish(player, rec.data)
+		changedEvent:Fire(player)
+		print(`[PlayerData] Studio FreshOnboarding: ephemeral brand-new save for {player.Name}`)
+		return
+	end
 	-- between failed rounds (each round is 4 tries over ~7 s); short at first so a hiccup
 	-- costs seconds, not minutes (owner 2026-11-22: stuck on LOADING YOUR DATA)
 	local pause = 3
@@ -341,6 +390,9 @@ local function load(player: Player)
 			rec.settings = if typeof(raw) == "table" then (raw :: any).settings else nil
 			rec.settingsSeen = true
 			rec.data = PlayerData.clean(raw, true)
+			Telemetry.cohort(player, rec.data.onb.analytics == true)
+			Telemetry.onboarding(player, 1)
+			Telemetry.event(player, "Save ready seconds", os.clock() - beganLoading)
 			PlayerData.publish(player, rec.data)
 			changedEvent:Fire(player)
 			task.delay(REFRESH_AFTER, refresh, player, rec)

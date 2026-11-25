@@ -28,9 +28,9 @@ function SkinArt.portrait(gunId: string, line: string): string?
 	return p or SkinArt.side(gunId, line)
 end
 
--- the picture that stands for a whole line: its Vandal, else any gun's
+-- the picture that stands for a whole line: its Vandal or Phantom, else any gun's
 function SkinArt.line(line: string, guns: { string }): string?
-	local hero = SkinArt.portrait("Vandal", line)
+	local hero = SkinArt.portrait("Vandal", line) or SkinArt.portrait("Phantom", line)
 	if hero then
 		return hero
 	end

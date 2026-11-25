@@ -82,7 +82,7 @@ function Tactics.patrol(bot: Bot, opening: Vector3?, points: { Vector3 }, now: n
 		if first then
 			local point = first + bot.openingOffset
 			if bot.openingStyle == "Holder" then
-				point = point:Lerp(pos, 0.2)
+				point = point:Lerp(pos, 0.08)
 			elseif bot.openingStyle == "Flanker" and opening then
 				point = point:Lerp(opening, 0.12)
 			end
@@ -123,6 +123,18 @@ function Tactics.patrol(bot: Bot, opening: Vector3?, points: { Vector3 }, now: n
 		end
 	end
 	bot.lastRoam = previous or bot.lastRoam
+	if not best then
+		local heading = root.CFrame.LookVector * FLAT
+		for _, turn in { 0, 0.8, -0.8, 1.8, -1.8, math.pi } do
+			local direction = CFrame.Angles(0, turn, 0):VectorToWorldSpace(heading)
+			local nearby = pos + direction * 9
+			local floor = Nav.ground(bot, nearby)
+			if floor and not bot.roamBlocked[floor] and Nav.canMove(bot, direction, 9) then
+				best = floor
+				break
+			end
+		end
+	end
 	return best
 end
 

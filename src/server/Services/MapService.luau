@@ -20,7 +20,6 @@ local Globals =
 	game:GetService("ServerScriptService"):WaitForChild("Server"):WaitForChild("Services")
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
-local CollectionService = game:GetService("CollectionService")
 local Players = Context.players
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
@@ -28,8 +27,12 @@ local ServerStorage = game:GetService("ServerStorage")
 local Health = require(game:GetService("ReplicatedStorage").Shared.Health)
 local MapLighting = require(game:GetService("ReplicatedStorage").Shared.MapLighting)
 local MatchConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Match)
+local MatchState = require(script.Parent.Parent.MatchState)
 
 local HealthService = require(Globals.HealthService)
+local MapGeometry = require(Globals.MapGeometry)
+local MapGlass = require(Globals.MapGlass)
+local MovementGuard = require(Globals.MovementGuard)
 
 local MapService = {}
 
@@ -37,6 +40,8 @@ local BARRIER_TAG = "ArenaBarrier"
 local SPAWN_TAGS = { "ArenaSpawn_A", "ArenaSpawn_B" }
 
 local active: Model? = nil
+local activeSpawns: { { SpawnLocation } } = { {}, {} }
+local activeBarriers: { BasePart } = {}
 
 local KILL_CHECK = 0.2 -- seconds between checks
 
@@ -89,10 +94,12 @@ function MapService.load(id: string): boolean
 		active:Destroy()
 	end
 	local map = source:Clone()
+	MapGeometry.prepare(map, id)
 	-- A pad duel (MatchKit/Context): its own name and map slot, in its own world folder.
 	map.Name = if Context.ownsServer then "ActiveMap" else "ActiveMap_" .. Context.id
 	map:SetAttribute("MatchId", if Context.ownsServer then nil else Context.id)
 	map:PivotTo(map:GetPivot().Rotation + Context.mapOrigin)
+	MovementGuard.register(map)
 	-- Whole map loaded for everyone, so an enemy never streams out mid-fight. A
 	-- pad duel's map only for its own players (lobby players never need it).
 	if Context.ownsServer then
@@ -105,19 +112,33 @@ function MapService.load(id: string): boolean
 	end
 	map.Parent = Context.world
 	active = map
+	activeSpawns = { {}, {} }
+	activeBarriers = {}
+	for _, d in map:GetDescendants() do
+		if d:IsA("SpawnLocation") then
+			for team, tag in SPAWN_TAGS do
+				if d:HasTag(tag) then
+					table.insert(activeSpawns[team], d)
+				end
+			end
+			if not Context.ownsServer then
+				d.Enabled = false
+				d.Duration = 0
+			end
+		elseif d:IsA("BasePart") and d:HasTag(BARRIER_TAG) then
+			table.insert(activeBarriers, d)
+		end
+	end
+	for _, teamSpawns in activeSpawns do
+		table.sort(teamSpawns, function(a, b)
+			return a.Name < b.Name
+		end)
+	end
 	if Context.ownsServer then
 		for _, d in workspace:GetDescendants() do
 			if d:IsA("SpawnLocation") then
 				d.Enabled = d:IsDescendantOf(map)
 				d.Duration = 0 -- no spawn shield: the barrier protects you until the fight
-			end
-		end
-	else
-		-- In a lobby server the lobby's spawns stay; the duel places its players itself (MatchService).
-		for _, d in map:GetDescendants() do
-			if d:IsA("SpawnLocation") then
-				d.Enabled = false
-				d.Duration = 0
 			end
 		end
 	end
@@ -126,19 +147,7 @@ end
 
 -- The loaded map's spawns for team 1 or team 2, in a fixed order.
 function MapService.spawns(team: number): { SpawnLocation }
-	local list: { SpawnLocation } = {}
-	local tag = SPAWN_TAGS[team]
-	if active and tag then
-		for _, s in CollectionService:GetTagged(tag) do
-			if s:IsA("SpawnLocation") and s:IsDescendantOf(active) then
-				table.insert(list, s)
-			end
-		end
-	end
-	table.sort(list, function(a, b)
-		return a.Name < b.Name
-	end)
-	return list
+	return table.clone(activeSpawns[team] or {})
 end
 
 -- Up: solid and visible. Down: no collision, no bullets stopped, not seen.
@@ -146,8 +155,8 @@ function MapService.setBarriers(up: boolean)
 	if not active then
 		return
 	end
-	for _, b in CollectionService:GetTagged(BARRIER_TAG) do
-		if b:IsA("BasePart") and b:IsDescendantOf(active) then
+	for _, b in activeBarriers do
+		if b.Parent then
 			b.CanCollide = up
 			b.CanQuery = up
 			b.Transparency = if up
@@ -159,6 +168,12 @@ function MapService.setBarriers(up: boolean)
 				end
 			end
 		end
+	end
+end
+
+function MapService.resetGlass()
+	if active then
+		MapGlass.reset(active)
 	end
 end
 
@@ -221,6 +236,11 @@ local function checkFalls(dt: number)
 		end
 		return
 	end
+	-- Don't down players during Waiting/Vote/Draft/Countdown while bodies are spawning or streaming.
+	local phase = MatchState.phase()
+	if phase ~= "Live" and phase ~= "SuddenDeath" and phase ~= "RoundEnd" then
+		return
+	end
 	local depth = StateValues.get(map, "KillDepth")
 	local killY = map:GetPivot().Position.Y
 		- (if typeof(depth) == "number" then depth else MatchConfig.KILL_DEPTH)
@@ -253,6 +273,22 @@ function MapService.spawnCentre(team: number): Vector3?
 end
 
 function MapService.start()
+	if not Context.ownsServer then
+		local function persist(player: Player)
+			if active then
+				pcall(active.AddPersistentPlayer, active, player)
+			end
+		end
+		Players.PlayerAdded:Connect(persist)
+		Players.PlayerRemoving:Connect(function(player)
+			if active then
+				pcall(active.RemovePersistentPlayer, active, player)
+			end
+		end)
+		for _, p in Players:GetPlayers() do
+			persist(p)
+		end
+	end
 	RunService.Heartbeat:Connect(checkFalls)
 end
 

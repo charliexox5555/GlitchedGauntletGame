@@ -26,6 +26,7 @@ local Net = Context.net
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 
 local StatsService = require(script.Parent.StatsService)
+local Telemetry = require(game:GetService("ServerScriptService").LobbyServer.Telemetry)
 
 local MatchEndService = {}
 
@@ -35,7 +36,7 @@ local CHOICES = { Rematch = true, PlayAgain = true, Leave = true }
 local rng = Random.new()
 
 -- What the Lobby reads (Lobby QueueService.requeueFromMatch).
-export type LobbyReturn = { v: number, from: string, requeue: string? }
+export type LobbyReturn = { v: number, from: string, requeue: string?, cancelled: boolean? }
 
 local limiter = RateLimit.new(Config.RATE)
 local open = false
@@ -169,13 +170,14 @@ local function onChoice(player: Player, choice: unknown)
 		return
 	end
 	local current = choices[player]
-	if current == "PlayAgain" or current == "Leave" then
-		return -- already on the way out
+	if current == "PlayAgain" or current == "Leave" or current == choice then
+		return -- already on the way out, or already picked this choice
 	end
 	if choice == "Rematch" and (rematchBroken or not voters[player]) then
 		return
 	end
 	choices[player] = choice
+	Telemetry.event(player, "MatchEndChoice", 1, choice)
 	if choice ~= "Rematch" then
 		if voters[player] then
 			rematchBroken = true -- they won't be in it
@@ -193,7 +195,7 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 	table.clear(outbound)
 	table.clear(attempts)
 	table.clear(sentAt)
-	rematchBroken = false
+	rematchBroken = Context.noRematch == true
 	mode = matchMode
 	for _, player in Players:GetPlayers() do
 		voters[player] = true
@@ -203,11 +205,13 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 	table.clear(botVoteAt)
 	local now = os.clock()
 	botVotesShownAt = now
-	for _ = 1, botSeats do
-		if rng:NextNumber() < E.botRematchChance then
-			local at = now + rng:NextNumber(E.botRematchDelay[1], E.botRematchDelay[2])
-			table.insert(botVoteAt, at)
-			botVotesShownAt = math.max(botVotesShownAt, at + 0.4)
+	if not rematchBroken then
+		for _ = 1, botSeats do
+			if rng:NextNumber() < E.botRematchChance then
+				local at = now + rng:NextNumber(E.botRematchDelay[1], E.botRematchDelay[2])
+				table.insert(botVoteAt, at)
+				botVotesShownAt = math.max(botVotesShownAt, at + 0.4)
+			end
 		end
 	end
 	MatchState.set("Results", {
@@ -265,6 +269,9 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 			and choices[player] ~= "PlayAgain"
 			and choices[player] ~= "Leave"
 		then
+			if not choices[player] then
+				Telemetry.event(player, "MatchEndChoice", 1, "Timeout")
+			end
 			table.insert(rest, player)
 		end
 	end
@@ -278,6 +285,17 @@ end
 -- Sends every player still here back to the lobby (MatchService, when a match stops on an error).
 function MatchEndService.sendEveryoneHome()
 	teleport(Players:GetPlayers(), lobbyReturn("Leave"))
+end
+
+-- Cancels a match that took too long to load, returning everyone to Lobby & requeueing them.
+function MatchEndService.cancelAndRequeue(matchMode: string?)
+	mode = matchMode
+	local players = Players:GetPlayers()
+	local data: LobbyReturn = { v = 1, from = "match", requeue = matchMode, cancelled = true }
+	teleport(players, data)
+	if Context.padDuel and Context.finish then
+		Context.finish(players)
+	end
 end
 
 -- Resends everyone still waiting on a failed teleport (MatchService calls it

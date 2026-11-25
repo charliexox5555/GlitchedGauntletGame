@@ -404,8 +404,7 @@ local function openContents()
 		return
 	end
 	(child(oddsPanel, "Sub") :: TextLabel).Text = c.name;
-	(child(oddsPanel, "Note") :: TextLabel).Text = ShopCatalog.ODDS_NOTE
-	OddsList.fill(child(oddsPanel, "List") :: ScrollingFrame, c)
+	OddsList.fill(child(oddsPanel, "List") :: ScrollingFrame, c, child(oddsPanel, "Note") :: TextLabel)
 	showOdds(true)
 end
 

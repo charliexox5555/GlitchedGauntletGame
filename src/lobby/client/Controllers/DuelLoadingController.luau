@@ -11,9 +11,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
-local Animations = require(ReplicatedStorage.Shared.Config.Animations)
-local ContentProvider = game:GetService("ContentProvider")
 local LoadingConfig = require(ReplicatedStorage.Shared.Config.Loading)
+local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local LoadingLayout =
 	require(ReplicatedFirst:WaitForChild("Loading"):WaitForChild("LoadingLayout") :: ModuleScript)
@@ -24,7 +23,15 @@ local player = Players.LocalPlayer
 local HIDDEN = { "Pips", "Count", "Tip", "Mode" }
 
 local showing: ScreenGui? = nil
+local activeStep: RBXScriptConnection? = nil
 local token = 0
+
+local function disconnectStep()
+	if activeStep then
+		activeStep:Disconnect()
+		activeStep = nil
+	end
+end
 
 local function close(gui: ScreenGui, step: RBXScriptConnection)
 	local fade =
@@ -48,10 +55,14 @@ local function close(gui: ScreenGui, step: RBXScriptConnection)
 		end
 	end
 	task.delay(LoadingConfig.fadeOut + 0.05, function()
+		if activeStep == step then
+			activeStep = nil
+		end
 		step:Disconnect()
 		gui:Destroy()
 		if showing == gui then
 			showing = nil
+			player:SetAttribute("DuelLoading", false)
 		end
 	end)
 end
@@ -63,6 +74,7 @@ local function show(text: string, finished: (elapsed: number) -> boolean, maxTim
 	if not (template and template:IsA("ScreenGui") and playerGui) then
 		return
 	end
+	disconnectStep()
 	if showing then
 		showing:Destroy()
 	end
@@ -73,8 +85,11 @@ local function show(text: string, finished: (elapsed: number) -> boolean, maxTim
 	local canvas = gui:FindFirstChild("Canvas")
 	if not canvas then
 		gui:Destroy()
+		showing = nil
+		player:SetAttribute("DuelLoading", false)
 		return
 	end
+	player:SetAttribute("DuelLoading", true)
 	for _, name in HIDDEN do
 		local item = canvas:FindFirstChild(name)
 		if item and item:IsA("GuiObject") then
@@ -92,6 +107,13 @@ local function show(text: string, finished: (elapsed: number) -> boolean, maxTim
 		if turn and turn:IsA("UIGradient") then
 			turn.Rotation = (turn.Rotation + dt * 300) % 360
 		end
+	end)
+	activeStep = step
+	gui.Destroying:Once(function()
+		if activeStep == step then
+			activeStep = nil
+		end
+		step:Disconnect()
 	end)
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		LoadingLayout.fit(gui, LoadingConfig :: any)
@@ -115,78 +137,78 @@ local function show(text: string, finished: (elapsed: number) -> boolean, maxTim
 	end)
 end
 
--- Into a match (a pad duel, a hosted match): until its match screens are up.
+-- Into a match (a pad duel, a hosted match): until its match screens are up
+-- and the arena floor under the character has streamed in.
 local function showDuel(matchId: string)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.RespectCanCollide = true
 	show(LoadingConfig.stages.duel, function(elapsed: number): boolean
 		local ready = player:GetAttribute("MatchScreensReady") == matchId
 		local gone = PlayZone.get(player) ~= "Match" or PlayZone.matchId(player) ~= matchId
-		return gone or (ready and elapsed >= LoadingConfig.duelMin)
+		if gone then
+			return true
+		end
+		if not ready or elapsed < LoadingConfig.duelMin then
+			return false
+		end
+		local phase = MatchState.phase()
+		if phase == "Vote" then
+			return true
+		end
+		if phase == nil or phase == "Waiting" then
+			return false
+		end
+		local char = player.Character
+		local root = char and char:FindFirstChild("HumanoidRootPart")
+		if
+			not (char and root and root:IsA("BasePart") and char:GetAttribute("MatchId") == matchId)
+		then
+			return false
+		end
+		params.FilterDescendantsInstances = { char :: Instance }
+		return workspace:Raycast(
+			root.Position,
+			Vector3.new(0, -LoadingConfig.groundProbe, 0),
+			params
+		) ~= nil
 	end, LoadingConfig.duelMax)
 end
 
--- The third-person body's animations (Config/Animations: poses, locomotion, the Animate set), as Animation
--- instances for ContentProvider (made once; a second preload is served from the device's cache).
-local bodyAnimations: { Instance }? = nil
-local function animationList(): { Instance }
-	local list = bodyAnimations
-	if list then
-		return list
-	end
-	local made: { Instance } = {}
-	for _, group in { Animations.POSES, Animations.LOCOMOTION, Animations.ANIMATE } do
-		for _, animId in group :: { [string]: any } do
-			if typeof(animId) == "string" then
-				local a = Instance.new("Animation")
-				a.AnimationId = animId
-				table.insert(made, a)
-			end
-		end
-	end
-	bodyAnimations = made
-	return made
-end
-
--- The lobby character moves with loaded animations: its Animator plays tracks and each has a length (a track
--- still downloading has none and the body stands stiff).
 local function animated(character: Model): boolean
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
 	if not animator then
 		return false
 	end
-	local tracks = animator:GetPlayingAnimationTracks()
-	if #tracks == 0 then
-		return false
-	end
-	for _, t in tracks do
-		if t.Length <= 0 then
-			return false
+
+	for _, track in animator:GetPlayingAnimationTracks() do
+		if track.Length > 0 then
+			return true
 		end
 	end
-	return true
+	return false
 end
 
--- Back to this server's lobby after a match (owner 2026-11-23: "go through the loading screen again just for that
--- transition", and the lobby's 3D animations loaded before you're in): until the body animations are preloaded,
--- the lobby character's are playing, and it stands on streamed-in floor.
+-- Give the respawned body a brief head start while the local floor streams in.
 local function showHome()
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
-	local preloaded = false
-	task.spawn(function()
-		pcall(ContentProvider.PreloadAsync, ContentProvider, animationList())
-		preloaded = true
-	end)
+	params.RespectCanCollide = true
 	show(LoadingConfig.stages.home, function(elapsed: number): boolean
 		if PlayZone.get(player) == "Match" then
 			return true -- straight into another match: its own screen takes over
 		end
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")
-		if not (character and root and root:IsA("BasePart")) or elapsed < LoadingConfig.homeMin then
+		if
+			not (character and root and root:IsA("BasePart"))
+			or character:GetAttribute("SpawnZone") ~= "Lobby"
+			or elapsed < LoadingConfig.homeMin
+		then
 			return false
 		end
-		if not preloaded or not animated(character) then
+		if elapsed < LoadingConfig.homeMin + 1.25 and not animated(character) then
 			return false
 		end
 		params.FilterDescendantsInstances = { character :: Instance }
@@ -203,8 +225,13 @@ function DuelLoadingController.start()
 	local function refresh()
 		local id = PlayZone.matchId(player)
 		if PlayZone.get(player) == "Match" and id and id ~= shownFor then
+			if player:GetAttribute("LoadingScreen") == true then
+				return
+			end
 			shownFor = id
-			showDuel(id)
+			if player:GetAttribute("MatchScreensReady") ~= id then
+				showDuel(id)
+			end
 		elseif PlayZone.get(player) ~= "Match" then
 			if shownFor ~= nil and PlayZone.get(player) == "Lobby" then
 				showHome()
@@ -214,6 +241,7 @@ function DuelLoadingController.start()
 	end
 	player:GetAttributeChangedSignal(PlayZone.ATTRIBUTE):Connect(refresh)
 	player:GetAttributeChangedSignal(PlayZone.MATCH_ID):Connect(refresh)
+	player:GetAttributeChangedSignal("LoadingScreen"):Connect(refresh)
 	refresh()
 end
 

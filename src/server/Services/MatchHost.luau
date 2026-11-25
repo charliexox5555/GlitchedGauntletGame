@@ -247,7 +247,12 @@ end
 -- Starts a pad duel in this lobby server. `teams`: the players on each side (real players only).
 -- `bots`: fill empty seats with bots (only the Studio solo test does; pads are real players only).
 -- Builds and starts one match instance in this Lobby server (a pad duel, or a hosted queued match).
-local function launchInstance(plan: Plan, players: { Player }, hosted: boolean): Running
+local function launchInstance(
+	plan: Plan,
+	players: { Player },
+	hosted: boolean,
+	noRematch: boolean?
+): Running
 	local id = plan.matchId
 	local mode = plan.mode
 	local slot = freeSlot()
@@ -286,6 +291,7 @@ local function launchInstance(plan: Plan, players: { Player }, hosted: boolean):
 				end
 			end,
 			hosted = hosted,
+			noRematch = noRematch == true,
 			requeue = function(player: Player, requeueMode: string)
 				for _, fn in requeueHooks do
 					task.spawn(fn, player, requeueMode)
@@ -308,7 +314,8 @@ function MatchHost.startDuel(
 	mode: string,
 	teamSize: number,
 	teams: { { Player } },
-	bots: boolean?
+	bots: boolean?,
+	noRematch: boolean?
 ): string?
 	if not ServerRole.isLobby() or ServerRole.isHosted() then
 		return nil -- a hosted server's duels area is caged
@@ -324,7 +331,7 @@ function MatchHost.startDuel(
 	end
 	local plan: Plan =
 		{ matchId = id, mode = mode, size = teamSize, teams = ids, bots = bots == true }
-	launchInstance(plan, players, false)
+	launchInstance(plan, players, false, noRematch)
 	return id
 end
 
@@ -405,6 +412,9 @@ local function planFor(player: Player): Plan?
 	if not ok or typeof(joinData) ~= "table" then
 		return nil
 	end
+	if joinData.SourceGameId ~= game.GameId or joinData.SourcePlaceId ~= game.PlaceId then
+		return nil
+	end
 	return validatePlan((joinData :: any).TeleportData)
 end
 
@@ -418,7 +428,7 @@ local function hostedArrival(player: Player)
 	local entry = hostedEntry
 	if not entry then
 		local plan = planFor(player)
-		if not plan then
+		if not plan or not listed(plan, player.UserId) then
 			return
 		end
 		hostedEntry = launchInstance(plan, { player }, true)

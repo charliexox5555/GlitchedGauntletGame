@@ -125,7 +125,7 @@ local function stepCharacter(player: Player, character: Model)
 	local moveDir = humanoid.MoveDirection
 	local moving = moveDir.Magnitude > 0.1
 	local look = root.CFrame.LookVector * Vector3.new(1, 0, 1)
-	local forward = moving and look.Magnitude > 0.01 and moveDir.Unit:Dot(look.Unit) > 0.3
+	local forward = moving and look.Magnitude > 0.01 and moveDir.Unit:Dot(look.Unit) > 0.15
 	local flatSpeed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
 	-- The Sprint key's one job (Movement.RUN_DELAY): held while you move, it
 	-- overrides crouch, so you stand up and run. Crouch presses are still
@@ -135,7 +135,7 @@ local function stepCharacter(player: Player, character: Model)
 
 	-- Firing cancels sprint instantly (Gunplay.md §1).
 	if fireIn then
-		sprintBlock = now + 0.35
+		sprintBlock = now + 0.25
 	end
 
 	local sliding = state == "Slide"
@@ -369,16 +369,10 @@ function MovementSim.ownState(character: Model?): string?
 	return if ownCharacter == character then ownState else nil
 end
 
--- Call once on the server and once on each client.
+-- Call once on the server and once on each client host.
 function MovementSim.initialize()
-	-- The latest caller owns the step. On a client the match client is
-	-- restarted per PlayZone (client/init.client.luau): the new copy starts
-	-- before the old one's connections are gone, so a "still connected" check
-	-- could skip the bind and leave nothing stepping once the old copy died
-	-- (no sprint, Roblox's default walk in the range; owner 2026-11-21).
-	if connection then
-		connection:Disconnect()
-		connection = nil
+	if connection and connection.Connected then
+		return
 	end
 	AbilitiesSim.initialize()
 	local ok, freq = pcall(function()

@@ -47,6 +47,8 @@ export type Bundle = {
 
 local Products = require(game:GetService("ReplicatedStorage").Shared.Config.Products)
 
+local Weapons = require(game:GetService("ReplicatedStorage").Shared.Config.Weapons)
+
 local ShopCatalog = {}
 
 -- Shared art ids (art-source/ui/shop/, uploaded 2026-11-16) for screens that
@@ -83,8 +85,8 @@ ShopCatalog.RARITY_COLOR = table.freeze({
 }) :: { [string]: Color3 }
 
 -- the odds disclaimer shown under every case's contents
-ShopCatalog.ODDS_NOTE = "Odds are per opening and add up to 100%. You never get a cosmetic you already own: "
-	.. "an owned one is re-rolled from the rest, so your odds for the others go up. "
+ShopCatalog.ODDS_NOTE = "These are your odds for the next case. Owned skins have a 0% chance. "
+	.. "Each crate in OPEN 3 uses updated odds. "
 	.. "Cases aren't sold where local rules restrict paid random items."
 
 ShopCatalog.CASES = {
@@ -127,7 +129,7 @@ local function skin(
 ): Item
 	return {
 		kind = "Skin",
-		name = lineName .. " " .. string.upper(shown or gun), -- `shown`: a knife-slot item's own name
+		name = lineName .. " " .. string.upper(shown or Weapons.nameOf(gun)), -- `shown`: a knife-slot item's own name
 		gun = gun,
 		line = line,
 		rarity = rarity,
@@ -277,6 +279,24 @@ function ShopCatalog.bundle(id: string): Bundle?
 		end
 	end
 	return nil
+end
+
+function ShopCatalog.featuredBundles(includeStarter: boolean, fullLayout: boolean): { Bundle }
+	local featured: { Bundle } = {}
+	local starter = ShopCatalog.bundle("Starter")
+	if includeStarter and starter and not starter.soon then
+		table.insert(featured, starter)
+	end
+	for _, bundle in ShopCatalog.BUNDLES do
+		if
+			not bundle.soon
+			and #bundle.items > 0
+			and (bundle.slot == "Featured" or (fullLayout and bundle.slot == "Limited"))
+		then
+			table.insert(featured, bundle)
+		end
+	end
+	return featured
 end
 
 return ShopCatalog

@@ -12,7 +12,10 @@ local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateVal
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 
 local LobbyPadFx = {}
 
@@ -284,6 +287,9 @@ end
 
 -- Who stands where: any player's root part over a well, low enough to be standing on it.
 local function check()
+	if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
+		return
+	end
 	local roots = {}
 	for _, p in Players:GetPlayers() do
 		local char = p.Character
@@ -311,6 +317,9 @@ local function check()
 end
 
 local function step(dt: number)
+	if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
+		return
+	end
 	for _, w in wells do
 		local goal = if w.on then 1 else 0
 		if w.mix ~= goal then

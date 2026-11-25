@@ -7,9 +7,11 @@
 -- Text in the game font (UiStyle.FONT), flat, no plates or outlines (owner's UI rules).
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 
 local PadDuelController = {}
@@ -31,18 +33,31 @@ type Tracked = {
 
 local tracked: { [BasePart]: Tracked } = {}
 
-local function label(parent: Instance, name: string, font: Font, size: number, y: number): TextLabel
+local function label(
+	parent: Instance,
+	name: string,
+	font: Font,
+	maxSize: number,
+	y: number,
+	h: number
+): TextLabel
 	local t = Instance.new("TextLabel")
 	t.Name = name
 	t.BackgroundTransparency = 1
-	t.Size = UDim2.new(1, 0, 0.5, 0)
+	t.Size = UDim2.fromScale(1, h)
 	t.Position = UDim2.fromScale(0, y)
 	t.FontFace = font
-	t.TextSize = size
+	-- Note: setting TextWrapped = false clears TextScaled in Roblox, so leave it on.
+	t.TextScaled = true
+	t.TextXAlignment = Enum.TextXAlignment.Center
 	t.TextColor3 = UiStyle.COLOR.text
 	t.TextStrokeTransparency = 0.6
 	t.Text = ""
 	t.Parent = parent
+	local constraint = Instance.new("UITextSizeConstraint")
+	constraint.MinTextSize = 6
+	constraint.MaxTextSize = maxSize
+	constraint.Parent = t
 	return t
 end
 
@@ -70,9 +85,11 @@ local function track(zone: Instance)
 	end
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "PadDuelLabel"
-	gui.Size = UDim2.fromOffset(220, 64)
+	-- Stud-scaled dimensions keep distant pads shrinking naturally in 3D space
+	-- so faraway pad labels never blow up or overlap on small phone viewports.
+	gui.Size = UDim2.fromScale(10, 2.5)
 	gui.StudsOffsetWorldSpace = Vector3.new(0, LABEL_HEIGHT, 0)
-	gui.MaxDistance = 90
+	gui.MaxDistance = 75
 	gui.LightInfluence = 0
 	gui.AlwaysOnTop = false
 	gui.Adornee = zone
@@ -84,8 +101,8 @@ local function track(zone: Instance)
 		bordersB = bordersB,
 		idle = idle,
 		gui = gui,
-		title = label(gui, "Title", UiStyle.FONT.display, 26, 0),
-		status = label(gui, "Status", UiStyle.FONT.label, 18, 0.5),
+		title = label(gui, "Title", UiStyle.FONT.display, 34, 0, 0.56),
+		status = label(gui, "Status", UiStyle.FONT.label, 22, 0.58, 0.42),
 	}
 end
 
@@ -142,6 +159,9 @@ function PadDuelController.start()
 	-- Pads get their attributes from the server a moment after they stream in.
 	local acc = 0
 	RunService.Heartbeat:Connect(function(dt)
+		if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
+			return
+		end
 		acc += dt
 		if acc < 0.1 then
 			return

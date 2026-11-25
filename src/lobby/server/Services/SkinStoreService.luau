@@ -31,44 +31,58 @@ local function reject(reason: string)
 	rejects[reason] = (rejects[reason] or 0) + 1
 end
 
-local function delivery(player: Player): Folder?
+local function delivery(player: Player): ScreenGui?
 	local gui = player:FindFirstChildOfClass("PlayerGui")
 	if not gui then
 		return nil
 	end
 	local f = gui:FindFirstChild(SkinStore.DELIVERY)
-	if f and f:IsA("Folder") then
+	if f and f:IsA("ScreenGui") then
+		f:SetAttribute("KeepGui", true)
 		return f
 	end
-	local made = Instance.new("Folder")
+	if f then
+		f:Destroy()
+	end
+	-- ScreenGui with ResetOnSpawn = false survives LoadCharacter() (Lobby spawn,
+	-- Range entry, match round respawns); a plain Folder in PlayerGui gets wiped!
+	local made = Instance.new("ScreenGui")
 	made.Name = SkinStore.DELIVERY
+	made.ResetOnSpawn = false
+	made.Enabled = false
+	made:SetAttribute("KeepGui", true)
 	made.Parent = gui
 	return made
 end
 
--- Copies one skin into the player's delivery folder (once).
+-- Copies one skin into the player's delivery container (re-sending if missing).
 local function send(player: Player, line: string, name: string): boolean
 	local mine = sent[player]
 	if not mine then
 		return false
 	end
-	local k = line .. "/" .. name
-	if mine[k] then
-		return true
-	end
-	local model = SkinStore.model(line, name)
 	local folder = delivery(player)
-	if not model or not folder then
+	if not folder then
 		return false
 	end
 	local lineFolder = folder:FindFirstChild(line)
+	local k = line .. "/" .. name
+	if mine[k] and lineFolder and lineFolder:FindFirstChild(name) then
+		return true
+	end
+	local model = SkinStore.model(line, name)
+	if not model then
+		return false
+	end
 	if not lineFolder then
 		lineFolder = Instance.new("Folder")
 		lineFolder.Name = line
 		lineFolder.Parent = folder
 	end
 	mine[k] = true
-	model:Clone().Parent = lineFolder
+	if not lineFolder:FindFirstChild(name) then
+		model:Clone().Parent = lineFolder
+	end
 	return true
 end
 
@@ -155,6 +169,10 @@ end
 
 local function onPlayerAdded(player: Player)
 	sent[player] = {}
+	player:WaitForChild("PlayerGui", 10)
+	if player.Parent ~= Players or not sent[player] then
+		return
+	end
 	delivery(player)
 	Locker.observe(player, function()
 		for _, to in audience(player) do

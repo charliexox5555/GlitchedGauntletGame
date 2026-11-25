@@ -21,6 +21,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Avatar = require(Shared.Config.Avatar)
+local BallisticGlass = require(Shared.Util.BallisticGlass)
 local CameraConfig = require(Shared.Config.Camera)
 local Config = require(Shared.Config.AimAssist)
 local Fighters = require(Shared.Util.Fighters)
@@ -45,6 +46,7 @@ local target: Target? = nil
 local enemies: { [Model]: boolean } = {}
 local params = RaycastParams.new()
 params.FilterType = Enum.RaycastFilterType.Exclude
+local exclude: { Instance } = {}
 local nextPick = 0
 local onTargetSince: number? = nil
 
@@ -83,7 +85,7 @@ local function angleBetween(a: Vector3, b: Vector3): number
 end
 
 local function refreshParams()
-	local exclude: { Instance } = {}
+	table.clear(exclude)
 	if player.Character then
 		table.insert(exclude, player.Character)
 	end
@@ -105,7 +107,15 @@ local function refreshParams()
 			enemies[fighter.body] = true
 		end
 	end
+end
+
+local function sightRay(origin: Vector3, direction: Vector3): RaycastResult?
 	params.FilterDescendantsInstances = exclude
+	local config = WeaponController.currentConfig()
+	if config and not config.melee then
+		return BallisticGlass.raycast(origin, direction, params)
+	end
+	return Workspace:Raycast(origin, direction, params)
 end
 
 -- The point on `body` (hip to head) nearest the crosshair, as a direction
@@ -135,7 +145,7 @@ local function aimPoint(body: Model, origin: Vector3, look: Vector3): (Vector3?,
 end
 
 local function visible(origin: Vector3, dir: Vector3, dist: number, body: Model): boolean
-	local hit = Workspace:Raycast(origin, dir * dist, params)
+	local hit = sightRay(origin, dir * dist)
 	if not hit then
 		return true
 	end
@@ -303,7 +313,7 @@ local function autoShootStep()
 		nextPick = os.clock() + 1 / Config.PICK_RATE
 	end
 	local reach = reachOf()
-	local hit = Workspace:Raycast(cam.CFrame.Position, cam.CFrame.LookVector * reach, params)
+	local hit = sightRay(cam.CFrame.Position, cam.CFrame.LookVector * reach)
 	local body = hit and Fighters.bodyOfPart(hit.Instance)
 	local onEnemy = body ~= nil
 		and enemies[body] == true

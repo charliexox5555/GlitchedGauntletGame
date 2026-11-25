@@ -567,7 +567,14 @@ end
 
 function MatchEndController.start()
 	MatchEndScreen.start()
-	WinCutscene.preload()
+	local function warmResults()
+		local phase = MatchState.phase()
+		if phase == "Live" or phase == "SuddenDeath" or phase == "MatchEnd" then
+			WinCutscene.preload()
+		end
+	end
+	MatchState.changed("Phase"):Connect(warmResults)
+	warmResults()
 	-- Keys: Enter = PLAY AGAIN, R = REMATCH; a gamepad uses X and Y (the
 	-- chips show their glyphs, Shared/InputGlyphs).
 	UserInputService.InputBegan:Connect(function(input: InputObject)

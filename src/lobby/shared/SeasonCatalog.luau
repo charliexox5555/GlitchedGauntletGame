@@ -21,6 +21,8 @@ export type Tier = {
 	premium: Reward?,
 }
 
+local Weapons = require(game:GetService("ReplicatedStorage").Shared.Config.Weapons)
+
 local SeasonCatalog = {}
 
 SeasonCatalog.SEASON = 1
@@ -42,7 +44,7 @@ end
 local function skin(gun: string, line: string, rarity: ShopCatalog.Rarity): Reward
 	return {
 		kind = "Skin",
-		name = string.upper(line) .. " " .. string.upper(gun),
+		name = string.upper(line) .. " " .. string.upper(Weapons.nameOf(gun)),
 		gun = gun,
 		line = line,
 		rarity = rarity,

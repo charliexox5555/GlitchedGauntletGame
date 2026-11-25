@@ -48,6 +48,49 @@ function PlayZone.matchId(player: Player): string?
 	return if typeof(id) == "string" then id else nil
 end
 
+-- Whether `target` (a Player, character/bot Model, or tagged instance) belongs
+-- to the same zone/match instance as `viewer`. Whole-server matches (no MatchId)
+-- include everything in the server.
+function PlayZone.inSameScope(viewer: Player, target: Instance?): boolean
+	if not target then
+		return false
+	end
+	if target == viewer then
+		return true
+	end
+	local myZone = read(viewer)
+	if myZone == "Match" then
+		local myId = PlayZone.matchId(viewer)
+		if not myId then
+			return true
+		end
+		if target:IsA("Player") then
+			return read(target) == "Match" and PlayZone.matchId(target) == myId
+		end
+		if target:IsA("Model") then
+			local owner = Players:GetPlayerFromCharacter(target)
+			if owner then
+				return read(owner) == "Match" and PlayZone.matchId(owner) == myId
+			end
+			local tid = target:GetAttribute(PlayZone.MATCH_ID)
+			return typeof(tid) == "string" and tid == myId
+		end
+		local tid = target:GetAttribute(PlayZone.MATCH_ID)
+		return typeof(tid) == "string" and tid == myId
+	end
+	if target:IsA("Player") then
+		return read(target) == myZone
+	end
+	if target:IsA("Model") then
+		local owner = Players:GetPlayerFromCharacter(target)
+		if owner then
+			return read(owner) == myZone
+		end
+		return target:GetAttribute(PlayZone.MATCH_ID) == nil
+	end
+	return target:GetAttribute(PlayZone.MATCH_ID) == nil
+end
+
 -- The camera each zone plays with (the match place's StarterPlayer used to
 -- set it for everyone: first person, no zoom). Server-set Player properties.
 local function applyCamera(player: Player, zone: Zone)

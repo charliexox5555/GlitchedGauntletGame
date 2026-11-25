@@ -186,7 +186,11 @@ local function tellHit(
 		end
 	end
 	if killed then
-		Net.event("Killed"):FireAllClients(victim, attacker, sourceId, headshot, assists)
+		for _, other in Players:GetPlayers() do
+			if PlayZone.get(other) ~= "Lobby" and PlayZone.inSameScope(other, victim) then
+				Net.event("Killed"):FireClient(other, victim, attacker, sourceId, headshot, assists)
+			end
+		end
 	end
 end
 

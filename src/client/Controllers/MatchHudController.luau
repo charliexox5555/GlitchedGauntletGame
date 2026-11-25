@@ -49,6 +49,9 @@ local SOUND: { [string]: string } = {
 	["MATCH POINT"] = "Banner",
 	FIGHT = "Fight",
 	["ROUND WON"] = "RoundWon",
+	["CLUTCH!"] = "RoundWon",
+	["ACE!"] = "RoundWon",
+	["FLAWLESS!"] = "RoundWon",
 	["ROUND LOST"] = "RoundLost",
 	DRAW = "Banner",
 	-- VICTORY / DEFEAT: silent here. The ending song (MatchEnd) is started by
@@ -195,7 +198,8 @@ local function refresh(ui: Ui)
 	)
 	local tier = tierFor(round)
 	local roundTag = string.format("ROUND %d · %s", round, string.upper(tier.name))
-	local need = Config.ROUNDS_TO_WIN - 1
+	local roundsGoal = MatchState.roundsToWin()
+	local need = roundsGoal - 1
 	local matchPoint = myScore == need or theirScore == need
 
 	local kicker, title, sub, tone = "", "", "", "neutral" :: Tone
@@ -203,7 +207,7 @@ local function refresh(ui: Ui)
 		-- the map vote screen (MapVoteController) has the middle: no banner
 		title = ""
 	elseif phase == "Waiting" then
-		title, sub = "WAITING FOR OPPONENT", string.format("First to %d", Config.ROUNDS_TO_WIN)
+		title, sub = "WAITING FOR OPPONENT", string.format("First to %d", roundsGoal)
 	elseif phase == "Draft" then
 		-- The draft screen covers the middle until you've locked in.
 		if StateValues.get(player, "DraftLocked") == true then
@@ -237,12 +241,40 @@ local function refresh(ui: Ui)
 		end
 	elseif phase == "RoundEnd" then
 		local winner = MatchState.get("RoundWinner") or 0
+		local callout = MatchState.get("RoundCallout") :: MatchState.RoundCallout?
 		kicker = string.format("ROUND %d", round)
 		if winner == 0 then
 			title, sub = "DRAW", "No point for either side"
 		elseif winner == mine then
-			title, sub, tone = "ROUND WON", scoreLine, "ally"
+			if callout and callout.team == winner then
+				local who = if callout.actor then string.upper(callout.actor) .. "  ·  " else ""
+				if callout.tag == "CLUTCH" then
+					title, tone = "CLUTCH!", "gold"
+					kicker = "ROUND WON · " .. string.upper(callout.detail or "")
+					sub = who .. scoreLine
+				elseif callout.tag == "ACE" then
+					title, tone = "ACE!", "gold"
+					kicker = "ROUND WON"
+					sub = who .. scoreLine
+				elseif callout.tag == "FLAWLESS" then
+					title, tone = "FLAWLESS!", "ally"
+					kicker = "ROUND WON"
+						.. (if callout.detail then " · " .. callout.detail else "")
+					sub = scoreLine
+				elseif callout.tag == "CLOSE CALL" then
+					title, tone = "ROUND WON", "ally"
+					kicker = "CLOSE CALL · " .. (callout.detail or "")
+					sub = scoreLine
+				else
+					title, sub, tone = "ROUND WON", scoreLine, "ally"
+				end
+			else
+				title, sub, tone = "ROUND WON", scoreLine, "ally"
+			end
 		else
+			if callout and callout.team == winner then
+				kicker = string.format("ROUND %d · %s", round, callout.tag)
+			end
 			title, sub, tone = "ROUND LOST", scoreLine, "enemy"
 		end
 	elseif phase == "MatchEnd" then

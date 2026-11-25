@@ -11,6 +11,7 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config.SkinPreview)
@@ -48,10 +49,13 @@ end
 
 -- The equipped skins, filtered to the ones the player owns, then published.
 local function loadLocker(player: Player)
+	if RunService:IsStudio() and workspace:GetAttribute("FreshOnboarding") == true then
+		return
+	end
 	local key = Locker.key(player.UserId)
 	local okLocker, locker = read(Locker.STORE, key)
 	local okOwned, saved = read(PlayerData.STORE, PlayerData.key(player.UserId))
-	if player.Parent ~= Players then
+	if player.Parent ~= Players or player:FindFirstChild(Locker.REPLICA) ~= nil then
 		return
 	end
 	local equipped = if okLocker then Locker.clean(locker) else {}

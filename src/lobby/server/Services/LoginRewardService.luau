@@ -16,6 +16,7 @@ local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local LoginRewardService = {}
 
@@ -72,6 +73,7 @@ local function onClaim(player: Player)
 	end)
 	local step = claimedStep
 	if ok and step then
+		Telemetry.event(player, "Login reward claimed", 1, tostring(step))
 		local reward = Economy.LOGIN[step]
 		loginEvent:FireClient(player, {
 			kind = "claimed",

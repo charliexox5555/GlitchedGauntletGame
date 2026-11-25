@@ -492,7 +492,9 @@ end
 -- StarterGui.Scoreboard: hold Tab. A centred panel: the round and score, then
 -- each team's header and rows (the script fills them).
 do
-	local gui = screen("Scoreboard", 12, false)
+	local gui = screen("Scoreboard", 22, false)
+	gui:SetAttribute("Layer", "Menu")
+	gui:SetAttribute("LayerOrder", 2)
 	make("Frame", {
 		Name = "Dim",
 		Size = UDim2.fromScale(1, 1),
@@ -507,6 +509,10 @@ do
 		Size = UDim2.fromOffset(1920, 1080),
 		BackgroundTransparency = 1,
 	}, gui)
+	c:SetAttribute("FitCanvas", true)
+	c:SetAttribute("AvoidTopbar", true)
+	c:SetAttribute("PhoneBoost", 1.72)
+	c:SetAttribute("TabletBoost", 1.25)
 	make("UIScale", { Name = "Fit" }, c)
 	local panel = make("Frame", {
 		Name = "Panel",
@@ -542,7 +548,7 @@ do
 		top,
 		"Round",
 		"ROUND 1  ·  SIDEARM",
-		12,
+		15,
 		MUTED,
 		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 260, 0.5, 2) }
 	)

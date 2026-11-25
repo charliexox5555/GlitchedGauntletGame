@@ -53,6 +53,34 @@ function Placeable.overlap(bodies: boolean): OverlapParams
 	return params
 end
 
+local function tryAt(
+	ground: Vector3,
+	look: Vector3,
+	origin: Vector3,
+	size: Vector3,
+	params: RaycastParams,
+	overlap: OverlapParams
+): Spot
+	local center = ground + Vector3.new(0, size.Y / 2 + 0.05, 0)
+	local cframe = CFrame.lookAt(center, center + look)
+	-- Room for it (shrunk a touch so resting on the floor doesn't count).
+	local inside =
+		workspace:GetPartBoundsInBox(cframe, size * 0.92 - Vector3.new(0, 0.1, 0), overlap)
+	for _, part in inside do
+		local body = part.Parent ~= nil and part.Parent:FindFirstChildOfClass("Humanoid") ~= nil
+		if part.CanCollide or body then
+			return { cframe = cframe, valid = false, reason = "No room there" }
+		end
+	end
+	-- A clear line from the head to it.
+	local to = center + Vector3.new(0, math.min(size.Y / 2, 1), 0)
+	local block = workspace:Raycast(origin, to - origin, params)
+	if block and block.Distance < (to - origin).Magnitude - 1 then
+		return { cframe = cframe, valid = false, reason = "Can't see there" }
+	end
+	return { cframe = cframe, valid = true }
+end
+
 -- `size`: the object's box (X across, Y up, Z along the aim). `params`:
 -- world-only raycasts. `overlap`: what counts as in the way of the box.
 function Placeable.find(
@@ -79,28 +107,30 @@ function Placeable.find(
 			ground = down.Position
 		end
 	end
-	if not ground then
-		local fallback = CFrame.lookAt(origin + dir * range, origin + dir * range + look)
-		return { cframe = fallback, valid = false, reason = "No ground there" }
+	local primary = if ground then tryAt(ground, look, origin, size, params, overlap) else nil
+	if primary and primary.valid then
+		return primary
 	end
-	local center = ground + Vector3.new(0, size.Y / 2 + 0.05, 0)
-	local cframe = CFrame.lookAt(center, center + look)
-	-- Room for it (shrunk a touch so resting on the floor doesn't count).
-	local inside =
-		workspace:GetPartBoundsInBox(cframe, size * 0.92 - Vector3.new(0, 0.1, 0), overlap)
-	for _, part in inside do
-		local body = part.Parent ~= nil and part.Parent:FindFirstChildOfClass("Humanoid") ~= nil
-		if part.CanCollide or body then
-			return { cframe = cframe, valid = false, reason = "No room there" }
+	-- Smart ground snap: back off along the aim line to find the nearest valid spot.
+	local targetPos = if ground then ground elseif hit then hit.Position else origin + dir * range
+	local dist =
+		math.max((targetPos * Vector3.new(1, 0, 1) - origin * Vector3.new(1, 0, 1)).Magnitude, 3)
+	for _, frac in { 0.75, 0.5, 0.25 } do
+		local stepDist = math.max(dist * frac, 2.5)
+		local stepProbe = origin + look * stepDist + Vector3.new(0, 1.5, 0)
+		local down = workspace:Raycast(stepProbe, Vector3.new(0, -(range + 8), 0), params)
+		if down and down.Normal.Y >= MIN_UP then
+			local candidate = tryAt(down.Position, look, origin, size, params, overlap)
+			if candidate.valid then
+				return candidate
+			end
 		end
 	end
-	-- A clear line from the head to it.
-	local to = center + Vector3.new(0, math.min(size.Y / 2, 1), 0)
-	local block = workspace:Raycast(origin, to - origin, params)
-	if block and block.Distance < (to - origin).Magnitude - 1 then
-		return { cframe = cframe, valid = false, reason = "Can't see there" }
+	if primary then
+		return primary
 	end
-	return { cframe = cframe, valid = true }
+	local fallback = CFrame.lookAt(origin + dir * range, origin + dir * range + look)
+	return { cframe = fallback, valid = false, reason = "No ground there" }
 end
 
 return Placeable

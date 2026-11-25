@@ -32,6 +32,8 @@ local CharacterService = {}
 local ownDescriptions: { [Player]: HumanoidDescription | false } = {}
 -- Characters spawned already wearing the standard body (loadCharacter).
 local spawnedStandard: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+-- Serialize LoadCharacter per player so Lobby and Match spawns cannot collide.
+local loadingPlayers: { [Player]: boolean } = {}
 
 local function fetchOwn(player: Player)
 	local ok, desc = pcall(function(): HumanoidDescription
@@ -59,8 +61,23 @@ end
 
 -- Spawns `player` already wearing the standard body (no flash of their own
 -- avatar). Errors like LoadCharacterAsync does, for the caller's retry loop.
-function CharacterService.loadCharacter(player: Player)
+function CharacterService.loadCharacter(player: Player, fallback: boolean?)
+	local waitDeadline = os.clock() + 8
+	while loadingPlayers[player] and player.Parent == Players and os.clock() < waitDeadline do
+		task.wait(0.1)
+	end
+	if player.Parent ~= Players then
+		return nil
+	end
+	if loadingPlayers[player] then
+		error("LoadCharacter already in progress")
+	end
+	loadingPlayers[player] = true
 	local desc = CharacterService.standardDescription(player)
+	if player.Parent ~= Players then
+		loadingPlayers[player] = nil
+		return nil
+	end
 	local api = player :: any
 	local loaded: Model? = nil
 	local connection = player.CharacterAdded:Connect(function(character)
@@ -75,6 +92,26 @@ function CharacterService.loadCharacter(player: Player)
 		end
 	end)
 	connection:Disconnect()
+	if not ok and fallback == true and player.Parent == Players then
+		loaded = nil
+		local fallbackConn = player.CharacterAdded:Connect(function(character)
+			loaded = character
+		end)
+		local fbOk, fbErr = pcall(function()
+			if api.LoadCharacterAsync then
+				api:LoadCharacterAsync()
+			else
+				player:LoadCharacter()
+			end
+		end)
+		fallbackConn:Disconnect()
+		if fbOk and (loaded or player.Character) then
+			loadingPlayers[player] = nil
+			return loaded or player.Character
+		end
+		err = fbErr or err
+	end
+	loadingPlayers[player] = nil
 	if not ok then
 		error(err)
 	end
@@ -327,9 +364,13 @@ end
 local function onPlayer(player: Player)
 	HealthLog.joined(player)
 	task.spawn(fetchOwn, player)
-	player.CharacterAdded:Connect(onCharacter)
+	local function spawned(character: Model)
+		character:SetAttribute("SpawnZone", PlayZone.get(player))
+		onCharacter(character)
+	end
+	player.CharacterAdded:Connect(spawned)
 	if player.Character then
-		onCharacter(player.Character)
+		spawned(player.Character)
 	end
 end
 
@@ -376,15 +417,23 @@ function CharacterService.init()
 	end)
 end
 
+local function abortedLobbySpawn(player: Player): boolean
+	return player.Parent ~= Players or PlayZone.get(player) == "Match"
+end
+
 -- Spawns `player` in the match body, retrying a failed load a few times
 -- (lobby servers: everyone, on join and whenever they come back to the lobby).
 function CharacterService.spawn(player: Player)
+	if abortedLobbySpawn(player) then
+		return
+	end
 	-- The lobby's own spawn first (LobbySpawnService sets this when its spawn
 	-- is up), so nobody lands in an older lobby kept in the place.
 	local started = os.clock()
 	while
 		ServerRole.isLobby()
 		and ReplicatedStorage:GetAttribute("LobbySpawnReady") ~= true
+		and not abortedLobbySpawn(player)
 		and os.clock() - started < 5
 	do
 		task.wait(0.1)
@@ -392,35 +441,48 @@ function CharacterService.spawn(player: Player)
 	-- With CharacterAutoLoads off a player whose every try fails never gets a character (a join that "doesn't
 	-- load"), so the tries back off and the last failure is logged.
 	for attempt, wait in Avatar.SPAWN_RETRY do
-		if player.Parent ~= Players then
+		if abortedLobbySpawn(player) then
 			return
 		end
-		local ok, err = pcall(CharacterService.loadCharacter, player)
+		local ok, err =
+			pcall(CharacterService.loadCharacter, player, attempt == #Avatar.SPAWN_RETRY)
 		if ok then
 			return
 		end
 		HealthLog.problem("spawn failed", player, `try {attempt}: {err}`)
 		task.wait(wait)
 	end
-	HealthLog.problem("spawn gave up", player, `{#Avatar.SPAWN_RETRY} tries`)
+	if not abortedLobbySpawn(player) then
+		HealthLog.problem("spawn gave up", player, `{#Avatar.SPAWN_RETRY} tries`)
+	end
 end
 
 function CharacterService.start()
 	-- A lobby server spawns everyone itself, already in the match body (no
 	-- flash of their own avatar first); a match server's MatchService does.
 	local lobby = ServerRole.isLobby()
+	local hosted = ServerRole.isHosted()
 	if lobby then
 		Players.CharacterAutoLoads = false
 	end
 	local function joined(player: Player)
 		onPlayer(player)
 		if lobby and not player.Character then
-			task.spawn(CharacterService.spawn, player)
+			if hosted then
+				task.delay(0.25, function()
+					if not abortedLobbySpawn(player) and not player.Character then
+						CharacterService.spawn(player)
+					end
+				end)
+			else
+				task.spawn(CharacterService.spawn, player)
+			end
 		end
 	end
 	Players.PlayerAdded:Connect(joined)
 	Players.PlayerRemoving:Connect(function(player)
 		ownDescriptions[player] = nil
+		loadingPlayers[player] = nil
 	end)
 	for _, player in Players:GetPlayers() do
 		joined(player)

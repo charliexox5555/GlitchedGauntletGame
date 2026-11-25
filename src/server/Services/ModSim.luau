@@ -34,6 +34,7 @@ local Charges = require(Shared.Mods.Charges)
 local Config = require(Shared.Config.Mods)
 local Health = require(Shared.Health)
 local MatchState = require(script.Parent.Parent.MatchState)
+local MovementGuard = require(game:GetService("ServerScriptService").Server.Services.MovementGuard)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = Context.net
@@ -185,7 +186,11 @@ local function onReport(
 		-- No casts and no dives behind the barrier, between rounds or while
 		-- frozen (as Simulation/Abilities and ModService refuse them). A
 		-- landing still goes through, to end the flight (`locked`: no damage).
-		if locked or StateValues.get(player, "StatusStunned") == true then
+		if
+			locked
+			or not MovementGuard.canFight(player)
+			or StateValues.get(player, "StatusStunned") == true
+		then
 			return
 		end
 		if kind == "Cast" and not spend(player, slot, id .. ":" .. level, stats, now) then

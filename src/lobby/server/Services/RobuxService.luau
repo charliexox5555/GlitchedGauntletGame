@@ -41,15 +41,15 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local RobuxService = {}
 
 local limiter = RateLimit.new(Config.RATE)
--- A skin prompt that is open (security review 2026-11-22): while it is, no other skin can
--- be asked for, so the saved choice can't change under the dialog. Cleared when Roblox
--- says the prompt closed (never a grant) or after PROMPT_LOCK seconds.
-local PROMPT_LOCK = 120
-local skinPromptOpen: { [Player]: number } = {}
+-- A shared product owns its saved target until receipt or confirmed cancellation.
+type SkinPrompt = { productId: number, token: string }
+local skinPromptOpen: { [Player]: SkinPrompt } = {}
 local shopEvent: RemoteEvent
 local rejects: { [string]: number } = {}
 
@@ -98,6 +98,28 @@ local function prompt(player: Player, product: Products.Product)
 	MarketplaceService:PromptProductPurchase(player, product.id)
 end
 
+local function cancelSkinPrompt(player: Player, current: SkinPrompt)
+	local productKey = tostring(current.productId)
+	local ok = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
+		local intent = data.buys.intents[productKey]
+		if not intent or intent.token ~= current.token then
+			return false, "nothing"
+		end
+		data.buys.intents[productKey] = nil
+		return true
+	end, true)
+	if skinPromptOpen[player] == current then
+		skinPromptOpen[player] = nil
+	end
+	if not ok then
+		local pending = PlayerDataService.get(player)
+		local intent = pending and pending.buys.intents[productKey]
+		if intent and intent.token == current.token then
+			warn("[Robux] Could not save a confirmed skin-prompt cancellation")
+		end
+	end
+end
+
 -- Every skin of a bundle as { gun, line } (Item entries without both are skipped).
 local function bundleSkins(bundle: ShopCatalog.Bundle): { { gun: string, line: string } }
 	local out = {}
@@ -117,8 +139,7 @@ local function promptSkin(
 	line: string,
 	slot: number?
 )
-	local open = skinPromptOpen[player]
-	if open and os.clock() - open < PROMPT_LOCK then
+	if skinPromptOpen[player] then
 		fail(player, "promptOpen")
 		return
 	end
@@ -126,17 +147,32 @@ local function promptSkin(
 		fail(player, "busy")
 		return
 	end
-	skinPromptOpen[player] = os.clock()
-	local ok, why = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
+	local txId = PlayerDataService.newTxId()
+	local current: SkinPrompt = { productId = product.id, token = txId }
+	skinPromptOpen[player] = current
+	local productKey = tostring(product.id)
+	local ok, why = PlayerDataService.transact(player, txId, function(data)
 		if PlayerData.owns(data.skins, gun, line) then
 			return false, "owned"
 		end
-		data.buys.intents[tostring(product.id)] =
-			{ product = product.id, gun = gun, line = line, slot = slot, at = os.time() }
+		if data.buys.intents[productKey] then
+			return false, "busy"
+		end
+		data.buys.intents[productKey] = {
+			product = product.id,
+			gun = gun,
+			line = line,
+			slot = slot,
+			at = os.time(),
+			token = txId,
+		}
 		return true
 	end)
 	if ok then
-		prompt(player, product)
+		if not pcall(prompt, player, product) then
+			cancelSkinPrompt(player, current)
+			fail(player, "saving")
+		end
 	else
 		skinPromptOpen[player] = nil
 		fail(player, why or "saving")
@@ -146,6 +182,10 @@ end
 local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 	if not limiter:allow(player, "RobuxRequest") then
 		reject("rate")
+		return
+	end
+	if PlayZone.get(player) ~= "Lobby" then
+		reject("notLobby")
 		return
 	end
 	if typeof(what) ~= "string" then
@@ -419,6 +459,7 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 	local gotGun: string?, gotLine: string? = nil, nil
 	local purchaseId = string.sub(tostring(info.PurchaseId), 1, 62)
 	local txId = "r:" .. purchaseId
+	local promptAtReceipt = skinPromptOpen[player]
 	local ok, why = PlayerDataService.transact(player, txId, function(data)
 		-- receipts have their own memory (the shared `tx` list only keeps the last few writes)
 		if table.find(data.buys.receipts, purchaseId) then
@@ -445,6 +486,21 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 		warn(`[Robux] receipt {info.PurchaseId} not saved: {why}`)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
+	if text ~= "" then
+		Telemetry.event(
+			player,
+			"Robux receipt granted",
+			tonumber(info.CurrencySpent) or 0,
+			product.kind
+		)
+		if
+			promptAtReceipt
+			and promptAtReceipt.productId == product.id
+			and skinPromptOpen[player] == promptAtReceipt
+		then
+			skinPromptOpen[player] = nil
+		end
+	end
 	send(player, {
 		kind = "robux",
 		text = if text ~= "" then text else "Purchase complete",
@@ -461,13 +517,13 @@ function RobuxService.start()
 	shopEvent = LobbyNet.event("ShopEvent")
 	LobbyNet.event("RobuxRequest").OnServerEvent:Connect(onRequest)
 	MarketplaceService.ProcessReceipt = processReceipt
-	-- only unlocks the skin prompt; granting is ProcessReceipt's alone
+	-- A successful prompt can finish before the receipt callback arrives.
 	MarketplaceService.PromptProductPurchaseFinished:Connect(
-		function(userId: number, productId: number)
+		function(userId: number, productId: number, purchased: boolean)
 			local p = Players:GetPlayerByUserId(userId)
-			local product = Products.BY_ID[productId]
-			if p and product and product.kind == "skin" and not product.skin then
-				skinPromptOpen[p] = nil
+			local current = p and skinPromptOpen[p]
+			if p and current and current.productId == productId and not purchased then
+				cancelSkinPrompt(p, current)
 			end
 		end
 	)

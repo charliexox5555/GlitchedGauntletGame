@@ -146,7 +146,7 @@ local TABS: { Tab } = {
 						pct(
 							"sensScoped",
 							"WHILE SCOPED",
-							100,
+							45,
 							1,
 							200,
 							"Sensitivity while looking through a sniper scope, as a share of your sensitivity."
@@ -400,7 +400,7 @@ local TABS: { Tab } = {
 						id = "autoShoot",
 						label = "AUTO SHOOT",
 						kind = "choice",
-						default = "Disabled",
+						default = "Dynamic",
 						choices = { "Disabled", "Custom", "Dynamic" },
 						note = "CONTROLLER AND PHONE ONLY",
 						desc = "Shoots for you when your crosshair is on an enemy. CUSTOM uses your reaction time below; DYNAMIC picks it for the gun.",
@@ -770,6 +770,14 @@ do
 					sub = true,
 					showIf = { id = "touchDoubleTap", value = true },
 					desc = "How quickly the second tap has to follow the first.",
+				},
+				{
+					id = "touchModCast",
+					label = "ABILITY CASTING",
+					kind = "choice",
+					choices = { "Smart", "Equip" },
+					default = "Smart",
+					desc = "Smart: tap to quick-cast, hold to aim with preview and release to cast. Equip: tap to hold, then tap Fire.",
 				},
 			},
 		},

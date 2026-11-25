@@ -47,27 +47,27 @@ export type Profile = {
 local profiles: { [string]: Profile } = {
 	Easy = {
 		perception = {
-			reaction = 0.55,
-			hearing = 35,
-			memory = 3,
+			reaction = 0.42,
+			hearing = 55,
+			memory = 5.5,
 			fov = 120,
 		},
 		aim = {
-			aimSmooth = 0.26,
-			errorStart = 9,
-			errorFloor = 3.2,
-			errorSettle = 0.6,
-			trackLag = 0.35,
-			firstMisses = 2,
-			maxHitsPerSec = 1,
-			easeLowHealth = 1.6,
+			aimSmooth = 0.18,
+			errorStart = 5.5,
+			errorFloor = 1.6,
+			errorSettle = 0.45,
+			trackLag = 0.16,
+			firstMisses = 1,
+			maxHitsPerSec = 2,
+			easeLowHealth = 1.3,
 			headChance = 0.06,
-			recoilControl = 0.4,
+			recoilControl = 0.65,
 		},
 		tactics = {
-			aggression = 0.35,
-			coverHealth = 0.40,
-			coverPatience = 1.35,
+			aggression = 0.58,
+			coverHealth = 0.24,
+			coverPatience = 0.65,
 			flankChance = 0.25,
 		},
 		mods = {
@@ -84,27 +84,27 @@ local profiles: { [string]: Profile } = {
 	},
 	Normal = {
 		perception = {
-			reaction = 0.36,
+			reaction = 0.30,
 			hearing = 50,
 			memory = 5,
 			fov = 140,
 		},
 		aim = {
-			aimSmooth = 0.16,
-			errorStart = 7,
-			errorFloor = 2,
-			errorSettle = 0.42,
-			trackLag = 0.2,
-			firstMisses = 1,
-			maxHitsPerSec = 2,
-			easeLowHealth = 1.3,
+			aimSmooth = 0.13,
+			errorStart = 4.8,
+			errorFloor = 1.2,
+			errorSettle = 0.34,
+			trackLag = 0.12,
+			firstMisses = 0,
+			maxHitsPerSec = 3,
+			easeLowHealth = 1.15,
 			headChance = 0.15,
-			recoilControl = 0.65,
+			recoilControl = 0.78,
 		},
 		tactics = {
-			aggression = 0.55,
-			coverHealth = 0.45,
-			coverPatience = 0.85,
+			aggression = 0.68,
+			coverHealth = 0.28,
+			coverPatience = 0.55,
 			flankChance = 0.55,
 		},
 		mods = {
@@ -140,8 +140,8 @@ local profiles: { [string]: Profile } = {
 		},
 		tactics = {
 			aggression = 0.86,
-			coverHealth = 0.48,
-			coverPatience = 0.45,
+			coverHealth = 0.32,
+			coverPatience = 0.40,
 			flankChance = 0.8,
 		},
 		mods = {
@@ -225,11 +225,11 @@ return table.freeze({
 	MODES = { ["1v1"] = 1, ["2v2"] = 2, ["3v3"] = 3, beginner = 2 } :: { [string]: number },
 	-- Seconds from the first arrival to wait for an absent teleport seat before a bot fills in (20 until 2026-11-22:
 	-- a phone teleport can take longer; LihFolk Parties and Group Teleports uses 45).
-	JOIN_GRACE = 45,
+	JOIN_GRACE = 15,
 	JOIN_GRACE_STUDIO = 3,
 	-- Seconds a seat that is here may go without its client's ready signal before the match starts anyway (a client
 	-- that broke while loading must not hold everyone on the loading screen; it is dealt in when it catches up).
-	READY_TIMEOUT = 30,
+	READY_TIMEOUT = 12,
 	READY_TIMEOUT_STUDIO = 15,
 	-- Studio with no BotMatch attribute: a lone player still gets one bot.
 	STUDIO_SOLO_BOT = true,
@@ -255,7 +255,7 @@ return table.freeze({
 	SWITCH_MARGIN = 0.15,
 	COMMIT_TIME = 0.6,
 	COVER_RADIUS = 9,
-	COVER_RETRY = 1.2,
+	COVER_RETRY = 3.5,
 	PEEK_TIME = 0.85,
 	HUNT_MEMORY = 3.5,
 	MOD_RETRY = 3, -- pause before retrying a Mod whose plan failed at release
@@ -306,10 +306,47 @@ return table.freeze({
 	ROAM_RETRY = 9, -- don't retry a patrol point that just stalled
 
 	-- Firing discipline.
-	FIRE_CONE_SLACK = 1.2, -- fires when aim error is under (gun cone + this) degrees
+	FIRE_CONE_SLACK = 2.2, -- fires when aim error is under (gun cone + this) degrees
 	TAP_RANGE = 45, -- studs: beyond this auto guns fire short bursts
 	BURST_SHOTS = { 3, 6 },
 	BURST_REST = { 0.18, 0.35 },
 	TRIGGER_DELAY = { 0.04, 0.12 }, -- seconds between "on target" and the first shot
 	AIM_TURN_SPEED = 480, -- degrees per second, including when swapping targets
+
+	-- Bot-only escalation (Services/BotService): when every real player in a round is dead
+	-- and bots remain on both teams, weaker bots ramp up cleanly after `grace` seconds so
+	-- spectators aren't stuck watching slow bot-vs-bot stalemates.
+	BOT_DUEL = table.freeze({
+		grace = 0.5, -- seconds before ramping begins
+		ramp = 3.5, -- seconds to reach full target stats
+		seekJitter = 12, -- studs of offset when hunting an unseen enemy bot
+		target = table.freeze({
+			perception = table.freeze({ reaction = 0.22, hearing = 90, memory = 10, fov = 165 }),
+			aim = table.freeze({
+				aimSmooth = 0.12,
+				errorStart = 4.0,
+				errorFloor = 1.1,
+				errorSettle = 0.28,
+				trackLag = 0.10,
+				firstMisses = 0,
+				maxHitsPerSec = 4,
+				easeLowHealth = 1.0,
+				headChance = 0.25,
+				recoilControl = 0.85,
+			}),
+			tactics = table.freeze({
+				aggression = 0.88,
+				coverHealth = 0.14,
+				coverPatience = 0.40,
+				flankChance = 0.70,
+			}),
+			mods = table.freeze({ abilityUse = 0.75, interval = 0.80, minScore = 0.55 }),
+			movement = table.freeze({
+				strafePause = 0.12,
+				slideChance = 0.65,
+				slideJumpChance = 0.20,
+				zoneLead = 1.5,
+			}),
+		}) :: Profile,
+	}),
 })

@@ -11,7 +11,15 @@
 
 local Config = require(script.Parent.Config.Onboarding)
 
-export type Onb = { fav: number, favDone: boolean, seen: number }
+export type Onb = {
+	fav: number,
+	favDone: boolean,
+	seen: number,
+	analytics: boolean?,
+	caseGift: boolean?,
+	caseOpened: boolean?,
+	skinEquipped: boolean?,
+}
 
 local Onboarding = {}
 
@@ -36,6 +44,10 @@ function Onboarding.clean(raw: unknown): Onb
 	o.fav = whole(t.fav, Config.FAV_MAX_ASKS) or 0
 	o.favDone = t.favDone == true
 	o.seen = whole(t.seen, Config.SEEN_MAX) or 0
+	o.analytics = if t.analytics == true then true else nil
+	o.caseGift = if t.caseGift == true then true else nil
+	o.caseOpened = if t.caseOpened == true then true else nil
+	o.skinEquipped = if t.skinEquipped == true then true else nil
 	return o
 end
 
@@ -43,6 +55,10 @@ function Onboarding.valid(o: Onb): boolean
 	return whole(o.fav, Config.FAV_MAX_ASKS) ~= nil
 		and typeof(o.favDone) == "boolean"
 		and whole(o.seen, Config.SEEN_MAX) ~= nil
+		and (o.analytics == nil or typeof(o.analytics) == "boolean")
+		and (o.caseGift == nil or typeof(o.caseGift) == "boolean")
+		and (o.caseOpened == nil or typeof(o.caseOpened) == "boolean")
+		and (o.skinEquipped == nil or typeof(o.skinEquipped) == "boolean")
 end
 
 -- Rules ---------------------------------------------------------------------------
@@ -114,16 +130,14 @@ function Onboarding.bubble(matches: number): boolean
 	return matches < Config.BUBBLE_BELOW
 end
 
--- Ask to favorite now? `where`: "lobby" (back in the lobby) or "match" (during a match).
+-- Ask to favorite now? `where`: "lobby" (back in the lobby) or "match" (disabled).
 function Onboarding.favAsk(o: Onb, matches: number, where: string): boolean
 	if o.favDone or o.fav >= Config.FAV_MAX_ASKS then
 		return false
 	end
 	if where == "lobby" then
-		return o.fav == 0 and matches >= Config.FAV_LOBBY_AFTER
-	elseif where == "match" then
-		-- during match FAV_MATCH_ON (matches played so far = one less), after a declined ask
-		return o.fav >= 1 and matches + 1 == Config.FAV_MATCH_ON
+		return (o.fav == 0 and matches >= Config.FAV_LOBBY_AFTER)
+			or (o.fav == 1 and matches >= Config.FAV_LOBBY_SECOND_AFTER)
 	end
 	return false
 end

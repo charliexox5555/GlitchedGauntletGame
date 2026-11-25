@@ -26,24 +26,72 @@ return table.freeze({
 	-- "LockMap" (a map id or its vote name, any case: "Snowpeak", "metro") plays
 	-- that map every match with no vote; clear it to vote again. "ForceMap"
 	-- (GauntletState, an exact id) still works too.
-	-- `image`: the map vote card's picture (art-source/ui/mapvote, captured in
-	-- Studio 2026-11-16, uploaded with tools/opencloud/upload_asset.py; these are the Image ids
+	-- `image`: the map vote card's picture (art-source/ui/mapvote/release, captured in
+	-- Studio 2026-11-23, uploaded with tools/opencloud/upload_asset.py; these are the Image ids
 	-- behind the uploaded Decals, resolved with InsertService).
 	MAPS = {
 		-- The release lineup (owner 2026-11-21). The legacy maps (Whitebox, Rooftops 1-3, Bunker 1-3, ...)
 		-- were deleted from the place on 2026-11-21 (vault/01 Design/Maps/Release Map Audit 2026-11-21.md).
-		{ id = "Arena", minTeam = 1, maxTeam = 2 },
-		{ id = "Pier", minTeam = 1, maxTeam = 2 },
-		{ id = "Wharf", minTeam = 1, maxTeam = 2 }, -- 2026-11-20, vault/01 Design/Maps/Wharf.md
-		{ id = "Snowpeak4", name = "Snowpeak", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/Snowpeak4.md
-		{ id = "Rooftops4", name = "Rooftops", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/Rooftops4.md
-		{ id = "Greenhouse4", name = "Greenhouse", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/Greenhouse4.md
-		{ id = "Foundry4", name = "Foundry", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/Foundry4.md
-		{ id = "CanyonOutpost", name = "Canyon", minTeam = 1, maxTeam = 2 }, -- 2026-11-21, vault/01 Design/Maps/CanyonOutpost.md
-		{ id = "BigArena", name = "Big Arena", minTeam = 2, maxTeam = 3 },
-		{ id = "Dockyard", minTeam = 2, maxTeam = 3 },
-		{ id = "Metro4", name = "Metro", minTeam = 2, maxTeam = 3 }, -- 2026-11-20, vault/01 Design/Maps/Metro4.md
-		{ id = "OldTown4", name = "Old Town", minTeam = 2, maxTeam = 3 }, -- 2026-11-21, vault/01 Design/Maps/OldTown4.md
+		{ id = "Arena", minTeam = 1, maxTeam = 2, image = "rbxassetid://117792603299694" },
+		{ id = "Pier", minTeam = 1, maxTeam = 2, image = "rbxassetid://74497025627817" },
+		{ id = "Wharf", minTeam = 1, maxTeam = 2, image = "rbxassetid://95866458500130" }, -- 2026-11-20, vault/01 Design/Maps/Wharf.md
+		{
+			id = "Snowpeak4",
+			name = "Snowpeak",
+			minTeam = 1,
+			maxTeam = 2,
+			image = "rbxassetid://120626848953348",
+		}, -- 2026-11-21, vault/01 Design/Maps/Snowpeak4.md
+		{
+			id = "Rooftops4",
+			name = "Rooftops",
+			minTeam = 1,
+			maxTeam = 2,
+			image = "rbxassetid://85741001633716",
+		}, -- 2026-11-21, vault/01 Design/Maps/Rooftops4.md
+		{
+			id = "Greenhouse4",
+			name = "Greenhouse",
+			minTeam = 1,
+			maxTeam = 2,
+			image = "rbxassetid://92559937963235",
+		}, -- 2026-11-21, vault/01 Design/Maps/Greenhouse4.md
+		{
+			id = "Foundry4",
+			name = "Foundry",
+			minTeam = 1,
+			maxTeam = 2,
+			image = "rbxassetid://84516040520052",
+		}, -- 2026-11-21, vault/01 Design/Maps/Foundry4.md
+		{
+			id = "CanyonOutpost",
+			name = "Canyon",
+			minTeam = 1,
+			maxTeam = 2,
+			image = "rbxassetid://90705379708487",
+		}, -- 2026-11-21, vault/01 Design/Maps/CanyonOutpost.md
+		{
+			id = "BigArena",
+			name = "Big Arena",
+			minTeam = 2,
+			maxTeam = 3,
+			image = "rbxassetid://135241582210473",
+		},
+		{ id = "Dockyard", minTeam = 2, maxTeam = 3, image = "rbxassetid://98967879678346" },
+		{
+			id = "Metro4",
+			name = "Metro",
+			minTeam = 2,
+			maxTeam = 3,
+			image = "rbxassetid://101932680871062",
+		}, -- 2026-11-20, vault/01 Design/Maps/Metro4.md
+		{
+			id = "OldTown4",
+			name = "Old Town",
+			minTeam = 2,
+			maxTeam = 3,
+			image = "rbxassetid://128661003913332",
+		}, -- 2026-11-21, vault/01 Design/Maps/OldTown4.md
 	} :: { MapEntry },
 
 	-- The map vote before round 1 (vault/02 Art/UI Match Overhaul.md, after
@@ -51,16 +99,19 @@ return table.freeze({
 	-- Each vote is a ticket and one is drawn (no votes = any map). Skipped when
 	-- only one map fits, or in Studio with ForceMap.
 	VOTE = table.freeze({
-		seconds = 12, -- the vote
+		seconds = 10, -- the vote
 		allInSeconds = 1.5, -- once every player has voted, the clock cuts to this
 		botDelay = { 1.2, 4.8 },
-		withBotsMinSeconds = 6,
-		chosenSeconds = 2.5, -- the picked map is shown, then the map loads
+		withBotsMinSeconds = 4.5,
+		chosenSeconds = 2, -- the picked map is shown, then the map loads
 		random = "Random", -- the Random card's option name
 	}),
 
 	ROUNDS_TO_WIN = 5,
+	ROUNDS_TO_WIN_BY_MODE = table.freeze({ beginner = 4 }) :: { [string]: number },
 	LATE_SPAWN_WAIT = 6, -- seconds a slow spawn gets past the countdown (3 until 2026-11-22: void spawns)
+	LOAD_CANCEL_TIMEOUT = 22, -- seconds a live waiting lobby may stall before cancelling & requeueing everyone
+	MAP_LOAD_TIMEOUT = 15, -- seconds initial map load may retry with players waiting before cancelling & requeueing
 	-- Floor hold (Controllers/FloorHoldController, owner 2026-11-22: "in a void ... every round ends right
 	-- away in a draw"): a fighter spawned before the map reached their screen is held still (root anchored on
 	-- their client) until floor shows up under them, for at most `max` seconds; `probe` studs down.
@@ -74,8 +125,8 @@ return table.freeze({
 	-- screen opens as soon as the first player is in. Its time includes the
 	-- 3-2-1 at the end (guns in hand, barrier up). Every select skips to the
 	-- 3-2-1 once everyone has locked in.
-	FIRST_SELECT_TIME = 30,
-	SELECT_TIME = 15,
+	FIRST_SELECT_TIME = 22,
+	SELECT_TIME = 12,
 	COUNTDOWN_TIME = 3,
 	-- Spawn hold (vault/01 Design/Spawn Hold.md, 2026-11-16): through the select
 	-- and the 3-2-1 everyone stands at their spawn marker, can look but not
@@ -86,7 +137,7 @@ return table.freeze({
 		refresh = 0.25, -- seconds between passes that catch late spawns
 	}),
 	ROUND_TIME = 50, -- then sudden death
-	ROUND_END_TIME = 5,
+	ROUND_END_TIME = 4,
 	-- The match-end screen (Services/MatchEndService): `time` seconds to pick
 	-- Rematch / Play Again / Leave, then everyone left goes to the Lobby.
 	MATCH_END = {

@@ -53,6 +53,12 @@ local function randomError(size: number): Vector2
 	return Vector2.new(math.cos(a), math.sin(a)) * size
 end
 
+local function randomDiskError(size: number): Vector2
+	local a = rng:NextNumber() * 2 * math.pi
+	local r = (rng:NextNumber() ^ 1.15) * size
+	return Vector2.new(math.cos(a), math.sin(a)) * r
+end
+
 -- A fresh target: the error starts wide.
 function Aim.acquire(bot: Bot)
 	bot.aimError = randomError(bot.profile.aim.errorStart * (0.7 + rng:NextNumber() * 0.6))
@@ -108,7 +114,7 @@ function Aim.step(bot: Bot, point: Vector3?, dt: number): number
 	-- The error settles toward a wobble at the floor; recoil recovers.
 	-- The wobble it settles toward moves a few times a second (a hand's drift).
 	if rng:NextNumber() < dt / 0.25 then
-		bot.aimWobble = randomError(bot.profile.aim.errorFloor * (0.4 + rng:NextNumber() * 0.8))
+		bot.aimWobble = randomDiskError(bot.profile.aim.errorFloor)
 	end
 	local floor = bot.aimWobble
 	-- A nearly dead target: easier levels ease off (a fair finish).

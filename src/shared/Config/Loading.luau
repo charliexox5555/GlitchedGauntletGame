@@ -29,8 +29,8 @@ return table.freeze({
 	homeLine = "BACK TO THE LOBBY", -- a teleport from a match to the lobby
 
 	-- Timing (seconds).
-	minHold = 4.5, -- from the reveal, at least (no skip button; 2.2 until the owner's "way too quick", 2026-11-22)
-	stepMin = 0.55, -- each stage shows at least this long, so the four segments fill one by one
+	minHold = 2.2, -- from the reveal, at least (no skip button; tightened for ad retention)
+	stepMin = 0.3, -- each stage shows at least this long, so the four segments fill one by one
 	assetWait = 3, -- longest wait for the logo images and this config before the reveal plays anyway
 	watchdogLobby = 30, -- closes whatever happens (LihFolk: Streaming Joins - Frozen Players ... Teardown, 25 s)
 	watchdogMatch = 120, -- a match server can wait for teleporting players (Config/Bots JOIN_GRACE + READY_TIMEOUT)
@@ -44,7 +44,7 @@ return table.freeze({
 	skinWait = 4,
 	groundProbe = 40,
 	duelMin = 0.6, -- the pad-duel short version
-	duelMax = 4,
+	duelMax = 8,
 	homeMin = 1, -- back from a match to this server's lobby: at least this long...
 	homeMax = 10, -- ...and at most this (it waits for the body animations and floor under the lobby character)
 	fadeOut = 0.8, -- the close: words drop out, the title zooms through, the backdrop fades as the blur clears

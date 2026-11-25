@@ -26,6 +26,7 @@ local WHITE = Kit.WHITE
 local STOCK_BODY = Color3.fromHex("34404F")
 local PB = SkinPreview.PLAYBACK
 local SD = SkinPreview.SUNDIAL
+local RF = SkinPreview.RIFTFORGE
 
 type Swipe = {
 	part: BasePart,
@@ -156,10 +157,12 @@ function KnifeSwipeFx.swipe(
 	local coreColor = if skinLine == PB.LINE
 		then PB.SWIPE_CORE
 		elseif skinLine == SD.LINE then SD.SWIPE_CORE
+		elseif skinLine == RF.LINE then RF.PLASMA_EDGE
 		else WHITE
 	local bodyColor = if skinLine == PB.LINE
 		then PB.SWIPE_BODY
 		elseif skinLine == SD.LINE then SD.SWIPE_BODY
+		elseif skinLine == RF.LINE then RF.PLASMA_DEEP
 		else STOCK_BODY
 	local beams = {}
 	-- 1: the glowing core (narrow); 2: a dark steel / line-tinted body around it

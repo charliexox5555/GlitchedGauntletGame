@@ -24,6 +24,7 @@ local SHARED_SERVICES: { [string]: boolean } = {
 	MatchHost = true,
 	ModEntities = true,
 	MovementService = true,
+	MovementGuard = true,
 	SkinPreviewService = true,
 	ServerInfoService = true,
 	StatusService = true,

@@ -18,6 +18,7 @@ local TweenService = game:GetService("TweenService")
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -343,7 +344,7 @@ local function onKilled(
 	headshot: unknown,
 	assistIds: unknown
 )
-	if typeof(victim) ~= "Instance" then
+	if typeof(victim) ~= "Instance" or not PlayZone.inSameScope(player, victim) then
 		return
 	end
 	local killer = if typeof(attacker) == "Instance" then attacker else nil

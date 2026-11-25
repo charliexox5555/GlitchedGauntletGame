@@ -33,6 +33,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local OnbHighlight = require(script.Parent.OnbHighlight)
 local Pivot = require(script.Parent.Pivot)
 local Plates = require(script.Parent.Plates)
 local QueueState = require(script.Parent.QueueState)
@@ -475,6 +476,7 @@ local BAR_ORDER = { "Locker", "Shop", "Backpack", "Range", "Settings", "SaveStre
 local BAR_STEP = 140 -- px between item centres
 local BAR_PAD = 90 -- px from the bar's end to the first / last item centre
 local SHADOW_PAD = 30 -- the shadow reaches this far past each end
+local placeCallout: ((s: State, animate: boolean) -> ())? = nil
 local function layoutBar(s: State)
 	local bar = s.bottom:FindFirstChild("Bar")
 	if not (bar and bar:IsA("GuiObject")) then
@@ -506,6 +508,9 @@ local function layoutBar(s: State)
 			b.Position.Y.Scale,
 			b.Position.Y.Offset
 		)
+	end
+	if placeCallout then
+		placeCallout(s, false)
 	end
 end
 
@@ -887,6 +892,11 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		end)
 	end
 	hookTopbar(boardButton, toggleList)
+	local gift = s.topbar:FindFirstChild("Rewards")
+	if gift and gift:IsA("GuiObject") then
+		gift.Visible = false
+		gift.Selectable = false
+	end
 	hookTopbar(child(s.topbar, "Settings") :: TextButton, function()
 		Router.toggle("Settings")
 	end)
@@ -1134,13 +1144,13 @@ end
 -- A callout over a bar item ("NEW SKIN UNLOCKED") or the party row ("Party"), or nil
 -- to hide it. It pops in from its centre each time it moves to a new target.
 local calloutAt: string? = nil
+local calloutText: string? = nil
 local CALLOUT_GAP = 14 -- px between the tag's pointer and the party circle
 local CALLOUT_MIN_W, CALLOUT_PER_CHAR = 56, 13 -- tag width: base + per letter
-function LobbyHudView.callout(id: string?, text: string?)
-	local s = state
-	if not s then
-		return
-	end
+
+placeCallout = function(s: State, animate: boolean)
+	local id = calloutAt
+	local text = calloutText
 	local home = StateValues.get(s.callout, "Home")
 	if typeof(home) ~= "UDim2" then
 		home = s.callout.Position
@@ -1155,7 +1165,7 @@ function LobbyHudView.callout(id: string?, text: string?)
 		y = s.party.Position.Y.Offset - 36 - CALLOUT_GAP
 	elseif id then
 		local b = s.items[id]
-		x = if b then b.Position.X.Offset else nil
+		x = if b and b.Visible then b.Position.X.Offset else nil
 	end
 	local show = x ~= nil and text ~= nil
 	s.callout.Visible = show
@@ -1171,11 +1181,37 @@ function LobbyHudView.callout(id: string?, text: string?)
 		s.callout.Size = UDim2.fromOffset(math.min(w, CALLOUT_MIN_W + #text * CALLOUT_PER_CHAR), h)
 		s.callout.Position = UDim2.fromOffset(x, y)
 		local pop = s.callout:FindFirstChildOfClass("UIScale")
-		if pop and calloutAt ~= id then
+		if pop and animate then
 			popIn(pop, 0, 0.34)
 		end
 	end
-	calloutAt = if show then id else nil
+end
+
+function LobbyHudView.callout(id: string?, text: string?)
+	local s = state
+	if not s then
+		return
+	end
+	local animate = calloutAt ~= id and id ~= nil and text ~= nil
+	calloutAt = if id and text then id else nil
+	calloutText = if id and text then text else nil
+	placeCallout(s, animate)
+end
+
+-- Highlights a bottom bar item icon (nil clears).
+function LobbyHudView.highlight(id: string?)
+	local s = state
+	if not (s and id) then
+		OnbHighlight.clear("LobbyBar")
+		return
+	end
+	local b = s.items[id]
+	local icon = if b and b.Visible then b:FindFirstChild("Icon") else nil
+	if icon and icon:IsA("GuiObject") then
+		OnbHighlight.focus("LobbyBar", icon, { stroke = false, scale = 1.12 })
+	else
+		OnbHighlight.clear("LobbyBar")
+	end
 end
 
 -- PLAY: `action` runs on a click while idle and returns true when it handled it

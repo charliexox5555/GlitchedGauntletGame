@@ -66,7 +66,14 @@ export type Data = {
 	onb: Onboarding.Onb,
 }
 -- `intent`: the skin a shared skin product pays for (Services/RobuxService)
-export type Intent = { product: number, gun: string, line: string, slot: number?, at: number }
+export type Intent = {
+	product: number,
+	gun: string,
+	line: string,
+	slot: number?,
+	at: number,
+	token: string?,
+}
 export type Buys = {
 	starter: boolean,
 	free: boolean,
@@ -132,9 +139,16 @@ function PlayerData.cleanBuys(raw: unknown): Buys
 			local slot = if i.slot ~= nil then count(i.slot, 16) else nil
 			local gun = if typeof(i.gun) == "string" and #i.gun <= 24 then i.gun else nil
 			local line = if typeof(i.line) == "string" and #i.line <= 32 then i.line else nil
+			local token = if typeof(i.token) == "string" and #i.token <= 64 then i.token else nil
 			if product and at and gun and line and tostring(product) == key then
-				out.intents[key] =
-					{ product = product, at = at, gun = gun, line = line, slot = slot }
+				out.intents[key] = {
+					product = product,
+					at = at,
+					gun = gun,
+					line = line,
+					slot = slot,
+					token = token,
+				}
 				n += 1
 			end
 		end
@@ -174,6 +188,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		onb = Onboarding.new(),
 	}
 	if typeof(raw) ~= "table" then
+		data.onb.analytics = if raw == nil then true else nil
 		return data
 	end
 	data.prog = Progress.clean((raw :: any).prog)
@@ -335,6 +350,13 @@ function PlayerData.publish(player: Player, data: Data?)
 	StateValues.set(player, "OnbFav", if data then data.onb.fav else 0)
 	StateValues.set(player, "OnbFavDone", if data then data.onb.favDone else true)
 	StateValues.set(player, "OnbSeen", if data then data.onb.seen else 0)
+	StateValues.set(player, "OnbCaseGift", if data then data.onb.caseGift == true else false)
+	StateValues.set(player, "OnbCaseOpened", if data then data.onb.caseOpened == true else false)
+	StateValues.set(
+		player,
+		"OnbSkinEquipped",
+		if data then data.onb.skinEquipped == true else false
+	)
 	local was = StateValues.get(player, "DataReady") == true
 	if data and not was then
 		HealthLog.stage("data ready", player)

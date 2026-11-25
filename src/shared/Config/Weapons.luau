@@ -44,7 +44,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- hardest-hitting head of the automatics. 9 body or 5 head against 150.
 	Vandal = {
 		id = "Vandal",
-		displayName = "Vandal",
+		displayName = "Havoc",
 		class = "Rifle",
 		tier = 3,
 		slot = "Primary",
@@ -96,7 +96,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- faster, a bigger mag, less damage, and a falloff step at 70 studs.
 	Phantom = {
 		id = "Phantom",
-		displayName = "Phantom",
+		displayName = "Spirit",
 		class = "Rifle",
 		tier = 3,
 		slot = "Primary",
@@ -260,7 +260,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- Ghost (roster 02): slim suppressed pistol, the accurate one.
 	Ghost = {
 		id = "Ghost",
-		displayName = "Ghost",
+		displayName = "Hush",
 		class = "Sidearm",
 		tier = 1,
 		slot = "Secondary",
@@ -313,7 +313,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- Judge v2 (roster 03): compact drum-fed automatic shotgun. No ADS.
 	Judge = {
 		id = "Judge",
-		displayName = "Judge",
+		displayName = "Buckshot",
 		class = "Shotgun",
 		tier = 2,
 		slot = "Primary",
@@ -367,7 +367,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- close; slower than Valorant's 16/s so the body TTK isn't instant.
 	Stinger = {
 		id = "Stinger",
-		displayName = "Stinger",
+		displayName = "Hornet",
 		class = "SMG",
 		tier = 2,
 		slot = "Primary",
@@ -418,7 +418,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- Stinger, a bigger mag.
 	Spectre = {
 		id = "Spectre",
-		displayName = "Spectre",
+		displayName = "Prowler",
 		class = "SMG",
 		tier = 2,
 		slot = "Primary",
@@ -471,7 +471,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- shell; firing mid-reload keeps the shells loaded so far.
 	Bucky = {
 		id = "Bucky",
-		displayName = "Bucky",
+		displayName = "Pump",
 		class = "Shotgun",
 		tier = 2,
 		slot = "Primary",
@@ -582,7 +582,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- Bulldog (roster 08): budget bullpup rifle, mag behind the grip.
 	Bulldog = {
 		id = "Bulldog",
-		displayName = "Bulldog",
+		displayName = "Lancer",
 		class = "Rifle",
 		tier = 2,
 		slot = "Primary",
@@ -636,7 +636,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- single shots outside the snipers; perfect first shot when aimed.
 	Guardian = {
 		id = "Guardian",
-		displayName = "Guardian",
+		displayName = "Marksman",
 		class = "Rifle",
 		tier = 3,
 		slot = "Primary",
@@ -686,7 +686,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- keeps the rounds loaded).
 	Marshal = {
 		id = "Marshal",
-		displayName = "Marshal",
+		displayName = "Scout",
 		class = "Sniper",
 		tier = 2,
 		slot = "Primary",
@@ -738,7 +738,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- full-shield opponent with 14 HP.
 	Outlaw = {
 		id = "Outlaw",
-		displayName = "Outlaw",
+		displayName = "TwinShot",
 		class = "Sniper",
 		tier = 3,
 		slot = "Primary",
@@ -794,7 +794,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- zoom level isn't built: one 2.5x scope.)
 	Operator = {
 		id = "Operator",
-		displayName = "Operator",
+		displayName = "Deadeye",
 		class = "Sniper",
 		tier = 4,
 		slot = "Primary",
@@ -843,7 +843,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- tightens as it fires (1 degree down to 0.7). Iron-sight ADS.
 	Ares = {
 		id = "Ares",
-		displayName = "Ares",
+		displayName = "Barrage",
 		class = "MachineGun",
 		tier = 3,
 		slot = "Primary",
@@ -893,7 +893,7 @@ local weapons: { [string]: WeaponConfig } = {
 	-- 75-round box and thin cover penetration. Iron-sight ADS.
 	Odin = {
 		id = "Odin",
-		displayName = "Odin",
+		displayName = "Mauler",
 		class = "MachineGun",
 		tier = 4,
 		slot = "Primary",
@@ -1045,6 +1045,12 @@ Weapons.LEGS_MULTIPLIER = 0.85
 
 function Weapons.get(id: string): WeaponConfig?
 	return weapons[id]
+end
+
+-- Presentation name. Persist and look up weapons by their stable id.
+function Weapons.nameOf(id: string): string
+	local weapon = weapons[id]
+	return if weapon then weapon.displayName else id
 end
 
 return table.freeze(Weapons)

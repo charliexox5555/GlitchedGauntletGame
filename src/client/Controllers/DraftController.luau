@@ -40,6 +40,11 @@ local SLOT_KEYS = { [Enum.KeyCode.Q] = 1, [Enum.KeyCode.E] = 2, [Enum.KeyCode.T]
 -- Upgrade numbers worth showing on a card ("PEAK  14 → 21 STUDS"), in order.
 local STATS: { { key: string, label: string, unit: string } } = {
 	{ key = "charges", label = "CHARGES", unit = "" },
+	{ key = "damage", label = "DAMAGE", unit = "" },
+	{ key = "slamDamage", label = "SLAM DMG", unit = "" },
+	{ key = "heal", label = "HEAL", unit = " HP" },
+	{ key = "hinder", label = "HINDER", unit = " S" },
+	{ key = "reveal", label = "REVEAL", unit = " S" },
 	{ key = "peak", label = "PEAK", unit = " STUDS" },
 	{ key = "distance", label = "DISTANCE", unit = " STUDS" },
 	{ key = "maxLength", label = "LENGTH", unit = " STUDS" },
@@ -48,6 +53,8 @@ local STATS: { { key: string, label: string, unit: string } } = {
 	{ key = "pulses", label = "PULSES", unit = "" },
 	{ key = "freeze", label = "FREEZE", unit = " S" },
 	{ key = "duration", label = "DURATION", unit = " S" },
+	{ key = "life", label = "ROLL TIME", unit = " S" },
+	{ key = "maxActive", label = "MAX ACTIVE", unit = "" },
 	{ key = "cooldown", label = "COOLDOWN", unit = " S" },
 }
 
@@ -130,37 +137,37 @@ local function number(v: number): string
 	return if v == math.floor(v) then tostring(v) else string.format("%.1f", v)
 end
 
--- The first number that changes from `from` to `to` ("PEAK  14 → 21 STUDS").
-local function statChange(id: string, from: string, to: string): string
+-- Notes describe behavior and trade-offs. The stat row calls out up to two
+-- measured changes, derived from the actual previous level.
+local function statLine(id: string, from: string, to: string): string
+	local def = Mods.def(id)
+	local levelDef = def and def.levels[to]
+	if levelDef and typeof((levelDef :: any).card) == "string" and (levelDef :: any).card ~= "" then
+		return (levelDef :: any).card :: string
+	end
 	local a, b = Mods.stats(id, from), Mods.stats(id, to)
 	if not a or not b then
 		return ""
 	end
+	local lines: { string } = {}
 	for _, s in STATS do
 		local old, new = (a :: any)[s.key], (b :: any)[s.key]
-		if typeof(new) == "number" and new ~= old then
-			if s.key == "cooldown" and (typeof(old) ~= "number" or old == 0) then
-				return string.format("RECHARGES EVERY %s S", number(new))
-			end
-			if typeof(old) == "number" then
-				return string.format("%s  %s → %s%s", s.label, number(old), number(new), s.unit)
-			end
+		if typeof(new) ~= "number" or new == old then
+			continue
+		end
+		if s.key == "cooldown" and (typeof(old) ~= "number" or old == 0) and new > 0 then
+			table.insert(lines, string.format("RECHARGE %s S", number(new)))
+		elseif typeof(old) == "number" then
+			table.insert(
+				lines,
+				string.format("%s %s → %s%s", s.label, number(old), number(new), s.unit)
+			)
+		end
+		if #lines == 2 then
+			break
 		end
 	end
-	return ""
-end
-
--- An upgrade card's one line: the first number that changes, or the level's
--- own short `card` line from Config/Mods when only the behaviour changes.
-local function statLine(id: string, from: string, to: string): string
-	local line = statChange(id, from, to)
-	if line ~= "" then
-		return line
-	end
-	local def = Mods.def(id)
-	local values = if def then (def.levels :: any)[to] else nil
-	local card = if values then values.card else nil
-	return if typeof(card) == "string" then card else string.upper(cardNote(id, to))
+	return table.concat(lines, " · ")
 end
 
 local function chargesText(id: string): string
@@ -385,13 +392,14 @@ local function screenView(o: MatchState.DraftOffer): DraftScreen.View
 			for _, id in o.abilities do
 				local def = Mods.def(id)
 				if def and def.slot == slot and not col.new then
+					local l1Note = cardNote(id, "L1")
 					col.new = {
 						key = id,
 						name = def.name,
 						role = def.role,
 						color = Theme.ROLE[def.role] or C.ally,
 						art = Theme.CARD_ART[id] or "",
-						note = cardNote(id, "L1") .. ".",
+						note = if string.sub(l1Note, -1) == "." then l1Note else l1Note .. ".",
 						charges = chargesText(id),
 					}
 				end

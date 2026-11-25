@@ -21,23 +21,26 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local OnboardingService = {}
 
 local limiter = RateLimit.new({ OnboardingRequest = OnbConfig.RATE })
 local rejects: { [string]: number } = {}
+local backpackLogged: { [Player]: boolean } = {}
 local LOG_INTERVAL = 60
 
 local function reject(reason: string)
 	rejects[reason] = (rejects[reason] or 0) + 1
 end
 
-local function write(player: Player, what: string, change: PlayerDataService.Change)
+local function write(player: Player, what: string, change: PlayerDataService.Change): boolean
 	-- one write per request; a write already in flight queues (they're rare)
 	local ok, why = PlayerDataService.transact(player, PlayerDataService.newTxId(), change, true)
 	if not ok and why ~= "nothing" then
 		warn(`[Onboarding] {what} for {player.UserId} not saved: {why}`)
 	end
+	return ok
 end
 
 local function onFavAsked(player: Player, favorited: unknown)
@@ -52,7 +55,7 @@ local function onFavAsked(player: Player, favorited: unknown)
 		reject("favNotDue")
 		return
 	end
-	write(player, "favAsked", function(data: PlayerData.Data)
+	local saved = write(player, "favAsked", function(data: PlayerData.Data)
 		local o = data.onb
 		if not Onboarding.favAsk(o, data.prog.matches, where) then
 			return false, "nothing" -- no ask was due: nothing to count
@@ -63,6 +66,12 @@ local function onFavAsked(player: Player, favorited: unknown)
 		end
 		return true
 	end)
+	if saved then
+		Telemetry.event(player, "Onboarding favorite prompt", 1, where)
+		if favorited then
+			Telemetry.event(player, "Onboarding favorite accepted", 1, where)
+		end
+	end
 end
 
 local function onSeen(player: Player, bit: unknown)
@@ -76,14 +85,38 @@ local function onSeen(player: Player, bit: unknown)
 		reject("seenAlready")
 		return
 	end
-	write(player, "seen", function(data: PlayerData.Data)
+	local saved = write(player, "seen", function(data: PlayerData.Data)
 		local o = data.onb
-		if Onboarding.hasBit(o.seen, b) then
+		local unlocked = false
+		for _, item in OnbConfig.UNLOCKS do
+			if item.bit == b then
+				unlocked = Onboarding.unlocked(item.id, data.prog.matches)
+				break
+			end
+		end
+		if not unlocked or Onboarding.hasBit(o.seen, b) then
 			return false, "nothing"
 		end
 		o.seen = bit32.bor(o.seen, b)
 		return true
 	end)
+	if saved then
+		Telemetry.event(player, "Onboarding unlock viewed", 1, tostring(b))
+	end
+end
+
+local function onBackpackOpened(player: Player)
+	if backpackLogged[player] then
+		return
+	end
+	local cached = PlayerDataService.get(player)
+	if not cached or not cached.onb.caseGift or cached.onb.caseOpened then
+		reject("backpackNotDue")
+		return
+	end
+	backpackLogged[player] = true
+	Telemetry.onboarding(player, 14)
+	Telemetry.caseOnboarding(player, 2, "Backpack opened")
 end
 
 local function onRequest(player: Player, action: unknown, arg: unknown)
@@ -103,17 +136,35 @@ local function onRequest(player: Player, action: unknown, arg: unknown)
 		onFavAsked(player, arg)
 	elseif action == "seen" then
 		onSeen(player, arg)
+	elseif action == "backpackOpened" then
+		onBackpackOpened(player)
 	else
 		reject("badAction")
 	end
+end
+
+function OnboardingService.reset(player: Player)
+	backpackLogged[player] = nil
 end
 
 function OnboardingService.init() end
 
 function OnboardingService.start()
 	LobbyNet.event("OnboardingRequest").OnServerEvent:Connect(onRequest)
+	local function checkHub(player: Player)
+		local data = PlayerDataService.get(player)
+		if data and data.prog.matches >= 1 and PlayZone.get(player) == "Lobby" then
+			Telemetry.onboarding(player, 13)
+		end
+	end
+	PlayerDataService.changed:Connect(checkHub)
+	PlayZone.changed:Connect(checkHub)
+	for _, player in Players:GetPlayers() do
+		checkHub(player)
+	end
 	Players.PlayerRemoving:Connect(function(player)
 		limiter:forget(player)
+		backpackLogged[player] = nil
 	end)
 	while true do
 		task.wait(LOG_INTERVAL)

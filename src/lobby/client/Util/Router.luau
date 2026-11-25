@@ -76,8 +76,6 @@ local function getControls(): any
 end
 
 local function setWorldDimmed(on: boolean, clear: boolean?)
-	-- Chat and the player list step aside while a full-screen menu is open.
-	CoreUi.menuMode(on)
 	if on and clear then
 		blur.Enabled = false
 		grade.Enabled = false
@@ -99,10 +97,14 @@ local function setWorldDimmed(on: boolean, clear: boolean?)
 			end
 		end)
 	end
+end
+
+local function setMenuControls(on: boolean, keepMovement: boolean?)
+	CoreUi.menuMode(on, keepMovement)
 	local c = getControls()
 	if c then
 		pcall(function()
-			if on then
+			if on and not keepMovement then
 				c:Disable()
 			else
 				c:Enable()
@@ -173,11 +175,12 @@ function Router.setBlocked(fn: () -> boolean)
 	blocked = fn
 end
 
-function Router.open(name: string, arg: any?)
+function Router.open(name: string, arg: any?, keepMovement: boolean?)
 	local menu = menus[name]
 	if not menu or (blocked and blocked()) then
 		return
 	end
+	setMenuControls(true, keepMovement)
 	if current == name then
 		menu.open(arg) -- re-open with a new argument (e.g. a preselected mode)
 		return
@@ -217,6 +220,7 @@ function Router.close()
 	trap(menus[name], false)
 	GuiService.SelectedObject = nil
 	setWorldDimmed(false)
+	setMenuControls(false)
 	notify()
 end
 

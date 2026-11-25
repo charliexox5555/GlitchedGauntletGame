@@ -11,9 +11,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
+local BallisticGlass = require(ReplicatedStorage.Shared.Util.BallisticGlass)
 local Health = require(ReplicatedStorage.Shared.Health)
 local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 local BotTypes = require(script.Parent.Types)
+local Nav = require(script.Parent.Nav)
 local ModWalls = require(script.Parent.Parent.Services.ModWalls)
 
 type Bot = BotTypes.Bot
@@ -45,9 +47,10 @@ local function lineOfSight(
 ): boolean
 	local model = bot.model :: Model
 	exclude[1] = model
+	exclude[2] = workspace:FindFirstChild("GGBodyLimbs") :: any
 	params.FilterDescendantsInstances = exclude
 	local to = part.Position - eye
-	local result = workspace:Raycast(eye, to * 1.02, params)
+	local result = BallisticGlass.raycast(eye, to * 1.02, params)
 	return (result == nil or result.Instance:IsDescendantOf(enemy))
 		and not ModWalls.blocksSight(eye, part.Position, now)
 end
@@ -131,7 +134,7 @@ function Perception.update(bot: Bot, enemies: { Model }, now: number)
 		local enemy = enemies[(start + i) % count + 1]
 		local m = bot.memory[enemy]
 		local enemyRoot = partOf(enemy, "HumanoidRootPart")
-		if not enemyRoot then
+		if not enemyRoot or not Nav.insideArena(enemyRoot.Position) then
 			if m then
 				m.visible, m.visibleSince = false, nil
 			end
@@ -208,7 +211,11 @@ end
 -- A gunshot (or another loud thing) at `at` by `source`.
 function Perception.hear(bot: Bot, source: Model, at: Vector3, now: number)
 	local root = bot.root
-	if not root or (at - root.Position).Magnitude > bot.profile.perception.hearing then
+	if
+		not root
+		or not Nav.insideArena(at)
+		or (at - root.Position).Magnitude > bot.profile.perception.hearing
+	then
 		return
 	end
 	local m = memoryFor(bot, source, at)
@@ -217,8 +224,8 @@ function Perception.hear(bot: Bot, source: Model, at: Vector3, now: number)
 		return
 	end
 	local noise = rng:NextUnitVector() * Vector3.new(1, 0, 1) * BotsConfig.HEAR_ERROR
-	m.lastPos = at + noise
-	m.groundPos = m.lastPos
+	m.groundPos = Nav.ground(bot, at + noise) or Nav.ground(bot, at) or at
+	m.lastPos = if Nav.insideArena(at + noise) then at + noise else at
 	m.seenAt = now
 	m.heard = true
 end
@@ -244,6 +251,9 @@ end
 
 -- A teammate's Mod revealed `model` at `at`: the exact spot, as if seen.
 function Perception.reveal(bot: Bot, model: Model, at: Vector3, now: number)
+	if not Nav.insideArena(at) then
+		return
+	end
 	local m = memoryFor(bot, model, at)
 	if m.visible then
 		return

@@ -5,11 +5,13 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local AdminConfig = require(ReplicatedStorage.Shared.Config.Admin)
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
@@ -308,18 +310,23 @@ function AdminPanelController.start()
 	toggleBtn.Name = "AdminToggle"
 	local function placeToggle()
 		inMatch = inMatchNow()
+		local touchMatch = inMatch and (InputMode.touchCapable() or InputMode.touch())
 		toggleBtn.AnchorPoint = if inMatch then Vector2.new(0, 0) else Vector2.new(1, 1)
-		toggleBtn.Position = if inMatch then UDim2.fromOffset(14, 14) else UDim2.new(1, -18, 1, -18)
+		toggleBtn.Position = if touchMatch
+			then UDim2.fromOffset(10, 82)
+			elseif inMatch then UDim2.fromOffset(14, 14)
+			else UDim2.new(1, -18, 1, -18)
+		toggleBtn.Size = if touchMatch then UDim2.fromOffset(96, 26) else UDim2.fromOffset(126, 36)
+		toggleBtn.TextSize = if touchMatch then 10 else 13
 		toggleBtn.BackgroundTransparency = if inMatch then 0.25 else 0
 	end
-	toggleBtn.Size = UDim2.fromOffset(126, 36)
 	toggleBtn.BackgroundColor3 = C.surface
 	placeToggle()
 	localPlayer:GetAttributeChangedSignal("PlayZone"):Connect(placeToggle)
+	InputMode.changed:Connect(placeToggle)
 	toggleBtn.Text = "ADMIN [F8]"
 	toggleBtn.TextColor3 = C.gold
 	toggleBtn.FontFace = FONT_HEAVY
-	toggleBtn.TextSize = 13
 	toggleBtn.AutoButtonColor = false
 	corner(toggleBtn, 5)
 	stroke(toggleBtn, C.gold, 1.5, 0.15)
@@ -578,20 +585,28 @@ function AdminPanelController.start()
 		adminRequest:FireServer(action, selectedPlayer.UserId, payload or {})
 	end
 
-	adminEvent.OnClientEvent:Connect(function(data: LobbyNet.AdminEventPayload)
-		if typeof(data) == "table" then
-			showToast(data.ok == true, tostring(data.text or ""))
-		end
-	end)
-
 	-- Forward declarations for live refresh callbacks
 	local refreshAll: () -> ()
 	local refreshSkinsView: () -> ()
 	local refreshCasesView: () -> ()
 	local refreshRoster: () -> ()
 	local refreshBotsView: () -> () = function() end
+	local setOpen: (boolean) -> ()
 
-	local function setOpen(open: boolean)
+	adminEvent.OnClientEvent:Connect(function(data: LobbyNet.AdminEventPayload)
+		if typeof(data) == "table" then
+			showToast(data.ok == true, tostring(data.text or ""))
+			if
+				data.ok == true
+				and data.targetUserId == localPlayer.UserId
+				and (data.action == "startOnboarding" or data.action == "testFreeCase")
+			then
+				setOpen(false)
+			end
+		end
+	end)
+
+	setOpen = function(open: boolean)
 		isOpen = open
 		scrim.Visible = open
 		if open then
@@ -1226,7 +1241,7 @@ function AdminPanelController.start()
 
 		label({
 			parent = card,
-			text = string.upper(entry.gun),
+			text = string.upper(Weapons.nameOf(entry.gun)),
 			size = 12,
 			font = FONT_HEAVY,
 			color = C.text,
@@ -1591,6 +1606,112 @@ function AdminPanelController.start()
 	})
 	resetBtn.Position = UDim2.fromOffset(0, 62)
 
+	local onbCard = makeSectionCard(utilPage, "QUICK MATCH & ONBOARDING", C.mint, 4)
+	label({
+		parent = onbCard,
+		text = "Launch an instant in-lobby bot match (no save wipe) or test onboarding.",
+		size = 11,
+		color = C.sub,
+		pos = UDim2.fromOffset(0, 22),
+		truncate = true,
+	})
+	local quickRow = Instance.new("Frame")
+	quickRow.Position = UDim2.fromOffset(0, 44)
+	quickRow.Size = UDim2.new(1, 0, 0, 32)
+	quickRow.BackgroundTransparency = 1
+	quickRow.Parent = onbCard
+	local quickLayout = Instance.new("UIListLayout")
+	quickLayout.FillDirection = Enum.FillDirection.Horizontal
+	quickLayout.Padding = UDim.new(0, 6)
+	quickLayout.Parent = quickRow
+	for _, spec in
+		{
+			{ label = "1V1", mode = "1v1", bg = C.gold, fg = C.darkText, border = nil },
+			{ label = "2V2", mode = "2v2", bg = C.surface, fg = C.sky, border = C.sky },
+			{ label = "3V3", mode = "3v3", bg = C.surface, fg = C.sky, border = C.sky },
+			{ label = "BEGINNER", mode = "beginner", bg = C.surface, fg = C.mint, border = C.mint },
+		}
+	do
+		button({
+			parent = quickRow,
+			text = spec.label,
+			bg = spec.bg,
+			fg = spec.fg,
+			border = spec.border,
+			size = UDim2.new(0.25, -4.5, 1, 0),
+			textSize = 11,
+			font = FONT_HEAVY,
+			onClick = function()
+				send("quickLocalMatch", { mode = spec.mode })
+				if selectedPlayer == localPlayer then
+					setOpen(false)
+				end
+			end,
+		})
+	end
+	local onbRow = Instance.new("Frame")
+	onbRow.Position = UDim2.fromOffset(0, 82)
+	onbRow.Size = UDim2.new(1, 0, 0, 32)
+	onbRow.BackgroundTransparency = 1
+	onbRow.Parent = onbCard
+	local onbLayout = Instance.new("UIListLayout")
+	onbLayout.FillDirection = Enum.FillDirection.Horizontal
+	onbLayout.Padding = UDim.new(0, 8)
+	onbLayout.Parent = onbRow
+	button({
+		parent = onbRow,
+		text = "START FULL ONBOARDING",
+		bg = C.mint,
+		fg = C.darkText,
+		size = UDim2.new(0.5, -4, 1, 0),
+		textSize = 11,
+		font = FONT_HEAVY,
+		onClick = function()
+			send("startOnboarding")
+		end,
+	})
+	button({
+		parent = onbRow,
+		text = "JUMP TO FREE CASE",
+		bg = C.surface,
+		fg = C.gold,
+		border = C.gold,
+		size = UDim2.new(0.5, -4, 1, 0),
+		textSize = 11,
+		font = FONT_HEAVY,
+		onClick = function()
+			send("testFreeCase")
+		end,
+	})
+	if RunService:IsStudio() then
+		local quickBtn = button({
+			parent = onbCard,
+			text = "1-ROUND MATCH: OFF",
+			bg = C.surface,
+			fg = C.sub,
+			border = C.strokeBright,
+			size = UDim2.new(1, 0, 0, 28),
+			textSize = 11,
+			font = FONT_HEAVY,
+			onClick = function()
+				local on = workspace:GetAttribute("QuickMatch") == true
+				adminRequest:FireServer("toggleQuickMatch", localPlayer.UserId, { flag = not on })
+			end,
+		})
+		quickBtn.Position = UDim2.fromOffset(0, 120)
+		local quickStroke = quickBtn:FindFirstChildOfClass("UIStroke")
+		local function syncQuickMatch()
+			local on = workspace:GetAttribute("QuickMatch") == true
+			quickBtn.Text = if on then "1-ROUND MATCH: ON" else "1-ROUND MATCH: OFF"
+			quickBtn.TextColor3 = if on then C.mint else C.sub
+			if quickStroke then
+				quickStroke.Color = if on then C.mint else C.strokeBright
+			end
+		end
+		workspace:GetAttributeChangedSignal("QuickMatch"):Connect(syncQuickMatch)
+		syncQuickMatch()
+	end
+
 	-- =========================================================================
 	-- LIVE REFRESH LOGIC
 	-- =========================================================================
@@ -1645,6 +1766,7 @@ function AdminPanelController.start()
 			local matchLine = selectedLine == nil or e.line == selectedLine
 			local matchOwned = not ownedOnly or owns
 			local matchSearch = skinSearch == ""
+				or string.find(string.lower(Weapons.nameOf(e.gun)), skinSearch, 1, true) ~= nil
 				or string.find(string.lower(e.gun), skinSearch, 1, true) ~= nil
 				or string.find(string.lower(e.line), skinSearch, 1, true) ~= nil
 			ref.btn.Visible = matchLine and matchOwned and matchSearch

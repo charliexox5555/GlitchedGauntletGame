@@ -684,7 +684,7 @@ do -- TopRight: the player list
 		head,
 		"Count",
 		"1 HERE",
-		11,
+		13,
 		MUTED,
 		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 156, 0.5, 0) }
 	)
@@ -693,7 +693,7 @@ do -- TopRight: the player list
 		head,
 		"ColStreak",
 		"STREAK",
-		9,
+		12,
 		MUTED,
 		{ AnchorPoint = CENTRE, Position = UDim2.new(1, -90, 0.5, 0) }
 	)
@@ -701,7 +701,7 @@ do -- TopRight: the player list
 		head,
 		"ColLevel",
 		"LV",
-		9,
+		12,
 		MUTED,
 		{ AnchorPoint = CENTRE, Position = UDim2.new(1, -36, 0.5, 0) }
 	)
@@ -711,7 +711,7 @@ do -- TopRight: the player list
 		Size = UDim2.fromOffset(10, 2),
 		BackgroundTransparency = 1,
 	}, list)
-	text(list, "More", "+0 MORE", 11, MUTED, { LayoutOrder = 999, Visible = false })
+	text(list, "More", "+0 MORE", 13, MUTED, { LayoutOrder = 999, Visible = false })
 end
 
 do -- Bottom: bar, PLAY, party, callout

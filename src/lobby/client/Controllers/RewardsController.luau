@@ -2,7 +2,7 @@
 -- The Rewards screen (vault/02 Art/UI Lobby Overhaul.md → Missing screens),
 -- a stub like RIVALS' Rewards page: Studio-built StarterGui.Rewards +
 -- UiTemplates.Lobby.RewardRow (tools/studio/BuildProfileRewards.luau), rows
--- from Lobby/RewardsCatalog, opened by the top bar's gift button.
+-- from Lobby/RewardsCatalog.
 -- What works today is Roblox's own prompts (favourite, game invite,
 -- notifications opt-in); the coins wait for the economy and the screen says
 -- so. No remotes: nothing is granted here.
@@ -16,10 +16,8 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local SocialService = game:GetService("SocialService")
 
 local RewardsCatalog = require(ReplicatedStorage.Lobby.RewardsCatalog)
-local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local Plates = require(script.Parent.Parent.Util.Plates)
-local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
 
 local RewardsController = {}
@@ -121,17 +119,6 @@ function RewardsController.init()
 			return first
 		end,
 	})
-	-- the top bar's gift button opens it
-	local topbar = player.PlayerGui:WaitForChild("LobbyTopbar", 15)
-	local bar = topbar and topbar:FindFirstChild("Bar")
-	local gift = bar and bar:FindFirstChild("Rewards")
-	local face = gift and gift:FindFirstChild("Face")
-	local pop = face and face:FindFirstChild("Pop")
-	if gift and gift:IsA("GuiButton") and pop and pop:IsA("UIScale") then
-		UiMotion.button(gift, pop, function()
-			Router.toggle("Rewards")
-		end)
-	end
 end
 
 return RewardsController

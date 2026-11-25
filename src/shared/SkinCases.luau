@@ -19,7 +19,7 @@ local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 export type Pair = { gun: string, line: string, tier: Skins.TierId, section: Skins.SectionId }
-export type Entry = Pair & { odds: number } -- odds in % before re-rolls
+export type Entry = Pair & { odds: number } -- percentage for the next opening
 
 local SkinCases = {}
 
@@ -101,9 +101,12 @@ end
 -- Split a section's pairs by tier, then by line (lines sorted, so a seed always rolls
 -- the same).
 type Lines = { names: { string }, byLine: { [string]: { Pair } } }
-local function byTier(list: { Pair }): { [Skins.TierId]: Lines }
+local function availableTiers(list: { Pair }, owned: PlayerData.Skins): { [Skins.TierId]: Lines }
 	local out: { [Skins.TierId]: Lines } = {}
 	for _, p in list do
+		if PlayerData.owns(owned, p.gun, p.line) then
+			continue
+		end
 		local l = out[p.tier]
 		if not l then
 			l = { names = {}, byLine = {} }
@@ -123,42 +126,47 @@ local function byTier(list: { Pair }): { [Skins.TierId]: Lines }
 	return out
 end
 
--- Every skin with its odds in % (sections, then tiers, with nothing in them drop out
--- and the rest scale), sections in order, then tier (highest first), line and gun.
-function SkinCases.contents(caseId: string): { Entry }
+-- Keep owned rows in the list at 0%. The available skins split their line's odds
+-- evenly, and empty lines, tiers and sections drop out of the roll.
+function SkinCases.contents(caseId: string, owned: PlayerData.Skins?): { Entry }
 	local def = Skins.CASES[caseId]
+	if not def then
+		return {}
+	end
 	local pool = SkinCases.pool(caseId)
+	local available: { [Skins.SectionId]: { [Skins.TierId]: Lines } } = {}
 	local total = 0
+	local skins = owned or {}
 	for id, list in pool do
-		if #list > 0 then
+		local tiers = availableTiers(list, skins)
+		available[id] = tiers
+		if next(tiers) then
 			total += def.sections[id] or 0
 		end
 	end
 	local out: { Entry } = {}
-	for _, id in sectionOrder() do
-		local list = pool[id]
-		if list and #list > 0 then
-			local share = (def.sections[id] or 0) / total * 100
-			local tiers = byTier(list)
-			local tierTotal = 0
-			for tier in tiers do
-				tierTotal += def.tiers[tier] or 0
+	for id, list in pool do
+		local tiers = available[id]
+		local share = if total > 0 then (def.sections[id] or 0) / total * 100 else 0
+		local tierTotal = 0
+		for tier in tiers do
+			tierTotal += def.tiers[tier] or 0
+		end
+		for _, p in list do
+			local odds = 0
+			local lines = tiers[p.tier]
+			local guns = lines and lines.byLine[p.line]
+			if lines and guns and not PlayerData.owns(skins, p.gun, p.line) then
+				local tierShare = share * (def.tiers[p.tier] or 0) / tierTotal
+				odds = tierShare / #lines.names / #guns
 			end
-			for tier, l in tiers do
-				local tierShare = share * (def.tiers[tier] or 0) / tierTotal
-				for _, line in l.names do
-					local guns = l.byLine[line]
-					for _, p in guns do
-						table.insert(out, {
-							gun = p.gun,
-							line = p.line,
-							tier = p.tier,
-							section = p.section,
-							odds = tierShare / #l.names / #guns,
-						})
-					end
-				end
-			end
+			table.insert(out, {
+				gun = p.gun,
+				line = p.line,
+				tier = p.tier,
+				section = p.section,
+				odds = odds,
+			})
 		end
 	end
 	table.sort(out, function(a, b)
@@ -185,12 +193,12 @@ export type Section = { id: Skins.SectionId, name: string, odds: number, tiers: 
 -- The CONTENTS: each section with its chance, inside it each tier with its chance
 -- (highest first), inside that one group per skin line (the line's combined odds,
 -- its skins with their own). Knives are one skin per line, so each is its own group.
-function SkinCases.sections(caseId: string): { Section }
+function SkinCases.sections(caseId: string, owned: PlayerData.Skins?): { Section }
 	local out: { Section } = {}
 	local bySection: { [string]: Section } = {}
 	local byTierKey: { [string]: TierBlock } = {}
 	local byGroup: { [string]: Group } = {}
-	for _, e in SkinCases.contents(caseId) do
+	for _, e in SkinCases.contents(caseId, owned) do
 		local sec = bySection[e.section]
 		if not sec then
 			sec = { id = e.section, name = Skins.SECTIONS[e.section].name, odds = 0, tiers = {} }
@@ -256,14 +264,9 @@ function SkinCases.roll(caseId: string, owned: PlayerData.Skins, rng: Random): P
 	local sectionW: { [Skins.SectionId]: number } = {}
 	local sections = sectionOrder()
 	for _, id in sections do
-		local list: { Pair } = {}
-		for _, p in (pool[id] or {}) do
-			if not PlayerData.owns(owned, p.gun, p.line) then
-				table.insert(list, p)
-			end
-		end
-		if #list > 0 then
-			open[id] = byTier(list)
+		local tiers = availableTiers(pool[id] or {}, owned)
+		if next(tiers) then
+			open[id] = tiers
 			sectionW[id] = def.sections[id] or 0
 		end
 	end
@@ -287,7 +290,7 @@ end
 
 -- "PRISM VANDAL" ("BAT" for the PopCircuit knife, like the Locker).
 function SkinCases.name(gunId: string, line: string): string
-	local gun = if gunId == "Knife" and line == "PopCircuit" then "BAT" else string.upper(gunId)
+	local gun = if gunId == "Knife" and line == "PopCircuit" then "BAT" else string.upper(Weapons.nameOf(gunId))
 	return string.upper(line) .. " " .. gun
 end
 

@@ -334,7 +334,7 @@ make("ImageLabel", {
 	Visible = false,
 	ZIndex = 22,
 }, reveal)
-text(reveal, "Name", "PRISM VANDAL", 52, WHITE, {
+text(reveal, "Name", "PRISM HAVOC", 52, WHITE, {
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.new(0.5, 0, 0, 392),
 	Size = UDim2.fromOffset(700, 60),

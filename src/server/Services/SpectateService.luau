@@ -45,7 +45,9 @@ end
 -- or one of our bots' models.
 local function bodyOf(target: Instance): Model?
 	if target:IsA("Player") then
-		return if target.Parent == PlayersService then target.Character else nil
+		return if Context.has(target) and target.Parent == PlayersService
+			then target.Character
+			else nil
 	end
 	if target:IsA("Model") then
 		for _, key in BotService.keys() do

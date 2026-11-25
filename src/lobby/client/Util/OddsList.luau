@@ -2,13 +2,14 @@
 -- Fills a case's CONTENTS list like RIVALS' odds list (owner 2026-11-20): each SECTION
 -- (gun skins, knife skins) with its chance; inside it, one row per skin line with the
 -- line's hero picture (its Vandal) and combined odds, opening to that line's skins with
--- their own odds (every item in a section has the same chance); knives are one row
+-- their own odds; knives are one row
 -- each. Pictures are rendered portraits (Shared/SkinArt) that spill over their tier-
--- coloured square; click a picture for a short card about the skin. Odds are before
--- owned skins drop out. Rows clone UiTemplates.Lobby.ShopOddsRow. Used by the Shop,
+-- coloured square; click a picture for a short card about the skin. Owned skins
+-- display 0%. Rows clone UiTemplates.Lobby.ShopOddsRow. Used by the Shop,
 -- the Backpack and the Season Pass.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local TweenService = game:GetService("TweenService")
 
@@ -17,8 +18,13 @@ local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
+
+local Weapons = require(game:GetService("ReplicatedStorage").Shared.Config.Weapons)
 
 local OddsList = {}
+local subscriptions: { [ScrollingFrame]: () -> () } = {}
 
 local INDENT = 46 -- px a line's skins sit in from its row
 local ARROW_W = 26
@@ -40,7 +46,7 @@ local function shiftX(obj: GuiObject, dx: number)
 end
 
 local function gunWord(gun: string, line: string): string
-	return if gun == "Knife" and line == "PopCircuit" then "BAT" else string.upper(gun)
+	return if gun == "Knife" and line == "PopCircuit" then "BAT" else string.upper(Weapons.nameOf(gun))
 end
 
 -- the picture spills over its tier-coloured square, like RIVALS' tiles; with no
@@ -223,7 +229,11 @@ local function infoCard(panel: GuiObject, font: Font): Show
 	end
 end
 
-function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
+local function render(
+	list: ScrollingFrame,
+	sections: { SkinCases.Section },
+	expanded: { [string]: boolean }
+)
 	for _, c in list:GetChildren() do
 		if c:IsA("Frame") then
 			c:Destroy()
@@ -246,7 +256,7 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 		return r
 	end
 
-	for _, sec in SkinCases.sections(case.id) do
+	for _, sec in sections do
 		-- the section: its name and chance
 		local head = row()
 		head.Name = "Section_" .. sec.id
@@ -258,7 +268,9 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 		hn.TextSize = 26
 		shiftX(hn, -66)
 		local hs = child(head, "Sub") :: TextLabel
-		hs.Text = if sec.id == "Knives"
+		hs.Text = if sec.odds == 0
+			then "ALL OWNED"
+			elseif sec.id == "Knives"
 			then "A TIER IS ROLLED FIRST, THEN A KNIFE IN IT"
 			else "A TIER IS ROLLED FIRST, THEN A SKIN LINE IN IT"
 		shiftX(hs, -66);
@@ -278,10 +290,18 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 			tn.TextSize = 22
 			shiftX(tn, -66)
 			local ts = child(th, "Sub") :: TextLabel
+			local eligible = 0
+			for _, group in tb.groups do
+				if group.odds > 0 then
+					eligible += 1
+				end
+			end
 			local noun = if sec.id == "Knives"
-				then (if #tb.groups == 1 then "KNIFE" else "KNIVES")
-				else (if #tb.groups == 1 then "SKIN LINE" else "SKIN LINES")
-			ts.Text = string.format("%d %s  ·  EACH THE SAME CHANCE", #tb.groups, noun)
+				then (if eligible == 1 then "KNIFE" else "KNIVES")
+				else (if eligible == 1 then "SKIN LINE" else "SKIN LINES")
+			ts.Text = if eligible == 0
+				then "ALL OWNED"
+				else string.format("%d %s AVAILABLE", eligible, noun)
 			shiftX(ts, -66)
 			local tp = child(th, "Pct") :: TextLabel
 			tp.Text = ShopCatalog.formatOdds(tb.odds)
@@ -295,8 +315,12 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 				local single = #g.entries == 1
 				local first = g.entries[1]
 				local guns: { string } = {}
+				local available = 0
 				for _, e in g.entries do
 					table.insert(guns, e.gun)
+					if e.odds > 0 then
+						available += 1
+					end
 				end
 				local r = row()
 				r.Name = "Line_" .. g.line .. "_" .. g.tier .. "_" .. sec.id
@@ -315,14 +339,14 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 				name.Text = if single
 					then SkinCases.name(first.gun, first.line)
 					else string.upper(g.line)
-				name.TextColor3 = tier.color;
-				(child(r, "Sub") :: TextLabel).Text = if single
+				name.TextColor3 = tier.color
+				local availability = if available == 0
+					then (if single then "OWNED" else "ALL OWNED")
+					else string.format("%s SKIN  ·  %d AVAILABLE", tier.name, available)
+				local sub = child(r, "Sub") :: TextLabel
+				sub.Text = if single and available > 0
 					then string.format("%s SKIN FOR %s", tier.name, gunWord(first.gun, first.line))
-					else string.format(
-						"%s SKIN FOR A RANDOM GUN  ·  %d GUNS",
-						tier.name,
-						#g.entries
-					);
+					else availability;
 				(child(r, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(g.odds)
 				hit.Activated:Connect(function()
 					if single then
@@ -331,11 +355,7 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 							image,
 							tier.color,
 							SkinCases.name(first.gun, first.line),
-							string.format(
-								"%s SKIN  ·  GIVEN TO THE %s",
-								tier.name,
-								gunWord(first.gun, first.line)
-							),
+							sub.Text,
 							kind
 						)
 					else
@@ -344,11 +364,7 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 							image,
 							tier.color,
 							string.upper(g.line),
-							string.format(
-								"%s SKIN  ·  GIVEN TO A RANDOM GUN (%d)",
-								tier.name,
-								#g.entries
-							),
+							availability,
 							kind
 						)
 					end
@@ -359,6 +375,8 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 				end
 
 				-- the line's skins, hidden until it's opened
+				local key = r.Name
+				local open = expanded[key] == true
 				local arrow = Instance.new("TextLabel")
 				arrow.Name = "Arrow"
 				arrow.BackgroundTransparency = 1
@@ -368,7 +386,7 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 				arrow.FontFace = name.FontFace
 				arrow.TextSize = 18
 				arrow.TextColor3 = MUTED
-				arrow.Text = "▶"
+				arrow.Text = if open then "▼" else "▶"
 				arrow.ZIndex = name.ZIndex
 				arrow.Parent = r
 				local toggle = Instance.new("TextButton")
@@ -385,15 +403,17 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 					local c = row()
 					c.Name = "Skin_" .. e.gun .. "_" .. e.line
 					c.Size = c.Size - UDim2.fromOffset(INDENT, 0)
-					c.Visible = false;
+					c.Visible = open;
 					(child(c, "Cell") :: Frame).BackgroundColor3 = tier.color
 					local pic = SkinArt.portrait(e.gun, e.line)
 					local chit = picture(c, pic, e.line)
 					local cn = child(c, "Name") :: TextLabel
 					cn.Text = SkinCases.name(e.gun, e.line)
-					cn.TextColor3 = tier.color;
-					(child(c, "Sub") :: TextLabel).Text =
-						string.format("%s SKIN FOR %s", tier.name, gunWord(e.gun, e.line));
+					cn.TextColor3 = tier.color
+					local skinSub = child(c, "Sub") :: TextLabel
+					skinSub.Text = if e.odds == 0
+						then "OWNED"
+						else string.format("%s SKIN FOR %s", tier.name, gunWord(e.gun, e.line));
 					(child(c, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(e.odds)
 					chit.Activated:Connect(function()
 						showInfo(
@@ -401,20 +421,16 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 							pic,
 							tier.color,
 							SkinCases.name(e.gun, e.line),
-							string.format(
-								"%s SKIN  ·  GIVEN TO THE %s",
-								tier.name,
-								gunWord(e.gun, e.line)
-							),
+							skinSub.Text,
 							kind
 						)
 					end)
 					c.Parent = list
 					table.insert(rows, c)
 				end
-				local open = false
 				toggle.Activated:Connect(function()
 					open = not open
+					expanded[key] = open
 					arrow.Text = if open then "▼" else "▶"
 					for _, c in rows do
 						c.Visible = open
@@ -423,7 +439,73 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case)
 			end
 		end
 	end
+end
+
+function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextLabel)
+	local cleanup = subscriptions[list]
+	if cleanup then
+		cleanup()
+	end
+	local player = Players.LocalPlayer
+	local panel = list.Parent
+	local expanded: { [string]: boolean } = {}
+	local function refresh()
+		if not PlayerData.ready(player) then
+			note.Text = "Loading your case odds…"
+			render(list, {}, expanded)
+			return
+		end
+		local sections = SkinCases.sections(case.id, PlayerData.skins(player))
+		local hasReward = false
+		for _, section in sections do
+			if section.odds > 0 then
+				hasReward = true
+				break
+			end
+		end
+		note.Text = if hasReward
+			then ShopCatalog.ODDS_NOTE
+			else "No skins left to unlock in this case. Held cases return Tickets up to your wallet limit."
+		local position = list.CanvasPosition
+		render(list, sections, expanded)
+		list.CanvasPosition = position
+	end
+	local function refreshIfVisible()
+		if panel and panel:IsA("GuiObject") and panel.Visible then
+			refresh()
+		end
+	end
+	local changed: RBXScriptConnection?
+	local function watch(replica: Instance?)
+		if replica and replica.Name == PlayerData.SKINS and replica:IsA("StringValue") then
+			if changed then
+				changed:Disconnect()
+			end
+			changed = replica:GetPropertyChangedSignal("Value"):Connect(refreshIfVisible)
+		end
+	end
+	watch(player:FindFirstChild(PlayerData.SKINS))
+	local added = player.ChildAdded:Connect(function(replica)
+		if replica.Name == PlayerData.SKINS then
+			watch(replica)
+			refreshIfVisible()
+		end
+	end)
+	local readiness = StateValues.changed(player, "DataReady"):Connect(refreshIfVisible)
+	local destroying: RBXScriptConnection
+	local function disconnect()
+		if changed then
+			changed:Disconnect()
+		end
+		added:Disconnect()
+		readiness:Disconnect()
+		destroying:Disconnect()
+		subscriptions[list] = nil
+	end
+	destroying = list.Destroying:Connect(disconnect)
+	subscriptions[list] = disconnect
 	list.CanvasPosition = Vector2.zero
+	refresh()
 end
 
 return OddsList

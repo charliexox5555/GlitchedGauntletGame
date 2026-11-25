@@ -24,10 +24,11 @@
 --   check fails) the case can't be bought; the server will enforce the same.
 -- Every device; Shared/UiLayout sizes it (the Fit scales on Canvas, PopupCanvas, Top).
 
-local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
@@ -40,6 +41,7 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
+local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
@@ -102,6 +104,8 @@ local itemCard: Frame
 local coinsGui: ScreenGui
 local coinsTop: Frame
 local coinsAmount: TextLabel
+local ticketsBar: Frame? = nil
+local ticketsAmount: TextLabel? = nil
 local templates: Folder
 local dailyNote: TextLabel?
 local preview: Frame
@@ -116,6 +120,7 @@ local counterShown = false -- starts off-screen (y -80); placeCounter brings it 
 local openCase: ShopCatalog.Case? = nil
 local resetClose: () -> () = function() end
 local openToken = 0
+local displayZone: BasePart? = nil
 local offerCarousel: { start: () -> (), stop: () -> (), refresh: () -> () }?
 local function updateOffers()
 	local carousel = offerCarousel
@@ -129,6 +134,14 @@ local function updateOffers()
 end
 
 local tween = UiMotion.tween
+local scrollTween: Tween? = nil
+
+local function cancelScrollTween()
+	if scrollTween then
+		scrollTween:Cancel()
+		scrollTween = nil
+	end
+end
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
@@ -189,6 +202,22 @@ local function hudCounter(): boolean
 end
 local function placeCounter()
 	coinsAmount.Text = commas(coins())
+	if ticketsAmount then
+		ticketsAmount.Text = commas(PlayerData.tickets(player))
+	end
+	if ticketsBar then
+		-- Tickets appear beside Coins in the top bar only while Shop is open.
+		-- Pivot.fix wraps TicketsBar inside a PivotHolder Frame when Top uses a UIListLayout,
+		-- so toggle both the wrapper (which controls layout space) and the bar itself.
+		local holder = if ticketsBar.Parent
+				and StateValues.get(ticketsBar.Parent, "PivotHolder") == true
+			then ticketsBar.Parent :: GuiObject
+			else nil
+		if holder then
+			holder.Visible = isOpen
+		end
+		ticketsBar.Visible = isOpen
+	end
 	local on = hudCounter()
 	coinsGui.Enabled = on
 	if on and not isOpen then
@@ -284,7 +313,7 @@ end
 
 local function itemSub(item: ShopCatalog.Item): string
 	if item.kind == "Skin" then
-		return string.format("SKIN  ·  GIVEN TO %s", string.upper(item.gun or ""))
+		return string.format("SKIN  ·  GIVEN TO %s", string.upper(Weapons.nameOf(item.gun or "")))
 	elseif item.kind == "Mod" then
 		return "EXCLUSIVE MOD  ·  JOINS YOUR DRAFT POOL"
 	elseif item.kind == "Coins" then
@@ -484,9 +513,12 @@ local function showPanel(panel: Frame?)
 end
 
 local function fillOdds(case: ShopCatalog.Case)
-	(child(oddsPanel, "Sub") :: TextLabel).Text = case.name;
-	(child(oddsPanel, "Note") :: TextLabel).Text = ShopCatalog.ODDS_NOTE
-	OddsList.fill(child(oddsPanel, "List") :: ScrollingFrame, case)
+	(child(oddsPanel, "Sub") :: TextLabel).Text = case.name
+	OddsList.fill(
+		child(oddsPanel, "List") :: ScrollingFrame,
+		case,
+		child(oddsPanel, "Note") :: TextLabel
+	)
 end
 
 local function ticketWords(n: number): string
@@ -569,18 +601,28 @@ end
 local DENY_RED = Color3.fromHex("FF4D5E")
 local lastBuyButton: GuiObject? = nil
 local countColor: Color3? = nil
-local function denied(button: GuiObject?, short: boolean)
+local ticketsCountColor: Color3? = nil
+local function flashCounterRed(label: TextLabel?, savedColor: Color3?): Color3?
+	if not label then
+		return savedColor
+	end
+	local back = savedColor or label.TextColor3
+	label.TextColor3 = DENY_RED
+	task.delay(0.35, function() -- hold the red a beat, then ease back
+		tween(label, 0.4, { TextColor3 = back }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	end)
+	return back
+end
+local function denied(button: GuiObject?, short: boolean, ticketShort: boolean?)
 	UiSfx.cue("PurchaseDenied")
 	if button then
 		UiMotion.nudge(button, UiMotion.home(button)) -- the shared shake (skips with reduced motion)
 	end
-	if short and coinsAmount then
-		countColor = countColor or coinsAmount.TextColor3
-		local label, back = coinsAmount, countColor
-		label.TextColor3 = DENY_RED
-		task.delay(0.35, function() -- hold the red a beat, then ease back
-			tween(label, 0.4, { TextColor3 = back }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-		end)
+	if short then
+		countColor = flashCounterRed(coinsAmount, countColor)
+	end
+	if ticketShort then
+		ticketsCountColor = flashCounterRed(ticketsAmount, ticketsCountColor)
 	end
 end
 
@@ -605,12 +647,13 @@ local function buyCase(how: string, button: GuiObject?)
 		return
 	end
 	if PlayerData.tickets(player) < (Economy.CASE_TICKETS[case.id] or math.huge) then
-		denied(button, false)
+		denied(button, false, true)
 		LobbyHud.toast("Not enough Tickets: claim daily rewards to earn more", "error")
 		return
 	end
 	lastBuyButton = button
 	buying = true
+	UiSfx.cue("Confirm")
 	LobbyNet.event("ShopRequest"):FireServer("buyCase", case.id)
 	task.delay(8, function() -- no answer: let them try again
 		buying = false
@@ -686,7 +729,12 @@ local function forWords(item: ShopCatalog.Item): string
 	return kindWord(item)
 end
 
+local ContentProvider = game:GetService("ContentProvider")
 local previewIndex = 1
+local previewsWarm: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local warmingPreview: Model? = nil
+local pendingArt: ImageLabel? = nil
+
 local function selectPreview(index: number)
 	previewIndex = index
 	local bundle = previewBundle
@@ -716,13 +764,78 @@ local function selectPreview(index: number)
 	local bigCard = child(stageBox, "Card") :: Frame
 	local hint = child(preview, "Hint") :: GuiObject
 	local model: Model? = nil
+	local skinLine: string? = nil
 	if item.kind == "Skin" and item.gun then
-		model = (if line then Locker.skinModel(item.gun, line) else nil)
-			or Locker.gunModel(item.gun)
+		model = if line then Locker.skinModel(item.gun, line) else nil
+		if model then
+			skinLine = line
+		elseif not line or not Locker.hasSkin(item.gun, line) then
+			model = Locker.gunModel(item.gun)
+		end
+	end
+	local art = if item.gun and line
+		then SkinArt.side(item.gun, line) or SkinArt.portrait(item.gun, line)
+		else nil
+	if art and item.kind == "Skin" and (not model or (skinLine and not previewsWarm[model])) then
+		if not pendingArt then
+			local image = Instance.new("ImageLabel")
+			image.Name = "PreviewArt"
+			image.AnchorPoint = Vector2.new(0.5, 0.5)
+			image.Position = UDim2.fromScale(0.5, 0.5)
+			image.Size = UDim2.fromScale(0.82, 0.82)
+			image.BackgroundTransparency = 1
+			image.ScaleType = Enum.ScaleType.Fit
+			image.ZIndex = stageBox.ZIndex + 2
+			image.Parent = stageBox
+			pendingArt = image
+		end
+		pendingArt.Image = art
+		pendingArt.Visible = true
+		if model and not warmingPreview then
+			local source = model
+			warmingPreview = source
+			task.defer(function()
+				local parts: { Instance } = {}
+				local seen: { [string]: boolean } = {}
+				for _, part in source:GetDescendants() do
+					if
+						part:IsA("MeshPart")
+						and part.Transparency < 0.9
+						and not seen[part.MeshId]
+					then
+						seen[part.MeshId] = true
+						table.insert(parts, part)
+						if #parts >= 18 then
+							break
+						end
+					end
+				end
+				local function ready()
+					previewsWarm[source] = true
+					if previewBundle then
+						selectPreview(previewIndex)
+					end
+				end
+				-- The visible art bridges the first load. A slow fetch may finish after the swap.
+				task.delay(0.85, function()
+					if not previewsWarm[source] and warmingPreview == source then
+						ready()
+					end
+				end)
+				pcall(ContentProvider.PreloadAsync, ContentProvider, parts)
+				warmingPreview = nil
+				if not previewsWarm[source] or (pendingArt and pendingArt.Visible) then
+					ready()
+				end
+			end)
+		end
+		model = nil
+	elseif pendingArt then
+		pendingArt.Visible = false
 	end
 	if model then
 		local cfg = item.gun and Weapons.get(item.gun)
-		stage:show(model, cfg ~= nil and cfg.class == "Melee")
+		stage:show(model, cfg ~= nil and cfg.class == "Melee", skinLine)
 		bigCard.Visible = false
 		hint.Visible = true
 	else
@@ -732,7 +845,7 @@ local function selectPreview(index: number)
 		(child(bigCard, "Name") :: TextLabel).Text = if item.kind == "Coins"
 			then "x" .. commas(item.amount or 0)
 			else item.name
-		bigCard.Visible = true
+		bigCard.Visible = not (pendingArt and pendingArt.Visible)
 		local sc = pop(bigCard)
 		if sc then
 			sc.Scale = 0.85
@@ -769,28 +882,72 @@ end
 -- top bar buttons more centered and smaller so the gun viewport can be larger"): Studio's
 -- Tabs.TabsScale UIScale, the Tabs list centred, the scroll's top padding smaller.
 local PAGE_TABS_SCALE = 0.68
+local PHONE_PAGE_TABS_SCALE = 0.56
 local PAGE_TOP_PAD = 64 -- the scroll's top padding on a bundle page (150 on the shop)
+local PHONE_PAGE_TOP_PAD = 12
 local SHOP_TOP_PAD = 150
 local PREVIEW_H = 790 -- the preview's laid-out height (tools/studio/ShopUiPass.luau)
-local function relayout()
-	if not (fit and canvas and scroll and (preview :: Frame?)) then
-		return -- still starting up
+local PHONE_PREVIEW_H = 648
+local PREVIEW_CHILDREN = { "Head", "For", "StageBox", "Hint", "Actions", "Strip" }
+local PHONE_PREVIEW_LAYOUT: { [string]: { pos: UDim2, size: UDim2? } } = {
+	Head = { pos = UDim2.new(0.5, 0, 0, 0), size = UDim2.fromOffset(0, 52) },
+	For = { pos = UDim2.new(0.5, 0, 0, 52), size = UDim2.fromOffset(0, 26) },
+	StageBox = { pos = UDim2.new(0.5, 0, 0, 242), size = UDim2.new(0.94, 0, 0, 320) },
+	Hint = { pos = UDim2.new(0.5, 0, 0, 402), size = UDim2.fromOffset(0, 16) },
+	Actions = { pos = UDim2.new(0.5, 0, 0, 418), size = UDim2.fromOffset(0, 104) },
+	Strip = { pos = UDim2.new(0.5, 0, 0, 524), size = UDim2.fromOffset(0, 124) },
+}
+local previewDefaults: { [string]: { pos: UDim2, size: UDim2 } } = {}
+
+local function layoutPreviewForDevice(): boolean
+	local phone = UiLayout.family() == "Phone"
+	if not (preview :: Frame?) then
+		return phone
 	end
-	local f = math.max(fit.Scale, 0.01)
-	local h = canvas.AbsoluteSize.Y / f
-	-- the page starts just under wherever the tab bar ends now
-	local tabs = scroll:FindFirstChild("Tabs")
-	local top = if tabs and tabs:IsA("GuiObject")
-		then (tabs.AbsolutePosition.Y + tabs.AbsoluteSize.Y - canvas.AbsolutePosition.Y) / f + 10
-		else 258
-	local kp = math.clamp((h - top - 8) / PREVIEW_H, 0.5, 1.45)
-	local previewScale = preview:FindFirstChild("PreviewScale")
-	if previewScale and previewScale:IsA("UIScale") then
-		previewScale.Scale = kp
-		preview.Size = UDim2.new(1 / kp, 0, 0, PREVIEW_H)
-		-- the pop setup may centre its anchor: place its top edge under the tabs either way
-		preview.Position = UDim2.new(0.5, 0, 0, top + PREVIEW_H * kp * preview.AnchorPoint.Y)
+	for _, name in PREVIEW_CHILDREN do
+		local o = preview:FindFirstChild(name)
+		if o and o:IsA("GuiObject") then
+			if not previewDefaults[name] then
+				previewDefaults[name] = { pos = o.Position, size = o.Size }
+			end
+			if phone then
+				local spec = PHONE_PREVIEW_LAYOUT[name]
+				o.Position = spec.pos
+				if spec.size then
+					o.Size = spec.size
+				end
+				StateValues.set(o, "Home", spec.pos)
+			else
+				local def = previewDefaults[name]
+				o.Position = def.pos
+				o.Size = def.size
+				StateValues.set(o, "Home", def.pos)
+			end
+		end
 	end
+	return phone
+end
+
+local function maxPreviewWidth(): number
+	local maxW = 960
+	for _, name in { "Actions", "Strip" } do
+		local container = preview:FindFirstChild(name)
+		local layout = container and container:FindFirstChildOfClass("UIListLayout")
+		if container and layout then
+			local w, count = 0, 0
+			for _, c in container:GetChildren() do
+				if c:IsA("GuiObject") and c.Visible then
+					w += c.Size.X.Offset
+					count += 1
+				end
+			end
+			if count > 1 then
+				w += layout.Padding.Offset * (count - 1)
+			end
+			maxW = math.max(maxW, w)
+		end
+	end
+	return maxW
 end
 
 -- The tab bar's two looks: the shop's (full size, left) and a bundle page's (small, centred).
@@ -799,9 +956,12 @@ local function pageTabs(onPage: boolean)
 	if not tabs then
 		return
 	end
+	local phone = UiLayout.family() == "Phone"
 	local scale = tabs:FindFirstChild("TabsScale")
 	if scale and scale:IsA("UIScale") then
-		scale.Scale = if onPage then PAGE_TABS_SCALE else 1
+		scale.Scale = if onPage
+			then (if phone then PHONE_PAGE_TABS_SCALE else PAGE_TABS_SCALE)
+			else 1
 	end
 	local list = tabs:FindFirstChildOfClass("UIListLayout")
 	if list then
@@ -811,7 +971,39 @@ local function pageTabs(onPage: boolean)
 	end
 	local pad = scroll:FindFirstChildOfClass("UIPadding")
 	if pad then
-		pad.PaddingTop = UDim.new(0, if onPage then PAGE_TOP_PAD else SHOP_TOP_PAD)
+		pad.PaddingTop = UDim.new(
+			0,
+			if onPage then (if phone then PHONE_PAGE_TOP_PAD else PAGE_TOP_PAD) else SHOP_TOP_PAD
+		)
+	end
+end
+
+local function relayout()
+	if not (fit and canvas and scroll and (preview :: Frame?)) then
+		return -- still starting up
+	end
+	if previewBundle then
+		pageTabs(true)
+	end
+	local phone = layoutPreviewForDevice()
+	local targetH = if phone then PHONE_PREVIEW_H else PREVIEW_H
+	local f = math.max(fit.Scale, 0.01)
+	local w = canvas.AbsoluteSize.X / f
+	local h = canvas.AbsoluteSize.Y / f
+	-- the page starts just under wherever the tab bar ends now
+	local tabs = scroll:FindFirstChild("Tabs")
+	local top = if tabs and tabs:IsA("GuiObject")
+		then (tabs.AbsolutePosition.Y + tabs.AbsoluteSize.Y - canvas.AbsolutePosition.Y) / f + 10
+		else (if phone then 74 else 258)
+	local kpH = (h - top - 6) / targetH
+	local kpW = (w - 40) / maxPreviewWidth()
+	local kp = math.clamp(math.min(kpH, kpW), 0.5, if phone then 1.55 else 1.45)
+	local previewScale = preview:FindFirstChild("PreviewScale")
+	if previewScale and previewScale:IsA("UIScale") then
+		previewScale.Scale = kp
+		preview.Size = UDim2.new(1 / kp, 0, 0, targetH)
+		-- the pop setup may centre its anchor: place its top edge under the tabs either way
+		preview.Position = UDim2.new(0.5, 0, 0, top + targetH * kp * preview.AnchorPoint.Y)
 	end
 end
 
@@ -882,10 +1074,12 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	for _, page in pages do
 		page.Visible = false
 	end
+	cancelScrollTween()
 	scroll.CanvasPosition = Vector2.zero
 	scroll.ScrollingEnabled = false
 	showCounter(false)
 	pageTabs(true)
+	layoutPreviewForDevice()
 	task.defer(relayout) -- after the tab bar has moved
 	preview.Visible = true
 	stage:run(true)
@@ -979,6 +1173,7 @@ local function setTab(name: string, animate: boolean)
 		styleTab(t, t == name)
 		pages[PAGE_OF[t]].Visible = t == name
 	end
+	cancelScrollTween()
 	scroll.CanvasPosition = Vector2.zero
 	showCounter(true)
 	updateOffers()
@@ -1024,6 +1219,8 @@ type CellLook = { bg: Color3, bgT: number, day: Color3, text: Color3 }
 local loginCells: { [number]: Frame } = {}
 local loginLooks: { claimed: CellLook, today: CellLook, future: CellLook, grand: CellLook }? = nil
 local loginNote: TextLabel? = nil
+local loginBoard: GuiObject? = nil
+local loginHead: GuiObject? = nil
 
 local function lookOf(cell: Frame, textName: string): CellLook
 	local day = cell:FindFirstChild("Day")
@@ -1149,9 +1346,10 @@ end
 
 local function hookLogin()
 	local login = scroll:FindFirstChild("Login", true)
-	if not login then
+	if not (login and login:IsA("GuiObject")) then
 		return
 	end
+	loginBoard = login
 	for step = 1, LoginRewards.STEPS do
 		local cell = login:FindFirstChild("Day" .. step, true)
 		if cell and cell:IsA("Frame") then
@@ -1175,9 +1373,65 @@ local function hookLogin()
 		}
 	end
 	local head = login.Parent and login.Parent:FindFirstChild("Head_LOGIN REWARDS")
+	loginHead = if head and head:IsA("GuiObject") then head else nil
 	local note = head and head:FindFirstChild("Note")
 	loginNote = if note and note:IsA("TextLabel") then note else nil
 	drawLogin()
+end
+
+local function hasDailyReward(): boolean
+	if not PlayerData.ready(player) then
+		return false
+	end
+	local login, today = loginState()
+	return LoginRewards.nextStep(login, today) ~= nil
+end
+
+local function scrollToLogin(token: number)
+	local board = loginBoard
+	if not board then
+		return
+	end
+	task.spawn(function()
+		RunService.RenderStepped:Wait()
+		if not isOpen or openToken ~= token or tab ~= "DAILY" or previewBundle ~= nil then
+			return
+		end
+		if scroll.AbsoluteCanvasSize.Y <= scroll.AbsoluteWindowSize.Y then
+			RunService.RenderStepped:Wait()
+			if not isOpen or openToken ~= token or tab ~= "DAILY" or previewBundle ~= nil then
+				return
+			end
+		end
+		local k = math.max(fit.Scale, 0.01)
+		local viewH = scroll.AbsoluteWindowSize.Y / k
+		local maxY = math.max(0, scroll.AbsoluteCanvasSize.Y / k - viewH)
+		if maxY <= 0 or viewH <= 0 then
+			return
+		end
+		local topTarget: GuiObject = if loginHead then loginHead else board
+		local relTop = (topTarget.AbsolutePosition.Y - scroll.AbsolutePosition.Y) / k
+			+ scroll.CanvasPosition.Y
+		local bottomPx = board.AbsolutePosition.Y + board.AbsoluteSize.Y - scroll.AbsolutePosition.Y
+		local relBottom = bottomPx / k + scroll.CanvasPosition.Y
+		local blockH = math.max(relBottom - relTop, 0)
+		local desired = relTop - math.max(24, (viewH - blockH) * 0.5)
+		local targetY = math.clamp(desired, 0, maxY)
+		cancelScrollTween()
+		if targetY > 1 then
+			if UiMotion.reduced() then
+				scroll.CanvasPosition = Vector2.new(0, targetY)
+			else
+				local t = tween(scroll, 0.38, { CanvasPosition = Vector2.new(0, targetY) })
+				scrollTween = t
+				t.Completed:Once(function()
+					if scrollTween == t then
+						scrollTween = nil
+					end
+				end)
+			end
+		end
+	end)
 end
 
 -- The confirm popup (Studio ConfirmPanel, tools/studio/ShopConfirmPanel.luau; owner
@@ -1226,6 +1480,7 @@ local function confirmBuy(button: GuiObject)
 	end
 	confirmOpen = nil
 	showPanel(nil)
+	UiSfx.cue("Confirm")
 	c.go()
 end
 
@@ -1604,15 +1859,82 @@ end
 --------------------------------------------------------------------------------
 -- Open / close
 
-local function open(arg: any?)
-	openToken += 1
-	local my = openToken
-	local wanted = if typeof(arg) == "string" then arg else "HOME"
-	if isOpen then
-		setTab(wanted, true)
+-- The Starter offer has no individual-item preview. All of its entry points use
+-- the same confirmation and receipt flow.
+local starter = Products.STARTER
+local function buyStarter()
+	if not starter then
 		return
 	end
+	if StateValues.get(player, "StarterBought") ~= false then
+		LobbyHud.toast("You already have the Starter Bundle", "info")
+		return
+	end
+	openConfirm({
+		title = "STARTER BUNDLE",
+		name = `{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`,
+		art = ShopCatalog.ART.starterContents,
+		price = starter.robux,
+		currency = "robux",
+		go = function()
+			askRobux("starter")
+		end,
+	})
+end
+
+local function openOffer(bundle: ShopCatalog.Bundle)
+	if bundle.slot == "Starter" then
+		buyStarter()
+	else
+		openBundle(bundle)
+	end
+end
+
+function ShopController.openDisplay(destination: string, zone: BasePart?)
+	if not Router.current() then
+		Router.open("Shop", { destination = destination, zone = zone }, zone ~= nil)
+	end
+end
+
+function ShopController.closeDisplay(zone: BasePart)
+	if displayZone == zone and Router.current() == "Shop" then
+		Router.close()
+	end
+end
+
+local function openDestination(wanted: string, bundle: ShopCatalog.Bundle?)
+	setTab(wanted, true)
+	if bundle then
+		openOffer(bundle)
+	end
+end
+
+local function open(arg: any?)
+	local destination = if type(arg) == "table" then arg.destination else arg
+	local bundle = if type(arg) == "table" and type(destination) == "string"
+		then ShopCatalog.bundle(destination)
+		else nil
+	local autoDailyReward = destination == nil and hasDailyReward()
+	local wanted = if autoDailyReward
+		then "DAILY"
+		elseif bundle then (if bundle.slot == "Starter" then "HOME" else "BUNDLES")
+		elseif destination == "CASES" then "HOME"
+		elseif type(destination) == "string" then destination
+		else "HOME"
+	displayZone = if type(arg) == "table" then arg.zone else nil
+	if isOpen then
+		closePreview()
+		showPanel(nil)
+		openDestination(wanted, bundle)
+		if autoDailyReward then
+			scrollToLogin(openToken)
+		end
+		return
+	end
+	openToken += 1
+	local my = openToken
 	isOpen = true
+	LobbyNet.event("ShopRequest"):FireServer("visit", if displayZone then "Display" else "Menu")
 	gui.Enabled = true
 	resetClose()
 	relayout()
@@ -1627,12 +1949,17 @@ local function open(arg: any?)
 	end
 	scroll.Position = UDim2.new(0.5, 0, 0, 36) -- the canvas is a fit canvas: centred
 	tween(scroll, 0.4, { Position = UDim2.new(0.5, 0, 0, 0) })
-	setTab(wanted, true)
+	openDestination(wanted, bundle)
+	if autoDailyReward then
+		scrollToLogin(my)
+	end
 	updateDaily()
 	task.spawn(function()
 		while isOpen and openToken == my do
 			task.wait(20)
-			updateDaily()
+			if isOpen and openToken == my then
+				updateDaily()
+			end
 		end
 	end)
 end
@@ -1642,9 +1969,11 @@ local function close()
 		return
 	end
 	isOpen = false
+	displayZone = nil
 	updateOffers()
 	openToken += 1
 	local my = openToken
+	cancelScrollTween()
 	closePreview()
 	showPanel(nil)
 	hideItemCard()
@@ -1844,6 +2173,45 @@ function ShopController.init()
 	coinsTop = child(coinsGui, "Top")
 	local bar = child(coinsTop, "Bar") :: Frame
 	coinsAmount = child(bar, "Amount")
+	local existingTickets = coinsTop:FindFirstChild("TicketsBar")
+	if existingTickets and existingTickets:IsA("Frame") then
+		ticketsBar = existingTickets
+		ticketsAmount = existingTickets:FindFirstChild("Amount") :: TextLabel?
+	else
+		-- Fallback clone if StarterGui.LobbyCoins hasn't been rebuilt yet.
+		local tbar = bar:Clone()
+		tbar.Name = "TicketsBar"
+		tbar.LayoutOrder = 2
+		tbar.Visible = false
+		local oldPlus = tbar:FindFirstChild("Plus")
+		if oldPlus then
+			oldPlus:Destroy()
+		end
+		local tpad = tbar:FindFirstChildOfClass("UIPadding")
+		if tpad then
+			tpad.PaddingLeft = UDim.new(0, 10)
+			tpad.PaddingRight = UDim.new(0, 14)
+		end
+		local oldCoin = tbar:FindFirstChild("Coin")
+		local icon = Instance.new("ImageLabel")
+		icon.Name = "Ticket"
+		icon.LayoutOrder = 1
+		icon.Size = UDim2.fromOffset(36, 36)
+		icon.BackgroundTransparency = 1
+		icon.Image = ShopCatalog.ART.ticket
+		icon.ScaleType = Enum.ScaleType.Fit
+		icon.ZIndex = if oldCoin and oldCoin:IsA("GuiObject") then oldCoin.ZIndex else 4
+		icon.Parent = tbar
+		if oldCoin then
+			oldCoin:Destroy()
+		end
+		tbar.Parent = coinsTop
+		ticketsBar = tbar
+		ticketsAmount = tbar:FindFirstChild("Amount") :: TextLabel?
+	end
+	if ticketsBar then
+		ticketsBar.Visible = false
+	end
 	for _, name in TABS do
 		pages[PAGE_OF[name]] = child(scroll, PAGE_OF[name])
 		tabPlates[name] = child(child(child(scroll, "Tabs"), name), "Plate")
@@ -1943,63 +2311,11 @@ function ShopController.init()
 			Router.open("BattlePass")
 		end)
 	end
-	-- the Starter Bundle: Home's special offer card and the BUNDLES row (once per player)
-	local starter = Products.STARTER
-	local function buyStarter()
-		if not starter then
-			return
-		end
-		if StateValues.get(player, "StarterBought") ~= false then
-			LobbyHud.toast("You already have the Starter Bundle", "info")
-			return
-		end
-		openConfirm({
-			title = "STARTER BUNDLE",
-			name = `{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`,
-			art = ShopCatalog.ART.starterContents,
-			price = starter.robux,
-			currency = "robux",
-			go = function()
-				askRobux("starter")
-			end,
-		})
-	end
 	local offer = pages.Home:FindFirstChild("Offer", true)
 	local offerCard = offer and offer:FindFirstChild("Card")
 	if offerCard and offerCard:IsA("GuiButton") then
-		local featured: { ShopCatalog.Bundle } = {}
-		local starterBundle = ShopCatalog.bundle("Starter")
-		if starter and starterBundle and not starterBundle.soon then
-			table.insert(featured, starterBundle)
-		end
-		for _, bundle in ShopCatalog.BUNDLES do
-			if
-				not bundle.soon
-				and #bundle.items > 0
-				and (
-					bundle.slot == "Featured"
-					or (Release.SHOP_FULL_LAYOUT and bundle.slot == "Limited")
-				)
-			then
-				table.insert(featured, bundle)
-			end
-		end
+		local featured = ShopCatalog.featuredBundles(starter ~= nil, Release.SHOP_FULL_LAYOUT)
 		offerCard.Visible = #featured > 0
-		task.spawn(function()
-			local images: { string } = {}
-			for _, bundle in featured do
-				if bundle.banner then
-					table.insert(images, bundle.banner)
-				end
-				local image = if bundle.slot == "Starter"
-					then ShopCatalog.ART.starterContents
-					else bundle.hero
-				if image then
-					table.insert(images, image)
-				end
-			end
-			pcall(ContentProvider.PreloadAsync, ContentProvider, images)
-		end)
 		local title = child(offerCard, "Title") :: TextLabel
 		local sub = child(offerCard, "Sub") :: TextLabel
 		local back = child(offerCard, "Art") :: ImageLabel
@@ -2026,12 +2342,7 @@ function ShopController.init()
 			plateOwned(offerCard, owned, commas(bundle.robux), "robux")
 		end
 		local carousel = OfferCarousel.new(offerCard, #featured, renderSlide, function(index)
-			local bundle = featured[index]
-			if bundle.slot == "Starter" then
-				buyStarter()
-			else
-				openBundle(bundle)
-			end
+			openOffer(featured[index])
 		end, function()
 			return popupOpen ~= nil or not offerCard.Visible
 		end)
@@ -2255,6 +2566,16 @@ function ShopController.init()
 			showCounter(scroll.CanvasPosition.Y < COUNTER_HIDE_AT)
 		end
 	end)
+	scroll.InputBegan:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.Touch then
+			cancelScrollTween()
+		end
+	end)
+	scroll.InputChanged:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.MouseWheel then
+			cancelScrollTween()
+		end
+	end)
 
 	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
 		if popupOpen then
@@ -2268,7 +2589,7 @@ function ShopController.init()
 	local stageBox = child(preview, "StageBox") :: Frame
 	stage = ItemStage.new(
 		child(stageBox, "Stage") :: Frame,
-		{ length = 9, height = 3.1, distance = 11 }
+		{ length = 9, height = 3.1, distance = 11, showcase = true }
 	)
 	stage:bindDrag(child(stageBox, "DragArea") :: GuiButton)
 	local actions = child(preview, "Actions") :: Frame
@@ -2313,19 +2634,7 @@ function ShopController.init()
 				return
 			end
 			if n == "BuyBundle" then
-				openConfirm({
-					title = "BUNDLE",
-					name = bundle.name,
-					art = SkinArt.line(
-						bundle.items[1] and bundle.items[1].line or "",
-						{ "Vandal" }
-					),
-					price = bundle.robux,
-					currency = "robux",
-					go = function()
-						askRobux("bundle", bundle.id)
-					end,
-				})
+				askRobux("bundle", bundle.id)
 			else
 				local index = previewIndex
 				local item = bundle.items[index]
@@ -2361,6 +2670,19 @@ function ShopController.start()
 		return
 	end
 	StateValues.changed(player, "Coins"):Connect(placeCounter)
+	StateValues.changed(player, "Tickets"):Connect(placeCounter)
+	SkinStore.arrived:Connect(function(line: string, name: string)
+		local bundle = previewBundle
+		local item = bundle and bundle.items[previewIndex]
+		if
+			item
+			and item.gun
+			and item.line == line
+			and SkinStore.modelName(item.gun, line) == name
+		then
+			selectPreview(previewIndex)
+		end
+	end)
 	-- the daily shop redraws when the server publishes a new list or a purchase
 	task.spawn(function()
 		for _, name in { PlayerData.DAILY, PlayerData.SKINS } do
@@ -2450,7 +2772,12 @@ function ShopController.start()
 		elseif p.kind == "robux" then
 			celebrateProduct(p)
 		elseif wasBuying or (p.kind == "failed" and os.clock() - lastAsk < 6) then
-			denied(lastBuyButton, p.text == "Not enough coins")
+			local txt = tostring(p.text or "")
+			denied(
+				lastBuyButton,
+				txt == "Not enough coins",
+				string.find(txt, "Ticket", 1, true) ~= nil
+			)
 			LobbyHud.toast(p.text or "Purchase failed", "error")
 		end
 	end)

@@ -6,6 +6,8 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local AdminConfig = require(ReplicatedStorage.Shared.Config.Admin)
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
@@ -15,17 +17,44 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local OnboardingConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Progress = require(ReplicatedStorage.Shared.Progress)
 local ProgressionConfig = require(ReplicatedStorage.Shared.Config.Progression)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
+local LockerService = require(script.Parent.LockerService)
+local OnboardingService = require(script.Parent.OnboardingService)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local QueueService = require(script.Parent.QueueService)
 
 type Data = PlayerData.Data
 
 local AdminService = {}
+
+local QUICK_MATCH_SIZES: { [string]: number } = {
+	["1v1"] = 1,
+	["2v2"] = 2,
+	["3v3"] = 3,
+	beginner = 2,
+}
+local matchHostRef: any = nil
+
+local function getMatchHost(): any
+	if matchHostRef then
+		return matchHostRef
+	end
+	local server = ServerScriptService:FindFirstChild("Server")
+	local services = server and server:FindFirstChild("Services")
+	local host = services and services:FindFirstChild("MatchHost")
+	if host and host:IsA("ModuleScript") then
+		matchHostRef = require(host)
+	end
+	return matchHostRef
+end
 
 local limiter = RateLimit.new({ Admin = AdminConfig.RATE })
 local adminEvent: RemoteEvent? = nil
@@ -417,15 +446,40 @@ local function buildMutation(
 			data.tickets = fresh.tickets
 			data.items = fresh.items
 			data.skins = fresh.skins
+			data.mods = fresh.mods
 			data.prog = fresh.prog
 			data.login = fresh.login
 			data.daily = DailyRoll.roll(fresh.skins, Economy.day(os.time()), Random.new())
 			data.earn = fresh.earn
+			data.onb = fresh.onb
 			data.buys.starter = false
 			data.buys.free = false
 			return true
 		end,
 			string.format("Reset Save to Default -> %s", targetName)
+	elseif action == "startOnboarding" then
+		return function(data: Data)
+			local fresh = PlayerData.clean(nil)
+			data.prog = fresh.prog
+			data.onb = fresh.onb
+			table.clear(data.skins)
+			data.items[OnboardingConfig.FIRST_MATCH_CASE] = nil
+			return true
+		end,
+			string.format("Started Full Onboarding -> %s", targetName)
+	elseif action == "testFreeCase" then
+		return function(data: Data)
+			local fresh = PlayerData.clean(nil)
+			data.prog = fresh.prog
+			data.prog.matches = 1
+			data.onb = fresh.onb
+			data.onb.caseGift = true
+			table.clear(data.skins)
+			local caseId = OnboardingConfig.FIRST_MATCH_CASE
+			data.items[caseId] = math.max(data.items[caseId] or 0, 1)
+			return true
+		end,
+			string.format("Jumped to Post-Match-1 Free Case -> %s", targetName)
 	end
 	return nil, "Unknown action"
 end
@@ -527,10 +581,70 @@ local function onRequest(
 		onBotRequest(player, action, payload)
 		return
 	end
+	if action == "toggleQuickMatch" then
+		if not RunService:IsStudio() then
+			reply(player, false, action, 0, "Studio only")
+			return
+		end
+		local enabled = payload.flag == true
+		workspace:SetAttribute("QuickMatch", enabled)
+		local msg = if enabled
+			then "QuickMatch ON (1-round matches)"
+			else "QuickMatch OFF (normal rounds)"
+		print(`[Admin] {player.Name}: {msg}`)
+		reply(player, true, action, 0, msg)
+		return
+	end
 	local target = Players:GetPlayerByUserId(targetUserId)
 	if not target then
 		reply(player, false, action, targetUserId, "Target player left the server")
 		return
+	end
+	if action == "quickLocalMatch" then
+		if not ServerRole.isLobby() or ServerRole.isHosted() then
+			reply(player, false, action, targetUserId, "Lobby server only")
+			return
+		end
+		if PlayZone.get(target) ~= "Lobby" then
+			reply(player, false, action, targetUserId, "Return to the Lobby first")
+			return
+		end
+		local queueStatus = StateValues.get(target, "QueueStatus")
+		if queueStatus == "searching" or queueStatus == "found" or queueStatus == "teleporting" then
+			reply(player, false, action, targetUserId, "Leave queue first")
+			return
+		end
+		local mode = str(payload.mode, 16) or "1v1"
+		local teamSize = QUICK_MATCH_SIZES[mode]
+		if not teamSize then
+			reply(player, false, action, targetUserId, "Invalid mode")
+			return
+		end
+		local host = getMatchHost()
+		if not host then
+			reply(player, false, action, targetUserId, "MatchHost unavailable")
+			return
+		end
+		host.startDuel(mode, teamSize, { { target }, {} }, true, true)
+		local msg = string.format(
+			"Started instant %s bot match -> %s",
+			string.upper(mode),
+			target.DisplayName
+		)
+		print(`[Admin] {player.Name}: {msg}`)
+		reply(player, true, action, targetUserId, msg)
+		return
+	end
+	if action == "startOnboarding" or action == "testFreeCase" then
+		if PlayZone.get(target) ~= "Lobby" then
+			reply(player, false, action, targetUserId, "Return to the Lobby first")
+			return
+		end
+		local queueStatus = StateValues.get(target, "QueueStatus")
+		if queueStatus == "found" or queueStatus == "teleporting" then
+			reply(player, false, action, targetUserId, "Match is already starting")
+			return
+		end
 	end
 
 	local change, summary = buildMutation(action, payload, target.DisplayName)
@@ -541,6 +655,13 @@ local function onRequest(
 
 	local ok, reason = PlayerDataService.transact(target, PlayerDataService.newTxId(), change, true)
 	if ok then
+		if action == "startOnboarding" or action == "testFreeCase" or action == "resetProfile" then
+			LockerService.reset(target)
+			QueueService.resetOnboarding(target)
+			OnboardingService.reset(target)
+			local seq = StateValues.get(target, "OnbResetSeq")
+			StateValues.set(target, "OnbResetSeq", (if typeof(seq) == "number" then seq else 0) + 1)
+		end
 		print(`[Admin] {player.Name} ({player.UserId}): {summary}`)
 		reply(player, true, action, targetUserId, summary or "Done")
 	else

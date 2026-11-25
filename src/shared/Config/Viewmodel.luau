@@ -2355,25 +2355,29 @@ return table.freeze({
 		),
 		-- Riftforge Legendary line (Prelude-to-Chaos industrial magnetic reactor choreography;
 		-- Util/RiftforgeEffects drives the armor cowls, suppressor vents, levitating core
-		-- crystal, dual gimbal rings, plasma beams and barrel shockwave on the same beats).
+		-- crystal, dual gimbal rings, 3D travelling plasma halo ring, flank ribbons, and trails).
+		-- Draw: enters with a blazing 135-deg magnetic snap-twist (plasma trails streaking off
+		-- the barrel), flashes the open elevated-crystal Reactor Bay, then SLAMS cowls shut
+		-- launching a 3D plasma shockwave ring down the full suppressor!
 		DrawRiftforge = {
 			length = 1.0,
 			pivot = "Grip",
 			smooth = true,
 			keys = {
-				key(0, Vector3.new(0.14, -0.68, 0.24), Vector3.new(-30, 14, 58)),
-				key(0.16, Vector3.new(0.02, -0.18, -0.06), Vector3.new(-8, 6, 22)),
-				-- brief left cant flashing the open reactor bay as the cowls snap shut
-				key(0.32, Vector3.new(-0.07, 0.085, -0.11), Vector3.new(10, 8, -18)),
-				key(0.45, Vector3.new(-0.03, 0.04, -0.05), Vector3.new(7, 3, -6)), -- cowl SLAM jolt
-				key(0.58, Vector3.new(0.012, -0.018, 0.012), Vector3.new(-2.8, -1, 3.5)),
-				key(0.76, Vector3.new(0, 0.009, -0.006), Vector3.new(1.1, 0, -0.8)),
+				key(0, Vector3.new(0.18, -0.74, 0.26), Vector3.new(-36, 18, 118)),
+				key(0.14, Vector3.new(0.05, -0.24, -0.05), Vector3.new(-10, 9, 46)),
+				key(0.28, Vector3.new(-0.09, 0.11, -0.14), Vector3.new(12, 11, -24)), -- flash open reactor bay!
+				key(0.39, Vector3.new(-0.07, 0.08, -0.11), Vector3.new(8, 8, -18)),
+				key(0.45, Vector3.new(-0.025, 0.065, -0.04), Vector3.new(11, 2, -4)), -- cowl SLAM + ring surge!
+				key(0.58, Vector3.new(0.015, -0.022, 0.014), Vector3.new(-3.2, -1, 4)),
+				key(0.76, Vector3.new(0, 0.01, -0.006), Vector3.new(1.2, 0, -0.9)),
 				key(1, ZERO, ZERO),
 			},
 		},
-		-- Tactical reload: no charging handle or bolt rack — tilt to vent the spent
-		-- energy cell, draw plasma into the magwell, slam the fresh cell home, and
-		-- snap the reactor armor cowls shut with an axial plasma surge kick.
+		-- Tactical reload: no charging handle or bolt rack — tilt to discharge the spent
+		-- energy cell (magwell plasma portal ring opens), gather swirling plasma beads into
+		-- the fresh cell, SLAM it home, then snap the armor cowls shut launching a 3D
+		-- plasma shockwave ring straight down the suppressor!
 		ReloadRiftforge = {
 			length = 1.0,
 			pivot = "Center",
@@ -2381,47 +2385,58 @@ return table.freeze({
 			marks = { MagOut = 0.16, MagIn = 0.48, Rack = 0.78 },
 			keys = {
 				key(0, ZERO, ZERO),
-				key(0.04, Vector3.new(0.012, -0.02, 0.01), Vector3.new(-2.5, -1.5, 3)),
-				key(0.12, Vector3.new(-0.10, 0.17, -0.14), Vector3.new(16, 10, -28)),
-				key(0.16, Vector3.new(-0.095, 0.16, -0.14), Vector3.new(14, 9, -26)),
-				key(0.19, Vector3.new(-0.085, 0.20, -0.15), Vector3.new(20, 10, -22)), -- MagOut plasma burst
-				key(0.28, Vector3.new(-0.10, 0.155, -0.14), Vector3.new(13, 10, -29)),
-				key(0.40, Vector3.new(-0.105, 0.145, -0.14), Vector3.new(11, 11, -31)), -- plasma cell forming
-				key(0.46, Vector3.new(-0.108, 0.132, -0.135), Vector3.new(9, 11, -32)), -- brace
-				key(0.50, Vector3.new(-0.08, 0.225, -0.16), Vector3.new(23, 8, -19)), -- MagIn heavy SLAM!
-				key(0.58, Vector3.new(-0.09, 0.17, -0.14), Vector3.new(14, 8, -22)),
-				key(0.72, Vector3.new(-0.045, 0.09, -0.08), Vector3.new(8, 4, -10)), -- cowls closing
-				key(0.78, Vector3.new(-0.015, 0.12, -0.04), Vector3.new(13, 2, -4)), -- cowl SLAM + barrel surge!
-				key(0.86, Vector3.new(0.012, -0.015, 0.014), Vector3.new(-3, -1, 3)),
-				key(0.94, Vector3.new(0, 0.008, -0.005), Vector3.new(1, 0, -1)),
+				key(0.04, Vector3.new(0.014, -0.024, 0.012), Vector3.new(-3, -1.5, 3.5)),
+				key(0.12, Vector3.new(-0.11, 0.18, -0.15), Vector3.new(18, 11, -30)),
+				key(0.16, Vector3.new(-0.10, 0.165, -0.15), Vector3.new(15, 10, -27)),
+				key(0.19, Vector3.new(-0.085, 0.215, -0.16), Vector3.new(22, 11, -22)), -- MagOut plasma burst!
+				key(0.28, Vector3.new(-0.105, 0.16, -0.15), Vector3.new(14, 11, -30)),
+				key(0.40, Vector3.new(-0.11, 0.145, -0.15), Vector3.new(11, 12, -32)), -- portal ring forming cell
+				key(0.46, Vector3.new(-0.115, 0.13, -0.145), Vector3.new(9, 12, -34)), -- brace
+				key(0.50, Vector3.new(-0.075, 0.24, -0.17), Vector3.new(25, 8, -18)), -- MagIn heavy SLAM!
+				key(0.58, Vector3.new(-0.09, 0.175, -0.15), Vector3.new(15, 8, -22)),
+				key(0.71, Vector3.new(-0.05, 0.095, -0.09), Vector3.new(7, 4, -12)),
+				key(0.78, Vector3.new(-0.015, 0.14, -0.03), Vector3.new(16, 2, -3)), -- cowl SLAM + barrel wave!
+				key(0.86, Vector3.new(0.016, -0.022, 0.016), Vector3.new(-3.8, -1.2, 3.8)),
+				key(0.94, Vector3.new(0, 0.01, -0.006), Vector3.new(1.2, 0, -1)),
 				key(1, ZERO, ZERO),
 			},
 		},
-		-- Empty reload: heavier reactor reboot! After MagIn slams home, the rifle
-		-- kicks sharply up-back as both armor cowls + suppressor vents slam shut
-		-- in a two-stage overdrive surge (no stock bolt rack!).
+		-- Empty reload: FULL SIGNATURE MAGNETIC OVERDRIVE! After MagIn slams the fresh
+		-- energy cell home, the rifle levitates off the hands for a blistering 360-deg
+		-- magnetic barrel-axis spin inside a glowing 3D plasma halo ring with blazing
+		-- muzzle/stock trails — catching cleanly as BOTH armor cowls + vents SLAM shut!
 		ReloadEmptyRiftforge = {
 			length = 1.0,
 			pivot = "Center",
 			smooth = true,
-			marks = { MagOut = 0.15, MagIn = 0.45, Rack = 0.76 },
+			marks = { MagOut = 0.15, MagIn = 0.44, Rack = 0.76 },
 			keys = {
 				key(0, ZERO, ZERO),
-				key(0.04, Vector3.new(0.014, -0.025, 0.012), Vector3.new(-3, -2, 4)),
-				key(0.11, Vector3.new(-0.11, 0.18, -0.15), Vector3.new(18, 11, -30)),
+				key(0.04, Vector3.new(0.015, -0.026, 0.012), Vector3.new(-3.2, -2, 4)),
+				key(0.11, Vector3.new(-0.11, 0.185, -0.15), Vector3.new(18, 11, -30)),
 				key(0.15, Vector3.new(-0.105, 0.17, -0.15), Vector3.new(15, 10, -28)),
-				key(0.18, Vector3.new(-0.09, 0.215, -0.16), Vector3.new(22, 11, -24)), -- MagOut discharge
+				key(0.18, Vector3.new(-0.09, 0.22, -0.16), Vector3.new(22, 11, -24)), -- MagOut discharge
 				key(0.28, Vector3.new(-0.11, 0.16, -0.15), Vector3.new(13, 11, -31)),
-				key(0.41, Vector3.new(-0.115, 0.14, -0.145), Vector3.new(10, 12, -33)), -- brace
-				key(0.46, Vector3.new(-0.08, 0.245, -0.17), Vector3.new(25, 8, -18)), -- MagIn heavy SLAM!
-				key(0.56, Vector3.new(-0.095, 0.18, -0.15), Vector3.new(16, 9, -24)),
-				-- Reactor Overdrive Lock (replaces bolt rack): crisp pullback + snap level
-				key(0.68, Vector3.new(-0.055, 0.11, -0.10), Vector3.new(6, 5, -14)),
-				key(0.76, Vector3.new(-0.02, 0.155, -0.03), Vector3.new(17, 2, -3)), -- violent cowl SLAM kick!
+				key(0.40, Vector3.new(-0.115, 0.138, -0.145), Vector3.new(10, 12, -33)), -- brace
+				key(0.45, Vector3.new(-0.075, 0.25, -0.17), Vector3.new(26, 8, -18)), -- MagIn heavy SLAM!
+				key(0.54, Vector3.new(-0.08, 0.20, -0.15), Vector3.new(18, 7, -18)), -- launch spin!
+				key(0.66, Vector3.new(-0.05, 0.16, -0.11), Vector3.new(13, 4, -10)), -- mid-air spin!
+				key(0.76, Vector3.new(-0.015, 0.165, -0.03), Vector3.new(18, 2, -2)), -- catch + violent cowl SLAM!
 				key(0.84, Vector3.new(0.018, -0.028, 0.02), Vector3.new(-4.5, -1.5, 4.5)),
 				key(0.93, Vector3.new(-0.004, 0.012, -0.008), Vector3.new(1.5, 0, -1.2)),
 				key(1, ZERO, ZERO),
 			},
+			toss = {
+				key(0, ZERO, ZERO),
+				key(0.53, ZERO, ZERO),
+				key(0.565, Vector3.new(0, 0.055, 0), Vector3.new(0, 0, -82)),
+				key(0.625, Vector3.new(0, 0.095, 0), Vector3.new(0, 0, -215)),
+				key(0.685, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -338)),
+				key(0.715, Vector3.new(0, -0.006, 0), Vector3.new(0, 0, -365)),
+				key(0.745, ZERO, Vector3.new(0, 0, -360)),
+				key(1, ZERO, Vector3.new(0, 0, -360)),
+			},
+			tossPivot = Vector3.new(0, 0.22, -0.78),
 		},
 		-- Inspect: showcase left Reactor Core Bay (cowls split wide, CoreCrystal
 		-- levitates UP spinning inside dual gimbal rings with crackling arcs),
@@ -2714,6 +2729,140 @@ return table.freeze({
 		-- edge down (held), tipped point-down, dropped out low right and back up.
 		-- No spins (owner 2026-11-12: "a simple look at it"). The free hand
 		-- drops out of view meanwhile (FREE_HAND_HIDDEN).
+		-- Riftfang Legendary Knife (XEROFANG-inspired predatory tactical dagger:
+		-- snappy reverse-to-forward palm-flip draw, fast 3-hit razor slash combo,
+		-- scale-flaring heavy lunge, and pommel-ring finger-twirl inspect; Util/RiftfangKnife
+		-- ripples the 3 dorsal spine scales & plasma halo ring on the exact same beats).
+		RiftfangDraw = {
+			length = 0.68,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			keys = {
+				key(0, Vector3.new(-0.55, -1.25, 0.28), Vector3.new(-35, 22, 155)),
+				key(0.16, Vector3.new(-0.22, -0.45, 0.22), Vector3.new(-14, 12, 72)),
+				key(0.32, Vector3.new(-0.08, 0.14, 0.16), Vector3.new(12, -8, -24)), -- crisp palm-flip apex!
+				key(0.46, Vector3.new(0.03, 0.09, 0.08), Vector3.new(8, -4, -12)), -- 3-scale SLAM lock!
+				key(0.62, Vector3.new(-0.015, -0.055, 0), Vector3.new(-3, 2, 6)),
+				key(0.80, Vector3.new(0, 0.018, 0), Vector3.new(1, 0, -2)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Hit 1: razor right-to-left horizontal reverse-fang swipe
+		RiftfangSlash1 = {
+			length = 0.56,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.26,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.08, Vector3.new(0.62, 0.18, 0.26), Vector3.new(8, -14, -52)),
+				key(0.18, Vector3.new(0.92, 0.42, 0.36), Vector3.new(16, -8, -74)),
+				key(0.26, Vector3.new(-0.85, 0.26, 0.48), Vector3.new(28, 34, -92)), -- strike apex!
+				key(0.36, Vector3.new(-2.15, -0.18, 0.46), Vector3.new(34, 52, -118)),
+				key(0.50, Vector3.new(-2.25, -0.58, 0.36), Vector3.new(58, 28, 128)),
+				key(0.68, Vector3.new(-0.82, -0.82, 0.22), Vector3.new(26, -12, 46)),
+				key(0.86, Vector3.new(0, 0.045, 0), Vector3.new(0, 0, -4)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Hit 2: quick bottom-left-to-top-right upward diagonal backhand fang rip
+		RiftfangSlash2 = {
+			length = 0.56,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.26,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.10, Vector3.new(-0.98, -0.62, 0.30), Vector3.new(-16, 18, 84)),
+				key(0.18, Vector3.new(-1.18, -0.70, 0.36), Vector3.new(-20, 24, 96)),
+				key(0.26, Vector3.new(0.18, 0.32, 0.48), Vector3.new(24, -18, 28)), -- upward rip apex!
+				key(0.36, Vector3.new(1.22, 0.78, 0.42), Vector3.new(36, -34, -42)),
+				key(0.52, Vector3.new(1.08, 0.56, 0.30), Vector3.new(20, -24, -56)),
+				key(0.72, Vector3.new(0.28, -0.18, 0.14), Vector3.new(-6, -8, -12)),
+				key(0.88, Vector3.new(0, 0.04, 0), Vector3.new(0, 0, -3)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Hit 3: aggressive predatory spin-snap slash (whips inward then outward!)
+		RiftfangSlash3 = {
+			length = 0.62,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.28,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.10, Vector3.new(-0.48, 0.46, 0.28), Vector3.new(24, 16, 54)),
+				key(0.20, Vector3.new(0.68, 0.58, 0.38), Vector3.new(30, -16, -68)),
+				key(0.28, Vector3.new(-0.62, -0.12, 0.52), Vector3.new(44, 24, -112)), -- snap cut!
+				key(0.40, Vector3.new(-1.68, -0.58, 0.42), Vector3.new(64, 34, 146)),
+				key(0.60, Vector3.new(-0.55, -0.64, 0.20), Vector3.new(20, -10, 42)),
+				key(0.82, Vector3.new(0, 0.05, 0), Vector3.new(0, 0, -4)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Heavy attack: predatory low-right reverse coil (all 3 scales flare wide with
+		-- spine lightning!) -> explosive forward diagonal lunge-cleave!
+		RiftfangHeavyStab = {
+			length = 0.9,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			hit = 0.42,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.05, Vector3.new(0.142, -0.145, 0.099), Vector3.new(-0.338, -0.674, -5.837)),
+				key(0.14, Vector3.new(0.237, 0.338, 0.359), Vector3.new(-26.308, -16.347, -2.475)),
+				key(0.24, Vector3.new(0.271, 0.466, 0.459), Vector3.new(-24.069, -25, 8.888)),
+				key(0.33, Vector3.new(0.259, 0.504, 0.499), Vector3.new(-19.127, -31.579, 18.76)),
+				key(0.38, Vector3.new(-0.118, 0.328, 0.179), Vector3.new(-8.15, -42.955, 52.134)),
+				key(0.42, Vector3.new(-0.787, 0.065, -0.181), Vector3.new(-8.667, -56.581, 56.677)),
+				key(0.48, Vector3.new(-1.212, -0.078, -0.261), Vector3.new(0.747, -46.073, 71.321)),
+				key(0.56, Vector3.new(-1.087, -0.112, -0.121), Vector3.new(3.604, -49.723, 77.672)),
+				key(0.66, Vector3.new(-0.584, -0.13, 0.079), Vector3.new(-7.621, -27.703, 41.015)),
+				key(0.76, Vector3.new(-0.127, -0.087, 0.119), Vector3.new(-3.141, -4.456, 12.79)),
+				key(0.86, Vector3.new(0, 0.054, 0), Vector3.new(0, 0, -4)),
+				key(0.94, Vector3.new(0, -0.015, 0), Vector3.new(0, 0, 1.5)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		-- Inspect (3.8s, spam-restartable): snappy wrist tilt into reverse-grip showcasing
+		-- rippling scales (1->2->3) -> fluid 360-deg pommel-ring finger-twirl inside a
+		-- 3D plasma halo -> opposite bevel pan + guard->tip plasma wave -> scale SLAM!
+		RiftfangInspect = {
+			length = 3.4,
+			pivot = "Grip",
+			own = true,
+			screen = true,
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.05, Vector3.new(-0.115, 0.045, 0), Vector3.new(0, 0, 7)),
+				key(0.14, Vector3.new(-0.608, 0.061, 0.359), Vector3.new(-28.404, 18.196, 46.326)),
+				key(0.22, Vector3.new(-0.572, 0.091, 0.359), Vector3.new(-24.287, 17.993, 41.653)),
+				key(0.32, Vector3.new(-0.59, 0.071, 0.359), Vector3.new(-30.008, 17.886, 48.739)),
+				key(0.39, Vector3.new(-0.57, 0.037, 0.349), Vector3.new(-28.707, 17.167, 48.926)),
+				key(0.43, Vector3.new(-0.585, 0.053, 0.339), Vector3.new(-26.46, 18.498, 43.429)),
+				key(0.47, Vector3.new(-0.598, 0.085, 0.319), Vector3.new(-17.269, 21.11, 23.582)),
+				key(0.51, Vector3.new(-0.635, 0.106, 0.319), Vector3.new(-2.335, 18.774, -7.843)),
+				key(0.6, Vector3.new(-0.598, 0.126, 0.319), Vector3.new(0.385, 15.061, -19.097)),
+				key(0.69, Vector3.new(-0.635, 0.096, 0.319), Vector3.new(-4.436, 18.407, -0.834)),
+				key(0.75, Vector3.new(-0.598, 0.044, 0.319), Vector3.new(-6.746, 19.764, 3.586)),
+				key(0.79, Vector3.new(-0.612, 0.14, 0.299), Vector3.new(0.149, 17.045, -11.03)),
+				key(0.84, Vector3.new(-0.572, 0.084, 0.289), Vector3.new(-2.694, 18.754, -4.5)),
+				key(0.92, Vector3.new(-0.24, 0.008, 0.179), Vector3.new(-1.295, 7.174, -0.26)),
+				key(0.97, Vector3.new(0, 0.026, 0), Vector3.new(0, 0, 2.5)),
+				key(1, ZERO, ZERO),
+			},
+		},
 		-- Tempest-Strike Katana (2026-11-22): its own draw, combo, Tempest Cleave and
 		-- ring-spin inspect, solved by tools/studio/knife_fp_keys.py (KATANA_*; the
 		-- notes are there). Same lengths and hit times as the knife's.

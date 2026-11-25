@@ -37,9 +37,11 @@ local ShadowMistAudio = require(Shared.Config.ShadowMistAudio)
 local TempestAudio = require(Shared.Config.TempestAudio)
 local RiftforgeAudio = require(Shared.Config.RiftforgeAudio)
 local SkinPreviewConfig = require(Shared.Config.SkinPreview)
+local SkinPreview = require(Shared.SkinPreview)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
 local Penetration = require(ReplicatedStorage.Shared.Util.Penetration)
+local BallisticGlass = require(ReplicatedStorage.Shared.Util.BallisticGlass)
 local Types = require(Shared.Types)
 local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
@@ -313,6 +315,33 @@ local function riftforgeSet(config: WeaponConfig): any
 	return nil
 end
 
+local function warmSkinAudio(config: WeaponConfig)
+	local line = SkinPreview.line(player, config.id)
+	local custom = if line == "TempestStrike"
+		then TempestAudio.guns[config.id]
+		elseif line == "Riftforge" then RiftforgeAudio.guns[config.id]
+		else nil
+	if custom then
+		for _, cue in
+			{
+				custom.fire,
+				custom.fireFirst,
+				custom.tail,
+				custom.heavy,
+				custom.hitBody,
+				custom.hitWall,
+			}
+		do
+			if cue then
+				AudioController.warmCue(cue.id)
+			end
+		end
+	elseif line == "RuinBlighted" and config.class == "Melee" then
+		AudioController.warmCue("reaver:edge")
+		AudioController.warmCue("reaver:grit")
+	end
+end
+
 -- A sound from the gun's Config/GunSounds entry, played on our side (2D).
 local function playGun(
 	config: WeaponConfig,
@@ -518,13 +547,26 @@ local function inspect()
 		if ViewmodelController.inspect() then
 			local reaver = ViewmodelController.hasRuinedReaver()
 			local arc = ViewmodelController.hasSlipframeArc()
-			-- (the Tempest-Strike Katana's inspect sounds are its own timeline)
+			-- (the Tempest-Strike Katana & Riftfang Knife inspect sounds have their own timelines)
 			local katana = s.config.fireMode == "Melee" and tempestSet(s.config) ~= nil
-			if not usesRuinBlighted() and not reaver and not katana and not arc then
+			local riftfang = s.config.fireMode == "Melee" and riftforgeSet(s.config) ~= nil
+			if
+				not usesRuinBlighted()
+				and not reaver
+				and not katana
+				and not riftfang
+				and not arc
+			then
 				playGun(s.config, "inspect")
 			end
 			-- The knife's flips click as it's caught (Config/Viewmodel InspectMelee).
-			if s.config.fireMode == "Melee" and not reaver and not katana and not arc then
+			if
+				s.config.fireMode == "Melee"
+				and not reaver
+				and not katana
+				and not riftfang
+				and not arc
+			then
 				for _, at in Animations.KNIFE_FEEL.inspectFlips do
 					task.delay(at, function()
 						if ViewmodelController.isInspecting() then
@@ -553,14 +595,21 @@ local function applyEquip(slot: Slot)
 	nextLeft = false
 	-- Every equip plays the full draw (Valorant): raise and rack the action.
 	local config = s.config
+	AudioController.warmWeapon(config.id)
 	local duration = (config.drawTime or config.equipTime) / statusMults().equip
 	equipReadyAt = os.clock() + duration
 	updateHudWeapon()
 	local beats = ViewmodelController.equip(config, duration)
+	warmSkinAudio(config)
 	local shadow = usesRuinBlighted()
-	playGun(config, "draw")
+	local riftforge = ViewmodelController.hasRiftforge()
+	local riftforgeGun = riftforge and config.id ~= "Knife"
+	if not riftforgeGun then
+		playGun(config, "draw")
+	end
 	if
 		not shadow
+		and not riftforge
 		and not ViewmodelController.hasRuinedReaver()
 		and not ViewmodelController.hasSlipframeArc()
 	then
@@ -568,8 +617,8 @@ local function applyEquip(slot: Slot)
 	end
 	local token = reloadToken
 	for _, beat in beats do
-		if shadow and beat.sound == "Rack" then
-			continue -- the shards lock on the draw track
+		if (shadow or riftforgeGun) and beat.sound == "Rack" then
+			continue -- the shards / Riftforge cowls lock on the draw track
 		end
 		task.delay(duration * beat.at, function()
 			if reloadToken == token and current() == s then
@@ -620,7 +669,7 @@ local function cast(
 	local remaining = config.range
 	local budget = Penetration.budget(config.penetration)
 	for _ = 1, 8 do
-		local result = Workspace:Raycast(from, dir * remaining, params)
+		local result = BallisticGlass.raycast(from, dir * remaining, params)
 		if not result then
 			return out
 		end
@@ -1524,6 +1573,10 @@ local function onWeaponState(state: Types.WeaponState)
 			if config then
 				local existing = slots[slot]
 				if not existing or existing.id ~= incoming.id then
+					if config.class == "Melee" then
+						AudioController.warmWeapon(config.id)
+						warmSkinAudio(config)
+					end
 					slots[slot] = {
 						id = incoming.id,
 						config = config,

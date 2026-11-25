@@ -28,6 +28,7 @@ local Authority = require(Shared.Authority)
 local Combat = require(Shared.Config.Combat)
 local MatchState = require(Shared.MatchState)
 local PlayZone = require(Shared.PlayZone)
+local MovementGuard = require(script.Parent.MovementGuard)
 local Status = require(Shared.Mods.Status)
 local StatusEffects = require(Shared.Config.StatusEffects)
 local FireRate = require(Shared.Util.FireRate)
@@ -706,6 +707,12 @@ local function onFire(player: Player, payload: unknown)
 	if not allow(player, "Fire") then
 		return
 	end
+	if
+		StateValues.get(player, MatchState.COMBAT_LOCKED) == true
+		or not MovementGuard.canFight(player)
+	then
+		return
+	end
 	if typeof(payload) ~= "table" then
 		reject(player, "typeof(payload) ~= 'table'")
 		return
@@ -922,7 +929,11 @@ local function onFire(player: Player, payload: unknown)
 		end
 	end
 	for _, other in Players:GetPlayers() do
-		if other ~= player then
+		if
+			other ~= player
+			and PlayZone.get(other) ~= "Lobby"
+			and PlayZone.inSameScope(other, player)
+		then
 			Net.unreliable("ShotFx"):FireClient(other, player, config.id, origin, ends)
 		end
 	end
@@ -964,6 +975,7 @@ local function onFire(player: Player, payload: unknown)
 	)
 
 	-- Each claimed hit, then the damage (Weapon/Hits).
+	Targets.shatterGlass(character, origin, dirs, config)
 	local root = character:FindFirstChild("HumanoidRootPart")
 	local valid, objectHits = Hits.validate(
 		player,

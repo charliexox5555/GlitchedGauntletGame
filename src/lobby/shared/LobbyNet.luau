@@ -91,14 +91,12 @@ export type LoginEventPayload = {
 	text: string?, -- "failed": why
 }
 
--- CaseShow (server -> each OTHER player): someone opened a case; play it at them
+-- CaseShow (server -> nearby players): play the opening at the opener
 export type CaseShowPayload = {
 	userId: number, -- the opener
 	crate: number, -- Config/Inventory tier of the case (the crate's colours)
-	gun: string,
-	line: string,
-	tier: string, -- Config/Skins tier id
-	text: string, -- the skin's name
+	count: number, -- includes cases that returned Tickets
+	results: { CaseReward },
 }
 
 export type AdminEventPayload = {

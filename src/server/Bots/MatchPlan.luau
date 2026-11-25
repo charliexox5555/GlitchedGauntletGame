@@ -223,6 +223,33 @@ function MatchPlan.readiness(): (number, number, boolean)
 	return ready, expected, canStart
 end
 
+function MatchPlan.allWaived(): boolean
+	local p = plan
+	if not p then
+		return false
+	end
+	local studio = RunService:IsStudio()
+	local readyTimeout = if studio
+		then BotsConfig.READY_TIMEOUT_STUDIO
+		else BotsConfig.READY_TIMEOUT
+	local now = os.clock()
+	local ready, present, waived = 0, 0, 0
+	for team = 1, 2 do
+		for _, userId in p.teams[team] do
+			local player = Players:GetPlayerByUserId(userId)
+			if player then
+				present += 1
+				if MatchPlan.isReady(player) then
+					ready += 1
+				elseif now - (seenAt[player] or now) >= readyTimeout then
+					waived += 1
+				end
+			end
+		end
+	end
+	return present > 0 and ready == 0 and waived == present
+end
+
 function MatchPlan.start()
 	Net.event("MatchReady").OnServerEvent:Connect(function(player)
 		if not MatchPlan.isReady(player) then

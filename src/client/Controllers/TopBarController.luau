@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -100,13 +101,31 @@ local function myTeam(): number
 	return Teams.of(player) or 1
 end
 
+-- Matches a bot seat to its Workspace.Dummies model within the local player's match.
+local function findBotModel(dummies: Instance?, seat: Instance): Model?
+	if not dummies then
+		return nil
+	end
+	local botId = StateValues.get(seat, "BotId")
+	for _, child in dummies:GetChildren() do
+		if child:IsA("Model") and PlayZone.inSameScope(player, child) then
+			if botId ~= nil and StateValues.get(child, "BotId") == botId then
+				return child
+			elseif botId == nil and child.Name == seat.Name then
+				return child
+			end
+		end
+	end
+	return nil
+end
+
 -- Everyone on a team, in a stable order: you first, then players by UserId,
 -- then bot seats by name. Seats exist before their bodies spawn.
 local function roster(team: number): { Fighter }
 	local list: { Fighter } = {}
 	local people: { Player } = {}
 	for _, p in Players:GetPlayers() do
-		if Teams.of(p) == team then
+		if PlayZone.inSameScope(player, p) and Teams.of(p) == team then
 			table.insert(people, p)
 		end
 	end
@@ -129,7 +148,7 @@ local function roster(team: number): { Fighter }
 	end)
 	for _, seat in seats do
 		if StateValues.get(seat, Teams.ATTRIBUTE) == team then
-			local model = dummies and dummies:FindFirstChild(seat.Name)
+			local model = findBotModel(dummies, seat)
 			local humanoid = model and model:FindFirstChildOfClass("Humanoid")
 			table.insert(list, { key = seat, humanoid = humanoid })
 		end
@@ -423,7 +442,7 @@ function TopBarController.start()
 		end
 
 		local round = MatchState.get("Round") or 0
-		local matchPoint = math.max(myScore, theirScore) == Config.ROUNDS_TO_WIN - 1
+		local matchPoint = math.max(myScore, theirScore) == MatchState.roundsToWin() - 1
 		local info
 		if phase == "Vote" then
 			info = "VOTE FOR A MAP"
@@ -434,7 +453,7 @@ function TopBarController.start()
 				DANGER:ToHex()
 			)
 		elseif round <= 0 then
-			info = string.format("FIRST TO %d", Config.ROUNDS_TO_WIN)
+			info = string.format("FIRST TO %d", MatchState.roundsToWin())
 		elseif phase == "Draft" then
 			info = string.format("DRAFT · %s GUNS", tierName(round))
 		elseif matchPoint then

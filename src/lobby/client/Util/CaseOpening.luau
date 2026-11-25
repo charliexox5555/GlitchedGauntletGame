@@ -3,8 +3,8 @@
 -- Shared/Config/CaseOpening). Client-side and cosmetic: the server has already rolled
 -- the skin (Services/ShopService); this only shows it.
 --
---   local h = CaseOpening.start(owner, crateTier, isLocal)   -- tossed out, shaking
---   h:reveal({ gun, line, tier, name }, onDone)              -- the build-up and the burst
+--   local h = CaseOpening.start(owner, crateTier, isLocal, count) -- tossed out, shaking
+--   h:reveal(results, onDone)                                -- the build-up and the burst
 --   h:abort()                                                -- refused: it sinks away
 --
 -- Beats: toss → shakes (more for higher tiers; the seams glow in the tier colour before
@@ -15,6 +15,7 @@
 -- The crate is ReplicatedStorage.Crates.Crate (Motor6D Base, Lid, Gem, LatchL, LatchR,
 -- Handle; positive X angle = open). Studio review: workspace StateValue CaseTimeScale.
 
+local ContentProvider = game:GetService("ContentProvider")
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -27,6 +28,7 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local Vfx = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ItemStage = require(script.Parent.ItemStage)
 
@@ -58,41 +60,89 @@ local function rootOf(p: Player): BasePart?
 	return if r and r:IsA("BasePart") then r else nil
 end
 
--- a clear floor spot in front of the player (tries other angles when blocked)
-local function landingSpot(root: BasePart, ignore: { Instance }): CFrame?
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = ignore
-	local look = root.CFrame.LookVector * Vector3.new(1, 0, 1)
-	if look.Magnitude < 0.1 then
-		look = Vector3.new(0, 0, -1)
-	end
-	look = look.Unit
-	local from = root.Position
-	for _, deg in Cfg.TRY_ANGLES do
-		local dir = CFrame.Angles(0, math.rad(deg), 0):VectorToWorldSpace(look)
-		local target = from + dir * Cfg.DISTANCE
-		if not workspace:Raycast(from, target - from, params) then
-			local down =
-				workspace:Raycast(target + Vector3.new(0, 4, 0), Vector3.new(0, -14, 0), params)
-			if down then
-				local floor = down.Position
-				return CFrame.lookAt(floor, Vector3.new(from.X, floor.Y, from.Z)) -- front toward the player
-			end
-		end
-	end
-	return nil
+local function facingOpener(position: Vector3, origin: Vector3): CFrame
+	return CFrame.lookAt(position, Vector3.new(origin.X, position.Y, origin.Z))
 end
 
-local function sound(spec: any, parent: Instance, gain: number)
+local function landingSpot(
+	origin: Vector3,
+	look: Vector3,
+	params: RaycastParams,
+	angle: number,
+	distance: number,
+	occupied: { Vector3 },
+	height: number?
+): CFrame?
+	local dir = CFrame.Angles(0, math.rad(angle), 0):VectorToWorldSpace(look)
+	local offset = dir * distance
+	local target = origin + offset + Vector3.yAxis * (height or 0)
+	if workspace:Raycast(origin, target - origin, params) then
+		return nil
+	end
+	if not height then
+		local down = workspace:Raycast(target + Vector3.yAxis * 4, -Vector3.yAxis * 14, params)
+		if not down or down.Normal.Y < 0.7 then
+			return nil
+		end
+		target = down.Position
+	end
+	for _, position in occupied do
+		local delta = target - position
+		local spacing = if height
+			then delta.Magnitude
+			else Vector3.new(delta.X, 0, delta.Z).Magnitude
+		if spacing < Cfg.BATCH_MIN_SPACING then
+			return nil
+		end
+	end
+	return facingOpener(target, origin)
+end
+
+local audioWarmed = false
+local function warmAudio()
+	if audioWarmed then
+		return
+	end
+	audioWarmed = true
+	task.spawn(function()
+		local seen: { [string]: boolean } = {}
+		local list: { Instance } = {}
+		local function addSpec(spec: any)
+			if typeof(spec) == "table" and typeof(spec.id) == "string" and not seen[spec.id] then
+				seen[spec.id] = true
+				local snd = Instance.new("Sound")
+				snd.SoundId = spec.id
+				table.insert(list, snd)
+			end
+		end
+		for _, spec in Cfg.SOUNDS do
+			addSpec(spec)
+		end
+		for _, spec in Cfg.REVEAL do
+			addSpec(spec)
+		end
+		addSpec(Cfg.RISER)
+		if #list > 0 then
+			pcall(ContentProvider.PreloadAsync, ContentProvider, list)
+			for _, inst in list do
+				inst:Destroy()
+			end
+		end
+	end)
+end
+
+local function sound(spec: any, parent: Instance, gain: number, pitchMult: number?)
 	local snd = Instance.new("Sound")
 	snd.SoundId = spec.id
 	snd.Volume = spec.volume * gain
-	snd.PlaybackSpeed = spec.pitch
+	snd.PlaybackSpeed = spec.pitch * (pitchMult or 1)
 	snd.RollOffMode = Enum.RollOffMode.InverseTapered
 	snd.RollOffMinDistance = Cfg.ROLLOFF.X
 	snd.RollOffMaxDistance = Cfg.ROLLOFF.Y
 	snd.Parent = parent
+	if typeof(spec.start) == "number" and spec.start > 0 then
+		snd.TimePosition = spec.start
+	end
 	snd:Play()
 	local cut = spec.cut
 	if cut then -- a slice of a longer recording: fade it out after `cut` seconds
@@ -213,7 +263,14 @@ local function ring(cf: CFrame, color: Color3, size: number, time: number)
 end
 
 -- a soft beam of the tier colour straight up out of the crate
-local function beam(from: Attachment, color: Color3, height: number, time: number)
+local function beam(
+	from: Attachment,
+	color: Color3,
+	height: number,
+	time: number,
+	widthScale: number?
+)
+	local wScale = widthScale or 1
 	local top = helperPart("CaseBeamTop", from.WorldCFrame + Vector3.new(0, height, 0))
 	local a1 = Instance.new("Attachment")
 	a1.Parent = top
@@ -225,7 +282,7 @@ local function beam(from: Attachment, color: Color3, height: number, time: numbe
 	b.LightEmission = 1
 	b.LightInfluence = 0
 	b.FaceCamera = true
-	b.Width0, b.Width1 = 2.4, 0.6
+	b.Width0, b.Width1 = 2.4 * wScale, 0.6 * wScale
 	b.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0.15),
 		NumberSequenceKeypoint.new(1, 1),
@@ -234,8 +291,8 @@ local function beam(from: Attachment, color: Color3, height: number, time: numbe
 	local fade = Instance.new("NumberValue")
 	fade.Value = 0
 	fade.Changed:Connect(function(v: number)
-		b.Width0 = 2.4 * (1 - v) + 0.2
-		b.Width1 = 0.6 * (1 - v) + 0.05
+		b.Width0 = (2.4 * (1 - v) + 0.2) * wScale
+		b.Width1 = (0.6 * (1 - v) + 0.05) * wScale
 		b.Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 0.15 + 0.85 * v),
 			NumberSequenceKeypoint.new(1, 1),
@@ -312,11 +369,13 @@ local function card(
 	result: Result,
 	color: Color3,
 	tierName: string,
-	who: string?
+	tierOrder: number,
+	who: string?,
+	sizeScale: number
 ): BillboardGui
 	local bb = Instance.new("BillboardGui")
 	bb.Name = "CaseCard"
-	bb.Size = UDim2.fromScale(Cfg.CARD_SIZE.X, Cfg.CARD_SIZE.Y)
+	bb.Size = UDim2.fromScale(Cfg.CARD_SIZE.X * sizeScale, Cfg.CARD_SIZE.Y * sizeScale)
 	bb.LightInfluence = 0
 	bb.MaxDistance = 90
 	bb.Adornee = anchor
@@ -335,6 +394,11 @@ local function card(
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0.1, 0)
 	corner.Parent = holder
+	local border = Instance.new("UIStroke")
+	border.Color = color
+	border.Thickness = if tierOrder >= 4 then 4 elseif tierOrder == 3 then 3 else 2
+	border.Transparency = if tierOrder >= 3 then 0.1 else 0.35
+	border.Parent = holder
 	-- the tier tile with the portrait spilling out
 	local tile = Instance.new("Frame")
 	tile.Name = "Tile"
@@ -370,6 +434,7 @@ local function card(
 		l.Size = UDim2.fromScale(0.96 - x0, h)
 		l.FontFace = FONT
 		l.TextScaled = true
+		l.TextWrapped = true
 		l.TextXAlignment = Enum.TextXAlignment.Left
 		l.TextColor3 = c
 		l.Text = text
@@ -379,7 +444,7 @@ local function card(
 	if who then
 		label("Who", string.upper(who) .. " UNBOXED", 0.1, 0.18, Color3.fromHex("9F9FA2"))
 	end
-	label("Name", result.name, if who then 0.3 else 0.16, 0.36, color)
+	label("Name", result.name, if who then 0.29 else 0.15, if who then 0.33 else 0.42, color)
 	local tag = Instance.new("Frame")
 	tag.Name = "Tier"
 	tag.Position = UDim2.fromScale(x0, 0.68)
@@ -433,40 +498,60 @@ local function card(
 			})
 			:Play()
 	end)
+	if tierOrder >= 4 and not UiMotion.reduced() then
+		task.delay(1.05, function()
+			if sg.Parent then
+				sg.Offset = Vector2.new(-1, 0)
+				TweenService:Create(
+					sg,
+					TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+					{ Offset = Vector2.new(1, 0) }
+				):Play()
+			end
+		end)
+	end
 	return bb
 end
 
 type Phase = "toss" | "wait" | "open" | "collect" | "sink" | "dead"
 
+type Timing = { shakes: number, lidAt: number, modelsReady: (shake: number) -> boolean }
+
+type CrateHandle = {
+	reveal: (result: Result?, timing: Timing, lead: boolean, onDone: () -> ()) -> (),
+	abort: () -> (),
+	canReveal: () -> boolean,
+	isDead: () -> boolean,
+}
+
 export type Handle = {
-	reveal: (self: Handle, result: Result, onDone: (() -> ())?) -> (),
+	reveal: (self: Handle, results: { Result }, onDone: (() -> ())?) -> boolean,
 	abort: (self: Handle) -> (),
 	isDead: (self: Handle) -> boolean,
 }
 
-function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): Handle?
-	local ownerRoot = rootOf(owner)
+local function startCrate(
+	owner: Player,
+	origin: Vector3,
+	crateTier: number,
+	isLocal: boolean,
+	land: CFrame,
+	count: number
+): CrateHandle?
 	local model = CrateLook.make(crateTier)
-	if not ownerRoot or not model then
-		return nil
-	end
-	local ignore: { Instance } = { model }
-	for _, p in Players:GetPlayers() do
-		if p.Character then
-			table.insert(ignore, p.Character)
+	local root = model and model.PrimaryPart
+	if not model or not root then
+		if model then
+			model:Destroy()
 		end
-	end
-	local land = landingSpot(ownerRoot, ignore)
-	if not land then
-		model:Destroy()
 		return nil
 	end
-	local gain = if isLocal then 1 else Cfg.OTHERS_VOLUME
+	local audienceGain = if isLocal then 1 else Cfg.OTHERS_VOLUME
+	local gain = audienceGain / count
 	-- the tier's model decides its size (the Knife case is smaller: Config/Crates)
 	local scale = CrateLook.scale(crateTier) or Cfg.SCALE
 	model.Name = "CaseOpening_" .. owner.UserId
 	model:ScaleTo(scale)
-	local root = model.PrimaryPart :: BasePart
 	local joints: { [string]: Motor6D } = {}
 	for _, n in { "Base", "Lid", "Gem", "LatchL", "LatchR", "Handle" } do
 		local j = CrateLook.joint(model, n)
@@ -483,7 +568,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 	footing.Name = "Footing"
 	footing.Parent = root
 
-	local startCF = CFrame.new(ownerRoot.Position + Vector3.new(0, 1, 0)) * land.Rotation
+	local startCF = CFrame.new(origin + Vector3.new(0, 1, 0)) * land.Rotation
 	model:PivotTo(startCF * CFrame.Angles(0, math.rad(Cfg.TOSS_SPIN), 0))
 	model.Parent = workspace
 	sound(Cfg.SOUNDS.Toss, root, gain)
@@ -495,6 +580,8 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 	local shakes = 0
 	local lastShake = -1
 	local result: Result? = nil
+	local timing: Timing? = nil
+	local lead = false
 	local onDone: (() -> ())? = nil
 	local openAt = 0
 	local fired: { [string]: boolean } = {}
@@ -512,6 +599,8 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 	local fx: any = Cfg.TIER_FX.Common
 	local flyFrom: CFrame? = nil
 	local sinkAt = 0
+	local lastPreSpark = -1
+	local holdBaseFov: number? = nil
 	local conn: RBXScriptConnection
 
 	local function once(key: string): boolean
@@ -555,14 +644,6 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		dust(footing)
 	end
 
-	local function targetShakes(): number
-		local r = result
-		return math.max(
-			Cfg.SHAKES,
-			if r then (Cfg.TIER_SHAKES :: any)[r.tier] or Cfg.SHAKES else Cfg.SHAKES
-		)
-	end
-
 	-- the seams glow in the tier colour: the tease before the lid
 	local function tease()
 		local r = result
@@ -594,9 +675,8 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 			return
 		end
 		local top = land.Position + Vector3.new(0, 1.0 * scale, 0)
-		-- the stock gun only if the skin still hasn't landed (a very slow connection)
-		local src = Locker.skinModel(r.gun, r.line) or Locker.gunModel(r.gun)
-		if src then
+		local src = Locker.skinModel(r.gun, r.line)
+		if src and src:FindFirstChildWhichIsA("BasePart", true) then
 			local m = ItemStage.presentable(src)
 			local size = m:GetExtentsSize()
 			local longest = math.max(size.X, size.Y, size.Z)
@@ -664,7 +744,9 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 			r,
 			tier.color,
 			tier.name,
-			if isLocal then nil else owner.DisplayName
+			tier.order,
+			if isLocal then nil else owner.DisplayName,
+			if count > 1 then Cfg.BATCH_CARD_SCALE else 1
 		)
 	end
 
@@ -693,7 +775,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		end
 		if phase == "wait" then
 			local tau = now - landedAt
-			if tau > Cfg.WAIT_LIMIT then
+			if not timing and tau > Cfg.WAIT_LIMIT then
 				startSink()
 				return
 			end
@@ -701,17 +783,18 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 			if k >= 0 and k ~= lastShake then
 				lastShake = k
 				shakes += 1
-				sound(Cfg.SOUNDS.Shake, root, gain)
-				sound(Cfg.SOUNDS.Rattle, root, gain)
-				if result and shakes >= targetShakes() - 1 then
+				local shakePitch = 1 + 0.06 * math.max(shakes - 1, 0)
+				local shakeGain = gain * (0.85 + 0.08 * math.min(shakes, 4))
+				sound(Cfg.SOUNDS.Shake, root, shakeGain, shakePitch)
+				sound(Cfg.SOUNDS.Rattle, root, shakeGain, shakePitch)
+				local schedule = timing
+				if schedule and shakes >= schedule.shakes - 1 then
 					tease()
 				end
-				if result and shakes > targetShakes() then
+				if schedule and shakes > schedule.shakes and schedule.modelsReady(shakes) then
 					phase = "open"
 					openAt = now
-					local r = result :: Result
-					fx = (Cfg.TIER_FX :: any)[r.tier] or Cfg.TIER_FX.Common
-					lidAt = Cfg.LID_AT + fx.hold
+					lidAt = schedule.lidAt
 					return
 				end
 			end
@@ -738,10 +821,11 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		end
 		if phase == "open" then
 			local tau = now - openAt
+			local reduced = UiMotion.reduced()
 			for i, n in { "LatchL", "LatchR" } do
 				local lt = tau - (i - 1) * Cfg.LATCH_GAP
 				if lt >= 0 and once(n) then
-					sound(Cfg.SOUNDS.Latch, root, gain)
+					sound(Cfg.SOUNDS.Latch, root, gain, if i == 1 then 1 else 1.12)
 				end
 				local a = backOut(clamp01(lt / Cfg.LATCH_TIME), 2.4) * Cfg.LATCH_ANGLE
 				setJoint(n, CFrame.Angles(math.rad(math.max(a, 0)), 0, 0))
@@ -751,11 +835,33 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 				then math.sin(coil * math.pi * 0.5)
 				else 1 - clamp01((tau - lidAt) / 0.15)
 			-- the held beat (higher tiers): the crate trembles and the glow ramps up
-			local held = if fx.hold > 0 then clamp01((tau - Cfg.LID_AT) / fx.hold) else 0
-			if fx.hold > 0 and tau >= Cfg.LID_AT - 0.05 and once("riser") then
-				sound(Cfg.RISER, root, gain)
+			local holdStart = lidAt - fx.hold
+			local held = if fx.hold > 0 then clamp01((tau - holdStart) / fx.hold) else 0
+			if lead and fx.hold > 0 and tau >= holdStart - 0.05 and once("riser") then
+				sound(Cfg.RISER, root, audienceGain)
+				sound(Cfg.SOUNDS.Strain, root, gain)
 			end
-			local tremble = if tau < lidAt and held > 0
+			if tau < lidAt and held > 0 and not reduced then
+				if tierOrder >= 3 and burst then
+					local beat = math.floor(tau / 0.12)
+					if beat ~= lastPreSpark then
+						lastPreSpark = beat
+						sparks(burst :: Attachment, tierColor, 4, 8 + 6 * held)
+					end
+				end
+				if isLocal and lead then
+					local cam = workspace.CurrentCamera
+					if cam then
+						if not holdBaseFov then
+							holdBaseFov = cam.FieldOfView
+						end
+						cam.FieldOfView = (holdBaseFov :: number) - 2.5 * fx.kick * held
+					end
+				end
+			end
+			local tremble = if tau < lidAt
+					and held > 0
+					and not reduced
 				then CFrame.Angles(0, 0, math.rad(math.sin(tau * 70) * 2.5 * held))
 				else CFrame.new()
 			setJoint("Base", CFrame.new(0, -0.06 * scale * dip, 0) * tremble)
@@ -766,32 +872,43 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 			local lt = tau - lidAt
 			if lt >= 0 then
 				if once("lid") then
-					local r = result :: Result
-					local tier = Skins.TIERS[r.tier :: any] or Skins.TIERS.Common
-					tierColor = tier.color
-					tierOrder = tier.order
-					sound(Cfg.SOUNDS.Lid, root, gain)
-					sound(Cfg.SOUNDS.Burst, root, gain)
-					sound(Cfg.SOUNDS.LidBoom, root, gain)
-					sound(Cfg.SOUNDS.Swell, root, gain)
-					sound(Cfg.REVEAL[r.tier] or Cfg.REVEAL.Common, root, gain)
-					for _, extra in fx.extra do
-						sound(extra, root, gain)
+					if holdBaseFov then
+						local cam = workspace.CurrentCamera
+						if cam then
+							cam.FieldOfView = holdBaseFov
+						end
+						holdBaseFov = nil
 					end
-					if burst then
+					sound(Cfg.SOUNDS.Lid, root, gain)
+					local r = result
+					if r then
+						sound(Cfg.SOUNDS.Burst, root, gain)
+						sound(Cfg.SOUNDS.LidBoom, root, gain)
+						sound(Cfg.SOUNDS.Swell, root, gain)
+						if lead then
+							sound(Cfg.REVEAL[r.tier] or Cfg.REVEAL.Common, root, audienceGain)
+							for _, extra in fx.extra do
+								sound(extra, root, audienceGain)
+							end
+						end
+					end
+					if r and burst then
 						local b0 = burst :: Attachment
-						sparks(b0, tierColor, fx.sparks, 16 + tierOrder * 3)
-						for w = 1, fx.waves do
-							task.delay(0.14 * w, function()
-								if b0.Parent then
-									sparks(
-										b0,
-										tierColor,
-										math.floor(fx.sparks * 0.6),
-										20 + tierOrder * 3
-									)
-								end
-							end)
+						local burstCount = if reduced then math.min(fx.sparks, 20) else fx.sparks
+						sparks(b0, tierColor, burstCount, 16 + tierOrder * 3)
+						if not reduced then
+							for w = 1, fx.waves do
+								task.delay(0.14 * w, function()
+									if b0.Parent then
+										sparks(
+											b0,
+											tierColor,
+											math.floor(fx.sparks * 0.6),
+											20 + tierOrder * 3
+										)
+									end
+								end)
+							end
 						end
 						glow(b0, tierColor, 5 + tierOrder * 1.5, 0.6)
 						if fx.beam > 0 then
@@ -799,8 +916,18 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 								b0,
 								tierColor,
 								(Cfg.BEAM_HEIGHT + tierOrder) * fx.beam,
-								Cfg.BEAM_TIME * fx.beam
+								Cfg.BEAM_TIME * fx.beam,
+								if tierOrder >= 4 then 1.45 else 1
 							)
+							if tierOrder >= 4 and not reduced then
+								beam(
+									b0,
+									Color3.new(1, 1, 1),
+									(Cfg.BEAM_HEIGHT + tierOrder) * fx.beam * 0.85,
+									Cfg.BEAM_TIME * fx.beam * 0.75,
+									0.55
+								)
+							end
 						end
 						local l = light
 						if not l then
@@ -819,7 +946,8 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 							{ Brightness = Cfg.LIGHT_PEAK * 0.3 }
 						):Play()
 					end
-					for k = 1, fx.rings do
+					local ringCount = if r then fx.rings else 0
+					for k = 1, ringCount do
 						task.delay((k - 1) * 0.12, function()
 							ring(
 								land * CFrame.new(0, 0.06, 0),
@@ -829,7 +957,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 							)
 						end)
 					end
-					if isLocal then
+					if isLocal and lead and not reduced then
 						kick(Cfg.CAMERA_KICK * fx.kick, Cfg.FOV_PUNCH * fx.kick)
 						flash(tierColor, fx.flash)
 					end
@@ -863,6 +991,10 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 					)
 				end
 				if rt > Cfg.RISE_TIME + Cfg.HOLD then
+					if not result then
+						startSink()
+						return
+					end
 					phase = "collect"
 					collectAt = now
 					flyFrom = if skin then (skin :: Model):GetPivot() else nil
@@ -941,7 +1073,7 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 					sound(Cfg.SOUNDS.Collect, target, gain)
 					sound(Cfg.SOUNDS.CollectSpark, target, gain)
 					Debris:AddItem(att, 2)
-					if isLocal then
+					if isLocal and lead and not UiMotion.reduced() then
 						kick(Cfg.CAMERA_KICK * 0.4, 2)
 					end
 				end
@@ -968,26 +1100,216 @@ function CaseOpening.start(owner: Player, crateTier: number, isLocal: boolean): 
 		end
 	end)
 
-	local handle = {} :: any
-	function handle.reveal(_self: Handle, r: Result, done: (() -> ())?)
-		if phase == "dead" or phase == "sink" then
-			if done then
-				task.spawn(done)
-			end
-			return
-		end
+	local function reveal(r: Result?, schedule: Timing, isLead: boolean, done: () -> ())
 		result = r
+		timing = schedule
+		lead = isLead
 		onDone = done
-		-- skins are delivered on demand (Shared/SkinStore): ask now, the lid's strain gives it time to land
-		Locker.skinModel(r.gun, r.line)
+		if r then
+			fx = (Cfg.TIER_FX :: any)[r.tier] or Cfg.TIER_FX.Common
+			-- Ask now so an on-demand skin and its art arrive before the lid opens.
+			Locker.skinModel(r.gun, r.line)
+			task.spawn(function()
+				local imgs: { Instance } = {}
+				for _, url in { SkinArt.portrait(r.gun, r.line), SkinArt.side(r.gun, r.line) } do
+					if typeof(url) == "string" and url ~= "" then
+						local lbl = Instance.new("ImageLabel")
+						lbl.Image = url
+						table.insert(imgs, lbl)
+					end
+				end
+				if #imgs > 0 then
+					pcall(ContentProvider.PreloadAsync, ContentProvider, imgs)
+					for _, inst in imgs do
+						inst:Destroy()
+					end
+				end
+			end)
+		end
 	end
-	function handle.abort(_self: Handle)
-		startSink()
+
+	return {
+		reveal = reveal,
+		abort = startSink,
+		canReveal = function()
+			return phase == "toss" or phase == "wait"
+		end,
+		isDead = function()
+			return phase == "dead"
+		end,
+	}
+end
+
+function CaseOpening.start(
+	owner: Player,
+	crateTier: number,
+	isLocal: boolean,
+	count: number
+): Handle?
+	local ownerRoot = rootOf(owner)
+	if not ownerRoot then
+		return nil
 	end
-	function handle.isDead(_self: Handle): boolean
-		return phase == "dead"
+	warmAudio()
+
+	local ignore: { Instance } = {}
+	for _, player in Players:GetPlayers() do
+		if player.Character then
+			table.insert(ignore, player.Character)
+		end
 	end
-	return handle :: Handle
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = ignore
+	params.RespectCanCollide = true
+
+	local angles = if count == 1 then { 0 } else Cfg.BATCH_ANGLES
+	local distance = if count == 1 then Cfg.DISTANCE else Cfg.BATCH_DISTANCE
+	local distances = { distance }
+	for _, alternate in Cfg.TRY_DISTANCES do
+		table.insert(distances, alternate)
+	end
+	local occupied: { Vector3 } = {}
+	local origin = ownerRoot.Position
+	local flat = ownerRoot.CFrame.LookVector * Vector3.new(1, 0, 1)
+	local look = if flat.Magnitude >= 0.1 then flat.Unit else -Vector3.zAxis
+	local landings: { CFrame? } = table.create(count)
+	local function reserve(i: number, land: CFrame)
+		landings[i] = land
+		table.insert(occupied, land.Position)
+	end
+	-- Reserve the preferred spots first so a blocked slot can't take its neighbour's.
+	for i, angle in angles do
+		local land = landingSpot(origin, look, params, angle, distance, occupied)
+		if land then
+			reserve(i, land)
+		end
+	end
+	local function search(angle: number, height: number?): CFrame?
+		for _, radius in distances do
+			for _, offset in Cfg.TRY_ANGLES do
+				local land =
+					landingSpot(origin, look, params, angle + offset, radius, occupied, height)
+				if land then
+					return land
+				end
+			end
+		end
+		return nil
+	end
+	for i, angle in angles do
+		if not landings[i] then
+			local land = search(angle)
+			if land then
+				reserve(i, land)
+			end
+		end
+	end
+
+	local slots: { CrateHandle } = {}
+	for i, angle in angles do
+		local land = landings[i] or search(angle, Cfg.HOVER_HEIGHT)
+		if not land then
+			-- Keep the full opening visible even if the player is boxed in or over a void.
+			local dir = CFrame.Angles(0, math.rad(angle), 0):VectorToWorldSpace(look)
+			local target = origin
+				+ dir * distance
+				+ Vector3.yAxis * (Cfg.HOVER_HEIGHT + Cfg.BATCH_MIN_SPACING)
+			land = facingOpener(target, origin)
+		end
+		-- Nearby hovering crates also use distinct spots.
+		if not landings[i] then
+			reserve(i, land)
+		end
+		local crate = startCrate(owner, origin, crateTier, isLocal, land, count)
+		if crate then
+			table.insert(slots, crate)
+		end
+	end
+	if next(slots) == nil then
+		return nil
+	end
+
+	local function reveal(_self: Handle, results: { Result }, onDone: (() -> ())?): boolean
+		local active: { CrateHandle } = {}
+		for _, slot in slots do
+			if slot.canReveal() then
+				table.insert(active, slot)
+			end
+		end
+		if #active == 0 or #results == 0 then
+			return false
+		end
+
+		-- Match the longest build-up so every lid bursts on the same beat.
+		local shown = math.min(#active, #results)
+		local deadline = os.clock() + Cfg.SKIN_WAIT
+		local ready = false
+		local checkedShake = 0
+		local function modelsReady(shake: number): boolean
+			if ready or shake == checkedShake then
+				return ready
+			end
+			checkedShake = shake
+			if os.clock() >= deadline then
+				ready = true
+				return true
+			end
+			for i = 1, shown do
+				local reward = results[i]
+				local model = Locker.skinModel(reward.gun, reward.line)
+				if not model or not model:FindFirstChildWhichIsA("BasePart", true) then
+					return false
+				end
+			end
+			ready = true
+			return true
+		end
+		local timing: Timing =
+			{ shakes = Cfg.SHAKES, lidAt = Cfg.LID_AT, modelsReady = modelsReady }
+		local lead = 1
+		local highestTier = 0
+		for i = 1, shown do
+			local tierId = results[i].tier
+			local tier = Skins.TIERS[tierId :: any] or Skins.TIERS.Common
+			local fx = (Cfg.TIER_FX :: any)[tierId] or Cfg.TIER_FX.Common
+			timing.shakes = math.max(timing.shakes, (Cfg.TIER_SHAKES :: any)[tierId] or Cfg.SHAKES)
+			timing.lidAt = math.max(timing.lidAt, Cfg.LID_AT + fx.hold)
+			if tier.order > highestTier then
+				lead = i
+				highestTier = tier.order
+			end
+		end
+
+		local remaining = #active
+		local function finished()
+			remaining -= 1
+			if remaining == 0 and onDone then
+				onDone()
+			end
+		end
+		for i, slot in active do
+			slot.reveal(results[i], timing, i == lead, finished)
+		end
+		return true
+	end
+
+	return {
+		reveal = reveal,
+		abort = function()
+			for _, slot in slots do
+				slot.abort()
+			end
+		end,
+		isDead = function()
+			for _, slot in slots do
+				if not slot.isDead() then
+					return false
+				end
+			end
+			return true
+		end,
+	}
 end
 
 return CaseOpening

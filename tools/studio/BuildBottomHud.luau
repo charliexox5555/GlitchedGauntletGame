@@ -319,7 +319,7 @@ make("TextLabel", {
 	Size = UDim2.fromOffset(160, 18),
 	BackgroundTransparency = 1,
 	ZIndex = 2,
-	Text = "VANDAL",
+	Text = "HAVOC",
 	FontFace = Font.new(BX, Enum.FontWeight.Bold),
 	TextSize = 13,
 	TextColor3 = MUTED,

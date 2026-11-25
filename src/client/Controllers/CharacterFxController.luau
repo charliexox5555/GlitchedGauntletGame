@@ -12,6 +12,7 @@ local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local VfxTextures = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local AudioController = require(script.Parent.AudioController)
@@ -96,15 +97,17 @@ function CharacterFxController.start()
 	while true do
 		task.wait(TICK)
 		for _, p in Players:GetPlayers() do
-			local character = p.Character
-			if character then
-				step(character, p == player)
+			if PlayZone.inSameScope(player, p) then
+				local character = p.Character
+				if character then
+					step(character, p == player)
+				end
 			end
 		end
 		local dummies = Workspace:FindFirstChild("Dummies")
 		if dummies then
 			for _, model in dummies:GetChildren() do
-				if model:IsA("Model") then
+				if model:IsA("Model") and PlayZone.inSameScope(player, model) then
 					step(model, false)
 				end
 			end

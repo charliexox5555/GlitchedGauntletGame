@@ -10,7 +10,11 @@
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 
 local LobbyPathFx = {}
 
@@ -211,6 +215,9 @@ local function pulse(p: number): NumberSequence
 end
 
 local function step()
+	if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
+		return
+	end
 	local cam = workspace.CurrentCamera
 	local camPos = if cam then cam.CFrame.Position else Vector3.zero
 	local t = os.clock()

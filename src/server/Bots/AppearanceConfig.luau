@@ -2,7 +2,17 @@
 -- Avatar source IDs stay on the Match server. Add approved Roblox user IDs here.
 
 return table.freeze({
-	BACKUP_USER_IDS = {} :: { number },
+	BACKUP_USER_IDS = {
+		284035946,
+		2645275593,
+		11649864676,
+		155796895,
+		3030029660,
+		7999700564,
+		7164740669,
+		11523329624,
+		11592665363,
+	} :: { number },
 	FRIENDS_PER_PLAYER = 64,
 	FRIEND_PAGES = 2,
 	-- Bot outfits built ahead (each a full avatar: many asset downloads). 2026-11-23: 10 / 3 at a cold server's
@@ -11,7 +21,7 @@ return table.freeze({
 	AVATAR_WORKERS = 1,
 	PREFETCH_DELAY = 6, -- seconds after the server starts before outfits are built (players' own assets first)
 	FRIEND_ATTEMPTS = 20,
-	BACKUP_ATTEMPTS = 8,
+	BACKUP_ATTEMPTS = 9,
 	FIRST_SPAWN_LOOK_WAIT = 5.5,
 	STARTER_SKIN_CHANCE = 0.6,
 	DEVICES = { "PC", "PC", "PC", "Mobile", "Mobile", "Console" },

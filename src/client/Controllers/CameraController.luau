@@ -474,6 +474,14 @@ function CameraController.start()
 	InputController.onPressed("FreeMouse", function()
 		CameraController.freeMouse(FREE_KEY, not freeReasons[FREE_KEY])
 	end)
+	local player = Players.LocalPlayer
+	local function syncSettings()
+		local open = player:GetAttribute("GameSettingsOpen") == true
+		CameraController.freeMouse("Settings", open)
+		InputController.setEnabled(not open)
+	end
+	player:GetAttributeChangedSignal("GameSettingsOpen"):Connect(syncSettings)
+	syncSettings()
 end
 
 return CameraController

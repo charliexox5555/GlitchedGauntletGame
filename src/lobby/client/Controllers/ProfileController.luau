@@ -24,6 +24,8 @@ local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
 
+local Weapons = require(game:GetService("ReplicatedStorage").Shared.Config.Weapons)
+
 local ProfileController = {}
 
 local player = Players.LocalPlayer
@@ -152,7 +154,7 @@ local function fill(p: Player)
 			emblem.Image = Locker.EMBLEMS[s.line] or ""
 			emblem.ImageColor3 = Locker.COLORS[s.line] or C.white
 			local gunLabel = child(cell, "Gun") :: TextLabel
-			gunLabel.Text = string.upper(s.gun)
+			gunLabel.Text = string.upper(Weapons.nameOf(s.gun))
 			local line = child(cell, "Line") :: TextLabel
 			line.Text = string.upper(s.line)
 			line.TextColor3 = Locker.COLORS[s.line] or C.muted

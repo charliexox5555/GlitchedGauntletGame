@@ -29,13 +29,17 @@ local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
+player:SetAttribute("LoadingScreen", true)
 local playerGui = player:WaitForChild("PlayerGui")
+if playerGui:IsA("PlayerGui") then
+	playerGui.ScreenOrientation = Enum.ScreenOrientation.LandscapeSensor
+end
 local LoadingLayout = require(script.Parent:WaitForChild("LoadingLayout") :: ModuleScript)
 
 -- Only until Config/Loading arrives (or if it never does).
 local FALLBACK = {
-	minHold = 4.5,
-	stepMin = 0.55,
+	minHold = 2.2,
+	stepMin = 0.3,
 	assetWait = 3,
 	watchdogLobby = 30,
 	watchdogMatch = 120,
@@ -82,6 +86,7 @@ else
 	local template = ReplicatedFirst:WaitForChild("DuelsLoading", 10)
 	if not (template and template:IsA("ScreenGui")) then
 		warn("[Loading] no ReplicatedFirst.DuelsLoading: Roblox's own loading screen stays")
+		player:SetAttribute("LoadingScreen", false)
 		return
 	end
 	gui = template:Clone()
@@ -435,22 +440,39 @@ local function stateValue(owner: Instance?, name: string): string?
 	return if v and v:IsA("StringValue") then v.Value else nil
 end
 
+local hostedMatchId: string? = nil
+
 local function matchValue(name: string): string
-	local folder = ReplicatedStorage:FindFirstChild("MatchState")
+	local folder: Instance?
+	if hostedMatchId then
+		local matches = ReplicatedStorage:FindFirstChild("Matches")
+		folder = matches and matches:FindFirstChild(hostedMatchId)
+	else
+		folder = ReplicatedStorage:FindFirstChild("MatchState")
+	end
 	local value = folder and folder:FindFirstChild(name)
 	return if value and value:IsA("StringValue") then value.Value else ""
 end
 
--- Shared/ServerRole's attribute. Polled: it can arrive with ReplicatedStorage's first snapshot, which fires no
+-- Shared/ServerRole attributes. Polled: they can arrive with ReplicatedStorage's first snapshot, which fires no
 -- changed signal (a GetAttributeChangedSignal wait hung here, measured 2026-11-22).
-local function role(): string
-	local deadline = os.clock() + 15
+local function serverInfo(): (string, boolean)
+	local waitDeadline = os.clock() + 15
 	local value = ReplicatedStorage:GetAttribute("ServerRole")
-	while value == nil and os.clock() < deadline do
+	while value == nil and os.clock() < waitDeadline do
 		task.wait(0.05)
 		value = ReplicatedStorage:GetAttribute("ServerRole")
 	end
-	return if value == "Match" then "Match" else "Lobby"
+	if value == "Match" then
+		return "Match", false
+	end
+	local hostedDeadline = math.min(waitDeadline, os.clock() + 3)
+	local hosted = ReplicatedStorage:GetAttribute("HostedServer")
+	while hosted == nil and os.clock() < hostedDeadline do
+		task.wait(0.05)
+		hosted = ReplicatedStorage:GetAttribute("HostedServer")
+	end
+	return "Lobby", hosted == true
 end
 
 -- Close -------------------------------------------------------------------------------
@@ -563,8 +585,10 @@ end
 -- Run ---------------------------------------------------------------------------------
 
 local started = os.clock()
-local isMatch = role() == "Match"
-local deadline = started + (if isMatch then FALLBACK.watchdogMatch else FALLBACK.watchdogLobby)
+local serverRole, isHosted = serverInfo()
+local isMatch = serverRole == "Match"
+local deadline = started
+	+ (if isMatch or isHosted then FALLBACK.watchdogMatch else FALLBACK.watchdogLobby)
 
 if revealed then
 	floatFrom = os.clock()
@@ -582,7 +606,7 @@ waitFor(function()
 		and ContentProvider:GetAssetFetchStatus(ticket.Image) ~= Enum.AssetFetchStatus.Loading
 		and ContentProvider:GetAssetFetchStatus(duels.Image) ~= Enum.AssetFetchStatus.Loading
 end, os.clock() + (cfg.assetWait or FALLBACK.assetWait))
-deadline = started + (if isMatch then cfg.watchdogMatch else cfg.watchdogLobby)
+deadline = started + (if isMatch or isHosted then cfg.watchdogMatch else cfg.watchdogLobby)
 
 local bed = sound(cfg.bed, true)
 if bed then
@@ -608,6 +632,30 @@ done = waitFor(function()
 end, deadline) and done
 advance()
 
+if not isMatch and isHosted then
+	local zoneDeadline = math.min(deadline, os.clock() + 6)
+	while os.clock() < zoneDeadline do
+		local zone = player:GetAttribute("PlayZone")
+		local id = player:GetAttribute("MatchId")
+		if zone == "Match" and typeof(id) == "string" then
+			hostedMatchId = id
+			isMatch = true
+			break
+		end
+		local char = player.Character
+		if char and char:GetAttribute("SpawnZone") == "Lobby" then
+			break
+		end
+		task.wait(0.05)
+	end
+end
+deadline = started
+	+ (
+		if isMatch
+			then (cfg.watchdogMatch or FALLBACK.watchdogMatch)
+			else (cfg.watchdogLobby or FALLBACK.watchdogLobby)
+	)
+
 stage("data", "LOADING YOUR DATA")
 -- Capped (owner 2026-11-22: stuck on this stage, and a match started without him): the screens that need the
 -- save (Shop, onboarding) wait for DataReady themselves, so a slow or failing save read never holds the player
@@ -620,12 +668,20 @@ if not dataReady then
 end
 -- Your equipped gun skins (Shared/SkinStore: delivered on demand, the server sends these on join) are here
 -- before the screen opens, so no gun ever shows its stock look for a moment (owner 2026-11-22).
+local jsonCache: { [Instance]: { raw: string, data: any } } = {}
 local function json(v: Instance?): any
 	if not (v and v:IsA("StringValue")) or v.Value == "" then
 		return nil
 	end
-	local ok, data = pcall(HttpService.JSONDecode, HttpService, v.Value)
-	return if ok then data else nil
+	local raw = v.Value
+	local cached = jsonCache[v]
+	if cached and cached.raw == raw then
+		return cached.data
+	end
+	local ok, data = pcall(HttpService.JSONDecode, HttpService, raw)
+	local result = if ok then data else nil
+	jsonCache[v] = { raw = raw, data = result }
+	return result
 end
 local function skinsReady(): boolean
 	local locker = json(player:FindFirstChild("LockerSkins"))
@@ -639,8 +695,11 @@ local function skinsReady(): boolean
 			continue
 		end
 		local name = if gun == "Knife" and line == "PopCircuit" then "Bat" else gun
+		if typeof(manifest) ~= "table" then
+			return false
+		end
 		local listed = false
-		if typeof(manifest) == "table" and typeof(manifest[line]) == "table" then
+		if typeof(manifest[line]) == "table" then
 			listed = table.find(manifest[line], name) ~= nil
 		end
 		if listed then
@@ -653,7 +712,12 @@ local function skinsReady(): boolean
 	return true
 end
 if
-	not waitFor(skinsReady, math.min(deadline, os.clock() + ((cfg :: any).skinWait or SKIN_WAIT)))
+	isMatch
+	and dataReady
+	and not waitFor(
+		skinsReady,
+		math.min(deadline, os.clock() + ((cfg :: any).skinWait or SKIN_WAIT))
+	)
 then
 	warn("[Health] C loading: equipped skins not all here yet, opening anyway")
 end
@@ -662,7 +726,8 @@ advance()
 if isMatch then
 	stage("match", "SETTING UP THE MATCH")
 	done = waitFor(function()
-		return player:GetAttribute("MatchScreensReady") ~= nil
+		local readyId = player:GetAttribute("MatchScreensReady")
+		return if hostedMatchId then readyId == hostedMatchId else readyId ~= nil
 	end, deadline) and done
 	advance()
 	stage("players", "WAITING FOR PLAYERS")
@@ -673,12 +738,19 @@ if isMatch then
 			then string.format("%d / %d", ready, expected)
 			else ""
 		local phase = matchValue("Phase")
+		if phase == '"Cancelled"' then
+			stageLabel.Text = "MATCH CANCELLED — RE-QUEUEING"
+			return true
+		end
 		return phase ~= "" and phase ~= '"Waiting"'
 	end, deadline) and done
 	advance()
 else
 	stage("body", "GETTING YOUR FIGHTER READY")
 	done = waitFor(function()
+		if player:GetAttribute("PlayZone") == "Match" then
+			return true
+		end
 		local character = player.Character
 		return character ~= nil and character:FindFirstChild("HumanoidRootPart") ~= nil
 	end, deadline) and done
@@ -686,20 +758,26 @@ else
 	-- bit"): ask for the area, then wait for floor under the feet, up to STREAM_WAIT seconds (inside the watchdog).
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
-	if root and root:IsA("BasePart") then
+	if player:GetAttribute("PlayZone") ~= "Match" and root and root:IsA("BasePart") then
 		local streamFor = (cfg :: any).streamWait or STREAM_WAIT
 		local probe = (cfg :: any).groundProbe or GROUND_PROBE
 		local streamUntil = math.min(os.clock() + streamFor, deadline)
-		pcall(function()
-			player:RequestStreamAroundAsync(root.Position, streamFor)
-		end)
 		local params = RaycastParams.new()
 		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.RespectCanCollide = true
 		params.FilterDescendantsInstances = { character :: Instance }
-		local grounded = waitFor(function()
+		local function hasFloor(): boolean
 			return root.Parent ~= nil
 				and workspace:Raycast(root.Position, Vector3.new(0, -probe, 0), params) ~= nil
-		end, streamUntil)
+		end
+		local grounded = hasFloor()
+		if not grounded then
+			local position = root.Position
+			task.spawn(function()
+				pcall(player.RequestStreamAroundAsync, player, position, streamFor)
+			end)
+			grounded = waitFor(hasFloor, streamUntil)
+		end
 		if not grounded then
 			warn("[Health] C loading: no floor under the spawn after streaming (continuing)")
 		end
@@ -709,6 +787,16 @@ else
 	done = waitFor(function()
 		return player:GetAttribute("LobbyClientReady") == true
 	end, deadline) and done
+	if player:GetAttribute("PlayZone") == "Match" then
+		stage("match", "SETTING UP THE MATCH")
+		done = waitFor(function()
+			if player:GetAttribute("PlayZone") ~= "Match" then
+				return true
+			end
+			local id = player:GetAttribute("MatchId")
+			return typeof(id) == "string" and player:GetAttribute("MatchScreensReady") == id
+		end, deadline) and done
+	end
 	advance()
 end
 
@@ -737,6 +825,6 @@ else
 	)
 end
 close(bed)
-if isMatch then
+if serverRole == "Match" then
 	armHomeTeleport()
 end

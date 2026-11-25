@@ -22,6 +22,7 @@ local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local DashMod = require(ReplicatedStorage.Shared.Mods.Dash)
 local Net = require(ReplicatedStorage.Shared.Net)
 local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
+local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local WindFx = require(script.Parent.Parent.Util.WindFx)
 local WindStrokes = require(script.Parent.Parent.Util.WindStrokes)
@@ -114,6 +115,28 @@ local function rootOf(model: Model): BasePart?
 	return if r and r:IsA("BasePart") then r else nil
 end
 
+local function dressHeldItem(character: Model, owner: Instance)
+	local heldItem = character:FindFirstChild("ModHeldItem")
+	if heldItem and heldItem:IsA("Model") and not tinted[heldItem] then
+		tinted[heldItem] = true
+		local modId = StateValues.get(heldItem, "ModId") or StateValues.get(heldItem, "AbilityId")
+		if modId == "HealOrb" then
+			local shell = heldItem:FindFirstChild("Shell", true)
+			if shell and shell:IsA("MeshPart") then
+				shell.TextureID = VFX.HEALORB_SWIRL
+			end
+		else
+			local glow = TeamColor.forOwner(owner)
+			ModProps.tint(heldItem, glow)
+			for _, d in heldItem:GetDescendants() do
+				if d:IsA("PointLight") then
+					d.Color = glow
+				end
+			end
+		end
+	end
+end
+
 local function stepCharacters()
 	for _, other in Players:GetPlayers() do
 		local character = other.Character
@@ -121,6 +144,7 @@ local function stepCharacters()
 		if not character or not root then
 			continue
 		end
+		dressHeldItem(character, other)
 		local dash = number(character, "DashStart")
 		local dashing = StateValues.get(character, "Dashing") == true
 		local updraft = number(character, "UpdraftAt")
@@ -140,11 +164,6 @@ local function stepCharacters()
 			continue
 		end
 		local mine = other == player
-		local heldItem = character:FindFirstChild("ModHeldItem")
-		if heldItem and heldItem:IsA("Model") and not tinted[heldItem] then
-			tinted[heldItem] = true
-			ModProps.tint(heldItem, TeamColor.forOwner(other))
-		end
 		-- (A re-simulated start a few ms off isn't a new dash.)
 		local started = false
 		if dash > s.dash + 0.05 then
@@ -222,6 +241,14 @@ local function stepCharacters()
 			blastFlash(Color3.fromHex("9B6BFF"), 0.35)
 		end
 		s.dash, s.updraft, s.recall = dash, updraft, recall
+	end
+	local dummies = Workspace:FindFirstChild("Dummies")
+	if dummies then
+		for _, dummy in dummies:GetChildren() do
+			if dummy:IsA("Model") then
+				dressHeldItem(dummy, dummy)
+			end
+		end
 	end
 end
 

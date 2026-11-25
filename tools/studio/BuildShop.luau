@@ -939,7 +939,7 @@ do
 	text(
 		head,
 		"Title",
-		"NITROUS VANDAL",
+		"NITROUS HAVOC",
 		52,
 		WHITE,
 		{ LayoutOrder = 2, Size = UDim2.fromOffset(0, 64), ZIndex = 12 }
@@ -967,7 +967,7 @@ do
 	text(
 		forChip,
 		"Label",
-		"FOR THE VANDAL",
+		"FOR THE HAVOC",
 		16,
 		INK,
 		{ Size = UDim2.fromOffset(0, 34), ZIndex = 12 }
@@ -1417,8 +1417,8 @@ do
 		Padding = UDim.new(0, 4),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, icWords)
-	text(icWords, "Name", "NITROUS VANDAL", 30, WHITE, { LayoutOrder = 1, ZIndex = 27 })
-	text(icWords, "Sub", "SKIN  ·  GIVEN TO VANDAL", 16, hex("C98A12"), {
+	text(icWords, "Name", "NITROUS HAVOC", 30, WHITE, { LayoutOrder = 1, ZIndex = 27 })
+	text(icWords, "Sub", "SKIN  ·  GIVEN TO HAVOC", 16, hex("C98A12"), {
 		LayoutOrder = 2,
 		ZIndex = 27,
 		FontFace = Font.new(BX, BOLD),
@@ -1447,13 +1447,20 @@ do
 	local top = frame(gui, "Top", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 8),
-		Size = UDim2.fromOffset(260, 52),
+		Size = UDim2.fromOffset(0, 52),
+		AutomaticSize = Enum.AutomaticSize.X,
 	})
 	make("UIScale", { Name = "Fit" }, top)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 12),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, top)
 	local bar = make("Frame", {
 		Name = "Bar",
-		AnchorPoint = CENTRE,
-		Position = UDim2.fromScale(0.5, 0.5),
+		LayoutOrder = 1,
 		Size = UDim2.fromOffset(0, 46),
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundColor3 = CARD,
@@ -1497,6 +1504,35 @@ do
 		}, plus)
 		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, barP)
 	end
+	local tbar = make("Frame", {
+		Name = "TicketsBar",
+		LayoutOrder = 2,
+		Visible = false,
+		Size = UDim2.fromOffset(0, 46),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = CARD,
+		BackgroundTransparency = 0.15,
+		BorderSizePixel = 0,
+	}, top)
+	corner(tbar, 8)
+	make("UIScale", { Name = "Pop" }, tbar)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 14) }, tbar)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 10),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, tbar)
+	make("ImageLabel", {
+		Name = "Ticket",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(36, 36),
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://118693853905400",
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 4,
+	}, tbar)
+	text(tbar, "Amount", "0", 26, WHITE, { LayoutOrder = 2, Size = UDim2.fromOffset(0, 46) })
 	gui.Parent = SG
 end
 
@@ -1557,12 +1593,12 @@ do
 	text(
 		oddsRow,
 		"Name",
-		"PRISM VANDAL",
+		"PRISM HAVOC",
 		22,
 		WHITE,
 		{ Position = UDim2.fromOffset(78, 8), ZIndex = 34 }
 	)
-	text(oddsRow, "Sub", "EPIC SKIN  ·  VANDAL", 14, MUTED, {
+	text(oddsRow, "Sub", "EPIC SKIN  ·  HAVOC", 14, MUTED, {
 		Position = UDim2.fromOffset(78, 38),
 		ZIndex = 34,
 		FontFace = Font.new(BX, BOLD),

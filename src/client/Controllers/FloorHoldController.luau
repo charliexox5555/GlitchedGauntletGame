@@ -16,14 +16,33 @@ local FloorHoldController = {}
 
 local HOLD = Config.FLOOR_HOLD
 local player = Players.LocalPlayer
+local tokens: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
-local function hold(character: Model)
+local function hold(character: Model, targetPos: Vector3?)
 	local root = character:WaitForChild("HumanoidRootPart", 10)
 	if not (root and root:IsA("BasePart")) then
 		return
 	end
+	local my = (tokens[character] or 0) + 1
+	tokens[character] = my
+	if targetPos and (root.Position - targetPos).Magnitude > 25 then
+		local movedDeadline = os.clock() + 2
+		while
+			tokens[character] == my
+			and character.Parent
+			and root.Parent
+			and (root.Position - targetPos).Magnitude > 25
+			and os.clock() < movedDeadline
+		do
+			task.wait(0.05)
+		end
+	end
+	if tokens[character] ~= my or not character.Parent or not root.Parent then
+		return
+	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.RespectCanCollide = true
 	params.FilterDescendantsInstances = { character }
 	local function floor(): boolean
 		return workspace:Raycast(root.Position, Vector3.new(0, -HOLD.probe, 0), params) ~= nil
@@ -36,29 +55,46 @@ local function hold(character: Model)
 		root.Anchored = true
 		anchoredHere = true
 	end
+	root.AssemblyLinearVelocity = Vector3.zero
 	task.spawn(function()
 		pcall(function()
-			player:RequestStreamAroundAsync(root.Position, HOLD.max)
+			player:RequestStreamAroundAsync(targetPos or root.Position, HOLD.max)
 		end)
 	end)
 	local started = os.clock()
-	while character.Parent and root.Parent and not floor() and os.clock() - started < HOLD.max do
+	while
+		tokens[character] == my
+		and character.Parent
+		and root.Parent
+		and not floor()
+		and os.clock() - started < HOLD.max
+	do
 		task.wait(HOLD.check)
 	end
-	if anchoredHere and root.Parent then
+	if tokens[character] == my and anchoredHere and root.Parent then
+		root.AssemblyLinearVelocity = Vector3.zero
 		root.Anchored = false
 	end
-	if os.clock() - started >= HOLD.max then
+	if tokens[character] == my and os.clock() - started >= HOLD.max then
 		warn(string.format("[Health] C floor hold: no floor after %ds, let go", HOLD.max))
 	end
 end
 
-function FloorHoldController.start()
-	player.CharacterAdded:Connect(function(character)
-		task.spawn(hold, character)
+local function watchCharacter(character: Model)
+	local initial = character:GetAttribute("ArenaSpawn")
+	task.spawn(hold, character, if typeof(initial) == "Vector3" then initial else nil)
+	character:GetAttributeChangedSignal("ArenaSpawn"):Connect(function()
+		local pos = character:GetAttribute("ArenaSpawn")
+		if typeof(pos) == "Vector3" then
+			task.spawn(hold, character, pos)
+		end
 	end)
+end
+
+function FloorHoldController.start()
+	player.CharacterAdded:Connect(watchCharacter)
 	if player.Character then
-		task.spawn(hold, player.Character)
+		watchCharacter(player.Character)
 	end
 end
 

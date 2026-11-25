@@ -8,7 +8,7 @@ return table.freeze({
 	-- The mode new players go to (Lobby Config.MODES id).
 	BEGINNER_MODE = "beginner",
 	-- Beginner 2v2 is offered (Play menu tile, the server accepts it) below this level.
-	BEGINNER_MAX_LEVEL = 10,
+	BEGINNER_MAX_LEVEL = 5,
 
 	-- On arrival, after the loading screen: queued for Beginner 2v2 straight away
 	-- while matches played is below this (the very first match).
@@ -16,21 +16,27 @@ return table.freeze({
 	-- PLAY goes straight into the Beginner queue (no menu) while matches played is below this.
 	PLAY_SHORTCUT_BELOW = 2,
 	-- Seconds after the loading screen closes before the auto-queue fires (lets the
-	-- lobby HUD finish its entrance first).
-	AUTO_QUEUE_DELAY = 1.5,
+	-- lobby HUD and phone frame settle first).
+	AUTO_QUEUE_DELAY = 1.2,
 
 	-- HUD unlocks by matches played. Items not listed are always shown (Locker =
 	-- "Weapons", Settings, PLAY). Each unlock gets one NEW pop (bit in `seen`).
 	UNLOCKS = table.freeze({
+		{ id = "Backpack", at = 1, bit = 4 },
+		{ id = "Shop", at = 1, bit = 2 },
 		{ id = "Party", at = 1, bit = 1 },
-		{ id = "Shop", at = 3, bit = 2 },
-		{ id = "Backpack", at = 3, bit = 4 },
 	}),
 	SEEN_MAX = 7, -- all bits above set
 	-- A NEW pop only shows within this many matches of its unlock (players who were
 	-- past it before onboarding shipped never get a pile of old NEW pops).
 	NEW_WINDOW = 3,
 	NEW_TEXT = "NEW",
+
+	-- Free Standard Case granted on finishing Match 1 (guided open + equip before Match 2).
+	FIRST_MATCH_CASE = "CaseStandard",
+	CASE_CALLOUT_TEXT = "OPEN FREE CASE!",
+	EQUIP_CALLOUT_TEXT = "EQUIP SKIN!",
+	CASE_TOAST_TEXT = "YOU EARNED A FREE CASE! OPEN YOUR BACKPACK",
 
 	-- The bouncing "Join the queue to start playing!" bubble over PLAY: shown while
 	-- idle in the lobby with fewer matches played than this (RIVALS: ≤ 3 duels).
@@ -39,12 +45,13 @@ return table.freeze({
 	PLAY_SUB_NEW = "BEGINNER 2V2", -- PLAY's sub-line while it goes straight to Beginner
 
 	-- Favorite prompts (AvatarEditorService:PromptSetFavorite): at most this many asks
-	-- per player ever; the first back in the lobby after match 1, the second during
-	-- match 2 if the first was declined.
+	-- per player ever; the first back in the lobby after match 2, the second back in
+	-- the lobby after match 3 if the first was declined (never mid-match, never during
+	-- the post-Match-1 free case onboarding).
 	FAV_MAX_ASKS = 2,
-	FAV_LOBBY_AFTER = 1, -- matches played before the lobby ask
+	FAV_LOBBY_AFTER = 2, -- matches played before the first lobby ask
+	FAV_LOBBY_SECOND_AFTER = 3, -- matches played before the second lobby ask
 	FAV_LOBBY_DELAY = 2.5, -- seconds after the lobby is ready (after the HUD entrance)
-	FAV_MATCH_ON = 2, -- the in-match ask happens during this match (matches played + 1)
 
 	-- Beginner 2v2: every enemy drawn solid red on your screen until YOU first hit them (owner 2026-11-22;
 	-- RIVALS' red figures). Per viewer, for the whole match (a hit enemy stays plain after respawning).

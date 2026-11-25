@@ -476,7 +476,7 @@ label(
 	XB,
 	{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(lw / 2, 12) }
 )
-label(face, "Picks", "SPECTRE  +  HIGH RISE", 12, INK, XB, {
+label(face, "Picks", "PROWLER  +  HIGH RISE", 12, INK, XB, {
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.fromOffset(lw / 2, 48),
 	TextTransparency = 0.3,

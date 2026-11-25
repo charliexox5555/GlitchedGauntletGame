@@ -48,6 +48,8 @@ type Tile = {
 	dot: Frame?,
 	inQueue: GuiObject?,
 	home: UDim2,
+	origHome: UDim2,
+	origSize: UDim2,
 	hit: GuiButton?,
 	levelCap: number?, -- shown only below this level (Beginner 2v2)
 	featured: boolean, -- sits brighter than the others (Beginner 2v2)
@@ -57,6 +59,7 @@ local gui: ScreenGui
 local canvas: Frame
 local scrim: Frame
 local tiles: { Tile } = {}
+local lastBeginnerShown: boolean? = nil
 local isOpen = false
 local openToken = 0
 local resetClose: () -> () = function() end
@@ -113,13 +116,95 @@ local function levelNow(): number
 	return if typeof(v) == "number" then v else 1
 end
 
+local setupCrop: (t: Tile) -> ()
+
+local function tileByName(name: string): Tile?
+	for _, t in tiles do
+		if t.button.Name == name then
+			return t
+		end
+	end
+	return nil
+end
+
+local function setTileRect(t: Tile, pos: UDim2, size: UDim2)
+	t.home = pos
+	t.button.Size = size
+	t.button.Position = pos
+	if t.hit then
+		t.hit.Position = pos
+		t.hit.Size = size
+	end
+	setupCrop(t)
+end
+
+-- When Beginner 2v2 hides (level 5+), expand the remaining mode rows across the
+-- full left-to-right grid bounds so no empty column stays on the left.
+local function layoutTiles(showBeginner: boolean)
+	if lastBeginnerShown == showBeginner then
+		return
+	end
+	lastBeginnerShown = showBeginner
+	local beginner = tileByName("Beginner2v2")
+	if not beginner then
+		return
+	end
+	if showBeginner then
+		for _, t in tiles do
+			setTileRect(t, t.origHome, t.origSize)
+		end
+		return
+	end
+	local leftX = beginner.origHome.X.Offset - beginner.origSize.X.Offset / 2
+	local rightX = leftX
+	for _, t in tiles do
+		if t ~= beginner then
+			local right = t.origHome.X.Offset + t.origSize.X.Offset / 2
+			if right > rightX then
+				rightX = right
+			end
+		end
+	end
+	local t1, t2 = tileByName("1v1"), tileByName("2v2")
+	local gap = if t1 and t2
+		then (t2.origHome.X.Offset - t2.origSize.X.Offset / 2)
+			- (t1.origHome.X.Offset + t1.origSize.X.Offset / 2)
+		else 14
+	local fullW = rightX - leftX
+	local function spreadRow(names: { string })
+		local row: { Tile } = {}
+		for _, name in names do
+			local found = tileByName(name)
+			if found then
+				table.insert(row, found)
+			end
+		end
+		if #row == 0 then
+			return
+		end
+		local w = (fullW - math.max(#row - 1, 0) * gap) / #row
+		for i, t in row do
+			local cx = leftX + (i - 1) * (w + gap) + w / 2
+			setTileRect(
+				t,
+				UDim2.new(t.origHome.X.Scale, cx, t.origHome.Y.Scale, t.origHome.Y.Offset),
+				UDim2.new(t.origSize.X.Scale, w, t.origSize.Y.Scale, t.origSize.Y.Offset)
+			)
+		end
+	end
+	spreadRow({ "1v1", "2v2", "3v3" })
+	spreadRow({ "4v4", "5v5" })
+end
+
 local function refreshTiles()
 	local searching = QueueState.status() ~= "idle"
 	local queued = QueueState.mode()
 	local level = levelNow()
+	local showBeginner = true
 	for _, t in tiles do
 		if t.levelCap then
 			local shown = level < t.levelCap
+			showBeginner = shown
 			t.button.Visible = shown
 			if t.hit then
 				t.hit.Visible = shown
@@ -138,6 +223,7 @@ local function refreshTiles()
 			end
 		end
 	end
+	layoutTiles(showBeginner)
 end
 
 local function choose(t: Tile)
@@ -206,7 +292,7 @@ local ZOOM = 1.08
 local LIFT_PX = 5
 local cropOf: { [Tile]: { size: Vector2, centre: Vector2 } } = {}
 
-local ART_PX = Vector2.new(840, 940) -- the old mode pictures' size (refined below when readable)
+local ART_PX = Vector2.new(840, 940) -- fallback for tiles without authored dimensions
 -- The queue tile pictures' real sizes (art-source/ui/queue/upload, 2026-11-22): EditableImage
 -- can't read them in a live game, so the crop needs them written down.
 local ART_SIZE: { [string]: Vector2 } = {
@@ -234,31 +320,12 @@ local function applyCrop(t: Tile, dims: Vector2)
 	art.ImageRectOffset = dims / 2 - size / 2
 end
 
-local function setupCrop(t: Tile)
+setupCrop = function(t: Tile)
 	local art = t.art
 	if not art then
 		return
 	end
-	local known = ART_SIZE[t.button.Name]
-	applyCrop(t, known or ART_PX)
-	if known then
-		return
-	end
-	-- new mode art may have another size: read it in the background, and keep
-	-- the default if the client can't (EditableImage may be unavailable)
-	task.spawn(function()
-		local ok, img = pcall(function()
-			return game:GetService("AssetService")
-				:CreateEditableImageAsync(Content.fromUri(art.Image))
-		end)
-		if ok and img then
-			local dims = img.Size
-			img:Destroy()
-			if dims ~= ART_PX and dims.X > 0 and dims.Y > 0 then
-				applyCrop(t, dims)
-			end
-		end
-	end)
+	applyCrop(t, ART_SIZE[t.button.Name] or ART_PX)
 end
 
 local function zoomArt(t: Tile, z: number, time: number)
@@ -500,6 +567,8 @@ function PlayMenuController.init()
 				dot = maybe(count, "Dot") :: Frame?,
 				inQueue = maybe(b, "InQueue") :: GuiObject?,
 				home = b.Position,
+				origHome = b.Position,
+				origSize = b.Size,
 				levelCap = if info then info.maxLevel else nil,
 				featured = info ~= nil and info.maxLevel ~= nil,
 			}

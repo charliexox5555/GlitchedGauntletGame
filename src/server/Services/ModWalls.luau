@@ -191,6 +191,7 @@ local function addPiece(wall: Wall, a: Vector3, b: Vector3)
 	StateValues.set(part, "TeamId", wall.team)
 	StateValues.set(part, "BuiltAt", workspace:GetServerTimeNow())
 	StateValues.set(part, "WallKind", if stats.behaviour == "Frost" then "Frost" else "Fire")
+	part:SetAttribute("ReplayMatchId", wall.owner:GetAttribute("MatchId"))
 	part.Parent = folder()
 	table.insert(wall.pieces, part)
 end
@@ -364,6 +365,14 @@ function ModWalls.steer(owner: Caster, look: Vector3?)
 			else
 				finish(w)
 			end
+		end
+	end
+end
+
+function ModWalls.lockStraight(owner: Caster)
+	for _, w in walls do
+		if w.owner == owner and w.building then
+			w.straight = true
 		end
 	end
 end

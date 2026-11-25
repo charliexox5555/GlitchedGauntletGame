@@ -34,6 +34,7 @@ local CharacterService = require(Globals.CharacterService)
 local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
 local AutoDifficulty = require(script.Parent.Parent.Bots.AutoDifficulty)
 local WeaponService = require(Globals.WeaponService)
+local MovementGuard = require(Globals.MovementGuard)
 local LookStream = require(Globals.LookStream)
 local WeaponDamage = require(Globals.Weapon.Damage)
 local HealthService = require(Globals.HealthService)
@@ -51,14 +52,17 @@ local ProgressionService = require(
 		:WaitForChild("Services")
 		:WaitForChild("ProgressionService") :: ModuleScript
 ) :: any
+local Telemetry = require(game:GetService("ServerScriptService").LobbyServer.Telemetry)
 
 local MatchService = {}
 
 local POLL = 0.1 -- seconds between checks on a running clock
 local RETRY_AFTER_ERROR = 3
 local MAP_RETRY = 5
-local SPAWN_TRIES = 2
+local SPAWN_TRIES = 4
+local SPAWN_BACKOFF = { 0.5, 1, 2 }
 local STREAM_WAIT = 6 -- seconds a spawn may wait for its area to stream to the player
+local spawning: { [Player]: boolean } = {}
 
 local enabled = false
 local matchesPlayed = 0
@@ -69,9 +73,30 @@ local matchesPlayed = 0
 local standIns: { [number]: any } = {} -- userId → bot key
 local pendingTakeovers: { [Player]: any } = {} -- player → the bot they replace
 local inMatch = false
--- Sides that have had a real player this match: if one of them has none
--- left, the other side wins (a 1v1 leaver, or a whole team gone).
+-- Sides that have had a real player this match: if one of them has no
+-- fighters left (humans OR bot backfill) past FORFEIT_GRACE, the other wins.
+local FORFEIT_GRACE = 0.5
 local humanSides = { false, false }
+local sideEmptySince: { [number]: number? } = { nil, nil }
+local currentMapName = "Unknown"
+local currentRound = 0
+local lastMap: string? = nil
+local mapLogged: { [number]: boolean } = {}
+local roundStartCounts = { 0, 0 }
+local clutchState: { [number]: { vs: number, actor: string }? } = { nil, nil }
+local matchMode: () -> string
+
+local function mapLabel(id: string?): string
+	if not id or id == "" then
+		return "Unknown"
+	end
+	for _, entry in Config.MAPS do
+		if entry.id == id then
+			return entry.name or entry.id
+		end
+	end
+	return id
+end
 
 -- The last fighter to go down on each side, and when (server time): the
 -- final-kill replay.
@@ -180,28 +205,125 @@ local function isAlive(player: Player): boolean
 	return Health.isAlive(humanoid)
 end
 
-local function spawnPlayer(player: Player, spawn: SpawnLocation?)
-	player.RespawnLocation = if Context.ownsServer then spawn else nil
-	if spawn then
-		-- The spot streams in first, so nobody hangs in the air (Streaming
-		-- PauseOutsideLoadedArea) while a big map arrives.
-		pcall(player.RequestStreamAroundAsync, player, spawn.Position, STREAM_WAIT)
+local function onArena(player: Player): boolean
+	if not isAlive(player) then
+		return false
 	end
-	for attempt = 1, SPAWN_TRIES do
-		-- Spawned already wearing the standard match body (Match Avatar.md).
-		local ok, err = pcall(CharacterService.loadCharacter, player)
-		if ok and not Context.ownsServer and spawn then
-			-- A pad duel: its map's spawns are off (the lobby spawns everyone else),
-			-- so stand the new character on its spot.
-			local character = player.Character
-			if character then
-				character:PivotTo(spawn.CFrame + Vector3.new(0, spawn.Size.Y / 2 + 3, 0))
+	local character = player.Character
+	if not character or character:GetAttribute("MatchId") ~= Context.id then
+		return false
+	end
+	local map = MapService.map()
+	if map then
+		local root = character:FindFirstChild("HumanoidRootPart")
+		if
+			not (root and root:IsA("BasePart"))
+			or math.abs(root.Position.Y - map:GetPivot().Position.Y) >= 400
+		then
+			return false
+		end
+	end
+	return true
+end
+
+local function anyoneMissing(): boolean
+	for team = 1, 2 do
+		for _, player in playersOn(team) do
+			if not onArena(player) then
+				return true
 			end
 		end
-		if ok or player.Parent ~= PlayersService then
-			return
+	end
+	return false
+end
+
+local function spawnPlayer(player: Player, spawn: SpawnLocation?)
+	if spawning[player] or player.Parent ~= PlayersService then
+		return
+	end
+	spawning[player] = true
+	local okRun, runErr = pcall(function()
+		player.RespawnLocation = if Context.ownsServer then spawn else nil
+		local map = MapService.map()
+		if not Context.ownsServer and map then
+			pcall(map.AddPersistentPlayer, map, player)
 		end
-		warn("[MatchService] couldn't spawn", player.Name, "try", attempt, err)
+		if spawn then
+			-- The spot streams in first, so nobody hangs in the air (Streaming
+			-- PauseOutsideLoadedArea) while a big map arrives.
+			pcall(player.RequestStreamAroundAsync, player, spawn.Position, STREAM_WAIT)
+		end
+		for attempt = 1, SPAWN_TRIES do
+			if player.Parent ~= PlayersService then
+				return
+			end
+			-- Spawned already wearing the standard match body (Match Avatar.md).
+			local ok, errOrModel =
+				pcall(CharacterService.loadCharacter, player, attempt == SPAWN_TRIES)
+			local character: Model? = if ok
+					and typeof(errOrModel) == "Instance"
+					and errOrModel:IsA("Model")
+				then errOrModel
+				else player.Character
+			if ok and character and character.Parent then
+				local root = character:FindFirstChild("HumanoidRootPart")
+					or character:WaitForChild("HumanoidRootPart", 5)
+				local humanoid = character:FindFirstChildOfClass("Humanoid")
+					or character:WaitForChild("Humanoid", 2)
+				map = MapService.map()
+				if spawn then
+					local target = spawn.CFrame + Vector3.new(0, spawn.Size.Y / 2 + 3, 0)
+					if
+						not Context.ownsServer
+						or (
+							root
+							and root:IsA("BasePart")
+							and (root.Position - target.Position).Magnitude > 25
+						)
+					then
+						character:PivotTo(target)
+						if root and root:IsA("BasePart") then
+							root.AssemblyLinearVelocity = Vector3.zero
+							root.AssemblyAngularVelocity = Vector3.zero
+						end
+					end
+					character:SetAttribute("MatchId", Context.id)
+					character:SetAttribute("ArenaSpawn", target.Position)
+					if map then
+						MovementGuard.bind(player, map, target)
+					end
+				else
+					character:SetAttribute("MatchId", Context.id)
+				end
+				if Health.isAlive(humanoid) then
+					if inMatch and humanoid and humanoid:IsA("Humanoid") then
+						StateValues.set(
+							humanoid,
+							Combat.SHIELD_ATTRIBUTE,
+							DraftService.seat(player).shield
+						)
+						if not DraftService.isOpen() then
+							WeaponService.giveLoadout(player)
+						end
+					end
+					return
+				end
+				HealthLog.problem("match spawn missing parts", player, `try {attempt}`)
+			else
+				HealthLog.problem("match spawn failed", player, `try {attempt}: {errOrModel}`)
+				warn("[MatchService] couldn't spawn", player.Name, "try", attempt, errOrModel)
+			end
+			if player.Parent ~= PlayersService then
+				return
+			end
+			if attempt < SPAWN_TRIES then
+				task.wait(SPAWN_BACKOFF[attempt] or 1)
+			end
+		end
+	end)
+	spawning[player] = nil
+	if not okRun then
+		warn("[MatchService] spawnPlayer error for", player.Name, runErr)
 	end
 end
 
@@ -224,17 +346,17 @@ local function spawnEveryone()
 	spawnPlayers(function()
 		return true
 	end)
-	BotService.setRoamPoints(MapService.spawnCentre(2), MapService.spawnCentre(1))
+	BotService.setRoamPoints(MapService.map(), MapService.spawnCentre(2), MapService.spawnCentre(1))
 	for team = 1, 2 do
 		BotService.spawnTeam(team, MapService.spawns(team), #playersOn(team) + 1)
 	end
 end
 
--- Anyone on a team with no live character: a failed or slow spawn, or someone
+-- Anyone on a team with no live arena character: a failed or slow spawn, or someone
 -- who joined after the round's spawn.
 local function spawnMissing()
 	spawnPlayers(function(player: Player): boolean
-		return not isAlive(player)
+		return not onArena(player) and not spawning[player]
 	end)
 end
 
@@ -278,6 +400,83 @@ local function roundWinner(): number
 		return 2
 	end
 	return 0
+end
+
+-- Name and HP+shield of the single surviving fighter on `team` (nil if 0 or 2+ alive).
+local function soleSurvivor(team: number): (string?, number)
+	local name: string? = nil
+	local hp = 0
+	local count = 0
+	for _, player in playersOn(team) do
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if humanoid and Health.isAlive(humanoid) then
+			count += 1
+			name = player.DisplayName
+			local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
+			hp = Health.get(humanoid) + (if typeof(shield) == "number" then shield else 0)
+		end
+	end
+	for _, key in BotService.keys() do
+		if BotService.teamOf(key) == team then
+			local model = BotService.modelOf(key)
+			local humanoid = model and model:FindFirstChildOfClass("Humanoid")
+			if model and humanoid and Health.isAlive(humanoid) then
+				count += 1
+				name = model.Name
+				local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
+				hp = Health.get(humanoid) + (if typeof(shield) == "number" then shield else 0)
+			end
+		end
+	end
+	if count == 1 then
+		return name, hp
+	end
+	return nil, 0
+end
+
+local function computeRoundCallout(winner: number, eliminated: boolean): MatchState.RoundCallout?
+	if winner == 0 or not eliminated then
+		return nil
+	end
+	local loser = 3 - winner
+	local aliveW, hpW = teamState(winner)
+	local startW, startL = roundStartCounts[winner], roundStartCounts[loser]
+	local c = clutchState[winner]
+	if c and aliveW == 1 then
+		return {
+			tag = "CLUTCH",
+			detail = string.format("1v%d", c.vs),
+			actor = c.actor,
+			team = winner,
+		}
+	end
+	if startL >= 2 then
+		local topName, topKills = StatsService.roundTopKiller(winner)
+		if topName and topKills >= startL then
+			return {
+				tag = "ACE",
+				detail = string.format("%d ELIMS", topKills),
+				actor = topName,
+				team = winner,
+			}
+		end
+	end
+	if startW >= 2 and aliveW >= startW then
+		return { tag = "FLAWLESS", detail = "ZERO DEATHS", team = winner }
+	elseif startW == 1 and aliveW == 1 and StatsService.roundDamageTaken(winner) == 0 then
+		return { tag = "FLAWLESS", detail = "UNTOUCHED", team = winner }
+	end
+	if aliveW == 1 and hpW > 0 and hpW <= 15 then
+		local hero = soleSurvivor(winner)
+		return {
+			tag = "CLOSE CALL",
+			detail = string.format("%d HP LEFT", math.max(1, math.round(hpW))),
+			actor = hero,
+			team = winner,
+		}
+	end
+	return nil
 end
 
 -- The draft --------------------------------------------------------------------
@@ -349,14 +548,28 @@ local function giveShields()
 	end
 end
 
--- A side that has had real players this match and has none left: the other
--- side wins. 0 when both are gone, nil while the match goes on.
+-- A side that has had real players this match and now has no fighters
+-- left (neither humans nor bot backfill) past FORFEIT_GRACE: the other
+-- side wins. 0 when everyone left or both are gone, nil while it goes on.
 local function forfeitWinner(): number?
 	if not inMatch then
 		return nil
 	end
-	local goneOne = humanSides[1] and #playersOn(1) == 0
-	local goneTwo = humanSides[2] and #playersOn(2) == 0
+	if #Players:GetPlayers() == 0 then
+		return 0
+	end
+	for t = 1, 2 do
+		if humanSides[t] and sideCount(t) == 0 then
+			sideEmptySince[t] = sideEmptySince[t] or os.clock()
+		else
+			sideEmptySince[t] = nil
+		end
+	end
+	local now = os.clock()
+	local goneOne = sideEmptySince[1] ~= nil
+		and (now - (sideEmptySince[1] :: number)) >= FORFEIT_GRACE
+	local goneTwo = sideEmptySince[2] ~= nil
+		and (now - (sideEmptySince[2] :: number)) >= FORFEIT_GRACE
 	if goneOne and goneTwo then
 		return 0
 	elseif goneOne then
@@ -432,7 +645,7 @@ local function reportProgress(
 		roundsWon = roundsWon,
 		kills = killsOf(userId),
 		opponents = opponents,
-	})
+	}, MatchState.get("Mode"))
 	if not ok then
 		warn("[MatchService] progression report failed:", err)
 	end
@@ -553,7 +766,7 @@ local function roundsToWin(): number
 	if RunService:IsStudio() and workspace:GetAttribute("QuickMatch") == true then
 		return 1
 	end
-	return Config.ROUNDS_TO_WIN
+	return Config.ROUNDS_TO_WIN_BY_MODE[matchMode()] or Config.ROUNDS_TO_WIN
 end
 
 -- The bots' dynamic difficulty from this match's real players (Bots/AutoDifficulty): at the
@@ -626,9 +839,22 @@ local function spawnOne(player: Player)
 	end)
 end
 
+local function logMapStart(player: Player)
+	if mapLogged[player.UserId] then
+		return
+	end
+	mapLogged[player.UserId] = true
+	local mode = matchMode()
+	Telemetry.mapPlayed(player, currentMapName, mode)
+	Telemetry.mapFunnel(player, matchKey, 1, "Map loaded", currentMapName, mode)
+end
+
 local function onJoin(player: Player)
 	if player.Parent ~= PlayersService then
 		return
+	end
+	if inMatch then
+		logMapStart(player)
 	end
 	local bot = standIns[player.UserId]
 	local phase = MatchState.phase()
@@ -663,6 +889,7 @@ end
 -- Team modes: a bot takes a leaver's seat (and plays from now in a select,
 -- else from the next round). A 1v1 leaver forfeits (forfeitWinner).
 local function onLeave(player: Player)
+	spawning[player] = nil
 	-- Leaving a match before its end is a loss (Progression.md).
 	local leftTeam = participants[player.UserId]
 	if inMatch and leftTeam and not reported[player.UserId] then
@@ -674,6 +901,7 @@ local function onLeave(player: Player)
 			true,
 			if typeof(score) == "number" then score else 0
 		)
+		Telemetry.mapLeftEarly(player, currentMapName, matchMode(), currentRound)
 	end
 	local wasPending = pendingTakeovers[player] ~= nil
 	pendingTakeovers[player] = nil
@@ -682,16 +910,11 @@ local function onLeave(player: Player)
 	local size = if plan then plan.size elseif team then sideCount(team) else 1
 	local kept = standIns[player.UserId]
 	local standInPlays = kept ~= nil and BotService.isBot(kept)
+	local stillCounted = table.find(Players:GetPlayers(), player) ~= nil
+	local remaining = if team then sideCount(team) - (if stillCounted then 1 else 0) else 0
 	-- Nothing to replace: no match, a 1v1 (forfeit), their stand-in still has
 	-- the seat (they never took it over), or the side is already full.
-	if
-		not inMatch
-		or not team
-		or size <= 1
-		or wasPending
-		or standInPlays
-		or sideCount(team) - 1 >= size
-	then
+	if not inMatch or not team or size <= 1 or wasPending or standInPlays or remaining >= size then
 		DraftService.forget(player)
 		return
 	end
@@ -706,7 +929,7 @@ local function onLeave(player: Player)
 	local phase = MatchState.phase()
 	local spawns = MapService.spawns(team)
 	if (phase == "Draft" or phase == "Countdown") and #spawns > 0 then
-		local spot = spawns[(sideCount(team) - 2) % #spawns + 1] -- the leaver still counts here
+		local spot = spawns[math.max(0, remaining) % #spawns + 1]
 		BotService.spawnOne(bot, spot.CFrame)
 	end
 end
@@ -820,13 +1043,31 @@ end
 
 -- The mode for Play Again ("1v1", "2v2", "3v3"): the Lobby plan's, else the
 -- bigger side's size.
-local function matchMode(): string
+matchMode = function(): string
 	local plan = MatchPlan.current()
 	if plan then
 		return plan.mode
 	end
 	local size = math.max(sideCount(1), sideCount(2), 1)
 	return `{size}v{size}`
+end
+
+local function reportStage(
+	step: number,
+	title: string,
+	firstBeginner: number?,
+	secondMatch: number?
+)
+	local mode = matchMode()
+	for _, player in Players:GetPlayers() do
+		Telemetry.funnel(player, "Match", matchKey, step, title, mode)
+		local matches = StateValues.get(player, "Matches")
+		if firstBeginner and mode == "beginner" and matches == 0 then
+			Telemetry.onboarding(player, firstBeginner)
+		elseif secondMatch and matches == 1 then
+			Telemetry.onboarding(player, secondMatch)
+		end
+	end
 end
 
 -- Everyone in the match gets a stats line, even with nothing on it.
@@ -877,23 +1118,37 @@ local roundHistory: { string } = {} -- the match end screen's round chips (Match
 
 local function runMatch(): boolean
 	balanceTeams()
+	if MatchPlan.current() then
+		fillSlots()
+	end
 	inMatch = true
 	StatsService.reset()
 	humanSides = { false, false }
-	matchKey = HttpService:GenerateGUID(false)
+	sideEmptySince[1] = nil
+	sideEmptySince[2] = nil
+	table.clear(mapLogged)
+	currentMapName = mapLabel(lastMap)
+	currentRound = 0
 	-- clients read the mode (Beginner 2v2's red enemies: Controllers/BeginnerHighlightController)
 	MatchState.set("Mode", matchMode())
+	MatchState.set("RoundsToWin", roundsToWin())
 	clearRedHits()
 	table.clear(participants)
 	table.clear(reported)
 	noteHumans()
+	for _, player in Players:GetPlayers() do
+		logMapStart(player)
+	end
 	setAllLocked(true)
 	MatchState.set("Round", 0)
 	MatchState.set("Score1", 0)
 	MatchState.set("Score2", 0)
 	MatchState.set("RoundWinner", nil)
+	MatchState.set("RoundCallout", nil)
 	MatchState.set("MatchWinner", nil)
 	MatchState.set("Results", nil)
+	roundStartCounts[1], roundStartCounts[2] = 0, 0
+	clutchState[1], clutchState[2] = nil, nil
 	roundHistory = {}
 	MatchState.setList("RoundHistory", roundHistory) -- "winner:WeaponPhase" per round
 	MapService.setBarriers(true)
@@ -910,18 +1165,31 @@ local function runMatch(): boolean
 	-- One round, from the select to RoundEnd: "next", "stop" (the match is
 	-- decided) or "abandon" (nobody left to play).
 	local scored = false -- this round's point is already on the board
+	local draftReported = false
+	local doneCount = 0
+	local liveReported: { [number]: boolean } = {}
+	local doneReported: { [number]: boolean } = {}
 	local function playRound(): RoundOutcome
 		round += 1
+		currentRound = round
 		scored = false
+		roundStartCounts[1], roundStartCounts[2] = 0, 0
+		clutchState[1], clutchState[2] = nil, nil
 		MatchState.set("Round", round)
 		MatchState.set("RoundWinner", nil)
+		MatchState.set("RoundCallout", nil)
 		StatsService.newRound()
 		clearRedHits() -- Beginner red enemies light up again every round (owner 2026-11-23)
 		updateBotDifficulty(scores)
 		setAllLocked(true)
+		MapService.resetGlass()
 		MapService.setBarriers(true)
 		applyTakeovers()
 		spawnEveryone()
+		if not draftReported then
+			draftReported = true
+			reportStage(3, "R1 draft opened", 3)
+		end
 		runDraft(round)
 		noteFighters()
 
@@ -930,11 +1198,14 @@ local function runMatch(): boolean
 			setPhase("Countdown", Config.COUNTDOWN_TIME)
 			runClock(Config.COUNTDOWN_TIME, forfeited)
 		end
-		if someoneOut() and not forfeited() then
-			-- someone died before the fight (fell while their map was still arriving): back in
+		if (someoneOut() or anyoneMissing()) and not forfeited() then
+			-- someone died or didn't reach the arena yet (slow load / streaming): back in
 			spawnMissing()
 			runClock(Config.LATE_SPAWN_WAIT, function()
-				return not someoneOut() or forfeited()
+				if anyoneMissing() then
+					spawnMissing()
+				end
+				return (not someoneOut() and not anyoneMissing()) or forfeited()
 			end)
 		end
 
@@ -967,7 +1238,14 @@ local function runMatch(): boolean
 			MapService.setBarriers(false)
 			setAllLocked(false)
 			BotService.setFighting(true)
+			roundStartCounts = { teamState(1), teamState(2) }
 			setPhase("Live", Config.ROUND_TIME)
+			local fightRound = doneCount + 1
+			if fightRound <= 4 and not liveReported[fightRound] then
+				liveReported[fightRound] = true
+				local step = 2 + fightRound * 2
+				reportStage(step, `R{fightRound} live`, step, if fightRound == 1 then 18 else nil)
+			end
 			HealthLog.stage(
 				"round start",
 				nil,
@@ -992,6 +1270,24 @@ local function runMatch(): boolean
 			-- fun; Weapon/Damage deals nothing in that phase). closeRound locks it.
 			eliminated = someoneOut()
 			winner = roundWinner()
+			if fightRound <= 4 and not doneReported[fightRound] then
+				doneReported[fightRound] = true
+				doneCount = fightRound
+				local step = 3 + fightRound * 2
+				reportStage(step, `R{fightRound} completed`, step)
+				if fightRound == 1 then
+					for _, player in Players:GetPlayers() do
+						Telemetry.mapFunnel(
+							player,
+							matchKey,
+							2,
+							"First round completed",
+							currentMapName,
+							matchMode()
+						)
+					end
+				end
+			end
 		end
 		forfeitBy = forfeitWinner()
 		if forfeitBy then
@@ -1005,6 +1301,7 @@ local function runMatch(): boolean
 		MatchState.set("Score1", scores[1])
 		MatchState.set("Score2", scores[2])
 		MatchState.set("RoundWinner", winner)
+		MatchState.set("RoundCallout", computeRoundCallout(winner, eliminated))
 		-- The match end screen's round chips (display only).
 		local phaseName = MatchState.get("WeaponPhase")
 		table.insert(
@@ -1091,27 +1388,65 @@ local function runMatch(): boolean
 		local player = Players:GetPlayerByUserId(userId)
 		local here = player ~= nil and Teams.of(player) == team
 		reportProgress(userId, team, team == matchWinner, not here, scores[team])
+		if here and player then
+			Telemetry.mapCompleted(player, currentMapName, matchMode(), round)
+			Telemetry.mapFunnel(player, matchKey, 3, "Match completed", currentMapName, matchMode())
+		end
 	end
 	return MatchEndService.run(matchWinner, matchMode())
 end
 
-local function waitForPlayers()
+local function cancelSlowLoad(reason: string)
+	HealthLog.problem("match load cancelled", nil, `{Context.id}: {reason}`)
+	MatchState.set("Phase", "Cancelled")
+	local mode = matchMode()
+	local requeueMode: string? = if Context.ownsServer
+			or Context.hosted
+			or mode == "beginner"
+		then mode
+		else nil
+	MatchEndService.cancelAndRequeue(requeueMode)
+	if Context.ownsServer and not RunService:IsStudio() then
+		local until_ = os.clock() + Config.MATCH_END.emptyWait
+		while #Players:GetPlayers() > 0 and os.clock() < until_ do
+			task.wait(5)
+			MatchEndService.resendStranded()
+		end
+	end
+end
+
+local function waitForPlayers(): boolean
 	if bothSidesFilled() and matchesPlayed > 0 and #Players:GetPlayers() > 0 then
-		return -- straight into the next match
+		MatchState.set("Mode", matchMode())
+		MatchState.set("RoundsToWin", roundsToWin())
+		return true -- straight into the next match
 	end
 	setPhase("Waiting", 0)
 	HealthLog.stage("waiting", nil, Context.id)
 	local lonelySince: number? = nil
+	local waitStart: number? = nil
 	local lastCount = ""
+	local lastGoal = 0
 	while true do
 		balanceTeams()
 		local plan = MatchPlan.current()
-		if plan and #Players:GetPlayers() > 0 then
+		local goal = roundsToWin()
+		if goal ~= lastGoal then
+			lastGoal = goal
+			MatchState.set("Mode", matchMode())
+			MatchState.set("RoundsToWin", goal)
+		end
+		local hereCount = #Players:GetPlayers()
+		if hereCount > 0 then
+			waitStart = waitStart or os.clock()
+		else
+			waitStart = nil
+		end
+		if plan and hereCount > 0 then
 			local ready, expected, canStart = MatchPlan.readiness()
 			MatchState.set("ReadyPlayers", ready)
 			MatchState.set("ExpectedPlayers", expected)
-			local count =
-				string.format("%d/%d ready, %d here", ready, expected, #Players:GetPlayers())
+			local count = string.format("%d/%d ready, %d here", ready, expected, hereCount)
 			if count ~= lastCount then
 				lastCount = count
 				HealthLog.stage("waiting", nil, `{Context.id} {count}`)
@@ -1120,16 +1455,12 @@ local function waitForPlayers()
 				fillSlots()
 				if bothSidesFilled() then
 					HealthLog.stage("players in", nil, `{Context.id} {count}`)
-					return
+					return true
 				end
 			end
-		elseif bothSidesFilled() and #Players:GetPlayers() > 0 then
-			return
-		elseif
-			RunService:IsStudio()
-			and BotsConfig.STUDIO_SOLO_BOT
-			and #Players:GetPlayers() > 0
-		then
+		elseif bothSidesFilled() and hereCount > 0 then
+			return true
+		elseif RunService:IsStudio() and BotsConfig.STUDIO_SOLO_BOT and hereCount > 0 then
 			-- Studio, one side only: after a moment for a second test client,
 			-- one bot takes the other side.
 			local since = lonelySince or os.clock()
@@ -1143,6 +1474,22 @@ local function waitForPlayers()
 		else
 			lonelySince = nil
 		end
+		if not RunService:IsStudio() and waitStart then
+			if plan and MatchPlan.allWaived() then
+				cancelSlowLoad("all present clients timed out waiting for MatchReady")
+				return false
+			end
+			if os.clock() - waitStart >= Config.LOAD_CANCEL_TIMEOUT then
+				cancelSlowLoad(
+					string.format(
+						"exceeded %.0fs load wait (%s)",
+						Config.LOAD_CANCEL_TIMEOUT,
+						if plan then "plan" else "no plan"
+					)
+				)
+				return false
+			end
+		end
 		task.wait(0.2)
 	end
 end
@@ -1155,7 +1502,6 @@ end
 -- LockMap (Studio only, 2026-11-21): the easy test switch. Type a map into the Workspace attribute `LockMap`
 -- (a map id like "Snowpeak4" or its vote name like "Snowpeak", any case) and every match plays that map with
 -- no vote; clear it to vote again. Studio only, so a value left in the saved place can't pin live servers.
-local lastMap: string? = nil
 local lockWarned: string? = nil
 local function lockedMap(): string?
 	if not RunService:IsStudio() then
@@ -1204,6 +1550,9 @@ local function pickMap(): string?
 	if RunService:IsStudio() and typeof(forced) == "string" and MapService.has(forced) then
 		return forced
 	end
+	if matchMode() == "beginner" and MapService.has(Config.MAP) then
+		return Config.MAP
+	end
 	local size = math.max(sideCount(1), sideCount(2), 1)
 	local fits: { string } = {}
 	for _, entry in Config.MAPS do
@@ -1217,7 +1566,7 @@ local function pickMap(): string?
 		return fits[math.random(1, #fits)]
 	end
 	HealthLog.stage("vote open", nil, `{Context.id} {#fits} maps`)
-	return MapVoteService.run(fits, size, MatchState.botSeats())
+	return MapVoteService.run(fits, size, MatchState.botSeats(), matchMode())
 end
 
 -- Loads a map, never throwing: a map that fails to load keeps the one already loaded.
@@ -1246,12 +1595,25 @@ local function abandonMatch(reason: string)
 end
 
 local function loop()
+	local mapStart = os.clock()
 	while not loadMap(Config.MAP) do
+		if
+			not RunService:IsStudio()
+			and os.clock() - mapStart >= Config.MAP_LOAD_TIMEOUT
+			and #Players:GetPlayers() > 0
+		then
+			cancelSlowLoad("initial map failed to load")
+			return
+		end
 		task.wait(MAP_RETRY)
 	end
 	lastMap = Config.MAP
 	while true do
-		waitForPlayers()
+		if not waitForPlayers() then
+			return
+		end
+		matchKey = HttpService:GenerateGUID(false)
+		reportStage(1, "Match server ready")
 		local picked, nextMap = xpcall(pickMap, debug.traceback)
 		if not picked then
 			-- The vote broke: play the map that's loaded rather than hang on the vote screen.
@@ -1263,6 +1625,7 @@ local function loop()
 		if nextMap and nextMap ~= lastMap and loadMap(nextMap) then
 			lastMap = nextMap
 		end
+		reportStage(2, "Map selected")
 		matchesPlayed += 1
 		local ok, result = xpcall(runMatch, debug.traceback)
 		inMatch = false
@@ -1344,6 +1707,29 @@ function MatchService.start()
 		local team = body and body:IsA("Model") and Teams.of(body)
 		if body and body:IsA("Model") and team then
 			lastDown[team] = { body = body, at = workspace:GetServerTimeNow() }
+			if inMatch then
+				local phase = MatchState.phase()
+				if phase == "Live" or phase == "SuddenDeath" then
+					local alive1 = teamState(1)
+					local alive2 = teamState(2)
+					if alive1 == 1 and alive2 >= 2 then
+						local prev = clutchState[1]
+						local hero = soleSurvivor(1) or (if prev then prev.actor else "SOLO")
+						clutchState[1] = {
+							vs = math.max(if prev then prev.vs else 0, alive2),
+							actor = hero,
+						}
+					end
+					if alive2 == 1 and alive1 >= 2 then
+						local prev = clutchState[2]
+						local hero = soleSurvivor(2) or (if prev then prev.actor else "SOLO")
+						clutchState[2] = {
+							vs = math.max(if prev then prev.vs else 0, alive1),
+							actor = hero,
+						}
+					end
+				end
+			end
 		end
 	end))
 	local function joined(player: Player)

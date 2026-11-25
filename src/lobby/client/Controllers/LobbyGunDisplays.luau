@@ -15,6 +15,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SkinStore = require(game:GetService("ReplicatedStorage").Shared.SkinStore)
 
 local LobbyGunDisplays = {}
@@ -227,6 +228,9 @@ end
 
 -- Turning guns (Spin): about the world up axis through their centre, with a small bob.
 local function step()
+	if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
+		return
+	end
 	local cam = workspace.CurrentCamera
 	if not cam then
 		return

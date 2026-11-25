@@ -8,13 +8,14 @@
 -- sends ShopRequest("openCase")
 -- (Services/ShopService rolls and grants a skin you don't own); the reveal panel
 -- shows it with its tier, EQUIP puts it on through the Locker's LockerRequest.
--- The cinematic crate opening replaces the reveal's entrance later.
+-- The in-world animation starts as soon as the player selects OPEN 1 or OPEN 3.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
+local OnbConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local OpeningConfig = require(ReplicatedStorage.Shared.Config.CaseOpening)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
@@ -27,7 +28,9 @@ local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
+local OnbHighlight = require(script.Parent.Parent.Util.OnbHighlight)
 local CaseOpening = require(script.Parent.Parent.Util.CaseOpening)
+local ShopRewardFx = require(script.Parent.Parent.Util.ShopRewardFx)
 local LobbyHud = require(script.Parent.LobbyHud)
 local Router = require(script.Parent.Parent.Util.Router)
 
@@ -106,6 +109,7 @@ function BackpackController.init()
 	local contentsPosition, contentsSize = contentsButton.Position, contentsButton.Size
 	local openPosition, openSize = openOne.Position, openOne.Size
 	local openOneLabel = child(openOne, "Label") :: TextLabel
+	local equipButton = child(reveal, "Equip") :: GuiButton
 	local doneButton = child(reveal, "Done") :: GuiButton
 	local doneLabel = child(doneButton, "Label") :: TextLabel
 	local doneText = doneLabel.Text
@@ -113,8 +117,29 @@ function BackpackController.init()
 	batchLabel.Text = `OPEN {Inventory.BATCH_OPEN_COUNT}`
 	openOneLabel.Text = "OPEN 1"
 	local crate: CaseOpening.Handle? = nil -- the in-world opening in progress
+	local sentBackpackOpen = false
+	local caseCell: GuiButton? = nil
 
 	local showItem: (def: Inventory.ItemDef, count: number) -> ()
+
+	local function highlightGridCase()
+		if
+			isOpen
+			and not pending
+			and not itemPanel.Visible
+			and not reveal.Visible
+			and StateValues.get(player, "OnbCaseGift") == true
+			and StateValues.get(player, "OnbCaseOpened") ~= true
+			and caseCell
+			and caseCell.Parent
+		then
+			OnbHighlight.focus(
+				"Backpack",
+				caseCell,
+				{ tag = "OPEN!", tagPos = "insideTopRight", stroke = true, scale = 1.05 }
+			)
+		end
+	end
 
 	local function pop(panel: Frame)
 		local sc = panel:FindFirstChild("Pop")
@@ -124,15 +149,18 @@ function BackpackController.init()
 		end
 	end
 	local function hideItem()
+		OnbHighlight.clear("Backpack")
 		itemShade.Visible = false
 		itemPanel.Visible = false
 		contentsPanel.Visible = false
+		highlightGridCase()
 	end
 
 	local function render()
 		LobbyKit.clearSlots(grid)
 		detail.Text = ""
 		first = nil
+		caseCell = nil
 		local list = stacks()
 		local cells = math.max(MIN_ROWS * COLS, math.ceil(#list / COLS) * COLS)
 		for i = 1, cells do
@@ -159,6 +187,9 @@ function BackpackController.init()
 			LobbyKit.cell(cell)
 			if s then
 				first = first or cell
+				if s.def.id == OnbConfig.FIRST_MATCH_CASE then
+					caseCell = cell
+				end
 				local name = string.format("%s  ×%d", s.def.name, s.count)
 				local def = s.def
 				local held = s.count
@@ -175,13 +206,18 @@ function BackpackController.init()
 		end
 		empty.Visible = #list == 0
 		grid.Visible = true
+		highlightGridCase()
 	end
 
 	local function showReveal(on: boolean)
+		if not on then
+			OnbHighlight.clear("Backpack")
+		end
+		player:SetAttribute("CaseRevealOpen", on)
 		shade.Visible = on
 		reveal.Visible = on
 		if on then
-			revealPop.Scale = 0.8
+			revealPop.Scale = if UiMotion.reduced() then 1 else 0.9
 			UiMotion.tween(
 				revealPop,
 				0.36,
@@ -268,6 +304,20 @@ function BackpackController.init()
 		if not wasVisible then
 			pop(itemPanel)
 		end
+		if
+			isCase
+			and def.id == OnbConfig.FIRST_MATCH_CASE
+			and StateValues.get(player, "OnbCaseGift") == true
+			and StateValues.get(player, "OnbCaseOpened") ~= true
+		then
+			OnbHighlight.focus(
+				"Backpack",
+				openOne,
+				{ tag = "OPEN!", tagPos = "top", stroke = false, scale = 1.07 }
+			)
+		else
+			OnbHighlight.clear("Backpack")
+		end
 	end
 	LobbyKit.button(child(itemPanel, "Close") :: GuiButton, hideItem)
 	LobbyKit.button(child(contentsPanel, "Close") :: GuiButton, function()
@@ -280,9 +330,12 @@ function BackpackController.init()
 		if not (def and case) then
 			return
 		end
-		(child(contentsPanel, "Sub") :: TextLabel).Text = def.name;
-		(child(contentsPanel, "Note") :: TextLabel).Text = ShopCatalog.ODDS_NOTE
-		OddsList.fill(child(contentsPanel, "List") :: ScrollingFrame, case)
+		(child(contentsPanel, "Sub") :: TextLabel).Text = def.name
+		OddsList.fill(
+			child(contentsPanel, "List") :: ScrollingFrame,
+			case,
+			child(contentsPanel, "Note") :: TextLabel
+		)
 		itemPanel.Visible = false
 		contentsPanel.Visible = true
 		pop(contentsPanel)
@@ -305,7 +358,7 @@ function BackpackController.init()
 		local busy = crate
 		if busy and not busy:isDead() then
 			UiSfx.cue("PurchaseDenied")
-			LobbyHud.toast("Wait for this case to finish opening", "info")
+			LobbyHud.toast("Wait for the opening to finish", "info")
 			return
 		end
 		hideItem()
@@ -313,12 +366,14 @@ function BackpackController.init()
 		local id = serial
 		pending = id
 		local def = Inventory.ITEMS[selected]
+		player:SetAttribute("CaseOpeningActive", true)
 		Router.close()
-		crate = CaseOpening.start(player, if def then def.tier else 1, true)
+		crate = CaseOpening.start(player, if def then def.tier else 1, true, amount)
 		LobbyNet.event("ShopRequest"):FireServer("openCase", selected, amount, id)
 		task.delay(OpeningConfig.ANSWER_TIMEOUT, function()
 			if pending == id then
 				pending = nil
+				player:SetAttribute("CaseOpeningActive", false)
 				local active = crate
 				crate = nil
 				if active then
@@ -345,10 +400,79 @@ function BackpackController.init()
 			return
 		end
 		fillReveal(result.gun, result.line, result.tier, result.name)
+		local tier = Skins.TIERS[(result.tier or "Common") :: any] or Skins.TIERS.Common
+		local kicker = reveal:FindFirstChild("Kicker")
+		if kicker and kicker:IsA("TextLabel") then
+			kicker.Text = if #revealed > 1
+				then `NEW SKIN  ·  {revealIndex} OF {#revealed}`
+				else "NEW SKIN"
+		end
+		local edge = reveal:FindFirstChild("RevealEdge")
+		if not (edge and edge:IsA("UIStroke")) then
+			local st = Instance.new("UIStroke")
+			st.Name = "RevealEdge"
+			st.Parent = reveal
+			edge = st
+		end
+		if edge and edge:IsA("UIStroke") then
+			edge.Color = tier.color
+			edge.Thickness = if tier.order >= 4 then 3 else 2
+			edge.Transparency = if tier.order >= 3 then 0.15 else 0.45
+		end
+		local art = child(reveal, "Art") :: ImageLabel
+		ShopRewardFx.accent(reveal, art, tier.color, tier.order)
+		if not UiMotion.reduced() then
+			local artPop = art:FindFirstChild("Pop") or Instance.new("UIScale")
+			artPop.Name = "Pop"
+			artPop.Parent = art
+			if artPop:IsA("UIScale") then
+				artPop.Scale = 0.82
+				UiMotion.tween(
+					artPop,
+					0.34,
+					{ Scale = 1 },
+					Enum.EasingStyle.Back,
+					Enum.EasingDirection.Out
+				)
+			end
+			local plate = child(reveal, "Tier") :: Frame
+			local platePop = plate:FindFirstChild("Pop") or Instance.new("UIScale")
+			platePop.Name = "Pop"
+			platePop.Parent = plate
+			if platePop:IsA("UIScale") then
+				platePop.Scale = 1.24
+				UiMotion.tween(
+					platePop,
+					0.28,
+					{ Scale = 1 },
+					Enum.EasingStyle.Back,
+					Enum.EasingDirection.Out
+				)
+			end
+		end
+		if tier.order >= 4 then
+			UiSfx.cue("RewardFinalHit")
+		elseif tier.order >= 2 then
+			UiSfx.cue("RewardItemTick")
+		else
+			UiSfx.cue("Confirm")
+		end
 		doneLabel.Text = if revealIndex < #revealed
 			then `NEXT {revealIndex}/{#revealed}`
 			else doneText
 		showReveal(true)
+		if
+			StateValues.get(player, "OnbCaseGift") == true
+			and StateValues.get(player, "OnbSkinEquipped") ~= true
+		then
+			OnbHighlight.focus(
+				"Backpack",
+				equipButton,
+				{ tag = "EQUIP!", tagPos = "top", stroke = false, scale = 1.07 }
+			)
+		else
+			OnbHighlight.clear("Backpack")
+		end
 	end
 
 	local function nextResult()
@@ -356,7 +480,11 @@ function BackpackController.init()
 		drawResult()
 	end
 
-	LobbyKit.button(child(reveal, "Equip") :: GuiButton, function()
+	LobbyKit.button(equipButton, function()
+		UiSfx.cue("Confirm")
+		local wasOnbReveal = StateValues.get(player, "OnbCaseGift") == true
+			and StateValues.get(player, "OnbSkinEquipped") ~= true
+			and revealIndex >= #revealed
 		local result = revealed[revealIndex]
 		if result then
 			LobbyNet.event("LockerRequest"):FireServer("equip", result.gun, result.line)
@@ -373,6 +501,13 @@ function BackpackController.init()
 			end)
 		end
 		nextResult()
+		if wasOnbReveal then
+			task.delay(0.35, function()
+				if Router.current() == "Backpack" then
+					Router.close()
+				end
+			end)
+		end
 	end)
 	LobbyKit.button(doneButton, nextResult)
 
@@ -384,13 +519,17 @@ function BackpackController.init()
 		pending = nil
 		local h = crate
 		local rewards = p.results
-		local firstReward = rewards and rewards[1]
-		if p.kind == "opened" and rewards and firstReward then
+		if p.kind == "opened" and rewards and #rewards > 0 then
 			local function finish(showResults: boolean)
 				if serial ~= id then
 					return
 				end
 				crate = nil
+				player:SetAttribute("CaseOpeningActive", false)
+				if rewards and #rewards > 0 then
+					player:SetAttribute("OnbNewSkinGun", rewards[1].gun)
+					player:SetAttribute("OnbNewSkinLine", rewards[1].line)
+				end
 				if not showResults then
 					return
 				end
@@ -413,22 +552,24 @@ function BackpackController.init()
 				if Router.current() == "Backpack" then
 					revealed = rewards
 					revealIndex = 1
-					UiSfx.cue("Confirm")
 					drawResult()
 				end
 			end
-			if h and not h:isDead() then
-				h:reveal(firstReward, function()
-					finish(p.count == Inventory.BATCH_OPEN_COUNT)
+			if h then
+				local started = h:reveal(rewards, function()
+					finish(true)
 				end)
-			else
-				finish(true)
+				if started then
+					return
+				end
 			end
+			finish(true)
 		else
 			if h then
 				h:abort()
 			end
 			crate = nil
+			player:SetAttribute("CaseOpeningActive", false)
 			local refund = p.kind == "refunded"
 			UiSfx.cue(if refund then "Confirm" else "PurchaseDenied")
 			LobbyHud.toast(p.text or "Couldn't open it", if refund then "success" else "error")
@@ -450,9 +591,25 @@ function BackpackController.init()
 		onOpen = function()
 			isOpen = true
 			render()
+			if
+				not pending
+				and StateValues.get(player, "OnbCaseGift") == true
+				and StateValues.get(player, "OnbCaseOpened") ~= true
+			then
+				if not sentBackpackOpen then
+					sentBackpackOpen = true
+					LobbyNet.event("OnboardingRequest"):FireServer("backpackOpened")
+				end
+				local count = PlayerData.items(player)[OnbConfig.FIRST_MATCH_CASE] or 0
+				local def = Inventory.ITEMS[OnbConfig.FIRST_MATCH_CASE]
+				if def and count > 0 then
+					showItem(def, count)
+				end
+			end
 		end,
 		onClose = function()
 			isOpen = false
+			OnbHighlight.clear("Backpack")
 			showReveal(false)
 			hideItem()
 		end,
@@ -478,6 +635,9 @@ function BackpackController.init()
 				end
 			end)
 		end
+	end)
+	StateValues.changed(player, "OnbResetSeq"):Connect(function()
+		sentBackpackOpen = false
 	end)
 end
 

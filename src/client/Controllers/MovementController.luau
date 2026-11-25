@@ -147,7 +147,6 @@ function MovementController.isSprinting(): boolean
 end
 
 function MovementController.start()
-	MovementSim.initialize()
 	RunService:BindToRenderStep("GGMovementView", Enum.RenderPriority.Camera.Value - 1, update)
 	local function watchJumps(c: Model)
 		local humanoid = c:WaitForChild("Humanoid", 5)

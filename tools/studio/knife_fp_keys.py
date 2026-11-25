@@ -550,6 +550,56 @@ KATANA_INSPECT = (3.4, [
 	(0.98, ("near", 0.0, 0.015, 2), None),
 ])
 
+# Riftfang Legendary Knife (2026-11-23, owner feedback pass: right-click heavy &
+# inspect replaced with kinematically solved natural forearm/wrist tracks; zero
+# mid-air drill-spin and zero +Z backward camera-clipping).
+RIFTFANG_HEAVY = (0.9, 0.42, [
+	# Crisp anticipation dip, then coil up-right like a striking fang (blade
+	# pointed forward at the crosshair while dorsal scales flare wide).
+	(0.05, ("fist", (0.48, -0.58, 1.44), -5), None),
+	(0.14, ("aim", (0.64, -0.22, 1.18), (0.34, 0.42, 2.05), "auto"), None),
+	(0.24, ("aim", (0.72, -0.10, 1.08), (0.30, 0.48, 2.02), "auto"), None),
+	(0.33, ("aim", (0.74, -0.06, 1.04), (0.26, 0.48, 2.00), "auto"), None),
+	# Explosive diagonal-forward fang plunge straight through crosshair!
+	(0.38, ("aim", (0.38, -0.20, 1.36), (0.04, 0.10, 2.48), "auto"), None),
+	(0.42, ("aim", (0.04, -0.34, 1.72), (-0.06, -0.08, 2.92), "auto"), None),
+	(0.48, ("aim", (-0.12, -0.42, 1.80), (-0.22, -0.18, 2.96), "auto"), None),
+	(0.56, ("aim", (-0.08, -0.48, 1.66), (-0.18, -0.24, 2.82), "auto"), None),
+	# Weighty forearm roll recovery back to hold.
+	(0.66, ("blend", (0.14, -0.56, 1.46)), None),
+	(0.76, ("fist", (0.36, -0.54, 1.42), 14), None),
+	(0.86, ("near", 0.0, 0.042, -4), None),
+	(0.94, ("near", 0.0, -0.012, 1.5), None),
+])
+
+# Riftfang Inspect (3.4s): 100% natural gripped showcase — NO unnatural drill-spin.
+# Smooth lift to show forged left flat & rippling dorsal scales -> subtle breathing
+# light-catch tilt -> two-stage natural wrist roll ("split") to upright showcase of
+# the machined bevel, crossguard crystal & glowing plasma spine -> crisp scale-slam
+# wrist flick -> clean settle back to ready hold.
+RIFTFANG_INSPECT = (3.4, [
+	(0.05, ("near", -0.05, 0.035, 7), None),
+	# Left-flat & spine-scale showcase (arm stays cleanly on shoulder line).
+	(0.14, ("aim", (0.16, -0.50, 1.18), (-0.42, 0.14, 1.52), (-0.7, -0.5, -0.5)), None),
+	(0.22, ("aim", (0.18, -0.47, 1.18), (-0.36, 0.22, 1.52), (-0.7, -0.45, -0.55)), None),
+	(0.32, ("aim", (0.17, -0.49, 1.18), (-0.44, 0.12, 1.52), (-0.75, -0.45, -0.48)), None),
+	(0.39, ("aim", (0.18, -0.52, 1.19), (-0.42, 0.08, 1.52), (-0.7, -0.5, -0.5)), None),
+	# Natural two-stage wrist roll: roll along blade first, then swing upright-center!
+	(0.43, ("split", (0.17, -0.50, 1.20), 0.55, 0.10), None),
+	(0.47, ("split", (0.16, -0.46, 1.22), 0.95, 0.45), None),
+	(0.51, ("aim", (0.14, -0.44, 1.22), (0.04, 0.56, 1.54), "auto"), None),
+	# Opposite bevel & crossguard core crystal showcase with gentle admiring rock.
+	(0.60, ("aim", (0.16, -0.42, 1.22), (0.16, 0.54, 1.54), "auto"), None),
+	(0.69, ("aim", (0.14, -0.45, 1.22), (-0.02, 0.54, 1.54), "auto"), None),
+	# Subtle dip -> crisp wrist flick on 0.78 as dorsal scales SLAM shut!
+	(0.75, ("aim", (0.16, -0.50, 1.22), (-0.04, 0.46, 1.54), "auto"), None),
+	(0.79, ("aim", (0.15, -0.40, 1.24), (0.08, 0.62, 1.54), "auto"), None),
+	(0.84, ("aim", (0.17, -0.45, 1.25), (0.04, 0.52, 1.55), "auto"), None),
+	# Smooth return to ready hold.
+	(0.92, ("blend", (0.32, -0.48, 1.36)), None),
+	(0.97, ("near", 0.0, 0.02, 2.5), None),
+])
+
 
 def luau_v(v):
 	return "Vector3.new(" + ", ".join(f"{x:.3f}".rstrip("0").rstrip(".") if abs(x) > 5e-4 else "0" for x in v) + ")"
@@ -644,6 +694,8 @@ TRACK_NAMES = (
 	"KatanaHeavyStab",
 	"KatanaDraw",
 	"KatanaInspect",
+	"RiftfangHeavyStab",
+	"RiftfangInspect",
 )
 
 
@@ -703,6 +755,8 @@ def emit_all(check):
 		emit(name, length, hit, keys, check)
 	emit("KatanaDraw", KATANA_DRAW[0], None, KATANA_DRAW[1], check)
 	emit("KatanaInspect", KATANA_INSPECT[0], None, KATANA_INSPECT[1], check)
+	emit("RiftfangHeavyStab", RIFTFANG_HEAVY[0], RIFTFANG_HEAVY[1], RIFTFANG_HEAVY[2], check)
+	emit("RiftfangInspect", RIFTFANG_INSPECT[0], None, RIFTFANG_INSPECT[1], check)
 
 
 def _toss_lines(keys, pivot):

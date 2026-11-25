@@ -67,9 +67,13 @@ type Entry = {
 	lastGun: string?, -- the gun of their latest hit
 }
 
+type RoundKiller = { name: string, team: number, kills: number, userId: number? }
+
 local entries: { [string]: Entry } = {}
 -- Damage this life: attacker id → victim id → damage (the combat report).
 local pair: { [string]: { [string]: number } } = {}
+local roundKills: { [string]: RoundKiller } = {}
+local roundDamageTaken: { [number]: number } = { [1] = 0, [2] = 0 }
 local limiter = RateLimit.new(MatchConfig.RATE)
 
 -- Who holds a fighter's Mod attributes: the Player, or a bot's owner stand-in.
@@ -204,6 +208,9 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 	end
 	local now = os.clock()
 	v.taken += dealt
+	if dealt > 0 and (v.team == 1 or v.team == 2) then
+		roundDamageTaken[v.team] = (roundDamageTaken[v.team] or 0) + dealt
+	end
 	-- Your own or your team's damage (Molly, Firewall) earns nothing.
 	local enemy = a ~= nil and a ~= v and (a.team == 0 or a.team ~= v.team)
 	if not a or not enemy then
@@ -229,6 +236,12 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 			Net.event("CombatReport"):FireClient(owner, math.round(dealtTo), math.round(takenFrom))
 		end
 		a.eliminations += 1
+		local rk = roundKills[a.id]
+		if not rk then
+			rk = { name = a.name, team = a.team, kills = 0, userId = a.userId }
+			roundKills[a.id] = rk
+		end
+		rk.kills += 1
 		local gun = heldGun(attacker)
 		if gun then
 			a.gunKills[gun] = (a.gunKills[gun] or 0) + 1
@@ -251,11 +264,17 @@ end
 function StatsService.reset()
 	table.clear(entries)
 	table.clear(pair)
+	table.clear(roundKills)
+	roundDamageTaken[1] = 0
+	roundDamageTaken[2] = 0
 end
 
 -- A new round: everyone's life (and combat report) starts over.
 function StatsService.newRound()
 	table.clear(pair)
+	table.clear(roundKills)
+	roundDamageTaken[1] = 0
+	roundDamageTaken[2] = 0
 	for _, entry in entries do
 		table.clear(entry.hurtBy)
 	end
@@ -264,6 +283,24 @@ end
 -- Makes sure everyone in the match has a line, even with nothing on it.
 function StatsService.note(x: Instance)
 	entryOf(x)
+end
+
+function StatsService.roundTopKiller(team: number): (string?, number, number?)
+	local bestName: string? = nil
+	local bestKills = 0
+	local bestUserId: number? = nil
+	for _, rk in roundKills do
+		if rk.team == team and rk.kills > bestKills then
+			bestKills = rk.kills
+			bestName = rk.name
+			bestUserId = rk.userId
+		end
+	end
+	return bestName, bestKills, bestUserId
+end
+
+function StatsService.roundDamageTaken(team: number): number
+	return roundDamageTaken[team] or 0
 end
 
 -- Every line, with the MVP marked (most eliminations, then damage dealt).

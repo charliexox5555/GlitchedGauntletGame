@@ -65,6 +65,9 @@ type Meter = {
 local meter: Meter? = nil
 local METER_WIDTH = 240
 local METER_MAX_PIPS = 3
+local DANGER = Color3.fromHex("FF4D5E")
+local DANGER_STROKE = Color3.fromHex("FF9AA5")
+local cancelZone: { frame: Frame, stroke: UIStroke, scale: UIScale }? = nil
 local altButton: GuiButton? = nil
 local slots: { SlotState } = {}
 local started = false
@@ -77,6 +80,46 @@ local function text(props: { [string]: any }, parent: Instance): TextLabel
 	local label = make("TextLabel", props, parent)
 	make("UIStroke", { Color = BLACK, Thickness = 1.5, Transparency = 0.55 }, label)
 	return label
+end
+
+local function buildCancelZone(screen: ScreenGui)
+	local frame = make("Frame", {
+		Name = "ModCancelZone",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.8),
+		Size = UDim2.fromOffset(108, 42),
+		BackgroundColor3 = BACK,
+		BackgroundTransparency = 0.22,
+		BorderSizePixel = 0,
+		Visible = false,
+	}, screen)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, frame)
+	local stroke =
+		make("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.45 }, frame) :: UIStroke
+	local scale = make("UIScale", { Scale = 1 }, frame) :: UIScale
+	text({
+		Name = "Label",
+		Position = UDim2.fromScale(0, 0),
+		Size = UDim2.fromScale(1, 1),
+		FontFace = HEAVY,
+		TextSize = 13,
+		Text = "✕  CANCEL",
+	}, frame)
+	cancelZone = { frame = frame, stroke = stroke, scale = scale }
+end
+
+function ModHudController.cancelHitTest(screenPoint: Vector2): boolean
+	local cz = cancelZone
+	if not cz or not cz.frame.Visible then
+		return false
+	end
+	local pad = 20
+	local pos = cz.frame.AbsolutePosition
+	local size = cz.frame.AbsoluteSize
+	return screenPoint.X >= pos.X - pad
+		and screenPoint.X <= pos.X + size.X + pad
+		and screenPoint.Y >= pos.Y - pad
+		and screenPoint.Y <= pos.Y + size.Y + pad
 end
 
 -- Charge meter: under the crosshair, faded in while a charged Mod is up.
@@ -187,6 +230,7 @@ local function buildMeter()
 		popAt = -math.huge,
 		fullAt = -math.huge,
 	}
+	buildCancelZone(screen)
 end
 
 local function build()
@@ -419,8 +463,28 @@ local function update(dt: number)
 		local altHint = view and view.def and view.def.hint.alt
 		alt.Visible = altHint ~= nil
 		local label = alt:FindFirstChild("Label", true)
-		if label and label:IsA("TextLabel") and altHint then
-			label.Text = string.upper(altHint)
+		if label and label:IsA("TextLabel") and altHint and view and view.def then
+			local charge = if view.def.activation == "HeldCharge"
+				then ModController.chargeState()
+				else nil
+			label.Text = if charge
+				then string.format("BOUNCE %d", charge.bounces)
+				else string.upper(altHint)
+		end
+	end
+	local cz = cancelZone
+	if cz then
+		local active = ModController.isSmartTouchActive()
+		cz.frame.Visible = active
+		if active then
+			local hover = ModController.isSmartCancelHover()
+			cz.frame.BackgroundColor3 = if hover then DANGER else BACK
+			cz.frame.BackgroundTransparency = if hover then 0.08 else 0.22
+			cz.stroke.Color = if hover then DANGER_STROKE else WHITE
+			cz.stroke.Transparency = if hover then 0.1 else 0.45
+			cz.scale.Scale = if hover then 1.12 else 1
+		else
+			cz.scale.Scale = 1
 		end
 	end
 end

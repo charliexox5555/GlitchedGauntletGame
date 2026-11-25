@@ -309,6 +309,9 @@ function InputGlyphs.watch(gui: Instance)
 			task.defer(InputGlyphs.apply, d :: GuiObject)
 		end
 	end)
+	gui.Destroying:Once(function()
+		watched[gui] = nil
+	end)
 end
 
 function InputGlyphs.refreshAll()

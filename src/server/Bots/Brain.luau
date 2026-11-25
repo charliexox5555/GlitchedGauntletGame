@@ -38,6 +38,7 @@ export type World = {
 	roam: Vector3?, -- where to go first with no information (the enemy side)
 	patrol: { Vector3 }, -- then from point to point over the map (spawns, middle, flanks)
 	zone: Zone.State?,
+	botDuel: number?, -- 0..1 escalation once all real players in the round are dead
 }
 
 local Brain = {}
@@ -78,7 +79,49 @@ type AimSent = {
 	lookNext: number, -- the next look stream slot (Services/LookStream)
 }
 local aimSent: { [Bot]: AimSent } = setmetatable({}, { __mode = "k" }) :: any
+local duelSeekAt: { [Bot]: number } = setmetatable({}, { __mode = "k" }) :: any
+local contactAt: { [Bot]: { life: number, at: number } } = setmetatable({}, { __mode = "k" }) :: any
 local SPECTATE = Juice.SPECTATE
+
+local function duelSeekGoal(
+	bot: Bot,
+	pos: Vector3,
+	enemies: { Model },
+	now: number,
+	jitter: number?
+): Vector3?
+	local existing = bot.roamGoal
+	if existing then
+		local reached = ((existing - pos) * Vector3.new(1, 0, 1)).Magnitude < 6
+		local failed = bot.nav.failedFor and (existing - bot.nav.failedFor).Magnitude < 3
+		local fresh = now - (duelSeekAt[bot] or 0) < 2.5
+		if not reached and not failed and fresh then
+			return existing
+		end
+	end
+	local nearest: Vector3? = nil
+	local bestD = math.huge
+	for _, enemy in enemies do
+		local r = enemy:FindFirstChild("HumanoidRootPart")
+		if r and r:IsA("BasePart") then
+			local d = (r.Position - pos).Magnitude
+			if d < bestD then
+				bestD = d
+				nearest = r.Position
+			end
+		end
+	end
+	if not nearest then
+		return nil
+	end
+	local j = jitter or BotsConfig.BOT_DUEL.seekJitter
+	local angle = rng:NextNumber() * math.pi * 2
+	local offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * rng:NextNumber(0, j)
+	local candidate = nearest + offset
+	local goal = if Nav.insideArena(candidate) then candidate else nearest
+	duelSeekAt[bot] = now
+	return goal
+end
 
 local function wrapAngle(a: number): number
 	return (a + math.pi) % (2 * math.pi) - math.pi
@@ -302,13 +345,21 @@ function Brain.think(bot: Bot, world: World, now: number)
 	local style = bot.openingStyle
 	local aggression = math.clamp(
 		bot.profile.tactics.aggression
-			+ (if style == "Flanker" then 0.08 elseif style == "Holder" then -0.13 else 0),
+			+ (if style == "Flanker" then 0.08 elseif style == "Holder" then -0.05 else 0),
 		0,
 		1
 	)
 	local glimpse = if target then nil else Perception.glimpse(bot, now)
 	local known = if target then nil else glimpse or Perception.lastKnown(bot, now)
 	local threat = target or known
+	local contact = contactAt[bot]
+	if not contact or contact.life ~= bot.life then
+		contact = { life = bot.life, at = now }
+		contactAt[bot] = contact
+	end
+	if target or known or now - bot.lastHurtAt < 1 then
+		contact.at = now
+	end
 	local zone = world.zone
 	bot.zone = zone
 	local rotate = zone ~= nil and Tactics.needsZone(bot, zone)
@@ -331,7 +382,11 @@ function Brain.think(bot: Bot, world: World, now: number)
 		not cover
 		and now >= bot.coverAt
 		and not peeking
-		and (lowAmmo or hp < bot.profile.tactics.coverHealth or (underPressure and not target))
+		and (
+			lowAmmo
+			or hp < bot.profile.tactics.coverHealth
+			or (underPressure and not target and hp < 0.55)
+		)
 	then
 		bot.coverAt = now + BotsConfig.COVER_RETRY
 		bot.coverGoal, bot.peekGoal = Tactics.findCover(bot, threat.lastPos, world.allies)
@@ -347,8 +402,8 @@ function Brain.think(bot: Bot, world: World, now: number)
 			enemyHp = Health.get(h) / math.max(Health.max(h), 1)
 		end
 		scores.Engage = 0.6 + aggression * 0.3
-		if hp < bot.profile.tactics.coverHealth and enemyHp > hp then
-			scores.Retreat = 1.05 - aggression * 0.28
+		if hp < bot.profile.tactics.coverHealth and enemyHp > hp + 0.25 then
+			scores.Retreat = 0.88 - aggression * 0.28
 		end
 	elseif known then
 		scores.Hunt = 0.45 + aggression * 0.35
@@ -461,17 +516,30 @@ function Brain.think(bot: Bot, world: World, now: number)
 	elseif best == "Hunt" and known then
 		-- Where it last stood (a jumping target's air position has no path).
 		local goal = known.groundPos
-		if not glimpse and bot.nav.failedFor and (bot.nav.failedFor - goal).Magnitude < 1 then
-			known.unreachableAt = now -- no path: forget it and roam instead
+		local failed = bot.nav.failedFor
+		local reached = ((goal - pos) * Vector3.new(1, 0, 1)).Magnitude < 4
+		if not Nav.insideArena(goal) or reached or (failed and (failed - goal).Magnitude < 3) then
+			known.unreachableAt = now
+			Nav.clear(bot.nav)
+			bot.lookAt = nil
+		else
+			Nav.setGoal(bot, goal)
+			bot.wantSprint = (goal - pos).Magnitude > 12
+			bot.lookAt = known.lastPos
 		end
-		if not glimpse and ((goal - pos) * Vector3.new(1, 0, 1)).Magnitude < 4 then
-			known.unreachableAt = now -- searched its last known position
-		end
-		Nav.setGoal(bot, goal)
-		bot.wantSprint = (goal - pos).Magnitude > 12
-		bot.lookAt = known.lastPos
 	else
-		local goal = Tactics.patrol(bot, world.roam, world.patrol, now)
+		local quietSeek = now - contact.at >= 5
+		local duelGoal = if ((world.botDuel or 0) >= 0.15 or quietSeek)
+				and #world.enemies > 0
+			then duelSeekGoal(
+				bot,
+				pos,
+				world.enemies,
+				now,
+				if (world.botDuel or 0) >= 0.15 then BotsConfig.BOT_DUEL.seekJitter else 18
+			)
+			else nil
+		local goal = duelGoal or Tactics.patrol(bot, world.roam, world.patrol, now)
 		if goal ~= bot.roamGoal then
 			Nav.clear(bot.nav)
 		end
@@ -482,6 +550,7 @@ function Brain.think(bot: Bot, world: World, now: number)
 			bot.lookAt = goal
 		else
 			Nav.clear(bot.nav)
+			bot.lookAt = nil
 		end
 	end
 	if best ~= "Rotate" and best ~= "Cover" and best ~= "Peek" then
@@ -579,12 +648,11 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	bot.steerInput = bot.steerInput:Lerp(requested, moveAlpha)
 	local dir, hop = Nav.avoid(bot, bot.steerInput, jump, now)
 	if
-		(rotating or bot.goal == "Roam")
+		(rotating or bot.goal == "Roam" or bot.goal == "Hunt")
 		and not engage
 		and dir.Magnitude > 0.3
-		and requested.Magnitude > 0.3
 	then
-		bot.lookAt = root.Position + requested.Unit * 12
+		bot.lookAt = root.Position + dir.Unit * 12
 	end
 	local point = if engage then Aim.targetPoint(bot, now) else nil
 	local lag = Aim.step(bot, point, dt)

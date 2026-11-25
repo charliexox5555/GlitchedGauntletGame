@@ -13,7 +13,7 @@ Economy.DAY_SECONDS = 86400 -- days are UTC: day index = os.time() // DAY_SECOND
 
 -- Tickets
 Economy.MAX_TICKETS = 100_000
-Economy.STARTING_TICKETS = 2 -- a new player can open two Standard cases straight away
+Economy.STARTING_TICKETS = 0 -- new players earn a free Standard Case right after finishing Match 1
 
 -- Login rewards: a 7-day loop. Claim once per UTC day; the day after the last claim
 -- gives the next step, a missed day starts again at step 1, after step 7 comes step 1.

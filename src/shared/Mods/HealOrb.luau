@@ -45,10 +45,19 @@ function HealOrb.primaryTarget(
 	params: RaycastParams
 ): Model?
 	local allies = HealOrb.allies(player)
-	if #allies == 0 then
+	local candidates = allies
+	if not HealOrb.isBarrier(stats) then
+		candidates = {}
+		for _, m in allies do
+			if not full(m) then
+				table.insert(candidates, m)
+			end
+		end
+	end
+	if #candidates == 0 then
 		return Teams.characterOf(player)
 	end
-	return Target.pick(origin, dir, stats.range, stats.aimAngle, allies, params)
+	return Target.pick(origin, dir, stats.range, stats.aimAngle, candidates, params)
 		or Teams.characterOf(player)
 end
 
