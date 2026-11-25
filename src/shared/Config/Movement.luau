@@ -17,6 +17,12 @@ return table.freeze({
 	RUN_DELAY = 0.05,
 	RUN_RAMP = 0.12,
 	CROUCH_SPEED = 9,
+	-- Touch stick push (2026-11-25, owner's phone report): Humanoid.MoveDirection
+	-- is always unit length, so the simulation scales walk, run and crouch
+	-- speed by how far the stick is pushed (0-1, Simulation/Movement
+	-- setOwnPush). The auto run needs at least this push (RIVALS runs from
+	-- 0.9); it builds from the walk, so starting it is smooth.
+	TOUCH_RUN_PUSH = 0.6,
 
 	-- Slide (2026-11-10, owner: "a tap on C does the full slide, jump cancels
 	-- it"): one press while sprinting commits the whole slide; holding C is no

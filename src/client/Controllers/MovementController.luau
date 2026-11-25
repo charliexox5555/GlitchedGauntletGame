@@ -146,6 +146,13 @@ function MovementController.isSprinting(): boolean
 	return state == "Sprint"
 end
 
+-- Our touch Jump button (TouchController) sets Humanoid.Jump itself, which
+-- fires no JumpRequest: it asks here so touch jumps get the same buffer and
+-- coyote time as a key press.
+function MovementController.requestJump()
+	jumpAskedAt = os.clock()
+end
+
 function MovementController.start()
 	RunService:BindToRenderStep("GGMovementView", Enum.RenderPriority.Camera.Value - 1, update)
 	local function watchJumps(c: Model)

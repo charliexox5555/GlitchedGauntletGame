@@ -2,13 +2,17 @@
 -- Touch controls (vault/02 Art/UI Mobile Controls.md): drives the Studio-built
 -- UI.Match.Touch screen (tools/studio/BuildTouchScreen.luau).
 --   * Our own floating stick in the left zone (Roblox's thumbstick and jump
---     button are hidden). It moves the character with Player:Move, follows the
---     thumb past its ring, and pushing it well past the ring straight ahead
---     locks sprint. The stick zone is the one control that blocks the camera.
---   * Every other button lets the camera turn through it (owner: "you should
---     be able to fire and look around"): the buttons are not interactable, so
---     Roblox's camera module still pans the touch, and this controller
---     hit-tests touches itself and fires the input actions.
+--     button are hidden). It moves the character with Player:Move. Its base
+--     stays where the thumb landed for the whole touch, like Roblox's dynamic
+--     thumbstick that RIVALS uses (Config/TouchControls STICK): past the ring
+--     is full speed, easing back slows down smoothly. Pushing well past the
+--     ring straight ahead locks sprint. The stick zone blocks the camera.
+--   * Fire, Aim and the Mods let the camera turn through them (owner: "you
+--     should be able to fire and look around"; Settings CAMERA THROUGH
+--     BUTTONS): those buttons are not interactable, so Roblox's camera module
+--     still pans the touch. Every other button keeps its touch, so tapping
+--     Jump or Reload never jerks the view. This controller hit-tests every
+--     touch itself and fires the input actions.
 --   * Aim and Sprint are toggles (owner). Aim only shows for guns that can
 --     aim; on a gun with an alt fire (Classic's right click) it holds the alt
 --     fire instead. Sprint hides while Auto Sprint is on (Settings).
@@ -30,6 +34,7 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local PlayerSettings = require(ReplicatedStorage.Shared.PlayerSettings)
 local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
+local TouchControls = require(ReplicatedStorage.Shared.Config.TouchControls)
 local TouchLayout = require(ReplicatedStorage.Shared.TouchLayout)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local TouchHud = require(script.Parent.Parent.Util.TouchHud)
@@ -37,21 +42,16 @@ local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
 local ModHudController = require(script.Parent.ModHudController)
 local MovementController = require(script.Parent.MovementController)
+local MovementSim = require(ReplicatedStorage.Shared.Simulation.Movement)
 local ScoreboardController = require(script.Parent.ScoreboardController)
 
 local TouchController = {}
 
 local player = Players.LocalPlayer
 
-local DEADZONE = 0.08
-local FULL_RUN = 0.55 -- pushing 55% of the ring reaches full run speed
-local FOLLOW = 0.95 -- the stick follows the thumb past this x its ring
-local HIT_SLOP = 12 -- px edge forgiveness for primary combat buttons
-local LOCK_PUSH = 1.05 -- the stick pulled this far past its ring, straight ahead...
-local LOCK_AHEAD = -0.75 -- ...(its direction's screen y at most this)...
-local LOCK_HOLD = 0.2 -- ...for this long locks sprint
-local UNLOCK_BACK = 0.35 -- pulling back past this (screen y) unlocks it
-local SLIDE_PRESS = 0.25 -- s: how long a slide tap holds Crouch
+local STICK = TouchControls.STICK
+local HIT_SLOP = TouchControls.HIT_SLOP
+local SLIDE_PRESS = TouchControls.SLIDE_PRESS
 local HIDDEN_PHASES: { [string]: boolean } =
 	{ Vote = true, Draft = true, Replay = true, MatchEnd = true }
 
@@ -177,9 +177,11 @@ local function resetToggles()
 end
 
 -- Screen point of an input, in the same space as GuiObject.AbsolutePosition.
+-- (Measured in Studio 2026-11-25: InputObject.Position and AbsolutePosition
+-- both start under Roblox's top bar. Adding GetGuiInset here drew the stick
+-- 58 px below the thumb.)
 local function guiPoint(input: InputObject): Vector2
-	local inset = GuiService:GetGuiInset()
-	return Vector2.new(input.Position.X, input.Position.Y) + inset
+	return Vector2.new(input.Position.X, input.Position.Y)
 end
 
 -- The stick ---------------------------------------------------------------------
@@ -210,6 +212,7 @@ end
 local function releaseStick()
 	stickInput = nil
 	moveVector = Vector2.zero
+	MovementSim.setOwnPush(1) -- keys and pads move at full speed
 	pushed = false
 	lockSince = nil
 	local at = restPoint()
@@ -227,47 +230,30 @@ local function dragStick(at: Vector2)
 	if radius <= 0 then
 		return
 	end
+	-- The base never moves during a touch (owner 2026-11-25: a base that
+	-- followed the thumb made easing back read as reversing). Past the ring
+	-- the nub sits on its edge and the move is full speed that way.
 	local delta = at - origin
 	local dist = delta.Magnitude
-	-- Past FOLLOW x the ring the stick slides along under the thumb, so a
-	-- change of direction answers at once (no dead travel back to the ring).
-	if dist > radius * FOLLOW then
-		origin = at - delta.Unit * radius * FOLLOW
-		local r0 = root
-		if r0 then
-			local leftHanded = SettingsApply.get("touchLeftHanded") == true
-			local minX = r0.AbsolutePosition.X
-				+ (if leftHanded then r0.AbsoluteSize.X * 0.45 else 0)
-				+ radius
-			local maxX = r0.AbsolutePosition.X
-				+ r0.AbsoluteSize.X * (if leftHanded then 1 else 0.55)
-				- radius
-			local minY = r0.AbsolutePosition.Y + radius
-			local maxY = r0.AbsolutePosition.Y + r0.AbsoluteSize.Y - radius
-			if maxX >= minX and maxY >= minY then
-				origin =
-					Vector2.new(math.clamp(origin.X, minX, maxX), math.clamp(origin.Y, minY, maxY))
-			end
-			local p = origin - r0.AbsolutePosition
-			s.Position = UDim2.fromOffset(p.X, p.Y)
-		end
-		delta = at - origin
-		dist = delta.Magnitude
-	end
-	local clamped = if dist > radius then delta.Unit * radius else delta
-	n.Position = UDim2.new(0.5, clamped.X, 0.5, clamped.Y)
-	local v = clamped / radius
-	local mag = v.Magnitude
-	if mag <= DEADZONE then
+	local dir = if dist > 1e-3 then delta / dist else Vector2.zero
+	local clamped = if dist > radius then dir * radius else delta
+	n.Position = UDim2.new(0.5, math.round(clamped.X), 0.5, math.round(clamped.Y))
+	-- Speed from how far the thumb is from the base: nothing inside the dead
+	-- zone, then a smooth rise to full at fullSpeedAt (a radial rescale, so
+	-- the first step out of the dead zone starts from zero, not with a jump).
+	local mag = dist / radius
+	if mag <= STICK.deadZone then
 		moveVector = Vector2.zero
 	else
-		local u = math.clamp((mag - DEADZONE) / (FULL_RUN - DEADZONE), 0, 1)
-		local scaled = u * (0.45 + 0.55 * u)
-		moveVector = v.Unit * scaled
+		local u = math.clamp((mag - STICK.deadZone) / (STICK.fullSpeedAt - STICK.deadZone), 0, 1)
+		moveVector = dir * (u ^ STICK.speedCurve)
 	end
+	-- The Humanoid only takes a direction (MoveDirection is unit length):
+	-- the speed comes from the push, in the movement simulation.
+	MovementSim.setOwnPush(moveVector.Magnitude)
 	-- Sprint lock (timed in step, so a thumb held still past the ring locks too).
-	pushed = not autoSprint and dist > radius * LOCK_PUSH and delta.Unit.Y <= LOCK_AHEAD
-	if not pushed and sprintOn and moveVector.Y > UNLOCK_BACK then
+	pushed = not autoSprint and dist > radius * STICK.lockPush and dir.Y <= STICK.lockAhead
+	if not pushed and sprintOn and moveVector.Y > STICK.unlockBack then
 		setSprint(false)
 	end
 end
@@ -291,7 +277,10 @@ local function step()
 	end
 	local n = nub
 	if stickInput and n then
-		n.BackgroundColor3 = if MovementController.getState() == "Sprint" then SPRINT_NUB else WHITE
+		local tint = if MovementController.getState() == "Sprint" then SPRINT_NUB else WHITE
+		if n.BackgroundColor3 ~= tint then
+			n.BackgroundColor3 = tint
+		end
 	end
 	local moving = moveVector.Magnitude > 0
 	if moving or wasMoving then
@@ -302,7 +291,7 @@ local function step()
 	if pushed then
 		local now = os.clock()
 		lockSince = lockSince or now
-		if not sprintOn and now - lockSince >= LOCK_HOLD then
+		if not sprintOn and now - lockSince >= STICK.lockHold then
 			setSprint(true)
 		end
 	else
@@ -360,6 +349,7 @@ local function down(name: string)
 			setCrouch(false)
 		end
 		jumpHeld = true
+		MovementController.requestJump() -- buffered + coyote time, like a key press
 	elseif name == "ModAltButton" then
 		ModController.useAlt()
 	elseif name == "ScoreboardButton" then
@@ -424,16 +414,25 @@ local SLOP_BUTTONS: { [string]: boolean } = {
 	QuickMeleeButton = true,
 }
 
-local SLOP_DIRS = {
-	Vector2.new(1, 0),
-	Vector2.new(-1, 0),
-	Vector2.new(0, 1),
-	Vector2.new(0, -1),
-	Vector2.new(0.707, 0.707),
-	Vector2.new(-0.707, 0.707),
-	Vector2.new(0.707, -0.707),
-	Vector2.new(-0.707, -0.707),
-}
+-- The combat circles: a touch inside one, or just outside (within HIT_SLOP),
+-- presses the nearest. Plain circle maths, so a
+-- miss (most camera swipes) costs one GUI query instead of seventeen.
+local slopList: { GuiButton } = {}
+local function nearestSlop(at: Vector2): GuiButton?
+	local best: GuiButton? = nil
+	local bestGap = HIT_SLOP
+	for _, b in slopList do
+		if b.Visible and shown(b) then
+			local size = b.AbsoluteSize
+			local centre = b.AbsolutePosition + size / 2
+			local gap = (at - centre).Magnitude - math.min(size.X, size.Y) / 2
+			if gap <= bestGap then
+				best, bestGap = b, gap
+			end
+		end
+	end
+	return best
+end
 
 local function hitFor(input: InputObject): GuiButton?
 	local g = gui
@@ -451,6 +450,14 @@ local function hitFor(input: InputObject): GuiButton?
 	for _, o in list do
 		local mine = ownerButton(o)
 		if mine then
+			-- A combat circle's square box overlaps its neighbours' corners:
+			-- the nearest circle wins there.
+			if SLOP_BUTTONS[mine.Name] then
+				local near = nearestSlop(guiPoint(input))
+				if near then
+					return near
+				end
+			end
 			return if shown(mine) then mine else nil
 		end
 		if o.Name == "StickZone" and o:IsDescendantOf(g) then
@@ -462,25 +469,7 @@ local function hitFor(input: InputObject): GuiButton?
 	if inStickZone then
 		return nil
 	end
-	for _, radius in { HIT_SLOP * 0.5, HIT_SLOP } do
-		for _, dir in SLOP_DIRS do
-			local okNear, nearList = pcall(function()
-				return pg:GetGuiObjectsAtPosition(
-					input.Position.X + dir.X * radius,
-					input.Position.Y + dir.Y * radius
-				)
-			end)
-			if okNear then
-				for _, o in nearList do
-					local mine = ownerButton(o)
-					if mine and SLOP_BUTTONS[mine.Name] and shown(mine) then
-						return mine
-					end
-				end
-			end
-		end
-	end
-	return nil
+	return nearestSlop(guiPoint(input))
 end
 
 local function isPointer(input: InputObject): boolean
@@ -590,14 +579,18 @@ local function releaseAll()
 	endTapFire()
 end
 
--- Settings CAMERA THROUGH BUTTONS (default on): off makes the buttons take
--- their touches, so Roblox's camera skips a swipe that starts on one.
+-- Settings CAMERA THROUGH BUTTONS (default on): Fire, Aim and the Mods
+-- (Config/TouchControls CAMERA_THROUGH) let a swipe that starts on them turn
+-- the camera; every other button, and all of them with the setting off, take
+-- their touch (an interactable button sinks it, so Roblox's camera skips it).
 local function applyCameraThrough()
 	local through = SettingsApply.get("touchCameraThrough") ~= false
 	for d in isButton do
 		if d:IsA("GuiButton") then
-			d.Interactable = not through
-			d.Active = not through
+			local pass = through and TouchControls.CAMERA_THROUGH[d.Name] == true
+			d.Interactable = not pass
+			d.Active = not pass
+			d.AutoButtonColor = false
 			for _, child in d:GetDescendants() do
 				if child:IsA("GuiObject") and not isButton[child] then
 					child.Active = false
@@ -677,6 +670,9 @@ function TouchController.start()
 		if d:IsA("GuiButton") and d.Name ~= "StickZone" then
 			d.Interactable = false
 			isButton[d] = true
+			if SLOP_BUTTONS[d.Name] then
+				table.insert(slopList, d)
+			end
 		end
 	end
 	applyCameraThrough()
@@ -755,6 +751,7 @@ function TouchController.start()
 			stickInput = input
 			origin = guiPoint(input)
 			placeStick(origin, false)
+			MovementSim.setOwnPush(0) -- from rest: speed comes from the push alone
 		end)
 	end
 	UserInputService.InputChanged:Connect(function(input: InputObject)

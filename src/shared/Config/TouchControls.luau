@@ -124,4 +124,31 @@ return table.freeze({
 	OPACITY_MIN = 20, -- %
 	DOUBLE_TAP_MIN = 0.15, -- s
 	DOUBLE_TAP_MAX = 0.5,
+	-- The move stick (TouchController; vault/03 Research/Rivals Reference/
+	-- Mobile Controls.md). The base stays where the thumb landed for the whole
+	-- touch (like Roblox's dynamic thumbstick, which RIVALS uses): pulling past
+	-- the ring is full speed in that direction, easing back slows down, and only
+	-- crossing the spot you started on turns you around.
+	STICK = table.freeze({
+		deadZone = 0.08, -- × the ring radius: no move inside this
+		fullSpeedAt = 0.55, -- × the ring radius: full speed from here out
+		speedCurve = 1, -- 1 = speed rises in a straight line from the dead zone
+		lockPush = 1.05, -- sprint lock: the thumb this far past the ring...
+		lockAhead = -0.75, -- ...straight ahead (its direction's screen y at most this)...
+		lockHold = 0.2, -- ...for this long (s) locks sprint
+		unlockBack = 0.35, -- pulling back past this (screen y of the move) unlocks it
+	}),
+	HIT_SLOP = 12, -- px: a touch this close outside a combat button still presses it
+	SLIDE_PRESS = 0.25, -- s: how long a slide tap holds Crouch
+	-- Buttons a swipe may turn the camera through while CAMERA THROUGH
+	-- BUTTONS is on (you aim with them held). Every other button keeps its
+	-- touch, so a tap on Jump or Reload never jerks the view (RIVALS: all of
+	-- its buttons keep their touch).
+	CAMERA_THROUGH = table.freeze({
+		FireButton = true,
+		AimButton = true,
+		Mod1Button = true,
+		Mod2Button = true,
+		Mod3Button = true,
+	}),
 })

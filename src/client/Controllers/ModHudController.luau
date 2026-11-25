@@ -260,10 +260,9 @@ local function build()
 	end
 	local alt = TouchHud.find("ModAltButton")
 	if alt and alt:IsA("GuiButton") then
+		-- Its press is TouchController's (its own hit-test, on touch down);
+		-- an Activated hook here as well fired the alt twice.
 		alt.Visible = false
-		alt.Activated:Connect(function()
-			ModController.useAlt()
-		end)
 		altButton = alt
 	end
 end

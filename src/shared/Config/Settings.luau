@@ -739,7 +739,7 @@ do
 					"touchCameraThrough",
 					"CAMERA THROUGH BUTTONS",
 					true,
-					"A swipe that starts on a button still turns the camera."
+					"A swipe that starts on Fire, Aim or an ability still turns the camera. Other buttons never move it."
 				),
 				toggle(
 					"touchShowAmmo",

@@ -58,6 +58,8 @@ local connection: RBXScriptConnection? = nil
 -- The local player's own state while the client owns its movement (see the top).
 local ownState: string? = nil
 local ownCharacter: Model? = nil
+-- How far the local player's touch stick is pushed (0-1; 1 off touch).
+local ownPush = 1
 
 local function lerp(a: number, b: number, t: number): number
 	return a + (b - a) * t
@@ -161,7 +163,14 @@ local function stepCharacter(player: Player, character: Model)
 
 	-- Running: no sprint key (Movement.RUN_DELAY). Moving forward for a moment
 	-- breaks into the run; a slide keeps the stretch going.
-	local mayRun = forward and not aimIn and not crouchIn and now >= sprintBlock and autoRun
+	-- A touch stick pushed only a little walks (Movement.TOUCH_RUN_PUSH).
+	local push = if owned and ownCharacter == character then ownPush else 1
+	local mayRun = forward
+		and not aimIn
+		and not crouchIn
+		and now >= sprintBlock
+		and autoRun
+		and push >= Movement.TOUCH_RUN_PUSH
 	if mayRun then
 		runSince = runSince or now
 		if sprintIn then
@@ -247,6 +256,16 @@ local function stepCharacter(player: Player, character: Model)
 	else
 		state = "Idle"
 		speed = Movement.WALK_SPEED
+	end
+
+	-- The touch stick's push scales the speeds you steer (not a slide, a
+	-- jump's carry or a dash): easing the stick back slows you smoothly.
+	-- Idle too, so the first frame off a resting stick isn't a walk-speed lurch.
+	if
+		push < 1
+		and (state == "Idle" or state == "Walk" or state == "Sprint" or state == "Crouch")
+	then
+		speed *= push
 	end
 
 	local moveMult = (StateValues.get(player, "MoveMult") :: number?) or 1
@@ -367,6 +386,12 @@ end
 -- (nil until it has stepped).
 function MovementSim.ownState(character: Model?): string?
 	return if ownCharacter == character then ownState else nil
+end
+
+-- The local player's touch stick push, 0-1 (TouchController; 1 = full, and
+-- for every other input).
+function MovementSim.setOwnPush(push: number)
+	ownPush = if push == push then math.clamp(push, 0, 1) else 1
 end
 
 -- Call once on the server and once on each client host.
