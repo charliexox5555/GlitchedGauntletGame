@@ -20,7 +20,13 @@ From the RIVALS file's `Modules.Functions.LootboxEffect` and `Assets.Lootboxes` 
 5. Holds 3.2 s, the card shrinks, the skin **flies into you** (0.85 s Quint In) with a spark burst and the equip pop; the crate sinks into the floor.
 6. The Backpack comes back on the result panel (EQUIP / NICE).
 
-**Everyone else:** the server sends `CaseShow` to every other player after a successful opening (`Services/ShopService`); `Controllers/CaseShowController` plays the same sequence at the opener (skipped beyond 140 studs), at half volume, with their name on the card. Cosmetic only; the roll and the grant already happened on the server.
+**Everyone else** sees the opening within 140 studs. The server sends the reward models and the `CaseShow` event after the inventory write. `Controllers/CaseShowController` plays the sequence at half volume with the opener's name on each reward card.
+
+### OPEN 3 (2026-11-23)
+
+Three crates toss into a forward arc at 0° and ±48°, 11 studs from the opener. Blocked slots search the full circle at several distances for separated landing spots. Crates hover around the opener when there's too little floor space. The lids open together using the longest build-up in the batch. Each granted skin rises from its own crate, and a crate that returned Tickets opens empty in a partial batch. The highest-tier reward plays the stinger and drives the opener's camera kick. The Backpack pages through the granted skins after the animation.
+
+The opening can wait up to six seconds from the server's result for the exact unlocked models to arrive. If a model still hasn't arrived by the reveal, its portrait and name appear on the reward card. Owner playtest pending.
 
 **Review knob (Studio only):** the workspace value `CaseTimeScale` (StateValues) slows the whole sequence, e.g. 0.12, to capture each beat.
 
@@ -66,6 +72,19 @@ The F4 CASE tab is gone (every case sound picked). A sound spec takes `cut` (sec
 - The other-player view (played locally as someone else's): "CHARLIE UNBOXED · SEALWORK VANDAL · RARE" over the open Apex crate.
 - Fixed from the captures: the flash washed the player out white (peak 6 → 2.2), the skin read small next to the card (3.4 → 4.4 studs; card 7 → 6.6 studs wide), the card clipped long names at 5.6 studs, the result panel was blank for lines without a picture (now the line's initial).
 - Not tested: two real players (Studio MCP runs one client); video capture isn't available in this Studio.
+
+## Final polish (2026-11-23)
+
+- **Floating unlock card fix (`Util/CaseOpening`):** `revealSkin()` previously omitted `tier.order` when calling `card(anchor, r, tier.color, tier.name, tier.order, who, sizeScale)`, shifting `sizeScale` to `nil` inside `RenderStepped` so the floating `CaseCard` billboard never spawned. Fixed argument order.
+- **Hosted-lobby `SkinDelivery` & art preloading (`Services/SkinStoreService`, `client/init.client`, `Util/CaseOpening`):** Players spawning directly into a hosted match (`ServerRole.isHosted()`) received `PlayerGui.SkinDelivery` after the match snapshot, so returning to Lobby (`cleanUp()`) destroyed the client container while the server kept `sent[player]` populated and refused re-delivery. Marked `SkinDelivery` with `KeepGui = true`, exempted `"SkinDelivery"` in `cleanUp()`, preloaded all `Config/CaseOpening` sound IDs once on start, and preloaded `SkinArt.portrait` + `SkinArt.side` images via `ContentProvider:PreloadAsync` inside `reveal()`.
+- **Sound upgrade (`Config/CaseOpening`, `Util/CaseOpening`):** Replaced plastic cooler shakes/switch latch/generic swell with Pro Sound Effects / APM assets verified via Studio `PreloadAsync` (`Success`, `loaded=true`):
+  - `Land` / `Burst`: `9119075953` (PSE *Shield Impacts 18*)
+  - `Shake`: `9119110904` (PSE *Shotgun Drop 10*, escalating pitch & gain per shake)
+  - `Rattle`: `9114895481` (PSE *Junk Rattle Box Of Miscellaneous Items 1*)
+  - `Latch`: `9117028600` (PSE *Moviola Toggle Switch Single Clicks Sharp 8*, `1.0` / `1.12` stereo-style pitch step between `LatchL` and `LatchR`)
+  - `Strain`: `9116341721` (PSE *Machine Gun 7*, metallic ratchet tension during Rare+ `hold`)
+  - `RISER`: `9039693361` (APM *Gobstopper Sucker*, `start = 1.75 s` suckback to lid burst; added `start` `TimePosition` support in `sound()`)
+- **Verification note:** Static checks (`selene src`, `rojo build`, `stylua --check` on edited files), Rojo Studio sync, and Edit-mode `PreloadAsync` audio load checks pass; live Studio Play check pending owner F5/restart due to wedged Studio MCP `start_stop_play`.
 
 ## Open (owner)
 - **Sounds:** all picked (2026-11-20).

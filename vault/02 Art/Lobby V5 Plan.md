@@ -851,6 +851,16 @@ No code yet: bots don't react and the bins don't open anything.
 
 ## Hub 9/10 pass (2026-11-21, afternoon)
 
+### Market displays and lighting (2026-11-23)
+
+The left bays show Tempest-Strike and Ruin-Blighted. Each has three mounted skins from its bundle, including its melee skin. The right bays show Daily Shop and the four case tiers. Daily Shop fills its display from the player's daily rotation. Walking into a bay opens the matching Shop view. Walking out closes that visit, and manually closing it requires leaving and re-entering before it opens again. The rear screen uses the Shop Home offer list and opens the offer currently displayed.
+
+The bundle fixtures use cool fill for Tempest-Strike and warmer overhead light with pale teal edge light for Ruin-Blighted. Each center spotlight has a faint shaft and sparse drifting dust. The cases have warmer fill, the four stages have a short amber spill beneath the step, and the rear TV has warm light under its hood and across the wall. The lighting is local to the Market. The reference principle was to concentrate light and motion around stops in the corridor. [RIVALS Maps and Lobby](../03%20Research/Rivals%20Reference/Maps%20and%20Lobby.md)
+
+Studio Edit builders, in order, are `tools/studio/lobby_v5/BuildShopDisplays.luau` and `tools/studio/lobby_v5/LightShopDisplays.luau`. In solo Lobby Play, all four zones opened their intended Shop view and closed on exit, and a mouse click on the rear screen opened the visible Ruin-Blighted offer. The final lighting pass was reviewed in Edit after the owner stopped Play.
+
+**Weapon lighting and effects follow-up (2026-11-23).** Each of the six mounted weapons now has its own aisle-facing key and angled edge light centered on the skin. The lighting builder tags the mounted copies for presentation effects. Tempest-Strike uses narrow cyan water ribbons, and Ruin-Blighted uses mint shards. Both animate their installed neon accents. The effects run near the displays as a client-only presentation and use the same geometry as the Shop preview. Installed in Draft Duels Edit. Play and visual verification are left to the owner.
+
 **Owner's review of the overnight pass:**
 - Target: hub quality 9–10/10.
 - Hub decor was not good. The kiosks and misplaced benches go. Wanted instead: real decorations built in Blender — cases (not the gun cases), boxes, barrels — that the owner will then move around.
@@ -1066,3 +1076,7 @@ Audits: no overlaps, no floating parts, no flicker. Captures `20`–`23`.
 - [Lobby V4 Build](Lobby%20V4%20Build.md), [Lobby V4 Theme](Lobby%20V4%20Theme.md), [Lobby](../01%20Design/Lobby.md), [Rivals Reference](../03%20Research/Rivals%20Reference/00%20Rivals%20Reference.md).
 - Skills: `gauntlet-build-style`, `rivals-reference`, `lihfolk-worldbuilding`, the blender-skills pack (sculpting, hard-surface), roblox-map-builder references.
 - LihFolk (plugin vault): *Parts Unions and MeshParts* (Parts for structure, MeshParts for repeated or detailed props, Unions only for 1-3 cut-outs); *Materials MaterialVariants and SurfaceAppearance* and *MaterialService and Custom Materials* (renaming a variant breaks every part on it; `Texture` with StudsPerTileU/V for trims); *Modular Environment Kits* (write grid, wall height, thickness and door size first; one pivot rule; z-fighting fix = delete the hidden face or offset 0.01-0.05; no bevels on contact edges); *Lobby and Hub Design* (first station under 15 s, exit under 20 s, spawn faces the centrepiece, blockout playtested on PC and phone before art); *Modeling in Blender for Roblox* (one mesh per piece or colour, bottom-centre pivots, clone instead of re-import).
+
+### Soft-launch light and display polish
+
+`BalanceReleaseLighting.luau` adds seven unshadowed wash fixtures across the Shop and Duels routes and trims the Locker room's ceiling lamps. Matched Studio views verified the previously dark main aisles and lighter Locker pegboard. `LightShopDisplays.luau` favors the aisle-facing light and rim on each weapon with softer overhead peaks. `WeaponShowcase` pulses the installed neon and moves the Ruin-Blighted armor and sight meshes using their authored idle axes, phases and travel. Tempest-Strike uses stronger cyan ribbon accents. A Studio walk-up opened Ruin-Blighted's preview and showed relative motion in its Vandal armor.

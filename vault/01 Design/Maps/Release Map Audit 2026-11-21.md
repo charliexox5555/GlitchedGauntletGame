@@ -36,6 +36,16 @@ How: a structure scan per map (contract folders, tags, anchoring, CanTouch, loos
 
 **Source fixes:** `tools/studio/maps/MapKit.luau` makes Greybox parts CanTouch false; `tools/studio/maps/Rooftops4/Build.luau` sets CanTouch false on its three hand-made wedges.
 
+## Collision and breakable glass (2026-11-23)
+
+`MapGeometry.prepare` applies the gameplay changes to each active map clone. The 24 open stair ramps in Dockyard, Wharf, Snowpeak, Rooftops, Greenhouse, Canyon and Metro use shallow colliders that follow the original slope and clear the space below. Foundry's catwalk stairs already use thin ramp plates. The release boundaries and the solid steps in Old Town keep their existing collision.
+
+The pass removed 32 roof blockers. The selected perches are the Snowpeak lodges, mirrored low roof structures on Rooftops, the Greenhouse shed and service buildings, Canyon's trading posts and porches, and the kiosks and roof huts in Old Town. Snowpeak's porch roofs, Canyon's sloped porch panels, and the selected Old Town roof parts use the visible parts for collision. The Rooftops water tank and the map boundaries keep their guards.
+
+A gunshot breaks a marked pane and continues without a penetration penalty. The server traces accepted shots using their pellet directions, including misses, then replicates the pane state and sends a shatter effect. Bots use the same pane handling. Broken panes respawn before the next round. Greenhouse has 44 breakable wall panes. Metro has 28 breakable footbridge panes, split at the existing posts, with the train hall's overhead glazing kept intact. Decorative panes backed by solid building or vehicle geometry stay decorative.
+
+Studio verification used the merged place `71551303511506`. Edit-mode casts checked the original and replacement heights at three points along each of the 24 stair slopes, verified a clear ray below each one, and counted the changed blockers and panes across all 12 maps. In a hosted Studio 2v2 on Greenhouse, a normal gunshot hid a pane, disabled its collision and queries on server and client, and delivered the client shatter event. The owner also confirmed the glass worked on their side. The controlled shot did not produce a confirmed hit on the bot behind the pane.
+
 ## Legacy cleanup
 
 **Deleted from Workspace (24 models):** Whitebox, BigWhitebox, Rooftops, Rooftops2, Rooftops3, Bunker, Bunker2, Bunker3, Greenhouse, Greenhouse2, Greenhouse3, Foundry, Snowpeak, Snowpeak2, Snowpeak3, OldTown, OldTown2, OldTown3, Metro, Metro2, Metro3, Courtyard, ModelKit, Dockyard2.

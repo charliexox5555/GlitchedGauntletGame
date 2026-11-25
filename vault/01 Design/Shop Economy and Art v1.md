@@ -292,7 +292,7 @@ ChatGPT made all 11 images from the [master prompt](../04%20Tech/Prompts/2026-11
 - Added Breakwater, Faultline, Misprint, Oilwake, Playback, Poolside, Rootglass and Sundial badges. The existing Slipframe asset was retained. [New badges](Shop%20Economy/full_audit_new_badges.png)
 - Ruin-Blighted and Tempest-Strike use new 1600 px transparent real-model heroes, images `122434274434504` and `78378943251206`. [Hero artwork](Shop%20Economy/full_audit_vandal_heroes.png)
 - Home preloads offer art, advances after four seconds on opening, and uses six seconds between subsequent slides. Pointer movement over the card arms the hover pause. The outgoing banner fades under the incoming one.
-- Backpack exposes OPEN 1 and OPEN 3 for a stack with at least three. The server consumes the requested quantity in a single write, gives distinct skins, and returns Tickets for exhausted case pools. The client plays one crate animation and pages through the three-case results using the existing reward panel. Shop purchase prices and throttling were retained.
+- Backpack exposes OPEN 1 and OPEN 3 for a stack with at least three. The server consumes the requested quantity in a single write, gives distinct skins, and returns Tickets for exhausted case pools. OPEN 3 plays the crates together in a forward arc and then pages through the granted skins in the existing reward panel. [Case Opening](Case%20Opening.md#open-3-2026-11-23)
 - Verified the offline art audit, Rojo build, targeted formatting and lint, and local harnesses for case grants and carousel lifecycle. Studio and mobile visuals, Roblox client asset delivery, and the integrated Backpack interaction still need playtesting after Rojo sync.
 
 ### Ruined Reaver in the Ruin-Blighted bundle (2026-11-22)
