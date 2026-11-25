@@ -144,5 +144,5 @@ ReplicatedFirst caches decoded Locker and manifest values by revision, skips the
 - `inView(player)` = `onArena` and acked. The select no longer skips to the 3-2-1 early while anyone is out of view (the R1 select's 19 s are free waiting). After the countdown and the existing `LATE_SPAWN_WAIT`, the barrier stays up to `BODY_READY_WAIT = 12 s` more for anyone not in view; anyone still out logs `[Health] fight started before the client showed its fighter`.
 - A client that never acks can only hold its own match by up to 12 s a round.
 
-**Verified:** `stylua --check` + `selene` on edited files, `rojo build`. **Not yet run in Studio** (Rojo was disconnected): needs a `BotMatch` play with Rojo connected, and a live publish test on a slow device (watch F9 → Server for `client has its body` per round).
+**Verified:** `stylua --check` + `selene` on edited files, `rojo build`, and a Studio `BotMatch = "1v1"` play with Rojo connected: rounds 1–3 each logged `client has its body` 0.1 s after `character ... body ok`, a client poll (every 0.1 s) saw no `Live` frame without its own character, no `fight started before` warnings, no script errors. **Still to do:** a live publish test on a slow device (watch F9 → Server for `client has its body` per round); the 12 s wait itself only triggers on a slow client, which Studio can't reproduce.
 
