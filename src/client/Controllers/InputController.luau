@@ -94,11 +94,23 @@ local function watchToggle(name: string, toggle: InputAction)
 	end)
 end
 
+local INIT_WAIT = 10 -- seconds init() may wait for the server's input context and actions, in total
+
 function InputController.init()
 	local player = Players.LocalPlayer
-	local ctx = player:WaitForChild("PlayContext") :: InputContext
+	-- init() runs before every other controller's start(): one shared deadline, not a wait per action (a missing
+	-- action used to cost 10 s each, in a row) and not forever for the context (2026-11-25 loading audit).
+	local deadline = os.clock() + INIT_WAIT
+	local found = player:WaitForChild("PlayContext", INIT_WAIT)
+	if not (found and found:IsA("InputContext")) then
+		warn("[Health] C input: no PlayContext after", INIT_WAIT, "s; controls start without it")
+		return
+	end
+	local ctx: InputContext = found
 	for name, b in Bindings do
-		local action = ctx:WaitForChild(name, 10)
+		local left = deadline - os.clock()
+		local action = ctx:FindFirstChild(name)
+			or (if left > 0 then ctx:WaitForChild(name, left) else nil)
 		if action and action:IsA("InputAction") then
 			if action.Type == Enum.InputActionType.Bool and action:GetState() == true then
 				action:Fire(false)

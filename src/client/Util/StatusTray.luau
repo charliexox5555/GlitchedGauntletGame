@@ -343,6 +343,9 @@ local function bind(gui: ScreenGui)
 	-- HUD's Mod row, scaled like it (no 0.6 floor: that pushed UI off phones).
 	-- Touch: bigger (PHONE_BOOST), above the bottom centre, between the stick
 	-- and the fire cluster (owner 2026-11-22: no old hints on phones).
+	-- This module owns its scale (PHONE_BOOST) and places the tray from it; Shared/UiLayout overwrote the scale on
+	-- every write, so the tray came out small and misplaced on phones (2026-11-25 UI audit).
+	s.fit:SetAttribute("CustomFit", true)
 	local function refit()
 		local size = gui.AbsoluteSize
 		if size.X <= 0 or size.Y <= 0 then

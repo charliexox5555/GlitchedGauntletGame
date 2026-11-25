@@ -728,6 +728,33 @@ local function dryFire()
 	end
 end
 
+-- Our own third-person models hidden in first person, and each one's parts (kept current as parts come and go).
+local OWN_WORLD_MODELS = { "WorldWeapon", "WorldWeaponLeft", "ModHeldItem" }
+local worldParts: { [Instance]: { BasePart } } = setmetatable({}, { __mode = "k" }) :: any
+local function ownWorldParts(model: Instance): { BasePart }
+	local list = worldParts[model]
+	if list then
+		return list
+	end
+	local parts: { BasePart } = {}
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			table.insert(parts, d)
+		end
+	end
+	worldParts[model] = parts
+	-- A part added or removed later: rebuild on the next frame (both watchers go with it).
+	local added: RBXScriptConnection, removing: RBXScriptConnection
+	local function dirty()
+		worldParts[model] = nil
+		added:Disconnect()
+		removing:Disconnect()
+	end
+	added = model.DescendantAdded:Connect(dirty)
+	removing = model.DescendantRemoving:Connect(dirty)
+	return parts
+end
+
 -- Scoped in, the gun and arms hide behind the HUD scope overlay (set every
 -- frame: a new gun's viewmodel starts shown).
 local function setScoped(value: boolean)
@@ -1447,15 +1474,16 @@ local function update(dt: number)
 		end
 	end
 
-	-- Hide our own third-person gun(s) in first person.
+	-- Hide our own third-person gun(s) in first person. Every frame (a replay or spectate can show them again),
+	-- but from a cached part list and only where it changed (was a GetDescendants of three models a frame).
 	local character = player.Character
 	if character then
-		for _, name in { "WorldWeapon", "WorldWeaponLeft", "ModHeldItem" } do
+		for _, name in OWN_WORLD_MODELS do
 			local world = character:FindFirstChild(name)
 			if world then
-				for _, d in world:GetDescendants() do
-					if d:IsA("BasePart") then
-						LocalHide.set(d, 1)
+				for _, part in ownWorldParts(world) do
+					if part.LocalTransparencyModifier ~= 1 then
+						LocalHide.set(part, 1)
 					end
 				end
 			end

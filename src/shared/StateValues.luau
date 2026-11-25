@@ -41,18 +41,33 @@ for _, name in modules do
 	end
 end
 
+-- Lookup caches for get() (2026-11-25 performance audit: get runs hundreds of times a frame from the movement
+-- sim, Mod effects and HUDs; each call did two FindFirstChild lookups and, on a miss, a HasTag). Entries are
+-- checked against Parent before use, so a moved or rebuilt folder/field is looked up again. Weak keys.
+local folderOf: { [Instance]: Instance } = setmetatable({}, { __mode = "k" }) :: any
+local fieldOf: { [Instance]: { [string]: StringValue } } = setmetatable({}, { __mode = "k" }) :: any
+local untagged: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+CollectionService:GetInstanceAddedSignal(ASSET_TAG):Connect(function(owner: Instance)
+	untagged[owner] = nil
+end)
+
 local function defaults(owner: Instance): { [string]: any }?
 	local saved = byInstance[owner]
 	if saved then
 		return saved
 	end
-	if CollectionService:HasTag(owner, ASSET_TAG) then
-		for _, tag in CollectionService:GetTags(owner) do
-			local data = authored[tag]
-			if data then
-				byInstance[owner] = data
-				return data
-			end
+	if untagged[owner] then
+		return nil
+	end
+	if not CollectionService:HasTag(owner, ASSET_TAG) then
+		untagged[owner] = true -- cleared if it is ever tagged (the signal above)
+		return nil
+	end
+	for _, tag in CollectionService:GetTags(owner) do
+		local data = authored[tag]
+		if data then
+			byInstance[owner] = data
+			return data
 		end
 	end
 	return nil
@@ -131,10 +146,37 @@ local function decode(field: StringValue): any
 	return value
 end
 
+local function fieldFor(owner: Instance, name: string): StringValue?
+	local folder = folderOf[owner]
+	if not folder or folder.Parent ~= owner then
+		local found = owner:FindFirstChild(FOLDER)
+		if not found then
+			return nil
+		end
+		folder = found
+		folderOf[owner] = found
+	end
+	local f = folder :: Instance
+	local cached = fieldOf[f]
+	if not cached then
+		cached = {}
+		fieldOf[f] = cached
+	end
+	local field = cached[name]
+	if field and field.Parent == f then
+		return field
+	end
+	local found = f:FindFirstChild(name)
+	if found and found:IsA("StringValue") then
+		cached[name] = found
+		return found
+	end
+	return nil
+end
+
 function StateValues.get(owner: Instance, name: string): any
-	local folder = owner:FindFirstChild(FOLDER)
-	local field = folder and folder:FindFirstChild(name)
-	if field and field:IsA("StringValue") then
+	local field = fieldFor(owner, name)
+	if field then
 		return decode(field)
 	end
 	local data = defaults(owner)

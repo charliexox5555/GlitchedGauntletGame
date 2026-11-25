@@ -46,7 +46,6 @@ export type ModInfo = {
 	active: number, -- 0..1 of an active effect left
 }
 
-local DESIGN = Vector2.new(1920, 1080)
 local WHITE = Color3.new(1, 1, 1)
 local TEXT = Color3.fromHex("F4F6F9")
 local MUTED = Color3.fromHex("A3A3A6")
@@ -304,7 +303,8 @@ end
 function BottomHud.setHealth(health: number, max: number, shield: number, dt: number)
 	TouchHud.setHealth(health, max, shield) -- the touch screen's simple bar
 	local r = ui
-	if not r then
+	-- Touch disables this screen (its own bar above): ~40 property writes a frame for nothing on phones.
+	if not r or not r.gui.Enabled then
 		return
 	end
 	local frac = if max > 0 then math.clamp(health / max, 0, 1) else 0
@@ -632,23 +632,9 @@ local function bind(gui: ScreenGui)
 		loadout = loadout,
 	}
 
-	-- One UIScale per cluster keeps the 1920 x 1080 layout proportional.
-	local fits = {
-		health:WaitForChild("Fit"),
-		mods:WaitForChild("Fit"),
-		right:WaitForChild("Fit"),
-	}
-	local function refit()
-		local size = gui.AbsoluteSize
-		if size.X > 0 and size.Y > 0 then
-			local scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.6, 1.5)
-			for _, f in fits do
-				(f :: UIScale).Scale = scale
-			end
-		end
-	end
-	refit()
-	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+	-- One UIScale ("Fit") per cluster keeps the 1920 x 1080 layout proportional. Shared/UiLayout owns them (no
+	-- floor, per-family boosts); this module wrote its own clamped value too, which UiLayout overwrote on every
+	-- resize (a one-frame flash; 2026-11-25 UI audit), so it no longer does.
 
 	ui = r
 	tickCount = -1
