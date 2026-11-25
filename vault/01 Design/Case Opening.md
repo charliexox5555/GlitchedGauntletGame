@@ -86,8 +86,16 @@ The F4 CASE tab is gone (every case sound picked). A sound spec takes `cut` (sec
   - `RISER`: `9039693361` (APM *Gobstopper Sucker*, `start = 1.75 s` suckback to lid burst; added `start` `TimePosition` support in `sound()`)
 - **Verification note:** Static checks (`selene src`, `rojo build`, `stylua --check` on edited files), Rojo Studio sync, and Edit-mode `PreloadAsync` audio load checks pass; live Studio Play check pending owner F5/restart due to wedged Studio MCP `start_stop_play`.
 
+## Round 5: louder and more fun (owner, 2026-11-25)
+Owner: "louder and more fun", better shake sounds, a more satisfying win. Loudness measured in Studio (PlaybackLoudness at Volume 0.5) before mixing.
+- **Louder:** `LOCAL_VOLUME = 1.35` on your own opening; most volumes up 25-60 %; `ROLLOFF` min 8 → 16 studs so the camera behind you hears it at full; a 5-case batch splits loudness by sqrt(5), not 5.
+- **Shakes:** each shake now also knocks the case on the floor: `SOUNDS.Knock` (PSE "Plastic Cooler Hits 8", hollow thump, 0.35 s slice, slight random pitch) + `SOUNDS.ShakeBoom` (PSE "Truck Tailgate 3", pitched 0.75, low resonant boom). Gain grows faster per shake (0.8 + 0.14 × shake) and the pitch still climbs.
+- **Win:** Common gets a real APM hit ("Totally Go For It - Hit4") instead of the UI equip click; Rare adds a short PSE "Fairy Dust 1" sparkle; Epic chime + longer sparkle; Legendary / Exclusive add the sparkle and a crowd roar (PSE "Wrestling Crowd 3", 3 s). Collect louder.
+- **F4 → CASE tab** is back: it plays a whole opening (Standard Common / Rare, Starter Epic, Apex Legendary, Knife, ×5 batch) with sample skins, nothing bought (`CaseShowController` Studio preview).
+- Checked in Studio: a Legendary preview fires every layer in order (5 shakes × 4 layers, rising; full reveal stack at 5.35 s). Not heard by Claude: owner to listen.
+
 ## Open (owner)
-- **Sounds:** all picked (2026-11-20).
+- **Sounds:** listen to Round 5 on F4 → CASE; if the crowd roar or sparkle is too much, drop it from `TIER_FX.*.extra`.
 - Feel: toss length, shake count, hold time, flash strength per tier; higher tiers could get a longer build-up (RIVALS chests run 8 s).
 - Pictures for every skin (renders, not viewports) so the result panel never falls back to a letter.
 - **Save the Lobby place.**

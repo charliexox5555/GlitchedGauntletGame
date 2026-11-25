@@ -122,6 +122,11 @@ local function warmAudio()
 			addSpec(spec)
 		end
 		addSpec(Cfg.RISER)
+		for _, fx in Cfg.TIER_FX do
+			for _, spec in fx.extra do
+				addSpec(spec)
+			end
+		end
 		if #list > 0 then
 			pcall(ContentProvider.PreloadAsync, ContentProvider, list)
 			for _, inst in list do
@@ -546,8 +551,9 @@ local function startCrate(
 		end
 		return nil
 	end
-	local audienceGain = if isLocal then 1 else Cfg.OTHERS_VOLUME
-	local gain = audienceGain / count
+	local audienceGain = if isLocal then Cfg.LOCAL_VOLUME else Cfg.OTHERS_VOLUME
+	-- a batch shares the loudness, but each crate still reads (sqrt, not a straight split)
+	local gain = audienceGain / math.sqrt(count)
 	-- the tier's model decides its size (the Knife case is smaller: Config/Crates)
 	local scale = CrateLook.scale(crateTier) or Cfg.SCALE
 	model.Name = "CaseOpening_" .. owner.UserId
@@ -784,9 +790,12 @@ local function startCrate(
 				lastShake = k
 				shakes += 1
 				local shakePitch = 1 + 0.06 * math.max(shakes - 1, 0)
-				local shakeGain = gain * (0.85 + 0.08 * math.min(shakes, 4))
+				local shakeGain = gain * (0.8 + 0.14 * math.min(shakes, 5))
 				sound(Cfg.SOUNDS.Shake, root, shakeGain, shakePitch)
 				sound(Cfg.SOUNDS.Rattle, root, shakeGain, shakePitch)
+				-- the knock on the floor: a little higher each time, the boom heavier
+				sound(Cfg.SOUNDS.Knock, root, shakeGain, shakePitch * (0.96 + 0.08 * math.random()))
+				sound(Cfg.SOUNDS.ShakeBoom, root, shakeGain, 1 + 0.04 * math.max(shakes - 1, 0))
 				local schedule = timing
 				if schedule and shakes >= schedule.shakes - 1 then
 					tease()

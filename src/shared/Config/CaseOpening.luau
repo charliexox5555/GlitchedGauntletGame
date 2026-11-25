@@ -110,28 +110,33 @@ return table.freeze({
 	SOUNDS = table.freeze({
 		Toss = s(15675028888, 0.25, 1.2), -- Roblox Whoosh_02
 		Land = s(9119075953, 0.55, 1.0, 0.4), -- PSE "Shield Impacts 18": crunchy hard tactical case drop
-		Shake = s(9119110904, 0.46, 1.05, 0.4), -- PSE "Shotgun Drop 10": heavy gear shifting inside crate
-		Rattle = s(9114895481, 0.5, 1.12, 0.38), -- PSE "Junk Rattle Box Of Miscellaneous Items 1": brisk hardware rattle
-		Latch = s(9117028600, 0.72, 1.08, 0.28), -- PSE "Moviola Toggle Switch Single Clicks Sharp 8": metallic clasp snap
-		Strain = s(9116341721, 0.44, 1.08, 0.6), -- PSE "Machine Gun 7": metallic ratchet tension while lid strains
+		Shake = s(9119110904, 0.8, 1.05, 0.4), -- PSE "Shotgun Drop 10": heavy gear shifting inside crate
+		-- every shake also knocks the case on the floor (owner 2026-11-25: "the shakes should have
+		-- better sounds"): a hollow case thump and a low resonant boom under it
+		Knock = s(9117456565, 0.55, 1.0, 0.35), -- PSE "Plastic Cooler Hits 8": hollow case thump
+		ShakeBoom = s(9113433534, 0.4, 0.75, 0.55), -- PSE "Bicycle Tire Impact Truck Tailgate 3", low
+		Rattle = s(9114895481, 0.6, 1.12, 0.38), -- PSE "Junk Rattle Box Of Miscellaneous Items 1": brisk hardware rattle
+		Latch = s(9117028600, 0.9, 1.08, 0.28), -- PSE "Moviola Toggle Switch Single Clicks Sharp 8": metallic clasp snap
+		Strain = s(9116341721, 0.55, 1.08, 0.6), -- PSE "Machine Gun 7": metallic ratchet tension while lid strains
 		Lid = s(15675028888, 0.48, 0.92),
-		LidBoom = s(1837830213, 0.55), -- APM "Deep Boom 06": weight under the burst
+		LidBoom = s(1837830213, 0.8), -- APM "Deep Boom 06": weight under the burst
 		Swell = s(9043336050, 0.3), -- APM "SWELL 22"
-		Collect = s(17208323435, 0.6), -- Roblox "GUI - Equip"
-		CollectSpark = s(17208361335, 0.25, 1.25), -- Roblox "GUI - Notification High", up a little
+		Collect = s(17208323435, 0.95), -- Roblox "GUI - Equip"
+		CollectSpark = s(17208361335, 0.45, 1.25), -- Roblox "GUI - Notification High", up a little
 		Fly = s(15675012262, 0.3, 1.15), -- Roblox Whoosh_04
-		Burst = s(9119075953, 0.52, 0.88, 0.45), -- PSE "Shield Impacts 18", low: crisp metal case punch on lid open
+		Burst = s(9119075953, 0.75, 0.88, 0.45), -- PSE "Shield Impacts 18", low: crisp metal case punch on lid open
 		Tease = s(9043336050, 0.2, 1.3), -- the swell, short: the seams light up
 		Sink = s(15675046931, 0.2, 0.9), -- Roblox Sweep
 	}),
 	-- one reveal stinger per tier (owner picks 2026-11-20). Legendary must be a music
 	-- stinger like Epic's but bigger, never less (owner); Hustler Sting 2 picked
 	REVEAL = table.freeze({
-		Common = s(17208323435, 0.6), -- Roblox "GUI - Equip"
-		Rare = s(9042542887, 0.35), -- APM "Universal Flip - Hit"
-		Epic = s(9043151109, 0.35), -- APM "Get Up And Go - Hit"
-		Legendary = s(9047100306, 0.4), -- APM "Hustler Sting 2" (4.4 s, sports brass)
-		Exclusive = s(9047100306, 0.4),
+		-- louder and a real music hit for Common too (owner 2026-11-25: "louder and more fun")
+		Common = s(9038919815, 0.45), -- APM "Totally Go For It - Hit4"
+		Rare = s(9042542887, 0.55), -- APM "Universal Flip - Hit"
+		Epic = s(9043151109, 0.55), -- APM "Get Up And Go - Hit"
+		Legendary = s(9047100306, 0.65), -- APM "Hustler Sting 2" (4.4 s, sports brass)
+		Exclusive = s(9047100306, 0.65),
 	}),
 	-- How hard each tier hits (owner 2026-11-20: "more intense sounds + VFX for a higher
 	-- rarity"). hold = s the lid strains (trembling, glow ramping, a riser) before it
@@ -157,7 +162,7 @@ return table.freeze({
 			beam = 0.9,
 			kick = 0.85,
 			flash = 0.14,
-			extra = {},
+			extra = { s(9114369623, 0.45, 1.1, 1.6) }, -- PSE "Fairy Dust 1": a short sparkle
 		}),
 		Epic = table.freeze({
 			hold = 0.5,
@@ -167,7 +172,7 @@ return table.freeze({
 			beam = 1.35,
 			kick = 1.25,
 			flash = 0.38,
-			extra = { s(17208361335, 0.25, 1.05) },
+			extra = { s(17208361335, 0.4, 1.05), s(9114369623, 0.6, 1.0, 2.4) }, -- chime + sparkle
 		}),
 		Legendary = table.freeze({
 			hold = 0.85,
@@ -177,8 +182,14 @@ return table.freeze({
 			beam = 1.85,
 			kick = 1.65,
 			flash = 0.52,
-			-- a booming hit under the stinger (PSE "Truck Tailgate 1", low) + crisp chime
-			extra = { s(9113433423, 0.55, 0.85), s(17208361335, 0.3, 1.15) },
+			-- a booming hit under the stinger (PSE "Truck Tailgate 1", low) + crisp chime, the sparkle,
+			-- and a crowd roar (PSE "Wrestling Crowd 3", crowd surge)
+			extra = {
+				s(9113433423, 0.75, 0.85),
+				s(17208361335, 0.45, 1.15),
+				s(9114369623, 0.7, 1.0, 3),
+				s(9120974378, 0.45, 1.0, 3),
+			},
 		}),
 		Exclusive = table.freeze({
 			hold = 0.85,
@@ -188,11 +199,17 @@ return table.freeze({
 			beam = 1.85,
 			kick = 1.65,
 			flash = 0.52,
-			extra = { s(9113433423, 0.55, 0.85), s(17208361335, 0.3, 1.15) },
+			extra = {
+				s(9113433423, 0.75, 0.85),
+				s(17208361335, 0.45, 1.15),
+				s(9114369623, 0.7, 1.0, 3),
+				s(9120974378, 0.45, 1.0, 3),
+			},
 		}),
 	}),
-	RISER = s(9039693361, 0.48, 1.15, 0.95, 1.75), -- APM "Gobstopper Sucker": tight sub-heavy suckback to lid burst
+	RISER = s(9039693361, 0.6, 1.15, 0.95, 1.75), -- APM "Gobstopper Sucker": tight sub-heavy suckback to lid burst
 
+	LOCAL_VOLUME = 1.35, -- your own opening, on top of the volumes above (owner 2026-11-25: louder)
 	OTHERS_VOLUME = 0.5, -- someone else's opening is quieter (RIVALS does the same)
-	ROLLOFF = Vector2.new(8, 70), -- studs: full volume / silent
+	ROLLOFF = Vector2.new(16, 80), -- studs: full volume / silent (16: the camera behind you stays at full)
 })
