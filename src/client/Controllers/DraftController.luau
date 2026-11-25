@@ -246,7 +246,7 @@ local function hintText(): (string, Color3)
 						or tostring(selectedGun)
 				)
 			)
-			else "Now pick one card: a new ability or an upgrade (Q, E, T).",
+			else "Now pick one card: a new power or an upgrade (Q, E, T).",
 			C.textSecondary
 	end
 	return "", C.textSecondary

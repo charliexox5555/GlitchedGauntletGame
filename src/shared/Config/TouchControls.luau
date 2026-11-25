@@ -57,10 +57,10 @@ local GROUPS: { Group } = {
 	},
 	{
 		key = "Mods",
-		label = "ABILITIES",
+		label = "POWERS",
 		buttons = { "Mod1Button", "Mod2Button", "Mod3Button", "ModAltButton" },
 		canHide = true,
-		desc = "Your drafted abilities.",
+		desc = "Your drafted powers.",
 	},
 	{
 		key = "Weapons",

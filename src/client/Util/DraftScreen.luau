@@ -570,7 +570,7 @@ local function fillColumn(col: Column, v: ColumnView)
 end
 
 local function fillEnemy(s: State, entries: { EnemyView })
-	s.enemyLabel.Text = if #entries > 0 then "ENEMY" else "ENEMY HAS NO ABILITIES YET"
+	s.enemyLabel.Text = if #entries > 0 then "ENEMY" else "ENEMY HAS NO POWERS YET"
 	for i, tile in s.enemy do
 		local e = entries[i]
 		tile.Visible = e ~= nil

@@ -111,7 +111,7 @@ local TABS: { Tab } = {
 						"optimizedVfx",
 						"OPTIMIZED VFX",
 						false,
-						"Fewer particles and lighter effects on shots, abilities and hits."
+						"Fewer particles and lighter effects on shots, powers and hits."
 					),
 					toggle(
 						"optimizedTextures",
@@ -277,7 +277,7 @@ local TABS: { Tab } = {
 						100,
 						0,
 						100,
-						"Guns, footsteps, abilities, hits and the world."
+						"Guns, footsteps, powers, hits and the world."
 					),
 					toggle(
 						"uiSounds",
@@ -739,7 +739,7 @@ do
 					"touchCameraThrough",
 					"CAMERA THROUGH BUTTONS",
 					true,
-					"A swipe that starts on Fire, Aim or an ability still turns the camera. Other buttons never move it."
+					"A swipe that starts on Fire, Aim or a power still turns the camera. Other buttons never move it."
 				),
 				toggle(
 					"touchShowAmmo",
@@ -773,7 +773,7 @@ do
 				},
 				{
 					id = "touchModCast",
-					label = "ABILITY CASTING",
+					label = "POWER CASTING",
 					kind = "choice",
 					choices = { "Smart", "Equip" },
 					default = "Smart",

@@ -128,7 +128,7 @@ local function buildRange()
 	})
 	Kit.text(
 		c,
-		"Firing lanes, moving dummies that shoot back, a movement course and an ability test area. Walk down the ramp behind spawn, or press RANGE.",
+		"Firing lanes, moving dummies that shoot back, a movement course and a power test area. Walk down the ramp behind spawn, or press RANGE.",
 		"body",
 		{
 			Position = UDim2.fromOffset(232, 136),

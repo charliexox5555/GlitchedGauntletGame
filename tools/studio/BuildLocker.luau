@@ -325,7 +325,8 @@ for i, t in { "WEAPONS", "ABILITIES", "EMOTES" } do
 	text(
 		tab,
 		"Label",
-		t,
+		-- the ABILITIES tab's name stays (LockerController binds it); players read POWERS (owner 2026-11-25)
+		if t == "ABILITIES" then "POWERS" else t,
 		22,
 		if on then INK else MUTED,
 		{ Size = UDim2.fromOffset(0, 52), ZIndex = 5 }

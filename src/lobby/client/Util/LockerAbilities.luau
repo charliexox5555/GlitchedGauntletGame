@@ -270,7 +270,7 @@ function LockerAbilities.mount(canvas: Frame, player: Player): Frame
 	remote.OnClientEvent:Connect(function(saved: boolean)
 		if pending then
 			pending = nil
-			feedback.Text = if saved then "" else "Couldn’t save your ability. Try again."
+			feedback.Text = if saved then "" else "Couldn’t save your power. Try again."
 			refresh()
 		end
 	end)
