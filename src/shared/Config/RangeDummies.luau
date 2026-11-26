@@ -74,11 +74,25 @@ RangeDummies.PULSE = table.freeze({
 	killTime = 0.3,
 })
 
--- A bot coming back (server stamps `Respawned`): it materialises from white
--- and pops up out of a crouch.
+-- Going down (client, owner 2026-11-26: "a nice little ragdoll ... and they slowly come back to life"): the bot's
+-- body drops as a loose ragdoll (its own ball-socket joints) knocked away from the shot, lies still, then fades.
+RangeDummies.RAGDOLL = table.freeze({
+	push = 22, -- studs/s the chest is knocked away from the shooter
+	lift = 6, -- studs/s up with it
+	spin = 4, -- rad/s of tumble
+	headshotPush = 1.35, -- x push on a headshot kill
+	rest = 1.4, -- s it lies still
+	fade = 0.6, -- s it fades
+})
+
+-- Coming back (server stamps `Respawned` RESPAWN after going down): the new bot starts down on one knee in white,
+-- gets up slowly, and its colour comes back as it rises.
 RangeDummies.SPAWN = table.freeze({
-	time = 0.45,
-	drop = 0.9, -- studs it starts sunk
+	time = 1.3, -- s to stand up
+	drop = 1.05, -- studs the hips start low
+	hip = 62, -- deg the thighs start raised
+	knee = 105, -- deg the knees start bent
+	lean = 24, -- deg the chest starts leaned forward
 })
 
 -- Strafers (`Behaviour = "Strafe"` on the bot): walk left and right of their
@@ -105,6 +119,6 @@ RangeDummies.CARRIAGE = table.freeze({
 	pause = 0.6, -- s it waits at each end (each run eases in and out)
 })
 
-RangeDummies.RESPAWN = 2.5 -- s a downed bot stays down
+RangeDummies.RESPAWN = 3 -- s a downed bot stays down (the ragdoll's fall, rest and fade fit inside)
 
 return table.freeze(RangeDummies)

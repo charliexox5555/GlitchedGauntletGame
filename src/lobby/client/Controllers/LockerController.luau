@@ -29,6 +29,7 @@ local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
@@ -1215,11 +1216,22 @@ local function open()
 		savedCamType = cam.CameraType
 	end
 	cam.CameraType = Enum.CameraType.Scriptable
-	TweenService:Create(
-		cam,
-		TweenInfo.new(RISE_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-		{ CFrame = cam.CFrame * CFrame.new(0, RISE, 0) }
-	):Play()
+	-- In first person (the range) the arms and gun ride the camera, so a rise lifts them off the body (owner
+	-- 2026-11-26: "your body floats up with the camera"): there the camera stays put and only the wipe plays.
+	local head = player.Character and player.Character:FindFirstChild("Head")
+	local firstPerson = PlayZone.get(player) == "Range"
+		or (
+			head ~= nil
+			and head:IsA("BasePart")
+			and (cam.CFrame.Position - head.Position).Magnitude < 1.5
+		)
+	if not firstPerson then
+		TweenService:Create(
+			cam,
+			TweenInfo.new(RISE_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{ CFrame = cam.CFrame * CFrame.new(0, RISE, 0) }
+		):Play()
+	end
 	sweep(-1, 2, WIPE_IN, function()
 		if passToken == my and isOpen then
 			reveal()

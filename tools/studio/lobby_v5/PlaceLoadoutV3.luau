@@ -164,3 +164,44 @@ for _, m in loadouts:GetChildren() do
 	end
 end
 return ("terminal v3 in %d spots"):format(swapped)
+
+--[[ 3. (2026-11-26, owner: "a couple more around the map, and they also are a bit too large ... too tall") Run after
+the above, once:
+
+local CS = game:GetService("CollectionService")
+local SCALE = 0.75 -- 7.2 -> 5.4 studs tall, just under a player
+local function shrink(m)
+	if (m:GetAttribute("Scaled") or 1) == SCALE then
+		return
+	end
+	m:ScaleTo(SCALE)
+	m:SetAttribute("Scaled", SCALE)
+	for _, d in m:GetDescendants() do
+		if d:IsA("SurfaceGui") then
+			d.PixelsPerStud = 150 / SCALE -- the same screen layout on the smaller face
+		elseif d:IsA("PointLight") then
+			d.Range, d.Brightness = 5.5, 0.9
+		end
+	end
+end
+shrink(SS.V5Kit.Terminal3)
+for _, m in workspace.LobbyV5.Range.Loadouts:GetChildren() do
+	if m:IsA("Model") then
+		shrink(m)
+	end
+end
+-- three more (range-local x, deck y, z; the way the screen faces): the gallery, the west terrace, the sniper perch
+local RO = CFrame.new(0, 0, 2600)
+for _, s in {
+	{ "Loadout7", -30, 12, -118.4, Vector3.new(0, 0, 1) },
+	{ "Loadout8", -128.4, 15, 10, Vector3.new(1, 0, 0) },
+	{ "Loadout9", 54, 24, -118.4, Vector3.new(0, 0, 1) },
+} do
+	local m = SS.V5Kit.Terminal3:Clone()
+	m.Name = s[1]
+	local at = RO * Vector3.new(s[2], s[3], s[4])
+	m:PivotTo(CFrame.lookAt(at, at + s[5]))
+	CS:AddTag(m.Body, "RangeLoadout")
+	m.Parent = workspace.LobbyV5.Range.Loadouts
+end
+]]

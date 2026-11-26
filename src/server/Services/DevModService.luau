@@ -69,7 +69,7 @@ end
 
 local SKIN = Color3.fromHex("A3A5A8")
 local CLOTH = Color3.fromHex("4A4D52")
-local DUMMY_TAG = "RangeDummy" -- RangeController draws the health bar
+local DUMMY_TAG = "RangeDummy" -- the shared training-dummy tag (owner 2026-11-26: no health bars or name tags)
 
 local limiter = RateLimit.new(Config.RATE)
 local allowed: { [Player]: boolean } = {}

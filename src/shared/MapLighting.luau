@@ -125,6 +125,22 @@ function MapLighting.applyMatch(map: Model)
 	end
 end
 
+-- A lighting profile on top of what's there (the range, 2026-11-26): `props` are Lighting properties, and the
+-- effects named in `suspend` (e.g. the hub's colour grade) come out until restore(). The rest of the lobby's sky,
+-- atmosphere and bloom stay.
+function MapLighting.applyProfile(props: { [string]: any }, suspend: { string }?)
+	MapLighting.capture()
+	local base = original :: Baseline
+	for _, name in suspend or {} do
+		local child = Lighting:FindFirstChild(name)
+		if child and base.fx[child] and child.Parent == Lighting then
+			child.Parent = nil
+			table.insert(suspended, child)
+		end
+	end
+	setProperties(props)
+end
+
 function MapLighting.restore()
 	local base = original
 	if not base then

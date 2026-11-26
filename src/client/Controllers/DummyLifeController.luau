@@ -10,9 +10,9 @@
 --     (LobbyServer/Range/RangeBots: HitFrom, HitHead, HitDealt, HitKill, then HitAt): the chest is pushed away from
 --     the shooter and twists, the head lags or snaps back on a headshot, the arms fly and the knees give; repeated
 --     hits stack;
---   * the pulse: every hit flashes the body toward white and settles; a kill flashes white (DeathFxController then
---     plays the fall);
---   * a bot coming back (`Respawned`) rises from white.
+--   * the pulse: every hit flashes the body toward white and settles;
+--   * going down: a ragdoll copy of the body is knocked away from the shot (kill flash white), lies still, fades;
+--   * coming back (`Respawned`): the new bot starts crouched and leaning over in white and slowly stands up.
 -- Offsets go on each joint's parent-side attachment, so they layer over the Animator (AnimationConstraint rigs: a
 -- scripted Transform is overwritten by it; TpIkController does the same). Purely visual and local: the server's
 -- hitboxes don't move. The moving dummy's carriage is drawn here from the server clock (shared/RangeCarriage).
@@ -20,6 +20,7 @@
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -90,6 +91,7 @@ type Bot = {
 	pulseTime: number,
 	spawnAt: number?,
 	lastHitAt: number,
+	down: boolean, -- its ragdoll has played (it stays down until the server replaces it)
 	connections: { RBXScriptConnection },
 }
 
@@ -262,6 +264,7 @@ addBot = function(model: Instance)
 		pulseTime = 1,
 		spawnAt = nil,
 		lastHitAt = 0,
+		down = false,
 		connections = {},
 	}
 	b.springs = {
@@ -301,6 +304,98 @@ addBot = function(model: Instance)
 	bots[model] = b
 end
 
+-- Going down: a loose ragdoll copy of the body (its own ball-socket joints; the animation joints let go) is knocked
+-- away from the shot, lies still, then fades; the real body is hidden until the server replaces it.
+local function ragdoll(b: Bot)
+	local model = b.model
+	restore(b)
+	colourParts(b, 0)
+	local ok, copy = pcall(function(): Model?
+		model.Archivable = true
+		return model:Clone()
+	end)
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") or d:IsA("Decal") then
+			d.LocalTransparencyModifier = 1
+		end
+	end
+	if not ok or not copy then
+		return
+	end
+	for _, tag in copy:GetTags() do
+		copy:RemoveTag(tag) -- a prop now, not a bot
+	end
+	copy.Name = model.Name .. "Ragdoll"
+	local parts: { BasePart } = {}
+	for _, d in copy:GetDescendants() do
+		if d:IsA("Humanoid") or d:IsA("BaseScript") or d:IsA("BillboardGui") then
+			d:Destroy()
+		elseif d:IsA("AnimationConstraint") then
+			d.Enabled = false
+		end
+	end
+	local root = copy:FindFirstChild("HumanoidRootPart")
+	if root then
+		root:Destroy()
+	end
+	for _, d in copy:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = false
+			d.CanCollide = true
+			d.CanQuery = false
+			d.CanTouch = false
+			d.Massless = false
+			table.insert(parts, d)
+		end
+	end
+	-- Knocked away from the shooter (flat), a little up, with some tumble; a headshot kill hits harder.
+	local R = RangeDummies.RAGDOLL
+	local away = -b.root.CFrame.LookVector
+	local from = model:GetAttribute("HitFrom")
+	if typeof(from) == "Vector3" then
+		local flat = (b.root.Position - from) * Vector3.new(1, 0, 1)
+		if flat.Magnitude > 0.1 then
+			away = flat.Unit
+		end
+	end
+	local push = R.push * (if model:GetAttribute("HitHead") == true then R.headshotPush else 1)
+	copy.Parent = Workspace
+	for _, p in parts do
+		local share = if p.Name == "UpperTorso" or p.Name == "Head" then 1 else 0.55
+		p.AssemblyLinearVelocity = away * push * share + Vector3.new(0, R.lift, 0)
+	end
+	local chest = copy:FindFirstChild("UpperTorso")
+	if chest and chest:IsA("BasePart") then
+		local axis = Vector3.new(0, 1, 0):Cross(away)
+		chest.AssemblyAngularVelocity = axis * R.spin
+			+ Vector3.new(0, rng:NextNumber(-1, 1) * R.spin * 0.4, 0)
+	end
+	-- The kill's white, settling back to the body colour on the ragdoll.
+	for _, p in parts do
+		local base = RangeDummyLook.colourOf(p)
+		if base then
+			p.Color = base:Lerp(WHITE, PULSE.kill)
+			TweenService
+				:Create(p, TweenInfo.new(PULSE.killTime, Enum.EasingStyle.Quad), { Color = base })
+				:Play()
+		end
+	end
+	task.delay(R.rest + 0.8, function()
+		if not copy.Parent then
+			return
+		end
+		local info = TweenInfo.new(R.fade, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		for _, p in parts do
+			if p.Parent and p.Transparency < 1 then
+				TweenService:Create(p, info, { Transparency = 1 }):Play()
+			end
+		end
+		task.delay(R.fade + 0.05, function()
+			copy:Destroy()
+		end)
+	end)
+end
+
 -- Per frame --------------------------------------------------------------------
 
 local function stepBot(b: Bot, now: number, dt: number)
@@ -318,7 +413,8 @@ local function stepBot(b: Bot, now: number, dt: number)
 	b.lookYaw += (b.lookTargetYaw - b.lookYaw) * follow
 	b.lookPitch += (b.lookTargetPitch - b.lookPitch) * follow
 
-	-- Coming back: rise out of a crouch while the white fades.
+	-- Coming back: it starts crouched low and leaning over, then slowly straightens up (smootherstep) while the
+	-- white drains out of it.
 	local spawnK = 1
 	local spawnAt = b.spawnAt
 	if spawnAt then
@@ -327,11 +423,19 @@ local function stepBot(b: Bot, now: number, dt: number)
 			b.spawnAt = nil
 		end
 	end
-	local rise = 1 - (1 - spawnK) ^ 3
+	local down = 1 - spawnK * spawnK * spawnK * (spawnK * (spawnK * 6 - 15) + 10)
 
 	local dip = RAD(b.knees.x)
-	pose(b, "Root", CFrame.new(0, -SPAWN.drop * (1 - rise) - b.knees.x * 0.008, 0))
-	pose(b, "Waist", CFrame.Angles(RAD(b.chestPitch.x), RAD(b.chestTwist.x), RAD(b.chestRoll.x)))
+	pose(b, "Root", CFrame.new(0, -SPAWN.drop * down - b.knees.x * 0.008, 0))
+	pose(
+		b,
+		"Waist",
+		CFrame.Angles(
+			RAD(b.chestPitch.x - SPAWN.lean * down),
+			RAD(b.chestTwist.x),
+			RAD(b.chestRoll.x)
+		)
+	)
 	pose(
 		b,
 		"Neck",
@@ -341,10 +445,12 @@ local function stepBot(b: Bot, now: number, dt: number)
 	local out = RAD(math.abs(b.armsOut.x))
 	pose(b, "LeftShoulder", CFrame.Angles(up, 0, -out))
 	pose(b, "RightShoulder", CFrame.Angles(up * 0.9, 0, out))
-	pose(b, "LeftHip", CFrame.Angles(dip * 0.6, 0, 0))
-	pose(b, "RightHip", CFrame.Angles(dip * 0.6, 0, 0))
-	pose(b, "LeftKnee", CFrame.Angles(-dip, 0, 0))
-	pose(b, "RightKnee", CFrame.Angles(-dip, 0, 0))
+	local hip = dip * 0.6 + RAD(SPAWN.hip) * down
+	local knee = dip + RAD(SPAWN.knee) * down
+	pose(b, "LeftHip", CFrame.Angles(hip, 0, 0))
+	pose(b, "RightHip", CFrame.Angles(hip * 0.85, 0, 0))
+	pose(b, "LeftKnee", CFrame.Angles(-knee, 0, 0))
+	pose(b, "RightKnee", CFrame.Angles(-knee * 0.85, 0, 0))
 
 	-- The flash: the hit pulse (ease out) and the respawn's white.
 	local flash = 0
@@ -356,7 +462,7 @@ local function stepBot(b: Bot, now: number, dt: number)
 		end
 	end
 	if spawnAt then
-		flash = math.max(flash, 1 - spawnK)
+		flash = math.max(flash, down ^ 1.5)
 	end
 	if math.abs(flash - b.pulse) > 0.002 or (flash == 0 and b.pulse ~= 0) then
 		b.pulse = flash
@@ -417,7 +523,10 @@ function DummyLifeController.start()
 			if not model.Parent or not b.root.Parent then
 				removeBot(model)
 			elseif Health.isDowned(model) then
-				continue -- DeathFxController shows the fall
+				if not b.down then
+					b.down = true
+					task.spawn(ragdoll, b)
+				end
 			elseif (b.root.Position - eye).Magnitude <= MAX_DISTANCE then
 				stepBot(b, now, dt)
 			end

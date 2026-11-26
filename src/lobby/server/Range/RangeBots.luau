@@ -27,7 +27,7 @@ local RangeDummyLook = require(ReplicatedStorage.Shared.RangeDummyLook)
 local RangeBots = {}
 
 RangeBots.BOT_TAG = "RangeBot"
-RangeBots.DUMMY_TAG = "RangeDummy" -- the client health bars (RangeController)
+RangeBots.DUMMY_TAG = "RangeDummy" -- the shared training-dummy tag (no bars or name tags since 2026-11-26)
 local DAMAGE_TAG = "RangeDamageDummy"
 local CARRIAGE_TAG = "RangeMovingDummy"
 
@@ -398,14 +398,11 @@ prepare = function(bot: Model, respawned: boolean?)
 
 	-- Stream the whole bot at once (the range is far from the lobby), so clients never see half a rig.
 	bot.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	-- No name tag and no health bar, Roblox's or ours (owner 2026-11-26).
 	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
-	if bot:GetAttribute("DummyDistance") == nil then
-		local distance = bot:GetAttribute("Distance")
-		if typeof(distance) == "number" then
-			bot:SetAttribute("DummyDistance", distance)
-		end
-	end
+	humanoid.NameDisplayDistance = 0
+	humanoid.HealthDisplayDistance = 0
 	RangeDummyLook.apply(bot)
 	-- A carriage rider sits where the carriage is (its template was saved at the build spot).
 	local carriage = parent:FindFirstAncestorWhichIsA("Model")

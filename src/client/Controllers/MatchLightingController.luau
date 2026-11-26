@@ -4,11 +4,13 @@
 -- plus their map's own lighting (shared/MapLighting), as soon as their duel's map (Workspace.Matches[MatchId], the
 -- model carrying that MatchId) arrives. The client host (client/init.client.luau) puts the lobby's lighting back
 -- when the player leaves. A whole-server match is lit by the server (MapService), so this does nothing there.
+-- In the range the player's view gets the range's profile (Config/RangeLighting, owner 2026-11-26).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local MapLighting = require(ReplicatedStorage.Shared.MapLighting)
+local RangeLighting = require(ReplicatedStorage.Shared.Config.RangeLighting)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 
 local MatchLightingController = {}
@@ -20,6 +22,10 @@ local function isMatchMap(instance: Instance, id: string): boolean
 end
 
 function MatchLightingController.start()
+	if PlayZone.get(player) == "Range" then
+		MapLighting.applyProfile(RangeLighting.props, RangeLighting.suspend)
+		return
+	end
 	local id = PlayZone.matchId(player)
 	if PlayZone.get(player) ~= "Match" or not id then
 		return -- a whole-server match, or the range

@@ -6,8 +6,8 @@
 -- long range and a shooter that fires harmless tracers (ShotFx only: it never
 -- applies damage). They respawn after dying and can heal between kills.
 --
--- Clients draw the health bars (RangeController) from the "RangeDummy" tag
--- and the Dummy* attributes.
+-- The "RangeDummy" tag marks them for other tools (no health bars or name tags since 2026-11-26)
+-- (with the Dummy* attributes).
 
 local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
 local Globals =

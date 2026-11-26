@@ -12,7 +12,7 @@ The yard is 270 × 250 with 45-stud walls, but almost everything sits under 15 s
 - Same kit as v4 (LobbyWay `K.lpart`, grid texture, `STRUCT` / `BLOCK` greys); chamfered parapet caps, piers under every deck, no plain floating slabs. Audits: no overlaps, no floating, humanoid can walk every stair.
 
 ## 2. Dummies v2
-- **Look (final, owner 2026-11-25 evening):** the regular blocky R15 body and head (face kept), one matte blue over everything (`Config/RangeDummies.COLOR`, SmoothPlastic). The first pass (glowing Neon gold / blue with a block head and visor) was "glowing way too much" and is gone. Applied by the server (`Range/RangeBots` → `shared/RangeDummyLook`).
+- **Look (final, owner 2026-11-25 evening):** the regular blocky R15 body and head (face kept), one matte blue over everything (`Config/RangeDummies.COLOR`, SmoothPlastic); no face, no name tag, no health bar (2026-11-26). The first pass (glowing Neon gold / blue with a block head and visor) was "glowing way too much" and is gone. Applied by the server (`Range/RangeBots` → `shared/RangeDummyLook`).
 - **Idle:** the game's own third-person clips, played by the server: the Core idle under the unarmed upper body (what a lobby player plays), each bot started at a random point; the head also looks about now and then (client).
 - **More of them:** 19 → about 40, spread over all three tiers; groups on the gallery, terraces and perch.
 - **Hit reactions (client, `Controllers/DummyLifeController.luau`):** procedural, spring-driven (coil, snap, brake, overshoot, settle): the torso kicks away from the shot, the head snaps on a headshot, arms lag, repeated hits stack and wobble. Direction and zone come from the server: RangeService's hit listener stamps `HitAt` / `HitFrom` / `HitHead` on the bot.
@@ -62,6 +62,14 @@ Tested in a Studio playtest (F6 into the range): no errors in the output.
 - The owner's walk-through: stair feel, sightlines from the perch, whether 39 is the right count.
 - Shoot the damage dummy once to confirm its counter.
 - Export `UI.Lobby.Loadout` into the UI backup (`art-source/ui/UI.rbxmx`) with the next UI export.
+
+## Round 2 (2026-11-26, owner: "honestly, it looks great" + critiques), place saved v1262
+- **No faces:** the head's texture and any face decal / face rig go (`shared/RangeDummyLook`).
+- **No name tags or health bars:** `client/Controllers/RangeController` deleted (it also drew the test range's bars); Roblox's own display names off. The damage dummy's on-bar counter went with it (it still never falls; the shooter's damage numbers show the hits).
+- **Death:** a loose ragdoll copy of the body (its own ball-socket joints; the animation joints let go) knocked ~2 studs away from the shooter, white kill flash, lies still, fades (`DummyLifeController`, `Config/RangeDummies.RAGDOLL`). Respawn 3 s. **Coming back:** the new bot starts crouched and leaning over in white and stands up over 1.3 s (smootherstep) as its blue returns (measured: head 1.28 studs low → standing). Before this, a downed range bot just stood still until replaced (DeathFxController only covers players and `Workspace.Dummies`).
+- **Lighting:** the range has its own profile on the client while in the Range zone (`Config/RangeLighting` via `MapLighting.applyProfile`, from `MatchLightingController`): a high near-neutral sun, shade only a little darker than light, soft edges, no hub grade (it was the lobby's amber low sun with brown shade). Lane bands muted 45% toward grey; jump-pad and alcove teal lights halved (Studio).
+- **Terminals:** scaled to 75% (5.4 studs, just under a player; screen PixelsPerStud 200 so the layout holds) and three more: gallery, west terrace, sniper perch (9 total, `PlaceLoadoutV3.luau` part 3).
+- **Locker from the range:** no camera rise in first person (the arms and gun rode it up); only the wipe. Measured: camera Y flat while it opens.
 
 ### Loadout terminal v3 (Blender)
 Built 2026-11-25 by `tools/blender/lobby_v5/v5_loadout.py` (`build()`, `review()`, `export()`; helpers from `v5_props.py`) in the live Blender (collection `V5LoadoutV3`, review set in `V5LoadoutV3_Review`). **Asset id `103199802564419`** ("GG Range Loadout Terminal v3", group 11116787), FBX `art-source/lobby/V5_LoadoutTerminal.fbx` (same export settings as `V5_RangeKit.fbx`: default axes, `FBX_SCALE_UNITS`, 1 unit = 1 stud).
