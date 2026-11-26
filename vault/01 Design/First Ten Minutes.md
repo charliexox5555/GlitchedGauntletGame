@@ -284,3 +284,15 @@ Where players are lost now:
 Ad traffic is low-intent: anyone shown an ad, not players searching for shooters. Home recommendations are earned by these same signals (first-play bounce, playtime, return days), so keep fixing the leaks while waiting for Home traffic. Judge on D1 retention and average play time over 2–3 days, not one funnel snapshot.
 
 **Owner decision (2026-11-26): no instant match 3.** After match 2, the player chooses. The lobby highlights PLAY and hands them the first tasks; players also wander into the Range at this point. Tasks are being built in a separate session for the Saturday update. Their first task should point at PLAY (for example "Play 1 match", with a visible reward), so the 31% drop at match 3 gets a reason to queue. Next target: the match 1 leak after round 1, once `MatchLeft` says why.
+
+**Match funnel (all matches, 2026-11-26 09:00: day 763, hour 91).** The same pattern as every readout since the first: players leave in the **gaps between rounds** (round end → pick → 3-2-1), not in the fights.
+
+| Window | Lost during a fight | Lost between rounds |
+|---|---|---|
+| Day | 2.2–3.4% per round | 6.3% (R1→R2), 9.1% (R2→R3), 5.3% (R3→R4) |
+| Hour | 1.1–3.9% per round | 7.8%, 6.1%, 8.1% |
+
+- About two thirds of mid-match quits are in the gap.
+- Caveat: a match that ends 3-0 never logs "R4 live", so part of the R3→R4 drop is matches that simply ended (Match funnel steps 10–11 aren't filled on an early win, unlike the onboarding funnel's).
+- The gap is 15–19 s with no fighting: round end 2.5–4 s, the pick 9–12 s, then the 3-2-1.
+- Proposed: the loser's comeback card (C2), and a shorter gap.
