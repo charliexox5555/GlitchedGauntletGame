@@ -1121,7 +1121,8 @@ local function reportStage(
 	step: number,
 	title: string,
 	firstBeginner: number?,
-	secondMatch: number?
+	secondMatch: number?,
+	thirdMatch: boolean? -- Onboarding_v2 "Match 3 started" (round 1 live)
 )
 	local mode = matchMode()
 	for _, player in Players:GetPlayers() do
@@ -1131,6 +1132,8 @@ local function reportStage(
 			Telemetry.onboarding(player, firstBeginner)
 		elseif secondMatch and matches == 1 then
 			Telemetry.onboarding(player, secondMatch)
+		elseif thirdMatch and matches == 2 then
+			Telemetry.onboardingV2(player, Telemetry.V2.MATCH_3_STARTED, mode)
 		end
 	end
 end
@@ -1351,7 +1354,13 @@ local function runMatch(): boolean
 			if fightRound <= 4 and not liveReported[fightRound] then
 				liveReported[fightRound] = true
 				local step = 2 + fightRound * 2
-				reportStage(step, `R{fightRound} live`, step, if fightRound == 1 then 18 else nil)
+				reportStage(
+					step,
+					`R{fightRound} live`,
+					step,
+					if fightRound == 1 then 18 else nil,
+					fightRound == 1
+				)
 			end
 			HealthLog.stage(
 				"round start",

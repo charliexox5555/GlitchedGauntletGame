@@ -155,6 +155,9 @@ function OnboardingService.start()
 		local data = PlayerDataService.get(player)
 		if data and data.prog.matches >= 1 and PlayZone.get(player) == "Lobby" then
 			Telemetry.onboarding(player, 13)
+			if data.prog.matches >= 2 then
+				Telemetry.onboardingV2(player, Telemetry.V2.LOBBY_AFTER_MATCH_2)
+			end
 		end
 	end
 	PlayerDataService.changed:Connect(checkHub)

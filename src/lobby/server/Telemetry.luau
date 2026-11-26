@@ -30,6 +30,45 @@ local steps = {
 	"Match 2 R1 live",
 	"Match 2 saved",
 }
+-- Onboarding_v2 (2026-11-26, vault/01 Design/First Ten Minutes.md): the First Ten Minutes flow as its own funnel,
+-- next to the old Onboarding one (kept so the two can be compared). One session per player (their UserId), the
+-- same new-player cohort. Most steps ride on the old steps (V2_FROM_OLD); the rest are sent directly.
+local FUNNEL_V2 = "Onboarding_v2"
+local stepsV2 = {
+	"Save ready",
+	"Match 1 launched",
+	"M1 R1 fight (no pick)",
+	"M1 R1 done",
+	"M1 R2 fight (2-card pick)",
+	"M1 R3 fight (Glitched card)",
+	"Match 1 saved",
+	"Back in lobby",
+	"Free case opened",
+	"Match 2 R1 fight",
+	"Match 2 saved",
+	"Lobby after match 2",
+	"Match 3 started",
+}
+Telemetry.V2 = table.freeze({ LOBBY_AFTER_MATCH_2 = 12, MATCH_3_STARTED = 13 })
+local V2_FROM_OLD: { [number]: number } = {
+	[1] = 1,
+	[2] = 2,
+	[4] = 3,
+	[5] = 4,
+	[6] = 5,
+	[8] = 6,
+	[12] = 7,
+	[13] = 8,
+	[15] = 9,
+	[18] = 10,
+	[19] = 11,
+}
+local cohortV2: { [Player]: { [number]: boolean } } = {}
+-- Studio test switch: Workspace attribute TelemetryLog = true prints the Onboarding_v2 steps (nothing is sent
+-- from Studio).
+local function studioLog(): boolean
+	return not live and workspace:GetAttribute("TelemetryLog") == true
+end
 local warnAfter = 0
 
 local function emit(fn: () -> ())
@@ -71,6 +110,27 @@ end
 function Telemetry.cohort(player: Player, enrolled: boolean)
 	if live and enrolled and not cohort[player] then
 		cohort[player] = {}
+		cohortV2[player] = {}
+	elseif studioLog() and enrolled and not cohortV2[player] then
+		cohortV2[player] = {}
+	end
+end
+
+-- One Onboarding_v2 step (each once per player; only the new-player cohort). `label`: custom field 1.
+function Telemetry.onboardingV2(player: Player, step: number, label: string?)
+	local sent = cohortV2[player]
+	local title = stepsV2[step]
+	if sent and title and not sent[step] then
+		sent[step] = true
+		if studioLog() then
+			print(
+				`[Telemetry] {FUNNEL_V2} {step}. {title}{if label then " (" .. label .. ")" else ""}`
+			)
+		end
+		local id = tostring(player.UserId)
+		emit(function()
+			Analytics:LogFunnelStepEvent(player, FUNNEL_V2, id, step, title, fields(label))
+		end)
 	end
 end
 
@@ -81,6 +141,14 @@ function Telemetry.onboarding(player: Player, step: number)
 		emit(function()
 			Analytics:LogOnboardingFunnelStepEvent(player, step, steps[step])
 		end)
+	end
+	local v2 = V2_FROM_OLD[step]
+	if v2 then
+		-- the free case: did they ask for the next match on match 1's end screen, or go to the lobby?
+		local label = if step == 15
+			then (if player:GetAttribute("OnbNextMatch") ~= nil then "next match" else "lobby")
+			else nil
+		Telemetry.onboardingV2(player, v2, label)
 	end
 end
 
@@ -202,6 +270,7 @@ end
 
 Players.PlayerRemoving:Connect(function(player)
 	cohort[player] = nil
+	cohortV2[player] = nil
 	caseCohort[player] = nil
 	searches[player] = nil
 end)
