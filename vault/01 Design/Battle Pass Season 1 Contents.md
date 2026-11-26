@@ -1,6 +1,6 @@
 # Battle Pass: Season 1 contents (2026-11-26)
 
-First full list of what's in the Season 1 pass, for the owner to go through item by item. Powers, skin lines, charms, coins/tickets/cases and titles are owner-approved (2026-11-26). Still open: season XP rule and length, final names. It replaces the placeholder tiers in `src/lobby/shared/SeasonCatalog.luau` once approved. The screen is in [UI Battle Pass](../02%20Art/UI%20Battle%20Pass.md).
+First full list of what's in the Season 1 pass, for the owner to go through item by item. Powers, skin lines, charms, coins/tickets/cases and titles are owner-approved (2026-11-26). Season: 6 weeks, a tier per 30 min or 25 rounds won. Still open: final names. It replaces the placeholder tiers in `src/lobby/shared/SeasonCatalog.luau` once approved. The screen is in [UI Battle Pass](../02%20Art/UI%20Battle%20Pass.md).
 
 ## Frame (kept from the placeholder)
 - 30 tiers. Free track for everyone, premium track **689 Robux**, **+5 levels 499 Robux**.
@@ -98,9 +98,16 @@ They hang from the charm ring every gun already has (`CharmPoint`, `Charm` bone:
 - **Equipping (owner idea):** a Titles section in your profile where you pick one. A new title auto-equips only when you have none on, and otherwise shows a toast with EQUIP. Champion (from the Task Path) shows up there too.
 - **Later:** name tags over players (level, title, streak) are parked in [Bugs & Ideas](../05%20Production/Bugs%20%26%20Ideas.md).
 
+## Season length and tiers (owner, 2026-11-26)
+- **6 weeks.**
+- **How you go up a tier (RIVALS-style, not XP):** one tier every **30 minutes in matches** OR every **25 rounds won**, whichever comes first. Both meters reset when you go up. The pass shows both, e.g. "12:40 LEFT OR 9 ROUNDS".
+- **What counts:** only time in live rounds (not the lobby, the Range or between rounds). Bot-only matches count at half speed, like game XP. **First win of the day: +5 rounds.**
+- **Pace:** finishing on time alone takes 15 h (about 21 min a day over 6 weeks). Good players finish sooner through rounds. 10 min a day reaches about tier 14: Smoke yes, the free Arcade Classic (tier 15) just out of reach, which is where +5 LEVELS sells.
+- Season levels stay separate from game level and game XP. The counts are saved in the same match-end write as XP (ProgressionService), with the server as the only source.
+
 ## Flags to settle
 1. ~~Powers vs "all Mods free"~~ **Settled 2026-11-26**, see Powers.
 2. **Cases on premium (owner 2026-11-26):** cases stay on the premium track for everyone, as listed. There's **no country check and no swap**: the owner says games like RIVALS don't do it and it's too much work. If Roblox raises a problem, the owner will talk to them and change it then. The odds still show like the shop's.
-3. **Season XP rule** (wins, minutes or both) and season length are still open. They set how fast tier 30 comes.
+3. ~~Season XP rule and length~~ **Settled 2026-11-26**, see Season length and tiers.
 4. Names: line themes are set (Arcade, Frostbite), but the final line names, the title names and the charm names are still placeholders. Which theme is Rare and which is Legendary was Claude's call (Arcade Rare, Frostbite Legendary); the owner can swap them. Both lines stay out of the case pool.
 5. No emotes this season (owner, 2026-11-26). The placeholder emote tiers are gone.
