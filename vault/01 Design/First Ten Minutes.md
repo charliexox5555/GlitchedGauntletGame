@@ -204,3 +204,29 @@ The owner approved the plan and Claude's picks ("I like this … whatever you th
   - Live analytics.
 
 **How the owner tests it:** F8 admin panel → UTILITIES & RESET → **START FULL ONBOARDING**. The 1-ROUND MATCH switch skips the scripted rounds, so leave it off to see rounds 1–3. Or set Studio `Workspace.FreshOnboarding = true` before Play for a throwaway save.
+
+## 9. Owner playtest notes (2026-11-26)
+
+The owner played it: "I think it's good", with these changes.
+- **Free case:** a normal-feeling case for a gun they'll hold in match 2, not a guaranteed Epic ("a higher percent chance of having a better skin, not a higher percent chance of legendary"). `Config/Skins CASES.Starter` now only holds Prowler and Havoc skins: both are handed out in every match 2, because rounds 1–3 are Light then Heavy. The tiers are Common 40, Rare 42, Epic 16, Legendary 2, against the Standard Case's 85/15. Measured in Studio: 29 skins, tier totals as set, and the one Legendary is the Riftforge Prowler. `Case.guns` is the new filter in `SkinCases.pool`.
+- **Mobile:** checked in Studio with ForceLayout phone and ForceTouchUI:
+  - The round 2 two-card pick, the end screen (NEXT MATCH / LOBBY IN 10) and the reveal all read well.
+  - The touch nudge was only a slow scale breath, too easy to miss. The new power's touch button now also gets a **gold ring** until first use ("gold = act now", UI Theme v4 rings).
+- **Keybinds and controller** (owner: a rebind didn't change the on-screen key; a controller was told "Q"; the pick screen had no controller buttons):
+  - Power key chips (`ModController.keyLabel`) now read the player's live binds (`InputGlyphs.keysFor`) and the same device rule as every other chip (`InputGlyphs.mode`). They are cached until the binds or the device change. Before, they read the defaults and overwrote the chip every frame.
+  - The held-power hint and Updraft's Crash Down prompt use the same keys.
+  - New `InputGlyphs.padName`: controller button words that match the pad's own icons (Square / L1 on PlayStation, X / LB on Xbox).
+  - Pick screen on a controller: LB/RB step through the power cards, the D-pad left/right through the guns, A picks the selected card and X locks in. The hint line says so with the pad's own button names.
+  - Verified in Studio with `ForceInput = gamepad`:
+    - The R1 chip shows.
+    - A server-side rebind to Y switched the chip at once.
+    - The pick hint reads "L1 / R1: change power · Square: LOCK IN".
+  - Not verified: bumper input on a real pad (MCP can't press pad buttons). The Settings screen itself wasn't changed.
+  - No "not set up for controller" text exists in the game; that message is probably Roblox's own.
+- **Pad duel camera stuck** (tester, live), two causes found and fixed:
+  1. **The Locker's Scriptable camera survived a duel start.** The Locker raises the camera while it's open, and nothing closed it when the match began. `ArmedHideController` now closes any open lobby menu when the player enters a match, and the client host starts every match on the normal follow camera. Reproduced in Studio (Locker open → Scriptable) and fixed (Custom, on the player, 0.3 s after the zone change).
+  2. **A character load that never returns blocked every arena spawn** ("LoadCharacter already in progress" × 2 in Studio after returning from a match), leaving the player on the lobby body over the pad. `CharacterService.loadCharacter` now lets a new spawn take over:
+     - 2 s after the hung load's body arrives, or
+     - after `Avatar.LOAD_STALE` (15 s) with no body.
+
+     It logs "character load hung" (HealthLog) so the live logs show how often. Verified twice in Studio: the takeover logged, then a normal spawn and round 1. Root cause of the hang not found (the lobby respawn after a match); worst case a duel started right after returning waits up to 15 s instead of failing.

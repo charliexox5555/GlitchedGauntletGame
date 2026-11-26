@@ -9,7 +9,7 @@ Owner's ask: launch days are weak (ads bring players, no likes, few favorites, f
 - A4 `MatchLeft` `kind:device`.
 - B1 (partial): match 1's results screen has OPEN FREE CASE as its main button and no dead REMATCH. No in-screen case reveal yet.
 - C1: match 2 is first to 3.
-- The free case is the gift-only **Starter Case** (always an Epic gun skin). It is a separate case, not a rigged Standard Case, because the Standard Case is sold and lists 85% Common / 15% Rare.
+- The free case is the gift-only **Starter Case** (was always an Epic gun skin; since 2026-11-26 a Prowler or Havoc skin, 40/42/16/2 Common/Rare/Epic/Legendary, see [First Ten Minutes](../01%20Design/First%20Ten%20Minutes.md#9-owner-playtest-notes-2026-11-26)). It is a separate case, not a rigged Standard Case, because the Standard Case is sold and lists 85% Common / 15% Rare.
 - Guns: the owner renamed them. Mods keep their names. Game name: owner, later.
 - Open: B1 auto next match / in-screen reveal, C2 loser's card, D (page), E (level rewards, referrals: next update).
 
