@@ -212,10 +212,13 @@ local function refreshTiles()
 		end
 		if t.live then
 			local n = QueueState.count(t.id)
+			local showCount = Config.SHOW_QUEUE_COUNTS == true
 			if t.count then
+				t.count.Visible = showCount
 				t.count.Text = string.format("%d SEARCHING", n)
 			end
 			if t.dot then
+				t.dot.Visible = showCount
 				t.dot.BackgroundColor3 = if n > 0 then GREEN else MUTED
 			end
 			if t.inQueue then

@@ -220,6 +220,13 @@ local function whereOf(p: Player): (string, Color3)
 	elseif status == "found" or status == "teleporting" then
 		return "JOINING A MATCH", GOLD
 	end
+	-- where they are in this server (owner 2026-11-26: it said IN LOBBY for everyone)
+	local zone = PlayZone.get(p)
+	if zone == "Match" then
+		return "IN MATCH", WHITE
+	elseif zone == "Range" then
+		return "IN RANGE", WHITE
+	end
 	return "IN LOBBY", ALLY
 end
 
@@ -340,10 +347,15 @@ local function renderList()
 end
 
 local watched: { [Player]: RBXScriptConnection } = {}
+local zoneWatched: { [Player]: RBXScriptConnection } = {}
 local function watch(p: Player)
 	if watched[p] then
 		return
 	end
+	-- the zone is an attribute (Shared/PlayZone), not a StateValue
+	zoneWatched[p] = p:GetAttributeChangedSignal(PlayZone.ATTRIBUTE):Connect(function()
+		renderList()
+	end)
 	watched[p] = StateValues.anyChanged(p):Connect(function(name: string)
 		if
 			name == "QueueStatus"
@@ -1058,6 +1070,11 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		if c then
 			c:Disconnect()
 			watched[p] = nil
+		end
+		local z = zoneWatched[p]
+		if z then
+			z:Disconnect()
+			zoneWatched[p] = nil
 		end
 		task.defer(renderList)
 	end)

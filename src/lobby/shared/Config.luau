@@ -98,6 +98,9 @@ return table.freeze({
 	-- Studio: how long the "would teleport" card stays before resetting.
 	studioHold = 6,
 
+	-- The Play menu's "N SEARCHING" line and dot on each mode tile (Controllers/PlayMenuController). Off (owner
+	-- 2026-11-26: "I don't want people thinking that there's 0 people queuing"); back on once there are more players.
+	SHOW_QUEUE_COUNTS = false,
 	-- Remote token buckets { perSecond, burst } (Shared/Util/RateLimit).
 	-- Remote token buckets about 2x the fastest honest use; rejects are dropped
 	-- and counted, never kicked (LihFolk: Rate Limiting and Abuse Prevention).
