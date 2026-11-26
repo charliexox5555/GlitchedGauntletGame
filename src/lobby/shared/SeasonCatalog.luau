@@ -1,41 +1,51 @@
 --!strict
--- The season pass (vault/02 Art/UI Battle Pass.md): a free track everyone
--- gets and a premium track bought once per season, one reward per track per
--- tier. Season levels are separate from your game level and come from
--- playing this season (the rule is the owner's call later: wins or minutes).
--- PLACEHOLDER content and numbers; the economy will read this table and own
--- each player's level, progress and claims on the server.
+-- The season pass rewards (vault/01 Design/Battle Pass Season 1 Contents.md, owner-approved
+-- 2026-11-26; the screen: vault/02 Art/UI Battle Pass.md): a free track everyone gets and a
+-- premium track bought once per season, at most one reward per track per tier. The rules
+-- (tier pace, prices, power unlocks) are Config/Season; the saved state and maths
+-- Shared/SeasonPass; paying a reward Lobby/SeasonRewards.
 --
--- Rewards reuse the shop's kinds (Lobby/ShopCatalog.Item): coins, cases (which
--- show their odds, like the shop's), skins (from our skin lines), charms,
--- emotes. Roblox rules (LihFolk: Battle Pass and Season Design): everyone is
--- on the free track; a late premium buyer gets the tiers already reached;
--- unclaimed rewards are granted when the season ends.
+-- Rewards reuse the shop's kinds (Lobby/ShopCatalog.Item) plus Ticket and Title. A "Mod"
+-- reward unlocks that power for the draft (Config/Season.POWER_UNLOCKS). Roblox rules
+-- (LihFolk: Battle Pass and Season Design): everyone is on the free track; a late premium
+-- buyer gets the tiers already reached; unclaimed rewards are paid when the season ends.
+-- Names of the new lines, charms and titles are placeholders (owner picks them later).
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ShopCatalog = require(script.Parent.ShopCatalog)
+local Season = require(ReplicatedStorage.Shared.Config.Season)
+local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
-export type Reward = ShopCatalog.Item & { case: string? } -- case = a ShopCatalog case id
+-- case = a ShopCatalog case id; mod = a Config/Mods id; title = the title text
+export type Reward = ShopCatalog.Item & { case: string?, mod: string?, title: string? }
 
 export type Tier = {
 	free: Reward?,
 	premium: Reward?,
 }
 
-local Weapons = require(game:GetService("ReplicatedStorage").Shared.Config.Weapons)
-
 local SeasonCatalog = {}
 
-SeasonCatalog.SEASON = 1
-SeasonCatalog.NAME = "SEASON 1"
-SeasonCatalog.PREMIUM_ROBUX = 689 -- the premium pass
-SeasonCatalog.SKIP_ROBUX = 499 -- +5 levels
-SeasonCatalog.SKIP_LEVELS = 5
+SeasonCatalog.SEASON = Season.ID
+SeasonCatalog.NAME = Season.NAME
+SeasonCatalog.PREMIUM_ROBUX = Season.PREMIUM_ROBUX
+SeasonCatalog.SKIP_ROBUX = Season.SKIP_ROBUX
+SeasonCatalog.SKIP_LEVELS = Season.SKIP_TIERS
 SeasonCatalog.PER_PAGE = 7
 -- what the premium pass adds, shown on its card
-SeasonCatalog.PREMIUM_PERKS = { "THE PREMIUM TRACK", "A GOLD NAME IN THE LOBBY" }
+SeasonCatalog.PREMIUM_PERKS =
+	{ "THE PREMIUM TRACK", `THE {Season.PREMIUM_TITLE} TITLE`, "A GOLD NAME IN THE LOBBY" }
+
+-- The two pass skin lines (never in cases): Arcade (Rare), Frostbite (Legendary).
+local ARCADE = "Arcade"
+local FROSTBITE = "Frostbite"
 
 local function coins(n: number): Reward
 	return { kind = "Coins", name = "COINS", amount = n }
+end
+local function tickets(n: number): Reward
+	return { kind = "Ticket", name = if n == 1 then "TICKET" else "TICKETS", amount = n }
 end
 local function case(id: string): Reward
 	local c = ShopCatalog.case(id)
@@ -53,53 +63,78 @@ end
 local function charm(name: string, rarity: ShopCatalog.Rarity): Reward
 	return { kind = "Charm", name = name, rarity = rarity }
 end
-local function emote(name: string, rarity: ShopCatalog.Rarity): Reward
-	return { kind = "Emote", name = name, rarity = rarity }
+local function power(mod: string, name: string): Reward
+	return { kind = "Mod", name = name, mod = mod, rarity = "Epic" }
+end
+local function title(text: string): Reward
+	return { kind = "Title", name = text, title = text, rarity = "Legendary" }
 end
 
--- 30 tiers (placeholder): something on the free track every other tier,
--- something on premium every tier, a big skin every fifth.
+-- Every premium tier has a reward; the free track about every third tier.
 SeasonCatalog.TIERS = {
-	{ free = coins(100), premium = skin("Classic", "Redline", "Rare") },
+	{ free = coins(100), premium = skin("Vandal", ARCADE, "Rare") }, -- 1
+	{ free = nil, premium = charm("JOYSTICK", "Rare") },
 	{ free = case("Standard"), premium = coins(250) },
-	{ free = nil, premium = charm("SPARK PLUG", "Rare") },
-	{ free = coins(150), premium = case("Standard") },
-	{ free = nil, premium = skin("Vandal", "Nitrous", "Epic") },
-	{ free = charm("BOLT", "Common"), premium = coins(300) },
-	{ free = nil, premium = emote("SALUTE", "Rare") },
-	{ free = coins(200), premium = case("Elite") },
-	{ free = nil, premium = skin("Spectre", "PopCircuit", "Rare") },
-	{ free = case("Standard"), premium = skin("Sheriff", "Giltfold", "Epic") },
+	{ free = nil, premium = tickets(1) },
+	{ free = nil, premium = skin("Sheriff", ARCADE, "Rare") }, -- 5
+	{ free = charm("ARCADE TOKEN", "Common"), premium = case("Standard") },
+	{ free = nil, premium = coins(300) },
+	{ free = tickets(1), premium = charm("PIXEL HEART", "Rare") },
+	{ free = nil, premium = skin("Spectre", ARCADE, "Rare") },
+	{ free = power("Smoke", "SMOKE"), premium = case("Elite") }, -- 10
+	{ free = nil, premium = coins(350) },
+	{ free = coins(150), premium = charm("GAME CARTRIDGE", "Epic") },
+	{ free = nil, premium = skin("Ghost", ARCADE, "Rare") },
+	{ free = nil, premium = tickets(2) },
+	{ free = skin("Classic", ARCADE, "Rare"), premium = skin("Phantom", FROSTBITE, "Legendary") }, -- 15
 	{ free = nil, premium = coins(400) },
-	{ free = coins(250), premium = charm("NEON FANG", "Epic") },
+	{ free = nil, premium = charm("SNOWFLAKE SHARD", "Rare") },
+	{ free = case("Standard"), premium = skin("Bulldog", ARCADE, "Rare") },
 	{ free = nil, premium = case("Elite") },
-	{ free = emote("WAVE", "Common"), premium = skin("Bucky", "Sealwork", "Rare") },
-	{ free = nil, premium = skin("Operator", "Moltframe", "Legendary") },
-	{ free = coins(300), premium = coins(500) },
-	{ free = nil, premium = emote("TAKE A BOW", "Epic") },
-	{ free = case("Standard"), premium = case("Elite") },
-	{ free = nil, premium = skin("Guardian", "Payload", "Epic") },
-	{ free = coins(350), premium = skin("Vandal", "Inkshift", "Legendary") },
-	{ free = nil, premium = coins(600) },
-	{ free = charm("OLD COIN", "Rare"), premium = charm("CROWN", "Legendary") },
-	{ free = nil, premium = case("Apex") },
-	{ free = coins(400), premium = skin("Shorty", "Prism", "Epic") },
-	{ free = nil, premium = skin("Phantom", "Giltfold", "Legendary") },
-	{ free = case("Elite"), premium = coins(800) },
-	{ free = nil, premium = emote("VICTORY LAP", "Legendary") },
-	{ free = coins(500), premium = case("Apex") },
-	{ free = nil, premium = charm("SEASON ONE", "Legendary") },
-	{ free = case("Elite"), premium = skin("Vandal", "Prism", "Legendary") },
+	{ free = coins(200), premium = power("ElectricShock", "ELECTRIC SHOCK") }, -- 20
+	{ free = nil, premium = skin("Marshal", ARCADE, "Rare") },
+	{ free = tickets(1), premium = coins(450) },
+	{ free = nil, premium = charm("THUNDER ORB", "Epic") },
+	{ free = nil, premium = skin("Outlaw", FROSTBITE, "Legendary") },
+	{ free = charm("ICE CUBE", "Rare"), premium = case("Apex") }, -- 25
+	{ free = nil, premium = skin("Operator", ARCADE, "Rare") },
+	{ free = nil, premium = coins(500) },
+	{ free = coins(250), premium = charm("HIGH SCORE", "Legendary") },
+	{ free = nil, premium = skin("Vandal", FROSTBITE, "Legendary") },
+	{ free = coins(300), premium = skin("Knife", FROSTBITE, "Legendary") }, -- 30
 } :: { Tier }
 
--- PLACEHOLDER progress for the UI until the server owns it: level 2, part of
+-- Tier 30's premium track also gives the chase title (one claim pays both).
+SeasonCatalog.EXTRA = {
+	[30] = { premium = title("FROSTBITTEN") },
+} :: { [number]: Tier }
+
+assert(#SeasonCatalog.TIERS == Season.TIERS, "SeasonCatalog.TIERS must match Config/Season.TIERS")
+
+-- The rewards a claim of (tier, track) pays: the tier's reward, then any EXTRA.
+function SeasonCatalog.rewards(tier: number, track: "free" | "premium"): { Reward }
+	local out: { Reward } = {}
+	local t = SeasonCatalog.TIERS[tier]
+	local main = t and t[track]
+	if main then
+		table.insert(out, main)
+		local extra = SeasonCatalog.EXTRA[tier]
+		local more = extra and extra[track]
+		if more then
+			table.insert(out, more)
+		end
+	end
+	return out
+end
+
+-- PLACEHOLDER progress for the UI until phase 4 wires the server's state: level 2, part of
 -- the way to 3, tier 1's free reward taken, tier 2's waiting.
 SeasonCatalog.PREVIEW_PROGRESS = {
 	level = 2,
 	rounds = 9,
-	roundsNeeded = 25,
+	roundsNeeded = Season.TIER_ROUNDS,
 	minutes = 6.9,
-	minutesNeeded = 20,
+	minutesNeeded = Season.TIER_SECONDS / 60,
 	premium = false,
 	claimed = { free = { [1] = true }, premium = {} },
 }

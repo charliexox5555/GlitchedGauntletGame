@@ -48,6 +48,8 @@ local KIND_COLOR: { [string]: Color3 } = {
 	Mod = Color3.fromHex("FFC83D"),
 	Charm = Color3.fromHex("B58CFF"),
 	Emote = Color3.fromHex("FF7AD9"),
+	Ticket = Color3.fromHex("7FD4FF"),
+	Title = Color3.fromHex("FFE28A"),
 }
 
 type Track = "free" | "premium"

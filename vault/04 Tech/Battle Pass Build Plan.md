@@ -30,5 +30,18 @@
 - Phase 8 art can start any time (Blender work, no code).
 - Phase 9 comes last.
 
+## Progress
+- **Phase 1 done (2026-11-26).** Built:
+  - `Config/Season.luau`: the rules.
+  - `Shared/SeasonPass.luau`: the state, `applyMatch`, `skip`, claims.
+  - `Lobby/SeasonCatalog.luau`: the real 30 tiers, plus `EXTRA` for tier 30's FROSTBITTEN title and `rewards()`.
+  - `Lobby/SeasonRewards.luau`: `grant`, `claim`, `claimAll`, `setPremium`.
+  - `PlayerData`: new `season`, `charms` and `titles` (`{ owned, on }`) fields, cleaned and validated.
+  - `ShopCatalog.Kind`: added `Ticket` and `Title`.
+
+  A pass power is granted as an owned and equipped Mod in `data.mods`, which `ModLoadout.eligible` already accepts. For phase 7, set `free = false` on Smoke and ElectricShock in `Config/Mods`.
+
+  Studio (Play, server): 27 checks passed (meters and overflow, first win once a day, leavers, bots at half, caps, NaN, skip cap, clean/valid, every reward kind, claiming all 30 tiers, save round trip). A real save loaded fine. `Season.STARTS_AT = 0` until launch (no end date). Nothing calls it yet: phase 2 feeds matches, phases 3 and 4 add purchases and claims.
+
 ## Rules for every phase
 `--!strict`. Every number lives in `SeasonCatalog`/Config. The server is the only source for progress, claims and grants. Every remote validates types, rejects non-finite numbers and is rate-limited. One save per match, and a txId on every grant so nothing pays twice.

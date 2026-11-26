@@ -11,6 +11,10 @@
 --     earn = { day = UTC day, coins = match coins earned that day } (2026-11-22),
 --     onb = Shared/Onboarding { fav, favDone, seen } (new-player flow; 2026-11-22),
 --     tasks = Shared/TaskPath { set, part, n, seen, title } (the task Path; 2026-11-26),
+--     season = Shared/SeasonPass { id, premium, tier, secs, rounds, free, prem, winDay }
+--              (the season pass; 2026-11-26),
+--     charms = { owned = { name }, on = name? }, titles = { owned = { text }, on = text? }
+--              (pass cosmetics; `on` = equipped, wired in Build Plan phases 5 and 6; 2026-11-26),
 --     buys = { starter = bool (Starter Bundle bought), free = bool (the one free daily
 --              skin used), intents = { [productId] = { product, gun, line, slot?, at } }
 --              (the skin each shared "skin" product pays for, saved before its prompt;
@@ -50,9 +54,12 @@ local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
+local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
+-- Owned cosmetics with one equipped (charms, titles): names, at most MAX_OWNED.
+export type Owned = { owned: { string }, on: string? }
 export type Data = {
 	v: number,
 	coins: number,
@@ -68,6 +75,9 @@ export type Data = {
 	buys: Buys,
 	onb: Onboarding.Onb,
 	tasks: TaskPath.State,
+	season: SeasonPass.State,
+	charms: Owned,
+	titles: Owned,
 }
 -- `intent`: the skin a shared skin product pays for (Services/RobuxService)
 export type Intent = {
@@ -102,6 +112,8 @@ PlayerData.MODS = "LockerMods"
 PlayerData.DAILY = "DailyShop"
 PlayerData.TASKS = "Tasks"
 local MAX_LINES_PER_GUN = 64
+local MAX_OWNED = 64
+local MAX_NAME = 40
 
 function PlayerData.key(userId: number): string
 	return "u_" .. tostring(userId)
@@ -124,6 +136,40 @@ function PlayerData.newer(raw: unknown): boolean
 	end
 	local v = (raw :: { [string]: unknown }).v
 	return typeof(v) == "number" and v > PlayerData.VERSION
+end
+
+function PlayerData.cleanOwned(raw: unknown): Owned
+	local out: Owned = { owned = {} }
+	if typeof(raw) ~= "table" then
+		return out
+	end
+	local t = raw :: { [string]: unknown }
+	if typeof(t.owned) == "table" then
+		for _, name in t.owned :: { unknown } do
+			if
+				typeof(name) == "string"
+				and #name > 0
+				and #name <= MAX_NAME
+				and not table.find(out.owned, name)
+				and #out.owned < MAX_OWNED
+			then
+				table.insert(out.owned, name)
+			end
+		end
+	end
+	if typeof(t.on) == "string" and table.find(out.owned, t.on) then
+		out.on = t.on
+	end
+	return out
+end
+
+-- Adds a charm or title (inside a PlayerDataService change). False if already owned or full.
+function PlayerData.grantOwned(o: Owned, name: string): boolean
+	if #name == 0 or #name > MAX_NAME or table.find(o.owned, name) or #o.owned >= MAX_OWNED then
+		return false
+	end
+	table.insert(o.owned, name)
+	return true
 end
 
 function PlayerData.cleanBuys(raw: unknown): Buys
@@ -192,6 +238,9 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		buys = { starter = false, free = false, intents = {}, receipts = {} },
 		onb = Onboarding.new(),
 		tasks = TaskPath.new(),
+		season = SeasonPass.new(),
+		charms = { owned = {} },
+		titles = { owned = {} },
 	}
 	if typeof(raw) ~= "table" then
 		data.onb.analytics = if raw == nil then true else nil
@@ -203,6 +252,9 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	data.buys = PlayerData.cleanBuys((raw :: any).buys)
 	data.onb = Onboarding.clean((raw :: any).onb)
 	data.tasks = TaskPath.clean((raw :: any).tasks)
+	data.season = SeasonPass.clean((raw :: any).season)
+	data.charms = PlayerData.cleanOwned((raw :: any).charms)
+	data.titles = PlayerData.cleanOwned((raw :: any).titles)
 	local earn = (raw :: any).earn
 	if typeof(earn) == "table" then
 		local day, got = count(earn.day, 1e7), count(earn.coins, Inventory.MAX_COINS)
@@ -281,6 +333,9 @@ function PlayerData.valid(data: Data): boolean
 		or not DailyShop.valid(data.daily)
 		or not Onboarding.valid(data.onb)
 		or not TaskPath.valid(data.tasks)
+		or not SeasonPass.valid(data.season)
+		or #data.charms.owned > MAX_OWNED
+		or #data.titles.owned > MAX_OWNED
 	then
 		return false
 	end

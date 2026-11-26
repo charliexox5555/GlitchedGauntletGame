@@ -6,10 +6,12 @@
 -- Cases cost Tickets only (Config/Economy.CASE_TICKETS; owner 2026-11-22). Tickets are
 -- earned and never sold, so a case is not a paid random item. NEVER put a case or
 -- Tickets inside anything bought with Robux or coins without the PolicyService gate.
+-- One exception (owner 2026-11-26): the season pass premium track gives cases and Tickets to
+-- everyone, no gate (vault/01 Design/Battle Pass Season 1 Contents.md).
 -- Odds still show for every case (Shared/SkinCases, the same table the server rolls).
 
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Exclusive"
-export type Kind = "Skin" | "Charm" | "Emote" | "Mod" | "Coins" | "Case"
+export type Kind = "Skin" | "Charm" | "Emote" | "Mod" | "Coins" | "Case" | "Ticket" | "Title"
 
 export type Item = {
 	kind: Kind,
