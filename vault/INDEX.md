@@ -13,6 +13,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [First-Person Guns Pass playtest](05%20Production/Playtests/2026-11-21%20First-Person%20Guns%20Pass.md): scope lens fix, slide lean as one piece, ADS tilt, smoother gun clips, Marshal hammer
 - [State Values playtest](05%20Production/Playtests/2026-11-19%20State%20Values.md): oversized results, 2v2 rematch, Lobby queue and current asset audit
 - `05 Production/Status History.md` (139): dated status log before 2026-11-05 (what was built when); grep only
+- `04 Tech/Battle Pass Build Plan.md` (4): Season 1 pass build in 9 phases (data, match progress, Robux, screen wiring, titles, charms, powers, art, season end), what exists now and where each hooks in (2026-11-26)
 - `04 Tech/Code Map.md` (70): every Service/Controller, its remotes and attributes; pick code files from here
 - [Vault Map](04%20Tech/Vault%20Map.md) (4): `tools/vault_map.py`: section search, note outlines, link graph and vault health; why not an LLM knowledge graph (Graphify)
 - `04 Tech/Architecture.md` (18): repo layout, shot validation walkthrough, match system, test range, Rojo/Studio gotchas, code rules
