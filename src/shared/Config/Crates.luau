@@ -74,6 +74,33 @@ local TIERS: { [number]: Tier } = {
 			Interior = look("0F1A11"),
 		},
 	},
+	-- Bundle crates (owner 2026-11-25: a bought bundle throws out one crate per item "in a different
+	-- colored case" and opens them all at once). Each bundle's colours (ShopCatalog BUNDLES `crate`),
+	-- with gold hardware so a bundle reads apart from every case.
+	[5] = {
+		name = "Ruin-Blighted",
+		accent = Color3.fromHex("3FE0B8"),
+		roles = {
+			Body = look("1F3B39"),
+			Frame = look("10201F"),
+			Hardware = look("D9B25A", Enum.Material.Metal),
+			Light = look("3FE0B8", Enum.Material.Neon),
+			Gem = look("5CF2C9", Enum.Material.Neon),
+			Interior = look("0B1514"),
+		},
+	},
+	[6] = {
+		name = "Tempest-Strike",
+		accent = Color3.fromHex("49B6FF"),
+		roles = {
+			Body = look("1E3566"),
+			Frame = look("111E3B"),
+			Hardware = look("D9B25A", Enum.Material.Metal),
+			Light = look("49B6FF", Enum.Material.Neon),
+			Gem = look("7FD0FF", Enum.Material.Neon),
+			Interior = look("0B1226"),
+		},
+	},
 }
 
 return table.freeze({

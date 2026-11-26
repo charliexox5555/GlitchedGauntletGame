@@ -9,6 +9,9 @@
 -- (Services/ShopService rolls and grants a skin you don't own); the reveal panel
 -- shows it with its tier, EQUIP puts it on through the Locker's LockerRequest.
 -- The in-world animation starts as soon as the player selects OPEN 1 or OPEN 3.
+-- Several skins at once (a batch, or a bought bundle: presentOpening, owner 2026-11-25 "a menu with
+-- every gun to equip"): a strip under the reveal shows them all (click one to see it), and
+-- EQUIP ALL puts every one on.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -35,6 +38,18 @@ local LobbyHud = require(script.Parent.LobbyHud)
 local Router = require(script.Parent.Parent.Util.Router)
 
 local BackpackController = {}
+
+local present: ((crateTier: number, results: { LobbyNet.CaseReward }) -> boolean)? = nil
+
+-- A bought bundle's opening (Controllers/ShopController): its crates thrown at once, then the
+-- reveal with every skin and EQUIP ALL. false = not ready or an opening is still playing.
+function BackpackController.presentOpening(
+	crateTier: number,
+	results: { LobbyNet.CaseReward }
+): boolean
+	local run = present
+	return run ~= nil and #results > 0 and run(crateTier, results)
+end
 
 local player = Players.LocalPlayer
 local COLS = 6
@@ -117,6 +132,36 @@ function BackpackController.init()
 	batchLabel.Text = `OPEN {Inventory.BATCH_OPEN_COUNT}`
 	openOneLabel.Text = "OPEN 1"
 	local crate: CaseOpening.Handle? = nil -- the in-world opening in progress
+	local fromBundle = false -- the reveal shows a bought bundle (EQUIP ALL closes the Backpack)
+	local DARK_PLATE = doneButton.BackgroundColor3
+	local GOLD_PLATE = equipButton.BackgroundColor3
+	local DARK_INK = doneLabel.TextColor3 -- words on a dark plate
+	local GOLD_INK = (child(equipButton, "Label") :: TextLabel).TextColor3
+	local equipHome, doneHome, buttonSize =
+		equipButton.Position, doneButton.Position, equipButton.Size
+	local equipAll = equipButton:Clone()
+	equipAll.Name = "EquipAll"
+	equipAll.Visible = false
+	equipAll.Parent = reveal;
+	(child(equipAll, "Label") :: TextLabel).Text = "EQUIP ALL"
+	-- the haul strip: one cell per skin, under the reveal panel
+	local HAUL = OpeningConfig.HAUL
+	local haul = Instance.new("Frame")
+	haul.Name = "Haul"
+	haul.BackgroundTransparency = 1
+	haul.AnchorPoint = Vector2.new(0.5, 0)
+	haul.Position = reveal.Position + UDim2.fromOffset(0, reveal.Size.Y.Offset / 2 + HAUL.gap)
+	haul.Size = UDim2.fromOffset(reveal.Size.X.Offset + 200, HAUL.cell.Y + 12)
+	haul.ZIndex = reveal.ZIndex
+	haul.Visible = false
+	local haulList = Instance.new("UIListLayout")
+	haulList.FillDirection = Enum.FillDirection.Horizontal
+	haulList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	haulList.VerticalAlignment = Enum.VerticalAlignment.Center
+	haulList.SortOrder = Enum.SortOrder.LayoutOrder
+	haulList.Padding = UDim.new(0, HAUL.padding)
+	haulList.Parent = haul
+	haul.Parent = canvas
 	local sentBackpackOpen = false
 	local caseCell: GuiButton? = nil
 
@@ -393,10 +438,101 @@ function BackpackController.init()
 		requestOpening(Inventory.BATCH_OPEN_COUNT)
 	end)
 
-	local function drawResult()
+	local function paintPlate(button: GuiButton, gold: boolean)
+		local color = if gold then GOLD_PLATE else DARK_PLATE
+		button.BackgroundColor3 = color
+		for _, cap in button:GetChildren() do
+			if cap:IsA("ImageLabel") then
+				cap.ImageColor3 = color
+			end
+		end
+		(child(button, "Label") :: TextLabel).TextColor3 = if gold then GOLD_INK else DARK_INK
+	end
+
+	local function isOn(r: LobbyNet.CaseReward): boolean
+		return Locker.equipped(player)[r.gun] == r.line
+	end
+
+	local drawResult: () -> ()
+
+	-- every result in a row: the current one lifted in its tier colour, equipped ones marked
+	local function drawHaul()
+		for _, c in haul:GetChildren() do
+			if c:IsA("GuiObject") then
+				c:Destroy()
+			end
+		end
+		local many = #revealed > 1 and reveal.Visible
+		haul.Visible = many
+		detail.Visible = not reveal.Visible
+		local hint = canvas:FindFirstChild("Note") -- "click a case to see…", under the strip
+		if hint and hint:IsA("GuiObject") then
+			hint.Visible = not reveal.Visible
+		end
+		equipAll.Visible = many
+		equipButton.Size, equipAll.Size, doneButton.Size = buttonSize, buttonSize, buttonSize
+		if not many then
+			equipButton.Position, doneButton.Position = equipHome, doneHome
+			paintPlate(equipButton, true)
+			return
+		end
+		-- EQUIP · EQUIP ALL (gold: the one act-now thing) · NEXT
+		local narrow =
+			UDim2.new(buttonSize.X.Scale, HAUL.buttonWidth, buttonSize.Y.Scale, buttonSize.Y.Offset)
+		equipButton.Size, equipAll.Size, doneButton.Size = narrow, narrow, narrow
+		local y = equipHome.Y
+		equipButton.Position = UDim2.new(0.5, -HAUL.buttonStep, y.Scale, y.Offset)
+		equipAll.Position = UDim2.new(0.5, 0, y.Scale, y.Offset)
+		doneButton.Position = UDim2.new(0.5, HAUL.buttonStep, y.Scale, y.Offset)
+		paintPlate(equipButton, false)
+		paintPlate(equipAll, true)
+		for i, r in revealed do
+			local tier = Skins.TIERS[(r.tier or "Common") :: any] or Skins.TIERS.Common
+			local current = i == revealIndex
+			local holder = Instance.new("Frame")
+			holder.Name = "Haul_" .. i
+			holder.BackgroundTransparency = 1
+			holder.LayoutOrder = i
+			holder.Size = UDim2.fromOffset(HAUL.cell.X, HAUL.cell.Y)
+			local cell = template:Clone()
+			cell.Name = "Cell"
+			cell.AnchorPoint = Vector2.new(0.5, 0.5)
+			cell.Position = UDim2.fromScale(0.5, 0.5)
+			local fit = Instance.new("UIScale")
+			fit.Scale = HAUL.cell.X
+				/ cell.Size.X.Offset
+				* (if current then HAUL.currentScale else 1)
+			fit.Parent = cell
+			cell.BackgroundColor3 = if current
+				then DARK_PLATE:Lerp(tier.color, 0.45)
+				else DARK_PLATE
+			local art = child(cell, "Art") :: ImageLabel
+			art.Image = SkinArt.portrait(r.gun, r.line) or ""
+			art.ImageTransparency = if current then 0 else 0.25
+			local word = if isOn(r) then "EQUIPPED" else ""
+			for _, name in { "Count", "CountShadow" } do
+				local label = child(cell, name) :: TextLabel
+				label.Text = word
+				label.TextScaled = false
+				label.TextSize = HAUL.textSize
+			end
+			cell.Parent = holder
+			holder.Parent = haul
+			local index = i
+			LobbyKit.button(cell, function()
+				if revealIndex ~= index then
+					revealIndex = index
+					drawResult()
+				end
+			end)
+		end
+	end
+
+	drawResult = function()
 		local result = revealed[revealIndex]
 		if not result then
 			showReveal(false)
+			drawHaul()
 			return
 		end
 		fillReveal(result.gun, result.line, result.tier, result.name)
@@ -461,6 +597,7 @@ function BackpackController.init()
 			then `NEXT {revealIndex}/{#revealed}`
 			else doneText
 		showReveal(true)
+		drawHaul()
 		if
 			StateValues.get(player, "OnbCaseGift") == true
 			and StateValues.get(player, "OnbSkinEquipped") ~= true
@@ -511,6 +648,88 @@ function BackpackController.init()
 	end)
 	LobbyKit.button(doneButton, nextResult)
 
+	-- EQUIP ALL: every skin of the opening on (one per gun; the last wins), then close.
+	LobbyKit.button(equipAll, function()
+		UiSfx.cue("RewardFinalHit")
+		local byGun: { [string]: LobbyNet.CaseReward } = {}
+		local guns = 0
+		for _, r in revealed do
+			if not byGun[r.gun] then
+				guns += 1
+			end
+			byGun[r.gun] = r
+		end
+		local wanted: { LobbyNet.CaseReward } = {}
+		for _, r in byGun do
+			if not isOn(r) then
+				table.insert(wanted, r)
+				LobbyNet.event("LockerRequest"):FireServer("equip", r.gun, r.line)
+			end
+		end
+		local closeAfter = fromBundle
+		revealIndex = #revealed + 1
+		drawResult()
+		if closeAfter and Router.current() == "Backpack" then
+			Router.close()
+		end
+		task.spawn(function()
+			local t = os.clock()
+			while os.clock() - t < 4 do
+				local done = true
+				for _, r in wanted do
+					if not isOn(r) then
+						done = false
+					end
+				end
+				if done then
+					LobbyHud.toast(`{guns} SKINS EQUIPPED`, "success")
+					return
+				end
+				task.wait(0.2)
+			end
+			LobbyHud.toast("Some didn't equip, try in the Locker", "error")
+		end)
+	end)
+
+	present = function(crateTier: number, results: { LobbyNet.CaseReward }): boolean
+		local busy = crate
+		if pending or (busy and not busy:isDead()) then
+			return false
+		end
+		serial += 1
+		local id = serial
+		hideItem()
+		Router.close()
+		player:SetAttribute("CaseOpeningActive", true)
+		local h = CaseOpening.start(player, crateTier, true, #results)
+		crate = h
+		local function finish()
+			if serial ~= id then
+				return
+			end
+			crate = nil
+			player:SetAttribute("CaseOpeningActive", false)
+			Router.open("Backpack")
+			if Router.current() == "Backpack" then
+				fromBundle = true
+				revealed = results
+				revealIndex = 1
+				drawResult()
+			end
+		end
+		if not h then
+			finish()
+			return true
+		end
+		local handle: CaseOpening.Handle = h
+		task.delay(OpeningConfig.BUNDLE_ANSWER, function()
+			if serial == id and not handle:reveal(results, finish) then
+				finish()
+			end
+		end)
+		return true
+	end
+
 	LobbyNet.event("ShopEvent").OnClientEvent:Connect(function(p: LobbyNet.ShopEventPayload)
 		if typeof(p) ~= "table" or not pending or p.openRequest ~= pending then
 			return
@@ -550,6 +769,7 @@ function BackpackController.init()
 				end
 				Router.open("Backpack")
 				if Router.current() == "Backpack" then
+					fromBundle = false
 					revealed = rewards
 					revealIndex = 1
 					drawResult()
@@ -611,6 +831,7 @@ function BackpackController.init()
 			isOpen = false
 			OnbHighlight.clear("Backpack")
 			showReveal(false)
+			drawHaul()
 			hideItem()
 		end,
 	})
@@ -622,6 +843,9 @@ function BackpackController.init()
 			value.Changed:Connect(function()
 				if isOpen then
 					render()
+					if haul.Visible then
+						drawHaul()
+					end
 					local id = picked
 					local def = id and Inventory.ITEMS[id]
 					if id and def and itemPanel.Visible then

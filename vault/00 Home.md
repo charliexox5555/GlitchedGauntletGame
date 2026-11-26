@@ -7,7 +7,9 @@
 
 ## 📍 Status
 
-- **Vault map and loading picks (2026-11-25).** `tools/vault_map.py` (section search, outlines, link graph, health; [Vault Map](04%20Tech/Vault%20Map.md)) is now step 1 for `vault-lookup` and the vault skill: same answers in 5 tool calls instead of 16. Fixed 158 broken links. Loading sounds final (owner left it to Claude): sting and bed kept, PSE swish added under POWER ([logo note](02%20Art/PowerDuels%20Logo.md)).
+- **Bundle opening (2026-11-25).** A bought bundle now throws one crate per skin, in its own colours (Ruin-Blighted teal, Tempest-Strike blue, gold trim), opens them all at once for the buyer and nearby players, then the Backpack shows every skin in a strip with **EQUIP ALL** ([Case Opening](01%20Design/Case%20Opening.md#bundle-opening-owner-2026-11-25)). F4 → CASE previews it. The loading-screen whoosh was taken out again (owner: no swooshes).
+
+- **Vault map and loading picks (2026-11-25).** `tools/vault_map.py` (section search, outlines, link graph, health; [Vault Map](04%20Tech/Vault%20Map.md)) is now step 1 for `vault-lookup` and the vault skill: same answers in 5 tool calls instead of 16. Fixed 158 broken links. Loading sounds final: sting and bed kept, no whoosh ([logo note](02%20Art/PowerDuels%20Logo.md)).
 
 - **PowerDuels in game (2026-11-25).** Loading sprites uploaded (group 11116787; ids in `art-source/uploads.json` and the [logo note](02%20Art/PowerDuels%20Logo.md#roblox-integration-2026-11-25)); `BuildDuelsLoading.luau` + the local `ReplicatedFirst.DuelsLoading` template (`Ticket` = POWER, new optional `Sparks`); reveal POWER → DUELS → sparks, the sting on POWER's landing, `Full` for reduced motion. Player-facing "abilities" → "powers" (Locker tab label, settings, touch layout, draft lines). Verified in Studio: first join, pad duel, desktop + phone layouts; teleport handoff unverified (Studio). Not published.
 

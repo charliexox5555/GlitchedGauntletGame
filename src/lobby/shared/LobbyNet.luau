@@ -60,6 +60,7 @@ export type ShopEventPayload = {
 	tier: string?, -- "opened": Config/Skins tier id
 	text: string?, -- the item's name, or a short message
 	product: number?, -- "robux": the Config/Products id granted (the YOU GOT popup)
+	crate: number?, -- "robux" bundle: the Config/Crates look its opening throws (with `results`)
 }
 
 export type ProgressEventPayload = {

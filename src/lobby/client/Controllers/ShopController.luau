@@ -62,6 +62,7 @@ local ShopFx = require(ReplicatedStorage.Shared.Config.ShopFx)
 local rewardConfig = ShopFx.reward
 local OfferCarousel = require(script.Parent.Parent.Util.OfferCarousel)
 local LobbyHud = require(script.Parent.LobbyHud)
+local BackpackController = require(script.Parent.BackpackController)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
 
@@ -1603,6 +1604,15 @@ local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 		celebrateCoins(compensation, nil, "Rare")
 	elseif product and product.kind == "skin" and p.gun and p.line then
 		celebrateSkin(p.gun, p.line)
+	elseif
+		product
+		and product.kind == "bundle"
+		and typeof(p.crate) == "number"
+		and typeof(p.results) == "table"
+		and BackpackController.presentOpening(p.crate, p.results)
+	then
+		-- its crates open in the world, then the Backpack shows every skin with EQUIP ALL
+		return
 	elseif product and product.kind == "bundle" then
 		local bundle = if product.bundle then ShopCatalog.bundle(product.bundle) else nil
 		local items: { ShopRewardFx.Item } = {}

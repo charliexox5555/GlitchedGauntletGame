@@ -41,6 +41,7 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local ShopService = require(script.Parent.ShopService)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Telemetry = require(script.Parent.Parent.Telemetry)
 
@@ -126,6 +127,26 @@ local function bundleSkins(bundle: ShopCatalog.Bundle): { { gun: string, line: s
 	for _, item in bundle.items do
 		if item.kind == "Skin" and item.gun and item.line then
 			table.insert(out, { gun = item.gun, line = item.line })
+		end
+	end
+	return out
+end
+
+-- A bundle's items the player doesn't own yet, as opening results (its display names).
+local function newBundleSkins(
+	data: PlayerData.Data,
+	bundle: ShopCatalog.Bundle
+): { LobbyNet.CaseReward }
+	local out: { LobbyNet.CaseReward } = {}
+	for _, item in bundle.items do
+		local gun, line = item.gun, item.line
+		if item.kind == "Skin" and gun and line and not PlayerData.owns(data.skins, gun, line) then
+			table.insert(out, {
+				gun = gun,
+				line = line,
+				tier = SkinCases.tierOf(gun, line) or item.rarity or "Exclusive",
+				name = item.name,
+			})
 		end
 	end
 	return out
@@ -457,6 +478,10 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 	end
 	local text = ""
 	local gotGun: string?, gotLine: string? = nil, nil
+	local gotBundle: { LobbyNet.CaseReward } = {}
+	local bundleDef = if product.kind == "bundle" and product.bundle
+		then ShopCatalog.bundle(product.bundle)
+		else nil
 	local purchaseId = string.sub(tostring(info.PurchaseId), 1, 62)
 	local txId = "r:" .. purchaseId
 	local promptAtReceipt = skinPromptOpen[player]
@@ -466,6 +491,7 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 			return false, "granted"
 		end
 		gotGun, gotLine = nil, nil
+		gotBundle = if bundleDef then newBundleSkins(data, bundleDef) else {}
 		if product.kind == "skin" then
 			local gun, line = skinTarget(data, product)
 			if gun and line and not PlayerData.owns(data.skins, gun, line) then
@@ -501,12 +527,22 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 			skinPromptOpen[player] = nil
 		end
 	end
+	-- A bundle with its own crates: the opening plays for the buyer and everyone near
+	-- (owner 2026-11-25); the models go out first, like a case.
+	local crate = bundleDef and bundleDef.crate
+	local results: { LobbyNet.CaseReward }? = nil
+	if crate and #gotBundle > 0 then
+		results = gotBundle
+		ShopService.showOpening(player, crate, #gotBundle, gotBundle)
+	end
 	send(player, {
 		kind = "robux",
 		text = if text ~= "" then text else "Purchase complete",
 		product = product.id,
 		gun = gotGun,
 		line = gotLine,
+		results = results,
+		crate = if results then crate else nil,
 	})
 	return Enum.ProductPurchaseDecision.PurchaseGranted
 end

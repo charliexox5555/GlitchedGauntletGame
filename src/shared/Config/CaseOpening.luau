@@ -48,6 +48,24 @@ return table.freeze({
 	BATCH_DISTANCE = 11, -- larger arc gives the crates and reward cards room
 	BATCH_MIN_SPACING = 7.5,
 	BATCH_CARD_SCALE = 0.82,
+	-- More crates than BATCH_ANGLES (a bundle: one crate per item, up to 6): a wider, farther arc,
+	-- WIDE_STEP degrees apart, centred on the opener's facing (2026-11-25).
+	WIDE_STEP = 26,
+	WIDE_DISTANCE = 17,
+	WIDE_CARD_SCALE = 0.74,
+	MAX_CRATES = 6,
+	BUNDLE_ANSWER = 0.35, -- seconds between the toss and the reveal (the skins are already granted)
+	-- The Backpack reveal's strip when an opening gives several skins (Controllers/BackpackController):
+	-- one cell per skin under the panel, and EQUIP · EQUIP ALL · NEXT across its foot.
+	HAUL = table.freeze({
+		cell = Vector2.new(100, 113), -- the Backpack cell (156 x 176) scaled down
+		currentScale = 1.08,
+		padding = 12,
+		gap = 18, -- below the reveal panel
+		textSize = 20,
+		buttonWidth = 200,
+		buttonStep = 218,
+	}),
 	VIEW_DISTANCE = 140,
 
 	TOSS = 1.0, -- s, from the chest to the floor, ~1.5 bounces

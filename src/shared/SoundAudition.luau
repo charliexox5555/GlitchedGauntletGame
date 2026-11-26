@@ -25,7 +25,8 @@ type Layer = { id: number, vol: number, delay: number, pitch: number, from: numb
 -- one sound (id + vol), or layers played together (a designed sound: a thump
 -- under a tink, etc.; if picked, it gets baked into one asset)
 -- case: a whole case opening (crate look 1-4, the skin tier it reveals, how many at once)
-type CaseRun = { crate: number, tier: string, count: number, knife: boolean? }
+-- `bundle`: a bundle id (ShopCatalog); `tier` is ignored and the Backpack's results strip follows
+type CaseRun = { crate: number, tier: string, count: number, knife: boolean?, bundle: string? }
 type Cand = {
 	note: string,
 	id: number?,
@@ -395,7 +396,15 @@ table.insert(ROWS, {
 			note = "Knife case: knife",
 			case = { crate = 4, tier = "Legendary", count = 1, knife = true },
 		},
-		{ note = "Batch open: x5 mixed", case = { crate = 1, tier = "mixed", count = 5 } },
+		{ note = "Batch open: x3 mixed", case = { crate = 1, tier = "mixed", count = 3 } },
+		{
+			note = "Bundle bought: Tempest-Strike (6 crates, then EQUIP ALL)",
+			case = { crate = 6, tier = "Exclusive", count = 6, bundle = "TempestStrike" },
+		},
+		{
+			note = "Bundle bought: Ruin-Blighted (6 crates, then EQUIP ALL)",
+			case = { crate = 5, tier = "Exclusive", count = 6, bundle = "RuinBlighted" },
+		},
 	},
 })
 
@@ -473,9 +482,9 @@ local function audition(row: Row, c: Cand)
 			string.format(
 				"%d|%s|%d|%s|%f",
 				run.crate,
-				run.tier,
+				run.bundle or run.tier,
 				run.count,
-				if run.knife then "knife" else "gun",
+				if run.bundle then "bundle" elseif run.knife then "knife" else "gun",
 				os.clock()
 			)
 		)

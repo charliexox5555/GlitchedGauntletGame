@@ -43,6 +43,7 @@ export type Bundle = {
 	soon: boolean?, -- contents not decided yet: the card says so and doesn't open
 	hero: string?, -- the card's big picture (a Studio hero render, tools/studio/RenderHeroShots.luau)
 	banner: string?, -- the card's background art (Gemini / ChatGPT, vault Shop Economy → Art prompts); flat colour until set
+	crate: number?, -- Config/Crates look of its opening (one crate per item); none = the YOU GOT popup only
 }
 
 local Products = require(game:GetService("ReplicatedStorage").Shared.Config.Products)
@@ -151,6 +152,7 @@ ShopCatalog.BUNDLES = {
 		hero = "rbxassetid://122434274434504", -- art-source/ui/shop/heroes/hero_ruinblighted.png
 		banner = "rbxassetid://114348398658883", -- art-source/ui/shop/new/banner_ruinblighted.png
 		color = Color3.fromHex("2A6F6A"),
+		crate = 5,
 		slot = "Featured",
 		tag = "EXCLUSIVE",
 		sub = "5 GUNS + THE RUINED REAVER",
@@ -177,6 +179,7 @@ ShopCatalog.BUNDLES = {
 		hero = "rbxassetid://78378943251206", -- art-source/ui/shop/heroes/hero_tempeststrike.png
 		banner = "rbxassetid://131808642557103", -- art-source/ui/shop/new/banner_tempeststrike.png
 		color = Color3.fromHex("2F5DB8"),
+		crate = 6,
 		slot = "Featured",
 		tag = "NEW",
 		sub = "5 GUNS + THE KATANA",

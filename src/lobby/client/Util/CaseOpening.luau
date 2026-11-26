@@ -752,7 +752,10 @@ local function startCrate(
 			tier.name,
 			tier.order,
 			if isLocal then nil else owner.DisplayName,
-			if count > 1 then Cfg.BATCH_CARD_SCALE else 1
+			if count > #Cfg.BATCH_ANGLES
+				then Cfg.WIDE_CARD_SCALE
+				elseif count > 1 then Cfg.BATCH_CARD_SCALE
+				else 1
 		)
 	end
 
@@ -1172,8 +1175,24 @@ function CaseOpening.start(
 	params.FilterDescendantsInstances = ignore
 	params.RespectCanCollide = true
 
-	local angles = if count == 1 then { 0 } else Cfg.BATCH_ANGLES
-	local distance = if count == 1 then Cfg.DISTANCE else Cfg.BATCH_DISTANCE
+	count = math.clamp(count, 1, Cfg.MAX_CRATES)
+	local wide = count > #Cfg.BATCH_ANGLES
+	local angles: { number } = if count == 1 then { 0 } elseif wide then {} else Cfg.BATCH_ANGLES
+	if wide then
+		-- centre-out, so the middle crates get the clear spots first
+		local order: { number } = {}
+		for i = 1, count do
+			table.insert(order, (i - (count + 1) / 2) * Cfg.WIDE_STEP)
+		end
+		table.sort(order, function(a, b)
+			return math.abs(a) < math.abs(b)
+		end)
+		angles = order
+	end
+	local distance = if count == 1
+		then Cfg.DISTANCE
+		elseif wide then Cfg.WIDE_DISTANCE
+		else Cfg.BATCH_DISTANCE
 	local distances = { distance }
 	for _, alternate in Cfg.TRY_DISTANCES do
 		table.insert(distances, alternate)

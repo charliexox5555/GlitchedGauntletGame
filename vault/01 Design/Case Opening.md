@@ -94,8 +94,16 @@ Owner: "louder and more fun", better shake sounds, a more satisfying win. Loudne
 - **F4 → CASE tab** is back: it plays a whole opening (Standard Common / Rare, Starter Epic, Apex Legendary, Knife, ×5 batch) with sample skins, nothing bought (`CaseShowController` Studio preview).
 - Checked in Studio: a Legendary preview fires every layer in order (5 shakes × 4 layers, rising; full reveal stack at 5.35 s). Not heard by Claude: owner to listen.
 
+## Bundle opening (owner 2026-11-25)
+Owner: buying a bundle should feel better. "spawn all the cases at once that it includes in a different colored case and then it opens them", then "a menu with every gun to equip ... so it is easy for a person to equip what they just bought".
+- **Crates:** one per item (up to `MAX_CRATES` = 6), thrown together in a wider arc (`WIDE_STEP` 26°, `WIDE_DISTANCE` 17, cards at `WIDE_CARD_SCALE` 0.74). Each bundle has its own crate colours with gold hardware (`Config/Crates` 5 Ruin-Blighted teal, 6 Tempest-Strike blue; `ShopCatalog` bundle `crate`). All lids burst on the same beat with the Exclusive sound stack. The stinger plays once, on the lead crate.
+- **Server:** `RobuxService` records the bundle skins the buyer didn't own (in the receipt's write) and sends them as `results` + `crate`. `ShopService.showOpening` delivers the models and plays the same opening for nearby players, which is free advertising in the lobby. A bundle the buyer already owned entirely still pays out coins with the YOU GOT popup.
+- **After:** the Backpack reveal shows each skin big (NEW SKIN · 1 OF 6) with a strip of all of them under the panel (click one to jump to it; EQUIPPED marks). The buttons are EQUIP · **EQUIP ALL** (gold) · NEXT. EQUIP ALL puts every one on, toasts "6 SKINS EQUIPPED" and closes the Backpack. The strip and EQUIP ALL also show after an OPEN 3.
+- **Test:** F4 board → CASE → "Bundle bought: Tempest-Strike / Ruin-Blighted" (Studio only, nothing bought). Checked in Studio Play: 6 crates in each bundle's colours, a clean reveal, the strip and buttons laid out, no errors. Not tested: a real Robux receipt (the Studio test hook writes the save).
+
 ## Open (owner)
 - **Sounds:** Round 5 approved (owner 2026-11-25: "Sounds great").
+- **Bundle opening:** built 2026-11-25; needs the owner's look and a real purchase test.
 - Feel: toss length, shake count, hold time, flash strength per tier; higher tiers could get a longer build-up (RIVALS chests run 8 s).
 - Pictures for every skin (renders, not viewports) so the result panel never falls back to a letter.
 - **Save the Lobby place.**

@@ -148,6 +148,48 @@ end
 
 -- Roll the whole batch on the stored data. Each retry starts with the same seed,
 -- and each successful roll joins the owned set before the next case is rolled.
+-- An opening's audience: the reward models go to the opener and everyone near them, then the
+-- others get CaseShow to play it at the opener (a case from the Backpack, or a bought bundle:
+-- RobuxService). `crate` is the Config/Crates look, `count` the crates thrown.
+function ShopService.showOpening(
+	player: Player,
+	crate: number,
+	count: number,
+	rewards: { LobbyNet.CaseReward }
+)
+	local viewers = { player }
+	local character = player.Character
+	local origin = character and character:FindFirstChild("HumanoidRootPart")
+	if origin and origin:IsA("BasePart") then
+		for _, other in Players:GetPlayers() do
+			if other == player then
+				continue
+			end
+			local otherCharacter = other.Character
+			local root = otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart")
+			if
+				root
+				and root:IsA("BasePart")
+				and (root.Position - origin.Position).Magnitude <= OpeningConfig.VIEW_DISTANCE
+			then
+				table.insert(viewers, other)
+			end
+		end
+	end
+	for _, reward in rewards do
+		SkinStoreService.sendTo(viewers, reward.gun, reward.line)
+	end
+	local show: LobbyNet.CaseShowPayload = {
+		userId = player.UserId,
+		crate = crate,
+		count = count,
+		results = rewards,
+	}
+	for i = 2, #viewers do
+		caseShow:FireClient(viewers[i], show)
+	end
+end
+
 local function openCase(player: Player, itemId: string, count: number, requestId: number?)
 	local function refuse(reason: string)
 		send(player, { kind = "failed", item = itemId, openRequest = requestId, text = reason })
@@ -237,38 +279,7 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 		return
 	end
 
-	-- Deliver the reward models ahead of the cinematic to its audience.
-	local viewers = { player }
-	local character = player.Character
-	local origin = character and character:FindFirstChild("HumanoidRootPart")
-	if origin and origin:IsA("BasePart") then
-		for _, other in Players:GetPlayers() do
-			if other == player then
-				continue
-			end
-			local otherCharacter = other.Character
-			local root = otherCharacter and otherCharacter:FindFirstChild("HumanoidRootPart")
-			if
-				root
-				and root:IsA("BasePart")
-				and (root.Position - origin.Position).Magnitude <= OpeningConfig.VIEW_DISTANCE
-			then
-				table.insert(viewers, other)
-			end
-		end
-	end
-	for _, reward in rewards do
-		SkinStoreService.sendTo(viewers, reward.gun, reward.line)
-	end
-	local show: LobbyNet.CaseShowPayload = {
-		userId = player.UserId,
-		crate = def.tier,
-		count = count,
-		results = rewards,
-	}
-	for i = 2, #viewers do
-		caseShow:FireClient(viewers[i], show)
-	end
+	ShopService.showOpening(player, def.tier, count, rewards)
 	send(player, {
 		kind = "opened",
 		item = itemId,

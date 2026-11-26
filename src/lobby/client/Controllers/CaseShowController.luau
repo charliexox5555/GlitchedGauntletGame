@@ -4,18 +4,20 @@
 -- quieter and with their name on the card (Util/CaseOpening). Your own opening is
 -- started by the Backpack. Skipped when the opener is far away or has no character.
 -- Studio only: the F4 board's CASE tab (Shared/SoundAudition) plays an opening at you
--- through the workspace StateValue "PreviewCaseOpening" (sample skins, nothing bought).
+-- through the workspace StateValue "PreviewCaseOpening" (sample skins, nothing bought); a bundle
+-- row plays a bought bundle's crates and the Backpack's EQUIP ALL strip (BackpackController).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
-local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local OpeningConfig = require(ReplicatedStorage.Shared.Config.CaseOpening)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local CaseOpening = require(script.Parent.Parent.Util.CaseOpening)
+local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
+local BackpackController = require(script.Parent.BackpackController)
 
 local CaseShowController = {}
 
@@ -71,6 +73,26 @@ local function bindPreview(me: Player)
 			warn("[CaseShow] preview: wait for the opening to finish")
 			return
 		end
+		if kind == "bundle" then
+			-- a bought bundle (nothing bought): its items through the Backpack's own flow
+			local bundle = ShopCatalog.bundle(tier)
+			local results: { CaseOpening.Result } = {}
+			for _, item in if bundle then bundle.items else {} do
+				local gun, line = item.gun, item.line
+				if gun and line then
+					table.insert(results, {
+						gun = gun,
+						line = line,
+						tier = SkinCases.tierOf(gun, line) or "Exclusive",
+						name = item.name,
+					})
+				end
+			end
+			if not BackpackController.presentOpening(tonumber(crate) or 5, results) then
+				warn("[CaseShow] preview: the Backpack isn't ready or an opening is playing")
+			end
+			return
+		end
 		local results = sampleResults(tier, tonumber(count) or 1, kind == "knife")
 		if #results == 0 then
 			warn("[CaseShow] preview: no skins loaded yet")
@@ -96,8 +118,11 @@ function CaseShowController.start()
 		if typeof(p) ~= "table" or typeof(p.userId) ~= "number" or p.userId == me.UserId then
 			return
 		end
+		-- a case (1 or a batch) or a bought bundle (one crate per item, up to MAX_CRATES)
 		if
-			(p.count ~= 1 and p.count ~= Inventory.BATCH_OPEN_COUNT)
+			typeof(p.count) ~= "number"
+			or p.count < 1
+			or p.count > OpeningConfig.MAX_CRATES
 			or typeof(p.results) ~= "table"
 			or #p.results == 0
 		then
