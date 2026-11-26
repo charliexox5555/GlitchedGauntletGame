@@ -105,6 +105,17 @@ local function skinTitle(id: string): string
 	return if line == "Stock" then "DEFAULT SKIN" else string.upper(line) .. " SKIN"
 end
 
+-- A slot's card: LobbyKit.button wraps a layout item in a holder of the same name (so it pops from its centre),
+-- so look for the button itself.
+local function slotCard(column: Instance, slot: string): GuiButton?
+	for _, d in column:GetDescendants() do
+		if d.Name == slot and d:IsA("GuiButton") then
+			return d
+		end
+	end
+	return nil
+end
+
 -- The left column: what each slot holds now; the picked slot is lit.
 local function renderSlots()
 	local c = canvas
@@ -116,9 +127,8 @@ local function renderSlots()
 		return
 	end
 	for i, slot in SLOTS do
-		-- recursive: LobbyKit.button wraps a layout item in a holder so it pops from its centre
-		local card = column:FindFirstChild(slot, true)
-		if not (card and card:IsA("GuiButton")) then
+		local card = slotCard(column, slot)
+		if not card then
 			continue
 		end
 		local id = held[slot]
@@ -451,8 +461,8 @@ function LoadoutController.start()
 	pickTab = LobbyKit.tabs(tabs, selectSlot)
 	local column = child(c, "Slots")
 	for i, slot in SLOTS do
-		local card = column:FindFirstChild(slot)
-		if card and card:IsA("GuiButton") then
+		local card = slotCard(column, slot)
+		if card then
 			LobbyKit.button(card, function()
 				if pickTab then
 					pickTab(i)

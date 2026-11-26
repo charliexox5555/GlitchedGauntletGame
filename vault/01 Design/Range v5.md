@@ -56,7 +56,7 @@ Tested in a Studio playtest (F6 into the range): no errors in the output.
 - PRIMARY / SECONDARY / MELEE tabs (or 1 / 2 / 3, or the slot cards on the left); the Locker's gun cards in your equipped skin; a click equips through the existing `PickWeapon` remote (the server checks the Range zone, the id and the model). Verified: picking Spirit equipped it and the HUD followed.
 - **LOCKER** opens the Locker; closing it comes back to the loadout. Verified in play.
 - Any lobby menu open in the range frees the mouse and pauses match input (`GameSettingsOpen`, the Settings menu's switch); closing re-locks it. Verified.
-- Captures in this session showed the slot cards on the left were empty (fixed after: the button helper wraps cards in a holder) and the LOCKER button over the hotbar (moved to the tabs' row). Both fixes are in, but not re-captured.
+- First captures showed the slot cards on the left empty (the button helper wraps each card in a holder of the same name) and the LOCKER button over the hotbar. Fixed and re-captured: the slots show the held gun in its skin (HAVOC / CLASSIC / KNIFE), LOCKER sits on the tabs' row.
 
 **Open / next:**
 - The owner's walk-through: stair feel, sightlines from the perch, whether 39 is the right count.
