@@ -282,3 +282,5 @@ Where players are lost now:
 3. **Match 1 saved → back in lobby: 10%.** The win cutscene and results are the natural stopping point.
 
 Ad traffic is low-intent: anyone shown an ad, not players searching for shooters. Home recommendations are earned by these same signals (first-play bounce, playtime, return days), so keep fixing the leaks while waiting for Home traffic. Judge on D1 retention and average play time over 2–3 days, not one funnel snapshot.
+
+**Owner decision (2026-11-26): no instant match 3.** After match 2, the player chooses. The lobby highlights PLAY and hands them the first tasks; players also wander into the Range at this point. Tasks are being built in a separate session for the Saturday update. Their first task should point at PLAY (for example "Play 1 match", with a visible reward), so the 31% drop at match 3 gets a reason to queue. Next target: the match 1 leak after round 1, once `MatchLeft` says why.
