@@ -256,3 +256,29 @@ Code: `lobby/server/Telemetry.luau`:
 - Step 12 fires from `OnboardingService`, step 13 from `MatchService.reportStage`.
 
 Studio check: Workspace attribute `TelemetryLog = true` prints each step to the Output, because nothing is sent from Studio. Verified 2026-11-26 on a full run (fresh save, NEXT MATCH, match 2): steps 1–12 printed in order, the case step with "(next match)". Step 13 needs a queued match (teleport), so it will first be seen live.
+
+## 11. First live readout (Onboarding_v2, 246 players, data to 2026-11-26 08:00)
+
+Like for like, against the old funnel's hour (61 players, before this flow):
+
+| Measure | Before | Onboarding_v2 |
+|---|---|---|
+| M1 R1 fight → done | 93% | **98%** |
+| Match 1 launched → saved | 73% | 73% |
+| Match 1 saved → Match 2 fight | 58% | **76%** |
+| Match 2 fight → saved | 68% | **86%** (target 85% met) |
+| Joined → Match 2 saved | 28% | **46%** |
+
+The 28% headline is to **match 3**, a step the old funnel didn't have. It isn't the same number as the old 28%.
+
+Where players are lost now:
+1. **Lobby after match 2 → match 3: 31%** (101 → 70).
+   - Match 3 is the first queued match: PLAY, then the global queue, then a teleport to a reserved server.
+   - About 10 minutes in, some players stop for the day.
+   - Proposed fix: match 3 is instant on this server too (`INSTANT_MATCHES` 2 → 3; matches 1–2 went to instant on 2026-11-25 because the queue lost 16%). Optionally a goal in the lobby (the tasks system isn't built).
+2. **Match 1 after round 1: 20%** (232 → 174): 4.7% before round 2, 9.5% before round 3, 13% before the save.
+   - Needs `MatchLeft` (phase, last-round W/L, device) to tell "losing", "phones" and "too long" apart.
+   - Likely fixes: easier match 1 bots, the loser's extra card (C2), or match 1 first to 2.
+3. **Match 1 saved → back in lobby: 10%.** The win cutscene and results are the natural stopping point.
+
+Ad traffic is low-intent: anyone shown an ad, not players searching for shooters. Home recommendations are earned by these same signals (first-play bounce, playtime, return days), so keep fixing the leaks while waiting for Home traffic. Judge on D1 retention and average play time over 2–3 days, not one funnel snapshot.
