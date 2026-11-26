@@ -1,0 +1,106 @@
+# Battle Pass: Season 1 contents (2026-11-26)
+
+First full list of what's in the Season 1 pass, for the owner to go through item by item. Powers, skin lines, charms, coins/tickets/cases and titles are owner-approved (2026-11-26). Still open: season XP rule and length, final names. It replaces the placeholder tiers in `src/lobby/shared/SeasonCatalog.luau` once approved. The screen is in [UI Battle Pass](../02%20Art/UI%20Battle%20Pass.md).
+
+## Frame (kept from the placeholder)
+- 30 tiers. Free track for everyone, premium track **689 Robux**, **+5 levels 499 Robux**.
+- A late premium buyer gets every premium tier already reached. Unclaimed rewards are paid when the season ends.
+- Free track = a taste (about 1 reward every 3 tiers). Premium = something every tier, a skin every 3 to 4 tiers.
+
+## Instant on buying premium
+- Title **SEASON 1** (placeholder name, see Titles).
+- Gold name in the lobby (already listed as a perk).
+
+## New content the pass needs
+- **Skin line A, "Arcade"** (Rare: shape change; theme picked by the owner 2026-11-26): neon arcade cabinet, coin slot, joystick and button details, pixel-screen panels. 8 guns. Classic (the one free skin), Vandal, Sheriff, Spectre, Ghost, Bulldog, Marshal, Operator.
+- **Skin line B, "Frostbite"** (Legendary: animation + its own sounds, the chase line; owner 2026-11-26): faceted ice crystal over dark metal, cold blue-white glow, ice that grows on inspect and cracks on kill. Guns: Phantom, Outlaw, Vandal, Knife.
+- **8 charms** (2 free, 6 premium), owner-approved 2026-11-26. See Charms below. There's no charm system yet, so this needs building.
+- **2 new powers**: **Smoke** (free) and **Electric Shock** (premium). See Powers below.
+- **Titles shown in game.** Champion is saved but not displayed yet.
+
+## Tier list
+| Tier | Free | Premium |
+|---|---|---|
+| 1 | 100 coins | Arcade **Vandal** |
+| 2 | — | Charm: **Joystick** (Rare) |
+| 3 | Standard Case | 250 coins |
+| 4 | — | 1 Ticket |
+| 5 | — | Arcade **Sheriff** |
+| 6 | Charm: **Arcade Token** (Common) | Standard Case |
+| 7 | — | 300 coins |
+| 8 | 1 Ticket | Charm: **Pixel Heart** (Rare) |
+| 9 | — | Arcade **Spectre** |
+| 10 | **Smoke (power unlock)** | Elite Case |
+| 11 | — | 350 coins |
+| 12 | 150 coins | Charm: **Game Cartridge** (Epic) |
+| 13 | — | Arcade **Ghost** |
+| 14 | — | 2 Tickets |
+| 15 | **Arcade Classic (the free skin)** | Frostbite **Phantom** |
+| 16 | — | 400 coins |
+| 17 | — | Charm: **Snowflake Shard** (Rare) |
+| 18 | Standard Case | Arcade **Bulldog** |
+| 19 | — | Elite Case |
+| 20 | 200 coins | **Electric Shock (premium-only power)** |
+| 21 | — | Arcade **Marshal** |
+| 22 | 1 Ticket | 450 coins |
+| 23 | — | Charm: **Thunder Orb** (Epic) |
+| 24 | — | Frostbite **Outlaw** |
+| 25 | Charm: **Ice Cube** (Rare) | Apex Case |
+| 26 | — | Arcade **Operator** |
+| 27 | — | 500 coins |
+| 28 | 250 coins | Charm: **High Score** (Legendary) |
+| 29 | — | Frostbite **Vandal** |
+| 30 | 300 coins | Frostbite **Knife** + title **FROSTBITTEN** |
+
+## Totals (coins and tickets kept as drafted, owner 2026-11-26)
+| | Free | Premium |
+|---|---|---|
+| Skins | 1 (Arcade Classic) | 11 (7 Arcade, 4 Frostbite incl. Knife) |
+| Charms | 2 | 6 |
+| Powers | Smoke at 10 | Electric Shock at 20 (premium only) |
+| Coins | 1,000 | 2,250 |
+| Tickets | 2 | 3 |
+| Cases | 2 Standard | 1 Standard, 2 Elite, 1 Apex |
+| Titles | — | SEASON 1 (on buying), FROSTBITTEN (tier 30) |
+
+Value check: 2,250 coins is about the 199 Robux pack on its own. 11 skins at shop prices (Rare 349, Legendary 649) are worth far more than 689, so premium is an easy yes. Free coins are 1,000 against the Path's 12,850, so the pass doesn't flood the economy.
+
+## Powers (owner, 2026-11-26)
+- **Free track: Smoke** at tier 10. Players who haven't reached tier 10 don't get Smoke offered in their draft.
+- **Premium: Electric Shock** at tier 20, premium only, and meant to be a bit better than the free powers. The owner accepts slight pay-to-win on purpose: "still needs skill, but slight ptw", like RIVALS selling better weapons and upgrades. This overrides the old "pay-to-win check" rule for this power only.
+- Both still follow the [Look & sound standard](Abilities/00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional).
+
+**Smoke (draft, numbers to tune):** throw a canister (arc like Molly). It pops into a smoke dome about 12 studs across for about 10 s that blocks sight both ways. Bullets still pass through. 1 charge per round. A/B/G paths come later.
+
+**Electric Shock (owner idea; lock-on approved 2026-11-26):** you throw it, and if it catches a player, lightning blasts down on them and does damage. It has to feel different from **Shock Dart** (bow bolt that explodes where it lands, with a bolt cracking down onto the spot). The difference (approved): Electric Shock **locks onto a player**. The thrown orb latches onto the first enemy it passes within about 4 studs of, a 0.5 s warning ring shows on them, then the strike lands on them wherever they moved (about 70 damage plus a short Hinder). If it reaches nobody, it fizzles. 1 charge per round. Numbers are to tune.
+
+## Charms (owner, 2026-11-26)
+They hang from the charm ring every gun already has (`CharmPoint`, `Charm` bone: [Art Direction](../02%20Art/Art%20Direction.md)). They're faceted shapes per the build rules, and the names are placeholders.
+
+| Charm | Rarity | Track, tier | Look / extra |
+|---|---|---|---|
+| Arcade Token | Common | Free 6 | arcade coin token |
+| Ice Cube | Rare | Free 25 | faceted ice cube |
+| Joystick | Rare | Premium 2 | mini arcade stick |
+| Pixel Heart | Rare | Premium 8 | faceted pixel heart |
+| Snowflake Shard | Rare | Premium 17 | ice snowflake |
+| Game Cartridge | Epic | Premium 12 | cartridge; small glint/spark extra |
+| Thunder Orb | Epic | Premium 23 | crackles with electricity (Electric Shock tie-in) |
+| High Score | Legendary | Premium 28 | a pixel screen that counts your kills this match |
+
+**Motion:** every charm swings on its ring when you move, turn and shoot. Epic charms add a small effect. The Legendary charm reacts to the game (High Score ticks up on a kill, server-sent kill count only).
+
+## Titles (locked by the owner, 2026-11-26)
+**Both.** Buying premium gives a title straight away, and tier 30 gives a better one.
+- **Buy premium:** **SEASON 1** (placeholder). It shows you bought the pass, and it's an advert every time someone sees it.
+- **Premium tier 30:** **FROSTBITTEN** (placeholder), next to the Frostbite Knife. It's the flex title because you only get it by playing the whole pass.
+- **Free track:** no title, so having one stays a reason to buy.
+- **Equipping (owner idea):** a Titles section in your profile where you pick one. A new title auto-equips only when you have none on, and otherwise shows a toast with EQUIP. Champion (from the Task Path) shows up there too.
+- **Later:** name tags over players (level, title, streak) are parked in [Bugs & Ideas](../05%20Production/Bugs%20%26%20Ideas.md).
+
+## Flags to settle
+1. ~~Powers vs "all Mods free"~~ **Settled 2026-11-26**, see Powers.
+2. **Cases on premium (owner 2026-11-26):** cases stay on the premium track for everyone, as listed. There's **no country check and no swap**: the owner says games like RIVALS don't do it and it's too much work. If Roblox raises a problem, the owner will talk to them and change it then. The odds still show like the shop's.
+3. **Season XP rule** (wins, minutes or both) and season length are still open. They set how fast tier 30 comes.
+4. Names: line themes are set (Arcade, Frostbite), but the final line names, the title names and the charm names are still placeholders. Which theme is Rare and which is Legendary was Claude's call (Arcade Rare, Frostbite Legendary); the owner can swap them. Both lines stay out of the case pool.
+5. No emotes this season (owner, 2026-11-26). The placeholder emote tiers are gone.

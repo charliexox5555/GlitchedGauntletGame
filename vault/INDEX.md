@@ -24,6 +24,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Design (01 Design)
 - `01 Design/Progression.md` (13): levels and XP, win streak, coin streak save (RIVALS study), PlayerDataV1 save audit
 - `01 Design/Tasks and Rewards.md` (5): the task Path, owner-picked 2026-11-26: rules, rewards per set, every task, what the tracker must count, open items (data in `Config/Tasks.luau`, not wired)
+- `01 Design/Battle Pass Season 1 Contents.md` (3): DRAFT Season 1 pass list for owner review: 30 tiers free/premium, 2 skin lines, charms, 2 powers, coins/tickets/cases, titles, flags (2026-11-26)
 - `01 Design/Match Flow.md` (10): rounds, select/draft, timers, weapon phases, as built
 - `01 Design/First Ten Minutes.md` (11): new-player plan, minute by minute: fight first, one new thing per round, hints without words, what unlocks when, build order, targets, owner decisions
 - `01 Design/Gunplay.md` (55): movement, slide, spread, recoil, aim assist, feedback, health/downed (§3), viewmodel (§6), feel roadmap (§5)
