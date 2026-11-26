@@ -34,16 +34,14 @@ local HOOKS: { [string]: Hook } = {
 	LobbyShop = { menu = "Shop", action = "Open Shop", object = "Market" },
 	-- LobbyBattlePass: see below (Release.BATTLE_PASS_OPEN)
 	LobbyLocker = { menu = "Locker", action = "Open Locker", object = "Loadout" },
-	-- LobbyRangeEntrance: see below (Release.RANGE_OPEN)
 }
 
 -- Closed for this update (shared/Config/Release): no prompt for the Battle Pass or the range.
 if Release.BATTLE_PASS_OPEN then
 	HOOKS.LobbyBattlePass = { menu = "BattlePass", action = "Battle Pass", object = "Season 1" }
 end
-if Release.RANGE_OPEN then
-	HOOKS.LobbyRangeEntrance = { menu = "Range", action = "Range", object = "Practice" }
-end
+-- The range has no prompt: you walk into its hologram gate (LobbyServer RangeService, tag RangeEntry) or use the
+-- bar's RANGE button.
 -- The range's loadout terminals (tag RangeLoadout) are not here: ProximityPrompts never show inside the armed range
 -- (measured 2026-11-25), so LoadoutController draws their hint and takes the key itself.
 

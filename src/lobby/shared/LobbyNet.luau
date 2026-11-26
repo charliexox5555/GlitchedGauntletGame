@@ -129,6 +129,7 @@ local EVENTS = {
 	"AdminEvent",
 	"SkinRequest",
 	"HubRequest",
+	"RangeTravel", -- no payload: to the range from the lobby, or back (LobbyServer RangeService)
 }
 
 local folder: Instance

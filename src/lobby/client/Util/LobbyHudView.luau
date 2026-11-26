@@ -589,6 +589,11 @@ local function hookItem(s: State, b: TextButton)
 		if pop and pop:IsA("UIScale") then
 			press(pop, 0.82)
 		end
+		if b.Name == "Range" then
+			-- straight to the range (LobbyServer RangeService checks the zone and the cooldown)
+			LobbyNet.event("RangeTravel"):FireServer()
+			return
+		end
 		if menu then
 			Router.toggle(menu)
 		end

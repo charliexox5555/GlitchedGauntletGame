@@ -4,8 +4,9 @@
 -- so it can come back in a later update by flipping the flag.
 local Release = {}
 
--- The shooting range (lobby bar button, the hologram entrance, the entrance prompt). Closed for this update.
-Release.RANGE_OPEN = false
+-- The shooting range (the lobby bar's RANGE button, the hub's hologram gate). Opened 2026-11-26 (owner: "now it's
+-- time to open up the range in the lobby").
+Release.RANGE_OPEN = true
 
 -- The Battle Pass (Shop's Season Pass card, the world sign, the Router menu). Not in the first update:
 -- the Backpack replaced it (vault/01 Design/Inventory and Crates.md).

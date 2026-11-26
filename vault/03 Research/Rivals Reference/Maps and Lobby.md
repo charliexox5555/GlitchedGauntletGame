@@ -157,6 +157,8 @@ Read from the RIVALS file (`Workspace.Lobby.Hub`, read-only: property reads and 
 23. **Things to do while waiting:** walk to the range, read the boards, the arcade cabinet, slide down the long aisle.
    *For us:* a range window in the hub, a stage to stand on, a slide run (the Duels walk), live boards.
 
+- **Range door (read 2026-11-26, `Hub.Important.ShootingRange`):** an invisible `Entrance` touch wall 123 long x 44 tall in ForceField material, flanked by ForceField walls, two neon target signs over it; the doorway shows a holographic grid with the range through it (`lobby/05_center_hub_ring.jpg`). Our version: `01 Design/Range v5.md` → Round 4.
+
 ## Shooting range study (2026-11-21, `Workspace.ShootingRangeRivals` in our Lobby place, read-only)
 For [our range](../../02%20Art/Lobby%20V5%20Plan.md#range-v3-2026-11-21). Captures kept out of git (third-party).
 - **Size and levels.** About 250 × 250 open-roof yard plus a 55 × 180 lane. Ground at +0; a **rooftop level at +50**: 10-wide, 2.5-thick walkways with 2.5 × 5 × 20 parapets run between building tops. Spawn and exit portals are in the middle at ground level.

@@ -11,7 +11,8 @@
 --
 -- The training bots (models tagged `RangeBot`): LobbyServer/Range/RangeBots (look, hit stamps, respawn, strafers,
 -- the damage dummy, the moving carriage) and the air targets to Range/RangeTargets (vault/01 Design/Range v5.md).
--- Server only: no remotes, the server decides on touch. Built by tools/studio/lobby_v5/BuildRangeV4/V5.luau.
+-- Remotes: `RangeTravel` (LobbyNet, no payload; the lobby bar's RANGE button): to the range from the lobby zone,
+-- back from the range, nothing anywhere else; one trip per COOLDOWN, the server decides everything. Built by tools/studio/lobby_v5/BuildRangeV4/V5.luau.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -19,6 +20,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Release = require(ReplicatedStorage.Shared.Config.Release)
 
@@ -219,6 +221,28 @@ local function onCharacter(player: Player, character: Model)
 	end
 end
 
+-- The lobby bar's RANGE button (LobbyNet RangeTravel). Takes no arguments, so there is nothing to validate but the
+-- player's state: alive, in the lobby or the range, and not inside the trip cooldown.
+local function onTravel(player: Player)
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not character or not humanoid or humanoid.Health <= 0 then
+		return
+	end
+	local now = os.clock()
+	if now - (lastTrip[player] or 0) < COOLDOWN then
+		return
+	end
+	local zone = PlayZone.get(player)
+	if zone == "Lobby" then
+		lastTrip[player] = now
+		join(player, character)
+	elseif zone == "Range" then
+		lastTrip[player] = now
+		leave(player, character)
+	end
+end
+
 function RangeService.start()
 	local isStudio = RunService:IsStudio()
 	if not Release.RANGE_OPEN and not isStudio then
@@ -260,6 +284,8 @@ function RangeService.start()
 			end)
 		end
 	end
+
+	LobbyNet.event("RangeTravel").OnServerEvent:Connect(onTravel)
 
 	for tag, entering in { RangeEntry = true, RangeExit = false } do
 		for _, part in CollectionService:GetTagged(tag) do
