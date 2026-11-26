@@ -163,3 +163,19 @@ Next, in order:
 2. **Read `MatchLeft` for one full day** (custom event: value = round, fields = phase, score with the last round's W/L, `kind:device`). It answers why the gaps leak: losing the round, phones, or the pick screen itself.
 3. Then the gap fix it points to: the loser's extra card (C2, ROUNDS' comeback rule) if leavers just lost; shorter onboarding gaps or one decision per gap if they leave in the select phase; a phone fix if most are Mobile.
 4. Match 2 gets its own "first" (C3).
+
+## 9. Checkpoint before spending more (2026-11-26)
+Owner: "do I keep going with this game? … I don't want to waste money." Numbers so far:
+- **D1 3.19%:** the 2026-11-24 cohort, the version before the onboarding pass and First Ten Minutes.
+- **Average play time:** 6.7 min, then 8.7 min.
+- **Onboarding_v2:** 465 players by midday 26th, about 46% finish match 2 and 30% start match 3, steady between the day and the last hour.
+
+Plan: keep ad spend small and steady, enough for about 300+ new players a day, until the 26th and 27th cohorts' D1 is in (it shows two days later). Then decide on these numbers, not on feel:
+
+| D1 (new build) | Average play time | Call |
+|---|---|---|
+| ≥ 8% | ≥ 12 min | Working: scale ads, keep shipping. |
+| 5–8% | 9–12 min | Keep building the reasons to come back (tasks / Path on Saturday, level rewards, referrals), then re-check. |
+| < 5% after the tasks update | | The core loop isn't bringing people back. Stop paid ads; rethink the hook or treat it as a learning project. |
+
+The first session is now much better than on the 24th. D1 is mostly decided by what players come back for, which is exactly what the Saturday tasks update adds.
