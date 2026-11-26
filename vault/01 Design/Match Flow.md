@@ -57,6 +57,14 @@ Both sides see the same three guns each round. The server draws from role groups
 - **Tested 2026-11-03 (Studio match vs the test opponent):** abilities go into their own slots, round 4 offers A/B per ability, a pity-rolled glitch card appeared, Firewall L1 → B2 → B3 applied in game.
 - **Tested 2026-11-03, one column per slot:** round 1 offered Stim (Q), Molly (E), Frost (T); after picking Stim, round 2 showed Stim A2 / B2 in Q next to Dash (E) and Firewall (T); after A2, round 3 offered Stim A3. [Playtest](../05%20Production/Playtests/2026-11-03%20Draft%20Columns.md)
 
+### A new player's first two matches (2026-11-26)
+They follow `Config/Onboarding.SCRIPT` instead of the deal above ([First Ten Minutes](First%20Ten%20Minutes.md)):
+- **No gun row in either match.** The phase's gun is handed out (`HANDED_GUNS`: Prowler, then Havoc, then Mauler). A tier change shows **GUNS UP** in the 3-2-1.
+- **Match 1, round 1:** no pick screen. The player spawns with Dash; the select is 1.5 s, then the 3-2-1.
+- **Match 1, round 2:** two power cards (Updraft or Frost).
+- **Match 1, round 3:** one Glitched card on their Dash.
+- **Later rounds and match 2:** the normal power columns, with no empty or maxed columns shown.
+
 ### Parked for later
 The loser's extra card and reroll are parked. Sudden death and rematch are implemented. Mobile has separate UI in parts of the game and still needs device playtests.
 

@@ -1,6 +1,6 @@
 # First Ten Minutes (plan, 2026-11-26)
 
-The owner's brief: plan the first ten minutes so new players get hooked and learn the game **by playing**: one new thing at a time, nobody talking at them, no menus they can't understand yet ("okay, I pick one of these 3 guns. What gun do I pick?"). This note is the plan. Nothing in it is built yet.
+The owner's brief: plan the first ten minutes so new players get hooked and learn the game **by playing**: one new thing at a time, nobody talking at them, no menus they can't understand yet ("okay, I pick one of these 3 guns. What gun do I pick?"). This note is the plan; §8 says what was built (2026-11-26).
 
 Inputs:
 - The live funnel ([readout 2026-11-26](../05%20Production/Fantasy%20and%20Retention%20Plan%202026-11-25.md#8-readout-2026-11-26-61-players-last-hour-ad-traffic)).
@@ -164,3 +164,43 @@ Read `MatchLeft` (phase, last round W/L, device) alongside. If gap quits are mos
 4. Free case on the results screen with auto-equip (recommended), or keep it in the lobby.
 5. Next match auto-start in 5 s after match 1 (recommended), or a big NEXT MATCH button with no countdown.
 6. The Range: show it after match 2 as optional practice, or keep it hidden until match 3.
+
+## 8. Built (2026-11-26)
+
+The owner approved the plan and Claude's picks ("I like this … whatever you think is best for the second match"), with two changes: **no friend rule** (everyone goes straight in) and **no auto-start into match 2**.
+
+**What a new player gets now**
+1. **Match 1, round 1:** no pick screen. They spawn with the Prowler and Dash, and the fight starts about 4 s after the match opens. In Studio the client showed the pick screen for under a second; the 3-2-1 comes straight after.
+2. **Round 2:** two big power cards side by side (Updraft or Frost), with no gun row and LOCK IN under them. The 3-2-1 shows **GUNS UP · Heavy guns** in gold, with the Havoc in hand.
+3. **Round 3:** one centred Glitched card (Desync on their Dash), preselected.
+4. **First-use nudge** (onboarding matches only): a new power's key turns gold and the cell pops with a shine every 1.6 s until first use. On touch, the button breathes.
+5. **Match 1 end:** the gold button is **NEXT MATCH**, the other **LOBBY**. The results stay up about 10 s after the cutscene (`timeNoRematch` 13 → 18).
+6. **Back in the lobby either way:** the free case opens by itself (no Backpack clicks) and the skin is equipped. The reveal says "NEW SKIN · EQUIPPED" and has one gold button: **NEXT MATCH** if they pressed it (the server parks that request until the case is open), else NICE.
+7. **Match 2:** a power-only pick (three slots), handed-out guns, first to 3.
+8. **After match 2:** Locker, Shop, Backpack and Party unlock together (they were after match 1), with one NEW badge on the icon. PLAY stays straight-to-Beginner until match 3.
+
+**Changed from the plan**
+- **The free case opens in the lobby, not on the results screen.** The results screen is the arena's victory scene, and the in-world crate lives in the lobby. Opening it the moment they arrive, with no clicks and auto-equip, removes the same steps (the 6 lost at the OPEN click and the 2 at EQUIP).
+- **Dropped:**
+  - The idle move-key hint: Rookie bots come to you, and RIVALS doesn't have one either.
+  - The first task after match 2: tasks aren't built yet.
+  - The favorite prompt after the first win: it stays at the lobby after match 2.
+  - The `FirstHint` telemetry event: funnel step names are unchanged, so dashboards keep working.
+
+**Bugs found while testing** (both pre-existing, and both could explain part of the "back in the hub" drop):
+- **`DuelLoading` could stay on after a match.** With it stuck, the lobby's onboarding never ran (the free case didn't open). `DuelLoadingController` now clears the flag when no cover is on screen.
+- **A lobby menu closing as a match started came back on in the lobby with the Router closed.** This left a dead Backpack after match 2. `ArmedHideController` restores every lobby screen that was on, so `LobbyKit.page` now keeps a closed page off.
+- **Also fixed:** the NEW tag sat over PLAY. Short callouts are now a badge on the icon's corner.
+
+**Verified in Studio** (fresh ephemeral save, Rookie bots, player idle):
+- Rounds 1–3 of match 1 as above.
+- The end screen, and NEXT MATCH → lobby → the case opened in 2.5 s → reveal → NEXT MATCH → match 2 started at once (`OnboardingMatch = 2`, power-only pick).
+- The LOBBY / timeout path opens the case too.
+- After match 2 the lobby is clean, with the menus unlocked.
+- No script errors in the console.
+- Not verified:
+  - A real phone (the touch-button nudge).
+  - A player who wins rounds: only losses were played, so round 4–5 and the win path weren't seen.
+  - Live analytics.
+
+**How the owner tests it:** F8 admin panel → UTILITIES & RESET → **START FULL ONBOARDING**. The 1-ROUND MATCH switch skips the scripted rounds, so leave it off to see rounds 1–3. Or set Studio `Workspace.FreshOnboarding = true` before Play for a throwaway save.
