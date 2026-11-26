@@ -81,8 +81,9 @@ return table.freeze({
 	-- replays the shortlist): the 3.1 s sting fits the reveal (the 6-7 s tags run past it, "Totally Go For It" is
 	-- the Common case reveal), plus the shortest swish under POWER's swing.
 	sting = table.freeze({ id = "rbxassetid://9047207931", volume = 0.6, at = 0.235 }), -- "Outrunning - Hit" (on POWER's landing)
-	-- Whoosh under POWER's swing-in ({ id, volume, at = seconds from POWER's start, default the band's start}).
-	whoosh = table.freeze({ id = "rbxassetid://9120714219", volume = 0.35 }) :: { id: string, volume: number, at: number? }?, -- PSE "Whoosh Fast Swish By 3" (1.2 s)
+	-- Optional whoosh under POWER's swing-in ({ id, volume, at = seconds from POWER's start, default the band's
+	-- start}). None: the owner doesn't want swooshes (2026-11-25).
+	whoosh = nil :: { id: string, volume: number, at: number? }?,
 	bed = table.freeze({
 		id = "rbxassetid://9042293789",
 		volume = 0.18,
