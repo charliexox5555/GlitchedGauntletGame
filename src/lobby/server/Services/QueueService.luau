@@ -70,6 +70,9 @@ local states: { [Player]: State } = {}
 -- In-server onboarding matches started this session (OnboardingConfig.INSTANT_MATCHES), so a save that
 -- hasn't counted a match yet can't loop a player through them.
 local instantUsed: { [Player]: number } = {}
+-- A new player waiting a moment for a partner on a busy server (OnboardingConfig.PAIR_WHEN_BUSY).
+local pairWaiting: { player: Player, index: number, token: number }? = nil
+local pairToken = 0
 local writingTickets: { [Matchmaker.Entry]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local autoRetried: { [Player]: number } = {}
 local join: (player: Player, info: Config.ModeInfo) -> ()
@@ -521,13 +524,56 @@ join = function(player: Player, info: Config.ModeInfo)
 		and onboardingMatch ~= nil
 		and onboardingMatch < OnboardingConfig.INSTANT_MATCHES
 		and host
+		-- a full server sends them through the normal queue (their own match server)
+		and (host.activeDuels == nil or host.activeDuels() < OnboardingConfig.MAX_LOBBY_MATCHES)
 	then
-		instantUsed[player] = used + 1
-		setState(player, "idle")
-		Telemetry.queueStop(player, "Queue switched")
-		updateCounts()
-		Telemetry.onboarding(player, if onboardingMatch == 0 then 2 else 17)
-		host.startDuel(info.id, info.teamSize, { { player }, {} }, true, true)
+		local index: number = onboardingMatch
+		-- starts one instant match for these new players (one per team), with the bookkeeping for each
+		local function go(list: { Player })
+			local teams: { { Player } } = { {}, {} }
+			for i, p in list do
+				instantUsed[p] = (instantUsed[p] or 0) + 1
+				setState(p, "idle")
+				Telemetry.queueStop(p, "Queue switched")
+				Telemetry.onboarding(p, if index == 0 then 2 else 17)
+				table.insert(teams[i], p)
+			end
+			updateCounts()
+			host.startDuel(info.id, info.teamSize, teams, true, true)
+		end
+		local function stillWaiting(p: Player): boolean
+			local s = states[p]
+			return p.Parent == Players
+				and PlayZone.get(p) == "Lobby"
+				and s ~= nil
+				and s.status == "searching"
+		end
+		-- another new player at the same match is waiting: one match for both
+		local w = pairWaiting
+		if w and w.player ~= player and w.index == index and stillWaiting(w.player) then
+			pairWaiting = nil
+			go({ w.player, player })
+			return
+		end
+		-- a busy server waits a moment for a partner; a quiet one starts at once
+		if (host.activeDuels and host.activeDuels() or 0) >= OnboardingConfig.PAIR_WHEN_BUSY then
+			pairToken += 1
+			local my = pairToken
+			pairWaiting = { player = player, index = index, token = my }
+			setState(player, "searching", info.id)
+			StateValues.set(player, "QueueSince", workspace:GetServerTimeNow())
+			task.delay(OnboardingConfig.PAIR_WAIT, function()
+				local mine = pairWaiting
+				if mine and mine.token == my then
+					pairWaiting = nil
+					if stillWaiting(player) then
+						go({ player })
+					end
+				end
+			end)
+			return
+		end
+		go({ player })
 		return
 	end
 	enqueue(members, info, os.clock())

@@ -12,6 +12,7 @@
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
@@ -21,6 +22,7 @@ local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
@@ -503,6 +505,43 @@ local function startPractice()
 	entry.runner = launchRunner(id)
 end
 
+-- Matches running in this lobby server now (pad duels and instant onboarding matches; not the range, not one
+-- that is ending). QueueService caps instant matches on it (Config/Onboarding MAX_LOBBY_MATCHES).
+function MatchHost.activeDuels(): number
+	local n = 0
+	for _, r in running do
+		if not r.practice and not r.ending and not r.ownsServer then
+			n += 1
+		end
+	end
+	return n
+end
+
+-- Live load check (2026-11-26): with matches running, a server whose frame rate drops logs it with the match
+-- count, so the cap is tuned from real servers (Studio can't measure this: server and client share one PC).
+local SLOW_FPS = 45
+local LOAD_WINDOW = 30 -- seconds per check
+local function watchLoad()
+	local frames, since = 0, os.clock()
+	RunService.Heartbeat:Connect(function()
+		frames += 1
+	end)
+	while true do
+		task.wait(LOAD_WINDOW)
+		local now = os.clock()
+		local fps = frames / math.max(now - since, 0.001)
+		frames, since = 0, now
+		local duels = MatchHost.activeDuels()
+		if duels > 0 and fps < SLOW_FPS then
+			HealthLog.problem(
+				"server slow",
+				nil,
+				string.format("%d matches, %d players, %.0f fps", duels, #Players:GetPlayers(), fps)
+			)
+		end
+	end
+end
+
 function MatchHost.init()
 	folder(ReplicatedStorage, MatchState.MATCHES)
 	-- Hide all staged release templates in both roles. The live arena is a
@@ -521,6 +560,9 @@ function MatchHost.init()
 end
 
 function MatchHost.start()
+	if ServerRole.isLobby() and not ServerRole.isHosted() then
+		task.spawn(watchLoad)
+	end
 	if ServerRole.isMatch() then
 		-- The whole server is one match (a reserved match server, or the retired match place).
 		local id = "server"

@@ -142,11 +142,13 @@ return table.freeze({
 	-- screen opens as soon as the first player is in. Its time includes the
 	-- 3-2-1 at the end (guns in hand, barrier up). Every select skips to the
 	-- 3-2-1 once everyone has locked in.
-	FIRST_SELECT_TIME = 22,
-	SELECT_TIME = 12,
+	-- Shorter gaps (owner 2026-11-26, MatchLeft: 71% of mid-match quits were between rounds, 39% on the pick
+	-- screen): 22 → 16, 12 → 9, Beginner 9 → 8.
+	FIRST_SELECT_TIME = 16,
+	SELECT_TIME = 9,
 	-- Per mode, the select after round 1 (owner 2026-11-25: the gaps between rounds lost new players). Still skips
 	-- to the 3-2-1 once everyone has locked in.
-	SELECT_TIME_BY_MODE = table.freeze({ beginner = 9 }) :: { [string]: number },
+	SELECT_TIME_BY_MODE = table.freeze({ beginner = 8 }) :: { [string]: number },
 	COUNTDOWN_TIME = 3,
 	-- Spawn hold (vault/01 Design/Spawn Hold.md, 2026-11-16): through the select
 	-- and the 3-2-1 everyone stands at their spawn marker, can look but not
@@ -157,8 +159,8 @@ return table.freeze({
 		refresh = 0.25, -- seconds between passes that catch late spawns
 	}),
 	ROUND_TIME = 50, -- then sudden death
-	ROUND_END_TIME = 4,
-	ROUND_END_TIME_BY_MODE = table.freeze({ beginner = 2.5 }) :: { [string]: number },
+	ROUND_END_TIME = 2.5, -- 4 → 2.5 (2026-11-26, shorter gaps)
+	ROUND_END_TIME_BY_MODE = table.freeze({ beginner = 2 }) :: { [string]: number },
 	-- After the match's last kill (owner 2026-11-25: no final-kill replay): the loser's fall plays out and the
 	-- winner can move about for this long, then straight into the win cutscene (MatchEnd).
 	MATCH_END_PAUSE = 2.5,

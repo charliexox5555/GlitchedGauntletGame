@@ -17,6 +17,16 @@ return table.freeze({
 	-- A solo new player's first this-many Beginner matches start at once in this lobby server against bots
 	-- (QueueService → MatchHost), no queue and no teleport (owner 2026-11-25: match 2's queue lost 16%).
 	INSTANT_MATCHES = 2,
+	-- Server load (owner 2026-11-26: "25 duels happening at the same time ... too much for a server"): each instant
+	-- match is the player + 3 bots + its own arena copy. At this many matches running in a lobby server (pad duels
+	-- included), a new player goes through the normal queue to their own match server instead. Tune from the live
+	-- "server slow" HealthLog lines (MatchHost).
+	MAX_LOBBY_MATCHES = 8,
+	-- With this many matches already running, a new player's instant match waits up to PAIR_WAIT seconds for
+	-- another new player at the same onboarding match, and the two play one match on opposite teams (fewer bots,
+	-- a real opponent). A quiet server starts at once.
+	PAIR_WHEN_BUSY = 3,
+	PAIR_WAIT = 2.5,
 	-- Beginner 2v2 is offered (Play menu tile, the server accepts it) below this level.
 	BEGINNER_MAX_LEVEL = 5,
 
