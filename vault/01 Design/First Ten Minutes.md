@@ -312,3 +312,30 @@ Ad traffic is low-intent: anyone shown an ad, not players searching for shooters
 - **Server load (owner's worry):** `MatchHost` has no cap on in-server matches. Each instant onboarding match is 1 player + 3 bots + its own Arena copy, so up to ~25 at once in a full lobby.
   - Proposed: a measured cap (`MAX_INSTANT_MATCHES`), with new players over the cap going through the normal queue and teleport.
   - Also proposed: pair two new players who start at the same moment into one instant match (fewer bots, real opponents).
+
+## 12. Shorter gaps, the big 3-2-1 and the server cap (2026-11-26)
+The owner approved: "less waiting times … pick your gun, goes 3, 2, 1 … maybe just a countdown more like on the screen".
+
+**Gaps** (`Config/Match`):
+
+| Setting | Before | Now |
+|---|---|---|
+| Round end | 4 s | 2.5 s |
+| Round end, Beginner | 2.5 s | 2 s |
+| Select (including the 3-2-1) | 12 s | 9 s |
+| Select, Beginner | 9 s | 8 s |
+| Round 1 select | 22 s | 16 s |
+
+Measured in Studio (Beginner): round end 2.1 s, then 5 s of picking, then the 3-2-1, about 10 s from kill to fight (was 11.5 s; normal modes about 16 → 11.5 s).
+
+**Big 3-2-1** (`client/Controllers/CountdownController`):
+- A white Rubik Heavy number in the middle during the Countdown phase, about 17% of the screen height, with a soft dark drop copy. No outline, no glow.
+- Each number pops in from the centre and fades.
+- Roblox caps TextScaled at 100 px, so it is TextSize 100 plus a UIScale from the screen height.
+- Round 1 of match 1 shows it under the loading cover.
+
+**Server load** (`Config/Onboarding`, `QueueService`, `MatchHost`):
+- `MAX_LOBBY_MATCHES = 8` matches per lobby server (pad duels included). A new player over the cap goes through the normal Beginner queue to their own server.
+- `PAIR_WHEN_BUSY = 3`: with 3 or more matches running, a new player waits up to `PAIR_WAIT` 2.5 s for another new player at the same onboarding match, and the two play one match on opposite teams. A quiet server starts at once.
+- `MatchHost.watchLoad` logs `server slow` (HealthLog: matches, players, fps) when a lobby with matches running drops under 45 fps over 30 s. Tune the cap from those lines. Studio can't measure server load.
+- Not tested in Studio: the cap and the pairing need several real players. Both are code-reviewed only.
