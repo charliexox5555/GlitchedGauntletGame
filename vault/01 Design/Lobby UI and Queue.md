@@ -495,3 +495,27 @@ Phone frames: the labels that had slipped under the 12 px floor (10-11 px) are r
 2. **Bottom dock vs top tabs** in the Lobby. Top text tabs are what every reference does; the bottom icon dock is the RIVALS-on-Roblox pattern.
 3. **Mode-card art:** replace the AI-illustrated art with in-engine renders of our characters on our maps (recommended).
 4. **Should the match HUD move to this exact version** (italic numbers, segmented health, square Q/E/T with outlined key boxes), or stay pure v1 for now?
+
+## Controller shortcuts on the lobby bar (2026-11-26)
+Owner: "the bottom hud bars should have a button on them to open the menu as a shortcut on console like rivals has … add that to keybinds. As well as play, and party."
+
+| Button | Default (controller) | Action (`Config/Input`) | KEYBINDS row |
+|---|---|---|---|
+| PLAY | X (Square) | `LobbyPlay` | LOBBY → PLAY (`kLobbyPlay`) |
+| Party + | Y (Triangle) | `LobbyParty` | PARTY |
+| Locker | D-pad left | `LobbyLocker` | LOCKER |
+| Shop | D-pad up | `LobbyShop` | SHOP |
+| Backpack | D-pad right | `LobbyBackpack` | BACKPACK |
+| Settings | D-pad down | `LobbySettings` | SETTINGS |
+
+- `Util/LobbyHudView` puts a key chip on each button (`PadKey`, drawn by `Shared/InputGlyphs`):
+  - On a controller it shows the pad's own icon with no keycap behind it.
+  - On keyboard it shows only if a key is bound. There is no keyboard default; players click.
+  - Touch never shows it.
+- A press runs the same code as clicking the button. It only fires in the lobby zone with no menu open (the D-pad moves through an open menu, and B closes it), the button and its row showing (the party row hides during onboarding), no text box focused, and no case opening or loading cover.
+- The match actions on the same buttons (Reload, Cycle, Inspect, Mod 3) do nothing in the lobby, which has no gun.
+- Verified in Studio with ForceInput gamepad:
+  - All 6 chips showed.
+  - Firing `LobbyShop` opened the Shop.
+  - With the Shop open, `LobbyLocker` did nothing.
+- Not tried on a real pad.
