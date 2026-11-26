@@ -76,12 +76,13 @@ return table.freeze({
 		pulse = 1.1,
 	}),
 
-	-- Sound, on SoundService.SettingsMusic (Settings MUSIC × MASTER). Licensed Creator Store audio (APMOfficial);
-	-- shortlist in the handoff note: the owner picks after the audition. These are the current picks.
+	-- Sound, on SoundService.SettingsMusic (Settings MUSIC × MASTER). Licensed Creator Store audio (APMOfficial,
+	-- ProSoundEffects). Final picks 2026-11-25 (owner left it to Claude; tools/studio/AuditionLoadingSounds.luau
+	-- replays the shortlist): the 3.1 s sting fits the reveal (the 6-7 s tags run past it, "Totally Go For It" is
+	-- the Common case reveal), plus the shortest swish under POWER's swing.
 	sting = table.freeze({ id = "rbxassetid://9047207931", volume = 0.6, at = 0.235 }), -- "Outrunning - Hit" (on POWER's landing)
-	-- Optional whoosh under POWER's swing-in ({ id, volume, at = seconds from POWER's start, default the band's
-	-- start }); none until the owner picks one (tools/studio/AuditionLoadingSounds.luau).
-	whoosh = nil :: { id: string, volume: number, at: number? }?,
+	-- Whoosh under POWER's swing-in ({ id, volume, at = seconds from POWER's start, default the band's start}).
+	whoosh = table.freeze({ id = "rbxassetid://9120714219", volume = 0.35 }) :: { id: string, volume: number, at: number? }?, -- PSE "Whoosh Fast Swish By 3" (1.2 s)
 	bed = table.freeze({
 		id = "rbxassetid://9042293789",
 		volume = 0.18,

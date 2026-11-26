@@ -49,6 +49,7 @@ Reduced motion hides the layers and fades in `Full`. Older copies without `Spark
 - The tool is [AuditionLoadingSounds.luau](../../tools/studio/AuditionLoadingSounds.luau). It plays each candidate over the real reveal, using Studio-only Workspace attributes that `LoadingScreen.client.luau` reads (`LoadingAuditionSting` / `Bed` / `Whoosh`, `…Volume`, `LoadingAuditionHold`).
 - To run it: press Play, switch the command bar to the client, set `PASS` (`stings`, `whoosh`, `beds` or `combo`), then paste and press Enter. The Output names each candidate.
 - All candidates are licensed Roblox partner audio and all 16 load (checked in Studio).
+- **Picks (2026-11-25, the owner left it to Claude: "whatever you think is best"; not heard, chosen by fit):** sting 1 (Outrunning - Hit, kept: 3.1 s fits the reveal; the No Stopping Us tags run 6.4-7.2 s past it and Totally Go For It is now the Common case reveal), **whoosh 1** (PSE Whoosh Fast Swish By 3, 1.2 s, volume 0.35, new), bed 1 (Beginnings, kept). In `Config/Loading`. Swap any time with the tool.
 - Stings:
   1. Outrunning - Hit (9047207931, current)
   2. There's No Stopping Us - Tag3 (9042539652)
