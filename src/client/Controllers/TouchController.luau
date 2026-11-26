@@ -547,6 +547,11 @@ local function visible(): boolean
 	if not TouchHud.enabled() then
 		return false
 	end
+	-- A full-screen menu is open over the game (the Settings menu, or any lobby menu in the range:
+	-- LoadoutController): the controls go so nothing under the menu takes a tap (owner 2026-11-26).
+	if player:GetAttribute("GameSettingsOpen") == true then
+		return false
+	end
 	local phase = MatchState.phase()
 	return not (phase and HIDDEN_PHASES[phase]) and alive()
 end
@@ -822,6 +827,7 @@ function TouchController.start()
 		MatchState.changed("Phase"):Connect(refresh)
 	end)
 	InputMode.changed:Connect(refresh) -- a real input change or FORCE CONTROLS
+	player:GetAttributeChangedSignal("GameSettingsOpen"):Connect(refresh)
 	local camera = Workspace.CurrentCamera
 	if camera then
 		camera:GetPropertyChangedSignal("ViewportSize"):Connect(layout)

@@ -166,3 +166,28 @@ locker.Parent = canvas
 
 g.Parent = UI.Lobby
 return "built UI.Lobby.Loadout"
+
+--[[ Phone layout and the controller hints (2026-11-26, owner: "make sure all the HUD options for phone work really
+well and look good on mobile ... same with when you're on console"). Run after the above:
+
+local c = game.StarterPlayer.StarterPlayerScripts.UI.Lobby.Loadout.Canvas
+c:SetAttribute("PhoneBoost", 2) -- a phone shows the menu ~1.6x bigger than the fit alone
+c.Title:SetAttribute("PhonePosition", UDim2.new(0, 28, 0, 8))
+c.Tabs:SetAttribute("PhonePosition", UDim2.new(0, 28, 0, 92))
+c.Tabs:SetAttribute("PhoneSize", UDim2.fromOffset(558, 56))
+for _, t in c.Tabs:GetChildren() do
+	if t:IsA("GuiButton") then
+		t:SetAttribute("PhoneSize", UDim2.fromOffset(170, 56))
+	end
+end
+c.Locker:SetAttribute("PhonePosition", UDim2.new(1, -430, 0, 14)) -- the title's row, left of the close
+c.Locker:SetAttribute("PhoneSize", UDim2.fromOffset(240, 60))
+c.Guns:SetAttribute("PhonePosition", UDim2.new(0, 28, 0, 162))
+c.Guns:SetAttribute("PhoneSize", UDim2.new(1, -56, 1, -176))
+for _, n in { "Kicker", "Slots", "Note" } do
+	c[n]:SetAttribute("PhoneVisible", false)
+end
+-- PadHints: a right-aligned row along the foot, three hints (Slot: GlyphL + GlyphR, Equip: GlyphA, Back: GlyphB),
+-- each glyph ImageLabels + a Label; LoadoutController sets the glyph images and shows it only with a gamepad.
+-- (Built once in Studio with the shapes above; see the live screen for the exact sizes.)
+]]

@@ -109,6 +109,18 @@ local fireBoost: { [Player]: { mult: number, untilT: number, token: number } } =
 -- Listeners for accepted shots (stats). They only observe: nothing they do
 -- feeds back into validation.
 local shotListeners: { (player: Player, weaponId: string, hit: boolean) -> () } = {}
+-- Every accepted shot's own rays, as the server recomputed them (origin, unit directions, the gun's config): for
+-- world objects that break when shot (LobbyServer Range/RangeTargets). Listeners only read them.
+local rayListeners: {
+	(
+		player: Player,
+		character: Model,
+		origin: Vector3,
+		dirs: { Vector3 },
+		config: Types.WeaponConfig
+	) -> ()
+} =
+	{}
 
 -- Helpers ------------------------------------------------------------------
 
@@ -430,6 +442,17 @@ local function notifyShot(player: Player, config: WeaponConfig, hit: boolean)
 	for _, fn in shotListeners do
 		task.spawn(fn, player, config.id, hit)
 	end
+end
+
+-- Runs `fn` with each accepted shot's server-side rays (see rayListeners).
+function WeaponService.onRays(fn: (
+	player: Player,
+	character: Model,
+	origin: Vector3,
+	dirs: { Vector3 },
+	config: Types.WeaponConfig
+) -> ())
+	table.insert(rayListeners, fn)
 end
 
 function WeaponService.onShot(fn: (player: Player, weaponId: string, hit: boolean) -> ())
@@ -976,6 +999,12 @@ local function onFire(player: Player, payload: unknown)
 
 	-- Each claimed hit, then the damage (Weapon/Hits).
 	Targets.shatterGlass(character, origin, dirs, config)
+	for _, fn in rayListeners do
+		local ok, err = pcall(fn, player, character, origin, dirs, config)
+		if not ok then
+			warn("[WeaponService] ray listener failed:", err)
+		end
+	end
 	local root = character:FindFirstChild("HumanoidRootPart")
 	local valid, objectHits = Hits.validate(
 		player,

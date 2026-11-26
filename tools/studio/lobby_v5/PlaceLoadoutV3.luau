@@ -112,15 +112,8 @@ rule.BorderSizePixel = 0
 rule.Position = UDim2.fromOffset(26, 160)
 rule.Size = UDim2.new(1, -52, 0, 2)
 rule.Parent = bg
-local key = Instance.new("Frame")
-key.BackgroundColor3 = Color3.new(1, 1, 1)
-key.BorderSizePixel = 0
-key.Position = UDim2.fromOffset(26, 182)
-key.Size = UDim2.fromOffset(34, 34)
-key.Parent = bg
-local keyText = label(key, "G", RUBIK_H, 24, rgb(16, 18, 22), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5), 34)
-keyText.TextXAlignment = Enum.TextXAlignment.Center
-label(bg, "CHOOSE YOUR GUNS", RUBIK_H, 22, Color3.new(1, 1, 1), UDim2.fromOffset(72, 186))
+-- no key chip on the screen (2026-11-26): the key differs by device; the player's own hint shows it
+label(bg, "CHOOSE YOUR GUNS", RUBIK_H, 22, Color3.new(1, 1, 1), UDim2.fromOffset(26, 186))
 local icon = Instance.new("ImageLabel")
 icon.BackgroundTransparency = 1
 icon.Image = "rbxassetid://94062620763078" -- the Locker's HUD icon (LobbyKit K.AREA.locker)

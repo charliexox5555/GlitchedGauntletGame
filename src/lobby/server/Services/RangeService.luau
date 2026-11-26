@@ -10,7 +10,7 @@
 -- being downed in the range respawns them in the range.
 --
 -- The training bots (models tagged `RangeBot`): LobbyServer/Range/RangeBots (look, hit stamps, respawn, strafers,
--- the damage dummy, the moving carriage; vault/01 Design/Range v5.md).
+-- the damage dummy, the moving carriage) and the air targets to Range/RangeTargets (vault/01 Design/Range v5.md).
 -- Server only: no remotes, the server decides on touch. Built by tools/studio/lobby_v5/BuildRangeV4/V5.luau.
 
 local CollectionService = game:GetService("CollectionService")
@@ -23,6 +23,7 @@ local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Release = require(ReplicatedStorage.Shared.Config.Release)
 
 local RangeBots = require(script.Parent.Parent.Range.RangeBots)
+local RangeTargets = require(script.Parent.Parent.Range.RangeTargets)
 
 local RangeService = {}
 
@@ -272,6 +273,10 @@ function RangeService.start()
 
 	if match then
 		RangeBots.start(match)
+		local weapon = match.Weapon
+		RangeTargets.start(function(fn)
+			weapon.onRays(fn)
+		end)
 	end
 
 	local function onPlayer(player: Player)

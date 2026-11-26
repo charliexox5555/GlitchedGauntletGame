@@ -1,11 +1,13 @@
 --!strict
 -- The range's LOADOUT menu (vault/01 Design/Range v5.md §4). Owner, 2026-11-25: "lets create a working load out
--- selector ... In that menu you can also access your locker". Opened from a range terminal (WorldPrompts hook
--- `RangeLoadout`: walk up to one, a hint shows over it, G / D-pad right / a tap opens the menu; the hint is drawn
--- here because ProximityPrompts never show inside the armed range, measured 2026-11-25). The screen is Studio-built (UI.Lobby.Loadout, backup tools/studio/BuildLoadoutMenu.luau); the gun
+-- selector ... In that menu you can also access your locker". Opened at a range terminal (tag `RangeLoadout`):
+-- walk up to one and G / D-pad right / the phone's CHOOSE GUNS button opens it (the openers are drawn here because
+-- ProximityPrompts never show inside the armed range, measured 2026-11-25). The screen is Studio-built (UI.Lobby.Loadout, backup tools/studio/BuildLoadoutMenu.luau); the gun
 -- cards are the Locker's own templates (UI.Templates.Lobby.GunGroup / GunCard).
 --
---   * PRIMARY / SECONDARY / MELEE tabs (or 1 / 2 / 3, or a slot card on the left) pick the slot;
+--   * PRIMARY / SECONDARY / MELEE tabs (or 1 / 2 / 3, LB / RB on a controller, or a slot card on the left) pick
+--     the slot; a controller gets its button hints along the foot, a phone a compact layout (Phone* attributes on
+--     the screen) and no touch controls behind the menu (TouchController hides them while GameSettingsOpen);
 --   * the right side lists every installed gun for that slot, grouped by class, in your equipped skin;
 --   * clicking one asks the server for it (the existing PickWeapon remote: WeaponService checks the id, the
 --     installed model, a live character and that you're in the range) and equips it; what you hold comes back in
@@ -19,6 +21,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
+local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Net = require(ReplicatedStorage.Shared.Net)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
@@ -45,8 +49,8 @@ local GROUP_WIDTH = 1070 -- the gun list's width inside the scroll (4 cards a ro
 local TERMINAL_TAG = "RangeLoadout"
 local REACH = 9 -- studs from a terminal's body to show its hint and take the key
 local HINT_CHECK = 0.1 -- seconds between reach checks
-local OPEN_KEYS: { [Enum.KeyCode]: boolean } =
-	{ [Enum.KeyCode.G] = true, [Enum.KeyCode.DPadRight] = true }
+local PAD_OPEN = Enum.KeyCode.DPadRight -- free in the range (Config/Input)
+local OPEN_KEYS: { [Enum.KeyCode]: boolean } = { [Enum.KeyCode.G] = true, [PAD_OPEN] = true }
 local RUBIK_H = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy) -- Rubik (Config/Theme)
 
 local SLOTS: { Types.Slot } = { "Primary", "Secondary", "Melee" }
@@ -200,6 +204,18 @@ local function choose(id: string)
 	renderSlots()
 end
 
+-- The gun list's inner width in design px (a phone's list is narrower: UI.Lobby.Loadout Phone* attributes).
+local function groupWidth(): number
+	local list, c = gunsList, canvas
+	if not list or not c then
+		return GROUP_WIDTH
+	end
+	local fit = c:FindFirstChild("Fit")
+	local k = if fit and fit:IsA("UIScale") and fit.Scale > 0 then fit.Scale else 1
+	local w = math.floor(list.AbsoluteSize.X / k) - 24
+	return if w > 260 then w else GROUP_WIDTH
+end
+
 -- The guns for the picked slot, grouped by class, the Locker's cards.
 local function buildGuns()
 	local list, tpl = gunsList, templates
@@ -214,6 +230,7 @@ local function buildGuns()
 	table.clear(cards)
 	local slot = SLOTS[slotIndex]
 	local order = 0
+	local width = groupWidth()
 	for _, class in CLASSES do
 		local ids: { string } = {}
 		for _, cfg in Weapons.list do
@@ -238,7 +255,7 @@ local function buildGuns()
 		group.LayoutOrder = order
 		local headRow = group:FindFirstChild("HeadRow")
 		if headRow and headRow:IsA("GuiObject") then
-			headRow.Size = UDim2.fromOffset(GROUP_WIDTH, headRow.Size.Y.Offset)
+			headRow.Size = UDim2.fromOffset(width, headRow.Size.Y.Offset)
 			local head = headRow:FindFirstChild("Head")
 			if head and head:IsA("TextLabel") then
 				head.Text = class[2]
@@ -252,7 +269,7 @@ local function buildGuns()
 		if not (grid and grid:IsA("GuiObject")) then
 			continue
 		end
-		grid.Size = UDim2.new(0, GROUP_WIDTH, grid.Size.Y.Scale, grid.Size.Y.Offset)
+		grid.Size = UDim2.new(0, width, grid.Size.Y.Scale, grid.Size.Y.Offset)
 		for i, id in ids do
 			local card = (tpl:WaitForChild("GunCard") :: GuiButton):Clone()
 			card.Name = id
@@ -324,6 +341,33 @@ local function onMenuChanged(name: string?)
 	returnFromLocker = false
 end
 
+-- The controller's hints along the foot (LB / RB slot, A equip, B back), only with a gamepad.
+local PAD_GLYPHS: { [string]: Enum.KeyCode } = {
+	GlyphL = Enum.KeyCode.ButtonL1,
+	GlyphR = Enum.KeyCode.ButtonR1,
+	GlyphA = Enum.KeyCode.ButtonA,
+	GlyphB = Enum.KeyCode.ButtonB,
+}
+
+local function refreshPadHints()
+	local c = canvas
+	local hints = c and c:FindFirstChild("PadHints")
+	if not (hints and hints:IsA("GuiObject")) then
+		return
+	end
+	local pad = InputGlyphs.mode() == "Gamepad"
+	hints.Visible = pad
+	if not pad then
+		return
+	end
+	for _, d in hints:GetDescendants() do
+		local code = PAD_GLYPHS[d.Name]
+		if code and d:IsA("ImageLabel") then
+			d.Image = UserInputService:GetImageForKeyCode(code)
+		end
+	end
+end
+
 local function entrance()
 	local c = canvas
 	if not c or UiMotion.reduced() then
@@ -338,56 +382,31 @@ local function entrance()
 	end
 end
 
--- The hint over the terminal you're at: a dark plate with the key chip, tappable on touch screens.
-local function buildHint(parent: Instance): BillboardGui
-	local g = Instance.new("BillboardGui")
-	g.Name = "LoadoutHint"
-	g.ResetOnSpawn = false
-	g.AlwaysOnTop = true
-	g.LightInfluence = 0
-	g.Active = true
-	g.Size = UDim2.fromOffset(236, 52)
-	g.StudsOffsetWorldSpace = Vector3.new(0, 4.6, 0)
-	g.Enabled = false
-	local plate = Instance.new("TextButton")
-	plate.Name = "Plate"
-	plate.Text = ""
-	plate.AutoButtonColor = false
+-- Opening from a terminal (owner 2026-11-26: the hint sat too high; on a phone "a click to choose guns"; on a
+-- console "a different button ... on the screen"):
+--   * keyboard: a plate just above the terminal with the G key chip;
+--   * gamepad: the same plate with the controller's own D-pad-right glyph;
+--   * touch: no world plate (taps on it fight the touch controls); a CHOOSE GUNS button on the screen, centred
+--     under the crosshair, clear of the stick and the action buttons.
+-- Sizes follow the screen height (designed at 1080).
+local HINT_LIFT = 3.1 -- studs above the terminal body's centre: just over its top (5.4 tall, body centre ~2.9)
+local hintKey: TextLabel? = nil
+local hintGlyph: ImageLabel? = nil
+local touchButton: GuiButton? = nil
+
+local function screenScale(): number
+	local camera = workspace.CurrentCamera
+	local h = if camera then camera.ViewportSize.Y else 1080
+	return math.clamp(h / 1080, 0.6, 1.5)
+end
+
+local function plateLook(plate: GuiObject)
 	plate.BackgroundColor3 = C.navy
 	plate.BackgroundTransparency = 0.08
 	plate.BorderSizePixel = 0
-	plate.Size = UDim2.fromScale(1, 1)
-	plate.Parent = g
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 8)
 	corner.Parent = plate
-	local key = Instance.new("TextLabel")
-	key.Name = "Key"
-	key.BackgroundColor3 = C.white
-	key.BorderSizePixel = 0
-	key.Position = UDim2.fromOffset(10, 10)
-	key.Size = UDim2.fromOffset(32, 32)
-	key.FontFace = RUBIK_H
-	key.TextSize = 20
-	key.TextColor3 = C.ink
-	key.Text = if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-		then "»"
-		else "G"
-	key.Parent = plate
-	local keyCorner = Instance.new("UICorner")
-	keyCorner.CornerRadius = UDim.new(0, 4)
-	keyCorner.Parent = key
-	local label = Instance.new("TextLabel")
-	label.Name = "Label"
-	label.BackgroundTransparency = 1
-	label.Position = UDim2.fromOffset(54, 0)
-	label.Size = UDim2.new(1, -60, 1, 0)
-	label.FontFace = RUBIK_H
-	label.TextSize = 22
-	label.TextColor3 = C.white
-	label.TextXAlignment = Enum.TextXAlignment.Left
-	label.Text = "CHOOSE GUNS"
-	label.Parent = plate
 	local bar = Instance.new("Frame")
 	bar.Name = "Accent"
 	bar.BackgroundColor3 = TEAL
@@ -396,13 +415,109 @@ local function buildHint(parent: Instance): BillboardGui
 	bar.Position = UDim2.new(0, 10, 1, 0)
 	bar.Size = UDim2.new(1, -20, 0, 3)
 	bar.Parent = plate
-	plate.Activated:Connect(function()
+end
+
+-- The plate's words, from `x` (a share of its width) to its right edge, as tall as the plate allows.
+local function words(parent: Instance, text: string, x: number): TextLabel
+	local label = Instance.new("TextLabel")
+	label.Name = "Label"
+	label.BackgroundTransparency = 1
+	label.Position = UDim2.fromScale(x, 0)
+	label.Size = UDim2.fromScale(0.97 - x, 1)
+	label.FontFace = RUBIK_H
+	label.TextScaled = true
+	label.TextColor3 = C.white
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.Text = text
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0.26, 0)
+	pad.PaddingBottom = UDim.new(0.26, 0)
+	pad.Parent = label
+	label.Parent = parent
+	return label
+end
+
+local function buildHint(parent: Instance): BillboardGui
+	local g = Instance.new("BillboardGui")
+	g.Name = "LoadoutHint"
+	g.ResetOnSpawn = false
+	g.AlwaysOnTop = true
+	g.LightInfluence = 0
+	g.StudsOffsetWorldSpace = Vector3.new(0, HINT_LIFT, 0)
+	g.Enabled = false
+	local plate = Instance.new("Frame")
+	plate.Name = "Plate"
+	plate.Size = UDim2.fromScale(1, 1)
+	plateLook(plate)
+	plate.Parent = g
+	-- the key: a white chip with the letter (keyboard), or the controller's glyph (gamepad)
+	local key = Instance.new("TextLabel")
+	key.Name = "Key"
+	key.BackgroundColor3 = C.white
+	key.BorderSizePixel = 0
+	key.AnchorPoint = Vector2.new(0, 0.5)
+	key.Position = UDim2.new(0.045, 0, 0.47, 0)
+	key.Size = UDim2.fromScale(0.62, 0.62)
+	key.SizeConstraint = Enum.SizeConstraint.RelativeYY
+	key.FontFace = RUBIK_H
+	key.TextScaled = true
+	key.TextColor3 = C.ink
+	key.Text = "G"
+	key.Parent = plate
+	local keyCorner = Instance.new("UICorner")
+	keyCorner.CornerRadius = UDim.new(0.15, 0)
+	keyCorner.Parent = key
+	local glyph = Instance.new("ImageLabel")
+	glyph.Name = "Glyph"
+	glyph.BackgroundTransparency = 1
+	glyph.AnchorPoint = key.AnchorPoint
+	glyph.Position = key.Position
+	glyph.Size = UDim2.fromScale(0.7, 0.7)
+	glyph.SizeConstraint = Enum.SizeConstraint.RelativeYY
+	glyph.ScaleType = Enum.ScaleType.Fit
+	glyph.Visible = false
+	glyph.Parent = plate
+	words(plate, "CHOOSE GUNS", 0.23)
+	hintKey, hintGlyph = key, glyph
+	g.Parent = parent
+	return g
+end
+
+-- The phone's button: a screen plate (its own ScreenGui, above the touch controls).
+local function buildTouchButton(parent: Instance): GuiButton
+	local g = Instance.new("ScreenGui")
+	g.Name = "LoadoutTouch"
+	g.ResetOnSpawn = false
+	g.IgnoreGuiInset = true
+	g.DisplayOrder = 16
+	-- KeepGui: the match client's cleanup (client/init) leaves it. Not LobbyGui: ArmedHideController would hide it in the range
+	g:SetAttribute("KeepGui", true)
+	g.Parent = parent
+	local b = Instance.new("TextButton")
+	b.Name = "ChooseGuns"
+	b.Text = ""
+	b.AutoButtonColor = false
+	b.AnchorPoint = Vector2.new(0.5, 0.5)
+	b.Position = UDim2.fromScale(0.5, 0.7)
+	b.Visible = false
+	plateLook(b)
+	local icon = Instance.new("ImageLabel")
+	icon.Name = "Icon"
+	icon.BackgroundTransparency = 1
+	icon.AnchorPoint = Vector2.new(0, 0.5)
+	icon.Position = UDim2.new(0.04, 0, 0.47, 0)
+	icon.Size = UDim2.fromScale(0.3, 0.62)
+	icon.ScaleType = Enum.ScaleType.Fit
+	icon.Image = Theme.GUN.Vandal or ""
+	icon.Parent = b
+	words(b, "CHOOSE GUNS", 0.38)
+	b.Parent = g
+	LobbyKit.button(b, function()
 		if nearTerminal and Router.current() == nil then
 			Router.open(MENU)
 		end
 	end)
-	g.Parent = parent
-	return g
+	return b
 end
 
 -- The terminal body within reach (nil when none, or when not in the range / a menu is open).
@@ -428,14 +543,47 @@ local function terminalInReach(): BasePart?
 	return best
 end
 
+local function inputMode(): string
+	return InputGlyphs.mode()
+end
+
+-- Shows the right opener for the device, at the screen's scale.
+local function refreshOpener()
+	local mode = inputMode()
+	local k = screenScale()
+	local h = hint
+	if h then
+		h.Size = UDim2.fromOffset(math.round(236 * k), math.round(52 * k))
+		h.Enabled = nearTerminal ~= nil and mode ~= "Touch"
+		h.Adornee = nearTerminal
+	end
+	local key, glyph = hintKey, hintGlyph
+	if key and glyph then
+		local image = if mode == "Gamepad"
+			then UserInputService:GetImageForKeyCode(PAD_OPEN)
+			else ""
+		glyph.Image = image
+		glyph.Visible = image ~= ""
+		key.Visible = image == ""
+	end
+	local b = touchButton
+	if b then
+		b.Size = UDim2.fromOffset(math.round(300 * k), math.round(76 * k))
+		b.Visible = nearTerminal ~= nil and mode == "Touch"
+	end
+end
+
 local function watchTerminals()
+	local lastMode = inputMode()
 	while true do
 		local found = terminalInReach()
-		local h = hint
-		if h and found ~= nearTerminal then
+		-- the device can change without InputMode.changed (Studio's ForceInput switch): check it here too
+		local mode = inputMode()
+		if found ~= nearTerminal or mode ~= lastMode then
 			nearTerminal = found
-			h.Adornee = found
-			h.Enabled = found ~= nil
+			lastMode = mode
+			refreshOpener()
+			refreshPadHints()
 		end
 		task.wait(HINT_CHECK)
 	end
@@ -487,6 +635,7 @@ function LoadoutController.start()
 		end,
 		onOpen = function()
 			isOpen = true
+			refreshPadHints()
 			-- Ask for a fresh snapshot of what's in hand (the server answers with WeaponState).
 			Net.event("WeaponState"):FireServer()
 			if pickTab then
@@ -522,6 +671,15 @@ function LoadoutController.start()
 		end
 	end)
 	hint = buildHint(pg)
+	touchButton = buildTouchButton(pg)
+	InputMode.changed:Connect(function()
+		refreshOpener()
+		refreshPadHints()
+	end)
+	local camera = workspace.CurrentCamera
+	if camera then
+		camera:GetPropertyChangedSignal("ViewportSize"):Connect(refreshOpener)
+	end
 	task.spawn(watchTerminals)
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		if processed then
@@ -534,6 +692,14 @@ function LoadoutController.start()
 			return
 		end
 		local i = KEYS[input.KeyCode]
+		if
+			not i
+			and (input.KeyCode == Enum.KeyCode.ButtonL1 or input.KeyCode == Enum.KeyCode.ButtonR1)
+		then
+			-- the bumpers step through the slots, wrapping round
+			local step = if input.KeyCode == Enum.KeyCode.ButtonR1 then 1 else -1
+			i = (slotIndex - 1 + step) % #SLOTS + 1
+		end
 		if i and pickTab then
 			pickTab(i)
 		end
