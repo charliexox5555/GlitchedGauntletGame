@@ -616,6 +616,7 @@ local TABS: { Tab } = {
 					key("kLobbyShop", "SHOP", "", "", "DPadUp"),
 					key("kLobbyBackpack", "BACKPACK", "", "", "DPadRight"),
 					key("kLobbySettings", "SETTINGS", "", "", "DPadDown"),
+					key("kRangeLeave", "LEAVE RANGE", "L", "", "DPadLeft"),
 				},
 			},
 			{

@@ -1,89 +1,72 @@
 --!strict
 -- The range's air targets on the server (vault/01 Design/Range v5.md, numbers in Config/RangeTargets). Owner
--- 2026-11-26: "red circle targets [in the air] that you can shoot down. They break, like they shatter".
+-- 2026-11-26: "red circle targets [in the air] that you can shoot down. They break, like they shatter", then "the
+-- target should always face the player ... completely client-sided ... separate per player".
 --
--- Every target (a Model tagged `RangeTarget`) floats from its home CFrame along shared/RangeTargetMotion, placed
--- here each frame from the server clock (clients draw it from the same clock, so nothing is sent). A target breaks
--- only when the server's own rays for an accepted shot (WeaponService.onRays: the spread it recomputed, not the
--- client's claim) reach it first, from a shooter in the Range zone. Broken: `BrokenAt` (server time), `BrokenFrom`
--- (where the shot came from) and `BrokenHit` (where it landed) for the clients' shatter, its parts stop taking rays,
--- and RESPAWN later it comes back (`BrokenAt` cleared, `ReturnedAt` set). No remotes.
+-- Targets are per player: each player has their own set, broken and back on their own clock. The server never moves
+-- the target models (no replication churn): each client draws them gliding along shared/RangeTargetMotion from the
+-- server clock and turned to face its own camera. A target breaks only when the server's own rays for an accepted
+-- shot (WeaponService.onRays: the spread it recomputed, not the client's claim) pass within RADIUS of its centre
+-- (a ball, since every player sees it face-on) before anything solid, from a shooter in the Range zone. The shooter
+-- alone is told (LobbyNet RangeTargetEvent: the target, where it was hit, where the shot came from, when it's back).
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 
+local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RangeTargetMotion = require(ReplicatedStorage.Shared.RangeTargetMotion)
 local RangeTargets = require(ReplicatedStorage.Shared.Config.RangeTargets)
 
 local RangeTargetsServer = {}
 
-type Target = { model: Model, home: CFrame, broken: boolean, parts: { BasePart } }
+type Target = { model: Model, home: CFrame }
 
 local targets: { [Model]: Target } = {}
+-- player -> target -> server time it comes back for them
+local brokenUntil: { [Player]: { [Model]: number } } = {}
 
 local function add(inst: Instance)
 	if not inst:IsA("Model") or targets[inst] then
 		return
 	end
-	local parts: { BasePart } = {}
+	-- the server's copies never block shots or players: the hit test is the ball below
 	for _, d in inst:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.Anchored = true
 			d.CanCollide = false
 			d.CanTouch = false
-			d.CanQuery = true
-			table.insert(parts, d)
+			d.CanQuery = false
 		end
 	end
 	inst.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
-	inst:SetAttribute("BrokenAt", nil)
-	-- The home: the placement tool's `Home` attribute (clients read the same), else where it was built.
 	local stored = inst:GetAttribute("Home")
 	local home = if typeof(stored) == "CFrame" then stored else inst:GetPivot()
 	inst:SetAttribute("Home", home)
-	targets[inst] = { model = inst, home = home, broken = false, parts = parts }
+	targets[inst] = { model = inst, home = home }
 end
 
-local function targetOf(part: Instance): Target?
-	local model = part:FindFirstAncestorWhichIsA("Model")
-	while model do
-		local t = targets[model]
-		if t then
-			return t
-		end
-		model = model:FindFirstAncestorWhichIsA("Model")
+-- How far along the ray (origin + dir * t) it passes within `radius` of `centre`; nil if it misses.
+local function rayBall(
+	origin: Vector3,
+	dir: Vector3,
+	range: number,
+	centre: Vector3,
+	radius: number
+): number?
+	local t = (centre - origin):Dot(dir)
+	if t < 0 or t > range then
+		return nil
 	end
-	return nil
-end
-
-local function setQueryable(t: Target, on: boolean)
-	for _, p in t.parts do
-		p.CanQuery = on
+	if (centre - (origin + dir * t)).Magnitude > radius then
+		return nil
 	end
+	return t
 end
 
-local function breakTarget(t: Target, from: Vector3, at: Vector3)
-	t.broken = true
-	setQueryable(t, false)
-	local m = t.model
-	m:SetAttribute("BrokenFrom", from)
-	m:SetAttribute("BrokenHit", at)
-	-- Last: clients react when this changes, with the fields above in place.
-	m:SetAttribute("BrokenAt", workspace:GetServerTimeNow())
-	task.delay(RangeTargets.RESPAWN, function()
-		if not m.Parent then
-			return
-		end
-		t.broken = false
-		setQueryable(t, true)
-		m:SetAttribute("BrokenAt", nil)
-		m:SetAttribute("ReturnedAt", workspace:GetServerTimeNow())
-	end)
-end
-
--- An accepted shot's rays: the first thing each ray meets (past the shooter) decides. Read-only on the shot.
+-- An accepted shot's rays: each ray breaks the nearest of the shooter's standing targets it passes through, if
+-- nothing solid comes first. Read-only on the shot.
 local function onRays(
 	player: Player,
 	character: Model,
@@ -98,30 +81,40 @@ local function onRays(
 	if range <= 0 then
 		return
 	end
+	local now = workspace:GetServerTimeNow()
+	local mine = brokenUntil[player]
+	if not mine then
+		mine = {}
+		brokenUntil[player] = mine
+	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { character }
 	for _, dir in dirs do
-		local hit = workspace:Raycast(origin, dir * range, params)
-		local t = hit and targetOf(hit.Instance)
-		if t and hit and not t.broken then
-			breakTarget(t, origin, hit.Position)
+		local bestT, best = math.huge, nil :: Target?
+		for model, t in targets do
+			if (mine[model] or 0) > now then
+				continue
+			end
+			-- where it is now, or a moment ago (what the shooter saw a ping back)
+			for _, back in { 0, RangeTargets.LAG_SLACK } do
+				local centre = RangeTargetMotion.position(model, t.home, now - back)
+				local along = rayBall(origin, dir, range, centre, RangeTargets.RADIUS)
+				if along and along < bestT then
+					bestT, best = along, t
+				end
+			end
+		end
+		if best and not workspace:Raycast(origin, dir * bestT, params) then
+			local backAt = now + RangeTargets.RESPAWN
+			mine[best.model] = backAt
+			LobbyNet.event("RangeTargetEvent")
+				:FireClient(player, best.model, origin + dir * bestT, origin, backAt)
 		end
 	end
 end
 
-local function step()
-	local t = workspace:GetServerTimeNow()
-	for model, target in targets do
-		if not model.Parent then
-			targets[model] = nil
-		elseif not target.broken then
-			model:PivotTo(RangeTargetMotion.pose(model, target.home, t))
-		end
-	end
-end
-
--- `onRays`: WeaponService.onRays (the match code, handed over by RangeService).
+-- `onRaysHook`: WeaponService.onRays (the match code, handed over by RangeService).
 function RangeTargetsServer.start(onRaysHook: (any) -> ())
 	for _, inst in CollectionService:GetTagged(RangeTargets.TAG) do
 		add(inst)
@@ -133,7 +126,9 @@ function RangeTargetsServer.start(onRaysHook: (any) -> ())
 		end
 	end)
 	onRaysHook(onRays)
-	RunService.Heartbeat:Connect(step)
+	Players.PlayerRemoving:Connect(function(player)
+		brokenUntil[player] = nil
+	end)
 end
 
 return RangeTargetsServer

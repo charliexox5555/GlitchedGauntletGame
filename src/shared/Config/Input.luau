@@ -119,6 +119,13 @@ local bindings: { [string]: Binding } = {
 	LobbyShop = { keys = {}, gamepad = { Enum.KeyCode.DPadUp }, setting = "kLobbyShop" },
 	LobbyBackpack = { keys = {}, gamepad = { Enum.KeyCode.DPadRight }, setting = "kLobbyBackpack" },
 	LobbySettings = { keys = {}, gamepad = { Enum.KeyCode.DPadDown }, setting = "kLobbySettings" },
+	-- Leave the shooting range (owner 2026-11-26: "L on computer and then some other keybind on controllers"):
+	-- Lobby Controllers/MatchSettingsButton, only in the range with no menu up.
+	RangeLeave = {
+		keys = { Enum.KeyCode.L },
+		gamepad = { Enum.KeyCode.DPadLeft },
+		setting = "kRangeLeave",
+	},
 	-- Studio / test mode only: the weapon picker (every installed gun).
 	WeaponPicker = {
 		keys = { Enum.KeyCode.P },

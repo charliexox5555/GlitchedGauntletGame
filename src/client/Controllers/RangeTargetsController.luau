@@ -1,11 +1,12 @@
 --!strict
--- The range's air targets on the client (vault/01 Design/Range v5.md, numbers in Config/RangeTargets). The server
--- breaks them (LobbyServer Range/RangeTargets); here every client:
---   * draws each target gliding along shared/RangeTargetMotion from the server clock (smooth at any ping);
---   * when one breaks (`BrokenAt`): hides it and throws it apart: shards in its own ring colours burst out from where
---     it was hit and on along the shot, tumble, fall and fade, with a white pop and the shatter sound;
---   * when it comes back (`ReturnedAt`): grows it back in from small.
--- Purely visual and local.
+-- The range's air targets on the client (vault/01 Design/Range v5.md, numbers in Config/RangeTargets). They are per
+-- player (owner 2026-11-26: "completely client-sided ... separate per player"): what you see here is yours alone.
+--   * every target glides along shared/RangeTargetMotion from the server clock and turns to face your camera
+--     (eased, so you see it swing round);
+--   * the server tells you when you broke one (LobbyNet RangeTargetEvent, from your own accepted shot's rays): it is
+--     hidden and thrown apart here (shards in its ring colours burst from the hit and on along the shot, a white pop,
+--     the shatter sound), then grows back in when the server's clock says it's back.
+-- Nothing here decides a hit. Targets you can't see (far away) aren't moved.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local RangeTargetMotion = require(ReplicatedStorage.Shared.RangeTargetMotion)
 local RangeTargets = require(ReplicatedStorage.Shared.Config.RangeTargets)
 local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
@@ -22,53 +24,50 @@ local ShotFxKit = require(script.Parent.Parent.Util.ShotFxKit)
 
 local RangeTargetsController = {}
 
-local MAX_DISTANCE = 300 -- studs: further targets aren't moved here (the server still places them)
+local MAX_DISTANCE = 300 -- studs from the camera: further targets are left where they are
 local WHITE = Color3.new(1, 1, 1)
 
 type Target = {
 	model: Model,
 	home: CFrame,
 	parts: { BasePart },
-	hidden: boolean,
+	facing: CFrame, -- the rotation now (eased toward the camera)
+	backAt: number?, -- server time it comes back (nil: standing)
 	growAt: number?,
-	connections: { RBXScriptConnection },
+	scale: number,
 }
 
 local targets: { [Model]: Target } = {}
 local rng = Random.new()
 
 local function setHidden(t: Target, hidden: boolean)
-	t.hidden = hidden
 	for _, p in t.parts do
 		p.LocalTransparencyModifier = if hidden then 1 else 0
+		-- your shots' impacts land on your standing targets only (the server's copies take no rays at all)
+		p.CanQuery = not hidden
 	end
 end
 
--- A target's look at a size share (the pop back in): scales the model about its pivot, locally.
 local function scaleTo(t: Target, k: number)
-	pcall(function()
-		t.model:ScaleTo(math.max(k, 0.05))
-	end)
+	k = math.max(k, 0.05)
+	if math.abs(k - t.scale) > 1e-3 then
+		t.scale = k
+		pcall(function()
+			t.model:ScaleTo(k)
+		end)
+	end
 end
 
-local function shatter(t: Target)
-	local m = t.model
-	local hitAt = m:GetAttribute("BrokenHit")
-	local from = m:GetAttribute("BrokenFrom")
-	local pivot = m:GetPivot()
+local function shatter(t: Target, at: Vector3, from: Vector3)
+	local pivot = t.model:GetPivot()
 	local centre = pivot.Position
-	local at = if typeof(hitAt) == "Vector3" then hitAt else centre
-	local along = if typeof(from) == "Vector3" and (at - from).Magnitude > 0.1
-		then (at - from).Unit
-		else -pivot.LookVector
+	local along = if (at - from).Magnitude > 0.1 then (at - from).Unit else -pivot.LookVector
 	setHidden(t, true)
-
 	local camera = Workspace.CurrentCamera
 	if camera and (camera.CFrame.Position - centre).Magnitude > MAX_DISTANCE then
 		return
 	end
 	ModAudio.play(ModAudio.SOUNDS.Frost.shatter, centre, rng:NextNumber(1.05, 1.25))
-
 	local folder = ShotFxKit.effectsFolder()
 	-- the white pop at the hit
 	local flash = Instance.new("Part")
@@ -91,10 +90,8 @@ local function shatter(t: Target)
 	task.delay(RangeTargets.FLASH_TIME + 0.05, function()
 		flash:Destroy()
 	end)
-
-	-- shards from the rings, in their colours, more from the outer (bigger) rings
+	-- shards from the rings, in their colours (outer shards the outer rings' colours)
 	local radius = 2.1
-	local count = SettingsApply.vfxCount(RangeTargets.SHARDS)
 	local colours: { Color3 } = {}
 	for _, p in t.parts do
 		table.insert(colours, p.Color)
@@ -102,11 +99,11 @@ local function shatter(t: Target)
 	if #colours == 0 then
 		colours = { WHITE }
 	end
+	local count = SettingsApply.vfxCount(RangeTargets.SHARDS)
 	for i = 1, count do
 		local angle = rng:NextNumber(0, 2 * math.pi)
 		local r = math.sqrt(rng:NextNumber(0.05, 1)) * radius
-		local local_ = Vector3.new(math.cos(angle) * r, math.sin(angle) * r, 0)
-		local pos = pivot * local_
+		local pos = pivot * Vector3.new(math.cos(angle) * r, math.sin(angle) * r, 0)
 		local size = rng:NextNumber(RangeTargets.SHARD_SIZE[1], RangeTargets.SHARD_SIZE[2])
 		local shard = Instance.new("WedgePart")
 		shard.Name = "TargetShard"
@@ -115,15 +112,12 @@ local function shatter(t: Target)
 			* (pivot - pivot.Position)
 			* CFrame.Angles(0, math.pi / 2, angle)
 		shard.Material = Enum.Material.SmoothPlastic
-		-- the ring that was there: outer shards red / rim, inner white, by the share of the radius
 		local ring = math.clamp(math.floor((1 - r / radius) * #colours) + 1, 1, #colours)
 		shard.Color = colours[ring]
-		shard.CanCollide = false
-		shard.CanQuery = false
-		shard.CanTouch = false
-		shard.CastShadow = false
+		shard.CanCollide, shard.CanQuery, shard.CanTouch, shard.CastShadow =
+			false, false, false, false
 		shard.Parent = folder
-		local out = (pos - at)
+		local out = pos - at
 		local outward = if out.Magnitude > 0.05 then out.Unit else pivot.RightVector
 		shard.AssemblyLinearVelocity = outward
 				* rng:NextNumber(RangeTargets.SHARD_SPEED[1], RangeTargets.SHARD_SPEED[2])
@@ -146,17 +140,6 @@ local function shatter(t: Target)
 	end
 end
 
-local function remove(model: Model)
-	local t = targets[model]
-	if not t then
-		return
-	end
-	targets[model] = nil
-	for _, c in t.connections do
-		c:Disconnect()
-	end
-end
-
 local add: (Instance) -> ()
 
 add = function(inst: Instance)
@@ -170,40 +153,45 @@ add = function(inst: Instance)
 		end
 	end
 	if #parts == 0 then
-		-- streamed in as an empty model first: try again when its parts land
-		task.delay(0.5, function()
+		task.delay(0.5, function() -- streamed in as an empty model first
 			if CollectionService:HasTag(inst, RangeTargets.TAG) then
 				add(inst)
 			end
 		end)
 		return
 	end
-	-- The home is where the server last put it minus its motion: rebuild it from the build attribute when
-	-- there is one (set by the placement tool), else from the model's pivot now.
 	local stored = inst:GetAttribute("Home")
 	local home = if typeof(stored) == "CFrame" then stored else inst:GetPivot()
-	local t: Target =
-		{ model = inst, home = home, parts = parts, hidden = false, growAt = nil, connections = {} }
+	local t: Target = {
+		model = inst,
+		home = home,
+		parts = parts,
+		facing = home - home.Position,
+		backAt = nil,
+		growAt = nil,
+		scale = 1,
+	}
 	targets[inst] = t
-	if inst:GetAttribute("BrokenAt") ~= nil then
-		setHidden(t, true)
+	setHidden(t, false)
+end
+
+-- The server: you broke one of yours. Checked here before use (types), nothing decided.
+local function onBroken(model: unknown, at: unknown, from: unknown, backAt: unknown)
+	if typeof(model) ~= "Instance" or not model:IsA("Model") then
+		return
 	end
-	table.insert(
-		t.connections,
-		inst:GetAttributeChangedSignal("BrokenAt"):Connect(function()
-			if inst:GetAttribute("BrokenAt") ~= nil then
-				task.spawn(shatter, t)
-			end
-		end)
-	)
-	table.insert(
-		t.connections,
-		inst:GetAttributeChangedSignal("ReturnedAt"):Connect(function()
-			setHidden(t, false)
-			t.growAt = os.clock()
-			scaleTo(t, RangeTargets.RETURN_FROM)
-		end)
-	)
+	local t = targets[model]
+	if
+		not t
+		or typeof(at) ~= "Vector3"
+		or typeof(from) ~= "Vector3"
+		or typeof(backAt) ~= "number"
+	then
+		return
+	end
+	t.backAt = backAt
+	t.growAt = nil
+	task.spawn(shatter, t, at, from)
 end
 
 function RangeTargetsController.start()
@@ -213,32 +201,55 @@ function RangeTargetsController.start()
 	CollectionService:GetInstanceAddedSignal(RangeTargets.TAG):Connect(add)
 	CollectionService:GetInstanceRemovedSignal(RangeTargets.TAG):Connect(function(inst)
 		if inst:IsA("Model") then
-			remove(inst)
+			targets[inst] = nil
 		end
 	end)
-	RunService.PreRender:Connect(function()
+	LobbyNet.event("RangeTargetEvent").OnClientEvent:Connect(onBroken)
+
+	RunService.PreRender:Connect(function(dt: number)
 		local now = Workspace:GetServerTimeNow()
 		local clock = os.clock()
 		local camera = Workspace.CurrentCamera
-		local eye = if camera then camera.CFrame.Position else Vector3.zero
+		if not camera then
+			return
+		end
+		local eye = camera.CFrame.Position
+		local turn = 1 - math.exp(-RangeTargets.TURN * math.min(dt, 0.1))
 		for model, t in targets do
 			if not model.Parent then
-				remove(model)
+				targets[model] = nil
 				continue
 			end
-			if t.hidden or (t.home.Position - eye).Magnitude > MAX_DISTANCE then
+			local backAt = t.backAt
+			if backAt then
+				if now < backAt then
+					continue -- broken (for you): hidden until it's back
+				end
+				t.backAt = nil
+				setHidden(t, false)
+				t.growAt = clock
+				scaleTo(t, RangeTargets.RETURN_FROM)
+			end
+			local pos = RangeTargetMotion.position(model, t.home, now)
+			local toEye = eye - pos
+			if toEye.Magnitude > MAX_DISTANCE then
 				continue
 			end
+			-- face the camera, eased: the target swings round to you
+			local want = CFrame.lookAt(Vector3.zero, toEye)
+			t.facing = t.facing:Lerp(want, turn)
 			local growAt = t.growAt
 			if growAt then
 				local k = math.clamp((clock - growAt) / RangeTargets.RETURN_TIME, 0, 1)
-				local eased = 1 - (1 - k) ^ 3
-				scaleTo(t, RangeTargets.RETURN_FROM + (1 - RangeTargets.RETURN_FROM) * eased)
+				scaleTo(
+					t,
+					RangeTargets.RETURN_FROM + (1 - RangeTargets.RETURN_FROM) * (1 - (1 - k) ^ 3)
+				)
 				if k >= 1 then
 					t.growAt = nil
 				end
 			end
-			model:PivotTo(RangeTargetMotion.pose(model, t.home, now))
+			model:PivotTo(CFrame.new(pos) * t.facing)
 		end
 	end)
 end

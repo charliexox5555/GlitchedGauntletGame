@@ -130,6 +130,7 @@ local EVENTS = {
 	"SkinRequest",
 	"HubRequest",
 	"RangeTravel", -- no payload: to the range from the lobby, or back (LobbyServer RangeService)
+	"RangeTargetEvent", -- server -> the shooter only: one of their air targets broke (LobbyServer Range/RangeTargets)
 }
 
 local folder: Instance

@@ -96,7 +96,9 @@ type Bot = {
 }
 
 local bots: { [Model]: Bot } = {}
-local carriages: { [Model]: { y: number, z: number, rotation: CFrame } } = {}
+-- A carriage: its home pivot and its own parts' places on it (the riders are placed from their stamped offsets).
+type Carriage = { home: CFrame, parts: { { part: BasePart, offset: CFrame } } }
+local carriages: { [Model]: Carriage } = {}
 local rng = Random.new()
 
 local JOINTS = {
@@ -470,6 +472,8 @@ local function stepBot(b: Bot, now: number, dt: number)
 	end
 end
 
+-- Every frame: the carriage's parts and its riders where the server clock says (the server only moves the
+-- riders, a few times a second; this keeps them on the carriage between its updates).
 local function stepCarriages()
 	local t = Workspace:GetServerTimeNow()
 	for model, c in carriages do
@@ -477,19 +481,59 @@ local function stepCarriages()
 			carriages[model] = nil
 			continue
 		end
-		local from, to, speed =
-			model:GetAttribute("From"), model:GetAttribute("To"), model:GetAttribute("Speed")
-		if typeof(from) == "number" and typeof(to) == "number" and typeof(speed) == "number" then
-			model:PivotTo(CFrame.new(RangeCarriage.x(from, to, speed, t), c.y, c.z) * c.rotation)
+		local want = RangeCarriage.pose(model, c.home, t)
+		if not want then
+			continue
+		end
+		for _, entry in c.parts do
+			if entry.part.Parent then
+				entry.part.CFrame = want * entry.offset
+			end
+		end
+		for _, rider in RangeCarriage.riders(model) do
+			local offset = RangeCarriage.riderOffset(rider, c.home, false)
+			if offset then
+				rider:PivotTo(want * offset)
+			end
 		end
 	end
 end
 
-local function addCarriage(inst: Instance)
-	if inst:IsA("Model") and not carriages[inst] then
-		local pivot = inst:GetPivot()
-		carriages[inst] = { y = pivot.Y, z = pivot.Z, rotation = pivot.Rotation }
+local addCarriage: (Instance) -> ()
+addCarriage = function(inst: Instance)
+	if not inst:IsA("Model") or carriages[inst] or not inst:IsDescendantOf(Workspace) then
+		return
 	end
+	-- the server never moves the carriage's own parts; its home is the server's stamp (RangeBots), and its parts
+	-- are placed from there. It streams in whole, but wait for the stamp and the parts if they're late.
+	local stored = inst:GetAttribute(RangeCarriage.HOME_ATTRIBUTE)
+	if typeof(stored) ~= "CFrame" or not inst:FindFirstChildWhichIsA("BasePart", true) then
+		task.delay(0.5, function()
+			if CollectionService:HasTag(inst, CARRIAGE_TAG) then
+				addCarriage(inst)
+			end
+		end)
+		return
+	end
+	local home: CFrame = stored
+	local parts = {}
+	for _, d in inst:GetDescendants() do
+		if d:IsA("BasePart") then
+			local m = d:FindFirstAncestorWhichIsA("Model")
+			local onRider = false
+			while m and m ~= inst do
+				if CollectionService:HasTag(m, RangeCarriage.RIDER_TAG) then
+					onRider = true
+					break
+				end
+				m = m:FindFirstAncestorWhichIsA("Model")
+			end
+			if not onRider then
+				table.insert(parts, { part = d, offset = home:ToObjectSpace(d.CFrame) })
+			end
+		end
+	end
+	carriages[inst] = { home = home, parts = parts }
 end
 
 function DummyLifeController.start()

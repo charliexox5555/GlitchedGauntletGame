@@ -29,7 +29,7 @@ local RangeBots = {}
 RangeBots.BOT_TAG = "RangeBot"
 RangeBots.DUMMY_TAG = "RangeDummy" -- the shared training-dummy tag (no bars or name tags since 2026-11-26)
 local DAMAGE_TAG = "RangeDamageDummy"
-local CARRIAGE_TAG = "RangeMovingDummy"
+local CARRIAGE_TAG = RangeCarriage.TAG
 
 export type MatchServices = {
 	Character: any,
@@ -68,11 +68,12 @@ type DamageLog = {
 
 local match: MatchServices? = nil
 local rng = Random.new()
-local templates: { [Model]: { template: Model, parent: Instance, onCarriage: boolean } } = {}
+local templates: { [Model]: { template: Model, parent: Instance } } = {}
 local strafers: { [Model]: Strafer } = {}
 local damageLogs: { [Model]: DamageLog } = {}
 local lastGuarded: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
-local carriages: { [Model]: { y: number, z: number, rotation: CFrame } } = {}
+local carriages: { [Model]: { home: CFrame } } = {}
+local CARRIAGE_STEP = 0.05 -- s between rider moves on the server (clients glide it every frame)
 
 local function between(range: { number }): number
 	return range[1] + rng:NextNumber() * (range[2] - range[1])
@@ -330,12 +331,20 @@ end
 
 -- The moving dummy's carriage ----------------------------------------------------------
 
+-- The carriage itself never moves on the server (shared/RangeCarriage: clients glide it); only its rider does.
 local function addCarriage(inst: Instance)
 	if not inst:IsA("Model") or carriages[inst] then
 		return
 	end
-	local pivot = inst:GetPivot()
-	carriages[inst] = { y = pivot.Y, z = pivot.Z, rotation = pivot.Rotation }
+	-- clients get it whole (its parts with it, not an empty model first) and read its home from the stamp
+	inst.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	local stored = inst:GetAttribute(RangeCarriage.HOME_ATTRIBUTE)
+	local home = if typeof(stored) == "CFrame" then stored else inst:GetPivot()
+	inst:SetAttribute(RangeCarriage.HOME_ATTRIBUTE, home)
+	carriages[inst] = { home = home }
+	for _, rider in RangeCarriage.riders(inst) do
+		RangeCarriage.riderOffset(rider, home, true)
+	end
 end
 
 local function stepCarriages()
@@ -345,11 +354,14 @@ local function stepCarriages()
 			carriages[model] = nil
 			continue
 		end
-		local from, to, speed =
-			model:GetAttribute("From"), model:GetAttribute("To"), model:GetAttribute("Speed")
-		if typeof(from) == "number" and typeof(to) == "number" and typeof(speed) == "number" then
-			local x = RangeCarriage.x(from, to, speed, t)
-			model:PivotTo(CFrame.new(x, c.y, c.z) * c.rotation)
+		local want = RangeCarriage.pose(model, c.home, t)
+		if want then
+			for _, rider in RangeCarriage.riders(model) do
+				local offset = RangeCarriage.riderOffset(rider, c.home, true)
+				if offset then
+					rider:PivotTo(want * offset)
+				end
+			end
 		end
 	end
 end
@@ -369,11 +381,8 @@ local function onDowned(bot: Model)
 		if not entry.parent.Parent then
 			return
 		end
+		-- (a carriage rider comes back where it was built; the next carriage step puts it on the carriage)
 		local fresh = entry.template:Clone()
-		-- On the carriage: come back where the carriage has taken the old one, not where it was built.
-		if entry.onCarriage and bot.Parent then
-			fresh:PivotTo(bot:GetPivot())
-		end
 		bot:Destroy()
 		fresh.Parent = entry.parent
 		prepare(fresh, true)
@@ -393,7 +402,7 @@ prepare = function(bot: Model, respawned: boolean?)
 	-- Kept before anything changes it, to bring the bot back as it was built.
 	local template = bot:Clone()
 	CollectionService:RemoveTag(template, RangeBots.DUMMY_TAG)
-	local entry = { template = template, parent = parent, onCarriage = false }
+	local entry = { template = template, parent = parent }
 	templates[bot] = entry
 
 	-- Stream the whole bot at once (the range is far from the lobby), so clients never see half a rig.
@@ -410,8 +419,12 @@ prepare = function(bot: Model, respawned: boolean?)
 		carriage = carriage:FindFirstAncestorWhichIsA("Model")
 	end
 	if carriage then
-		entry.onCarriage = true
-		stepCarriages()
+		-- its place on the carriage, stamped while it still stands where it was built
+		addCarriage(carriage)
+		local c = carriages[carriage]
+		if c then
+			RangeCarriage.riderOffset(bot, c.home, true)
+		end
 	end
 	CollectionService:AddTag(bot, RangeBots.DUMMY_TAG)
 	services.Character.prepare(bot)
@@ -453,9 +466,13 @@ function RangeBots.start(services: MatchServices)
 	end
 	CollectionService:GetInstanceAddedSignal(CARRIAGE_TAG):Connect(addCarriage)
 
-	local boardClock = 0
+	local boardClock, carriageClock = 0, 0
 	RunService.Heartbeat:Connect(function(dt: number)
-		stepCarriages()
+		carriageClock += dt
+		if carriageClock >= CARRIAGE_STEP then
+			carriageClock = 0
+			stepCarriages()
+		end
 		stepStrafers()
 		boardClock += dt
 		if boardClock >= 0.25 then

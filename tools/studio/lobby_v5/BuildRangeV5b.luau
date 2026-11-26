@@ -4,7 +4,7 @@
 -- Edit mode, safe to run again (rebuilds Yard.Fill and Range.Targets). Range-local coords like V3-V5: RO = (0,0,2600).
 --   * FILL: a container stack in the south-west (two on the floor, one across the top, a stair up), a raised
 --     platform with a ramp in the centre, crate clusters and jersey barriers on the bare floor; two dummies on top.
---   * TARGETS: 14 air targets (ServerStorage.V5Kit.AirTarget clones, tag RangeTarget, `Home` attribute) over the
+--   * TARGETS: 24 air targets (14 in round 3, 10 more higher up in round 5) (ServerStorage.V5Kit.AirTarget clones, tag RangeTarget, `Home` attribute) over the
 --     yard and the lanes, facing the yard's south; some drift side to side (Drift / Period / Phase).
 -- Overlaps with what was there are reported and the piece is skipped.
 
@@ -210,8 +210,12 @@ local ALCOVE = V(0, 8, 118)
 for i, t in {
 	{ 0, 18, 0, 8, 5 }, { -40, 22, 30, 0, 5 }, { 35, 16, 55, 6, 4 }, { -82, 26, -20, 0, 5 },
 	{ -62, 14, 75, 5, 4.5 }, { 20, 28, -40, 0, 5 }, { -20, 32, -70, 10, 7 }, { 50, 20, -70, 0, 5 },
-	{ -100, 34, 40, 0, 5 }, { -10, 12, 92, 4, 3.5 }, { -110, 22, -95, 6, 6 },
+	{ -100, 34, 40, 0, 5 }, { -10, 12, 92, 4, 3.5 }, { -110, 33, -95, 6, 6 },
 	{ 100, 10, 0, 0, 5, V(100, 6, 120) }, { 112, 16, -60, 5, 5, V(112, 6, 120) }, { 88, 22, -95, 0, 5, V(88, 6, 120) },
+	-- round 5 (owner 2026-11-26: "a little bit more targets in the air")
+	{ 60, 36, 20, 7, 6 }, { -30, 40, 60, 0, 5 }, { 45, 34, 72, 4, 4 }, { -118, 30, 8, 0, 5 },
+	{ 10, 44, -100, 9, 8 }, { -55, 24, -50, 6, 5 }, { 120, 30, 40, 0, 5 }, { -85, 40, 95, 4, 5 },
+	{ 30, 24, 100, 0, 5 }, { -5, 26, 30, 5, 4.5 },
 } do
 	local pos = V(t[1], t[2], t[3])
 	local face = t[6] or ALCOVE

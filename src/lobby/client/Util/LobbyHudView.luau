@@ -39,6 +39,7 @@ local OnbHighlight = require(script.Parent.OnbHighlight)
 local Pivot = require(script.Parent.Pivot)
 local Plates = require(script.Parent.Plates)
 local QueueState = require(script.Parent.QueueState)
+local RangeTransition = require(script.Parent.RangeTransition)
 local Router = require(script.Parent.Router)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local Release = require(ReplicatedStorage.Shared.Config.Release)
@@ -590,8 +591,8 @@ local function hookItem(s: State, b: TextButton)
 			press(pop, 0.82)
 		end
 		if b.Name == "Range" then
-			-- straight to the range (LobbyServer RangeService checks the zone and the cooldown)
-			LobbyNet.event("RangeTravel"):FireServer()
+			-- straight to the range behind the loading card (LobbyServer RangeService checks the zone and cooldown)
+			RangeTransition.travel()
 			return
 		end
 		if menu then
