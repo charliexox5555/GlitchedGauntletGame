@@ -296,3 +296,19 @@ Ad traffic is low-intent: anyone shown an ad, not players searching for shooters
 - Caveat: a match that ends 3-0 never logs "R4 live", so part of the R3→R4 drop is matches that simply ended (Match funnel steps 10–11 aren't filled on an early win, unlike the onboarding funnel's).
 - The gap is 15–19 s with no fighting: round end 2.5–4 s, the pick 9–12 s, then the 3-2-1.
 - Proposed: the loser's comeback card (C2), and a shorter gap.
+
+**MatchLeft readout (owner's CSV exports, 2026-11-25 and 26, 464 mid-match quits; 26th = 331, the new flow).**
+- **Phase (26th):**
+  - Draft (pick screen) 129 (39%), Live 97 (29%), Countdown 56 (17%), RoundEnd 49 (15%).
+  - **71% of quits are in the gap between rounds; the pick screen alone is the top quit point.**
+- **Score (both days).** W/L is only set during RoundEnd, so this compares the score itself:
+  - Behind: 210 (45%). Level: 155 (33%), of which 0-0 is 92 (left before any round was decided: loading, round 1). Ahead: 98 (21%).
+  - Of quits once a round had been decided: behind 56%, level 17%, ahead 26%. **Players who are losing leave about twice as often.**
+- **Device (26th):**
+  - Mobile 267 (81%), Console 32, PC 31.
+  - This needs the share of all players on mobile (Analytics → Acquisition → Platform) before it means anything. Ad traffic is mostly phones.
+  - By kind: first match 167, onboarding (match 2) 76, Beginner queue 61, other modes 27.
+- **Owner on the comeback card:** "kind of makes it unfair". A fair version is a **reroll for the round loser**: no extra power, just a new set of cards.
+- **Server load (owner's worry):** `MatchHost` has no cap on in-server matches. Each instant onboarding match is 1 player + 3 bots + its own Arena copy, so up to ~25 at once in a full lobby.
+  - Proposed: a measured cap (`MAX_INSTANT_MATCHES`), with new players over the cap going through the normal queue and teleport.
+  - Also proposed: pair two new players who start at the same moment into one instant match (fewer bots, real opponents).
