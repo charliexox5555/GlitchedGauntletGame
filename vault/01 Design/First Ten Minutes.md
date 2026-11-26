@@ -230,3 +230,29 @@ The owner played it: "I think it's good", with these changes.
      - after `Avatar.LOAD_STALE` (15 s) with no body.
 
      It logs "character load hung" (HealthLog) so the live logs show how often. Verified twice in Studio: the takeover logged, then a normal spawn and round 1. Root cause of the hang not found (the lobby respawn after a match); worst case a duel started right after returning waits up to 15 s instead of failing.
+
+## 10. Onboarding_v2 funnel (2026-11-26)
+A new custom funnel, **Onboarding_v2**, follows this flow step by step. It uses `AnalyticsService:LogFunnelStepEvent` with one session per player (their UserId) and the same new-player cohort as the old funnel. The old **Onboarding** funnel keeps running unchanged, so the two can be compared. Find it in Creator Hub → Analytics → Funnels.
+
+| # | Step | Fires |
+|---|---|---|
+| 1 | Save ready | data loaded |
+| 2 | Match 1 launched | instant match 1 starts |
+| 3 | M1 R1 fight (no pick) | round 1 live |
+| 4 | M1 R1 done | round 1 ends |
+| 5 | M1 R2 fight (2-card pick) | round 2 live |
+| 6 | M1 R3 fight (Glitched card) | round 3 live |
+| 7 | Match 1 saved | |
+| 8 | Back in lobby | |
+| 9 | Free case opened | field 1: "next match" (pressed NEXT MATCH) or "lobby" |
+| 10 | Match 2 R1 fight | |
+| 11 | Match 2 saved | |
+| 12 | Lobby after match 2 | the lobby opens up |
+| 13 | Match 3 started | round 1 live of the first queued match; field 1 = mode |
+
+Code: `lobby/server/Telemetry.luau`:
+- `onboardingV2` sends a step.
+- `V2_FROM_OLD` maps the old steps, so most v2 steps fire where the old ones already do.
+- Step 12 fires from `OnboardingService`, step 13 from `MatchService.reportStage`.
+
+Studio check: Workspace attribute `TelemetryLog = true` prints each step to the Output, because nothing is sent from Studio. Verified 2026-11-26 on a full run (fresh save, NEXT MATCH, match 2): steps 1–12 printed in order, the case step with "(next match)". Step 13 needs a queued match (teleport), so it will first be seen live.

@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Onboarding_v2 funnel (2026-11-26).** A new custom funnel follows the First Ten Minutes flow (13 steps, the free case step says next match / lobby); the old Onboarding funnel keeps running for comparison. Final Studio run: steps 1–12 in order, no script errors. [Steps](01%20Design/First%20Ten%20Minutes.md#10-onboarding_v2-funnel-2026-11-26)
+
 - **Lobby controller shortcuts (2026-11-26, not published).** Like RIVALS: PLAY = X, party + = Y, Locker / Shop / Backpack / Settings = D-pad left / up / right / down, each with the pad's icon on the button; all six are Settings KEYBINDS rows (LOBBY). [Lobby UI](01%20Design/Lobby%20UI%20and%20Queue.md#controller-shortcuts-on-the-lobby-bar-2026-11-26)
 
 - **Playtest fixes (2026-11-26, not published).** Free case = a Prowler or Havoc skin (40/42/16/2), the gun they hold in match 2; touch power nudge gets a gold ring; power keys follow rebinds and controllers (pad button names match the pad); pick screen works on controller (LB/RB, D-pad, A, X); pad-duel camera stuck fixed (Locker camera closed on match start; hung character loads no longer block arena spawns). [Notes](01%20Design/First%20Ten%20Minutes.md#9-owner-playtest-notes-2026-11-26)
