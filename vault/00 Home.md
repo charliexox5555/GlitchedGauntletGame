@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Vault map and loading picks (2026-11-25).** `tools/vault_map.py` (section search, outlines, link graph, health; [Vault Map](04%20Tech/Vault%20Map.md)) is now step 1 for `vault-lookup` and the vault skill: same answers in 5 tool calls instead of 16. Fixed 158 broken links. Loading sounds final (owner left it to Claude): sting and bed kept, PSE swish added under POWER ([logo note](02%20Art/PowerDuels%20Logo.md)).
+
 - **PowerDuels in game (2026-11-25).** Loading sprites uploaded (group 11116787; ids in `art-source/uploads.json` and the [logo note](02%20Art/PowerDuels%20Logo.md#roblox-integration-2026-11-25)); `BuildDuelsLoading.luau` + the local `ReplicatedFirst.DuelsLoading` template (`Ticket` = POWER, new optional `Sparks`); reveal POWER → DUELS → sparks, the sting on POWER's landing, `Full` for reduced motion. Player-facing "abilities" → "powers" (Locker tab label, settings, touch layout, draft lines). Verified in Studio: first join, pad duel, desktop + phone layouts; teleport handoff unverified (Studio). Not published.
 
 - **Onboarding fantasy pass (2026-11-25, from the retention plan).** A new player's first 2 matches (all real players under `ONBOARDING_MATCHES = 2`, Beginner) are first to 3 and show the better guns early (R1 Light, R2–3 Heavy, R4+ Elite: `ONBOARDING_PHASE_ROUNDS`, shared `MatchState.phaseFor`, HUD/TopBar follow), deal a preselected Glitched card from R2 (`GLITCH.onboardingRound`), and use the new **Rookie** bot profile. The free case for finishing match 1 is the gift-only **Starter Case** (`Config/Skins CASES.Starter`: 100% Epic gun skin; no ticket price, no Robux product, no Shop card). Match 1's results screen hides the dead REMATCH and its main button reads OPEN FREE CASE (goes to the lobby). `MatchLeft` now logs `kind:device`. Not published; not playtested yet. [Plan](05%20Production/Fantasy%20and%20Retention%20Plan%202026-11-25.md)
@@ -24,7 +26,7 @@
 
 ## 🗺️ Map of the vault
 
-**Look things up, don't read whole notes:** [INDEX](INDEX.md) (one line per note, with sizes) · [Code Map](04%20Tech/Code%20Map.md) (every Service/Controller, its remotes and attributes).
+**Look things up, don't read whole notes:** `python tools/vault_map.py find <words>` ([Vault Map](04%20Tech/Vault%20Map.md): the section and its line range) · [INDEX](INDEX.md) (one line per note, with sizes) · [Code Map](04%20Tech/Code%20Map.md) (every Service/Controller, its remotes and attributes).
 
 - **01 Design:** [Gunplay](01%20Design/Gunplay.md) · [Weapons](01%20Design/Weapons.md) · [Gun Balance](01%20Design/Gun%20Balance.md) · [Mods](01%20Design/Mods.md) · [Abilities](01%20Design/Abilities/00%20Abilities.md) · [Match Flow](01%20Design/Match%20Flow.md) · [Progression](01%20Design/Progression.md) · [Shop Economy](01%20Design/Shop%20Economy%20and%20Art%20v1.md) · [Lobby](01%20Design/Lobby.md) · [Maps](01%20Design/Maps/00%20Maps.md) · [Bots](01%20Design/Bots.md)
 - **02 Art:** [Style Bible](02%20Art/Style%20Bible.md) · [Art Direction](02%20Art/Art%20Direction.md) · [Lobby V5 Plan](02%20Art/Lobby%20V5%20Plan.md) · [UI Theme Soft Edge](02%20Art/UI%20Theme%20v4%20Soft%20Edge.md) · [UI Lobby Overhaul](02%20Art/UI%20Lobby%20Overhaul.md) · [UI Match Overhaul](02%20Art/UI%20Match%20Overhaul.md) · [Draft Duels Logo](02%20Art/Draft%20Duels%20Logo.md)

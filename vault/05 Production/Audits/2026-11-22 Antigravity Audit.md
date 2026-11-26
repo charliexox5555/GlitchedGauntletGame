@@ -186,7 +186,7 @@ Target file: `C:\Users\charl\.gemini\config\mcp_config.json` (under `"mcpServers
    - **Evidence:** `PlayerData.STORE` properly isolates Studio (`if RunService:IsStudio() then "PlayerDataV1_Studio" else "PlayerDataV1"`), but `Locker.STORE = "LockerV1"` has no `IsStudio()` suffix. Any Studio test with API access enabled mutates live `LockerV1` keys (violates `roblox-datastore-safety` hard rule). Also in `src/lobby/server/Services/PlayerDataService.luau:259–271`, `writeSettings` constructs a new-save table without `prog = data.prog`, and `BindToClose` (lines 354–359) lacks a Studio fast-exit check.
 
 5. **Design vs. code drift: Operator does not 1-shot on body/legs; Ruin-Blighted bundle missing Knife; conflicting `ShopCatalog.ITEM_ROBUX`**
-   - **Where:** `src/shared/Config/Weapons.luau:802` vs [00 Home.md](../00%20Home.md#L171); `src/lobby/shared/ShopCatalog.luau:120–134, 184` vs `src/shared/Config/Economy.luau:58–64` and `src/shared/Config/Products.luau:95–97`.
+   - **Where:** `src/shared/Config/Weapons.luau:802` vs [00 Home.md](../../00%20Home.md#L171); `src/lobby/shared/ShopCatalog.luau:120–134, 184` vs `src/shared/Config/Economy.luau:58–64` and `src/shared/Config/Products.luau:95–97`.
    - **Evidence:**
      - Locked decision (`00 Home.md:171`): *"the Operator alone kills in one shot anywhere, except through a wall"* (150 HP+shield). Actual code (`Weapons.luau:802`): `damage = { body = 95, head = 155, legs = 76 }` — neither body nor legs even kill a 100-HP unshielded target in one shot.
      - `ShopCatalog.luau:120–134`: `RuinBlighted` bundle advertises `"5 EXCLUSIVE SKINS"` and lists 5 guns, omitting the 6th item (**Ruined Reaver / Knife**), which is documented as installed and part of the 6-item line in `00 Home.md:33, 61, 75`.

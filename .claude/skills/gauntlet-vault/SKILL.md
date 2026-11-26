@@ -9,7 +9,8 @@ The game is built from the Obsidian vault (`vault/`). Use it, cite what you used
 
 ## Read lean
 - **Facts** (a number, decision, status, "where is X"): ask the `vault-lookup` agent (project) or `lihfolk:lihfolk-lookup` (general Roblox). Don't open notes for a single fact.
-- **Find:** `vault/INDEX.md` (one line per note, size in KB) and `vault/04 Tech/Code Map.md` (who owns what). `Grep -n`, then `Read` with `offset`/`limit`. Never read a note over ~15 KB whole.
+- **Find a section:** `python tools/vault_map.py find <key words>` ranks every section of every project note (`path:start-end`, size, heading, best line); then `Read` with `offset` = start, `limit` = lines. `outline "<note>"` = headings with line ranges + links, `related "<note>"` = linked notes, `health` = big sections, broken links, orphans (`vault/04 Tech/Vault Map.md`).
+- **Find by name:** `vault/INDEX.md` (one line per note, size in KB) and `vault/04 Tech/Code Map.md` (who owns what). `Grep -n`, then `Read` with `offset`/`limit`. Never read a note over ~15 KB whole.
 - Read a whole note only to edit it, and then only the section you change. Code: grep the symbol, read a line range.
 - `vault/00 Home.md`: top = Status; grep the Locked decisions table. Old history: `05 Production/Status History.md` (grep only).
 - Notes marked **[SUPERSEDED]** in INDEX are history: skip them unless asked.

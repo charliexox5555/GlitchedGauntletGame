@@ -107,3 +107,6 @@ art-source/audio/tempest/line_v1/
 # Riftforge bundle and knife sounds: built from ProPack + Sonniss GDC 2016 (licensed, no redistribution); asset ids are in art-source/uploads.json
 art-source/audio/riftforge/bundle_v1/
 art-source/audio/riftforge/knife_v1/
+
+# Generated vault map cache (tools/vault_map.py)
+tools/.cache/

@@ -14,6 +14,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [State Values playtest](05%20Production/Playtests/2026-11-19%20State%20Values.md): oversized results, 2v2 rematch, Lobby queue and current asset audit
 - `05 Production/Status History.md` (139): dated status log before 2026-11-05 (what was built when); grep only
 - `04 Tech/Code Map.md` (70): every Service/Controller, its remotes and attributes; pick code files from here
+- [Vault Map](04%20Tech/Vault%20Map.md) (4): `tools/vault_map.py`: section search, note outlines, link graph and vault health; why not an LLM knowledge graph (Graphify)
 - `04 Tech/Architecture.md` (18): repo layout, shot validation walkthrough, match system, test range, Rojo/Studio gotchas, code rules
 - `04 Tech/Place Merge Plan.md` (24): the Lobby + match merge (2026-11-21): owner decisions, server roles, global queue, pad duels as in-server matches, range, Studio move, results
 - `04 Tech/Developer Handoff.md` (21): both places, player journey, edit map, Studio audit, troubleshooting and release handoff
