@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **First Ten Minutes plan (2026-11-26).** Learn by playing, no tutorial room: match 1 round 1 has no pick screen (spawn with a gun and Dash), then one new idea per round (a two-card power pick, GUNS UP, a Glitched Dash), the free case opens on the results screen and match 2 starts by itself, the lobby opens up after match 2, gun picks from match 3. Not built; 6 owner decisions open. [Plan](01%20Design/First%20Ten%20Minutes.md)
+
 - **Funnel readout (2026-11-26, 61 ad players).** Keep the draft: fights hold players (5 of 59 leave mid-round, R1 now 93% from 83%), the gaps between rounds lose 10 and match 1 → match 2 loses 18 of 43 (free case step and the teleports). Buy rounds and fixed kits rejected. Next: next match on the same server with the case on the results screen, then read `MatchLeft` for a day. [Readout](05%20Production/Fantasy%20and%20Retention%20Plan%202026-11-25.md#8-readout-2026-11-26-61-players-last-hour-ad-traffic)
 
 - **Range v5 (2026-11-25, owner away).** The range has levels now (north gallery 12, west terrace 15 onto the bunker and up to the hangar roof, sniper perch 24), 39 training bots (blocky R15, one blue, the game's own idle; strafers run ADAD with the real side-run clips; spring hit reactions + a white hit pulse; the damage dummy and the moving carriage work), the Blender loadout terminal v3 in all six spots, and a working LOADOUT menu (G at a terminal: slot tabs, every gun in your skin, LOCKER and back). Also fixed: the range health bars never showed. Place saved v1243; owner walk-through next. [Range v5](01%20Design/Range%20v5.md)
@@ -37,7 +39,6 @@
 - **03 Research:** [Design Research Report](03%20Research/Design%20Research%20Report.md) · [Rivals Reference](03%20Research/Rivals%20Reference/00%20Rivals%20Reference.md) · [UI References](03%20Research/UI%20References/00%20UI%20References.md)
 - **04 Tech:** [Developer Handoff](04%20Tech/Developer%20Handoff.md) · [Architecture](04%20Tech/Architecture.md) · [Code Map](04%20Tech/Code%20Map.md) · [Place Merge Plan](04%20Tech/Place%20Merge%20Plan.md) · [UI Architecture](04%20Tech/UI%20Architecture.md) · [Setup Guide](04%20Tech/Setup%20Guide.md)
 - **05 Production:** [Release Plan 2026-11-22](05%20Production/Release%20Plan%202026-11-22.md) · [Game Plan](05%20Production/Game%20Plan.md) · [Bugs & Ideas](05%20Production/Bugs%20%26%20Ideas.md) · [Status History](05%20Production/Status%20History.md) · `Playtests/` · `Audits/`
-- **06 Assets:** [Asset Tracker](06%20Assets/Asset%20Tracker.md) (grep rows only)
 
 ---
 
