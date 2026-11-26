@@ -1,9 +1,11 @@
 --!strict
--- Test range dummies on the client: a health bar over every dummy (the
+-- Range dummies on the client: a health bar over every dummy (the
 -- "RangeDummy" tag and Dummy* attributes set by the server's TestRange/
--- Dummies). The bar only shows the Humanoid's replicated health; the server
--- owns the number. Dummies stream in and out (StreamingEnabled), so bars are
--- made when a dummy arrives and dropped when it leaves.
+-- Dummies and LobbyServer/Range/RangeBots). The bar only shows the replicated
+-- health; the server owns the number. The damage dummy (tag
+-- RangeDamageDummy) shows its running damage, DPS and hits instead
+-- (vault/01 Design/Range v5.md). Dummies stream in and out (StreamingEnabled),
+-- so bars are made when a dummy arrives and dropped when it leaves.
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
@@ -12,10 +14,15 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 local Health = require(game:GetService("ReplicatedStorage").Shared.Health)
+local RangeDummies = require(game:GetService("ReplicatedStorage").Shared.Config.RangeDummies)
+local Theme = require(game:GetService("ReplicatedStorage").Shared.Config.Theme)
 
 local RangeController = {}
 
 local TAG = "RangeDummy"
+local DAMAGE_TAG = "RangeDamageDummy"
+local HEAVY = Theme.TEXT.titleS.font
+local BOLD = Theme.TEXT.label.font
 local DARK = Color3.fromHex("1E2022")
 local HEALTHY = Color3.fromHex("6FCF97")
 local YELLOW = Color3.fromHex("F2C94C")
@@ -32,6 +39,8 @@ type Bar = {
 }
 
 local bars: { [Instance]: Bar } = {}
+local pending: { [Instance]: boolean } = {}
+local addBar: (Instance) -> ()
 local playerGui: Instance? = nil
 
 local make = require(script.Parent.Parent.Util.Ui).make
@@ -56,24 +65,47 @@ local function removeBar(model: Instance)
 	end
 end
 
-local function addBar(model: Instance)
+addBar = function(model: Instance)
 	if bars[model] or not model:IsA("Model") or not playerGui then
 		return
 	end
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	local head = model:FindFirstChild("Head")
 	if not humanoid or not head or not head:IsA("BasePart") then
+		-- Streamed in as an empty model first (the range is far from the lobby): try again when its parts land.
+		if not pending[model] then
+			pending[model] = true
+			task.spawn(function()
+				local h = model:WaitForChild("Head", 15)
+				model:WaitForChild("Humanoid", 5)
+				pending[model] = nil
+				if
+					h
+					and model:IsDescendantOf(workspace)
+					and CollectionService:HasTag(model, TAG)
+				then
+					addBar(model)
+				end
+			end)
+		end
 		return
 	end
 	local accentValue = StateValues.get(model, "DummyAccent")
-	local accent = if typeof(accentValue) == "Color3" then accentValue else WHITE
+	local accent = if typeof(accentValue) == "Color3"
+		then accentValue
+		elseif CollectionService:HasTag(model, "RangeBot") then RangeDummies.COLOR:Lerp(
+			WHITE,
+			0.45
+		)
+		else WHITE
+	local damageDummy = CollectionService:HasTag(model, DAMAGE_TAG)
 	local labelValue = StateValues.get(model, "DummyLabel")
 	local distance = StateValues.get(model, "DummyDistance")
 
 	local gui = make("BillboardGui", {
 		Name = "RangeBar_" .. model.Name,
 		Adornee = head,
-		Size = UDim2.fromOffset(132, 38),
+		Size = UDim2.fromOffset(if damageDummy then 200 else 132, 38),
 		StudsOffsetWorldSpace = Vector3.new(0, 2.3, 0),
 		AlwaysOnTop = true,
 		MaxDistance = 260,
@@ -83,41 +115,41 @@ local function addBar(model: Instance)
 	make("TextLabel", {
 		Size = UDim2.new(1, 0, 0, 16),
 		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBlack,
+		FontFace = HEAVY,
 		TextSize = 13,
 		TextColor3 = accent,
-		TextStrokeTransparency = 0.4,
-		Text = string.format(
-			"%s%s",
-			if typeof(labelValue) == "string" then labelValue else "DUMMY",
-			if typeof(distance) == "number" then string.format("  ·  %d", distance) else ""
-		),
+		TextStrokeTransparency = 0.55,
+		Text = if damageDummy
+			then "DAMAGE DUMMY"
+			else string.format(
+				"%s%s",
+				if typeof(labelValue) == "string" then labelValue else "DUMMY",
+				if typeof(distance) == "number" then string.format("  ·  %d", distance) else ""
+			),
 	}, gui)
 	local back = make("Frame", {
 		Position = UDim2.fromOffset(4, 20),
 		Size = UDim2.new(1, -8, 0, 12),
 		BackgroundColor3 = DARK,
-		BackgroundTransparency = 0.15,
+		BackgroundTransparency = 0.2,
 		BorderSizePixel = 0,
 	}, gui)
-	make("UICorner", { CornerRadius = UDim.new(0, 3) }, back)
-	make("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = 1, Transparency = 0.3 }, back)
 	local trail = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundColor3 = WHITE,
 		BorderSizePixel = 0,
+		Visible = not damageDummy,
 	}, back)
-	make("UICorner", { CornerRadius = UDim.new(0, 3) }, trail)
 	local fill = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundColor3 = HEALTHY,
 		BorderSizePixel = 0,
+		Visible = not damageDummy,
 	}, back)
-	make("UICorner", { CornerRadius = UDim.new(0, 3) }, fill)
 	local hp = make("TextLabel", {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBlack,
+		FontFace = BOLD,
 		TextSize = 11,
 		TextColor3 = WHITE,
 		TextStrokeTransparency = 0.2,
@@ -127,6 +159,20 @@ local function addBar(model: Instance)
 	local fillTween: Tween? = nil
 	local trailTween: Tween? = nil
 	local function refresh(instant: boolean)
+		if damageDummy then
+			local total = model:GetAttribute("DamageTotal")
+			local dps = model:GetAttribute("DamageDps")
+			local hits = model:GetAttribute("DamageHits")
+			hp.Text = if typeof(total) == "number" and total > 0
+				then string.format(
+					"%d DMG  ·  %d DPS  ·  %d HITS",
+					total,
+					if typeof(dps) == "number" then dps else 0,
+					if typeof(hits) == "number" then hits else 0
+				)
+				else "SHOOT ME"
+			return
+		end
 		local max = Health.max(humanoid)
 		local health = math.clamp(Health.get(humanoid), 0, max)
 		local fraction = health / max

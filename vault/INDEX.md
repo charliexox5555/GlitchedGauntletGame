@@ -51,6 +51,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Skin Tiers and Cases.md` (12): **skin tiers** (Common reskin / Rare shape / Epic animated / Legendary / Exclusive bundles), lines per tier (provisional), case tier odds, owned skins per gun, case opening flow and tests
 - `01 Design/Inventory and Crates.md` (25): **Inventory + crates**: coins and item stacks in `PlayerDataV1` (atomic UpdateAsync per change), buying cases for coins, crate ChatGPT prompts, crate model (Blender, rigged, tiers, icons), Backpack screen (replaced the Battle Pass on the bar), backpack icon prompt, Robux next
 - `01 Design/Lobby UI and Queue.md` (59): Lobby HUD, Play menu, queue rules, Figma frames; grep sections
+- `01 Design/Range v5.md` (8): **the range as built (2026-11-25)**: levels, 39 blue training bots (idle clips, hit reactions, strafers, damage dummy, carriage), loadout terminal v3, the LOADOUT menu
 - `01 Design/Lobby UI Image Prompts.md` (4), `01 Design/Range Brainstorm.md` (4): image prompts; range ideas (not built)
 - `01 Design/Archive/Gauntlet_Weapon_Modeling_Briefs.md` (103): sixteen gun-companion modelling briefs (archived); never read whole
 - `01 Design/Maps/00 Maps.md` (18): map roster, rules, symmetry, lineup of 8

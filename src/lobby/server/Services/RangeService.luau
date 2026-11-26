@@ -9,10 +9,9 @@
 -- them back in the "Lobby" zone, takes the guns away and reloads their own avatar at `RangeReturn`. Falling or
 -- being downed in the range respawns them in the range.
 --
--- The training bots (models tagged `RangeBot`) are prepared like any fighter (CharacterService: health, hitbox
--- history), so shots at them go through WeaponService's normal checks; each one comes back a moment after it goes
--- down. They also get the test range's `RangeDummy` tag so clients draw their health bars (RangeController).
--- Server only: no remotes, the server decides on touch. Built by tools/studio/lobby_v5/BuildRangeV2.luau.
+-- The training bots (models tagged `RangeBot`): LobbyServer/Range/RangeBots (look, hit stamps, respawn, strafers,
+-- the damage dummy, the moving carriage; vault/01 Design/Range v5.md).
+-- Server only: no remotes, the server decides on touch. Built by tools/studio/lobby_v5/BuildRangeV4/V5.luau.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -23,19 +22,18 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Release = require(ReplicatedStorage.Shared.Config.Release)
 
+local RangeBots = require(script.Parent.Parent.Range.RangeBots)
+
 local RangeService = {}
 
 local STUDIO_REMOTE = "StudioRangeToggle"
 
 local COOLDOWN = 1.5 -- seconds between two trips for one player
 local SPREAD = 3 -- studs of random spread around a spawn point, so a crowd doesn't stack
-local BOT_RESPAWN = 2.5 -- seconds a downed training bot stays down
-local BOT_TAG = "RangeBot"
-local DUMMY_TAG = "RangeDummy" -- the client health bars (RangeController)
 
 -- The match's per-player services (ServerScriptService.Server, the same place since the merge). Missing in a
 -- place without the match code: the range then only moves bodies, as before.
-type MatchServices = { Character: any, Weapon: any, Health: any, HealthLib: any }
+type MatchServices = { Character: any, Weapon: any, Health: any, HealthLib: any, Damage: any }
 local match: MatchServices? = nil
 
 local lastTrip: { [Player]: number } = {}
@@ -52,10 +50,13 @@ local function loadMatch(): MatchServices?
 	local character = services:FindFirstChild("CharacterService")
 	local weapon = services:FindFirstChild("WeaponService")
 	local health = services:FindFirstChild("HealthService")
+	local weaponParts = services:FindFirstChild("Weapon")
+	local damage = weaponParts and weaponParts:FindFirstChild("Damage")
 	if
 		not (character and character:IsA("ModuleScript"))
 		or not (weapon and weapon:IsA("ModuleScript"))
 		or not (health and health:IsA("ModuleScript"))
+		or not (damage and damage:IsA("ModuleScript"))
 	then
 		warn("[Range] match services missing: the range only moves players")
 		return nil
@@ -65,6 +66,7 @@ local function loadMatch(): MatchServices?
 		Weapon = require(weapon) :: any,
 		Health = require(health) :: any,
 		HealthLib = require(ReplicatedStorage.Shared.Health) :: any,
+		Damage = require(damage) :: any,
 	}
 end
 
@@ -216,61 +218,6 @@ local function onCharacter(player: Player, character: Model)
 	end
 end
 
--- Training bots ----------------------------------------------------------------
-
-local botTemplates: { [Model]: { template: Model, parent: Instance } } = {}
-
-local prepareBot: (Model) -> ()
-
-local function onBotDowned(bot: Model)
-	local entry = botTemplates[bot]
-	if not entry then
-		return
-	end
-	botTemplates[bot] = nil
-	task.delay(BOT_RESPAWN, function()
-		if not entry.parent.Parent then
-			return
-		end
-		local fresh = entry.template:Clone()
-		bot:Destroy()
-		fresh.Parent = entry.parent
-		prepareBot(fresh)
-	end)
-end
-
-prepareBot = function(bot: Model)
-	if not match or botTemplates[bot] or not bot:IsDescendantOf(workspace) then
-		return
-	end
-	local humanoid = bot:FindFirstChildOfClass("Humanoid")
-	local parent = bot.Parent
-	if not humanoid or not parent then
-		return
-	end
-	-- Kept before anything changes it, to bring the bot back as it was built.
-	local template = bot:Clone()
-	CollectionService:RemoveTag(template, DUMMY_TAG)
-	botTemplates[bot] = { template = template, parent = parent }
-	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
-	if bot:GetAttribute("DummyDistance") == nil then
-		local distance = bot:GetAttribute("Distance")
-		if typeof(distance) == "number" then
-			bot:SetAttribute("DummyDistance", distance)
-		end
-	end
-	CollectionService:AddTag(bot, DUMMY_TAG)
-	match.Character.prepare(bot)
-	local HealthLib = match.HealthLib
-	HealthLib.onDowned(humanoid, function()
-		onBotDowned(bot)
-	end)
-	bot.Destroying:Connect(function()
-		botTemplates[bot] = nil
-	end)
-end
-
 function RangeService.start()
 	local isStudio = RunService:IsStudio()
 	if not Release.RANGE_OPEN and not isStudio then
@@ -324,16 +271,7 @@ function RangeService.start()
 	end
 
 	if match then
-		for _, bot in CollectionService:GetTagged(BOT_TAG) do
-			if bot:IsA("Model") then
-				prepareBot(bot)
-			end
-		end
-		CollectionService:GetInstanceAddedSignal(BOT_TAG):Connect(function(bot)
-			if bot:IsA("Model") then
-				task.defer(prepareBot, bot)
-			end
-		end)
+		RangeBots.start(match)
 	end
 
 	local function onPlayer(player: Player)

@@ -25,7 +25,8 @@ local Release = require(ReplicatedStorage.Shared.Config.Release)
 
 local WorldPrompts = {}
 
-type Hook = { menu: string, action: string, object: string }
+-- `key` / `pad`: a prompt key other than E / ButtonX (inside the range E is a Mod and X a match action).
+type Hook = { menu: string, action: string, object: string, key: Enum.KeyCode?, pad: Enum.KeyCode? }
 
 local HOOKS: { [string]: Hook } = {
 	-- LobbyQueue pads are duel pads since the place merge (2026-11-21): the
@@ -43,6 +44,8 @@ end
 if Release.RANGE_OPEN then
 	HOOKS.LobbyRangeEntrance = { menu = "Range", action = "Range", object = "Practice" }
 end
+-- The range's loadout terminals (tag RangeLoadout) are not here: ProximityPrompts never show inside the armed range
+-- (measured 2026-11-25), so LoadoutController draws their hint and takes the key itself.
 
 local PROMPT_NAME = "LobbyMenuPrompt"
 local STEP_CHECK = 0.1 -- seconds between step-pad checks
@@ -83,8 +86,8 @@ local function attach(tag: string, hook: Hook, inst: Instance)
 	prompt.Name = PROMPT_NAME
 	prompt.ActionText = if mode then `Queue {string.upper(mode)}` else hook.action
 	prompt.ObjectText = hook.object
-	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+	prompt.KeyboardKeyCode = hook.key or Enum.KeyCode.E
+	prompt.GamepadKeyCode = hook.pad or Enum.KeyCode.ButtonX
 	prompt.HoldDuration = 0
 	prompt.RequiresLineOfSight = false
 	-- Big pads: reach the prompt from the pad's edge.

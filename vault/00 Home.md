@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Range v5 (2026-11-25, owner away).** The range has levels now (north gallery 12, west terrace 15 onto the bunker and up to the hangar roof, sniper perch 24), 39 training bots (blocky R15, one blue, the game's own idle; strafers run ADAD with the real side-run clips; spring hit reactions + a white hit pulse; the damage dummy and the moving carriage work), the Blender loadout terminal v3 in all six spots, and a working LOADOUT menu (G at a terminal: slot tabs, every gun in your skin, LOCKER and back). Also fixed: the range health bars never showed. Place saved v1243; owner walk-through next. [Range v5](01%20Design/Range%20v5.md)
+
 - **Tasks and rewards brainstorm (2026-11-25).** Next update: a Path of 6 sets (Recruit → Champion), 3 parts of 3 tasks each, coins per task, Tickets per set, a Knife Case at the end. Not built; owner questions open. [Brainstorm](01%20Design/Tasks%20and%20Rewards.md)
 
 - **Bundle opening (2026-11-25).** A bought bundle now throws one crate per skin, in its own colours (Ruin-Blighted teal, Tempest-Strike blue, gold trim), opens them all at once for the buyer and nearby players, then the Backpack shows every skin in a strip with **EQUIP ALL** ([Case Opening](01%20Design/Case%20Opening.md#bundle-opening-owner-2026-11-25)). F4 → CASE previews it. The loading-screen whoosh was taken out again (owner: no swooshes).
@@ -20,8 +22,6 @@
 - **Phone lag root cause (2026-11-26).** The live "exponential deferred event growth ... fitShadow" loop was `TopBarController` and `Shared/UiLayout` both writing `TopBar.Root.Fit` with different phone values (202 writes in 3 s in Studio; 2 after). TopBar now owns it (`CustomFit`), UiLayout re-checks ownership; StatusTray owns its scale; BottomHud stops a redundant writer and skips hidden-HUD updates; `StateValues.get` caches lookups; own third-person gun hide is cached; `InputController.init` waits 10 s total. Loading/per-frame backlog ranked in the audit. Not published. [Audit](05%20Production/Performance%20and%20Loading%20Audit%202026-11-26.md)
 
 - **Phone stick and touch buttons (2026-11-25, owner's phone report).** The move stick no longer follows the thumb: its base stays where the thumb landed (as in RIVALS, which uses Roblox's dynamic thumbstick), so pulling far is full speed and easing back slows down instead of reversing. Real analog speed (the movement sim scales speed by the push; `Humanoid.MoveDirection` is unit length), the stick now sits under the thumb (it was drawn 58 px low), cheaper hit slop, and only Fire, Aim and the Mods let the camera turn through. Lint, build and a Studio phone-layout bot match pass; a real-phone test is pending. [Mobile Controls](02%20Art/UI%20Mobile%20Controls.md#stick-and-button-pass-2026-11-25) · [RIVALS study](03%20Research/Rivals%20Reference/Mobile%20Controls.md)
-
-- **Phone lag and load cancels (2026-11-25, live error log).** Fixed the TopBar `Fit` scale loop (~4,300 "exponential deferred event growth" reports: lag and jumping UI on phones), stopped matches being cancelled while a lone phone is still loading (all-clients wait 12 s → 45 s), and stopped `MapLighting` re-parenting the destroyed loading blur. Not published yet (with the BodyReady, scope and first-match changes). [Bugs](05%20Production/Bugs%20%26%20Ideas.md)
 
 - **Earlier status** (2026-11-23 back to Week 1): [Status History](05%20Production/Status%20History.md) (grep only).
 - **Blockers:** none known (pre-publish cleanup & Shop compliance items queued in the audit).

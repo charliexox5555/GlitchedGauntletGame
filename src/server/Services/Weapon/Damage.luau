@@ -31,7 +31,8 @@ export type HitListener = (
 	attacker: Instance,
 	victim: Model,
 	dealt: number,
-	killed: boolean
+	killed: boolean,
+	headshot: boolean? -- the range bots' hit reactions (LobbyServer RangeService)
 ) -> { number }?
 -- Damage rules from Mods (ModService's ServerApi): modifiers change
 -- player-on-player damage, guards see every hit and may block it.
@@ -178,7 +179,7 @@ local function tellHit(
 )
 	local assists: { number }? = nil
 	for _, fn in hitListeners do
-		local ok, credit = pcall(fn, attacker, victim, dealt, killed)
+		local ok, credit = pcall(fn, attacker, victim, dealt, killed, headshot)
 		if not ok then
 			warn("[WeaponService] hit listener failed:", credit)
 		elseif credit then
