@@ -106,6 +106,51 @@ function InputGlyphs.keyName(code: Enum.KeyCode): string
 	return NAMES[code.Name] or string.upper(code.Name)
 end
 
+-- A controller button's name in words, the way the player's own pad labels it (the glyph images come from
+-- GetImageForKeyCode, so text must match them: Square / L1 on PlayStation, X / LB on Xbox). For hint text
+-- that can't hold an image (owner 2026-11-26: a controller was told "Q").
+local XBOX: { [string]: string } = {
+	ButtonA = "A",
+	ButtonB = "B",
+	ButtonX = "X",
+	ButtonY = "Y",
+	ButtonL1 = "LB",
+	ButtonR1 = "RB",
+	ButtonL2 = "LT",
+	ButtonR2 = "RT",
+	ButtonL3 = "LS",
+	ButtonR3 = "RS",
+}
+local PLAYSTATION: { [string]: string } = {
+	ButtonA = "Cross",
+	ButtonB = "Circle",
+	ButtonX = "Square",
+	ButtonY = "Triangle",
+	ButtonL1 = "L1",
+	ButtonR1 = "R1",
+	ButtonL2 = "L2",
+	ButtonR2 = "R2",
+	ButtonL3 = "L3",
+	ButtonR3 = "R3",
+}
+local DPAD: { [string]: string } = {
+	DPadUp = "D-Pad Up",
+	DPadDown = "D-Pad Down",
+	DPadLeft = "D-Pad Left",
+	DPadRight = "D-Pad Right",
+}
+
+function InputGlyphs.padName(code: Enum.KeyCode): string
+	local name = code.Name
+	if DPAD[name] then
+		return DPAD[name]
+	end
+	local ok, image =
+		pcall(UserInputService.GetImageForKeyCode, UserInputService, Enum.KeyCode.ButtonX)
+	local ps = ok and string.find(string.lower(image), "playstation") ~= nil
+	return (if ps then PLAYSTATION[name] else XBOX[name]) or name
+end
+
 -- The binding an action uses now: the player's own PlayContext (the server
 -- puts their saved Settings keybinds there, server/Services/InputContextService),
 -- else Config/Input. setOverride wins over both (tests, previews).

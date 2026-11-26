@@ -20,6 +20,7 @@ local Mods = require(ReplicatedStorage.Shared.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local CoreUi = require(ReplicatedStorage.Shared.CoreUi)
+local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local CameraController = require(script.Parent.CameraController)
@@ -36,6 +37,12 @@ local C = Theme.COLORS
 local URGENT = 5 -- seconds left when the hint names your default pick
 local GUN_KEYS = { Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three }
 local SLOT_KEYS = { [Enum.KeyCode.Q] = 1, [Enum.KeyCode.E] = 2, [Enum.KeyCode.T] = 3 }
+local PAD_STEPS: { [Enum.KeyCode]: { guns: boolean, by: number } } = {
+	[Enum.KeyCode.ButtonL1] = { guns = false, by = -1 },
+	[Enum.KeyCode.ButtonR1] = { guns = false, by = 1 },
+	[Enum.KeyCode.DPadLeft] = { guns = true, by = -1 },
+	[Enum.KeyCode.DPadRight] = { guns = true, by = 1 },
+}
 
 -- Upgrade numbers worth showing on a card ("PEAK  14 → 21 STUDS"), in order.
 local STATS: { { key: string, label: string, unit: string } } = {
@@ -85,8 +92,8 @@ local function setOpen(value: boolean)
 	end
 	isOpen = value
 	CameraController.setCursorVisible(value)
-	-- Gamepad: selection starts on a card (LihFolk: Gamepad and Console UX);
-	-- the D-pad moves between cards and LOCK IN, A picks.
+	-- Gamepad: selection starts on the picked power card (LihFolk: Gamepad and Console UX); LB / RB and the
+	-- D-pad step the picks, A picks the selected card, X locks in.
 	if UserInputService.GamepadEnabled then
 		task.defer(function()
 			local first = abilityCards[1] or gunCards[1]
@@ -208,6 +215,25 @@ local function hintText(): (string, Color3)
 		return "Locked in. Waiting for the other players.", C.ready
 	end
 	local touch = compact
+	-- a controller gets its own buttons (owner 2026-11-26: it said keyboard keys on a controller)
+	local pad = not touch and InputGlyphs.mode() == "Gamepad"
+	local withGuns = #gunCards > 0
+	if pad then
+		local bumpers = InputGlyphs.padName(Enum.KeyCode.ButtonL1)
+			.. " / "
+			.. InputGlyphs.padName(Enum.KeyCode.ButtonR1)
+		local lockKey = InputGlyphs.padName(Enum.KeyCode.ButtonX)
+		if canLock() then
+			return if withGuns
+				then `{bumpers}: power  ·  D-Pad: gun  ·  {lockKey}: LOCK IN`
+				else `{bumpers}: change power  ·  {lockKey}: LOCK IN`,
+				C.textSecondary
+		end
+		return if withGuns
+			then `D-Pad: pick a gun  ·  {bumpers}: pick a power`
+			else `{bumpers}: pick a power`,
+			C.textSecondary
+	end
 	if canLock() then
 		return if touch then "Ready: tap LOCK IN." else "Ready: press Enter or LOCK IN.",
 			C.textSecondary
@@ -337,6 +363,31 @@ local function onKey(input: InputObject)
 			card.pick()
 			return
 		end
+	end
+	-- Controller: LB / RB step through the power cards, D-pad left / right through the guns; the pick follows,
+	-- and the selection ring moves with it (A on a selected card picks it too, through GuiService).
+	local step = PAD_STEPS[key]
+	if step then
+		local list = if step.guns then gunCards else abilityCards
+		if #list == 0 then
+			return
+		end
+		local current = if step.guns then selectedGun else selectedAbility
+		local at = 0
+		for i, c in list do
+			if c.id == current then
+				at = i
+			end
+		end
+		local nextCard = list[(at - 1 + step.by) % #list + 1]
+		if at == 0 then
+			nextCard = list[if step.by > 0 then 1 else #list]
+		end
+		nextCard.pick()
+		if nextCard.button then
+			GuiService.SelectedObject = nextCard.button
+		end
+		return
 	end
 	local slot = SLOT_KEYS[key]
 	if not slot then

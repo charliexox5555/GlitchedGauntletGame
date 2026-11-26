@@ -22,13 +22,12 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Health = require(ReplicatedStorage.Shared.Health)
 local InputMode = require(Shared.InputMode)
-local Bindings = require(Shared.Config.Input)
+local InputGlyphs = require(Shared.InputGlyphs)
 local Charges = require(Shared.Mods.Charges)
 local Config = require(Shared.Config.Mods)
 local Mods = require(Shared.Mods)
@@ -165,15 +164,6 @@ for slot = 1, Config.SLOTS do
 	PREFIXES[slot] = "Mod" .. slot
 end
 
-local GAMEPAD_NAMES: { [string]: string } = {
-	ButtonL1 = "LB",
-	ButtonR1 = "RB",
-	ButtonL2 = "LT",
-	ButtonR2 = "RT",
-	DPadUp = "D-Pad Up",
-	DPadLeft = "D-Pad Left",
-}
-
 -- Slots and status ------------------------------------------------------------------
 
 local function number(inst: Instance?, name: string, default: number): number
@@ -261,21 +251,38 @@ local function ready(view: SlotView): boolean
 end
 
 -- The key that drives a slot on the current device ("Q", "LB", ...).
+-- The slot's key as the player has it bound now (Settings keybinds live in their PlayContext:
+-- Shared/InputGlyphs.keysFor), for the device in use (InputGlyphs.mode, like every other key chip). Cached until
+-- the binds or the device change (owner 2026-11-26: a rebind didn't show on the HUD; a controller saw "Q").
+local keyLabels: { [number]: string } = {}
+InputGlyphs.changed:Connect(function()
+	table.clear(keyLabels)
+end)
+
 function ModController.keyLabel(slot: number): string
-	local b = Bindings[PREFIXES[slot]]
-	local last = UserInputService:GetLastInputType()
-	if string.find(last.Name, "Gamepad") and b.gamepad[1] then
-		local name = b.gamepad[1].Name
-		return GAMEPAD_NAMES[name] or name
+	local cached = keyLabels[slot]
+	if cached then
+		return cached
 	end
-	return if b.keys[1] then b.keys[1].Name else ""
+	local keys, pad = InputGlyphs.keysFor(PREFIXES[slot])
+	local label = ""
+	if InputGlyphs.mode() == "Gamepad" then
+		local code = pad[1]
+		label = if code then InputGlyphs.padName(code) else ""
+	elseif keys[1] then
+		label = InputGlyphs.keyName(keys[1])
+	end
+	keyLabels[slot] = label
+	return label
 end
 
 local function useLabels(): (string, string)
-	if InputMode.touch() then
+	local mode = InputGlyphs.mode()
+	if mode == "Touch" then
 		return "FIRE", "ALT"
-	elseif InputMode.gamepad() then
-		return "RT", "LT"
+	elseif mode == "Gamepad" then
+		return InputGlyphs.padName(Enum.KeyCode.ButtonR2),
+			InputGlyphs.padName(Enum.KeyCode.ButtonL2)
 	end
 	return "LMB", "RMB"
 end

@@ -26,11 +26,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
-local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
-local Bindings = require(Shared.Config.Input)
+local InputGlyphs = require(Shared.InputGlyphs)
 local Health = require(ReplicatedStorage.Shared.Health)
 local S = require(Shared.Config.ModSounds)
 local Tex = require(Shared.Config.VfxTextures)
@@ -546,7 +545,6 @@ end
 -- a second press of it slams (Mods/Updraft simPress). Touch: a CRASH button
 -- that presses that input (an InputBinding on its action, like
 -- HudController's buttons).
-local PAD_NAMES: { [string]: string } = { ButtonL1 = "LB", ButtonR1 = "RB", DPadUp = "D-UP" }
 
 -- The input action and the key label of the slot Updraft is in.
 local function slamInput(pad: boolean): (string?, string)
@@ -555,15 +553,12 @@ local function slamInput(pad: boolean): (string?, string)
 		return nil, ""
 	end
 	local name = "Mod" .. slot
-	local b = (Bindings :: any)[name]
-	if not b then
-		return name, ""
+	-- the player's own binding (Settings keybinds), not the default
+	local keys, pads = InputGlyphs.keysFor(name)
+	if pad and pads[1] then
+		return name, InputGlyphs.padName(pads[1])
 	end
-	if pad and b.gamepad and b.gamepad[1] then
-		local key = b.gamepad[1].Name
-		return name, PAD_NAMES[key] or key
-	end
-	return name, if b.keys and b.keys[1] then b.keys[1].Name else ""
+	return name, if keys[1] then InputGlyphs.keyName(keys[1]) else ""
 end
 
 local HEAVY = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy)
@@ -770,9 +765,9 @@ local function stepPrompt(now: number)
 	if not ready then
 		return
 	end
-	local last = UserInputService:GetLastInputType()
-	local touch = last == Enum.UserInputType.Touch
-	local pad = string.find(last.Name, "Gamepad") ~= nil
+	local mode = InputGlyphs.mode() -- the same device rule as every key chip
+	local touch = mode == "Touch"
+	local pad = mode == "Gamepad"
 	local _, key = slamInput(pad)
 	if touch ~= promptTouch then
 		promptTouch = touch
