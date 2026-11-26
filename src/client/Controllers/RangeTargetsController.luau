@@ -67,7 +67,17 @@ local function shatter(t: Target, at: Vector3, from: Vector3)
 	if camera and (camera.CFrame.Position - centre).Magnitude > MAX_DISTANCE then
 		return
 	end
-	ModAudio.play(ModAudio.SOUNDS.Frost.shatter, centre, rng:NextNumber(1.05, 1.25))
+	-- the glass break: 2D (only you see this target break), softer with distance
+	local sound = RangeTargets.SHATTER_SOUND
+	local far = if camera
+		then math.clamp((camera.CFrame.Position - centre).Magnitude / sound.FAR, 0, 1)
+		else 0
+	ModAudio.play({
+		id = sound.id,
+		volume = sound.volume * (1 - (1 - sound.FAR_SHARE) * far),
+		pitch = rng:NextNumber(sound.pitch[1], sound.pitch[2]),
+		cut = sound.cut,
+	}, nil)
 	local folder = ShotFxKit.effectsFolder()
 	-- the white pop at the hit
 	local flash = Instance.new("Part")

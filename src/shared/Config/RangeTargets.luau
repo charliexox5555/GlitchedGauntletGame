@@ -33,6 +33,17 @@ return table.freeze({
 	SHARD_LIFE = 0.9,
 	FLASH_TIME = 0.14, -- the white pop at the hit
 	FLASH_SIZE = 6,
+	-- The glass break (owner 2026-11-26: "a little glass breaking sound effect ... when the thing disappears"). Only
+	-- the shooter sees the break, so it plays 2D for them, quieter the further away (down to FAR_SHARE at FAR studs).
+	-- ProSoundEffects "Glass Breaks 1" (Creator Store, Roblox-licensed), as the Frost thaw uses it.
+	SHATTER_SOUND = table.freeze({
+		id = "rbxassetid://9114592117",
+		volume = 0.5,
+		pitch = { 1.12, 1.32 },
+		cut = 0.75,
+		FAR = 220,
+		FAR_SHARE = 0.55,
+	}),
 	-- Coming back: it grows in from this share of its size.
 	RETURN_FROM = 0.2,
 	RETURN_TIME = 0.32,

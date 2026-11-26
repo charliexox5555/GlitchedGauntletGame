@@ -283,6 +283,11 @@ function Damage.apply(
 	if not humanoid or MatchState.phase(owner) == "RoundEnd" then
 		return -- after the round: shots land, nothing counts (no confirm, no BLOCKED)
 	end
+	-- A player outside a match (the range; owner 2026-11-26): no damage (hurt below), and no feedback either: no
+	-- hit confirm for the shooter, no hurt screen / direction arc / flinch for them.
+	if owner:IsA("Player") and PlayZone.get(owner) ~= "Match" then
+		return
+	end
 	for _, modify in damageModifiers do
 		local ok, result = pcall(modify, attacker, victimModel, amount, sourceId)
 		if not ok then

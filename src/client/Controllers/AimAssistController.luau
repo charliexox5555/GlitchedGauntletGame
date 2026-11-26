@@ -13,7 +13,12 @@
 -- reach (a sniper only when scoped) for the reaction time presses the trigger
 -- (held for automatic guns, tapped for the rest; the gun's fire rate and the
 -- server's checks still apply). The phone FIRE button keeps working.
+--
+-- In the shooting range (owner 2026-11-26) both work on the training bots only
+-- (tag RangeBot): other players there are never a target and the sight rays
+-- pass through them.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -27,6 +32,7 @@ local Config = require(Shared.Config.AimAssist)
 local Fighters = require(Shared.Util.Fighters)
 local Health = require(Shared.Health)
 local InputMode = require(Shared.InputMode)
+local PlayZone = require(Shared.PlayZone)
 local SettingsApply = require(Shared.SettingsApply)
 local StateValues = require(Shared.StateValues)
 local StatusEffects = require(Shared.Config.StatusEffects)
@@ -39,6 +45,7 @@ local AimAssistController = {}
 
 local player = Players.LocalPlayer
 local SAMPLES = 5 -- points along a body (hip to head) the aim can be nearest to
+local RANGE_BOT_TAG = "RangeBot" -- the range's training bots (LobbyServer Range/RangeBots)
 
 type Target = { body: Model, lastDir: Vector3? }
 
@@ -100,6 +107,24 @@ local function refreshParams()
 		end
 	end
 	table.clear(enemies)
+	if PlayZone.get(player) == "Range" then
+		-- the range: bots only; other players are see-through to the assist
+		for _, p in Players:GetPlayers() do
+			if p ~= player and p.Character then
+				table.insert(exclude, p.Character)
+			end
+		end
+		for _, bot in CollectionService:GetTagged(RANGE_BOT_TAG) do
+			if
+				bot:IsA("Model")
+				and bot:IsDescendantOf(Workspace)
+				and Health.isAlive(bot:FindFirstChildOfClass("Humanoid"))
+			then
+				enemies[bot] = true
+			end
+		end
+		return
+	end
 	for _, fighter in Fighters.all(player) do
 		if Teams.isAlly(player, fighter.holder) then
 			table.insert(exclude, fighter.body)

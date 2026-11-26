@@ -32,6 +32,7 @@ local Fighters = require(Shared.Util.Fighters)
 local FireRate = require(Shared.Util.FireRate)
 local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
+local PlayZone = require(Shared.PlayZone)
 local SettingsApply = require(Shared.SettingsApply)
 local ShadowMistAudio = require(Shared.Config.ShadowMistAudio)
 local TempestAudio = require(Shared.Config.TempestAudio)
@@ -172,6 +173,10 @@ local function combatantOf(part: Instance): Model?
 	local node: Instance? = part.Parent
 	while node and node ~= Workspace do
 		if node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") then
+			-- the range: other players take no hits (Damage), so no predicted marker or hit sound on them
+			if PlayZone.get(player) == "Range" and Players:GetPlayerFromCharacter(node) then
+				return nil
+			end
 			return node
 		end
 		node = node.Parent

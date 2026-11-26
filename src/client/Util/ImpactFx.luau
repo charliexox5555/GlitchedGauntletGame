@@ -9,6 +9,7 @@
 -- chips) come in sets per surface colour: changing an emitter's Color would
 -- recolour its live particles.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -338,6 +339,20 @@ local function combatantOf(part: Instance): Model?
 	return nil
 end
 
+-- The range's air targets turn, glide and shatter: a bullet hole (a loose pooled part) would be left hanging in
+-- the air where the target was (owner 2026-11-26), so they get the spark and sound only.
+local RANGE_TARGET_TAG = "RangeTarget" -- Config/RangeTargets.TAG
+local function onRangeTarget(hit: Instance): boolean
+	local model = hit:FindFirstAncestorOfClass("Model")
+	while model do
+		if CollectionService:HasTag(model, RANGE_TARGET_TAG) then
+			return true
+		end
+		model = model:FindFirstAncestorOfClass("Model")
+	end
+	return false
+end
+
 local function surfaceColor(hit: BasePart, material: Enum.Material): Color3
 	if hit:IsA("Terrain") then
 		return (hit :: Terrain):GetMaterialColor(material)
@@ -428,6 +443,9 @@ function ImpactFx.impact(
 	local cf = facing(position + normal * 0.05, normal)
 	if not hit or not hit:IsA("BasePart") then
 		return
+	end
+	if not noHole and onRangeTarget(hit) then
+		noHole = true
 	end
 	if combatantOf(hit) then
 		local color = if spectral
