@@ -130,3 +130,36 @@ Benchmarks: GameAnalytics 2025 Roblox report (games with 19–24 min sessions: m
 - Similar Roblox funnel (PvPvE survivors, 134 joins): https://devforum.roblox.com/t/playtest-where-am-i-losing-players%E2%80%94before-during-or-after-their-first-match/4780000
 - Referral rewards: https://create.roblox.com/docs/production/promotion/referral-system
 - Like/favorite rewards debate: https://devforum.roblox.com/t/is-rewarding-players-for-liking-favoriting-a-game-allowed/2926286
+
+## 8. Readout 2026-11-26 (61 players, last hour, ad traffic)
+
+The owner asked whether the core (the draft) is broken and whether to switch to a Valorant-style buy round or a fixed kit. **Verdict: keep the draft. The leaks are the gaps and handoffs, not the fights.** One hour of 61 players: one player is about 1.6-2%, so read the shape.
+
+| Step | 2026-11-25 (37) | 2026-11-26 (61) | Target |
+|---|---|---|---|
+| M1 R1 live → done | 83% | **93%** | ≥ 92% (met) |
+| Match 1 saved → back in the hub | 75% | **93%** | — |
+| Match 1 launched → saved | — | 73% (43/59) | — |
+| Match 1 saved → Match 2 R1 live | ~62% to queue | **58%** (25/43) | ≥ 85% |
+| Match 2 R1 live → saved | 67% | 68% | ≥ 85% |
+
+Where match 1 loses its 16 players:
+- **During fights: 5** (R1 4, R2 1, R3 0, R4 0). Once a round is live, players stay.
+- **In the gaps between rounds (round end → select → 3-2-1): 10** (5, 3, 2). Twice the fight losses.
+- Match 1 → match 2 loses 18 more: hub 3, Backpack 2, **free case 6** (the biggest single hub step), equip 2, queue 1, **queue → match live 4** (the teleport).
+
+Reading the other numbers:
+- **Average play time 6.7 min** = most ad players play one match (~5 min) plus the lobby. The 63 min before ads was a few friends, not comparable.
+- **Session time by place (2.5 min)** is split by our teleports (lobby session, match session, lobby session). Don't judge by it.
+- **Match 2 "saved" undercounts** in a rolling 1-hour window: players who started match 2 in the last few minutes count as lost.
+
+The owner's alternatives, judged against this:
+- **Valorant-style buy round:** no. It adds a shopping phase in the gap that already leaks most, adds money maths for 10-13-year-olds, and pulls the identity back toward "Valorant on Roblox" (§2.2).
+- **Fixed kit that levels up:** mostly what we have. Powers stay all match and level up through A/B paths to MAXED (Q/E/T slots, [Match Flow](../01%20Design/Match%20Flow.md#abilities)). Taking away the pick takes away the hook the name promises.
+- **No gun pick:** worth a narrow test only if `MatchLeft` shows players leaving in the select phase: onboarding matches auto-take the gun and the screen leads with the power, one decision per gap.
+
+Next, in order:
+1. **Keep players on the match server after match 1 (B1, still open):** the free case reveal on the results screen, then NEXT MATCH starts by itself on the same server (`INSTANT_MATCHES`), with Lobby as the small option. It skips 5 hub steps and 2 teleports, where 18 of 43 leave.
+2. **Read `MatchLeft` for one full day** (custom event: value = round, fields = phase, score with the last round's W/L, `kind:device`). It answers why the gaps leak: losing the round, phones, or the pick screen itself.
+3. Then the gap fix it points to: the loser's extra card (C2, ROUNDS' comeback rule) if leavers just lost; shorter onboarding gaps or one decision per gap if they leave in the select phase; a phone fix if most are Mobile.
+4. Match 2 gets its own "first" (C3).
