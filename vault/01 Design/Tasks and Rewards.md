@@ -9,7 +9,8 @@
 - **Counts only while the part is showing.** `level` tasks check the current level.
 - **Bots count everywhere** (quiet servers never block progress). Pad-duel wins against the same friend still need a farm cap.
 - **Coins are the main reward.** Gun skins stay premium: a **Ticket only at the end of sets 2, 4 and 6** (3 in the whole Path).
-- **Range tasks only in Recruit.**
+- **Range tasks only in Recruit**, but **Range bots count as eliminations** for every "Get N eliminations" task (owner 2026-11-26: "it might actually make players play longer"); tier-only ones (Sidearm) count bots downed with that tier. Headshot, multi and ace tasks stay match-only.
+- **In matches the panel shows before each round** (the Draft after you lock in, and the 3-2-1) and hides when the round goes Live. **HIDE SIDE TASKS** (and HIDE HUD) always hide it, in the lobby and in matches.
 - Every count is decided by the server (match results, range hits), never sent by the client.
 
 ## Rewards
@@ -63,10 +64,11 @@ Task kinds in `Config/Tasks` (`Kind`): range visit, range targets shattered, ran
 ## Build (2026-11-26)
 - **Data:** `Config/Tasks` (the list; `RANGE_FLUSH` 8 s, `MULTI_ELIM_WINDOW` 4 s), `shared/TaskPath` (state, clean/valid, `applyMatch` / `applyRange`, payouts), saved as `tasks` in `shared/PlayerData`, published as the `Tasks` StringValue. Never rename a shipped task id or lower a shipped target.
 - **Matches:** `StatsService` counts (headshots, multi eliminations, tiers, round wins without dying / clutch / ace, picks, uses, power levels, Glitched pick); `MatchService` adds played / won / flawless / team size / map and passes it to `ProgressionService.report`, which moves the Path **in the same write as XP and match pay** (the match's txId makes a retry pay once). Only when the player had finished 2 matches before this one. All of it is pcall-guarded so it can never cost XP.
-- **Range:** `Range/RangeEvents` (visit, target shattered, bot downed) → `TaskService` batches them and writes at once when one finishes a task (else after 8 s, on leave, on shutdown; busy writes retried 3 times).
-- **Client:** `Controllers/TaskPanel` fills `LobbyTasks.TopLeft.Tasks` (set name, PART n / 3, three rows from the `Row` template, the part bonus line) and toasts each finished task / set / Ticket / title through the lobby toast. The panel and toast stay up in the Range (`ArmedHideController.RANGE_KEEP`).
+- **Range:** `Range/RangeEvents` (visit, target shattered, bot downed with its weapon tier; downs also feed elimination tasks) → `TaskService` batches them and writes at once when one finishes a task (else after 8 s, on leave, on shutdown; busy writes retried 3 times).
+- **Client:** `shared/TaskPanelView` draws the panel for both: the lobby's `Controllers/TaskPanel` fills `LobbyTasks.TopLeft.Tasks` (set name, PART n / 3, three rows from the `Row` template, the part bonus line) and toasts each finished task / set / Ticket / title through the lobby toast. The panel and toast stay up in the Range (`ArmedHideController.RANGE_KEEP`). In matches `src/client/Controllers/MatchTasksController` mounts a copy named `MatchTasks` (listed in `Config/SettingsApply SIDE_TASK_GUIS` next to `LobbyTasks`) and shows it in Draft (draft screen closed) and Countdown only.
 - **Admin (owner only):** Utility tab → TASK PATH → SKIP PART (no rewards) / RESET PATH; RESET PROFILE also resets the Path.
 - **Tested in Studio:** 23 logic checks in edit (every set, streak reset, distinct maps, level tasks, the Champion title, JSON round trip, junk saves, NaN); panel hidden at 1 match and shown at 2 (RECRUIT, PART 1 / 3); Range visit paid 50 coins, saved and toasted; panel up in the Range; a 1v1 bot match moved Recruit P2 to play 1/2, draft 5/6 with no errors; a match write without Path changes still saves XP and pay.
+- **Tested 2026-11-26 (second pass):** Range downs move Recruit P2 "Get 5 eliminations" and only tier-1 downs move the Sidearm task (logic checks); in a 1v1 bot match the MatchTasks panel stayed hidden behind the draft screen, showed in the Countdown (RECRUIT PART 2/3: 1/2, 5/6, 0/5), hid on Live; with HIDE SIDE TASKS on the next Countdown kept the screen off; turning it off brought it back.
 - **Not tested:** shattering targets and downing bots (the MCP can't fire the gun), eliminations / headshots / clutch / ace in a real fight, the toast's look, phones, a real live server.
 
 ## Still open

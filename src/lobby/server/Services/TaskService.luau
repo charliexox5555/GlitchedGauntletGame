@@ -104,6 +104,9 @@ local function flush(player: Player)
 				back.stats.visit = math.max(back.stats.visit, stats.visit)
 				back.stats.targets = math.min(back.stats.targets + stats.targets, 1000)
 				back.stats.bots = math.min(back.stats.bots + stats.bots, 1000)
+				for t, n in stats.botTiers do
+					back.stats.botTiers[t] = math.min((back.stats.botTiers[t] or 0) + n, 1000)
+				end
 				back.tries = math.max(back.tries, p.tries + 1)
 			else
 				pending[player] = { stats = stats, tries = p.tries + 1 }
@@ -123,14 +126,14 @@ local function flush(player: Player)
 	end
 end
 
-local function onRange(player: Player, kind: string)
+local function onRange(player: Player, kind: string, tier: number?)
 	local data = PlayerDataService.get(player)
 	if not data or not TaskPath.open(data.prog.matches) or not TaskPath.wantsRange(data.tasks) then
 		return
 	end
 	local p = pending[player]
 	if not p then
-		p = { stats = { visit = 0, targets = 0, bots = 0 }, tries = 0 }
+		p = { stats = { visit = 0, targets = 0, bots = 0, botTiers = { 0, 0, 0, 0 } }, tries = 0 }
 		pending[player] = p
 	end
 	local s = p.stats
@@ -140,6 +143,9 @@ local function onRange(player: Player, kind: string)
 		s.targets = math.min(s.targets + 1, 1000)
 	elseif kind == "bot" then
 		s.bots = math.min(s.bots + 1, 1000)
+		if tier and s.botTiers[tier] then
+			s.botTiers[tier] = math.min(s.botTiers[tier] + 1, 1000)
+		end
 	else
 		return
 	end

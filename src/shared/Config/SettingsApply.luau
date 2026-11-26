@@ -74,9 +74,10 @@ SettingsApply.LOBBY_HUD_GUIS = {
 	"LobbyHudShade",
 }
 -- Hide Side Tasks (and Hide HUD): the side task list (the task Path panel,
--- LobbyClient Controllers/TaskPanel).
+-- LobbyClient Controllers/TaskPanel) and its match copy.
 SettingsApply.SIDE_TASK_GUIS = {
 	"LobbyTasks",
+	"MatchTasks", -- the match's copy, before each round (Controllers/MatchTasksController)
 }
 
 -- COLOURBLIND ------------------------------------------------------------------

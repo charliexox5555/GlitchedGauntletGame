@@ -48,8 +48,10 @@ export type MatchStats = {
 	powerLevels: { number }, -- [level] = powers they took to at least that level
 }
 
--- Range counts since the last range write (LobbyServer TaskService).
-export type RangeStats = { visit: number, targets: number, bots: number }
+-- Range counts since the last range write (LobbyServer TaskService). Downed Range bots also count for
+-- "eliminations" tasks (owner 2026-11-26: "it might actually make players play longer"); `botTiers` = bots
+-- downed by weapon tier, for tier-only elimination tasks.
+export type RangeStats = { visit: number, targets: number, bots: number, botTiers: { number } }
 
 export type Done = { id: string, text: string, coins: number }
 export type Payout = {
@@ -249,6 +251,8 @@ local function rangeGain(task: Tasks.Task, r: RangeStats): number
 		return r.targets
 	elseif task.kind == "rangeBots" then
 		return r.bots
+	elseif task.kind == "elims" then
+		return if task.tier then r.botTiers[task.tier] or 0 else r.bots
 	end
 	return 0
 end
@@ -347,7 +351,7 @@ function TaskPath.rangeFinishes(s: State, r: RangeStats): boolean
 	return false
 end
 
--- Does the showing part count range events at all?
+-- Does the showing part count range events at all? (Range tasks, and eliminations: Range bots count)
 function TaskPath.wantsRange(s: State): boolean
 	local _, part = TaskPath.current(s)
 	if not part then
@@ -355,8 +359,12 @@ function TaskPath.wantsRange(s: State): boolean
 	end
 	for _, task in part.tasks do
 		if
-			(task.kind == "rangeVisit" or task.kind == "rangeTargets" or task.kind == "rangeBots")
-			and (s.n[task.id] or 0) < task.target
+			(
+				task.kind == "rangeVisit"
+				or task.kind == "rangeTargets"
+				or task.kind == "rangeBots"
+				or task.kind == "elims"
+			) and (s.n[task.id] or 0) < task.target
 		then
 			return true
 		end
