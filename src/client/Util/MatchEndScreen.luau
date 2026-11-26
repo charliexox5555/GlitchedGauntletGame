@@ -424,11 +424,16 @@ function MatchEndScreen.show(d: Data, onChoice: (name: string) -> ())
 		return
 	end
 	s.onChoice = onChoice
-	-- A new player's first match (owner 2026-11-25: a quarter left at match 1's end): no dead REMATCH, and the
-	-- main button is OPEN FREE CASE, which takes them to the lobby where the Backpack opens on it.
+	-- A new player's first match (vault/01 Design/First Ten Minutes.md): no dead REMATCH; the gold button is
+	-- NEXT MATCH and the other LOBBY. Either way the free case opens by itself back in the lobby (Lobby
+	-- OnboardingController), and NEXT MATCH then starts match 2 (owner 2026-11-26: no auto-start).
 	s.gift = d.gift == true
 	if s.rematchRow then
 		s.rematchRow.Visible = not s.gift
+	end
+	local leave = s.buttons.Leave
+	if leave then
+		(child(leave, "Label") :: TextLabel).Text = if s.gift then "LOBBY" else "LEAVE"
 	end
 	fillResult(s, d)
 	fillRounds(s, d.rounds)
@@ -463,8 +468,7 @@ function MatchEndScreen.press(name: string)
 	tween(pop, 0.25, { Scale = 1 })
 	local fn = s.onChoice
 	if fn then
-		-- the free-case screen: every way forward is the lobby, where the case is
-		fn(if s.gift then "Leave" else name)
+		fn(name)
 	end
 end
 
@@ -504,10 +508,7 @@ function MatchEndScreen.refresh(
 		local on = name == picked
 		local label = child(b, "Label") :: TextLabel
 		if name == "PlayAgain" then
-			label.Text = if s.gift
-				then (if picked == "Leave" then "OPENING…" else "OPEN FREE CASE")
-				elseif on then "JOINING…"
-				else "PLAY AGAIN"
+			label.Text = if on then "JOINING…" elseif s.gift then "NEXT MATCH" else "PLAY AGAIN"
 		else
 			b.BackgroundColor3 = if on then NAVY_HI else NAVY
 			label.TextColor3 = if on then GOLD else WHITE

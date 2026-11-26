@@ -59,6 +59,9 @@ export type View = {
 	guns: { GunView },
 	columns: { ColumnView },
 	enemy: { EnemyView },
+	-- Onboarding (Config/Onboarding SCRIPT): only the columns with cards, centred, and moved up into the gun
+	-- row's space (vault/01 Design/First Ten Minutes.md).
+	focus: boolean?,
 }
 
 export type Handlers = {
@@ -71,6 +74,7 @@ export type Handlers = {
 local COL_W, CARD_H = 400, 500
 local PATH_GAP = 26
 local LIFT = 10 -- the picked card stays this far up
+local FOCUS_LIFT = 82 -- focus mode: cards move up half the gun row's space (BuildDraftScreen CARD_Y - GUN_Y)
 local HOVER_LIFT = 4
 local WHITE = Color3.new(1, 1, 1)
 local DIM = Color3.fromRGB(150, 155, 166) -- unpicked: a little darker, never muddy
@@ -100,6 +104,7 @@ type Pickable = {
 
 type Column = {
 	frame: Frame,
+	home: UDim2, -- the Studio position (focus mode moves the column)
 	tab: Frame,
 	new: Pickable,
 	newCard: CanvasGroup,
@@ -118,6 +123,7 @@ type State = {
 	gunShown: number,
 	columns: { Column },
 	lockButton: TextButton,
+	lockHome: UDim2,
 	lockFace: Frame,
 	lockPop: UIScale,
 	lockFill: { GuiObject },
@@ -294,6 +300,7 @@ local function bind(gui: ScreenGui)
 		end
 		local col: Column = {
 			frame = frame,
+			home = frame.Position,
 			tab = child(frame, "Key") :: Frame,
 			new = new,
 			newCard = new.card,
@@ -324,6 +331,7 @@ local function bind(gui: ScreenGui)
 		gunShown = 0,
 		columns = columns,
 		lockButton = lockButton,
+		lockHome = lockButton.Position,
 		lockFace = lockFace,
 		lockPop = child(lockFace, "Pop") :: UIScale,
 		lockFill = { child(lockFace, "Body"), child(lockFace, "CapL"), child(lockFace, "CapR") },
@@ -618,6 +626,30 @@ function DraftScreen.show(view: View, handlers: Handlers)
 	end
 	for i, col in s.columns do
 		fillColumn(col, view.columns[i] or {})
+	end
+	-- Focus: the columns with cards side by side in the middle, lifted into the empty gun row's space.
+	local inUse: { Column } = {}
+	for _, col in s.columns do
+		col.frame.Visible = not view.focus or #col.shown > 0
+		if col.frame.Visible then
+			table.insert(inUse, col)
+		end
+	end
+	if view.focus and #inUse > 0 then
+		local home1, home2 = s.columns[1].home, s.columns[2].home
+		local step = home2.X.Offset - home1.X.Offset -- one column + its gap
+		local middle = home2.X.Offset -- the centre column's place
+		for i, col in inUse do
+			local x = middle + (i - (#inUse + 1) / 2) * step
+			col.frame.Position =
+				UDim2.new(col.home.X.Scale, x, col.home.Y.Scale, col.home.Y.Offset - FOCUS_LIFT)
+		end
+		s.lockButton.Position = s.lockHome - UDim2.fromOffset(0, FOCUS_LIFT)
+	else
+		for _, col in s.columns do
+			col.frame.Position = col.home
+		end
+		s.lockButton.Position = s.lockHome
 	end
 	fillEnemy(s, view.enemy)
 end

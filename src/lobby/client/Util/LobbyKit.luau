@@ -171,6 +171,7 @@ export type Page = { isOpen: () -> boolean }
 function LobbyKit.page(spec: PageSpec): Page
 	local open = false
 	local token = 0
+	local closing = 0 -- the token of a close whose fade is still showing
 	local washT = if spec.wash then spec.wash.BackgroundTransparency else 1
 
 	local resetClose: (() -> ())? = nil
@@ -216,13 +217,26 @@ function LobbyKit.page(spec: PageSpec): Page
 			if spec.onClose then
 				spec.onClose()
 			end
+			closing = mine -- its fade is still on screen
 			task.delay(M.quick + 0.02, function()
 				if mine == token and not open then
 					spec.gui.Enabled = false
 				end
+				if closing == mine then
+					closing = 0
+				end
 			end)
 		end,
 	})
+
+	-- A closed page stays off. ArmedHideController puts back every lobby screen that was on when a match began, so
+	-- a page caught in its close fade (closed, then straight into a match) came back on in the lobby with the
+	-- Router closed: a dead Backpack after a new player's match 2 (2026-11-26).
+	spec.gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+		if spec.gui.Enabled and not open and closing ~= token then
+			spec.gui.Enabled = false
+		end
+	end)
 
 	return {
 		isOpen = function()

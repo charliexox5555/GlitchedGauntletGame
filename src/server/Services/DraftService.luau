@@ -24,6 +24,7 @@ local MatchState = require(script.Parent.Parent.MatchState)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Mods = require(ReplicatedStorage.Shared.Mods)
+local OnbConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local Net = Context.net
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
@@ -55,6 +56,8 @@ export type Seat = {
 	locked: boolean,
 	dealtRound: number, -- the round this seat was last dealt cards for (0: never)
 	offer: MatchState.DraftOffer?,
+	focus: boolean, -- this draft follows the onboarding script (Config/Onboarding SCRIPT)
+	hidden: boolean, -- ...and has no pick screen
 }
 
 local limiter = RateLimit.new(Config.RATE)
@@ -278,6 +281,8 @@ function DraftService.seat(key: any): Seat
 			glitchBonus = 0,
 			glitchDealt = false,
 			dealtRound = 0,
+			focus = false,
+			hidden = false,
 		}
 		seats[key] = s
 	end
@@ -327,9 +332,83 @@ local function sendOffer(player: Player, s: Seat)
 		enemyKit = dealt.enemyKitOf(player),
 		gun = s.gun,
 		ability = s.ability,
+		focus = s.focus or nil,
+		hidden = s.hidden or nil,
 	}
 	s.offer = offer
 	Net.event("DraftOffer"):FireClient(player, offer)
+end
+
+-- This match's onboarding script (Config/Onboarding SCRIPT; MatchService sets "OnboardingMatch"), nil in
+-- any other match.
+function DraftService.script(): OnbConfig.Script?
+	local index = MatchState.get("OnboardingMatch")
+	return if typeof(index) == "number" then OnbConfig.SCRIPT[index] else nil
+end
+
+-- The script's step for `round`, nil when that round deals the normal cards.
+function DraftService.scriptStep(round: number): OnbConfig.Round?
+	local plan = DraftService.script()
+	return if plan then plan.rounds[round] else nil
+end
+
+-- A scripted round (vault/01 Design/First Ten Minutes.md): its start kit, then only the cards it names. False when
+-- nothing it names can be dealt, so the normal deal runs instead.
+local function dealScripted(s: Seat, step: OnbConfig.Round, pools: { { string } }): boolean
+	for _, id in step.kit or {} do
+		local def = Mods.def(id)
+		if
+			def
+			and Mods.isBuilt(id)
+			and s.kit[def.slot] == ""
+			and table.find(pools[def.slot], id)
+		then
+			s.kit[def.slot] = def.id
+			s.levels[def.slot] = Config.ABILITY_LEVEL
+		end
+	end
+	if step.select == "none" then
+		s.ability = nil
+		s.locked = true
+		s.hidden = true
+		return true
+	end
+	local offer = step.offer
+	if offer == "glitch" then
+		-- The Glitched card, on the script's starter power when it's still level 1, else any level-1 power.
+		local want: { [string]: boolean } = {}
+		for _, r in (DraftService.script() :: OnbConfig.Script).rounds do
+			for _, id in r.kit or {} do
+				want[id] = true
+			end
+		end
+		local best: number? = nil
+		for slot = 1, ModsConfig.SLOTS do
+			if s.kit[slot] ~= "" and s.levels[slot] == "L1" and Mods.isBuilt(s.kit[slot]) then
+				if best == nil or (want[s.kit[slot]] and not want[s.kit[best]]) then
+					best = slot
+				end
+			end
+		end
+		if not best then
+			return false
+		end
+		local c = card(s.kit[best], best, "G2")
+		s.upgrades = { c }
+		s.ability = c.key
+		s.glitchDealt = true
+		return true
+	elseif typeof(offer) == "table" then
+		for _, id in offer do
+			local def = Mods.def(id)
+			if def and s.kit[def.slot] == "" and table.find(pools[def.slot], id) then
+				table.insert(s.abilities, def.id)
+			end
+		end
+		s.ability = s.abilities[1]
+		return #s.abilities > 0
+	end
+	return false
 end
 
 -- Deals one seat this draft's cards. Something is selected from the start
@@ -350,6 +429,26 @@ local function deal(key: any)
 	s.locked = false
 	local current = if phase.tier == 1 then s.sidearm else s.primary
 	s.gun = if current and table.find(gunOffer, current) then current else gunOffer[1]
+	s.focus, s.hidden = false, false
+	-- Onboarding: a new player's first matches follow Config/Onboarding SCRIPT (no gun row: the phase's gun is
+	-- handed out; scripted rounds deal only what they name).
+	local plan = if human then DraftService.script() else nil
+	if plan then
+		s.focus = true
+		local handed = plan.handGuns and OnbConfig.HANDED_GUNS[phase.name]
+		local folder = ReplicatedStorage:FindFirstChild("Weapons")
+		if handed and Weapons.get(handed) and folder and folder:FindFirstChild(handed) then
+			s.guns = { handed }
+			s.gun = handed
+		end
+		local step = plan.rounds[dealt.round]
+		if step and dealScripted(s, step, pools) then
+			s.dealtRound = dealt.round
+			sendOffer(key, s)
+			return
+		end
+		s.abilities, s.upgrades, s.ability, s.locked, s.hidden = {}, {}, nil, false, false
+	end
 	-- Each empty slot gets a new roll for this seat. Prefer cards that have
 	-- been offered to fewer seats and skip the seat's previous card.
 	for slot = 1, ModsConfig.SLOTS do

@@ -4,9 +4,10 @@
 --  * first join: queued for Beginner 2v2 once the loading screen closes (no menu);
 --  * while new, PLAY queues Beginner 2v2 straight away (its sub-line says so);
 --  * the "Join the queue to start playing!" bubble over PLAY while idle;
---  * the HUD unlocks by matches played (Party after 1, Shop and Backpack after 3),
+--  * the HUD unlocks by matches played (Config/Onboarding UNLOCKS: all after match 2),
 --    each with one NEW callout until that menu is opened;
---  * the favorite prompt back in the lobby after match 1 (Shared/FavoritePrompt).
+--  * the free case after match 1 opens by itself, then a parked NEXT MATCH queues match 2;
+--  * the favorite prompt back in the lobby (Shared/FavoritePrompt).
 -- It only reads the server-published state (Matches, Level, OnbSeen, ...) and asks:
 -- the server decides the queue (QueueService refuses Beginner at level 10+) and
 -- stores what was asked or seen (Services/OnboardingService).
@@ -22,6 +23,7 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local BackpackController = require(script.Parent.BackpackController)
 local LobbyHud = require(script.Parent.LobbyHud)
 local LobbyHudView = require(script.Parent.Parent.Util.LobbyHudView)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
@@ -214,8 +216,21 @@ local function tryCaseToast()
 	end
 end
 
--- Back in the lobby with the free case unopened: open the Backpack on it (it selects the case itself), once
--- per session, when nothing else is on screen and no search is running.
+-- After the free case's reveal: NEXT MATCH on match 1's end screen asked for match 2 (the server parked that
+-- request as "OnbNextMatch" until the case was open), so queue it now.
+local function afterGift()
+	if
+		player:GetAttribute("OnbNextMatch") ~= nil
+		and QueueState.status() == "idle"
+		and QueueState.isLeader()
+	then
+		QueueState.join(OnbConfig.BEGINNER_MODE)
+	end
+end
+
+-- Back in the lobby with the free case unopened: it opens by itself (no Backpack clicks; the skin goes straight
+-- on), once per session, when nothing else is on screen and no search is running (vault/01 Design/First Ten
+-- Minutes.md: 6 of 38 players left at the OPEN click).
 local giftOpenTried = false
 local function tryOpenGift()
 	if giftOpenTried or not ready() or Router.current() ~= nil or not hasGiftCase() then
@@ -229,7 +244,9 @@ local function tryOpenGift()
 			and hasGiftCase()
 			and QueueState.status() == "idle"
 		then
-			Router.open("Backpack")
+			if not BackpackController.openGift(OnbConfig.FIRST_MATCH_CASE, afterGift) then
+				Router.open("Backpack") -- the old way: the Backpack opens on the case
+			end
 		else
 			giftOpenTried = false -- try again on the next change
 		end
@@ -337,6 +354,7 @@ function OnboardingController.start()
 	QueueState.onChanged(LobbyHudView.placeBubble)
 	StateValues.changed(player, "OnbResetSeq"):Connect(function()
 		autoQueued = false
+		giftOpenTried = false
 		favAskedFor = nil
 		table.clear(seenSent)
 		caseToastSent = false

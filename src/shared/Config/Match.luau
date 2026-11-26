@@ -167,8 +167,9 @@ return table.freeze({
 	MATCH_END = {
 		time = 20,
 		-- A match with no rematch (a new player's in-server onboarding matches): the 8.15 s win cutscene, then a
-		-- short look at the results before the lobby (owner 2026-11-25: the 20 s wait lost new players).
-		timeNoRematch = 13,
+		-- short look at the results before the lobby (owner 2026-11-25: the 20 s wait lost new players). 13 → 18
+		-- (2026-11-26): ~10 s to press NEXT MATCH, now that the choice matters (vault/01 Design/First Ten Minutes.md).
+		timeNoRematch = 18,
 		botRematchChance = 0.94,
 		botRematchDelay = { 0.8, 3 },
 		teleportAttempts = 3,

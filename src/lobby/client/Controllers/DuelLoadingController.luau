@@ -82,6 +82,7 @@ local function show(text: string, finished: (elapsed: number) -> boolean, maxTim
 	local mine = token
 	local gui = template:Clone()
 	gui.Name = "DuelLoading"
+	gui.ResetOnSpawn = false
 	local canvas = gui:FindFirstChild("Canvas")
 	if not canvas then
 		gui:Destroy()
@@ -133,6 +134,11 @@ local function show(text: string, finished: (elapsed: number) -> boolean, maxTim
 		end
 		if gui.Parent then
 			close(gui, step)
+		elseif showing == gui then
+			-- destroyed under us: still clear the flag
+			step:Disconnect()
+			showing = nil
+			player:SetAttribute("DuelLoading", false)
 		end
 	end)
 end
@@ -243,6 +249,18 @@ function DuelLoadingController.start()
 	player:GetAttributeChangedSignal(PlayZone.MATCH_ID):Connect(refresh)
 	player:GetAttributeChangedSignal("LoadingScreen"):Connect(refresh)
 	refresh()
+	-- Self-heal: "DuelLoading" on with no cover on screen (seen 2026-11-26 after a match: the flag stayed on and
+	-- the lobby's onboarding, which waits for it, never opened the free case).
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local gui = showing
+			if player:GetAttribute("DuelLoading") == true and not (gui and gui.Parent) then
+				showing = nil
+				player:SetAttribute("DuelLoading", false)
+			end
+		end
+	end)
 end
 
 return DuelLoadingController

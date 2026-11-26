@@ -374,7 +374,7 @@ end
 -- What the screen shows for an offer (Util/DraftScreen fills it in).
 local function screenView(o: MatchState.DraftOffer): DraftScreen.View
 	local guns: { DraftScreen.GunView } = {}
-	for _, id in o.guns do
+	for _, id in if o.focus then {} else o.guns do
 		local config = Weapons.get(id)
 		table.insert(guns, {
 			id = id,
@@ -429,7 +429,7 @@ local function screenView(o: MatchState.DraftOffer): DraftScreen.View
 			end
 			if #paths > 0 then
 				col.paths = paths
-			else
+			elseif not o.focus then -- focus (onboarding): nothing to pick here, the column hides
 				local pathName = if def then (def.paths :: any)[string.sub(level, 1, 1)] else nil
 				col.maxed = {
 					icon = if def then def.icon else "",
@@ -456,7 +456,7 @@ local function screenView(o: MatchState.DraftOffer): DraftScreen.View
 			})
 		end
 	end
-	return { guns = guns, columns = columns, enemy = enemy }
+	return { guns = guns, columns = columns, enemy = enemy, focus = o.focus }
 end
 
 -- Fill the Studio-built screen. The card records keep the key and gamepad
@@ -497,7 +497,7 @@ local function showScreen(o: MatchState.DraftOffer)
 			return not locked
 		end,
 	})
-	for _, id in o.guns do
+	for _, id in if o.focus then {} else o.guns do
 		table.insert(
 			gunCards,
 			record(id, 0, function()
@@ -537,6 +537,11 @@ local function showScreen(o: MatchState.DraftOffer)
 end
 
 local function show(o: MatchState.DraftOffer)
+	if o.hidden then
+		-- A new player's first round (Config/Onboarding SCRIPT): no pick screen, the kit is already on.
+		offer = nil
+		return
+	end
 	table.clear(gunCards)
 	table.clear(abilityCards)
 	offer = o

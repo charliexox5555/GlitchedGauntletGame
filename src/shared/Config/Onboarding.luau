@@ -4,6 +4,13 @@
 -- OnboardingService / QueueService and the OnboardingController act on them.
 -- "Matches" = the saved matches played (PlayerData prog.matches, published "Matches").
 
+export type Round = {
+	select: string?, -- "none" hides the pick screen
+	kit: { string }?, -- powers already on when the round starts
+	offer: any?, -- { ids } or "glitch"
+}
+export type Script = { handGuns: boolean, rounds: { [number]: Round } }
+
 return table.freeze({
 	-- The mode new players go to (Lobby Config.MODES id).
 	BEGINNER_MODE = "beginner",
@@ -16,18 +23,21 @@ return table.freeze({
 	-- On arrival, after the loading screen: queued for Beginner 2v2 straight away
 	-- while matches played is below this (the very first match).
 	AUTO_QUEUE_BELOW = 1,
-	-- PLAY goes straight into the Beginner queue (no menu) while matches played is below this.
-	PLAY_SHORTCUT_BELOW = 2,
+	-- PLAY goes straight into the Beginner queue (no menu) while matches played is below this (2 → 3,
+	-- 2026-11-26: the menu arrives with the rest of the lobby, after match 2).
+	PLAY_SHORTCUT_BELOW = 3,
 	-- Seconds after the loading screen closes before the auto-queue fires (lets the
 	-- lobby HUD and phone frame settle first).
 	AUTO_QUEUE_DELAY = 1.2,
 
 	-- HUD unlocks by matches played. Items not listed are always shown (Locker =
 	-- "Weapons", Settings, PLAY). Each unlock gets one NEW pop (bit in `seen`).
+	-- After match 2 (2026-11-26, vault/01 Design/First Ten Minutes.md: the lobby opens up once they've played
+	-- two; match 1's free case opens by itself, so the Backpack isn't needed before).
 	UNLOCKS = table.freeze({
-		{ id = "Backpack", at = 1, bit = 4 },
-		{ id = "Shop", at = 1, bit = 2 },
-		{ id = "Party", at = 1, bit = 1 },
+		{ id = "Backpack", at = 2, bit = 4 },
+		{ id = "Shop", at = 2, bit = 2 },
+		{ id = "Party", at = 2, bit = 1 },
 	}),
 	SEEN_MAX = 7, -- all bits above set
 	-- A NEW pop only shows within this many matches of its unlock (players who were
@@ -74,6 +84,34 @@ return table.freeze({
 		throughWalls = true, -- AlwaysOnTop: shown behind cover too
 		scan = 0.25, -- seconds between passes that pick up spawns, respawns and the watched view
 	}),
+
+	-- The first two matches, round by round (vault/01 Design/First Ten Minutes.md; owner 2026-11-26: learn by
+	-- playing, one new thing per round, no menus they can't read yet). Index = the onboarding match (1 = the very
+	-- first). DraftService deals from it, MatchService hides a `select = "none"` round's pick screen.
+	--   handGuns: no gun row; each phase's HANDED_GUNS gun is handed out.
+	--   select = "none": no pick screen; the round starts with `kit` already on (just the 3-2-1).
+	--   offer = { ids }: only these new powers; "glitch": only the Glitched card (on the `kit` power if it can).
+	--   Rounds not listed deal the normal power cards (still focused: no gun row, no empty columns).
+	SCRIPT = table.freeze({
+		table.freeze({
+			handGuns = true,
+			rounds = table.freeze({
+				[1] = table.freeze({ select = "none", kit = table.freeze({ "Dash" }) }),
+				[2] = table.freeze({ offer = table.freeze({ "Updraft", "Frost" }) }),
+				[3] = table.freeze({ offer = "glitch" }),
+			}),
+		}),
+		table.freeze({ handGuns = true, rounds = table.freeze({}) }),
+	}) :: { Script },
+	-- The gun each weapon phase hands out while `handGuns` (owner picks 2026-11-26: forgiving at Arena range).
+	HANDED_GUNS = table.freeze({
+		Sidearm = "Sheriff",
+		Light = "Spectre", -- Prowler
+		Heavy = "Vandal", -- Havoc
+		Elite = "Odin", -- Mauler
+	}) :: { [string]: string },
+	-- A `select = "none"` round: seconds before its 3-2-1 (time for everyone to spawn behind the barrier).
+	HIDDEN_SELECT_TIME = 1.5,
 
 	-- OnboardingRequest token bucket { perSecond, burst }.
 	RATE = { 0.5, 4 },

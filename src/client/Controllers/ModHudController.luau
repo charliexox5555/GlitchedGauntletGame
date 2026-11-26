@@ -12,6 +12,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local MatchState = require(ReplicatedStorage.Shared.MatchState)
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 
@@ -47,6 +48,7 @@ type SlotState = {
 	button: GuiButton?,
 	buttonText: TextLabel?,
 	shownTouch: string,
+	nudgeScale: UIScale?, -- the touch button's nudge pulse
 }
 
 -- The charge meter (Recon).
@@ -267,8 +269,37 @@ local function build()
 	end
 end
 
+-- First-time power nudge (vault/01 Design/First Ten Minutes.md): in a new player's first matches
+-- (MatchState "OnboardingMatch"), a power that hasn't been used yet this match pulses in a live round until its
+-- first use. Not saved: it only runs in those two matches.
+local usedIds: { [string]: boolean } = {}
+local usedMatch = ""
+
+local function nudges(view: ModController.SlotView): boolean
+	local id = view.id
+	if id == nil then
+		return false
+	end
+	local onboarding = MatchState.get("OnboardingMatch")
+	local round = MatchState.get("Round")
+	local key = `{tostring(onboarding)}`
+	if key ~= usedMatch or round == 1 and MatchState.phase() == "Countdown" then
+		usedMatch = key
+		table.clear(usedIds)
+	end
+	if view.charges < view.max or view.held then
+		usedIds[id] = true
+	end
+	if typeof(onboarding) ~= "number" or onboarding < 1 or usedIds[id] then
+		return false
+	end
+	local phase = MatchState.phase()
+	return phase == "Live" or phase == "SuddenDeath"
+end
+
 local function writeSlot(ui: SlotState, view: ModController.SlotView, slot: number, now: number)
 	local id = view.id
+	local nudge = nudges(view)
 	local key = ModController.keyLabel(slot)
 
 	-- Out of charges: a recharging Mod sweeps and counts down; a per-round
@@ -315,7 +346,22 @@ local function writeSlot(ui: SlotState, view: ModController.SlotView, slot: numb
 			held = view.held,
 			denied = now - ui.deniedAt,
 			active = if activeLeft > 0 then activeLeft / ui.activeTotal else 0,
+			nudge = nudge,
 		})
+	end
+	-- Touch: the nudged button breathes (its own UIScale, so it never fights the press scale).
+	local tb = ui.button
+	if tb then
+		local scale = ui.nudgeScale
+		if not scale then
+			local made = Instance.new("UIScale")
+			made.Name = "Nudge"
+			made.Parent = tb
+			ui.nudgeScale = made
+			scale = made
+		end
+		local s = scale :: UIScale
+		s.Scale = if nudge and not cooling then 1 + 0.1 * (0.5 + 0.5 * math.sin(now * 5)) else 1
 	end
 
 	-- Touch button: written only when something it shows changed.

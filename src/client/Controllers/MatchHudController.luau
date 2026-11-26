@@ -46,6 +46,7 @@ local WHITE = Color3.new(1, 1, 1)
 -- The sound a notification makes as it comes in (by its title).
 local SOUND: { [string]: string } = {
 	["SUDDEN DEATH"] = "Banner",
+	["GUNS UP"] = "Banner",
 	["MATCH POINT"] = "Banner",
 	FIGHT = "Fight",
 	["ROUND WON"] = "RoundWon",
@@ -216,15 +217,13 @@ local function refresh(ui: Ui)
 				then "Next round wins it"
 				elseif myScore == need then "You need one more round"
 				else "They need one more round"
+		elseif round > 1 and tierFor(round - 1).name ~= tier.name then
+			-- The tier went up: the 3-2-1 hands out the bigger guns (vault/01 Design/First Ten Minutes.md).
+			title, tone = "GUNS UP", "gold"
+			sub = string.format("%s guns", tier.name)
 		else
 			title = "GET READY"
-			sub = if round > 1 and tierFor(round - 1).name ~= tier.name
-				then string.format(
-					'<font color="#%s">NEW</font>  %s guns',
-					TONE.gold:ToHex(),
-					tier.name
-				)
-				else string.format("%s guns", tier.name)
+			sub = string.format("%s guns", tier.name)
 		end
 	elseif phase == "Live" then
 		if now - liveSince < FIGHT_MESSAGE_TIME then

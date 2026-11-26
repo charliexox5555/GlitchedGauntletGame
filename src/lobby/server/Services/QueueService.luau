@@ -477,6 +477,7 @@ join = function(player: Player, info: Config.ModeInfo)
 	if PlayZone.get(player) ~= "Lobby" then
 		return
 	end
+	player:SetAttribute("OnbNextMatch", nil) -- a parked NEXT MATCH (onRequeue) is used up by any search
 	local members = Parties.members(player)
 	if members[1] ~= player then
 		send(player, { kind = "info", text = "Your party leader starts the search" })
@@ -714,6 +715,7 @@ end
 
 function QueueService.resetOnboarding(player: Player)
 	instantUsed[player] = nil
+	player:SetAttribute("OnbNextMatch", nil)
 	local state = states[player]
 	if state and state.status == "searching" then
 		leave(player)
@@ -776,6 +778,17 @@ function QueueService.start()
 				and os.clock() - t0 < 5
 			do
 				task.wait(0.2)
+			end
+			-- NEXT MATCH after a new player's first match while the free case is still shut: park the request;
+			-- the lobby opens the case by itself, then queues (Controllers/OnboardingController, vault/01
+			-- Design/First Ten Minutes.md). The attribute only says "they asked"; the search goes through join.
+			if
+				info
+				and StateValues.get(player, "OnbCaseGift") == true
+				and StateValues.get(player, "OnbCaseOpened") ~= true
+			then
+				player:SetAttribute("OnbNextMatch", info.id)
+				return
 			end
 			if info and info.enabled and Parties.leader(player) == player then
 				join(player, info)

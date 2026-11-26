@@ -44,9 +44,14 @@ export type ModInfo = {
 	held: boolean,
 	denied: number, -- seconds since the last denied use
 	active: number, -- 0..1 of an active effect left
+	-- A new player's power not used yet (ModHudController, onboarding only): its key goes gold and the cell
+	-- pops with a shine every NUDGE_EVERY seconds until the first use (vault/01 Design/First Ten Minutes.md).
+	nudge: boolean?,
 }
 
 local WHITE = Color3.new(1, 1, 1)
+local GOLD, GOLD_INK = Color3.fromHex("FFC83D"), Color3.fromHex("10141B") -- the one act-now colour
+local NUDGE_EVERY = 1.6 -- seconds between a nudged power's pops
 local TEXT = Color3.fromHex("F4F6F9")
 local MUTED = Color3.fromHex("A3A3A6")
 local RED = Color3.fromHex("FF4D5E")
@@ -115,6 +120,10 @@ type Slot = {
 	edge: UIStroke,
 	key: TextLabel,
 	keyPlate: Frame,
+	keyFace: Frame,
+	keyColor: Color3, -- the key face's Studio colour (a nudge turns it gold)
+	keyText: Color3,
+	nudgeAt: number, -- the last nudge pop (os.clock)
 	shown: string?,
 	wasCooling: boolean,
 	held: boolean,
@@ -471,6 +480,16 @@ function BottomHud.setMod(index: number, info: ModInfo)
 		end
 	end
 	s.key.Text = info.key
+	-- nudge: a gold key and a pop with a shine now and then, until the power is used once
+	local nudge = info.nudge == true and info.id ~= nil and not info.cooling
+	s.keyFace.BackgroundColor3 = if nudge then GOLD else s.keyColor
+	s.key.TextColor3 = if nudge then GOLD_INK else s.keyText
+	if nudge and os.clock() - s.nudgeAt >= NUDGE_EVERY then
+		s.nudgeAt = os.clock()
+		s.pop.Scale = 1.16
+		tween(s.pop, 0.36, { Scale = 1 })
+		glint(s)
+	end
 
 	-- cooling: a dark curtain over the colour lifts as it recharges
 	s.icon.ImageTransparency = if info.cooling then 0.35 else 0
@@ -594,6 +613,10 @@ local function bind(gui: ScreenGui)
 			edge = cell:WaitForChild("Edge") :: UIStroke,
 			key = (key:WaitForChild("Face") :: Frame):WaitForChild("Label") :: TextLabel,
 			keyPlate = key,
+			keyFace = key:WaitForChild("Face") :: Frame,
+			keyColor = (key:WaitForChild("Face") :: Frame).BackgroundColor3,
+			keyText = ((key:WaitForChild("Face") :: Frame):WaitForChild("Label") :: TextLabel).TextColor3,
+			nudgeAt = 0,
 			shown = "?",
 			wasCooling = false,
 			held = false,

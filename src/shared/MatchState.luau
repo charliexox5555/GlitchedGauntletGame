@@ -54,6 +54,10 @@ export type DraftOffer = {
 	enemyKit: { string }, -- "id:level" for each enemy ability
 	gun: string?, -- already selected (your gun while it's offered, else the first)
 	ability: string?, -- already selected (an id or an upgrade card's key)
+	-- Onboarding (Config/Onboarding SCRIPT): `focus` shows only the cards on offer (no gun row, no empty or
+	-- maxed columns); `hidden` shows no pick screen at all (the round starts with the kit already on).
+	focus: boolean?,
+	hidden: boolean?,
 }
 
 export type RoundCallout = { tag: string, detail: string?, actor: string?, team: number }
@@ -89,6 +93,8 @@ local FIELD_NAMES = {
 	"Mode", -- the queued mode ("beginner", "2v2", ...): Controllers/BeginnerHighlightController
 	"RoundsToWin",
 	"PhaseBoost", -- true in an onboarding match: rounds deal later weapon phases (phaseFor)
+	-- 1 or 2: a new player's first or second match, run by Config/Onboarding SCRIPT; 0 otherwise
+	"OnboardingMatch",
 }
 
 -- A folder of every field, named `name`, under `parent` (made once).

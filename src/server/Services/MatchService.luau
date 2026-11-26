@@ -19,6 +19,7 @@ local RunService = game:GetService("RunService")
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
+local OnbConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local MatchState = require(script.Parent.Parent.MatchState)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
@@ -728,6 +729,12 @@ local function openDraft(round: number): number
 		then Config.FIRST_SELECT_TIME
 		else Config.SELECT_TIME_BY_MODE[matchMode()] or Config.SELECT_TIME
 	local picking = math.max(total - Config.COUNTDOWN_TIME, 1)
+	-- A new player's scripted round with no pick screen (Config/Onboarding SCRIPT): just time to spawn.
+	local step = DraftService.scriptStep(round)
+	if step and step.select == "none" then
+		picking = OnbConfig.HIDDEN_SELECT_TIME
+		total = picking + Config.COUNTDOWN_TIME
+	end
 	local keys = seatKeys()
 	local now = workspace:GetServerTimeNow()
 	DraftService.open(keys, round, now + picking, enemyKit)
@@ -1183,6 +1190,11 @@ local function runMatch(): boolean
 	onboardingMatch = allPlayersBelow(Config.ONBOARDING_MATCHES)
 	-- before round 1's draft deals: onboarding matches deal the better guns early (MatchState.phaseFor)
 	MatchState.set("PhaseBoost", onboardingMatch)
+	-- which of a new player's first matches this is (Config/Onboarding SCRIPT: DraftService deals from it)
+	MatchState.set(
+		"OnboardingMatch",
+		if firstMatch then 1 elseif onboardingMatch then math.min(2, #OnbConfig.SCRIPT) else 0
+	)
 	inMatch = true
 	StatsService.reset()
 	humanSides = { false, false }
