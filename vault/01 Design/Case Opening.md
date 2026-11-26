@@ -103,7 +103,7 @@ Owner: buying a bundle should feel better. "spawn all the cases at once that it 
 
 ## Open (owner)
 - **Sounds:** Round 5 approved (owner 2026-11-25: "Sounds great").
-- **Bundle opening:** built 2026-11-25; needs the owner's look and a real purchase test.
+- **Bundle opening:** approved as is (owner 2026-11-25: "Nah thats good I like it", ~11 s to the equip screen kept). Still to do: a real purchase test.
 - Feel: toss length, shake count, hold time, flash strength per tier; higher tiers could get a longer build-up (RIVALS chests run 8 s).
 - Pictures for every skin (renders, not viewports) so the result panel never falls back to a letter.
 - **Save the Lobby place.**
