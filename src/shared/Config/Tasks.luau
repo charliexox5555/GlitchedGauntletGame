@@ -40,6 +40,7 @@ export type Kind =
 
 export type Task = {
 	id: string, -- unique across the Path, saved with the player's progress: never rename one that shipped
+	-- target: never lower a shipped task's target (a save past the new target reads as done and skips its coins)
 	kind: Kind,
 	target: number,
 	text: string,
@@ -88,8 +89,8 @@ local SETS: { TaskSet } = {
 		parts = {
 			part(
 				t("rec1_rangeVisit", "rangeVisit", 1, "Visit the Range"),
-				t("rec1_rangeTargets", "rangeTargets", 10, "Shatter %d air targets at the Range"),
-				t("rec1_rangeBots", "rangeBots", 3, "Down %d training bots at the Range")
+				t("rec1_rangeTargets", "rangeTargets", 10, "Shatter %d Range targets"),
+				t("rec1_rangeBots", "rangeBots", 3, "Down %d Range bots")
 			),
 			part(
 				t("rec2_play", "matchPlay", 2, "Finish %d matches"),
@@ -252,6 +253,8 @@ end
 return table.freeze({
 	-- The Path opens once a player has finished this many matches (back in the lobby after match 2).
 	START_AFTER_MATCHES = Match.ONBOARDING_MATCHES,
+	-- Range counts wait this many seconds to be saved together (at once when one finishes a task).
+	RANGE_FLUSH = 8,
 	MULTI_ELIM_WINDOW = 4, -- s between eliminations for a double / triple
 	POWER_COUNT = POWER_COUNT,
 	SETS = table.freeze(SETS),

@@ -7,7 +7,7 @@
 
 ## 📍 Status
 
-- **Task Path picked (2026-11-26).** Owner chose every set and rule: a one-time Path of 6 sets × 3 parts × 3 tasks, opening back in the lobby after match 2 with the Range first; coins per task (50 → 200), a Ticket only at sets 2, 4, 6, Champion title at the end; bots count. The list is data in `Config/Tasks.luau`; tracking, saving and the panel are next. [Tasks and Rewards](01%20Design/Tasks%20and%20Rewards.md)
+- **Task Path built (2026-11-26).** The owner-picked Path (6 sets × 3 parts × 3 tasks, opens after match 2, Range first) now tracks, saves and pays: match counts in the same write as XP and match pay (StatsService → ProgressionService), Range counts through the new `TaskService`, a lobby panel (`TaskPanel`, row template built in Studio) that also shows in the Range, task toasts, admin SKIP PART / RESET PATH. Studio-tested: logic checks, Range visit paid, a bot match moved Recruit P2. Not tested: shooting targets/bots, real fights, phones. Not published. [Tasks and Rewards](01%20Design/Tasks%20and%20Rewards.md)
 
 - **Queue counts hidden, player list status (2026-11-26).** The Play menu no longer shows "N SEARCHING" (Lobby `Config.SHOW_QUEUE_COUNTS = false`, back on with more players); the player list says IN MATCH / IN RANGE / IN LOBBY (was IN LOBBY for everyone).
 

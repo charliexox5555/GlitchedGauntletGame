@@ -458,6 +458,28 @@ local function roundWinner(): number
 	return 0
 end
 
+-- The fighters still alive on `team` (Players and bot models): the task Path's round counts.
+local function survivors(team: number): { Instance }
+	local out: { Instance } = {}
+	for _, player in playersOn(team) do
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if humanoid and Health.isAlive(humanoid) then
+			table.insert(out, player)
+		end
+	end
+	for _, key in BotService.keys() do
+		if BotService.teamOf(key) == team then
+			local model = BotService.modelOf(key)
+			local humanoid = model and model:FindFirstChildOfClass("Humanoid")
+			if model and humanoid and Health.isAlive(humanoid) then
+				table.insert(out, model)
+			end
+		end
+	end
+	return out
+end
+
 -- Name and HP+shield of the single surviving fighter on `team` (nil if 0 or 2+ alive).
 local function soleSurvivor(team: number): (string?, number)
 	local name: string? = nil
@@ -676,19 +698,48 @@ local function killsOf(userId: number): number
 	return 0
 end
 
+-- Players per team (the Lobby plan's, else the bigger side): the task Path's 1v1 / 2v2 / 3v3.
+local function teamSize(): number
+	local plan = MatchPlan.current()
+	if plan then
+		return plan.size
+	end
+	return math.max(sideCount(1), sideCount(2), 1)
+end
+
 -- One player's match into their save (once per match; later calls do nothing).
+-- `theirScore`: the other side's rounds (a won match with 0 is flawless).
 local function reportProgress(
 	userId: number,
 	team: number,
 	won: boolean,
 	left: boolean,
-	roundsWon: number
+	roundsWon: number,
+	theirScore: number?
 )
 	if reported[userId] or matchKey == "" then
 		return
 	end
 	reported[userId] = true
 	local opponents = opponentsOf(team)
+	-- the task Path (Shared/TaskPath MatchStats; ProgressionService checks it again). Guarded: a fault here must
+	-- never cost the player their XP and match pay.
+	local statsOk, taskStats = pcall(function(): { [string]: any }
+		local t = StatsService.taskStats(userId)
+		local wonIt = won and not left
+		t.played = not left
+		t.won = wonIt
+		t.flawless = wonIt and theirScore == 0
+		t.glitchWin = wonIt and t.glitch == true
+		t.glitch = nil
+		t.teamSize = teamSize()
+		t.map = lastMap or ""
+		return t
+	end)
+	if not statsOk then
+		warn("[MatchService] task stats failed:", taskStats)
+		taskStats = nil
+	end
 	local ok, err = pcall(ProgressionService.report, matchKey, userId, {
 		won = won and not left,
 		left = left,
@@ -701,7 +752,7 @@ local function reportProgress(
 		roundsWon = roundsWon,
 		kills = killsOf(userId),
 		opponents = opponents,
-	}, MatchState.get("Mode"))
+	}, MatchState.get("Mode"), taskStats)
 	if not ok then
 		warn("[MatchService] progression report failed:", err)
 	end
@@ -1412,6 +1463,18 @@ local function runMatch(): boolean
 		end
 		if winner ~= 0 then
 			scores[winner] += 1
+			local ok, err = pcall(function()
+				StatsService.roundEnded(
+					winner,
+					roundStartCounts[winner],
+					roundStartCounts[3 - winner],
+					survivors(winner),
+					DraftService.phaseFor(round).tier
+				)
+			end)
+			if not ok then
+				warn("[MatchService] task round stats failed:", err) -- the task Path only: the round goes on
+			end
 		end
 		scored = true
 		MatchState.set("Score1", scores[1])
@@ -1513,7 +1576,7 @@ local function runMatch(): boolean
 	for userId, team in participants do
 		local player = Players:GetPlayerByUserId(userId)
 		local here = player ~= nil and Teams.of(player) == team
-		reportProgress(userId, team, team == matchWinner, not here, scores[team])
+		reportProgress(userId, team, team == matchWinner, not here, scores[team], scores[3 - team])
 		if here and player then
 			Telemetry.mapCompleted(player, currentMapName, matchMode(), round)
 			Telemetry.mapFunnel(player, matchKey, 3, "Match completed", currentMapName, matchMode())
@@ -1806,6 +1869,9 @@ function MatchService.start()
 	setAllLocked(true)
 	MatchPlan.start()
 	Net.event("BodyReady").OnServerEvent:Connect(onBodyReady)
+	-- the task Path's draft and power counts (StatsService)
+	DraftService.onPicked(StatsService.notePick)
+	ModService.onUsed(StatsService.noteUse)
 	-- Shared services hear every fighter in the server: only this match's count (MatchKit/Context).
 	WeaponService.onHit(
 		Context.filtered(

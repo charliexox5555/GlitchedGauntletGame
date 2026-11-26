@@ -14,6 +14,9 @@ local ArmedHideController = {}
 
 local player = Players.LocalPlayer
 local hidden: { [LayerCollector]: RBXScriptConnection } = {}
+-- Stay up in the Range (not in a pad duel): the task Path panel and its toasts, since Recruit's first tasks are
+-- there (Controllers/TaskPanel, 2026-11-26).
+local RANGE_KEEP: { [string]: boolean } = { LobbyTasks = true, LobbyToast = true }
 
 local function hide()
 	local playerGui = player:FindFirstChildOfClass("PlayerGui")
@@ -27,6 +30,7 @@ local function hide()
 			gui:IsA("ScreenGui")
 			and gui:GetAttribute("LobbyGui") == true
 			and gui.Name ~= "Settings"
+			and not (RANGE_KEEP[gui.Name] and PlayZone.get(player) == "Range")
 			and gui.Enabled
 			and not hidden[gui]
 		then

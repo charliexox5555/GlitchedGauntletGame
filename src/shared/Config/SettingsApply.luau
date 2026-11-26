@@ -73,8 +73,8 @@ SettingsApply.LOBBY_HUD_GUIS = {
 	"LobbyBar",
 	"LobbyHudShade",
 }
--- Hide Side Tasks (and Hide HUD): the side task list. LobbyTasks is off until a
--- tasks system exists (vault/05 Production/Bugs & Ideas.md).
+-- Hide Side Tasks (and Hide HUD): the side task list (the task Path panel,
+-- LobbyClient Controllers/TaskPanel).
 SettingsApply.SIDE_TASK_GUIS = {
 	"LobbyTasks",
 }

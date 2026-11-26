@@ -96,6 +96,12 @@ local USE_KINDS: { [string]: string } = {
 
 local ModService = {}
 
+-- Told about every power use the server accepted (MatchService hands these to StatsService for the task Path).
+local useListeners: { (player: Player, powerId: string) -> () } = {}
+function ModService.onUsed(fn: (player: Player, powerId: string) -> ())
+	table.insert(useListeners, fn)
+end
+
 local states: { [Player]: PlayerState } = {}
 local heals: { Heal } = {}
 local refillListeners: { (player: Player) -> () } = {}
@@ -810,6 +816,12 @@ local function use(
 		StateValues.set(player, "ModUseAt", now)
 	end
 	state.lastAppliedAt = os.clock()
+	for _, fn in useListeners do
+		local ok, err = pcall(fn, player, modId)
+		if not ok then
+			warn("[ModService] use listener failed:", err)
+		end
+	end
 	apply(ctx, req)
 end
 

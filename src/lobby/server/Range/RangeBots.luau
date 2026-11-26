@@ -17,10 +17,12 @@
 -- No remotes: everything here is decided by the server.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local RangeCarriage = require(ReplicatedStorage.Shared.RangeCarriage)
+local RangeEvents = require(script.Parent.RangeEvents)
 local RangeDummies = require(ReplicatedStorage.Shared.Config.RangeDummies)
 local RangeDummyLook = require(ReplicatedStorage.Shared.RangeDummyLook)
 
@@ -113,6 +115,16 @@ local function onHit(
 	victim:SetAttribute("HitKill", killed)
 	-- Last: the clients react when this changes, with the fields above in place.
 	victim:SetAttribute("HitAt", workspace:GetServerTimeNow())
+	if killed then
+		-- the task Path (Services/TaskService): a player downed a training bot
+		local shooter = if attacker:IsA("Player")
+			then attacker
+			elseif attacker:IsA("Model") then Players:GetPlayerFromCharacter(attacker)
+			else nil
+		if shooter then
+			RangeEvents.fire(shooter, "bot")
+		end
+	end
 	return nil
 end
 

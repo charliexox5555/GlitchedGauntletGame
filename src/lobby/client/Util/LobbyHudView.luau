@@ -20,8 +20,8 @@
 --
 -- Data that doesn't exist yet stays hidden or a placeholder: level and XP (no
 -- progression yet: the `Level` / `XpShare` / `WinStreak` player attributes are
--- read if they appear), daily tasks (`setTasks`), badges (`setBadge`) and the
--- callout (`callout`).
+-- read if they appear), badges (`setBadge`) and the callout (`callout`). The
+-- task Path panel in LobbyTasks is Controllers/TaskPanel's.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -1085,8 +1085,8 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	end
 	renderList()
 	LobbyHudView.renderParty()
-	for name, g in guis do
-		g.Enabled = name ~= "LobbyTasks" -- tasks wait for a tasks system
+	for _, g in guis do
+		g.Enabled = true -- LobbyTasks: its panel shows itself (Controllers/TaskPanel)
 	end
 	bindPadShortcuts(s)
 	return true
@@ -1485,11 +1485,6 @@ function LobbyHudView.placeBubble()
 			task.wait(0.35)
 		end
 	end)
-end
-
--- Daily tasks: not built yet (no tasks system); the panel stays hidden.
-function LobbyHudView.setTasks(_tasks: { any })
-	-- Filled once a tasks system exists (vault/05 Production/Bugs & Ideas.md).
 end
 
 return LobbyHudView

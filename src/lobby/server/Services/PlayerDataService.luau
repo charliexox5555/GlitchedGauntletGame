@@ -137,6 +137,7 @@ local function write(userId: number, txId: string, change: Change): (boolean, Da
 			out.tickets, out.login, out.daily, out.earn, out.buys =
 				data.tickets, data.login, data.daily, data.earn, data.buys
 			out.onb = data.onb
+			out.tasks = data.tasks
 			out.mods = data.mods
 			return out, { userId }
 		end)

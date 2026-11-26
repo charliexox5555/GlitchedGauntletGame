@@ -26,6 +26,7 @@ local Release = require(ReplicatedStorage.Shared.Config.Release)
 
 local RangeBots = require(script.Parent.Parent.Range.RangeBots)
 local RangeTargets = require(script.Parent.Parent.Range.RangeTargets)
+local RangeEvents = require(script.Parent.Parent.Range.RangeEvents)
 
 local RangeService = {}
 
@@ -157,6 +158,7 @@ local function join(player: Player, character: Model)
 	end
 	PlayZone.set(player, "Range")
 	respawn(player, "RangeSpawn")
+	RangeEvents.fire(player, "visit") -- the task Path (Services/TaskService)
 end
 
 local function leave(player: Player, character: Model)

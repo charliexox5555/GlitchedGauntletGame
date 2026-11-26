@@ -25,6 +25,8 @@ local ProgressionConfig = require(ReplicatedStorage.Shared.Config.Progression)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
+local Tasks = require(ReplicatedStorage.Shared.Config.Tasks)
 
 local LockerService = require(script.Parent.LockerService)
 local OnboardingService = require(script.Parent.OnboardingService)
@@ -439,6 +441,30 @@ local function buildMutation(
 			return true
 		end,
 			string.format("Unlocked Login Claim -> %s", targetName)
+	elseif action == "taskSkip" then
+		-- the task Path: show the next part (or set), paying nothing
+		return function(data: Data)
+			local t = data.tasks
+			local set = Tasks.SETS[t.set]
+			if not set then
+				return false, "Path already done"
+			end
+			if t.part < #set.parts then
+				t.part += 1
+			else
+				t.set += 1
+				t.part = 1
+			end
+			t.n, t.seen = {}, {}
+			return true
+		end,
+			string.format("Task Path: skipped a part -> %s", targetName)
+	elseif action == "taskReset" then
+		return function(data: Data)
+			data.tasks = TaskPath.new()
+			return true
+		end,
+			string.format("Task Path: reset to Recruit -> %s", targetName)
 	elseif action == "resetProfile" then
 		return function(data: Data)
 			local fresh = PlayerData.clean(nil)
@@ -452,6 +478,7 @@ local function buildMutation(
 			data.daily = DailyRoll.roll(fresh.skins, Economy.day(os.time()), Random.new())
 			data.earn = fresh.earn
 			data.onb = fresh.onb
+			data.tasks = fresh.tasks
 			data.buys.starter = false
 			data.buys.free = false
 			return true

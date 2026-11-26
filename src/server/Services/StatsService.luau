@@ -10,6 +10,11 @@
 -- the live lines with everyone's build (`Scoreboard`, rate-limited, no
 -- arguments trusted), and a victim gets a combat report on death: the damage
 -- they dealt to their killer and took from them this life (`CombatReport`).
+--
+-- And the task Path's match counts (vault/01 Design/Tasks and Rewards.md): headshot and multi eliminations,
+-- eliminations by weapon tier, rounds won (without dying, as the last alive, an ace), powers drafted, used
+-- and levelled. MatchService feeds the round ends (roundEnded), draft picks (notePick) and power uses
+-- (noteUse) and reads one player's counts at the match end (taskStats).
 
 local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
 local Globals =
@@ -25,6 +30,7 @@ local Pawns = require(ReplicatedStorage.Shared.Simulation.Pawns)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local TasksConfig = require(ReplicatedStorage.Shared.Config.Tasks)
 
 local HealthService = require(Globals.HealthService)
 local WeaponService = require(Globals.WeaponService)
@@ -65,6 +71,22 @@ type Entry = {
 	hurtBy: { [string]: number }, -- attacker id → last hit time
 	gunKills: { [string]: number }, -- weapon id → eliminations with it
 	lastGun: string?, -- the gun of their latest hit
+	-- the task Path
+	headshotElims: number,
+	tierElims: { number }, -- [weapon tier] = eliminations
+	chain: number, -- eliminations in the current multi-elimination streak
+	lastKillAt: number,
+	doubles: number,
+	triples: number,
+	roundsWon: number,
+	roundsNoDeath: number,
+	clutches: number,
+	aces: number,
+	drafted: number,
+	uses: number,
+	powersUsed: { string },
+	powerMax: { [string]: number }, -- power id → highest level reached (1..3)
+	glitch: boolean, -- picked a Glitched power this match
 }
 
 type RoundKiller = { name: string, team: number, kills: number, userId: number? }
@@ -75,6 +97,7 @@ local pair: { [string]: { [string]: number } } = {}
 local roundKills: { [string]: RoundKiller } = {}
 local roundDamageTaken: { [number]: number } = { [1] = 0, [2] = 0 }
 local limiter = RateLimit.new(MatchConfig.RATE)
+local tiersDealt: { [number]: boolean } = {} -- weapon tiers of the rounds played this match
 
 -- Who holds a fighter's Mod attributes: the Player, or a bot's owner stand-in.
 local function holderOf(id: string): Instance?
@@ -159,6 +182,21 @@ local function entryOf(x: Instance): Entry?
 			taken = 0,
 			hurtBy = {},
 			gunKills = {},
+			headshotElims = 0,
+			tierElims = { 0, 0, 0, 0 },
+			chain = 0,
+			lastKillAt = -math.huge,
+			doubles = 0,
+			triples = 0,
+			roundsWon = 0,
+			roundsNoDeath = 0,
+			clutches = 0,
+			aces = 0,
+			drafted = 0,
+			uses = 0,
+			powersUsed = {},
+			powerMax = {},
+			glitch = false,
 		}
 		entries[id] = e
 	end
@@ -200,7 +238,13 @@ local function topGun(e: Entry): string?
 	return best
 end
 
-local function onHit(attacker: Instance, victim: Model, dealt: number, killed: boolean): { number }?
+local function onHit(
+	attacker: Instance,
+	victim: Model,
+	dealt: number,
+	killed: boolean,
+	headshot: boolean?
+): { number }?
 	local a = entryOf(attacker)
 	local v = entryOf(victim)
 	if not v then
@@ -245,6 +289,21 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 		local gun = heldGun(attacker)
 		if gun then
 			a.gunKills[gun] = (a.gunKills[gun] or 0) + 1
+			local config = Weapons.get(gun)
+			local tier = config and config.tier
+			if typeof(tier) == "number" and a.tierElims[tier] then
+				a.tierElims[tier] += 1
+			end
+		end
+		if headshot then
+			a.headshotElims += 1
+		end
+		a.chain = if now - a.lastKillAt <= TasksConfig.MULTI_ELIM_WINDOW then a.chain + 1 else 1
+		a.lastKillAt = now
+		if a.chain == 2 then
+			a.doubles += 1
+		elseif a.chain == 3 then
+			a.triples += 1
 		end
 		local assists: { number } = {}
 		for id, at in v.hurtBy do
@@ -265,6 +324,7 @@ function StatsService.reset()
 	table.clear(entries)
 	table.clear(pair)
 	table.clear(roundKills)
+	table.clear(tiersDealt)
 	roundDamageTaken[1] = 0
 	roundDamageTaken[2] = 0
 end
@@ -277,7 +337,105 @@ function StatsService.newRound()
 	roundDamageTaken[2] = 0
 	for _, entry in entries do
 		table.clear(entry.hurtBy)
+		entry.chain = 0
+		entry.lastKillAt = -math.huge
 	end
+end
+
+-- A round's end (MatchService): `winner` 1 or 2, how many fighters each side started it with, the winning side's
+-- fighters still alive (Players or bot models) and the round's weapon tier.
+function StatsService.roundEnded(
+	winner: number,
+	winnerStart: number,
+	loserStart: number,
+	survivors: { Instance },
+	tier: number
+)
+	tiersDealt[tier] = true
+	for _, e in entries do
+		if e.team == winner then
+			e.roundsWon += 1
+			local rk = roundKills[e.id]
+			if loserStart >= 2 and rk and rk.kills >= loserStart then
+				e.aces += 1
+			end
+		end
+	end
+	for _, x in survivors do
+		local e = entryOf(x)
+		if e and e.team == winner then
+			e.roundsNoDeath += 1
+			if #survivors == 1 and winnerStart >= 2 then
+				e.clutches += 1 -- the team's last player alive, and the round is theirs
+			end
+		end
+	end
+end
+
+-- A draft pick that landed (DraftService.onPicked): a new power ("L1") or an upgrade ("A2", "G3", ...).
+function StatsService.notePick(key: any, powerId: string, level: string)
+	if typeof(key) ~= "Instance" or not key:IsA("Player") then
+		return -- bots don't do tasks
+	end
+	local e = entryOf(key)
+	if not e then
+		return
+	end
+	e.drafted += 1
+	local n = tonumber(string.sub(level, 2)) or 1
+	e.powerMax[powerId] = math.max(e.powerMax[powerId] or 0, n)
+	if string.sub(level, 1, 1) == "G" then
+		e.glitch = true
+	end
+end
+
+-- A power use the server accepted (ModService.onUsed).
+function StatsService.noteUse(player: Player, powerId: string)
+	local e = entryOf(player)
+	if not e then
+		return
+	end
+	e.uses += 1
+	if not table.find(e.powersUsed, powerId) and #e.powersUsed < 32 then
+		table.insert(e.powersUsed, powerId)
+	end
+end
+
+-- One player's counts for the task Path (MatchService adds played / won / flawless / mode / map).
+function StatsService.taskStats(userId: number): { [string]: any }
+	local e = entries["p" .. userId]
+	if not e then
+		return {}
+	end
+	local sweep = next(tiersDealt) ~= nil
+	for tier in tiersDealt do
+		if (e.tierElims[tier] or 0) == 0 then
+			sweep = false
+		end
+	end
+	local levels = { 0, 0, 0 }
+	for _, n in e.powerMax do
+		for l = 1, math.min(n, 3) do
+			levels[l] += 1
+		end
+	end
+	return {
+		elims = e.eliminations,
+		headshotElims = e.headshotElims,
+		doubles = e.doubles,
+		triples = e.triples,
+		tierElims = table.clone(e.tierElims),
+		tierSweep = sweep,
+		roundsWon = e.roundsWon,
+		roundsNoDeath = e.roundsNoDeath,
+		clutches = e.clutches,
+		aces = e.aces,
+		drafted = e.drafted,
+		uses = e.uses,
+		powersUsed = table.clone(e.powersUsed),
+		powerLevels = levels,
+		glitch = e.glitch,
+	}
 end
 
 -- Makes sure everyone in the match has a line, even with nothing on it.

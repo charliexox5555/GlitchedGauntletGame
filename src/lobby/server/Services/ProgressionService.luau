@@ -8,6 +8,9 @@
 -- level-up pop; the new level and streak are published on them by PlayerData.
 -- The same write pays match coins (Config/Economy.MATCH_COINS: finishing, a win bonus,
 -- half with no real opponent, nothing for leaving, capped per UTC day in `earn`).
+-- And the task Path (Shared/TaskPath, owner 2026-11-26): the match's task stats (MatchService, from
+-- StatsService.taskStats) move the showing part in the same write, once the player had finished
+-- Config/Tasks START_AFTER_MATCHES matches before this one; TaskService pays and toasts it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -18,6 +21,8 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local Onboarding = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerDataService = require(script.Parent.PlayerDataService)
+local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
+local TaskService = require(script.Parent.TaskService)
 local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local ProgressionService = {}
@@ -47,7 +52,8 @@ function ProgressionService.report(
 	matchKey: string,
 	userId: number,
 	result: Progress.Result,
-	mode: unknown
+	mode: unknown,
+	taskStats: unknown -- TaskPath.MatchStats (checked again here)
 )
 	if
 		typeof(matchKey) ~= "string"
@@ -57,12 +63,14 @@ function ProgressionService.report(
 	then
 		return
 	end
+	local stats = TaskPath.cleanMatch(taskStats)
 	task.spawn(function()
 		pending += 1
 		local txId = string.sub(`m:{matchKey}:{userId}`, 1, 64)
 		local gain: Progress.Gain? = nil
 		local paid = 0
 		local gainedCase = false
+		local taskPay: TaskPath.Payout? = nil
 		local ok, why = false, nil :: string?
 		for attempt = 0, #RETRY_AFTER do
 			if attempt > 0 then
@@ -70,8 +78,15 @@ function ProgressionService.report(
 			end
 			ok, why = PlayerDataService.transactUserId(userId, txId, function(data: PlayerData.Data)
 				gainedCase = false
+				taskPay = nil
 				local now = os.time()
+				local matchesBefore = data.prog.matches
 				gain = Progress.apply(data.prog, result, now)
+				if stats and TaskPath.open(matchesBefore) then
+					local pay = TaskPath.applyMatch(data.tasks, stats, data.prog.level)
+					TaskService.pay(data, pay)
+					taskPay = pay
+				end
 				if not result.left and data.prog.matches == 1 and not data.onb.caseGift then
 					data.onb.caseGift = true
 					local caseId = Onboarding.FIRST_MATCH_CASE
@@ -130,6 +145,7 @@ function ProgressionService.report(
 				lostOffer = g.lostOffer,
 				coins = paid,
 			})
+			TaskService.notify(player, taskPay)
 		end
 	end)
 end

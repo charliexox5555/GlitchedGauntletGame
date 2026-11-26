@@ -1,6 +1,6 @@
 # Tasks and Rewards (the task Path)
 
-**Status (2026-11-26):** owner picked every set and rule. The list is data in `src/shared/Config/Tasks.luau` (nothing reads it yet). Next: tracking, saving, the lobby panel. First brainstorm: 2026-11-25.
+**Status (2026-11-26):** owner picked every set and rule, and it is **built**: tracking, saving, rewards and the lobby panel (see [Build](#build-2026-11-26)). Not published. First brainstorm: 2026-11-25.
 
 ## Locked rules (owner 2026-11-26)
 - **One-time Path, per account:** 6 sets in order (Recruit → Rookie → Contender → Duelist → Veteran → Champion), each **3 parts of 3 tasks** (Veteran part 3 has 4). Later updates add sets on the end. Daily tasks come later, as a separate track.
@@ -26,7 +26,7 @@ Whole Path: **12,850 coins, 3 Tickets, the title.** The coin set rewards on sets
 
 ## The tasks
 **1 Recruit**
-- P1: Visit the Range · Shatter 10 air targets · Down 3 training bots
+- P1: Visit the Range · Shatter 10 Range targets · Down 3 Range bots
 - P2: Finish 2 matches · Draft 6 powers · Get 5 eliminations
 - P3: Win 2 matches · Get 10 eliminations · Use powers 15 times
 
@@ -55,13 +55,22 @@ Whole Path: **12,850 coins, 3 Tickets, the title.** The coin set rewards on sets
 - P2: Eliminate the whole enemy team alone in a 3v3 round · Win 5 matches without losing a round · Win 10 1v1s
 - P3: Win 30 matches · Get 300 eliminations · Reach level 30
 
-## What the tracker must count (for the build)
+## What the tracker counts
 Task kinds in `Config/Tasks` (`Kind`): range visit, range targets shattered, range bots downed; match finished / won (by team size), flawless win, Glitched win, win streak (from when the task appears), round won / without dying / clutch / ace; eliminations (by weapon tier), headshot eliminations, double eliminations (2 within `MULTI_ELIM_WINDOW` = 4 s), every tier in one match; powers drafted / used / distinct / taken to level N; distinct maps played / won; player level.
-- Not checked yet: whether match code already records headshot eliminations, power levels and the Glitched pick per player. Range bots already stamp `HitHead` / `HitKill`, and air-target breaks are server-decided.
-- `teamSize` filters: does a pad duel count as a 1v1? (Proposed: yes, with the farm cap.)
+- `teamSize`: the Lobby plan's size, else the bigger side; a pad duel counts as its size (1v1). No farm cap yet.
 - Weapon tier names disagree between Home (Sidearm/Light/Heavy/Elite) and [Weapons](Weapons.md) (T4 Wildcard); task text only names tier 1 (Sidearm).
 
+## Build (2026-11-26)
+- **Data:** `Config/Tasks` (the list; `RANGE_FLUSH` 8 s, `MULTI_ELIM_WINDOW` 4 s), `shared/TaskPath` (state, clean/valid, `applyMatch` / `applyRange`, payouts), saved as `tasks` in `shared/PlayerData`, published as the `Tasks` StringValue. Never rename a shipped task id or lower a shipped target.
+- **Matches:** `StatsService` counts (headshots, multi eliminations, tiers, round wins without dying / clutch / ace, picks, uses, power levels, Glitched pick); `MatchService` adds played / won / flawless / team size / map and passes it to `ProgressionService.report`, which moves the Path **in the same write as XP and match pay** (the match's txId makes a retry pay once). Only when the player had finished 2 matches before this one. All of it is pcall-guarded so it can never cost XP.
+- **Range:** `Range/RangeEvents` (visit, target shattered, bot downed) → `TaskService` batches them and writes at once when one finishes a task (else after 8 s, on leave, on shutdown; busy writes retried 3 times).
+- **Client:** `Controllers/TaskPanel` fills `LobbyTasks.TopLeft.Tasks` (set name, PART n / 3, three rows from the `Row` template, the part bonus line) and toasts each finished task / set / Ticket / title through the lobby toast. The panel and toast stay up in the Range (`ArmedHideController.RANGE_KEEP`).
+- **Admin (owner only):** Utility tab → TASK PATH → SKIP PART (no rewards) / RESET PATH; RESET PROFILE also resets the Path.
+- **Tested in Studio:** 23 logic checks in edit (every set, streak reset, distinct maps, level tasks, the Champion title, JSON round trip, junk saves, NaN); panel hidden at 1 match and shown at 2 (RECRUIT, PART 1 / 3); Range visit paid 50 coins, saved and toasted; panel up in the Range; a 1v1 bot match moved Recruit P2 to play 1/2, draft 5/6 with no errors; a match write without Path changes still saves XP and pay.
+- **Not tested:** shattering targets and downing bots (the MCP can't fire the gun), eliminations / headshots / clutch / ace in a real fight, the toast's look, phones, a real live server.
+
 ## Still open
-- Champion title: no title system exists yet (where it shows: profile, player list, match top bar).
-- Pad-duel farm cap number.
-- The coin set rewards for sets 1, 3 and 5.
+- Champion title: saved (`tasks.title`) but not shown anywhere yet (profile, player list, match top bar).
+- Pad-duel farm cap.
+- The coin set rewards for sets 1, 3 and 5 (200 / 400 / 600, my fill-in).
+- Toasts for tasks finished in a match server are sent but the match client has no lobby toast; the panel shows the new progress back in the lobby.

@@ -18,6 +18,7 @@ local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RangeTargetMotion = require(ReplicatedStorage.Shared.RangeTargetMotion)
 local RangeTargets = require(ReplicatedStorage.Shared.Config.RangeTargets)
+local RangeEvents = require(script.Parent.RangeEvents)
 
 local RangeTargetsServer = {}
 
@@ -110,6 +111,7 @@ local function onRays(
 			mine[best.model] = backAt
 			LobbyNet.event("RangeTargetEvent")
 				:FireClient(player, best.model, origin + dir * bestT, origin, backAt)
+			RangeEvents.fire(player, "target") -- the task Path (Services/TaskService)
 		end
 	end
 end

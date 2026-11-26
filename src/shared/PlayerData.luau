@@ -10,6 +10,7 @@
 --     daily = Shared/DailyShop { day, picks = { { gun, line } }, bought = { slot } },
 --     earn = { day = UTC day, coins = match coins earned that day } (2026-11-22),
 --     onb = Shared/Onboarding { fav, favDone, seen } (new-player flow; 2026-11-22),
+--     tasks = Shared/TaskPath { set, part, n, seen, title } (the task Path; 2026-11-26),
 --     buys = { starter = bool (Starter Bundle bought), free = bool (the one free daily
 --              skin used), intents = { [productId] = { product, gun, line, slot?, at } }
 --              (the skin each shared "skin" product pays for, saved before its prompt;
@@ -32,6 +33,7 @@
 --   StringValue "DailyShop"  JSON of `daily` (the player's own daily shop)
 --   StateValues "FreeDailyUsed", "StarterBought" (buys.free, buys.starter)
 --   StateValues "OnbFav", "OnbFavDone", "OnbSeen" (onb: favorite asks, NEW pops seen)
+--   StringValue "Tasks"  JSON of `tasks` (the task Path panel)
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -47,6 +49,7 @@ local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
+local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
@@ -64,6 +67,7 @@ export type Data = {
 	earn: { day: number, coins: number },
 	buys: Buys,
 	onb: Onboarding.Onb,
+	tasks: TaskPath.State,
 }
 -- `intent`: the skin a shared skin product pays for (Services/RobuxService)
 export type Intent = {
@@ -96,6 +100,7 @@ PlayerData.REPLICA = "Inventory"
 PlayerData.SKINS = "Skins"
 PlayerData.MODS = "LockerMods"
 PlayerData.DAILY = "DailyShop"
+PlayerData.TASKS = "Tasks"
 local MAX_LINES_PER_GUN = 64
 
 function PlayerData.key(userId: number): string
@@ -186,6 +191,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		earn = { day = 0, coins = 0 },
 		buys = { starter = false, free = false, intents = {}, receipts = {} },
 		onb = Onboarding.new(),
+		tasks = TaskPath.new(),
 	}
 	if typeof(raw) ~= "table" then
 		data.onb.analytics = if raw == nil then true else nil
@@ -196,6 +202,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	data.daily = DailyShop.clean((raw :: any).daily)
 	data.buys = PlayerData.cleanBuys((raw :: any).buys)
 	data.onb = Onboarding.clean((raw :: any).onb)
+	data.tasks = TaskPath.clean((raw :: any).tasks)
 	local earn = (raw :: any).earn
 	if typeof(earn) == "table" then
 		local day, got = count(earn.day, 1e7), count(earn.coins, Inventory.MAX_COINS)
@@ -273,6 +280,7 @@ function PlayerData.valid(data: Data): boolean
 		not LoginRewards.valid(data.login)
 		or not DailyShop.valid(data.daily)
 		or not Onboarding.valid(data.onb)
+		or not TaskPath.valid(data.tasks)
 	then
 		return false
 	end
@@ -376,6 +384,7 @@ function PlayerData.publish(player: Player, data: Data?)
 	setJson(player, PlayerData.SKINS, if data then data.skins else {})
 	setJson(player, PlayerData.MODS, if data then data.mods else {})
 	setJson(player, PlayerData.DAILY, if data then data.daily else DailyShop.new())
+	setJson(player, PlayerData.TASKS, if data then data.tasks else TaskPath.new())
 	-- Inventory last: clients listen to it, and the skins must already be there
 	setJson(player, PlayerData.REPLICA, shown)
 end

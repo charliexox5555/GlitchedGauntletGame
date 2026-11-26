@@ -19,6 +19,8 @@
 --   the popup showed, so a price change never charges more than was shown)
 -- ProgressEvent (server -> one client): ProgressEventPayload below (Services/ProgressionService,
 --   StreakSaveService)
+-- TaskEvent (server -> one client): TaskEventPayload below (Services/TaskService): tasks the player just
+--   finished, for the toast. The Path itself is the player's "Tasks" StringValue (Shared/PlayerData).
 --
 -- Live state is on attributes the server owns:
 --   Player:  QueueStatus ("idle" | "searching" | "found" | "teleporting"),
@@ -83,6 +85,15 @@ export type ProgressEventPayload = {
 -- OnboardingRequest (client -> server): ("favAsked", favorited) | ("seen", bit)
 --   (Services/OnboardingService; new-player favorite asks and HUD NEW pops)
 -- LoginEvent (server -> one client): LoginEventPayload
+export type TaskEventPayload = {
+	done: { { id: string, text: string, coins: number } }, -- tasks finished, in order
+	coins: number, -- every coin the change paid (tasks, part and set bonuses)
+	tickets: number,
+	parts: number, -- parts finished
+	sets: { string }, -- sets finished (Config/Tasks ids)
+	title: string?,
+}
+
 export type LoginEventPayload = {
 	kind: "claimed" | "failed",
 	step: number?, -- "claimed": the step (1..7) just claimed
@@ -131,6 +142,7 @@ local EVENTS = {
 	"HubRequest",
 	"RangeTravel", -- no payload: to the range from the lobby, or back (LobbyServer RangeService)
 	"RangeTargetEvent", -- server -> the shooter only: one of their air targets broke (LobbyServer Range/RangeTargets)
+	"TaskEvent", -- server -> one client: tasks they just finished (LobbyServer Services/TaskService)
 }
 
 local folder: Instance

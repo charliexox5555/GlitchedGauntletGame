@@ -1569,6 +1569,50 @@ function AdminPanelController.start()
 		end,
 	})
 
+	local tasksCard = makeSectionCard(utilPage, "TASK PATH", C.mint, 2)
+	label({
+		parent = tasksCard,
+		text = "Skip the showing part (no rewards) or start the Path again at Recruit.",
+		size = 11,
+		color = C.sub,
+		pos = UDim2.fromOffset(0, 24),
+	})
+	local tasksRow = Instance.new("Frame")
+	tasksRow.Position = UDim2.fromOffset(0, 62)
+	tasksRow.Size = UDim2.new(1, 0, 0, 36)
+	tasksRow.BackgroundTransparency = 1
+	tasksRow.Parent = tasksCard
+	local tl = Instance.new("UIListLayout")
+	tl.FillDirection = Enum.FillDirection.Horizontal
+	tl.Padding = UDim.new(0, 8)
+	tl.Parent = tasksRow
+	button({
+		parent = tasksRow,
+		text = "SKIP PART",
+		bg = C.surface,
+		fg = C.mint,
+		border = C.strokeBright,
+		size = UDim2.new(0.48, -5, 1, 0),
+		textSize = 11,
+		font = FONT_HEAVY,
+		onClick = function()
+			send("taskSkip")
+		end,
+	})
+	button({
+		parent = tasksRow,
+		text = "RESET PATH",
+		bg = C.surface,
+		fg = C.sub,
+		border = C.strokeBright,
+		size = UDim2.new(0.48, -5, 1, 0),
+		textSize = 11,
+		font = FONT_HEAVY,
+		onClick = function()
+			send("taskReset")
+		end,
+	})
+
 	local dangerCard = makeSectionCard(utilPage, "DANGER ZONE · FULL PROFILE WIPE", C.coral, 3)
 	label({
 		parent = dangerCard,

@@ -67,6 +67,21 @@ local rng = Random.new()
 local gunOffer: { string } = {}
 local gunOfferRound = 0
 local abilityOfferCounts: { [string]: number } = {}
+-- Told about every pick that lands (MatchService hands these to StatsService for the task Path).
+local pickListeners: { (key: any, powerId: string, level: string) -> () } = {}
+
+local function tellPick(key: any, powerId: string, level: string)
+	for _, fn in pickListeners do
+		local ok, err = pcall(fn, key, powerId, level)
+		if not ok then
+			warn("[DraftService] pick listener failed:", err)
+		end
+	end
+end
+
+function DraftService.onPicked(fn: (key: any, powerId: string, level: string) -> ())
+	table.insert(pickListeners, fn)
+end
 
 local function shuffled(list: { string }): { string }
 	local out = table.clone(list)
@@ -589,8 +604,10 @@ function DraftService.close(keys: { any })
 		if def and table.find(s.abilities, def.id) and s.kit[def.slot] == "" then
 			s.kit[def.slot] = def.id
 			s.levels[def.slot] = Config.ABILITY_LEVEL
+			tellPick(key, def.id, Config.ABILITY_LEVEL)
 		elseif upgrade and s.kit[upgrade.slot] == upgrade.id then
 			s.levels[upgrade.slot] = upgrade.level
+			tellPick(key, upgrade.id, upgrade.level)
 		end
 		s.locked = true
 	end
