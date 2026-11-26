@@ -124,9 +124,37 @@ local function setAllLocked(locked: boolean)
 	end
 end
 
+-- Seconds each player spent in live rounds this match (Live and SuddenDeath), for the season
+-- pass (Shared/SeasonPass, vault/04 Tech/Battle Pass Build Plan.md phase 2). Counted on the
+-- server from phase changes: only players on a team while a round is live get the time.
+local liveSecs: { [number]: number } = {}
+local liveSince: number? = nil -- os.clock() the open live stretch started
+
+local function isLive(phase: unknown): boolean
+	return phase == "Live" or phase == "SuddenDeath"
+end
+
+-- Adds the open live stretch to everyone on a team now, and starts a new stretch if the
+-- round is still live (so a leaver's part-round counts before they go).
+local function liveFlush()
+	local since = liveSince
+	if since then
+		local dt = os.clock() - since
+		for _, player in Players:GetPlayers() do
+			local team = Teams.of(player)
+			if team == 1 or team == 2 then
+				liveSecs[player.UserId] = (liveSecs[player.UserId] or 0) + dt
+			end
+		end
+	end
+	liveSince = if isLive(MatchState.get("Phase")) then os.clock() else nil
+end
+
 local function setPhase(phase: MatchState.Phase, seconds: number)
+	liveFlush()
 	MatchState.set("EndsAt", workspace:GetServerTimeNow() + seconds)
 	MatchState.set("Phase", phase)
+	liveSince = if isLive(phase) then os.clock() else nil
 end
 
 -- Waits out the clock, or until `done` says so.
@@ -752,6 +780,7 @@ local function reportProgress(
 		roundsWon = roundsWon,
 		kills = killsOf(userId),
 		opponents = opponents,
+		liveSeconds = math.floor(liveSecs[userId] or 0),
 	}, MatchState.get("Mode"), taskStats)
 	if not ok then
 		warn("[MatchService] progression report failed:", err)
@@ -1057,6 +1086,7 @@ local function onLeave(player: Player)
 	-- Leaving a match before its end is a loss (Progression.md).
 	local leftTeam = participants[player.UserId]
 	if inMatch and leftTeam and not reported[player.UserId] then
+		liveFlush()
 		local score = MatchState.get(if leftTeam == 1 then "Score1" else "Score2")
 		reportProgress(
 			player.UserId,
@@ -1263,6 +1293,7 @@ local function runMatch(): boolean
 	clearRedHits()
 	table.clear(participants)
 	table.clear(reported)
+	table.clear(liveSecs)
 	noteHumans()
 	for _, player in Players:GetPlayers() do
 		logMapStart(player)

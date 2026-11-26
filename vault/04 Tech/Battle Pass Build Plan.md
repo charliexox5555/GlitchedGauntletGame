@@ -43,5 +43,14 @@
 
   Studio (Play, server): 27 checks passed (meters and overflow, first win once a day, leavers, bots at half, caps, NaN, skip cap, clean/valid, every reward kind, claiming all 30 tiers, save round trip). A real save loaded fine. `Season.STARTS_AT = 0` until launch (no end date). Nothing calls it yet: phase 2 feeds matches, phases 3 and 4 add purchases and claims.
 
+- **Phase 2 done (2026-11-26).** Built:
+  - `MatchService` counts each player's seconds in live rounds (Live and SuddenDeath) from phase changes. Only players on a team get time. A leaver's part-round is flushed before their report. The total goes into the report as `liveSeconds` (new optional field in `Progress.Result`).
+  - `ProgressionService` runs `SeasonPass.applyMatch` in the **same** write as XP and coins, when `Release.BATTLE_PASS_OPEN` is on (or in Studio) and the season hasn't ended. `botsOnly = not counts`. The "gain" event now also carries `seasonTiers`.
+  - **Fix:** `PlayerDataService.transact` writes a fixed list of fields and didn't include the new ones. It now saves `season`, `charms` and `titles`. Without this, phase 1's state would never have saved.
+
+  Studio: a 1v1 bot match (`ServerRole = Match`, `BotMatch = 1v1`, AFK player who lost 0–5) saved `season.secs = 37` (74 s live, half for bots) and `rounds = 0`. A match before the fix saved no season, which is how the bug was found. The test switches are back to `ServerRole = Lobby`.
+
+  Not tested: a real 1v1, a win (first-win bonus), a leaver mid-round, a tier-up from a real match (the maths is covered by the phase 1 checks).
+
 ## Rules for every phase
 `--!strict`. Every number lives in `SeasonCatalog`/Config. The server is the only source for progress, claims and grants. Every remote validates types, rejects non-finite numbers and is rate-limited. One save per match, and a txId on every grant so nothing pays twice.

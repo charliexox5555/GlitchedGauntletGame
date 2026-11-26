@@ -11,6 +11,9 @@
 -- And the task Path (Shared/TaskPath, owner 2026-11-26): the match's task stats (MatchService, from
 -- StatsService.taskStats) move the showing part in the same write, once the player had finished
 -- Config/Tasks START_AFTER_MATCHES matches before this one; TaskService pays and toasts it.
+-- And the season pass (Shared/SeasonPass, Battle Pass Build Plan phase 2): time in live rounds and rounds
+-- won move the pass in the same write, while the pass is open (Release.BATTLE_PASS_OPEN, or Studio)
+-- and the season hasn't ended.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -23,6 +26,9 @@ local Onboarding = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
 local TaskService = require(script.Parent.TaskService)
+local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
+local Season = require(ReplicatedStorage.Shared.Config.Season)
+local Release = require(ReplicatedStorage.Shared.Config.Release)
 local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local ProgressionService = {}
@@ -45,6 +51,15 @@ local function matchCoins(result: Progress.Result): number
 		n *= pay.botScale
 	end
 	return math.floor(n)
+end
+
+-- Does a match now move the season pass?
+local function seasonCounts(now: number): boolean
+	if not (Release.BATTLE_PASS_OPEN or game:GetService("RunService"):IsStudio()) then
+		return false
+	end
+	local ends = Season.endsAt()
+	return Season.STARTS_AT <= now and (ends == nil or now < ends)
 end
 
 -- Never yields the caller: the write runs on its own thread.
@@ -71,6 +86,7 @@ function ProgressionService.report(
 		local paid = 0
 		local gainedCase = false
 		local taskPay: TaskPath.Payout? = nil
+		local seasonTiers = 0
 		local ok, why = false, nil :: string?
 		for attempt = 0, #RETRY_AFTER do
 			if attempt > 0 then
@@ -79,6 +95,7 @@ function ProgressionService.report(
 			ok, why = PlayerDataService.transactUserId(userId, txId, function(data: PlayerData.Data)
 				gainedCase = false
 				taskPay = nil
+				seasonTiers = 0
 				local now = os.time()
 				local matchesBefore = data.prog.matches
 				gain = Progress.apply(data.prog, result, now)
@@ -94,6 +111,15 @@ function ProgressionService.report(
 					gainedCase = true
 				end
 				local today = Economy.day(now)
+				if seasonCounts(now) then
+					seasonTiers = SeasonPass.applyMatch(data.season, {
+						liveSeconds = result.liveSeconds or 0,
+						roundsWon = result.roundsWon,
+						won = result.won,
+						left = result.left,
+						botsOnly = not result.counts,
+					}, today)
+				end
 				if data.earn.day ~= today then
 					data.earn = { day = today, coins = 0 }
 				end
@@ -144,6 +170,7 @@ function ProgressionService.report(
 				streakTo = g.streakTo,
 				lostOffer = g.lostOffer,
 				coins = paid,
+				seasonTiers = seasonTiers, -- season pass tiers this match gave (the pass screen, phase 4)
 			})
 			TaskService.notify(player, taskPay)
 		end

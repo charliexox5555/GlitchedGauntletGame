@@ -34,6 +34,7 @@ export type Result = {
 	roundsWon: number,
 	kills: number,
 	opponents: { number }, -- real opponents' UserIds
+	liveSeconds: number?, -- seconds in live rounds (the season pass; checked in Shared/SeasonPass)
 }
 
 -- What a change did, for the match end screen and the level-up pop.
