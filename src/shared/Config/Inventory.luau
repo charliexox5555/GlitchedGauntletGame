@@ -33,7 +33,8 @@ local ITEMS: { [string]: ItemDef } = {
 		maxStack = 999,
 		icon = "rbxassetid://133624978874225",
 	},
-	-- The free case for finishing match 1 (Config/Onboarding FIRST_MATCH_CASE): an Epic gun skin every time.
+	-- The free case for finishing match 1 (Config/Onboarding FIRST_MATCH_CASE): a skin for a gun they hold in match 2
+	-- (Config/Skins CASES.Starter).
 	-- Gift only: no ticket price (Economy.CASE_TICKETS) and no Shop card, so it can't be bought.
 	CaseStarter = {
 		id = "CaseStarter",

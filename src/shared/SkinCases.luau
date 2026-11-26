@@ -74,7 +74,11 @@ function SkinCases.pool(caseId: string): { [Skins.SectionId]: { Pair } }
 		return out
 	end
 	for _, p in allPairs() do
-		if (def.sections[p.section] or 0) > 0 and (def.tiers[p.tier] or 0) > 0 then
+		if
+			(def.sections[p.section] or 0) > 0
+			and (def.tiers[p.tier] or 0) > 0
+			and (def.guns == nil or table.find(def.guns, p.gun) ~= nil)
+		then
 			local list = out[p.section] or {}
 			table.insert(list, p)
 			out[p.section] = list

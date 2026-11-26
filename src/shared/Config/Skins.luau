@@ -100,7 +100,12 @@ local LINES: { [string]: Line } = {
 -- Whatever has nothing left for the player (a tier, a section) drops out and the
 -- rest scale up. Knives have their own case; Apex keeps a small knife slot.
 export type SectionId = "Guns" | "Knives"
-export type Case = { tiers: { [TierId]: number }, sections: { [SectionId]: number } }
+-- `guns`: only skins for these guns (the Starter Case: the guns a new player holds in match 2).
+export type Case = {
+	tiers: { [TierId]: number },
+	sections: { [SectionId]: number },
+	guns: { string }?,
+}
 
 local SECTIONS: { [SectionId]: { name: string, order: number } } = {
 	Guns = { name = "GUN SKINS", order = 1 },
@@ -109,9 +114,15 @@ local SECTIONS: { [SectionId]: { name: string, order: number } } = {
 
 local CASES: { [string]: Case } = {
 	Standard = { tiers = { Common = 85, Rare = 15 }, sections = { Guns = 100 } },
-	-- Gift only, never sold (owner 2026-11-25): the free case for finishing match 1 always holds an Epic gun skin.
-	-- Its own case so the odds it shows are the odds it rolls (Config/Onboarding FIRST_MATCH_CASE).
-	Starter = { tiers = { Epic = 100 }, sections = { Guns = 100 } },
+	-- Gift only, never sold: the free case for finishing match 1 (Config/Onboarding FIRST_MATCH_CASE). Owner
+	-- 2026-11-26: a skin for a gun they'll hold in match 2 so they see it in play (the Prowler and the Havoc, handed
+	-- out in every match 2: Config/Onboarding HANDED_GUNS), better odds than the Standard Case, and Legendary only
+	-- as a rare lucky pull (was always Epic, any gun). Its own case so the odds it shows are the odds it rolls.
+	Starter = {
+		tiers = { Common = 40, Rare = 42, Epic = 16, Legendary = 2 },
+		sections = { Guns = 100 },
+		guns = { "Spectre", "Vandal" },
+	},
 	Elite = { tiers = { Common = 50, Rare = 40, Epic = 10 }, sections = { Guns = 100 } },
 	-- Legendary drops out (and Rare / Epic scale up) until a Legendary line exists
 	Apex = { tiers = { Rare = 65, Epic = 30, Legendary = 5 }, sections = { Guns = 97, Knives = 3 } },

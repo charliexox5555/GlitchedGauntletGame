@@ -36,6 +36,7 @@ local BLACK = Color3.new(0, 0, 0)
 local MUTED = Color3.fromHex("CCCCCF")
 local BACK = Theme.COLORS.panel
 local CYAN = Config.COLORS.ally
+local GOLD = Color3.fromHex("FFC83D")
 local HEAVY = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy)
 
 -- Per-slot state: the change-detection keys and the touch Mod button.
@@ -366,8 +367,14 @@ local function writeSlot(ui: SlotState, view: ModController.SlotView, slot: numb
 
 	-- Touch button: written only when something it shows changed.
 	local button, label = ui.button, ui.buttonText
-	local touchKey =
-		string.format("%s|%s|%s|%s", tostring(id), secs, tostring(cooling), tostring(view.held))
+	local touchKey = string.format(
+		"%s|%s|%s|%s|%s",
+		tostring(id),
+		secs,
+		tostring(cooling),
+		tostring(view.held),
+		tostring(nudge)
+	)
 	if button and label and touchKey ~= ui.shownTouch then
 		ui.shownTouch = touchKey
 		button.Visible = id ~= nil
@@ -381,8 +388,9 @@ local function writeSlot(ui: SlotState, view: ModController.SlotView, slot: numb
 		label.Text = if cooling then secs else glyph
 		local stroke = button:FindFirstChildOfClass("UIStroke")
 		if stroke then
-			stroke.Color = if view.held then CYAN else WHITE
-			stroke.Transparency = if view.held then 0 else 0.6
+			-- nudge: a gold ring ("gold = act now", UI Theme v4 rings) until the power is first used
+			stroke.Color = if nudge and not view.held then GOLD elseif view.held then CYAN else WHITE
+			stroke.Transparency = if view.held or nudge then 0 else 0.6
 		end
 	end
 end
