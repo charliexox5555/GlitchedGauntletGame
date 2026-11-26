@@ -607,6 +607,18 @@ local TABS: { Tab } = {
 				},
 			},
 			{
+				-- the lobby bar's controller shortcuts (Config/Input Lobby*, Lobby Util/LobbyHudView)
+				title = "LOBBY",
+				rows = {
+					key("kLobbyPlay", "PLAY", "", "", "ButtonX"),
+					key("kLobbyParty", "PARTY", "", "", "ButtonY"),
+					key("kLobbyLocker", "LOCKER", "", "", "DPadLeft"),
+					key("kLobbyShop", "SHOP", "", "", "DPadUp"),
+					key("kLobbyBackpack", "BACKPACK", "", "", "DPadRight"),
+					key("kLobbySettings", "SETTINGS", "", "", "DPadDown"),
+				},
+			},
+			{
 				title = "INTERFACE",
 				rows = {
 					key("kScoreboard", "OPEN SCOREBOARD", "Tab", "", "ButtonSelect"),

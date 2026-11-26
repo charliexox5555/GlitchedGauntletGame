@@ -28,6 +28,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local SettingsApply = require(game:GetService("ReplicatedStorage").Shared.SettingsApply)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 
@@ -358,6 +360,135 @@ local function watch(p: Player)
 end
 
 -- Bottom bar ------------------------------------------------------------------------
+-- Controller shortcuts on the lobby bar (owner 2026-11-26, like RIVALS: PLAY, the party + and every bar item
+-- show a button and open on it). The actions are Config/Input's Lobby* entries, so they are Settings KEYBINDS rows
+-- and InputGlyphs draws each chip from the player's own binding (no keyboard default: the chips stay hidden on a
+-- keyboard unless a key is bound, and on touch).
+local padTargets: { [string]: { button: GuiObject, run: () -> () } } = {}
+local PAD_ACTIONS: { [string]: string } = {
+	LobbyPlay = "Play",
+	LobbyParty = "Party",
+	LobbyLocker = "Locker",
+	LobbyShop = "Shop",
+	LobbyBackpack = "Backpack",
+	LobbySettings = "Settings",
+}
+-- Where each chip sits on its button (offsets in the bar's design pixels).
+local PAD_CHIP: { [string]: { pos: UDim2, size: number } } = {
+	Play = { pos = UDim2.new(1, -46, 0.5, -4), size = 40 },
+	Party = { pos = UDim2.new(1, 18, 0.5, 0), size = 30 },
+	Item = { pos = UDim2.new(0.5, 40, 0, 52), size = 32 },
+}
+local KEY_FACE, KEY_INK = Color3.fromHex("E9EDF3"), Color3.fromHex("10141B")
+
+local function padChip(target: GuiObject, action: string, place: { pos: UDim2, size: number })
+	if target:FindFirstChild("PadKey") then
+		return
+	end
+	local chip = Instance.new("Frame")
+	chip.Name = "PadKey"
+	chip.BackgroundTransparency = 1
+	chip.AnchorPoint = Vector2.new(0.5, 0.5)
+	chip.Position = place.pos
+	chip.Size = UDim2.fromOffset(place.size, place.size)
+	chip.ZIndex = 20
+	chip:SetAttribute("KeyAction", action)
+	local face = Instance.new("Frame")
+	face.Name = "Face"
+	face.BackgroundColor3 = KEY_FACE
+	face.Size = UDim2.fromScale(1, 1)
+	face.ZIndex = 20
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = face
+	local label = Instance.new("TextLabel")
+	label.Name = "Label"
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy)
+	label.TextColor3 = KEY_INK
+	label.TextScaled = true
+	label.ZIndex = 21
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop, pad.PaddingBottom = UDim.new(0, 5), UDim.new(0, 5)
+	pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 4), UDim.new(0, 4)
+	pad.Parent = label
+	label.Parent = face
+	face.Parent = chip
+	chip.Parent = target
+	InputGlyphs.apply(chip)
+end
+
+-- A controller's glyph is its own round icon: no keycap behind it.
+local function paintPadChips()
+	local pad = InputGlyphs.mode() == "Gamepad"
+	for _, t in padTargets do
+		local chip = t.button:FindFirstChild("PadKey")
+		local face = chip and chip:FindFirstChild("Face")
+		if face and face:IsA("Frame") then
+			face.BackgroundTransparency = if pad then 1 else 0
+		end
+	end
+end
+
+local function bindPadShortcuts(s: State)
+	for action, name in PAD_ACTIONS do
+		local t = padTargets[name]
+		if t then
+			padChip(t.button, action, PAD_CHIP[name] or PAD_CHIP.Item)
+		end
+	end
+	InputGlyphs.watch(s.bottom)
+	paintPadChips()
+	InputGlyphs.changed:Connect(paintPadChips)
+	-- showing on screen: the button and every frame up to the bar (the party row hides while it's locked)
+	local function shown(g: Instance?): boolean
+		while g and g ~= s.gui do
+			if g:IsA("GuiObject") and not g.Visible then
+				return false
+			end
+			g = g.Parent
+		end
+		return true
+	end
+	local function fire(action: string)
+		local t = padTargets[PAD_ACTIONS[action]]
+		-- only on the bare lobby: no menu up (the D-pad moves through a menu), the button showing, nothing typed
+		if
+			not t
+			or PlayZone.get(player) ~= "Lobby"
+			or Router.current() ~= nil
+			or not s.gui.Enabled
+			or not shown(t.button)
+			or UserInputService:GetFocusedTextBox() ~= nil
+			or player:GetAttribute("CaseOpeningActive") == true
+			or player:GetAttribute("DuelLoading") == true
+		then
+			return
+		end
+		t.run()
+	end
+	task.spawn(function()
+		local ctx = player:WaitForChild("PlayContext", 60)
+		if not ctx then
+			return
+		end
+		local hooked: { [Instance]: boolean } = {}
+		local function hook(a: Instance)
+			if a:IsA("InputAction") and PAD_ACTIONS[a.Name] and not hooked[a] then
+				hooked[a] = true
+				a.Pressed:Connect(function()
+					fire(a.Name)
+				end)
+			end
+		end
+		for _, a in ctx:GetChildren() do
+			hook(a)
+		end
+		ctx.ChildAdded:Connect(hook)
+	end)
+end
+
 local function hookItem(s: State, b: TextButton)
 	-- the hover tick (owner 2026-11-20): bottom bar items are below the
 	-- "big item" size UiSoundController ticks for on its own
@@ -453,7 +584,7 @@ local function hookItem(s: State, b: TextButton)
 	b.MouseLeave:Connect(function()
 		hover(false)
 	end)
-	b.Activated:Connect(function()
+	local function activate()
 		local menu = MENUS[b.Name]
 		if pop and pop:IsA("UIScale") then
 			press(pop, 0.82)
@@ -461,7 +592,9 @@ local function hookItem(s: State, b: TextButton)
 		if menu then
 			Router.toggle(menu)
 		end
-	end)
+	end
+	b.Activated:Connect(activate)
+	padTargets[b.Name] = { button = b, run = activate }
 	if b.Name == "Range" and not Release.RANGE_OPEN then
 		b.Visible = false -- closed for this update (shared/Config/Release)
 	end
@@ -793,7 +926,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 			end
 		end)
 	end
-	play.Activated:Connect(function()
+	local function playNow()
 		press(s.playPop, 0.92)
 		if QueueState.status() == "idle" then
 			local act = playAction
@@ -802,7 +935,9 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 			end
 			Router.toggle("Queue")
 		end
-	end)
+	end
+	play.Activated:Connect(playNow)
+	padTargets.Play = { button = play, run = playNow }
 	local party = s.party
 	local inviteSlot = child(party, "Invite") :: TextButton
 	local invitePop = slotPop(inviteSlot)
@@ -816,12 +951,14 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 			rest(invitePop, 1)
 		end
 	end)
-	inviteSlot.Activated:Connect(function()
+	local function openParty()
 		if invitePop then
 			press(invitePop, 0.85)
 		end
 		Router.toggle("Party")
-	end)
+	end
+	inviteSlot.Activated:Connect(openParty)
+	padTargets.Party = { button = inviteSlot, run = openParty }
 	local youSlot = child(party, "You") :: GuiObject
 	hoverLift(youSlot, slotPop(youSlot))
 	local you = child(child(child(youSlot, "Ring"), "Disc"), "Headshot") :: ImageLabel
@@ -928,6 +1065,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	for name, g in guis do
 		g.Enabled = name ~= "LobbyTasks" -- tasks wait for a tasks system
 	end
+	bindPadShortcuts(s)
 	return true
 end
 

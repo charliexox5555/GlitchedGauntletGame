@@ -111,6 +111,14 @@ local bindings: { [string]: Binding } = {
 	-- simulation input, so the server and the predicting client pose the
 	-- character with the same pitch (shared/Simulation/Poses).
 	AimPitch = { keys = {}, gamepad = {}, kind = "Direction1D" },
+	-- Lobby controller shortcuts (owner 2026-11-26, like RIVALS): the bar's buttons open on these while no
+	-- menu is up (Lobby Util/LobbyHudView). No keyboard default (players click); a key can be bound in Settings.
+	LobbyPlay = { keys = {}, gamepad = { Enum.KeyCode.ButtonX }, setting = "kLobbyPlay" },
+	LobbyParty = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, setting = "kLobbyParty" },
+	LobbyLocker = { keys = {}, gamepad = { Enum.KeyCode.DPadLeft }, setting = "kLobbyLocker" },
+	LobbyShop = { keys = {}, gamepad = { Enum.KeyCode.DPadUp }, setting = "kLobbyShop" },
+	LobbyBackpack = { keys = {}, gamepad = { Enum.KeyCode.DPadRight }, setting = "kLobbyBackpack" },
+	LobbySettings = { keys = {}, gamepad = { Enum.KeyCode.DPadDown }, setting = "kLobbySettings" },
 	-- Studio / test mode only: the weapon picker (every installed gun).
 	WeaponPicker = {
 		keys = { Enum.KeyCode.P },
