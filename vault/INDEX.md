@@ -23,6 +23,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 
 ## Design (01 Design)
 - `01 Design/Progression.md` (13): levels and XP, win streak, coin streak save (RIVALS study), PlayerDataV1 save audit
+- `01 Design/Tasks and Rewards.md` (4): brainstorm: the task Path (6 sets × 3 parts × 3 tasks), coin and Ticket rewards per set, task ideas, open questions (not built)
 - `01 Design/Match Flow.md` (10): rounds, select/draft, timers, weapon phases, as built
 - `01 Design/Gunplay.md` (55): movement, slide, spread, recoil, aim assist, feedback, health/downed (§3), viewmodel (§6), feel roadmap (§5)
 - `01 Design/Gun Balance.md` (10): health, shields, every gun's damage, TTK

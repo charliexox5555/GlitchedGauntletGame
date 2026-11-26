@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Tasks and rewards brainstorm (2026-11-25).** Next update: a Path of 6 sets (Recruit → Champion), 3 parts of 3 tasks each, coins per task, Tickets per set, a Knife Case at the end. Not built; owner questions open. [Brainstorm](01%20Design/Tasks%20and%20Rewards.md)
+
 - **Bundle opening (2026-11-25).** A bought bundle now throws one crate per skin, in its own colours (Ruin-Blighted teal, Tempest-Strike blue, gold trim), opens them all at once for the buyer and nearby players, then the Backpack shows every skin in a strip with **EQUIP ALL** ([Case Opening](01%20Design/Case%20Opening.md#bundle-opening-owner-2026-11-25)). F4 → CASE previews it. The loading-screen whoosh was taken out again (owner: no swooshes).
 
 - **Vault map and loading picks (2026-11-25).** `tools/vault_map.py` (section search, outlines, link graph, health; [Vault Map](04%20Tech/Vault%20Map.md)) is now step 1 for `vault-lookup` and the vault skill: same answers in 5 tool calls instead of 16. Fixed 158 broken links. Loading sounds final: sting and bed kept, no whoosh ([logo note](02%20Art/PowerDuels%20Logo.md)).
