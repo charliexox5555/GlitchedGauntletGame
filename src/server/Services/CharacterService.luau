@@ -33,7 +33,24 @@ local ownDescriptions: { [Player]: HumanoidDescription | false } = {}
 -- Characters spawned already wearing the standard body (loadCharacter).
 local spawnedStandard: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 -- Serialize LoadCharacter per player so Lobby and Match spawns cannot collide.
-local loadingPlayers: { [Player]: boolean } = {}
+-- A load in progress per player: its token, start and when its body arrived (Avatar.LOAD_STALE).
+local loadingPlayers: { [Player]: { token: number, at: number, added: number? } } = {}
+local loadToken = 0
+local ADDED_GRACE = 2 -- seconds after the body arrives before a load that hasn't returned stops blocking
+
+local function loadBusy(player: Player): boolean
+	local busy = loadingPlayers[player]
+	if not busy then
+		return false
+	end
+	local now = os.clock()
+	-- Measured 2026-11-26: Roblox's load call can hang after the body is already in (the lobby respawn back
+	-- from a match), which then blocked the next match's spawn.
+	if busy.added and now - busy.added > ADDED_GRACE then
+		return false
+	end
+	return now - busy.at < Avatar.LOAD_STALE
+end
 
 local function fetchOwn(player: Player)
 	local ok, desc = pcall(function(): HumanoidDescription
@@ -63,19 +80,38 @@ end
 -- avatar). Errors like LoadCharacterAsync does, for the caller's retry loop.
 function CharacterService.loadCharacter(player: Player, fallback: boolean?)
 	local waitDeadline = os.clock() + 8
-	while loadingPlayers[player] and player.Parent == Players and os.clock() < waitDeadline do
+	while loadBusy(player) and player.Parent == Players and os.clock() < waitDeadline do
 		task.wait(0.1)
 	end
 	if player.Parent ~= Players then
 		return nil
 	end
-	if loadingPlayers[player] then
+	if loadBusy(player) then
 		error("LoadCharacter already in progress")
 	end
-	loadingPlayers[player] = true
+	local stale = loadingPlayers[player]
+	if stale then
+		-- the earlier load hung: take over (its late return won't clear this one: tokens)
+		HealthLog.problem(
+			"character load hung",
+			player,
+			if stale.added
+				then "body in, call never returned; taking over"
+				else "no body; taking over"
+		)
+	end
+	loadToken += 1
+	local mine = loadToken
+	loadingPlayers[player] = { token = mine, at = os.clock() }
+	local function done()
+		local busy = loadingPlayers[player]
+		if busy and busy.token == mine then
+			loadingPlayers[player] = nil
+		end
+	end
 	local desc = CharacterService.standardDescription(player)
 	if player.Parent ~= Players then
-		loadingPlayers[player] = nil
+		done()
 		return nil
 	end
 	local api = player :: any
@@ -83,6 +119,10 @@ function CharacterService.loadCharacter(player: Player, fallback: boolean?)
 	local connection = player.CharacterAdded:Connect(function(character)
 		spawnedStandard[character] = true
 		loaded = character
+		local busy = loadingPlayers[player]
+		if busy and busy.token == mine then
+			busy.added = os.clock()
+		end
 	end)
 	local ok, err = pcall(function()
 		if api.LoadCharacterWithHumanoidDescriptionAsync then
@@ -106,12 +146,12 @@ function CharacterService.loadCharacter(player: Player, fallback: boolean?)
 		end)
 		fallbackConn:Disconnect()
 		if fbOk and (loaded or player.Character) then
-			loadingPlayers[player] = nil
+			done()
 			return loaded or player.Character
 		end
 		err = fbErr or err
 	end
-	loadingPlayers[player] = nil
+	done()
 	if not ok then
 		error(err)
 	end

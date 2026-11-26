@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local Router = require(script.Parent.Parent.Util.Router)
 
 local ArmedHideController = {}
 
@@ -54,6 +55,11 @@ function ArmedHideController.start()
 		if zone == "Lobby" then
 			show()
 		else
+			-- Close any open lobby menu first: the Locker holds a Scriptable camera while it's open, and a pad
+			-- duel that started with it open left that player's camera stuck over the pad (tester, 2026-11-26).
+			if Router.current() ~= nil then
+				Router.close()
+			end
 			hide()
 		end
 	end)

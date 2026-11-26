@@ -236,6 +236,17 @@ end
 local function start(armed: boolean)
 	stop()
 	if armed then
+		-- Into a match: the normal follow camera, whatever a lobby screen left behind (the Locker's Scriptable
+		-- camera kept a pad-duel player looking at the pad, 2026-11-26). The match client adjusts it from here.
+		local camera = workspace.CurrentCamera
+		if camera and camera.CameraType ~= Enum.CameraType.Custom then
+			camera.CameraType = Enum.CameraType.Custom
+			local character = player.Character
+			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				camera.CameraSubject = humanoid
+			end
+		end
 		table.clear(guisBefore)
 		for _, gui in playerGui:GetChildren() do
 			guisBefore[gui] = true

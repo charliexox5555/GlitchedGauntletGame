@@ -376,4 +376,8 @@ return table.freeze({
 	-- Seconds after each failed lobby spawn before the next try (CharacterService.spawn; 3 tries 1 s apart until
 	-- 2026-11-22). With CharacterAutoLoads off, giving up leaves the player with no character.
 	SPAWN_RETRY = table.freeze({ 1, 2, 4, 8, 8 }),
+	-- A character load still running after this long is treated as hung (Roblox's load call never returned) and a
+	-- new spawn may take over (2026-11-26: a pad duel's arena spawn failed twice on "LoadCharacter already in
+	-- progress", leaving the player on the lobby body over the pad).
+	LOAD_STALE = 15,
 })
