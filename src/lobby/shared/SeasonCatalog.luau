@@ -13,7 +13,10 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local RunService = game:GetService("RunService")
+
 local ShopCatalog = require(script.Parent.ShopCatalog)
+local Release = require(ReplicatedStorage.Shared.Config.Release)
 local Season = require(ReplicatedStorage.Shared.Config.Season)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
@@ -127,16 +130,12 @@ function SeasonCatalog.rewards(tier: number, track: "free" | "premium"): { Rewar
 	return out
 end
 
--- PLACEHOLDER progress for the UI until phase 4 wires the server's state: level 2, part of
--- the way to 3, tier 1's free reward taken, tier 2's waiting.
-SeasonCatalog.PREVIEW_PROGRESS = {
-	level = 2,
-	rounds = 9,
-	roundsNeeded = Season.TIER_ROUNDS,
-	minutes = 6.9,
-	minutesNeeded = Season.TIER_SECONDS / 60,
-	premium = false,
-	claimed = { free = { [1] = true }, premium = {} },
-}
+-- Do the pass screen and its ways in (the Shop's card, the world sign) show? In live servers
+-- once Release.BATTLE_PASS_OPEN; in Studio also with the Workspace attribute
+-- BattlePassTest = true, to test before launch without changing what playtests look like.
+function SeasonCatalog.screenOn(): boolean
+	return Release.BATTLE_PASS_OPEN
+		or (RunService:IsStudio() and workspace:GetAttribute("BattlePassTest") == true)
+end
 
 return SeasonCatalog

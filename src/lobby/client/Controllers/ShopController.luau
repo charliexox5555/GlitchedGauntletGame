@@ -35,6 +35,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local Locker = require(ReplicatedStorage.Shared.Locker)
@@ -1630,6 +1631,18 @@ local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 			color = ShopTheme.GOLD,
 			items = items,
 		})
+	elseif product and (product.kind == "season" or product.kind == "seasonSkip") then
+		if Router.current() == "BattlePass" then
+			-- bought from the pass: stay on it (it redraws from the new state)
+			LobbyHud.toast(message, "success")
+			return
+		end
+		celebrate({
+			name = message,
+			image = ShopCatalog.ART.seasonPass,
+			tier = "Legendary",
+			color = ShopTheme.GOLD,
+		})
 	elseif product and product.kind == "case" then
 		local case = if product.caseId then ShopCatalog.case(product.caseId) else nil
 		celebrate({
@@ -2312,7 +2325,7 @@ function ShopController.init()
 		end
 	end
 	local passHolder = scroll:FindFirstChild("SeasonPass", true)
-	if passHolder and passHolder:IsA("GuiObject") and not Release.BATTLE_PASS_OPEN then
+	if passHolder and passHolder:IsA("GuiObject") and not SeasonCatalog.screenOn() then
 		passHolder.Visible = false -- no Battle Pass card this update (shared/Config/Release)
 	end
 	local passCardB = passHolder and passHolder:FindFirstChild("Card")
@@ -2433,7 +2446,7 @@ function ShopController.init()
 		soonOn(n, "Buying cosmetics")
 	end
 	local passCard = scroll:FindFirstChild("SeasonPass", true)
-	if passCard and passCard:IsA("GuiObject") and not Release.BATTLE_PASS_OPEN then
+	if passCard and passCard:IsA("GuiObject") and not SeasonCatalog.screenOn() then
 		passCard.Visible = false -- no Battle Pass card this update (shared/Config/Release)
 	end
 	local view = passCard and passCard:FindFirstChild("View", true)

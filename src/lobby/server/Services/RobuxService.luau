@@ -461,7 +461,7 @@ local function grant(
 			addCoins(compensation(product))
 			return `You already had the Premium Pass: +{compensation(product)} coins`
 		end
-		return `PREMIUM PASS unlocked: claim your rewards on the pass`
+		return "PREMIUM PASS UNLOCKED"
 	elseif product.kind == "seasonSkip" then
 		local gained = if seasonOpen then SeasonPass.skip(data.season, Season.SKIP_TIERS) else 0
 		local unused = Season.SKIP_TIERS - gained
@@ -472,7 +472,7 @@ local function grant(
 		if gained == 0 then
 			return `Your pass was already at the top: +{compensation(product)} coins`
 		end
-		return `+{gained} pass levels: you're on tier {data.season.tier}`
+		return `+{gained} PASS LEVELS: TIER {data.season.tier}`
 	elseif product.kind == "bundle" then
 		local bundle = if product.bundle then ShopCatalog.bundle(product.bundle) else nil
 		local got = 0

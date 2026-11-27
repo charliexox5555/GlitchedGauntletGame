@@ -1,10 +1,10 @@
 --!strict
 -- The Season Pass (vault/02 Art/UI Battle Pass.md), desktop. Studio-built
 -- StarterGui.BattlePass (backup tools/studio/archive/BuildBattlePass.luau), filled
--- from Lobby/SeasonCatalog. UI only for now: the server will own each
--- player's season level, progress and claims (and premium purchase); until
--- then the screen runs on SeasonCatalog.PREVIEW_PROGRESS and a claim only
--- ticks the cell here (nothing is saved).
+-- from Lobby/SeasonCatalog. The server owns the player's pass: the state is the
+-- player's "Season" StringValue (Shared/PlayerData.season), CLAIM asks
+-- SeasonRequest (Services/SeasonService), UNLOCK PREMIUM and +5 LEVELS open the
+-- Robux prompts (Services/RobuxService). The screen redraws whenever the state changes.
 --
 -- * Router "BattlePass" (the bar's PASS, the Shop's Season Pass card).
 -- * Your season level, the bar to the next with what levels you up.
@@ -20,7 +20,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
-local Release = require(ReplicatedStorage.Shared.Config.Release)
+local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local Season = require(ReplicatedStorage.Shared.Config.Season)
+local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -70,19 +73,11 @@ local isOpen = false
 local page = 1
 local pick: Pick? = nil
 local resetClose: () -> () = function() end
--- the UI's own copy of the placeholder progress (claims tick it here only)
-local progress = {
-	level = SeasonCatalog.PREVIEW_PROGRESS.level,
-	rounds = SeasonCatalog.PREVIEW_PROGRESS.rounds,
-	roundsNeeded = SeasonCatalog.PREVIEW_PROGRESS.roundsNeeded,
-	minutes = SeasonCatalog.PREVIEW_PROGRESS.minutes,
-	minutesNeeded = SeasonCatalog.PREVIEW_PROGRESS.minutesNeeded,
-	premium = SeasonCatalog.PREVIEW_PROGRESS.premium,
-	claimed = {
-		free = table.clone(SeasonCatalog.PREVIEW_PROGRESS.claimed.free),
-		premium = table.clone(SeasonCatalog.PREVIEW_PROGRESS.claimed.premium),
-	} :: { [string]: { [number]: boolean } },
-}
+-- the server's state for this player (redrawn on every change)
+local state: SeasonPass.State = SeasonPass.new()
+local claiming = false -- a claim is on its way: CLAIM waits for the answer
+local seasonRequest: RemoteEvent
+local robuxRequest: RemoteEvent
 
 local tween = UiMotion.tween
 
@@ -112,8 +107,10 @@ local function commas(n: number): string
 	return (string.gsub(string.reverse(s), "^,", ""))
 end
 
-local function soon(what: string)
-	LobbyHud.toast(what .. " opens with the season economy", "info")
+-- "12:40" from seconds
+local function clock(secs: number): string
+	local s = math.max(math.ceil(secs), 0)
+	return string.format("%d:%02d", s // 60, s % 60)
 end
 
 --------------------------------------------------------------------------------
@@ -148,10 +145,7 @@ local function rewardDesc(r: SeasonCatalog.Reward): string
 end
 
 local function claimable(tier: number, track: Track): boolean
-	return reward(tier, track) ~= nil
-		and progress.level >= tier
-		and not progress.claimed[track][tier]
-		and (track == "free" or progress.premium)
+	return reward(tier, track) ~= nil and SeasonPass.canClaim(state, tier, track)
 end
 
 -- A cell's picture: coins → the coin stack, a case → its art, a skin → the
@@ -225,7 +219,7 @@ local function renderPage()
 			if exists then
 				local r = reward(tier, track)
 				paintCell(cell, r)
-				local taken = progress.claimed[track][tier] == true;
+				local taken = SeasonPass.claimed(state, tier, track);
 				(child(cell, "Dim") :: GuiObject).Visible = taken;
 				(child(cell, "Check") :: GuiObject).Visible = taken;
 				(child(cell, "ClaimTag") :: GuiObject).Visible = claimable(tier, track)
@@ -237,7 +231,7 @@ local function renderPage()
 		num.Visible = exists
 		if exists then
 			(child(num, "Number") :: TextLabel).Text = tostring(tier);
-			(child(num, "Bar") :: Frame).BackgroundColor3 = if progress.level >= tier
+			(child(num, "Bar") :: Frame).BackgroundColor3 = if state.tier >= tier
 				then REACHED
 				else NOT_REACHED
 		end
@@ -251,22 +245,42 @@ local function renderPage()
 	end
 end
 
+-- "SEASON 1  ·  ENDS IN 24D 6H" (just the name while no end date is set)
+local function renderSub()
+	local sub = canvas:FindFirstChild("Sub")
+	if not (sub and sub:IsA("TextLabel")) then
+		return
+	end
+	local ends = Season.endsAt()
+	if not ends then
+		sub.Text = Season.NAME
+		return
+	end
+	local left = math.max(ends - workspace:GetServerTimeNow(), 0)
+	local days, hours = left // 86400, (left % 86400) // 3600
+	sub.Text = string.format("%s  ·  ENDS IN %dD %dH", Season.NAME, days, hours)
+end
+
 local function renderLevel()
-	(child(child(levelRow, "Box"), "Value") :: TextLabel).Text = tostring(progress.level);
-	(child(child(levelRow, "Tip"), "Text") :: TextLabel).Text = string.format(
-		"WIN %d / %d ROUNDS OR PLAY %s / %d MINUTES TO LEVEL UP",
-		progress.rounds,
-		progress.roundsNeeded,
-		string.format("%.1f", progress.minutes):gsub("%.0$", ""),
-		progress.minutesNeeded
-	)
+	local top = state.tier >= Season.TIERS;
+	(child(child(levelRow, "Box"), "Value") :: TextLabel).Text = tostring(state.tier)
+	local secsLeft, roundsLeft = SeasonPass.left(state);
+	(child(child(levelRow, "Tip"), "Text") :: TextLabel).Text = if top
+		then "MAX LEVEL: EVERY REWARD IS UNLOCKED"
+		else string.format(
+			"%s LEFT OR %d ROUND%s TO LEVEL UP  ·  PLAY OR WIN ROUNDS",
+			clock(secsLeft),
+			roundsLeft,
+			if roundsLeft == 1 then "" else "S"
+		)
 	local bar = child(levelRow, "Bar") :: Frame
-	local share =
-		math.max(progress.rounds / progress.roundsNeeded, progress.minutes / progress.minutesNeeded)
+	local share = if top
+		then 1
+		else math.max(state.rounds / Season.TIER_ROUNDS, state.secs / Season.TIER_SECONDS)
 	tween(child(bar, "Fill"), 0.4, { Size = UDim2.fromScale(math.clamp(share, 0.04, 1), 1) });
-	(child(bar, "Next") :: TextLabel).Text = "LEVEL " .. (progress.level + 1)
+	(child(bar, "Next") :: TextLabel).Text = if top then "MAX" else "LEVEL " .. (state.tier + 1)
 	local badge = child(tracks, "PremiumBadge") :: GuiObject;
-	(child(badge, "Lock") :: GuiObject).Visible = not progress.premium
+	(child(badge, "Lock") :: GuiObject).Visible = not state.premium
 end
 
 --------------------------------------------------------------------------------
@@ -321,7 +335,7 @@ local function pickReward(p: Pick)
 		name.Text = "PREMIUM PASS"
 		desc.Text = table.concat(SeasonCatalog.PREMIUM_PERKS, "  ·  ")
 		showPicture(nil, ShopCatalog.ART.seasonPass)
-		setActions(false, false, not progress.premium, false)
+		setActions(false, false, not state.premium, false)
 	else
 		local r = reward(p.tier, p.track)
 		tierLabel.Text = string.format("TIER %d  ·  %s", p.tier, string.upper(p.track))
@@ -341,12 +355,12 @@ local function pickReward(p: Pick)
 			desc.Text = "THIS TIER'S REWARD IS ON THE OTHER TRACK"
 			showPicture(nil, nil)
 		end
-		local locked = p.track == "premium" and not progress.premium
+		local locked = p.track == "premium" and not state.premium
 		setActions(
 			r ~= nil and r.kind == "Case",
 			claimable(p.tier, p.track),
 			locked,
-			progress.level < p.tier
+			state.tier < p.tier
 		)
 	end
 	renderPage()
@@ -362,23 +376,60 @@ local function firstPick(): { tier: number, track: Track }
 			end
 		end
 	end
-	return { tier = math.min(progress.level + 1, #SeasonCatalog.TIERS), track = "free" }
+	return { tier = math.min(state.tier + 1, #SeasonCatalog.TIERS), track = "free" }
 end
 
+-- The server pays it and the new state redraws the screen (onState); a lost answer
+-- frees CLAIM again after a while.
 local function claim()
 	local p = pick
-	if typeof(p) ~= "table" or not claimable(p.tier, p.track) then
+	if claiming or typeof(p) ~= "table" or not claimable(p.tier, p.track) then
 		return
 	end
-	local r = reward(p.tier, p.track)
-	progress.claimed[p.track][p.tier] = true
-	if r then
-		LobbyHud.toast(
-			"You've earned " .. (if r.kind == "Coins" then rewardName(r) else "x1 " .. r.name),
-			"info"
-		)
+	claiming = true
+	seasonRequest:FireServer("claim", p.tier, p.track)
+	task.delay(5, function()
+		claiming = false
+	end)
+end
+
+local function onSeasonEvent(payload: unknown)
+	if typeof(payload) ~= "table" then
+		return
 	end
-	pickReward(p)
+	local e = payload :: LobbyNet.SeasonEventPayload
+	claiming = false
+	if e.kind == "claimed" and e.rewards then
+		for _, r in e.rewards do
+			LobbyHud.toast(
+				"You've earned "
+					.. (
+						if r.kind == "Coins"
+							then string.format("%s COINS", commas(r.amount or 0))
+							elseif (r.amount or 1) > 1 then `x{r.amount} {r.name}`
+							else "x1 " .. r.name
+					),
+				"info"
+			)
+		end
+	elseif e.kind == "failed" then
+		LobbyHud.toast(e.text or "Couldn't claim that, try again", "error")
+	end
+end
+
+-- The server's state changed (a claim, a purchase, a match): redraw what's open.
+local function onState()
+	state = PlayerData.season(player)
+	if not isOpen then
+		return
+	end
+	renderLevel()
+	local p = pick
+	if p then
+		pickReward(p)
+	else
+		renderPage()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -460,6 +511,7 @@ local function open()
 		wash.BackgroundTransparency = 1
 		tween(wash, 0.25, { BackgroundTransparency = 0.3 })
 	end
+	renderSub()
 	renderLevel()
 	local first = firstPick()
 	page = math.ceil(first.tier / SeasonCatalog.PER_PAGE)
@@ -493,8 +545,8 @@ end
 --------------------------------------------------------------------------------
 
 function BattlePassController.init()
-	if not Release.BATTLE_PASS_OPEN then
-		return -- archived for this update: the build lives in tools/studio/archive (shared/Config/Release)
+	if not SeasonCatalog.screenOn() then
+		return -- closed for this update (shared/Config/Release; Studio: Workspace BattlePassTest)
 	end
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("BattlePass", 15)
 	if not g or not g:IsA("ScreenGui") then
@@ -571,11 +623,12 @@ function BattlePassController.init()
 	end
 	hookButton("Contents", openContents)
 	hookButton("Claim", claim)
+	-- Robux: the server checks again and answers on ShopEvent (ShopController's popup)
 	hookButton("Unlock", function()
-		soon("The premium pass")
+		robuxRequest:FireServer("season")
 	end)
 	hookButton("Skip", function()
-		soon("Skipping levels")
+		robuxRequest:FireServer("seasonSkip")
 	end)
 	CloseButton.hook(child(oddsPanel, "Close") :: GuiButton, function()
 		showOdds(false)
@@ -591,6 +644,29 @@ function BattlePassController.init()
 	Plates.deepen(gui)
 	Pivot.fix(gui)
 	Router.register("BattlePass", { open = open, close = close, screen = "BattlePass" })
+
+	seasonRequest = LobbyNet.event("SeasonRequest")
+	robuxRequest = LobbyNet.event("RobuxRequest")
+	LobbyNet.event("SeasonEvent").OnClientEvent:Connect(onSeasonEvent)
+	-- the state value appears with the save and is rewritten on every change
+	local function watch(v: Instance)
+		if v.Name == PlayerData.SEASON and v:IsA("StringValue") then
+			v.Changed:Connect(onState)
+			onState()
+		end
+	end
+	local existing = player:FindFirstChild(PlayerData.SEASON)
+	if existing then
+		watch(existing)
+	else
+		local conn: RBXScriptConnection
+		conn = player.ChildAdded:Connect(function(v)
+			if v.Name == PlayerData.SEASON then
+				conn:Disconnect()
+				watch(v)
+			end
+		end)
+	end
 end
 
 return BattlePassController

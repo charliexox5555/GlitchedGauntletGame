@@ -14,9 +14,10 @@ Owner's brief (RIVALS screenshots of its season pass, item view, odds, claim toa
 Code:
 - `tools/studio/BuildBattlePass.luau` builds `StarterGui.BattlePass` (Studio).
 - `client/Controllers/BattlePassController` runs it as Router "BattlePass" (the bar's PASS, and the Shop's Season Pass card and VIEW).
-- Data: `lobby/shared/SeasonCatalog` (30 tiers, PLACEHOLDER rewards and numbers, `PREVIEW_PROGRESS`).
+- Data: `lobby/shared/SeasonCatalog` (the 30 tiers); the player's state is the `Season` StringValue (server `SeasonService`), redrawn on every change. CLAIM → `SeasonRequest`; UNLOCK PREMIUM / +5 LEVELS → `RobuxRequest` (2026-11-27). The header shows the season end once `Config/Season.STARTS_AT` is set.
+- Shown when `Release.BATTLE_PASS_OPEN`, or in Studio with the Workspace attribute `BattlePassTest = true` (`SeasonCatalog.screenOn`).
 - Case odds: shared `client/Util/OddsList`; the Shop uses it too now.
-- Phones keep the old placeholder panel.
+- Phones: the canvas uses the shared Fit scale (fits any screen, but about 0.36x on a 390 px-tall phone). No phone layout yet (needs `PhoneBoost` / Phone* attributes, set in Studio's device emulator).
 
 - **Look:** the Shop's (violet wash over the blur, dark navy plates, slanted plates, drawn-X close, no back panel).
 - **Top: the picked reward, big.**

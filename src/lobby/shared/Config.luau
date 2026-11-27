@@ -116,6 +116,7 @@ return table.freeze({
 		StreakSave = { 0.5, 2 }, -- the popup's BUY (one purchase, maybe a retry)
 		LoginClaim = { 0.5, 2 }, -- the login board's CLAIM (once a day, maybe a retry)
 		RobuxRequest = { 0.5, 3 }, -- Robux BUY buttons (each opens Roblox's purchase prompt)
+		SeasonRequest = { 1, 5 }, -- pass CLAIM clicks (each one is a save write)
 	},
 
 	-- Duel pads (Services/PadDuelService, place merge 2026-11-21): a pad's two

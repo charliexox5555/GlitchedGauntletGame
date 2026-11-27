@@ -78,13 +78,23 @@ export type ProgressEventPayload = {
 }
 
 -- RobuxRequest (client -> server): ("pack", n) | ("bundle", id) | ("item", id, i) | ("daily", slot)
---   | ("starter") | ("case", caseId, 1|3) (Services/RobuxService; answers on ShopEvent)
+--   | ("starter") | ("case", caseId, 1|3) | ("season") | ("seasonSkip")
+--   (Services/RobuxService; answers on ShopEvent)
 -- LoginClaim (client -> server): no arguments (Services/LoginRewardService)
 -- HubRequest (client -> server): no arguments; "To Hub" in a hosted server (Services/HubService)
 -- SkinRequest (client -> server): ({ { line, gun } }) gun skins delivered on demand (Services/SkinStoreService)
 -- OnboardingRequest (client -> server): ("favAsked", favorited) | ("seen", bit)
 --   (Services/OnboardingService; new-player favorite asks and HUD NEW pops)
 -- LoginEvent (server -> one client): LoginEventPayload
+-- SeasonRequest (client -> server): ("claim", tier, "free"|"premium") | ("claimAll")
+--   (Services/SeasonService; the pass state itself is the player's "Season" StringValue)
+-- SeasonEvent (server -> one client): SeasonEventPayload
+export type SeasonEventPayload = {
+	kind: "claimed" | "failed",
+	-- "claimed": every reward paid, in order (names as SeasonCatalog shows them)
+	rewards: { { kind: string, name: string, amount: number? } }?,
+	text: string?, -- "failed": why
+}
 export type TaskEventPayload = {
 	done: { { id: string, text: string, coins: number } }, -- tasks finished, in order
 	coins: number, -- every coin the change paid (tasks, part and set bonuses)
@@ -143,6 +153,8 @@ local EVENTS = {
 	"RangeTravel", -- no payload: to the range from the lobby, or back (LobbyServer RangeService)
 	"RangeTargetEvent", -- server -> the shooter only: one of their air targets broke (LobbyServer Range/RangeTargets)
 	"TaskEvent", -- server -> one client: tasks they just finished (LobbyServer Services/TaskService)
+	"SeasonRequest", -- client -> server: season pass claims (LobbyServer Services/SeasonService)
+	"SeasonEvent", -- server -> one client: what a claim paid, or why it failed
 }
 
 local folder: Instance

@@ -62,5 +62,20 @@
 
   Not done here: the pass screen doesn't react to the purchase yet. The shop's generic "robux" toast shows the text; phase 4 wires the buttons and the screen.
 
+- **Phase 4 done (2026-11-27), except the phone layout.** Built:
+  - `Services/SeasonService`: `SeasonRequest` (`claim`, tier, track / `claimAll`) → `SeasonEvent`. Rate-limited (`Config.RATE.SeasonRequest`), lobby only, pass open, busy flag, the check and the pay in one write.
+  - `PlayerData.publish` sends `season` as the `Season` StringValue; `PlayerData.season(player)` reads it.
+  - `BattlePassController`: `PREVIEW_PROGRESS` is gone. It reads and redraws the real state; CLAIM asks the server; UNLOCK PREMIUM / +5 LEVELS open the Robux prompts; the meter says "13:20 LEFT OR 9 ROUNDS TO LEVEL UP"; the header shows the real end (or just SEASON 1).
+  - A purchase made on the pass shows a toast and stays on the pass; from elsewhere it's the Shop's YOU GOT popup with the pass art. Receipt texts shortened ("PREMIUM PASS UNLOCKED", "+5 PASS LEVELS: TIER 17").
+  - `SeasonCatalog.screenOn()`: the screen, the Shop card and the world prompt show when `BATTLE_PASS_OPEN`, or in Studio with Workspace `BattlePassTest = true`.
+  - Security review (`lihfolk:roblox-secure-remotes`): no findings.
+
+  Studio: forged claims were refused (tier not reached, premium without owning it, an empty slot, NaN, 1.5, a bad track, a second claim of the same tier, a second claim-all). A real claim and claim-all paid the right rewards. Claims and premium survived a restart. Through the screen: a fake premium receipt unlocked the track, and CLAIM on premium tier 1 ticked it with a toast. The save and Workspace were restored.
+
+  Open:
+  - **Phone layout** (owner, in Studio's device emulator).
+  - **Shop card:** in the launch Shop layout the Season Pass card sits half off the right edge. It needs a slot before launch (phase 9, with `SHOP_FULL_LAYOUT`).
+  - **No CLAIM ALL button** on the screen yet. The server action exists.
+
 ## Rules for every phase
 `--!strict`. Every number lives in `SeasonCatalog`/Config. The server is the only source for progress, claims and grants. Every remote validates types, rejects non-finite numbers and is rate-limited. One save per match, and a txId on every grant so nothing pays twice.

@@ -111,6 +111,7 @@ PlayerData.SKINS = "Skins"
 PlayerData.MODS = "LockerMods"
 PlayerData.DAILY = "DailyShop"
 PlayerData.TASKS = "Tasks"
+PlayerData.SEASON = "Season" -- the season pass state (Shared/SeasonPass), JSON
 local MAX_LINES_PER_GUN = 64
 local MAX_OWNED = 64
 local MAX_NAME = 40
@@ -440,6 +441,7 @@ function PlayerData.publish(player: Player, data: Data?)
 	setJson(player, PlayerData.MODS, if data then data.mods else {})
 	setJson(player, PlayerData.DAILY, if data then data.daily else DailyShop.new())
 	setJson(player, PlayerData.TASKS, if data then data.tasks else TaskPath.new())
+	setJson(player, PlayerData.SEASON, if data then data.season else SeasonPass.new())
 	-- Inventory last: clients listen to it, and the skins must already be there
 	setJson(player, PlayerData.REPLICA, shown)
 end
@@ -495,6 +497,16 @@ function PlayerData.daily(player: Player): DailyShop.Daily
 	end
 	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
 	return if ok then DailyShop.clean(decoded) else DailyShop.new()
+end
+
+-- The published season pass state (a fresh one until the save loads).
+function PlayerData.season(player: Player): SeasonPass.State
+	local value = player:FindFirstChild(PlayerData.SEASON)
+	if not (value and value:IsA("StringValue")) or value.Value == "" then
+		return SeasonPass.new()
+	end
+	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
+	return if ok then SeasonPass.clean(decoded) else SeasonPass.new()
 end
 
 function PlayerData.coins(player: Player): number
