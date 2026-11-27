@@ -45,6 +45,8 @@ local CharacterService = require(Globals.CharacterService)
 local ModWalls = require(script.Parent.ModWalls)
 local WeaponService = require(Globals.WeaponService)
 local HeldItem = require(Globals.Weapon.HeldItem)
+local HealthLog = require(Shared.HealthLog)
+local Telemetry = require(game:GetService("ServerScriptService").LobbyServer.Telemetry)
 
 type Bot = BotTypes.Bot
 
@@ -103,6 +105,31 @@ local function ownerFolder(): Instance
 	made.Name = "BotOwners"
 	made.Parent = ServerStorage
 	return made
+end
+
+-- Health counters for this match (2026-11-27 bot fixes): published on ServerStorage.BotOwners so a Studio run
+-- can read them (BotErrors, OwnerDrift, StuckMove, StuckTurn).
+local counters: { [string]: number } = {}
+local function bump(name: string)
+	local n = (counters[name] or 0) + 1
+	counters[name] = n
+	StateValues.set(ownerFolder(), name, n)
+end
+
+-- Network ownership (2026-11-27 bot fixes). The server moves and turns a bot (Humanoid:Move, its
+-- AlignOrientation), so its body must stay server-owned. Roblox resets a pinned owner to automatic whenever the
+-- assembly changes (measured: one welded Part is enough), and every gun equip and held Mod welds parts on. With
+-- automatic ownership the nearest player's client takes the body over, and the server's move and turn inputs stop
+-- reaching it: the bot that "doesn't turn and doesn't move well". Returns true when it had to pin it again.
+local function pinOwner(root: BasePart): boolean
+	local ok, repinned = pcall(function(): boolean
+		if root:GetNetworkOwner() == nil and not root:GetNetworkOwnershipAuto() then
+			return false
+		end
+		root:SetNetworkOwner(nil)
+		return true
+	end)
+	return ok and repinned
 end
 
 -- This match's dynamic difficulty (BotService.setAuto from MatchService, Bots/AutoDifficulty).
@@ -438,11 +465,29 @@ local function spawnBot(bot: Bot, at: CFrame)
 	-- The block body, this bot's own (its skinned limbs live in
 	-- Workspace.GGBodyLimbs and go with its parts).
 	MatchBody.dress(model)
-	pcall(function()
-		root:SetNetworkOwner(nil) -- the server simulates bots
-	end)
 	CharacterService.prepare(model)
 	CharacterService.useOurAnimations(model)
+	-- The server simulates bots: pin the body, and pin it again after anything joins or leaves its
+	-- assembly (the world gun, a held Mod), once per frame at most (pinOwner).
+	pinOwner(root)
+	local pinQueued = false
+	local function assemblyChanged(d: Instance)
+		if
+			pinQueued
+			or not (d:IsA("BasePart") or d:IsA("JointInstance") or d:IsA("WeldConstraint"))
+		then
+			return
+		end
+		pinQueued = true
+		task.defer(function()
+			pinQueued = false
+			if bot.life == life and model.Parent then
+				pinOwner(root)
+			end
+		end)
+	end
+	table.insert(bot.connections, model.DescendantAdded:Connect(assemblyChanged))
+	table.insert(bot.connections, model.DescendantRemoving:Connect(assemblyChanged))
 	bot.model, bot.humanoid, bot.root, bot.head = model, humanoid, root, head
 	bot.lastHealth = Health.get(humanoid)
 	bot.aimError, bot.recoil = Vector2.zero, Vector2.zero
@@ -778,6 +823,206 @@ local function debugLabel(bot: Bot)
 	)
 end
 
+-- Errors and the stuck watchdog (2026-11-27 bot fixes) -------------------------------------------------
+
+local WATCHDOG = BotsConfig.WATCHDOG
+local FLAT = Vector3.new(1, 0, 1)
+
+-- One bot's think or act raising an error must not stop the rest: each runs protected, and a failing bot drops
+-- its half-made plan and inputs so the next frame starts clean.
+local errorLoggedAt: { [Bot]: number } = setmetatable({}, { __mode = "k" }) :: any
+local function traceback(message: any): string
+	return debug.traceback(tostring(message), 2)
+end
+
+local function releaseInputs(bot: Bot)
+	for _, action in bot.inputs do
+		if action.Type == Enum.InputActionType.Bool then
+			if action:GetState() == true then
+				action:Fire(false)
+			end
+		elseif action:GetState() ~= 0 then
+			action:Fire(0)
+		end
+	end
+end
+
+local function reportTelemetry(name: string, value: number, label: string)
+	local player = Players:GetPlayers()[1]
+	if player then
+		Telemetry.event(player, name, value, label)
+	end
+end
+
+local function botFailed(bot: Bot, where: string, err: string)
+	bump("BotErrors")
+	Nav.clear(bot.nav)
+	bot.moveDir, bot.steerInput = Vector3.zero, Vector3.zero
+	pcall(releaseInputs, bot)
+	local humanoid = bot.humanoid
+	if humanoid then
+		humanoid:Move(Vector3.zero, false)
+	end
+	local now = os.clock()
+	local last = errorLoggedAt[bot]
+	if not last or now - last >= WATCHDOG.errorLogEvery then
+		errorLoggedAt[bot] = now
+		HealthLog.problem("bot error", nil, string.format("%s %s: %s", bot.name, where, err))
+		reportTelemetry("BotError", 1, where)
+	end
+end
+
+-- The watchdog: a live bot that keeps asking to move but goes nowhere, or whose body stops following its aim
+-- (the body's yaw lags the aim spring), is recovered: the body is pinned to the server again, the route and
+-- cover plan are dropped (the stalled patrol point is skipped for a while), the aim spring is re-seated on the
+-- body, its turn constraint is switched back on and the humanoid leaves any odd state. No teleports: it walks on
+-- from where it stands. Each trip is logged (Output and, live, Analytics "BotStuck").
+type Watch = {
+	life: number,
+	at: number,
+	anchor: Vector3,
+	anchorAt: number,
+	turnSince: number?,
+	quietUntil: number,
+}
+local watches: { [Bot]: Watch } = setmetatable({}, { __mode = "k" }) :: any
+
+local GOOD_STATES: { [Enum.HumanoidStateType]: boolean } = {
+	[Enum.HumanoidStateType.Running] = true,
+	[Enum.HumanoidStateType.RunningNoPhysics] = true,
+	[Enum.HumanoidStateType.Freefall] = true,
+	[Enum.HumanoidStateType.Jumping] = true,
+	[Enum.HumanoidStateType.Landed] = true,
+	[Enum.HumanoidStateType.GettingUp] = true,
+}
+
+local function recover(bot: Bot, kind: string, seconds: number, now: number)
+	local root, humanoid = bot.root, bot.humanoid
+	if not root or not humanoid then
+		return
+	end
+	bump(if kind == "turn" then "StuckTurn" else "StuckMove")
+	local owner = root:GetNetworkOwner()
+	local repinned = pinOwner(root)
+	local state = humanoid:GetState()
+	local nav = bot.nav
+	local pos = root.Position
+	local detail = string.format(
+		"%s %s %.1fs goal=%s owner=%s%s state=%s/%s ws=%.1f at=%d,%d,%d steer=%.2f out=%.2f path=%s %d/%d to=%.0f",
+		bot.name,
+		kind,
+		seconds,
+		bot.goal,
+		if owner then owner.Name else "server",
+		if repinned then " (re-pinned)" else "",
+		state.Name,
+		tostring(StateValues.get(bot.model :: Model, "MoveState")),
+		humanoid.WalkSpeed,
+		pos.X,
+		pos.Y,
+		pos.Z,
+		bot.steerInput.Magnitude,
+		nav.steerDir.Magnitude,
+		if nav.computing then "computing" elseif nav.failedFor then "failed" else "ok",
+		nav.index,
+		#nav.waypoints,
+		if nav.goal then ((nav.goal - pos) * FLAT).Magnitude else -1
+	)
+	if bot.goal == "Roam" and bot.roamGoal then
+		bot.roamBlocked[bot.roamGoal] = now + BotsConfig.ROAM_RETRY
+	end
+	bot.roamGoal = nil
+	bot.coverGoal, bot.peekGoal = nil, nil
+	bot.coverUntil, bot.peekUntil = 0, 0
+	bot.coverAt = now + BotsConfig.COVER_RETRY
+	Nav.clear(bot.nav)
+	bot.nav.computing = false
+	bot.moveDir, bot.steerInput = Vector3.zero, Vector3.zero
+	bot.goal, bot.goalSince = "Roam", now
+	-- The aim spring sits on the body again (and loses a NaN, if one got in).
+	local _, bodyYaw = root.CFrame:ToOrientation()
+	bot.yaw = if bodyYaw == bodyYaw then bodyYaw else 0
+	if bot.pitch ~= bot.pitch then
+		bot.pitch = 0
+	end
+	bot.yawVel, bot.pitchVel = 0, 0
+	local align = aligns[bot]
+	if align then
+		align.Enabled = true
+		align.CFrame = CFrame.Angles(0, bot.yaw, 0)
+	end
+	if not GOOD_STATES[state] then
+		humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+	end
+	HealthLog.problem("bot stuck", nil, detail)
+	reportTelemetry("BotStuck", math.round(seconds * 10) / 10, kind)
+end
+
+local function watchdog(bot: Bot, now: number)
+	local root, humanoid = bot.root, bot.humanoid
+	if not root or not humanoid or not bot.fighting or not Health.isAlive(humanoid) then
+		watches[bot] = nil
+		return
+	end
+	local w = watches[bot]
+	local pos = root.Position
+	if not w or w.life ~= bot.life then
+		watches[bot] = {
+			life = bot.life,
+			at = now,
+			anchor = pos,
+			anchorAt = now,
+			turnSince = nil,
+			quietUntil = now + WATCHDOG.cooldown,
+		}
+		return
+	end
+	if now - w.at < WATCHDOG.check then
+		return
+	end
+	w.at = now
+	-- Ownership slipping without an assembly change would show up here.
+	if pinOwner(root) then
+		bump("OwnerDrift")
+	end
+	if now < w.quietUntil then
+		w.anchor, w.anchorAt, w.turnSince = pos, now, nil
+		return
+	end
+	-- Turning: the body follows the aim spring through its AlignOrientation within a few frames.
+	local _, bodyYaw = root.CFrame:ToOrientation()
+	local lag = math.abs(math.deg((bodyYaw - bot.yaw + math.pi) % (2 * math.pi) - math.pi))
+	if bot.yaw ~= bot.yaw or lag ~= lag then
+		lag = math.huge
+	end
+	if lag > WATCHDOG.turnDegrees then
+		w.turnSince = w.turnSince or now
+	else
+		w.turnSince = nil
+	end
+	-- Moving: it asks to move (its eased steering input), isn't slowed to a crawl by a Mod, and covers ground.
+	local moveMult = StateValues.get(bot.owner, "MoveMult")
+	local wants = bot.steerInput.Magnitude > 0.3
+		and not (typeof(moveMult) == "number" and moveMult < 0.35)
+	if not wants or ((pos - w.anchor) * FLAT).Magnitude >= WATCHDOG.moveStuds then
+		w.anchor, w.anchorAt = pos, now
+	end
+	local turnFor = if w.turnSince then now - w.turnSince else 0
+	if turnFor >= WATCHDOG.turnAfter then
+		recover(bot, "turn", turnFor, now)
+	elseif now - w.anchorAt >= WATCHDOG.moveAfter then
+		recover(bot, "move", now - w.anchorAt, now)
+	else
+		return
+	end
+	w.quietUntil = now + WATCHDOG.cooldown
+	w.anchor, w.anchorAt, w.turnSince = pos, now, nil
+end
+
+local function think(bot: Bot, now: number)
+	Brain.think(bot, worldFor(bot), now)
+end
+
 local function step(dt: number)
 	local started = os.clock()
 	local now = started
@@ -838,15 +1083,23 @@ local function step(dt: number)
 		if now >= bot.nextThink then
 			bot.nextThink = now + 1 / BotsConfig.THINK_RATE
 			debug.profilebegin("BotThink")
-			Brain.think(bot, worldFor(bot), now)
+			local ok, err = xpcall(think, traceback, bot, now)
 			debug.profileend()
+			if not ok then
+				botFailed(bot, "think", err)
+			end
 			if STUDIO then
 				debugLabel(bot)
 			end
 		end
 		debug.profilebegin("BotAct")
-		local fired = Brain.act(bot, dt, aligns[bot])
+		local ok, result = xpcall(Brain.act, traceback, bot, dt, aligns[bot])
 		debug.profileend()
+		local fired = ok and result == true
+		if not ok then
+			botFailed(bot, "act", result)
+		end
+		watchdog(bot, now)
 		if fired then
 			local head = bot.head
 			if head then

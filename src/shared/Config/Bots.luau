@@ -337,6 +337,18 @@ return table.freeze({
 	STUCK_DISTANCE = 1, -- studs moved below which a sample counts as stuck
 	ROAM_RETRY = 9, -- don't retry a patrol point that just stalled
 
+	-- The stuck watchdog (Services/BotService, vault/05 Production/Playtests/2026-11-27 Bot Fixes.md): a live
+	-- bot that asks to move but stays put, or whose body stops following its aim, is recovered and logged.
+	WATCHDOG = table.freeze({
+		check = 0.5, -- seconds between samples
+		moveAfter = 4, -- seconds of asking to move without covering `moveStuds`
+		moveStuds = 2, -- studs it has to cover in that window
+		turnAfter = 1.5, -- seconds the body's yaw may lag the bot's aim by more than `turnDegrees`
+		turnDegrees = 35,
+		cooldown = 3, -- seconds after a recovery before the next one
+		errorLogEvery = 10, -- seconds between repeated error lines for the same bot
+	}),
+
 	-- Firing discipline.
 	FIRE_CONE_SLACK = 2.2, -- fires when aim error is under (gun cone + this) degrees
 	TAP_RANGE = 45, -- studs: beyond this auto guns fire short bursts

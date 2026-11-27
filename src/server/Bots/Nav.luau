@@ -30,7 +30,10 @@ local path = PathfindingService:CreatePath({
 })
 -- One path compute at a time across all bots (ComputeAsync yields): the
 -- shared Path object is reused, and a queue keeps the cost flat.
-local busy = false
+local busy: {}? = nil -- the compute holding the Path
+local busyAt = 0
+-- A compute that never comes back must not hold every bot's routing (2026-11-27 bot fixes).
+local BUSY_TIMEOUT = 5
 local activeMap: Model? = nil
 
 function Nav.setMap(map: Model?)
@@ -157,8 +160,23 @@ function Nav.zoneAllows(bot: Bot, endPos: Vector3, lead: number?): boolean
 	return nextEdge <= -0.3 or nextEdge < edge - 0.05
 end
 
+-- The shared Path's waypoints for one compute (nil: no route), copied out before the Path is reused.
+local function solve(from: Vector3, destination: Vector3): { PathWaypoint }?
+	path:ComputeAsync(from, destination)
+	if path.Status ~= Enum.PathStatus.Success then
+		return nil
+	end
+	local waypoints = path:GetWaypoints()
+	for _, waypoint in waypoints do
+		if not Nav.insideArena(waypoint.Position) then
+			return nil
+		end
+	end
+	return waypoints
+end
+
 local function compute(bot: Bot, nav: Nav, goal: Vector3, life: number, revision: number)
-	while busy do
+	while busy and os.clock() - busyAt < BUSY_TIMEOUT do
 		task.wait()
 		if bot.life ~= life or nav.revision ~= revision then
 			nav.computing = false
@@ -172,20 +190,16 @@ local function compute(bot: Bot, nav: Nav, goal: Vector3, life: number, revision
 	end
 	local from = root.Position
 	local destination = Nav.ground(bot, goal)
-	busy = true
-	local ok = destination ~= nil and pcall(path.ComputeAsync, path, from, destination)
-	local waypoints = if ok and path.Status == Enum.PathStatus.Success
-		then path:GetWaypoints()
-		else nil
-	if waypoints then
-		for _, waypoint in waypoints do
-			if not Nav.insideArena(waypoint.Position) then
-				waypoints = nil
-				break
-			end
+	local waypoints: { PathWaypoint }? = nil
+	if destination then
+		local token = {}
+		busy, busyAt = token, os.clock()
+		local ok, result = pcall(solve, from, destination)
+		if busy == token then
+			busy = nil
 		end
+		waypoints = if ok then result else nil
 	end
-	busy = false
 	nav.computing = false
 	if bot.life ~= life or nav.revision ~= revision then
 		return
