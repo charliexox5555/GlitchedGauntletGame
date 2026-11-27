@@ -7,8 +7,8 @@
 
 return table.freeze({
 	tips = table.freeze({
-		"PICK A NEW POWER EVERY ROUND", -- PowerDuels (2026-11-25; was "DRAFT A NEW MOD EVERY ROUND")
-		"EVERY ROUND OPENS A NEW WEAPON TIER",
+		"PICK A NEW POWER EVERY ROUND", -- powers stay powers (owner 2026-11-26), back under the Draft Duels name
+		"ROUND 1 IS SIDEARMS ONLY, THEN YOUR FULL LOADOUT", -- the gun loadout (2026-11-26; weapon tiers are gone)
 		"YOUR PARTY QUEUES TOGETHER, ON ONE TEAM",
 		"THE SKINS YOU EQUIP IN THE LOCKER COME WITH YOU",
 	}),
@@ -80,7 +80,7 @@ return table.freeze({
 	-- ProSoundEffects). Final picks 2026-11-25 (owner left it to Claude; tools/studio/AuditionLoadingSounds.luau
 	-- replays the shortlist): the 3.1 s sting fits the reveal (the 6-7 s tags run past it, "Totally Go For It" is
 	-- the Common case reveal), plus the shortest swish under POWER's swing.
-	sting = table.freeze({ id = "rbxassetid://9047207931", volume = 0.6, at = 0.235 }), -- "Outrunning - Hit" (on POWER's landing)
+	sting = table.freeze({ id = "rbxassetid://9047207931", volume = 0.6, at = 0.21 }), -- "Outrunning - Hit" (the lock-in beat)
 	-- Optional whoosh under POWER's swing-in ({ id, volume, at = seconds from POWER's start, default the band's
 	-- start}). None: the owner doesn't want swooshes (2026-11-25).
 	whoosh = nil :: { id: string, volume: number, at: number? }?,

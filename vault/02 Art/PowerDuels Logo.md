@@ -1,5 +1,7 @@
 # PowerDuels logo
 
+> **[RETIRED 2026-11-26]** The owner went back to **Draft Duels** ("Draft Duels is still a better name"). The game uses the [Draft Duels logo](Draft%20Duels%20Logo.md) again; this note and `art-source/ui/powerduels/` are history. "Powers" (not abilities) stays.
+
 The owner renamed the game to **PowerDuels** on November 25, 2026. Write it as one word. The wordmark stacks **POWER / DUELS**. The Draft Ticket’s gold-and-cream palette carries over. Its ticket becomes a power-up badge with an original bolt, while the DUELS letters get a slight bounce and the small sparks mark the energy of the reveal.
 
 - [Logo sheet](../../art-source/ui/powerduels/powerduels-logo-sheet.png) and [asset kit guide](../../art-source/ui/powerduels/README.md)

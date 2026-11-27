@@ -8,11 +8,11 @@
 --   → Canvas (1920 × 1080 design, scaled by src/first/LoadingLayout): the brand slash band, the title sprites (+ a
 --   white mask the shine sweeps over), the mode line, four progress segments, the stage word, a count, a ring
 --   spinner and the tip line.
--- Title (2026-11-25, PowerDuels rename; vault/02 Art/PowerDuels Logo.md): the kit's aligned 1000 × 410 sprites from
--- art-source/ui/powerduels/ui. Instance names stay as the controllers bind them: "Ticket" = POWER (the gold badge),
--- "Duels" = DUELS, "Sparks" = the four sparks (optional: older copies don't have it), "Full" = the whole mark
--- (reduced motion), "Shine" = the white mask. Ticket, Duels and Sparks show by default, so a plain clone (teleport
--- screen, pad-duel cover) shows the whole mark.
+-- Title: the DRAFT DUELS mark (owner 2026-11-26: back to Draft Duels after a day as PowerDuels; vault/02 Art/Draft
+-- Duels Logo.md): the draft-ticket-lobby-gold kit's sprites. Instance names as the controllers bind them: "Ticket" =
+-- DRAFT (the gold ticket), "Duels" = DUELS, "Full" = the whole mark (reduced motion), "Shine" = the white mask.
+-- (A "Sparks" layer was the PowerDuels mark's; LoadingScreen treats it as optional.) Ticket and Duels show by
+-- default, so a plain clone (teleport screen, pad-duel cover) shows the whole mark.
 -- Look: gauntlet-ui-style (plates 10141B / fades 06080C, one gold thing, Rubik, circles with rings, slash marks).
 
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
@@ -20,11 +20,10 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 -- Image ids (Open Cloud "Decal" uploads give a decal id; an ImageLabel needs the image inside it).
 -- Recorded in art-source/uploads.json (assetId = decal, imageId = image).
 local IMG = {
-	ticket = "rbxassetid://108640302171695", -- POWER; decal 89151942774358: art-source/ui/powerduels/ui/power.png
-	duels = "rbxassetid://113740015524735", -- decal 120431138519485: ui/duels.png
-	sparks = "rbxassetid://90350576633615", -- decal 104639300067696: ui/sparks.png
-	full = "rbxassetid://71296115628525", -- decal 139449726319345: ui/full.png (reduced motion)
-	shine = "rbxassetid://136775039864530", -- decal 106420837548370: ui/shine-mask.png
+	ticket = "rbxassetid://132974051905154", -- decal 109503101136989: draft-ticket-lobby-gold/ui/draft-ticket.png
+	duels = "rbxassetid://76082588029379", -- decal 88104206748404: ui/duels.png
+	full = "rbxassetid://92494712417530", -- decal 101115191066295: ui/full.png (reduced motion)
+	shine = "rbxassetid://121355472687347", -- decal 104304303307452: art-source/ui/loading/title-shine-mask.png
 }
 local RUBIK = "rbxassetid://12187365977"
 local INK = Color3.fromHex("F4F6F9")
@@ -183,9 +182,8 @@ for _, spec in
 	{
 		{ "Ticket", IMG.ticket, 6 },
 		{ "Duels", IMG.duels, 7 },
-		{ "Sparks", IMG.sparks, 8 },
-		{ "Full", IMG.full, 9 },
-		{ "Shine", IMG.shine, 10 },
+		{ "Full", IMG.full, 8 },
+		{ "Shine", IMG.shine, 9 },
 	}
 do
 	local image = make("ImageLabel", {
@@ -197,7 +195,7 @@ do
 		Image = spec[2],
 		ScaleType = Enum.ScaleType.Fit,
 		ZIndex = spec[3],
-		Visible = spec[1] == "Ticket" or spec[1] == "Duels" or spec[1] == "Sparks",
+		Visible = spec[1] == "Ticket" or spec[1] == "Duels",
 	}, logo)
 	make("UIScale", { Name = "Pop" }, image)
 	if spec[1] == "Shine" then

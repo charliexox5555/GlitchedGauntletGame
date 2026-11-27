@@ -82,7 +82,7 @@ local ICON = {
 	lock = Theme.ICON.Lock,
 	skull = Theme.ICON.Skull,
 	coin = "rbxassetid://122645025340088",
-	logo = "rbxassetid://71296115628525",
+	logo = "rbxassetid://92494712417530", -- the Draft Duels mark (draft-ticket-lobby-gold/ui/full.png)
 }
 
 -- button colours: top -> bottom

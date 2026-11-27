@@ -4,8 +4,8 @@
 --  * Shows ReplicatedFirst.DuelsLoading (Studio-built, tools/studio/BuildDuelsLoading.luau), or takes over the copy
 --    Roblox showed during a teleport (MatchFoundController, or this script at a match's end) so nothing flashes.
 --  * Motion (v2.1, owner 2026-11-22: "longer" and "improved animation"): the diagonal slashes drift the whole time;
---    the brand band sweeps in; the PowerDuels reveal (2026-11-25, vault/02 Art/PowerDuels Logo.md: POWER from the
---    upper left, then DUELS rises, then the sparks pop) with the sting on POWER's landing over a quiet music bed; a shine crosses the title; the title floats while
+--    the brand band sweeps in; the Draft Duels two-beat reveal (vault/02 Art/Draft Duels Logo.md → Title motion;
+--    back from PowerDuels, owner 2026-11-26) with the sting on the lock-in beat over a quiet music bed; a shine crosses the title; the title floats while
 --    it waits; the stage word slides up between stages; each of the four segments fills gold as its real stage
 --    finishes (the working one breathes); READY gets a second shine; the close zooms the title through and fades
 --    the backdrop while the blur clears.
@@ -108,7 +108,7 @@ local ticket = need(logo, "Ticket") :: ImageLabel
 local duels = need(logo, "Duels") :: ImageLabel
 local full = need(logo, "Full") :: ImageLabel
 local shine = need(logo, "Shine") :: ImageLabel
--- Optional (PowerDuels, 2026-11-25): a copy built before the sparks has none.
+-- Optional: only the PowerDuels mark (2026-11-25, retired 2026-11-26) had a Sparks layer.
 local sparksFound = logo:FindFirstChild("Sparks")
 local sparks: ImageLabel? = if sparksFound and sparksFound:IsA("ImageLabel")
 	then sparksFound
@@ -341,10 +341,9 @@ local function hideLogo()
 	end
 end
 
--- The band sweeps in, then the PowerDuels beats (art-source/ui/powerduels/powerduels-reveal.gif, times from the
--- band's start + 0.12): POWER in from the upper left (tilted, from 92%) by 0.235 s with the sting on its landing;
--- DUELS enters at 0.185 s and rises into place by 0.5 s with a small punch; the sparks pop from 0.34 s; the whole
--- title settles from 96%; a shine; then it floats.
+-- The band sweeps in, then the two beats: DRAFT from the upper left (tilted, from 92%), the sting at the lock-in,
+-- DUELS rising with a 2.5% punch; the whole title settles from 96%; a shine; then it floats. (A Sparks layer, if a
+-- copy still has one, pops after DUELS.)
 local function reveal(sting: Sound?, whoosh: Sound?)
 	if whoosh and not reduced then
 		-- the optional whoosh under POWER's swing (Config/Loading.whoosh.at: seconds from POWER's start; default
@@ -379,19 +378,19 @@ local function reveal(sting: Sound?, whoosh: Sound?)
 		end
 		tween(
 			ticket,
-			0.235,
+			0.3,
 			{ Position = REST, ImageTransparency = 0, Rotation = 0 },
 			Enum.EasingStyle.Back
 		)
 	end)
-	task.delay(0.12 + (if cfg.sting then cfg.sting.at else 0.235), function()
+	task.delay(0.12 + (if cfg.sting then cfg.sting.at else 0.21), function()
 		if sting then
 			sting:Play()
 		end
 	end)
 	duels.Position = UDim2.fromScale(0.5, 0.63)
-	task.delay(0.12 + 0.185, function()
-		tween(duels, 0.315, { Position = REST, ImageTransparency = 0 })
+	task.delay(0.12 + 0.215, function()
+		tween(duels, 0.34, { Position = REST, ImageTransparency = 0 })
 		if duelsPop then
 			duelsPop.Scale = 0.97
 			task.delay(0.14, function()
