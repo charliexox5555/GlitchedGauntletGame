@@ -34,7 +34,9 @@ local ProgressionService = {}
 -- A report that couldn't save (a DataStore outage, a long queue) tries again: the same
 -- txId can't apply twice. Shutdown waits for pending reports (BindToClose below).
 local RETRY_AFTER = { 5, 20, 60 }
+local SHUTDOWN_RETRY = 2 -- seconds between tries once the server is closing (BindToClose waits 25 s)
 local pending = 0
+local closing = false
 
 local progressEvent: RemoteEvent = LobbyNet.event("ProgressEvent")
 
@@ -83,7 +85,11 @@ function ProgressionService.report(
 		local ok, why = false, nil :: string?
 		for attempt = 0, #RETRY_AFTER do
 			if attempt > 0 then
-				task.wait(RETRY_AFTER[attempt])
+				-- closing: the long backoff would outlast BindToClose and drop the report
+				local t = os.clock()
+				while os.clock() - t < (if closing then SHUTDOWN_RETRY else RETRY_AFTER[attempt]) do
+					task.wait(0.5)
+				end
 			end
 			ok, why = PlayerDataService.transactUserId(userId, txId, function(data: PlayerData.Data)
 				taskPay = nil
@@ -165,6 +171,7 @@ end
 function ProgressionService.init() end
 function ProgressionService.start()
 	game:BindToClose(function()
+		closing = true
 		local t = os.clock()
 		while pending > 0 and os.clock() - t < 25 do
 			task.wait(0.2)

@@ -420,6 +420,7 @@ local function ensureDaily(player: Player)
 	end
 	rolling[player] = true
 	local seed = Random.new():NextInteger(1, 2 ^ 30)
+	-- queued: a purchase saving at the same moment (join, UTC midnight) must not drop the roll
 	PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
 		local day = Economy.day(os.time())
 		-- another server rolled it first (or its clock is a little ahead): keep theirs
@@ -428,7 +429,7 @@ local function ensureDaily(player: Player)
 		end
 		data.daily = DailyRoll.roll(data.skins, day, Random.new(seed))
 		return true
-	end)
+	end, true)
 	rolling[player] = nil
 end
 
@@ -611,6 +612,21 @@ local function onRequest(
 )
 	if not limiter:allow(player, "ShopRequest") then
 		reject("rate")
+		-- an opening waits for its answer: tell it no instead of leaving it spinning
+		if
+			action == "openCase"
+			and typeof(arg) == "string"
+			and #arg <= 40
+			and typeof(requestId) == "number"
+			and requestId >= 1
+			and requestId <= 2 ^ 31
+			and requestId == math.floor(requestId)
+		then
+			send(
+				player,
+				{ kind = "failed", item = arg, openRequest = requestId, text = REASON_TEXT.slow }
+			)
+		end
 		return
 	end
 	if PlayZone.get(player) ~= "Lobby" then

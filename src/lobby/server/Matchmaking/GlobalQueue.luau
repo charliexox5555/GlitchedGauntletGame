@@ -59,6 +59,7 @@ local CYCLE = 2 -- s between matchmaker passes
 local POLL = 1.5 -- s between checks of our own tickets
 local COUNTS_TTL = 10
 local MAX_READ = 200
+local REPROBE_EVERY = 60 -- seconds between MemoryStore probes while it's off
 
 local serverId = HttpService:GenerateGUID(false)
 local tickets: MemoryStoreSortedMap? = nil
@@ -72,10 +73,24 @@ local mine: { [string]: Ticket } = {}
 local matchedHandler: ((ticket: string, match: MatchInfo) -> ())? = nil
 local counts: { [string]: number } = {}
 
+-- During an outage every poll fails: one warn per label per WARN_EVERY s, with a count.
+local WARN_EVERY = 60
+local warned: { [string]: { at: number, skipped: number } } = {}
+
 local function tryCall<T...>(label: string, fn: (...any) -> T..., ...: any): (boolean, T...)
 	local result = table.pack(pcall(fn, ...))
 	if not result[1] then
-		warn(`[GlobalQueue] {label} failed: {result[2]}`)
+		local now = os.clock()
+		local w = warned[label]
+		if not w or now - w.at >= WARN_EVERY then
+			local more = if w and w.skipped > 0
+				then ` (+{w.skipped} more since the last warn)`
+				else ""
+			warn(`[GlobalQueue] {label} failed: {result[2]}{more}`)
+			warned[label] = { at = now, skipped = 0 }
+		else
+			w.skipped += 1
+		end
 	end
 	return table.unpack(result, 1, result.n)
 end
@@ -358,19 +373,29 @@ end
 function GlobalQueue.start(rules: { ModeRule }, fill: number)
 	modes = rules
 	fillAfter = fill
-	local ok = tryCall("open", function()
-		tickets = MemoryStoreService:GetSortedMap(TICKETS)
-		local leaseMap = MemoryStoreService:GetSortedMap(LEASE)
-		lease = leaseMap
-		-- One read proves MemoryStore is reachable (Studio needs API access on).
-		-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
-		leaseMap:GetAsync("counts")
-	end)
-	on = ok
-	if not on then
-		warn("[GlobalQueue] MemoryStore unavailable: queueing inside this server only")
-		return
+	local function probe(): boolean
+		return tryCall("open", function()
+			tickets = MemoryStoreService:GetSortedMap(TICKETS)
+			local leaseMap = MemoryStoreService:GetSortedMap(LEASE)
+			lease = leaseMap
+			-- One read proves MemoryStore is reachable (Studio needs API access on).
+			local map = leaseMap
+			-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
+			map:GetAsync("counts")
+		end)
 	end
+	if not probe() then
+		warn("[GlobalQueue] MemoryStore unavailable: queueing inside this server only")
+		-- a blip at boot must not cut this server off for its whole life: try again now and then
+		-- (Studio without API access stays local, so it doesn't retry there)
+		if RunService:IsStudio() then
+			return
+		end
+		repeat
+			task.wait(REPROBE_EVERY)
+		until probe()
+	end
+	on = true
 	print(
 		`[GlobalQueue] on (server {string.sub(serverId, 1, 8)}{if RunService:IsStudio()
 			then ", Studio"
@@ -381,10 +406,32 @@ function GlobalQueue.start(rules: { ModeRule }, fill: number)
 	task.spawn(heartbeatLoop)
 end
 
--- Removes every ticket this server still holds (shutdown).
+-- Removes every ticket this server still holds (shutdown). Waits (up to RELEASE_WAIT s) so
+-- the leader doesn't match other servers' players against groups that are gone.
+local RELEASE_WAIT = 5
 function GlobalQueue.releaseAll()
+	local map = tickets
+	local ids: { string } = {}
 	for id in mine do
-		GlobalQueue.remove(id)
+		table.insert(ids, id)
+	end
+	table.clear(mine)
+	if not map or #ids == 0 then
+		return
+	end
+	local left = #ids
+	for _, id in ids do
+		task.spawn(function()
+			tryCall("release", function()
+				-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
+				map:RemoveAsync(id)
+			end)
+			left -= 1
+		end)
+	end
+	local t = os.clock()
+	while left > 0 and os.clock() - t < RELEASE_WAIT do
+		task.wait(0.1)
 	end
 end
 

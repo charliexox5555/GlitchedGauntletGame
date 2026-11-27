@@ -213,6 +213,7 @@ local function onRemoving(p: Player)
 		if #rest == 0 then
 			acceptOrder[before] = nil
 			keys[before] = nil
+			localIds[before] = nil
 		end
 		table.insert(rest, p)
 		-- after the other PlayerRemoving handlers (QueueService drops its state)

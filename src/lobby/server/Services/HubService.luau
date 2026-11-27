@@ -62,8 +62,9 @@ function HubService.init() end
 
 function HubService.start()
 	LobbyNet.event("HubRequest").OnServerEvent:Connect(onRequest)
-	TeleportService.TeleportInitFailed:Connect(function(player: Player, _result, message: string)
-		if going[player] then
+	TeleportService.TeleportInitFailed:Connect(function(player: Player, result, message: string)
+		-- IsTeleporting: a teleport is already under way, not a failure
+		if going[player] and result ~= Enum.TeleportResult.IsTeleporting then
 			going[player] = nil
 			fail(player, "Couldn't reach the hub, try again")
 			warn(`[Hub] teleport failed for {player.Name}: {message}`)

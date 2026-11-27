@@ -74,6 +74,10 @@ local instantUsed: { [Player]: number } = {}
 local pairWaiting: { player: Player, index: number, token: number }? = nil
 local pairToken = 0
 local writingTickets: { [Matchmaker.Entry]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+-- Groups the global matchmaker didn't place in time (MemoryStore down, a stuck leader): they
+-- match inside this server from then on and never write a ticket again.
+local localOnly: { [Matchmaker.Entry]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local GLOBAL_GIVE_UP = 30 -- seconds past the bot-fill time before a ticketed group goes local
 local autoRetried: { [Player]: number } = {}
 local join: (player: Player, info: Config.ModeInfo) -> ()
 local queues: { [string]: { Matchmaker.Entry } } = {}
@@ -415,11 +419,20 @@ local function tick()
 		for _, info in Config.MODES do
 			local unticketed: { Matchmaker.Entry } = {}
 			for _, entry in queues[info.id] do
+				local waited = now - entry.since
+				local ticket = entry.ticket
+				if ticket and waited >= fillFor(info) + GLOBAL_GIVE_UP then
+					-- the global matchmaker should have bot-filled long ago: stop waiting on it
+					entry.ticket = nil
+					GlobalQueue.remove(ticket)
+					localOnly[entry] = true
+				end
 				if entry.ticket == nil then
-					if not writingTickets[entry] and now - entry.since >= 4 then
+					if not localOnly[entry] and not writingTickets[entry] and waited >= 4 then
 						task.spawn(writeTicket, info.id, entry)
 					end
-					if now - entry.since >= fillFor(info) + 5 then
+					if waited >= fillFor(info) + 5 then
+						localOnly[entry] = true
 						table.insert(unticketed, entry)
 					end
 				end
@@ -508,6 +521,7 @@ join = function(player: Player, info: Config.ModeInfo)
 		return
 	end
 	if not free(members) then
+		send(player, { kind = "failed", text = "Someone in your party is busy" })
 		return
 	end
 	for _, m in members do
@@ -865,7 +879,11 @@ function QueueService.start()
 	end)
 	while true do
 		task.wait(Config.tickInterval)
-		tick()
+		-- one bad tick (an odd state after a leave) must not end matchmaking for the server
+		local ok, err = pcall(tick)
+		if not ok then
+			warn(`[Queue] tick failed: {err}`)
+		end
 	end
 end
 

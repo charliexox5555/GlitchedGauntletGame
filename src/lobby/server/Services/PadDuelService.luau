@@ -223,7 +223,11 @@ function PadDuelService.start()
 	end)
 	while true do
 		task.wait(Config.PAD.tick)
-		step()
+		-- one bad step (a broken pad, an odd humanoid) must not end pad duels for the server
+		local ok, err = pcall(step)
+		if not ok then
+			warn(`[PadDuel] step failed: {err}`)
+		end
 	end
 end
 
