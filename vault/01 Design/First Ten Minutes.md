@@ -351,6 +351,15 @@ What changed under it: guns are owned (a new player has the **Classic** and the 
 
 **Length: both onboarding matches are first to 4** (Claude's pick from "4, maybe 5"). Four rounds is the shortest match 1 can be, so the four steps below always fit, even in a 4-0 win. **To make match 1 first to 5, set `Config/Onboarding SCRIPT[1].roundsToWin = 5`** (match 2: `SCRIPT[2]`). First to 3 (`FIRST_MATCH_ROUNDS_TO_WIN`) is gone.
 
+### Where the matches run: a reserved server, not the hub (owner 2026-11-27)
+The owner: "we're removing onboarding matches being in the hub because it's just going to cause lag and things we don't need, overusage of matches in the server ... if we fix loading, this shouldn't be an issue."
+- **Lobby join → loading screen → auto-queue (1.2 s) → MATCH FOUND → teleport to a reserved match server.** A solo new player's first `LAUNCH_AT_ONCE` (2) Beginner matches skip the queue wait and launch at once with bots. Like every queued match, the reserved server runs the match and keeps them in its lobby afterwards.
+- **The script still applies there.** The match server reads the saved `Matches` (MatchService `OnboardingMatch`).
+- **The lobby callouts run in that server's lobby too**, because the same lobby scripts run there: NEXT MATCH / PLAY into match 2, then the unlocks and the UNLOCK callout.
+- **Removed from the hub:** the in-server instant match, the `MAX_LOBBY_MATCHES` cap and the busy-server pairing (`PAIR_WHEN_BUSY`, `PAIR_WAIT`). Pad duels still run in the hub.
+- **Studio has no teleports**, so there (only) the onboarding match runs in the Studio server as a stand-in. This keeps `FreshOnboarding` and START FULL ONBOARDING testable.
+- Teleport and map-load speed belong to workstream 1 (loading-perf).
+
 ### Match 1: one new thing per round
 | Round | Before it | The one new thing | In hand |
 |---|---|---|---|
@@ -376,9 +385,10 @@ How it differs from the old flow:
 ### Back in the lobby: the first unlock
 This replaces the old free case and its OPEN / EQUIP callouts.
 - **When it shows:** back in the lobby after match 1 or later, with only the starter guns owned and coins ≥ the cheapest locked gun.
-- **What it does:** the Locker icon pulses and carries the tag **UNLOCK A GUN**. Clicking it opens the Locker on the cheapest gun they can afford, with its UNLOCK button in view, so the purchase is one more click (the real confirm).
+- **What it does:** the Locker icon pulses and carries an **UNLOCK** badge on its corner. Clicking it opens the Locker on the cheapest gun they can afford, with its UNLOCK button in view, so the purchase is one more click (the real confirm).
 - **First time only:** it is seen once (bit 8 of `onb.seen`) and never shows again. It also never shows once they own any non-starter gun.
-- It goes before the Shop / Backpack / Party NEW badges, one callout at a time.
+- It goes before the NEW badges, one callout at a time.
+- **The Range comes first after match 2.** The Range bar button is now one of the after-match-2 unlocks, and its NEW badge comes before Backpack / Shop / Party. It clears when they go there. The reason: the Task Path's first part (Recruit 1, in the Range) pays about 500 coins. That, plus about 60 from matches 1-2, is what makes the first 400-coin gun affordable before match 3 (economy pass, 2026-11-27). With the economy pass a fresh save starts with 500 coins, so in practice UNLOCK already shows after match 1 (tested), and the Range NEW comes next after match 2.
 - **When it lands depends on the coin numbers.** Workstream 5 targets the first unlock in 2-3 matches. With the old pay (about 17 coins for a bot match against a 400-coin gun), it wouldn't show for weeks.
 
 ### Removed
@@ -398,3 +408,25 @@ This replaces the old free case and its OPEN / EQUIP callouts.
 - **RESET SAVE TO DEFAULT** (`resetProfile`) makes a brand-new save: starter guns and starting coins. This is the full new-player path, including the first-unlock moment once they can afford a gun.
 - **START FULL ONBOARDING** (`startOnboarding`) replays matches 1-2 with the save's own guns, deck and coins. The unlock moment shows only if they still own just the starters.
 - Studio: `Workspace.FreshOnboarding = true` before Play gives a throwaway fresh save.
+
+### Tested in Studio (2026-11-27)
+Fresh ephemeral save (`FreshOnboarding`), Rookie bots, the player idle, two runs.
+- **Run 1, match 1 in full** (lost 0-4, so four rounds):
+  - **R1:** no pick screen; the fight was live 12 s after Play. Classic only, no power, red enemies, "ROUND 1 · SIDEARM".
+  - **R2:** the Havoc and the Classic, Dash on Q with the gold first-use key, "ROUND 2 · LOADOUT", 50 shield.
+  - **R3:** Frost on E next to Dash. The two-card screen closed before the capture.
+  - **R4:** one centred **DESYNC · DASH · GLITCHED** card, preselected, LOCK IN.
+  - MatchState showed `OnboardingMatch` 1 and `RoundsToWin` 4.
+  - Back in the lobby there was no item and no case callout. Coins were 506 (500 starting + 6 for the loss). **UNLOCK A GUN** showed on the Locker, and clicking it opened the Locker on the **Prowler** (400) with "Unlock now" in view.
+- **Fixed after run 1:**
+  - The long tag sat over PLAY and stacked with the "Join the queue" bubble. Bar-item callouts are now always a badge on the icon's corner (text "UNLOCK").
+  - The bubble now waits while the unlock callout is up, so there is one hint at a time.
+- **Run 2** (`QuickMatch`, one round a match, rounds already checked):
+  - Lobby after match 1: one UNLOCK badge on the Locker, clear of PLAY, no bubble.
+  - PLAY went straight into match 2 (`OnboardingMatch` 2). R1 showed the real draft: Frost / Updraft / Molly from the deck, "DRAFT · SIDEARMS ONLY", Classic.
+  - Lobby after match 2: Shop, Backpack, Range and Party unlocked; the Recruit panel ("Visit the Range"); UNLOCK still on the Locker; the Locker opened on the Prowler again.
+- No script errors in either run.
+- **Not seen:**
+  - The Range NEW badge taking over after the Locker is opened (the run ended inside the Locker).
+  - The real reserved-server teleport: Studio can't teleport, so it hosts the match in-server.
+  - A won round, and phones.
