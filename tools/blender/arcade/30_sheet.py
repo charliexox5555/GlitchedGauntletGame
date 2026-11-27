@@ -56,7 +56,7 @@ layout = [
     (VIEWS / "wb_mag.png", "Magazine", 1800, 2200, 600, 400),
     (FLAT / f"{GUN}_{VERSION}x_Left.png", "Studio check: re-imported FBX, one-sided, magenta", 0, 2600, 800, 400),
     (FLAT / f"{GUN}_{VERSION}x_Right.png", "Studio check: right", 800, 2600, 800, 400),
-    (VIEWS / "stock_hero.png", "Stock Havoc (same camera)", 1600, 2600, 800, 400),
+    (VIEWS / "stock_hero.png", f"Stock {DISPLAY} (same camera)", 1600, 2600, 800, 400),
 ]
 import json
 override = ROOT / f"tools/blender/arcade/sheet_{GUN.lower()}.json"

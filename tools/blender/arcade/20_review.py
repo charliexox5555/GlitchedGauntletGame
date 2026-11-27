@@ -59,6 +59,17 @@ def camera_object():
 
 
 def aim(camera, name):
+    if name == "first_person" and bpy.data.objects.get(f"{GUN}_Cam_Hip") is None:
+        # Stock files without a Cam_Hip pass HIP = (location, vertical angle in degrees): the
+        # Vandal's Cam_Hip moved by the difference in Config/Weapons viewmodelOffset.
+        location, angle = globals()["HIP"]
+        camera.location = location
+        camera.rotation_euler = Vector((1, 0, 0)).to_track_quat("-Z", "Y").to_euler()
+        camera.data.type = "PERSP"
+        camera.data.sensor_fit = "VERTICAL"
+        camera.data.angle_y = math.radians(angle)
+        camera.data.shift_x = camera.data.shift_y = 0
+        return (1280, 720)
     if name == "first_person":
         hip = bpy.data.objects[f"{GUN}_Cam_Hip"]
         camera.matrix_world = hip.matrix_world.copy()

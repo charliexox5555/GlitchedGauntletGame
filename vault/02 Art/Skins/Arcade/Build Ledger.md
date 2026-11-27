@@ -173,3 +173,62 @@ The owner asked for "an extra little sound on the inspect with the lights and th
 - The Locker portrait (`ItemPortraits["Vandal/Arcade"]`) and the Arcade line emblem. The tile shows the stock picture until then.
 - The other 13 Arcade guns, one at a time, with the same checks.
 - **Owner:** save the place.
+
+## Phantom (Spirit)
+Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, PID-checked). Scripts: `11_phantom.py` (build), `21_review_phantom.py` (stations), `sheet_phantom.json`.
+
+**Stock measured** (ray-cast depth maps, both sides):
+- Receiver side face y .080, a side recess (floor .075) at x .04-.42 behind the fire selector lever (x .087-.136, turns 14°). The lower receiver stops at x .912; the upper receiver and the charging handle's nose reach x .934-.935.
+- Handguard y .088, keel .238, shoulder .405, plus a separate nose cap. Skeleton stock face y .066, butt pad x -.98 to -1.098. Round suppressor can, r .077-.084.
+- The stock file has no `Cam_Hip`. `20_review.py` now takes `HIP` for such guns: the Havoc's Cam_Hip raised 0.011/0.8 for the Phantom's lower `viewmodelOffset`.
+
+| Version | What changed |
+|---|---|
+| v01 | First build. The audit found the charging handle running through the new handguard on every frame, and the marquee light's top face sharing a plane with the butt top (near-parallel rake). The stock receiver also has one flush pair (rear cap underside, Panel on Body). |
+| v02 | Handguard rear seated 0.03 into the upper receiver, with a chamfered collar filling the stock seam at x .912-.938. The handle slot runs on into the handguard (a notch to x .946). The marquee light's top is raked 2° flatter. The stock rear-cap underside is lifted 0.004 in the build (the lift the export would make). The deck light pipe was shortened to run over the screen only, so it no longer doubles the stock cyan strip above the buttons. |
+| v03 | Buttons and screen moved 0.01 forward, away from the joystick. Full review. |
+| **v04** | Pixel trail on the stock frame moved next to its stripes, away from the stock sling square. The suppressor gets a stepped end cap. **Candidate.** |
+
+**What the Arcade Spirit has**
+- **Control deck** (left, Root) in the receiver's side recess, behind the fire selector: a joystick at the rear, then three buttons in collars rising toward the muzzle (cyan, yellow, magenta), a pixel screen in a bezel, and a cyan light pipe over the screen.
+- **Coin door** (right): two lilac coin entries with yellow lit slots and a magenta stripe.
+- **Handguard** on the stock envelope:
+  - a cabinet kick under the middle (bottom .184);
+  - the nose tapered into the stock cap;
+  - recessed violet fields on both sides (pixel-stepped corner, magenta band, cyan line, starburst, pixel trail);
+  - a magenta T-molding trim along each lower chamfer.
+- **Cabinet butt**: raked marquee top with a cyan light, a stepped rear, and a recessed side-art field on both sides (starburst, band and line). The stock frame carries a raked band and line and a pixel trail.
+- **Suppressor**: an eight-sided stepped can (rear section, light-ring groove with the cyan ring, the main can, a stepped end cap and a bore). The Muzzle locator sits in the bore.
+- **Mag stripe**: magenta, bone `Mag`, top at z -.005, clear of the magwell.
+- All 12 `flat_group` names are on Root parts: `ARButton1-3`, `ARStickBall`, `ARScreen*`, `ARDeckLight`, `ARTrim`, `ARBrakeLight`.
+
+**v04 results**
+- **Master:** `art-source/weapons/Skins/Arcade/Phantom/v04/Phantom_Arcade_v04.blend`. **Export:** `v04x/` (`Phantom_Arcade_RobloxFlat.fbx`, `manifest_flat.json`, 36 parts, all 12 AR groups as their own parts).
+- **Triangles:** 6,740 against 4,724 for the stock gun (1.43×, inside the 1.5× budget).
+- **Audit** (`out/Phantom_v04_views/audit.json`, ADS distance 0.42 from `Config/Weapons`):
+  - 0 faults in new geometry. The only faults are the stock's own open islands, inherited unchanged: the buffer tube (`AR_StockFrame:0`) and the barrel stub (`AR_BarrelStub:0`).
+  - 0 coplanar pairs.
+  - Floating: only the stock charging handle. It rides 0.002 off its slot floor, as in the stock gun; the stock audit links it only because it passes through the stock handguard.
+  - Bones, locators and actions are identical to the stock.
+  - 0 animated intersections across Draw, Fire, Inspect, Reload and ReloadEmpty.
+  - All 5 ADS rays are clear. The post ray hits only `Phantom_Sights`, and nothing new shows in the ADS render.
+- **Flat export:** 0 coplanar lifts, 0 flipped islands, 0 crossed faces. The one-sided magenta re-import is clean (`out/Phantom_v04x_flat_check/`).
+- **Review sheet:** [Phantom_v04_review.png](out/Phantom_v04_review.png)
+- **Self-grade:** 9/10 (the gun's grade is its lowest area).
+
+| Area | Grade |
+|---|---|
+| Silhouette | 9 |
+| Crispness | 9 |
+| Layering | 9 |
+| Connections | 9 |
+| ADS | 9 |
+| Palette | 9 |
+| Budget | 9 |
+| Contract | 10 |
+
+**For the owner**
+- Three buttons fit; nothing sits on a moving bone.
+- The stock receiver's rear-cap underside was lifted 0.004 in the master to clear the stock's one flush pair.
+- In first person, the joystick ball slightly overlaps the cyan button, the same as the approved Havoc.
+- Not installed: the Studio upload and install wait for your go.
