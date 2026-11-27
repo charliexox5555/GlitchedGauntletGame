@@ -87,7 +87,7 @@ Today a match pays 15 coins for finishing and 20 for a win, halved against bots,
    - A Locker deck screen (equip up to 10).
    - The draft deals from the deck.
    - Order-based key slots: `DraftService` columns become "a new power or an upgrade" cards, and `ModService` slots fill in draft order.
-2. **Gun loadout and the new Locker (gun pages: unlock, equip).**
+2. **Gun loadout and the new Locker (gun pages: unlock, equip).** Look: the approved [Locker v3 mockup](#locker-v3-mockup-2026-11-26).
    - Primary and secondary chosen in the Locker; the gun row leaves the pick screen; tier escalation goes.
    - The secondary-round rule.
    - Unlocks with coins, and the gun cut.
@@ -134,6 +134,7 @@ Built in Studio as `StarterGui.LockerV2` by [BuildLockerV2.luau](../../tools/stu
 - **Open (owner):** the look, spacing and words; the stage behind (3D Locker room); whether the KNIFE tab is enough for skins; where SKINS opens.
 
 ## Locker v3 mockup (2026-11-26)
+**Approved (owner 2026-11-26: "Yes, this direction").** Step 2 of the build order builds the real Locker from this mockup.
 Owner on v2: "I want it to look much better", the weapons "much more like RIVALS", and powers as cards "you can move around so it feels like a real card". v3 replaces v2 as the direction (v2 stays in Studio, off, as history).
 - **Where:** `StarterGui.LockerV3` (off) + `ReplicatedStorage.LockerV3Stage` (the showcase guns and the power card; parts under a ScreenGui are dropped when StarterGui copies it, so the stage lives in ReplicatedStorage). Built by [BuildLockerV3.luau](../../tools/studio/BuildLockerV3.luau); the drag-and-click preview is [LockerV3Preview.luau](../../tools/studio/LockerV3Preview.luau) (the Source of `LockerV3.Preview`). Icons: `tools/ui/make_locker_icons.py` → `art-source/ui/locker-v3/icons/` (uploaded; use the Image ids, not the Decal ids the upload returns). Captures: `art-source/ui/locker-v3/`.
 - **Try it:** set the Workspace attribute `LockerV3Preview = true`, press Play. Click guns, powers and tabs; drag the middle to turn the gun or the card; Flip, EQUIP, ADD TO DECK and the Overview eye work; Back closes it. `LockerV3State` = `powers` / `locked` opens on that view. **Clear `LockerV3Preview` before publishing.**
