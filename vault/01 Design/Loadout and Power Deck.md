@@ -71,7 +71,7 @@ Source: [RIVALS UI study](../03%20Research/Rivals%20Reference/UI%20and%20Client.
 - **Bottom bar:** SKIN, and later WRAP / CHARM / KILL EFFECT; BACK.
 - **Levels:** from use only (XP per kill, round and win with that gun or power), about 50 XP a level early. Rewards are cosmetics and coins, a milestone every 5 levels. No buying levels at first.
 - **Contracts:** two tracks per gun, eliminations and playtime, ending in prestige finishes (our own names and looks). They share the tasks engine.
-- **Power card packs (owner idea, later):** packs bought with coins give random power cards. A new card unlocks a power; a duplicate becomes that power's XP. Roblox rules: paid random items must show their odds, and coins can be bought with Robux, so the pack screen lists odds (as our cases already do). Keep direct coin unlocks too, so no power is only behind luck.
+- **Power cases / card packs (owner 2026-11-26: "they will be in cases not by coins"):** powers come only from power cases, not direct coin buys. A new card unlocks a power via `ModLoadout.grant`; duplicates are undecided (owner), for example that power's XP. Roblox rules: paid random items must show their odds, and coins can be bought with Robux, so the case screen lists odds (as our skin cases already do). A pity rule (a new power guaranteed within N opens) is worth adding so no power feels out of reach.
 
 ## Economy (needs a pass before launch)
 Today a match pays 15 coins for finishing and 20 for a win, halved against bots, with a 400-coin daily cap (`Config/Economy.MATCH_COINS`). At about 10 coins a bot match, a 1,000-coin unlock is 100 matches. That is far too slow. Rules for the pass:
