@@ -4,6 +4,8 @@
 
 The [redesign note](../05%20Production/Bot%20Redesign%202026-11-17.md) covers the new routing, cover, Mod decisions and playtests. The original build history starts below.
 
+**Hardening (2026-11-27, [Bot Fixes](../05%20Production/Playtests/2026-11-27%20Bot%20Fixes.md)):** a bot's body is re-pinned to the server after any part joins or leaves it (Roblox resets ownership on every gun weld, and clients then took bots over). `Nav.canMove` walks up even Part stairs (`Config/Bots STAIRS`). Each bot's think, act and watchdog run protected, so one error can't stop the others. A stuck watchdog (`Config/Bots WATCHDOG`) recovers a bot that asks to move but stays put, or whose body stops following its aim, without teleporting; it logs `[Health] S bot stuck …` and Analytics `BotStuck` live, and Studio counters sit on `ServerStorage.BotOwners` (`StuckMove`, `StuckTurn`, `OwnerDrift`, `BotErrors`).
+
 - In the Match place, set `Workspace.BotDifficulty` to **Easy**, **Normal**, or **Hard** before Play. Clear the attribute for the default. Keep `TestMode` off for a match. `BotMatch` can be 1v1, 2v2 or 3v3.
 - Edit `src/shared/Config/Bots.luau` to customize `PROFILES`. **Hard is the temporary default for 1v1, 2v2, and 3v3** while the owner tests. A valid Studio-only `BotDifficulty` override still works.
 - **Hard tuning:** reacts after 180 ms of sight, tracks with 80 ms of lag, and aims for the head more often. The team's hit budget rises from three to five per target in a one-second window before deliberate misses begin. Hard re-peeks sooner, checks for Mod opportunities more often, and saves charges for stronger casts. Standard weapon stats, health, and Mod rules apply.

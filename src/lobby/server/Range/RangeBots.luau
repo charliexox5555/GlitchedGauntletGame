@@ -22,6 +22,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local RangeCarriage = require(ReplicatedStorage.Shared.RangeCarriage)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RangeEvents = require(script.Parent.RangeEvents)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -488,8 +489,36 @@ function RangeBots.start(services: MatchServices)
 	end
 	CollectionService:GetInstanceAddedSignal(CARRIAGE_TAG):Connect(addCarriage)
 
+	-- Nobody in the Lobby or the Range (a reserved server mid-match: everyone is in the Match zone): nobody can
+	-- see the range, so its 39 bots and carriages don't step (loading-perf 2026-11-27: they were among the top
+	-- server costs in a hosted match). Checked once a second; it picks up again when someone is back.
+	local watchedClock, watched = 1, true
 	local boardClock, carriageClock = 0, 0
 	RunService.Heartbeat:Connect(function(dt: number)
+		watchedClock += dt
+		if watchedClock >= 1 then
+			watchedClock = 0
+			local was = watched
+			watched = false
+			for _, p in Players:GetPlayers() do
+				local zone = PlayZone.get(p)
+				if zone == "Lobby" or zone == "Range" then
+					watched = true
+					break
+				end
+			end
+			if was and not watched then
+				-- Move persists: stop the strafers where they are, or they'd walk off their lanes
+				for _, st in strafers do
+					if st.humanoid.Parent then
+						st.humanoid:Move(Vector3.zero, false)
+					end
+				end
+			end
+		end
+		if not watched then
+			return
+		end
 		carriageClock += dt
 		if carriageClock >= CARRIAGE_STEP then
 			carriageClock = 0

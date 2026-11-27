@@ -575,7 +575,14 @@ function MapVoteController.start()
 	-- Signal after the screen and phase listeners are installed. Retry until
 	-- the server acknowledges it in case its startup is still in progress.
 	if not game:IsLoaded() then
+		-- measured (code audit 2026-11-27): how much of a fresh join's zone -> MatchReady gap this wait is
+		local waitedFrom = os.clock()
 		game.Loaded:Wait()
+		HealthLog.stage(
+			"game loaded",
+			player,
+			string.format("waited %.1fs", os.clock() - waitedFrom)
+		)
 	end
 	-- The server answers with this match's id (a pad duel's MatchId, "server" for a whole-server match), so a token
 	-- left from an earlier pad duel never counts (Bots/MatchPlan).

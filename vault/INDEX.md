@@ -49,6 +49,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [Shadow Mist idle playtest](05%20Production/Playtests/2026-11-17%20Shadow%20Mist%20Idle.md)
 - [Shadow Mist action polish](05%20Production/Playtests/2026-11-18%20Shadow%20Mist%20Action%20Polish.md)
 - `05 Production/Playtests/2026-11-17 Bot Redesign.md`: Studio route, combat and overtime observations
+- `05 Production/Playtests/2026-11-27 Bot Fixes.md`: why bots froze (clients took over their bodies after every gun weld; Part stairs read as walls), the stuck watchdog and its telemetry, 12-map Studio runs with 0 frozen bots, bot loadouts incl. Hornet and Scout
 - `01 Design/Match Avatar.md` (15): the standard body for players, bots and dummies
 - `01 Design/Third Person Overhaul.md` (98): 2026-11-12, built: why players weren't posed (Server Authority off), the block body and how its clothing is drawn, the accessory rule, the 40 re-authored clips and the `tools/anim` rig, per-gun findings; §7 second pass: research links, Toolbox findings, the jitter measurement, rifle stance, spring recoil, self-grade, what is not verified
 - `01 Design/Match HUD.md` (22): match HUD layout, v1 revert, phone arrangement

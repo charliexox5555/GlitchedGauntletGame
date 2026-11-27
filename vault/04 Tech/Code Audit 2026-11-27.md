@@ -82,6 +82,11 @@ Checker: 3 errors, 0 warnings, 30 info. The 3 errors (`GlobalQueue` MemoryStore 
 - `stylua --check src`: clean on committed code (the only diffs were other sessions' uncommitted edits). `selene src`: 0 errors, 0 warnings. `rojo build default.project.json -o %TEMP%/ca_check.rbxl`: builds. LihFolk checker: 0 errors.
 - Studio smoke test: passed (below).
 
+## Routed from loading-perf (2026-11-27, Studio cold HostedTest="2v2" + LockMap Snowpeak4)
+- **`MapVoteController` `game.Loaded` wait before MatchReady: not the cause.** On a cold hosted join the game was already loaded when MatchReady's code got there, so the wait cost 0 s (the new `[Health] C game loaded (waited X s)` line prints only when it actually waits, so a slow phone join will show it in live logs). The gap: zone +0.0 s → the server saw MatchReady at +2.7 s; the client logged "match screens ready" at +2.1 s, "lobby client ready" +0.2 s, "map here" +0.6 s. So it is the match client's own boot (controller requires and inits, then MapVoteController.start) plus the retry interval, not the Loaded wait. Not changed.
+- **`Util/MatchLift` HOLD comment** fixed (`039c1664`): the server teleports `Config.matchFoundDelay` (2.0 s) after "found".
+- **`Range/RangeBots` on reserved match servers:** the range now steps only while someone is in the Lobby or Range zone (checked once a second; strafers are told to stop when it pauses). Measured: during the hosted match, 41 range bots and 0 moving.
+
 ## Smoke test (Studio, 2026-11-27 01:55-02:08, Studio FreshOnboarding profile)
 Shared Studio note: the onboarding session's lock write crossed mine at 01:55. The match below was one Play session we both observed; the Locker/Shop checks after 02:02 likely ran in onboarding's restarted session. All of it was the same synced code on main.
 - Lobby boot 0.12 s, data ready at once, lobby client ready +0.3 s, **no `init failed` warnings** from the new protected boots.
