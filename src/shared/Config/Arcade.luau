@@ -18,7 +18,11 @@ export type Profile = {
 	seatTime: number, -- all buttons flash when the mag seats
 	shipBob: number, -- seconds per idle ship bob step
 	starBlink: number, -- seconds per idle star blink
-	chaseStep: number, -- inspect chase, seconds per button
+	chaseFrom: number, -- inspect progress (0..1) where the button chase starts
+	chaseTo: number,
+	chaseSteps: number, -- buttons lit in turn over the chase
+	finaleFrom: number, -- all three lit together
+	finaleTo: number,
 }
 
 local profiles: { [string]: Profile } = {
@@ -37,7 +41,11 @@ local profiles: { [string]: Profile } = {
 		seatTime = 0.3,
 		shipBob = 0.55,
 		starBlink = 0.42,
-		chaseStep = 0.09,
+		chaseFrom = 0.16,
+		chaseTo = 0.6,
+		chaseSteps = 9,
+		finaleFrom = 0.62,
+		finaleTo = 0.78,
 	},
 }
 

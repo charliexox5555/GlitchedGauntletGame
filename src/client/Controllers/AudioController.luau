@@ -20,6 +20,7 @@ local RuinedReaverAudio = require(ReplicatedStorage.Shared.Config.RuinedReaverAu
 local SharedSoundAssets = require(ReplicatedStorage.Shared.Config.SharedSoundAssets)
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
 local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
+local ArcadeAudio = require(ReplicatedStorage.Shared.Config.ArcadeAudio)
 local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
 local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
 local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
@@ -73,6 +74,7 @@ local BANKS: { [string]: SoundBank } = {
 	reaver = { takes = {}, voices2d = {}, voices3d = {} },
 	tempest = { takes = {}, voices2d = {}, voices3d = {} },
 	slipframe = { takes = {}, voices2d = {}, voices3d = {} },
+	arcade = { takes = {}, voices2d = {}, voices3d = {} },
 	moltframe = { takes = {}, voices2d = {}, voices3d = {} },
 	playback = { takes = {}, voices2d = {}, voices3d = {} },
 	sundial = { takes = {}, voices2d = {}, voices3d = {} },
@@ -84,6 +86,7 @@ local skinTakes: { [string]: { [string]: { Take } } } = {
 	reaver = RuinedReaverAudio.takes,
 	tempest = TempestAudio.takes,
 	slipframe = SlipframeAudio.takes,
+	arcade = ArcadeAudio.takes,
 	moltframe = MoltframeAudio.takes,
 	playback = PlaybackAudio.takes,
 	sundial = SundialAudio.takes,

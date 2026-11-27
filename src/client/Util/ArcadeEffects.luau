@@ -1,8 +1,9 @@
 --!strict
 -- Arcade skin line: the cabinet deck comes alive in first person. Each shot
 -- presses and lights the next button and zips the pixel shot across the screen;
--- the ship bobs and the stars blink while idle; inspect runs a chase over the
--- buttons; a seated magazine flashes all three. Everything lives in the camera
+-- the ship bobs and the stars blink while idle; inspect runs an attract-mode chase
+-- over the buttons and ends with all three lit; a seated magazine flashes all three.
+-- Sounds are played by the viewmodel from the events `step` returns (Config/ArcadeAudio). Everything lives in the camera
 -- clone (no connections, nothing outside the model), so unequip cleans it up.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Profiles = require(ReplicatedStorage.Shared.Config.Arcade)
@@ -10,6 +11,7 @@ local Profiles = require(ReplicatedStorage.Shared.Config.Arcade)
 local ArcadeEffects = {}
 
 type Pulse = "Fire" | "Seat"
+export type Event = "Chase" | "Win"
 
 type Moving = {
 	part: MeshPart,
@@ -38,6 +40,8 @@ export type State = {
 	starsTransparency: number,
 	blipTransparency: number,
 	nextButton: number,
+	chaseIndex: number, -- the inspect chase step last played (0 = none)
+	won: boolean, -- the inspect finale has played
 	shotT: number, -- 0..1 while a shot crosses the screen, else 1
 	clock: number,
 }
@@ -113,6 +117,8 @@ function ArcadeEffects.new(model: Model, scale: number, gunId: string): State?
 		starsTransparency = if stars then stars.Transparency else 0,
 		blipTransparency = if blip then blip.Transparency else 0,
 		nextButton = 1,
+		chaseIndex = 0,
+		won = false,
 		shotT = 1,
 		clock = 0,
 	}
@@ -156,21 +162,50 @@ local function blink(part: MeshPart?, base: number, on: boolean)
 	end
 end
 
-function ArcadeEffects.step(state: State, dt: number, inspect: number?, visible: boolean)
+-- Returns a sound event for the viewmodel to play: "Chase" (with the lit button) on each
+-- inspect chase step, "Win" once when all three flash at the end of the chase.
+function ArcadeEffects.step(
+	state: State,
+	dt: number,
+	inspect: number?,
+	visible: boolean
+): (Event?, number?)
 	local profile = state.profile
 	local scale = state.scale
 	local pixel = profile.pixel * scale
 	state.clock += dt
 	local clock = state.clock
 
-	-- buttons: an inspect chase, else whatever the shots and seats lit
-	local chase = if visible and inspect
-		then math.floor(clock / profile.chaseStep) % #state.buttons + 1
-		else nil
+	-- inspect: an attract-mode chase over the buttons, then all three flash together
+	local chase: number? = nil
+	local finale = false
+	local event: Event? = nil
+	local eventButton: number? = nil
+	if visible and inspect then
+		if inspect >= profile.chaseFrom and inspect < profile.chaseTo then
+			local span = profile.chaseTo - profile.chaseFrom
+			local index = math.floor((inspect - profile.chaseFrom) / span * profile.chaseSteps) + 1
+			chase = (index - 1) % #state.buttons + 1
+			if index ~= state.chaseIndex then
+				state.chaseIndex = index
+				event, eventButton = "Chase", chase
+			end
+		elseif inspect >= profile.finaleFrom and inspect < profile.finaleTo then
+			finale = true
+			if not state.won then
+				state.won = true
+				event = "Win"
+			end
+		end
+	else
+		state.chaseIndex = 0
+		state.won = false
+	end
+
 	for i, button in state.buttons do
-		if chase then
+		if chase or finale then
 			button.lit = 0
-			light(button, if i == chase then 0.5 else 0, profile.pressDepth * scale)
+			light(button, if finale or i == chase then 0.5 else 0, profile.pressDepth * scale)
 		elseif button.lit > 0 and visible then
 			button.lit = math.max(0, button.lit - dt)
 			-- full press for most of the light, then a quick release
@@ -192,21 +227,26 @@ function ArcadeEffects.step(state: State, dt: number, inspect: number?, visible:
 		else CFrame.identity
 
 	local bob = math.floor(clock / profile.shipBob) % 2
-	local cruise = if visible and inspect
-		then math.floor(clock / (profile.chaseStep * 2)) % 6
-		else 0
+	local cruise = if chase then math.floor(state.chaseIndex / 2) % 6 else 0
 	state.ship.motor.Transform = CFrame.new(-cruise * pixel, bob * pixel, 0)
 
 	if state.deckLight then
 		state.flashLeft = math.max(0, state.flashLeft - dt)
-		local chaseColor = if chase then state.buttons[chase].color else nil
-		state.deckLight.Color = chaseColor
-			or (if state.flashLeft > 0 and visible then state.flash else state.deckColor)
+		if chase then
+			state.deckLight.Color = state.buttons[chase].color
+		elseif finale then
+			state.deckLight.Color = state.deckColor:Lerp(LIT_TINT, 0.6)
+		else
+			state.deckLight.Color = if state.flashLeft > 0 and visible
+				then state.flash
+				else state.deckColor
+		end
 	end
 
 	local phase = math.floor(clock / profile.starBlink) % 2 == 0
 	blink(state.stars, state.starsTransparency, phase)
 	blink(state.blip, state.blipTransparency, not phase)
+	return event, eventButton
 end
 
 return ArcadeEffects

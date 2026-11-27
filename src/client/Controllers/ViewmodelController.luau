@@ -43,6 +43,7 @@ local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local SkinPreview = require(ReplicatedStorage.Shared.SkinPreview)
 local MeleeSkins = require(ReplicatedStorage.Shared.Config.MeleeSkins)
 local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
+local ArcadeAudio = require(ReplicatedStorage.Shared.Config.ArcadeAudio)
 local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
 local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
 local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
@@ -1087,6 +1088,11 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		end
 	elseif skinLine == "Arcade" and templateId ~= "Knife" then
 		gun.arcade = ArcadeEffects.new(m, scale, templateId)
+		if gun.arcade and not subject then
+			for _, cue in { ArcadeAudio.chase, ArcadeAudio.win, ArcadeAudio.coin } do
+				AudioController.warmCue(cue.id)
+			end
+		end
 	elseif skinLine == "Moltframe" then
 		gun.moltframe = true
 	elseif skinLine == "Playback" then
@@ -1573,6 +1579,9 @@ local function bump(kind: string)
 	end
 	if right and right.arcade and kind == "MagIn" then
 		ArcadeEffects.pulse(right.arcade, "Seat")
+		if not subject and not hidden then
+			AudioController.playSound(ArcadeAudio.coin, "Foley")
+		end
 	end
 	if right and right.slipframe and kind == "MagIn" then
 		SlipframeEffects.pulse(right.slipframe, "Seat")
@@ -3290,12 +3299,25 @@ local function update(dt: number)
 			end
 			if gun.arcade then
 				local inspect = playing.Inspect
-				ArcadeEffects.step(
+				local event, button = ArcadeEffects.step(
 					gun.arcade,
 					dt,
 					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
 					visible
 				)
+				if event and not subject and not hidden then
+					if event == "Chase" then
+						AudioController.playSound(
+							ArcadeAudio.chase,
+							"Foley",
+							nil,
+							nil,
+							ArcadeAudio.chasePitch[button or 1]
+						)
+					else
+						AudioController.playSound(ArcadeAudio.win, "Foley")
+					end
+				end
 			end
 			if gun.slipframe then
 				local inspect = playing.Inspect

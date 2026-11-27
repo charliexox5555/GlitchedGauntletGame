@@ -875,6 +875,24 @@
   "type": "Audio",
   "uploaded": "2026-11-14 17:25:48"
  },
+ "art-source/audio/arcade/chase.wav": {
+  "assetId": 92623653287895,
+  "name": "GG Arcade chase",
+  "type": "Audio",
+  "uploaded": "2026-11-27 15:41:55"
+ },
+ "art-source/audio/arcade/coin.wav": {
+  "assetId": 83881971671794,
+  "name": "GG Arcade coin",
+  "type": "Audio",
+  "uploaded": "2026-11-27 15:42:01"
+ },
+ "art-source/audio/arcade/win.wav": {
+  "assetId": 118852986845022,
+  "name": "GG Arcade win",
+  "type": "Audio",
+  "uploaded": "2026-11-27 15:41:58"
+ },
  "art-source/audio/moltframe/ares_shot.wav": {
   "assetId": 128834383592794,
   "name": "GG Moltframe Ares Shot",

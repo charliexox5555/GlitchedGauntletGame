@@ -140,6 +140,35 @@ The Arcade line, built one gun at a time from [Arcade and Frostbite Handoff](../
   - Inspect shows the chase on screen.
 - **Lint and build:** stylua, selene and the Rojo build are clean.
 
+## Sounds (2026-11-27)
+The owner asked for "an extra little sound on the inspect with the lights and the reload". The shot sound is unchanged.
+
+**How the cues are made** (`tools/audio/design_arcade.py`):
+- Each layers a real recording from the licensed ProPack (a button click or a coin clunk) under a soft synthesized 8-bit blip.
+- The blip is a square wave, low-passed so it stays round, never harsh. Measured brightness centre is about 2.4 kHz, with under 0.2% of the energy above 6 kHz.
+- The WAVs and audition reel are in `art-source/audio/arcade/`, which is git-ignored because it holds licensed material.
+
+| Cue | Asset | Length | Plays |
+|---|---|---|---|
+| chase | 92623653287895 | 0.12 s | each inspect chase step (button click and blip), pitch 1 / 1.122 / 1.26 per button so it climbs |
+| win | 118852986845022 | 0.27 s | the inspect finale: a three-note rising chime as all three buttons light |
+| coin | 83881971671794 | 0.23 s | the mag seats (`MagIn`): coin drop, click, two credit notes |
+
+**Code**
+- **`Config/ArcadeAudio`:** the takes, volumes (0.22 / 0.30 / 0.30) and chase pitches.
+- **`AudioController`:** the `arcade` bank.
+- **`ViewmodelController`:**
+  - warms the three cues when the Arcade gun is built;
+  - plays the events that `ArcadeEffects.step` returns;
+  - plays the coin on `MagIn`.
+- **Inspect timing:** the chase is now fixed to the inspect's progress (`Config/Arcade`). 9 steps run from 0.16 to 0.60 of the clip (about 0.135 s each), then all three are lit from 0.62 to 0.78.
+
+**Range test** (Studio Play)
+- All 9 chase blips play, from the first inspect (with the cues warmed), at the climbing pitches.
+- The win chime plays as the three buttons light (about 1.74 s in).
+- The coin plays as the mag seats, about 1.1 s into the reload.
+- **Caveat:** an inspect started in the first second after equipping can miss the win chime while it loads.
+
 **Left to do**
 - The Locker portrait (`ItemPortraits["Vandal/Arcade"]`) and the Arcade line emblem. The tile shows the stock picture until then.
 - The other 13 Arcade guns, one at a time, with the same checks.
