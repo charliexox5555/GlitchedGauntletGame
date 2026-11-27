@@ -7,7 +7,12 @@
 -- ScreenInsets.None gui so the bars read over a bright lobby.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
+local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Kit = require(script.Parent.Parent.Util.Kit)
 local LobbyHudView = require(script.Parent.Parent.Util.LobbyHudView)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
@@ -26,6 +31,25 @@ function LobbyHud.toast(text: string, kind: string?)
 	if bound then
 		LobbyHudView.toast(text, kind)
 	end
+end
+
+-- The Shop's red dot while today's login reward waits in its DAILY tab (vault/01 Design/Shop Economy and
+-- Art v1.md -> Economy pass, "login is claimed by hand"): only once the Shop is unlocked, rechecked when the
+-- login state or match count changes and once a minute for the UTC day rollover.
+local DAILY_CHECK_SECONDS = 60
+
+local function drawDailyDot()
+	local matches = StateValues.get(player, "Matches")
+	local shopOpen = typeof(matches) == "number" and Onboarding.unlocked("Shop", matches)
+	local login = LoginRewards.clean({
+		last = StateValues.get(player, "LoginLast"),
+		step = StateValues.get(player, "LoginStep"),
+	})
+	local today = Economy.day(math.floor(workspace:GetServerTimeNow()))
+	local waiting = shopOpen
+		and StateValues.get(player, "DataReady") == true
+		and LoginRewards.nextStep(login, today) ~= nil
+	LobbyHudView.setBadge("Shop", if waiting then 1 else 0)
 end
 
 function LobbyHud.init()
@@ -82,6 +106,15 @@ function LobbyHud.start()
 	end)
 	LobbyHudView.refresh()
 	LobbyHudView.intro()
+	for _, name in { "DataReady", "Matches", "LoginLast", "LoginStep" } do
+		StateValues.changed(player, name):Connect(drawDailyDot)
+	end
+	task.spawn(function()
+		while true do
+			drawDailyDot()
+			task.wait(DAILY_CHECK_SECONDS)
+		end
+	end)
 end
 
 return LobbyHud
