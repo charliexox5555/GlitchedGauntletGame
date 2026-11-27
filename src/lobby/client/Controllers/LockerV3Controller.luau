@@ -18,6 +18,7 @@
 -- TileLocked); the card is ReplicatedStorage.LockerV3Stage.PowerCard. This module fills and moves them.
 -- Not yet (build order step 3): weapon levels, contracts, statistics; their rows stay hidden.
 
+local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,6 +27,7 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local LoadoutConfig = require(ReplicatedStorage.Shared.Config.Loadout)
 local LobbyConfig = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
@@ -71,6 +73,8 @@ local CARD_REST = CFrame.Angles(0, math.rad(90 - 12), 0)
 local CARD_LIFT = Vector3.new(0, 0.3, 0)
 local DRAG_YAW = math.rad(0.35) -- per pixel
 local DRAG_PITCH = math.rad(0.3)
+local STICK_YAW = math.rad(220) -- per second at full right-stick tilt
+local STICK_DEAD = 0.2 -- right-stick dead zone
 local EASE = 12
 local HOVER_YAW, HOVER_PITCH = math.rad(10), math.rad(8)
 
@@ -119,6 +123,7 @@ local wipe: Frame? = nil
 local passToken = 0
 local confirmFrame: Frame? = nil
 local confirmGun = ""
+local confirmReturn: GuiObject? = nil -- the UNLOCK button: a controller's selection returns here
 local hiddenGuis: { ScreenGui } = {}
 local openConnections: { RBXScriptConnection } = {}
 local savedCamType: Enum.CameraType? = nil
@@ -897,14 +902,73 @@ local function hideOthers()
 	end
 end
 
+-- Phones (vault/02 Art/UI Device Check 2026-11-27.md): the screen is edge to edge (ScreenInsets None, so the stage
+-- and shades cover the notch), but the panels keep to the device safe area, and the left column starts under
+-- Roblox's top-bar buttons (on a 401 px tall phone its loadout card sat under them). Desktop is unchanged.
+local LIST_TOP, LIST_BOTTOM = 96, 1056 -- design px: the left column's content (Loadout / Deck to the list's foot)
+local EDGE_GAP = 6 -- px between Roblox's buttons and our panels
+local function place(obj: GuiObject, pos: UDim2)
+	StateValues.set(obj, "Home", pos) -- UiMotion.slideIn eases to the home
+	obj.Position = pos
+end
 local function fit()
-	local s = gui.AbsoluteSize.Y / 1080
+	local size = gui.AbsoluteSize
+	local s = size.Y / 1080
 	for _, c in gui:GetChildren() do
 		local u = c:FindFirstChild("Fit")
 		if u and u:IsA("UIScale") then
 			u.Scale = s
 		end
 	end
+	-- the safe area and Roblox's buttons, in this screen's pixels
+	local full = GuiService:GetInsetArea(Enum.ScreenInsets.None)
+	local safe = GuiService:GetInsetArea(Enum.ScreenInsets.DeviceSafeInsets)
+	local padL, padR = math.max(safe.Min.X - full.Min.X, 0), math.max(full.Max.X - safe.Max.X, 0)
+	local padT, padB = math.max(safe.Min.Y - full.Min.Y, 0), math.max(full.Max.Y - safe.Max.Y, 0)
+	local inset = GuiService.TopbarInset
+	local guiTop = full.Min.Y + GuiService:GetGuiInset().Y -- TopbarInset is screen pixels
+	local barBottom = if inset.Height > 0 then inset.Max.Y - guiTop else padT
+	local barRight = if inset.Height > 0 then inset.Min.X - full.Min.X else 0
+	local usable = math.max(size.Y - padT - padB, 1)
+
+	-- left column: under Roblox's buttons, shrunk just enough to keep its foot on screen
+	local listTop = math.max(barBottom + EDGE_GAP, padT)
+	local fitL = math.min(s, (size.Y - padB - EDGE_GAP - listTop) / (LIST_BOTTOM - LIST_TOP))
+	local leftFit = left:FindFirstChild("Fit")
+	if leftFit and leftFit:IsA("UIScale") then
+		leftFit.Scale = fitL
+	end
+	place(left, UDim2.fromOffset(padL, math.max(padT, listTop - LIST_TOP * fitL)))
+	-- right column and coins: inside the safe area
+	local sideFit = usable / 1080
+	local rightFit = right:FindFirstChild("Fit")
+	if rightFit and rightFit:IsA("UIScale") then
+		rightFit.Scale = math.min(s, sideFit)
+	end
+	place(right, UDim2.new(1, -padR, 0, padT))
+	local topRight = gui:FindFirstChild("TopRight")
+	if topRight and topRight:IsA("GuiObject") then
+		place(topRight, UDim2.new(1, -padR, 0, padT))
+	end
+	place(bottom, UDim2.new(0.5, 0, 1, -padB))
+	-- the title + tabs: centred, slid right if their left end reaches Roblox's buttons
+	local topX = 0
+	local title = top:FindFirstChild("Title")
+	if title and title:IsA("TextLabel") and barRight > 0 then
+		local slack = title.AbsoluteSize.X - title.TextBounds.X
+		local alignShift = if title.TextXAlignment == Enum.TextXAlignment.Right
+			then slack
+			elseif title.TextXAlignment == Enum.TextXAlignment.Center then slack / 2
+			else 0
+		local centredLeft = gui.AbsolutePosition.X + size.X / 2 - top.AbsoluteSize.X / 2
+		local shifted = top.AbsolutePosition.X - centredLeft -- the slide this function gave it last time
+		local textLeft = title.AbsolutePosition.X + alignShift - shifted
+		local reach = barRight + EDGE_GAP - (textLeft - gui.AbsolutePosition.X)
+		if reach > 0 then
+			topX = reach
+		end
+	end
+	place(top, UDim2.new(0.5, topX, 0, padT))
 	local box = confirmFrame and confirmFrame:FindFirstChild("Box")
 	local u = box and box:FindFirstChild("Fit")
 	if u and u:IsA("UIScale") then
@@ -1204,6 +1268,13 @@ local function hideConfirm()
 	end
 	local shade = find(c, "Shade") :: GuiObject
 	local pop = find(c, "Box.Body.Pop") :: UIScale
+	-- a controller's selection goes back to the UNLOCK button behind it
+	c.SelectionGroup = false
+	local selected = GuiService.SelectedObject
+	if selected and selected:IsDescendantOf(c) then
+		local buy = confirmReturn
+		GuiService.SelectedObject = if buy and buy.Visible then buy else nil
+	end
 	UiMotion.out(shade, { BackgroundTransparency = 1 }, 0.14)
 	UiMotion.out(pop, { Scale = 0.92 }, 0.14).Completed:Once(function()
 		if confirmFrame == c and not c:GetAttribute("Opening") then
@@ -1227,6 +1298,14 @@ local function showConfirm(id: string)
 	set(body, "Sub", "Text", `You'll have {commas(coins() - price)} coins left`)
 	c:SetAttribute("Opening", true)
 	c.Visible = true
+	-- a controller's selection stays inside the window and starts on UNLOCK
+	c.SelectionGroup = true
+	for _, side in { "Up", "Down", "Left", "Right" } do
+		(c :: any)["SelectionBehavior" .. side] = Enum.SelectionBehavior.Stop
+	end
+	if InputMode.gamepad() then
+		GuiService.SelectedObject = find(body, "Ok") :: GuiObject
+	end
 	local shade = find(c, "Shade") :: GuiObject
 	local pop = find(body, "Pop") :: UIScale
 	shade.BackgroundTransparency = 1
@@ -1354,7 +1433,24 @@ function LockerV3Controller.start()
 	buildGunRows()
 	buildTiles()
 
-	Router.register("Locker", { open = open, close = close, screen = "LockerV3", clear = true })
+	Router.register("Locker", {
+		open = open,
+		close = close,
+		screen = "LockerV3",
+		clear = true,
+		-- B closes the confirm window, then the skin strip, before the Locker
+		back = function(): boolean
+			local cf = confirmFrame
+			if cf and cf.Visible then
+				hideConfirm()
+				return true
+			elseif stripOpen then
+				setStrip(false)
+				return true
+			end
+			return false
+		end,
+	})
 
 	-- the wipe (above everything, two screens tall, soft top and bottom edges; Locker v4's)
 	local wipeGui = Instance.new("ScreenGui")
@@ -1449,6 +1545,11 @@ function LockerV3Controller.start()
 	if c and c:IsA("Frame") then
 		confirmFrame = c
 		c.Visible = false
+		confirmReturn = find(lockedPanel, "Unlock.Buy.Button") :: GuiObject
+		local shadeHit = find(c, "Shade")
+		if shadeHit:IsA("GuiObject") then
+			shadeHit.Selectable = false -- a tap-outside catcher, not a stop for the D-pad
+		end
 		onPress(c, "Box.Body.Ok", function()
 			hideConfirm()
 			if confirmGun ~= "" then
@@ -1568,23 +1669,38 @@ function LockerV3Controller.start()
 	end)
 	-- turning: grab the stage (anywhere off the panels) and drag
 	local dragZone = find(gui, "DragZone") :: GuiButton
+	-- One pointer turns it: the mouse, or the first finger down (a second finger, e.g. a pinch or a tap
+	-- on a button, doesn't make the card jump between the two fingers).
+	local dragTouch: InputObject? = nil
+	local function settle()
+		dragging = false
+		dragTouch = nil
+		targetPitch = 0
+		local step = if mode == "powers" then math.pi else 2 * math.pi -- a card settles on its nearer face
+		targetYaw = math.round(targetYaw / step) * step
+	end
 	dragZone.InputBegan:Connect(function(input: InputObject)
-		if
-			input.UserInputType == Enum.UserInputType.MouseButton1
-			or input.UserInputType == Enum.UserInputType.Touch
-		then
-			dragging = true
-			lastPos = Vector2.new(input.Position.X, input.Position.Y)
+		if dragging then
+			return
 		end
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+		elseif input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragTouch = input
+		else
+			return
+		end
+		lastPos = Vector2.new(input.Position.X, input.Position.Y)
 	end)
 	UserInputService.InputChanged:Connect(function(input: InputObject)
 		if not (isOpen and dragging) then
 			return
 		end
-		if
-			input.UserInputType == Enum.UserInputType.MouseMovement
-			or input.UserInputType == Enum.UserInputType.Touch
-		then
+		local follows = if dragTouch
+			then input == dragTouch
+			else input.UserInputType == Enum.UserInputType.MouseMovement
+		if follows then
 			local p = Vector2.new(input.Position.X, input.Position.Y)
 			local d = p - lastPos
 			lastPos = p
@@ -1597,13 +1713,35 @@ function LockerV3Controller.start()
 			return
 		end
 		if
-			input.UserInputType == Enum.UserInputType.MouseButton1
-			or input.UserInputType == Enum.UserInputType.Touch
+			(dragTouch and input == dragTouch)
+			or (not dragTouch and input.UserInputType == Enum.UserInputType.MouseButton1)
 		then
-			dragging = false
-			targetPitch = 0
-			local step = if mode == "powers" then math.pi else 2 * math.pi -- a card settles on its nearer face
-			targetYaw = math.round(targetYaw / step) * step
+			settle()
+		end
+	end)
+	-- a controller: the right stick turns the stage (the left stick and D-pad move the selection)
+	local stickTurning = false
+	RunService.Heartbeat:Connect(function(dt: number)
+		if
+			not isOpen
+			or dragging
+			or not UserInputService:GetGamepadConnected(Enum.UserInputType.Gamepad1)
+		then
+			return
+		end
+		local stick = Vector2.zero
+		for _, s in UserInputService:GetGamepadState(Enum.UserInputType.Gamepad1) do
+			if s.KeyCode == Enum.KeyCode.Thumbstick2 then
+				stick = Vector2.new(s.Position.X, s.Position.Y)
+			end
+		end
+		if stick.Magnitude > STICK_DEAD then
+			stickTurning = true
+			targetYaw += stick.X * STICK_YAW * dt
+			targetPitch = math.clamp(-stick.Y * math.rad(40), math.rad(-40), math.rad(40))
+		elseif stickTurning then
+			stickTurning = false
+			settle()
 		end
 	end)
 end
