@@ -48,6 +48,7 @@ Sources: code audit of `src/` (2026-11-22), Studio read of the merged place and 
 **Studio-built templates, bound by code. Not all-code, and nothing in StarterGui.**
 - All code: every look change needs a code change, the owner can't edit in Explorer, and it is why we have 600+ `fromOffset` calls. Studio-only: lists and live data still need code. **Hybrid** is what RIVALS and LihFolk both use: Studio owns the layout and look; code sets `Text`, `Image`, `Visible`, attributes, clones list rows, and runs motion. Scripts never set Position, Size, colours or fonts on static layout.
 - **One home:** `StarterPlayer.StarterPlayerScripts.UI` (client-only, like RIVALS; a Studio-owned folder next to Rojo's `Client` / `LobbyClient`; Rojo ignores unknown children there because that node has no `$path`. Check this on the first `rojo serve`.)
+  - **Changed 2026-11-27 (loading pass):** lobby-only screens live in `ServerStorage.LobbyUI`. Only a lobby server hands them to its clients, so match servers never send them. The Shop and Battle Pass build on first open (`UiRoot.LAZY`). See [UI Device Check → Pass 2](../02%20Art/UI%20Device%20Check%202026-11-27.md#pass-2-lobby-only-home-and-lazy-pages-2026-11-27).
   ```
   StarterPlayerScripts.UI
     Screens/      one ScreenGui per screen (Lobby*, Match*, Menus, Modals)

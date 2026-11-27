@@ -73,9 +73,40 @@ Workstream 4 of [Launch Hardening 2026-11-27](../05%20Production/Launch%20Harden
 
 **Checked after the move:** the Locker v3 opens with its stage on the lobby.
 
-**Not done:**
-- **Lazy-building the Shop (2,279) and Battle Pass (911):** their controllers bind the whole screen at start, so mounting on first open is a refactor of `ShopController` (~2,800 lines) and `BattlePassController`. It's the biggest lobby win left (about 3,200 instances).
-- `PlayerScripts.UI.Lobby` (3,428 template instances) still ships to match clients, because StarterPlayerScripts copies to everyone. Moving the lobby templates to a lobby-only home needs a loader change in `UiRoot`.
+### Pass 2: lobby-only home and lazy pages (2026-11-27)
+
+**Lobby-only home:**
+- 20 lobby-only screens moved in Studio from `StarterPlayerScripts.UI.Lobby` to **`ServerStorage.LobbyUI`** (3,746 instances): Shop, Locker(V3), Battle Pass, LobbyBar, LobbyCoins, Play, Party and the rest.
+- **Only a lobby server** parents that folder into ReplicatedStorage, at boot (`LobbyServer` init). It also sets the ReplicatedStorage attribute `LobbyUI = "ready" | "none"`, so a client never waits on a folder that won't come.
+- `UI.Lobby` keeps what match clients use: Settings, LobbyTasks and TouchEditor.
+- `Shared/UiRoot` reads both homes.
+- To edit these screens in Studio, `tools/studio/UiEdit.luau` parks and stores screens from either home, and `UiDeviceSheet` finds them too.
+- **Rebuild scripts:** the old `tools/studio/Build*.luau` scripts still write to `UI.Lobby`. After rebuilding a lobby-only screen, move it to `ServerStorage.LobbyUI`.
+
+**Lazy pages (`UiRoot.LAZY`):**
+- The Shop and Battle Pass aren't copied into PlayerGui at join. Each controller builds its page on first open, or when the bar's button is hovered (`Router.warm`).
+- The Shop's coin counter (LobbyCoins) stays live from join.
+- The Battle Pass keeps its season-state hooks at join, and its page wiring is one `build()` function to extend.
+- With `Release.BATTLE_PASS_OPEN` off, its page is never built.
+
+**Measured (Studio, HD 1080, admin and dev screens left out):**
+
+| | Before (after pass 1) | After |
+|---|---|---|
+| Lobby, PlayerGui at join | 6,281 | **3,091** (the Shop adds ~2,250 on first open) |
+| Lobby, PlayerScripts | 5,831 | **2,085** |
+| Match, PlayerScripts | 5,656 | **1,910** |
+| Match, PlayerGui | 1,459 | 1,605 (round-phase screens; no lobby UI) |
+| Match, ReplicatedStorage | — | `LobbyUI` not sent (3,746) |
+
+**Checked live:**
+- **Desktop:** the Shop builds and opens on first use; the Backpack opens.
+- **Phone (iPhone 17 Pro, notch):** the Shop, the Battle Pass (Studio switch `BattlePassTest`) and the Locker v3 open, with the safe-area layout.
+- **Match server:** Settings opens (F10), with no lobby UI sent.
+
+**Owner:** save the place. The folder moves are Studio edits.
+
+**Not done:** ~~lazy Shop / Battle Pass~~ and ~~UI.Lobby templates on match clients~~ are done above. The Templates folder (426 instances, shared by match and lobby rows) still ships to everyone.
 
 ## Still open
 - **Small lobby text on phones:** LobbyTasks 5 px, LobbyBar labels and the LobbyPlayerList at 6 px (749x381). The lobby HUD's Fit and PhoneBoost need a per-screen phone pass, which is design work.
