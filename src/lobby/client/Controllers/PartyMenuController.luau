@@ -573,8 +573,12 @@ function PartyMenuController.start()
 			render()
 		end)
 	end
+	local watches: { [Player]: RBXScriptConnection } = {}
 	local function watch(p: Player)
-		StateValues.anyChanged(p):Connect(function(name: string)
+		if watches[p] then
+			return
+		end
+		watches[p] = StateValues.anyChanged(p):Connect(function(name: string)
 			if
 				name == "PartyKey"
 				or name == "PartyLeader"
@@ -594,6 +598,11 @@ function PartyMenuController.start()
 	end)
 	Players.PlayerRemoving:Connect(function(p)
 		sentAt[p.UserId] = nil
+		local w = watches[p]
+		if w then
+			w:Disconnect()
+			watches[p] = nil
+		end
 		soon()
 	end)
 end

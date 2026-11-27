@@ -958,7 +958,12 @@ function PackOpening.start(
 		local remaining = shown
 		for i = 1, shown do
 			task.spawn(function()
-				slots[i].open(list[i], timing, i == lead, (i - 1) * P.FLY_STAGGER)
+				-- protected: one card that errors must not leave the opening waiting forever
+				local ok, err =
+					pcall(slots[i].open, list[i], timing, i == lead, (i - 1) * P.FLY_STAGGER)
+				if not ok then
+					warn(`[PackOpening] card {i} failed: {err}`)
+				end
 				remaining -= 1
 			end)
 		end
