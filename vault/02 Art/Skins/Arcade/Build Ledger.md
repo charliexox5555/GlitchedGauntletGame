@@ -352,3 +352,71 @@ Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, P
 - The stock handguard's round-ended slots are kept as faceted vents (three by two, behind the support hand) rather than replaced by a second art field.
 - In first person the joystick ball still slightly overlaps the cyan button, as on the approved Havoc and Spirit.
 - Not installed: the Studio upload and install wait for your go.
+
+## Bulldog (Lancer)
+Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, PID 40136 checked). Scripts: `14_bulldog.py` (build), `21_review_bulldog.py` (stations; the stock file has its own `Cam_Hip`), `sheet_bulldog.json`. No shared script was changed.
+
+**Stock measured** (ray-cast depth maps, both sides, and every clip swept relative to Root):
+- A bullpup: the stock body (one closed island) runs x -1.227/-.473, side face y .088, top .476 falling to .43 at the rear, bottom -.134. It has a side recess on both sides (floor .083, x -1.05/-.524, z .28-.41, raked front edge) and a sling slot through it at x -1.21/-1.185. The magwell is a separate open island; the butt pad is x -1.459/-1.219.
+- Receiver: upper face y .084 (top .476), lower face .080, a violet panel with two Neon bars at x -.159/.044. A side box (x .343-.611, y .092, bottom .177) carries the CharmLoop on its lower left. The charging-handle knob (left, z .372-.435) runs back to x .20 in Draw. The bolt runs back inside the stock body to x -.568.
+- Handguard x .575-1.074 (y .086, bottom .156, keel .186, top .291 under the receiver). Barrel r .034 to x 1.255, round ported brake to 1.438, Muzzle x 1.4378. Magazine face y .056 with five grooves (.052).
+- ADS: adsDistance .38, adsFov 68 (`Config/Weapons`); eye x -.6726, z .5838. The whole stock-body recess is behind or beside the eye. `Cam_Hip` sees the stock body ahead of x -.80.
+
+| Version | What changed |
+|---|---|
+| v01 | First build, 5,710 tris (1.57x). The audit listed the magazine and bolt crossing the stock body on every clip (stock behaviour, but the body was a renamed `AR_` copy), the two stock handguard pins floating over the new handguard field, and the stock's one flush pair (a Bolt face on the Receiver). |
+| v02 | The stock body and magwell stay in place under their stock name (pad removed), so only new geometry is checked against the moving parts. Handguard pins removed; the Bolt's flush face lifted 0.004 in the build. Budget pass: the butt gets a flat 0.006 side chamfer instead of a bevel modifier, no speaker grille, no coin-return pocket, one step less on the brake nose. Audit clean, 5,414 tris. Review: the joystick ball sat close to the cyan button. |
+| **v03** | **Owner note: "a gap in the trigger area that meets the body at the front".** A culled magenta sweep of every join found three stock gaps, all fixed: the trigger guard's front post stopped 0.013 under the side box (now 0.024 into it); the front sight base floated 0.011 over the rail and 0.027 over the receiver top (its foot now runs straight down 0.02 into the receiver; the part the ADS eye sees, above the rail teeth, is unchanged); the barrel tube ran only 0.015 into the receiver (now 0.035). The cabinet butt's foot now rakes forward under the body's chamfered lower-rear corner, which had left a notch. Joystick and buttons spaced 0.004-0.005 further apart; coin door made shorter. **Candidate.** |
+
+**What the Arcade Lancer has**
+- **Control deck** (left, Root): a raised plate in the stock body's side recess, 0.008 inside its walls so a dark reveal runs round it. Rear to front: a joystick, three buttons rising toward the muzzle (cyan, yellow, magenta; Havoc size, r .022 in r .028 collars), and the pixel screen at the front, where the held camera sees it, with a cyan light pipe along the deck's top edge over the screen.
+- **Stock side art:** a violet field with a pixel-stepped corner cut into the right recess (a dark reveal round it), and a big field cut into the plain lower body on the left, under the deck. Each has a raked magenta band, a cyan line, a yellow starburst and a pixel trail.
+- **Coin door** (right) on the lower stock body behind the magwell: two lilac coin entries with yellow lit slots and a magenta stripe.
+- **Handguard** on the stock envelope:
+  - the top tucks in and runs 0.015 up into the receiver, and the rear is buried in the side box;
+  - a raked cabinet nose;
+  - a recessed violet field on both sides (pixel-stepped corner, band, line, starburst, pixel trail);
+  - a magenta T-molding trim along each lower chamfer, ahead of the charm loop.
+- **Cabinet butt** replacing the pad: a raked marquee hood with a cyan light on both sides, a stepped rear, and a foot that rakes forward under the body's corner. It swallows the body's rear end and the sling slot.
+- **Brake:** eight-sided and stepped (rear collar, light-ring groove with the cyan ring, a ported main section with two faceted through-ports per side, a stepped nose, a bore with the Muzzle locator).
+- **Mag stripe:** magenta, bone `Mag`, raked across the ribbed face (top z -.012, far below the magwell).
+- All 12 `flat_group` names are on Root parts: `ARButton1-3`, `ARStickBall`, `ARScreen*`, `ARDeckLight`, `ARTrim`, `ARBrakeLight`. The screen pixel is 0.0085, as on the other guns.
+
+**v03 results**
+- **Master:** `art-source/weapons/Skins/Arcade/Bulldog/v03/Bulldog_Arcade_v03.blend`. **Export:** `v03x/` (`Bulldog_Arcade_RobloxFlat.fbx`, `manifest_flat.json`, 35 parts, all 12 AR groups as their own parts, the sights as `SK_Root_Sight_*`).
+- **Triangles:** 5,422 against 3,640 for the stock gun (1.49x, inside the 1.5x budget).
+- **Audit** (`out/Bulldog_v03_views/audit.json`, ADS distance 0.38):
+  - 0 faults in new geometry. The only faults are the stock's own open islands, inherited with the same open edges: receiver, Neon bars, sights, grip, pins, selector and magwell. Two of them moved but keep their topology: the trigger guard (its open edges are at its rear top, buried in the receiver) and the barrel tube copy `AR_BarrelTube:0` (open ends buried in the receiver and the brake).
+  - 0 coplanar pairs (the stock's one pair is gone).
+  - 0 floating parts. The stock floats its front sight assembly; it is now seated.
+  - Bones, locators and actions are identical to the stock.
+  - 0 animated intersections across Draw, Fire, Inspect, Reload and ReloadEmpty.
+  - All 5 ADS rays are clear. The post ray hits only `Bulldog_Sights`. Nothing new shows in the ADS render at 68 degrees (the game's adsFov), in 16:9 or 21:9.
+- **Gap check:** culled magenta close-ups found no gaps left at any of these joins:
+  - the trigger guard (both sides and from below) and the grip;
+  - the front sight;
+  - the receiver-to-stock seam, the magwell and the charging handle;
+  - the handguard to the side box, and the handguard nose;
+  - the barrel, the brake and the butt join.
+- **Flat export:** 0 coplanar lifts, 0 flipped islands, 0 crossed faces. The one-sided magenta re-import shows no holes (`out/Bulldog_v03x_flat_check/`).
+- **Review sheet:** [Bulldog_v03_review.png](out/Bulldog_v03_review.png)
+- **Self-grade:** 9/10 (the gun's grade is its lowest area).
+
+| Area | Grade |
+|---|---|
+| Silhouette | 9 |
+| Crispness | 9 |
+| Layering | 9 |
+| Connections | 9 |
+| ADS | 9 |
+| Palette | 9 |
+| Budget | 9 |
+| Contract | 10 |
+
+**For the owner**
+- Three buttons fit (Havoc size); nothing sits on a moving bone.
+- The deck sits in the bullpup's stock recess, the gun's big first-person surface. The held camera shows the screen and light pipe large, with the magenta button at the edge. The joystick and the other two buttons are behind the view; they show in third person and Inspect.
+- Stock geometry changed to close gaps: the trigger guard's front post, the front sight base's foot (hidden from the ADS eye) and the barrel tube's rear end.
+- Four stock pins were removed: the two at the lower rear of the stock (under the new art and the coin door) and the two on the handguard. The Bolt's flush face was lifted 0.004 in the master.
+- The butt is plain apart from the marquee: the speaker grille was cut to stay inside the triangle budget.
+- Not installed: the Studio upload and install wait for your go.

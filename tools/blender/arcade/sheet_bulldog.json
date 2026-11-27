@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Cabinet deck in the stock's left recess"],
+  ["finish_joystick.png", "Deck joystick and buttons"],
+  ["finish_stock_field_left.png", "Stock side art (left, under the deck)"],
+  ["finish_coin_door.png", "Coin door (right stock)"],
+  ["finish_brake.png", "Stepped brake, light ring, through ports"],
+  ["finish_handguard_front.png", "Handguard field, lit trim, raked nose"],
+  ["culled_trigger_join.png", "Trigger guard post seated in the body (culled)"],
+  ["culled_front_sight_join.png", "Front sight base seated (culled)"]
+]
