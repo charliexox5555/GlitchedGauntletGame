@@ -34,7 +34,6 @@ local LockerService = require(script.Parent.LockerService)
 local OnboardingConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
-local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local Telemetry = require(script.Parent.Parent.Telemetry)
 
 type Status = "idle" | "searching" | "found" | "teleporting"
@@ -67,12 +66,9 @@ local function levelOk(members: { Player }, info: Config.ModeInfo): boolean
 end
 
 local states: { [Player]: State } = {}
--- In-server onboarding matches started this session (OnboardingConfig.INSTANT_MATCHES), so a save that
+-- Onboarding matches launched from this server this session (OnboardingConfig.LAUNCH_AT_ONCE), so a save that
 -- hasn't counted a match yet can't loop a player through them.
-local instantUsed: { [Player]: number } = {}
--- A new player waiting a moment for a partner on a busy server (OnboardingConfig.PAIR_WHEN_BUSY).
-local pairWaiting: { player: Player, index: number, token: number }? = nil
-local pairToken = 0
+local onbLaunched: { [Player]: number } = {}
 local writingTickets: { [Matchmaker.Entry]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 -- Groups the global matchmaker didn't place in time (MemoryStore down, a stuck leader): they
 -- match inside this server from then on and never write a ticket again.
@@ -464,7 +460,7 @@ local function enqueue(members: { Player }, info: Config.ModeInfo, since: number
 		setState(m, "searching", info.id)
 		Telemetry.queueStart(m, info.id)
 		local matches = StateValues.get(m, "Matches")
-		local used = instantUsed[m] or 0
+		local used = onbLaunched[m] or 0
 		if info.id == "beginner" and matches == 0 and used == 0 then
 			Telemetry.onboarding(m, 2)
 		elseif matches == 1 or (matches == 0 and used > 0) then
@@ -527,70 +523,37 @@ join = function(player: Player, info: Config.ModeInfo)
 	for _, m in members do
 		removeFromQueue(m) -- switching modes restarts the wait
 	end
-	local host = getMatchHost()
-	-- A solo new player's first Beginner matches start at once in this server (OnboardingConfig.INSTANT_MATCHES):
-	-- the saved count or this session's, whichever is further, so a slow save can't repeat one.
+	-- A solo new player's onboarding matches (OnboardingConfig.LAUNCH_AT_ONCE) skip the wait: a reserved match
+	-- server with bots at once, like every match (owner 2026-11-27: no onboarding matches in the hub). The saved
+	-- count or this session's, whichever is further, so a slow save can't repeat one.
 	local matches = StateValues.get(player, "Matches")
-	local used = instantUsed[player] or 0
+	local used = onbLaunched[player] or 0
 	local onboardingMatch = if typeof(matches) == "number" then math.max(matches, used) else nil
 	if
 		info.id == OnboardingConfig.BEGINNER_MODE
-		and ServerRole.isLobby()
-		and not ServerRole.isHosted()
 		and #members == 1
 		and onboardingMatch ~= nil
-		and onboardingMatch < OnboardingConfig.INSTANT_MATCHES
-		and host
-		-- a full server sends them through the normal queue (their own match server)
-		and (host.activeDuels == nil or host.activeDuels() < OnboardingConfig.MAX_LOBBY_MATCHES)
+		and onboardingMatch < OnboardingConfig.LAUNCH_AT_ONCE
 	then
-		local index: number = onboardingMatch
-		-- starts one instant match for these new players (one per team), with the bookkeeping for each
-		local function go(list: { Player })
-			local teams: { { Player } } = { {}, {} }
-			for i, p in list do
-				instantUsed[p] = (instantUsed[p] or 0) + 1
-				setState(p, "idle")
-				Telemetry.queueStop(p, "Queue switched")
-				Telemetry.onboarding(p, if index == 0 then 2 else 17)
-				table.insert(teams[i], p)
-			end
+		onbLaunched[player] = used + 1
+		Telemetry.queueStop(player, "Queue switched")
+		Telemetry.onboarding(player, if onboardingMatch == 0 then 2 else 17)
+		local host = getMatchHost()
+		if IS_STUDIO and host then
+			-- Studio has no teleports: the match runs in this server as a stand-in for its reserved server
+			setState(player, "idle")
 			updateCounts()
-			host.startDuel(info.id, info.teamSize, teams, true, true)
-		end
-		local function stillWaiting(p: Player): boolean
-			local s = states[p]
-			return p.Parent == Players
-				and PlayZone.get(p) == "Lobby"
-				and s ~= nil
-				and s.status == "searching"
-		end
-		-- another new player at the same match is waiting: one match for both
-		local w = pairWaiting
-		if w and w.player ~= player and w.index == index and stillWaiting(w.player) then
-			pairWaiting = nil
-			go({ w.player, player })
+			host.startDuel(info.id, info.teamSize, { { player }, {} }, true, true)
 			return
 		end
-		-- a busy server waits a moment for a partner; a quiet one starts at once
-		if (host.activeDuels and host.activeDuels() or 0) >= OnboardingConfig.PAIR_WHEN_BUSY then
-			pairToken += 1
-			local my = pairToken
-			pairWaiting = { player = player, index = index, token = my }
-			setState(player, "searching", info.id)
-			StateValues.set(player, "QueueSince", workspace:GetServerTimeNow())
-			task.delay(OnboardingConfig.PAIR_WAIT, function()
-				local mine = pairWaiting
-				if mine and mine.token == my then
-					pairWaiting = nil
-					if stillWaiting(player) then
-						go({ player })
-					end
-				end
-			end)
-			return
-		end
-		go({ player })
+		startLaunch(
+			info,
+			{ player },
+			{ { player.UserId }, {} },
+			HttpService:GenerateGUID(false),
+			nil,
+			true
+		)
 		return
 	end
 	enqueue(members, info, os.clock())
@@ -777,7 +740,7 @@ local function onPlayerAdded(player: Player)
 end
 
 function QueueService.resetOnboarding(player: Player)
-	instantUsed[player] = nil
+	onbLaunched[player] = nil
 	player:SetAttribute("OnbNextMatch", nil)
 	local state = states[player]
 	if state and state.status == "searching" then
@@ -811,7 +774,7 @@ function QueueService.start()
 			updateCounts()
 		end
 		states[player] = nil
-		instantUsed[player] = nil
+		onbLaunched[player] = nil
 		autoRetried[player] = nil
 		limiter:forget(player)
 	end)

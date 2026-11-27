@@ -56,6 +56,16 @@ MatchHost.KIT_SERVICES = {
 MatchHost.PRACTICE_ID = "range"
 MatchHost.PRACTICE_SERVICES = { "DevModService", "ModRecall", "ModService", "ModSim", "ModWalls" }
 
+-- Work a match asks for that must outlive its runner (teardown, the trip home, a requeue). A thread
+-- the runner starts dies when teardown destroys the runner, so these run on MatchHost's own thread:
+-- the BindableEvent is connected in init(), from the server's boot script, which is never destroyed.
+local hostJobs: { () -> () } = {}
+local hostSignal = Instance.new("BindableEvent")
+local function onHostThread(fn: () -> ())
+	table.insert(hostJobs, fn)
+	hostSignal:Fire()
+end
+
 local EMPTY_GRACE = 8 -- seconds a pad duel may have none of its players before it's ended
 local HOSTED_EMPTY_GRACE = 60 -- a hosted match waits this long for its first player (teleports take time)
 
@@ -198,7 +208,10 @@ local function sendHome(entry: Running, player: Player)
 	WeaponService.disarm(player)
 	player.RespawnLocation = nil
 	PlayZone.set(player, "Lobby")
-	task.spawn(CharacterService.spawn, player)
+	-- the load yields: it must not die with the runner when the match is torn down meanwhile
+	onHostThread(function()
+		CharacterService.spawn(player)
+	end)
 end
 
 -- Sends a pad duel's players back to the lobby and removes the duel.
@@ -285,7 +298,9 @@ local function launchInstance(
 			plan = plan,
 			players = players,
 			finish = function(_finished: { Player })
-				task.defer(teardown, entry)
+				onHostThread(function()
+					teardown(entry)
+				end)
 			end,
 			sendHome = function(player: Player)
 				if PlayZone.matchId(player) == id then
@@ -295,9 +310,11 @@ local function launchInstance(
 			hosted = hosted,
 			noRematch = noRematch == true,
 			requeue = function(player: Player, requeueMode: string)
-				for _, fn in requeueHooks do
-					task.spawn(fn, player, requeueMode)
-				end
+				onHostThread(function()
+					for _, fn in requeueHooks do
+						task.spawn(fn, player, requeueMode)
+					end
+				end)
 			end,
 		},
 	}
@@ -505,8 +522,8 @@ local function startPractice()
 	entry.runner = launchRunner(id)
 end
 
--- Matches running in this lobby server now (pad duels and instant onboarding matches; not the range, not one
--- that is ending). QueueService caps instant matches on it (Config/Onboarding MAX_LOBBY_MATCHES).
+-- Matches running in this lobby server now (pad duels; not the range, not one that is ending). watchLoad logs
+-- it when the server runs slow.
 function MatchHost.activeDuels(): number
 	local n = 0
 	for _, r in running do
@@ -543,6 +560,11 @@ local function watchLoad()
 end
 
 function MatchHost.init()
+	hostSignal.Event:Connect(function()
+		while #hostJobs > 0 do
+			task.spawn(table.remove(hostJobs, 1) :: () -> ())
+		end
+	end)
 	folder(ReplicatedStorage, MatchState.MATCHES)
 	-- Hide all staged release templates in both roles. The live arena is a
 	-- clone, so no edit-position map can overlap it or cast shadows onto it.

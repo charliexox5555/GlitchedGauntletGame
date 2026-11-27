@@ -89,7 +89,7 @@ local function myTeam(): number
 	return Teams.of(player) or 1
 end
 
--- An onboarding match deals later phases early (MatchState.phaseFor).
+-- The round's weapon phase (MatchState.phaseFor: round 1 sidearms, then the full loadout).
 local function tierFor(round: number): Config.Phase
 	return MatchState.phaseFor(round)
 end

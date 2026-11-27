@@ -114,9 +114,9 @@ local SECTIONS: { [SectionId]: { name: string, order: number } } = {
 
 local CASES: { [string]: Case } = {
 	Standard = { tiers = { Common = 85, Rare = 15 }, sections = { Guns = 100 } },
-	-- Gift only, never sold: the free case for finishing match 1 (Config/Onboarding FIRST_MATCH_CASE). Owner
-	-- 2026-11-26: a skin for a gun they'll hold in match 2 so they see it in play (the Prowler and the Havoc, handed
-	-- out in every match 2: Config/Onboarding HANDED_GUNS), better odds than the Standard Case, and Legendary only
+	-- Gift only, never sold: the old free case for finishing match 1 (Config/Onboarding FIRST_MATCH_CASE, no longer
+	-- granted since 2026-11-27; old saves still open it). Owner 2026-11-26: a skin for a gun they'll hold in match 2
+	-- (the Prowler and the Havoc), better odds than the Standard Case, and Legendary only
 	-- as a rare lucky pull (was always Epic, any gun). Its own case so the odds it shows are the odds it rolls.
 	Starter = {
 		tiers = { Common = 40, Rare = 42, Epic = 16, Legendary = 2 },

@@ -4,8 +4,8 @@
 --
 -- Guns (vault/01 Design/Loadout and Power Deck.md, step 2): no gun row any more. Each seat takes its gun
 -- loadout (Shared/GunLoadout: a player's saved primary + secondary, a bot's random pair) when the draft
--- closes; Config/Loadout SECONDARY_ROUNDS rounds hand out only the secondary. Onboarding matches still hand
--- out Config/Onboarding HANDED_GUNS until the onboarding update.
+-- closes; Config/Loadout SECONDARY_ROUNDS rounds hand out only the secondary. Onboarding matches play the same
+-- loadout (vault/01 Design/First Ten Minutes.md §13): only their draft is scripted (Config/Onboarding SCRIPT).
 -- The server rolls and stores every offer, and a pick is only ever checked
 -- against that stored list, so a client can't ask for anything it wasn't dealt.
 --
@@ -36,7 +36,6 @@ local Net = Context.net
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Validate = require(ReplicatedStorage.Shared.Util.Validate)
-local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local DraftService = {}
 
@@ -57,10 +56,8 @@ export type Seat = {
 	abilities: { string },
 	upgrades: { MatchState.UpgradeCard },
 	lastNewMods: { string }, -- the new powers this seat was offered last draft (not dealt again while others can be)
-	gun: string?, -- onboarding only: the handed gun
 	ability: string?, -- a new ability's id, or an upgrade card's key
 	glitchBonus: number, -- the glitch chance's rise since the last glitch card
-	glitchDealt: boolean, -- this seat has been dealt a glitch card this match (the onboarding guarantee)
 	locked: boolean,
 	dealtRound: number, -- the round this seat was last dealt cards for (0: never)
 	offer: MatchState.DraftOffer?,
@@ -87,19 +84,6 @@ end
 
 function DraftService.onPicked(fn: (key: any, powerId: string, level: string) -> ())
 	table.insert(pickListeners, fn)
-end
-
--- Onboarding: the gun HANDED_GUNS gives for `round` (by the boosted round), if it is installed.
-local function handedGun(round: number): string?
-	local at = MatchState.phaseRound(round)
-	local gun: string? = nil
-	for _, h in OnbConfig.HANDED_GUNS do
-		if at >= h.fromRound then
-			gun = h.gun
-		end
-	end
-	local folder = ReplicatedStorage:FindFirstChild("Weapons")
-	return if gun and Weapons.get(gun) and folder and folder:FindFirstChild(gun) then gun else nil
 end
 
 -- The powers a seat may be dealt: a player's deck, or (a bot: `human` false) every built power.
@@ -155,7 +139,7 @@ local function rollNewMod(s: Seat, pool: { string }): string?
 	return picked
 end
 
--- An onboarding match (MatchState "PhaseBoost") deals later phases early (MatchState.phaseFor).
+-- The weapon phase of `round` (MatchState.phaseFor).
 function DraftService.phaseFor(round: number): Config.Phase
 	return MatchState.phaseFor(round)
 end
@@ -176,9 +160,8 @@ local function card(id: string, slot: number, level: string): MatchState.Upgrade
 end
 
 -- The upgrade cards for a seat's filled slots: the next level of each ability,
--- and at level 1 its two paths plus, by chance, the glitch. `guarantee`: deal a
--- glitch card if any slot can take one (the onboarding match's Glitched card).
-local function rollUpgrades(s: Seat, guarantee: boolean): { MatchState.UpgradeCard }
+-- and at level 1 its two paths plus, by chance, the glitch.
+local function rollUpgrades(s: Seat): { MatchState.UpgradeCard }
 	local cards: { MatchState.UpgradeCard } = {}
 	local glitch = Config.GLITCH
 	local eligible: { number } = {}
@@ -204,7 +187,7 @@ local function rollUpgrades(s: Seat, guarantee: boolean): { MatchState.UpgradeCa
 	if force then
 		s.glitchBonus = 0
 	elseif #eligible > 0 then
-		if guarantee or rng:NextNumber() < chance then
+		if rng:NextNumber() < chance then
 			local slot = eligible[rng:NextInteger(1, #eligible)]
 			table.insert(cards, card(s.kit[slot], slot, "G2"))
 			s.glitchBonus = 0
@@ -259,7 +242,6 @@ function DraftService.seat(key: any): Seat
 			lastNewMods = {},
 			locked = false,
 			glitchBonus = 0,
-			glitchDealt = false,
 			dealtRound = 0,
 			focus = false,
 			hidden = false,
@@ -310,7 +292,6 @@ local function sendOffer(player: Player, s: Seat)
 		kit = s.kit,
 		levels = s.levels,
 		enemyKit = dealt.enemyKitOf(player),
-		gun = s.gun,
 		ability = s.ability,
 		focus = s.focus or nil,
 		hidden = s.hidden or nil,
@@ -357,19 +338,12 @@ local function dealScripted(s: Seat, step: OnbConfig.Round, deck: { string }): b
 	end
 	local offer = step.offer
 	if offer == "glitch" then
-		-- The Glitched card, on the script's starter power when it's still level 1, else any level-1 power.
-		local want: { [string]: boolean } = {}
-		for _, r in (DraftService.script() :: OnbConfig.Script).rounds do
-			for _, id in r.kit or {} do
-				want[id] = true
-			end
-		end
+		-- The Glitched card on their first power still at level 1 (slots fill in draft order: slot 1 first).
 		local best: number? = nil
 		for slot = 1, ModsConfig.SLOTS do
 			if s.kit[slot] ~= "" and s.levels[slot] == "L1" and Mods.isBuilt(s.kit[slot]) then
-				if best == nil or (want[s.kit[slot]] and not want[s.kit[best]]) then
-					best = slot
-				end
+				best = slot
+				break
 			end
 		end
 		if not best then
@@ -378,7 +352,6 @@ local function dealScripted(s: Seat, step: OnbConfig.Round, deck: { string }): b
 		local c = card(s.kit[best], best, "G2")
 		s.upgrades = { c }
 		s.ability = c.key
-		s.glitchDealt = true
 		return true
 	elseif typeof(offer) == "table" then
 		for _, id in offer do
@@ -413,16 +386,12 @@ local function deal(key: any)
 	s.abilities = {}
 	s.upgrades = {}
 	s.locked = false
-	s.gun = nil
 	s.focus, s.hidden = false, false
-	-- Onboarding: a new player's first matches follow Config/Onboarding SCRIPT (no gun row: the phase's gun is
-	-- handed out; scripted rounds deal only what they name).
+	-- Onboarding: a new player's first matches follow Config/Onboarding SCRIPT (focused pick screen; scripted
+	-- rounds deal only what they name). Guns are their own loadout, as in any match.
 	local plan = if human then DraftService.script() else nil
 	if plan then
 		s.focus = true
-		if plan.handGuns then
-			s.gun = handedGun(dealt.round)
-		end
 		local step = plan.rounds[dealt.round]
 		if step and dealScripted(s, step, deck) then
 			s.dealtRound = dealt.round
@@ -443,23 +412,8 @@ local function deal(key: any)
 		end
 	end
 	s.lastNewMods = table.clone(s.abilities)
-	-- Onboarding (owner 2026-11-25): a new player is dealt a Glitched card by round GLITCH.onboardingRound, and it
-	-- comes preselected so the moment happens even if they don't look.
-	local guarantee = human
-		and not s.glitchDealt
-		and dealt.round >= Config.GLITCH.onboardingRound
-		and MatchState.get("PhaseBoost") == true
-	s.upgrades = rollUpgrades(s, guarantee)
-	local glitchCard: string? = nil
-	for _, c in s.upgrades do
-		if string.sub(c.level, 1, 1) == "G" then
-			s.glitchDealt = true
-			glitchCard = c.key
-		end
-	end
-	s.ability = if guarantee and glitchCard
-		then glitchCard
-		else s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
+	s.upgrades = rollUpgrades(s)
+	s.ability = s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
 	s.dealtRound = dealt.round
 	if human then
 		sendOffer(key, s)
@@ -545,26 +499,15 @@ function DraftService.close(keys: { any })
 	local phaseName = DraftService.phaseFor(dealt.round).name
 	for _, key in keys do
 		local s = DraftService.seat(key)
-		local handed = s.gun
-		if handed then
-			-- onboarding: the handed gun (a secondary replaces both guns, a primary comes with the Classic)
-			local config = Weapons.get(handed)
-			if config and config.slot == "Secondary" then
-				s.sidearm, s.primary = handed, nil
-			else
-				s.primary, s.sidearm = handed, Weapons.DEFAULT_LOADOUT.Secondary
-			end
+		-- the saved loadout, read now so a Locker change made before the match is in
+		local guns: GunLoadout.Loadout
+		if isPlayer(key) then
+			guns = PlayerData.guns(key)
 		else
-			-- the saved loadout, read now so a Locker change made before the match is in
-			local guns: GunLoadout.Loadout
-			if isPlayer(key) then
-				guns = PlayerData.guns(key)
-			else
-				guns = s.botGuns or GunLoadout.random(rng)
-				s.botGuns = guns
-			end
-			s.primary, s.sidearm = GunLoadout.forRound(guns, dealt.round)
+			guns = s.botGuns or GunLoadout.random(rng)
+			s.botGuns = guns
 		end
+		s.primary, s.sidearm = GunLoadout.forRound(guns, dealt.round)
 		s.shield = MatchState.shieldFor(phaseName, s.primary or s.sidearm)
 		-- Your pick, else the first card.
 		local first = s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)

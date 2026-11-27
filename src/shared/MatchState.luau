@@ -92,7 +92,6 @@ local FIELD_NAMES = {
 	"Zone",
 	"Mode", -- the queued mode ("beginner", "2v2", ...): Controllers/BeginnerHighlightController
 	"RoundsToWin",
-	"PhaseBoost", -- true in an onboarding match: rounds deal later weapon phases (phaseFor)
 	-- 1 or 2: a new player's first or second match, run by Config/Onboarding SCRIPT; 0 otherwise
 	"OnboardingMatch",
 }
@@ -287,23 +286,11 @@ function MatchState.roundsToWin(): number
 	return Config.ROUNDS_TO_WIN
 end
 
--- The round whose weapon phase `round` deals. An onboarding match (field "PhaseBoost", or `boosted` when given)
--- skips ahead (Config/Match ONBOARDING_PHASE_ROUNDS); any other match uses the round itself.
-function MatchState.phaseRound(round: number, boosted: boolean?): number
-	local boost = if boosted == nil then MatchState.get("PhaseBoost") == true else boosted
-	local list = Config.ONBOARDING_PHASE_ROUNDS
-	if not boost or round < 1 or #list == 0 then
-		return round
-	end
-	return math.max(round, list[math.min(round, #list)])
-end
-
--- The weapon phase a round deals (see phaseRound).
-function MatchState.phaseFor(round: number, boosted: boolean?)
-	local at = MatchState.phaseRound(round, boosted)
+-- The weapon phase a round deals (Config/Match PHASES: round 1 sidearms, then the full loadout).
+function MatchState.phaseFor(round: number)
 	local found = Config.PHASES[1]
 	for _, p in Config.PHASES do
-		if at >= p.fromRound then
+		if round >= p.fromRound then
 			found = p
 		end
 	end

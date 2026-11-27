@@ -223,7 +223,7 @@ function MatchEndService.run(winner: number, matchMode: string?, gift: boolean?)
 		rounds = MatchState.getList("RoundHistory"),
 		gift = gift == true,
 	})
-	-- No rematch (a new player's in-server onboarding matches): a shorter screen, straight back to the lobby.
+	-- No rematch (a match hosted with noRematch, e.g. a Studio onboarding match): a shorter screen, back to the lobby.
 	local screenTime = if rematchBroken then E.timeNoRematch else E.time
 	MatchState.set("EndsAt", workspace:GetServerTimeNow() + screenTime)
 	open = true

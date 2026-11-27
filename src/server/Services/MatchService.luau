@@ -931,8 +931,11 @@ local function roundsToWin(): number
 	if RunService:IsStudio() and workspace:GetAttribute("QuickMatch") == true then
 		return 1
 	end
-	if firstMatch or onboardingMatch then
-		return Config.FIRST_MATCH_ROUNDS_TO_WIN
+	-- a new player's onboarding match: its script's length (Config/Onboarding SCRIPT roundsToWin, first to 4)
+	local index = MatchState.get("OnboardingMatch")
+	local plan = if typeof(index) == "number" then OnbConfig.SCRIPT[index] else nil
+	if (firstMatch or onboardingMatch) and plan then
+		return plan.roundsToWin
 	end
 	return Config.ROUNDS_TO_WIN_BY_MODE[matchMode()] or Config.ROUNDS_TO_WIN
 end
@@ -1272,8 +1275,6 @@ local function runMatch(): boolean
 	end
 	firstMatch = isFirstMatch()
 	onboardingMatch = allPlayersBelow(Config.ONBOARDING_MATCHES)
-	-- before round 1's draft deals: onboarding matches deal the better guns early (MatchState.phaseFor)
-	MatchState.set("PhaseBoost", onboardingMatch)
 	-- which of a new player's first matches this is (Config/Onboarding SCRIPT: DraftService deals from it)
 	MatchState.set(
 		"OnboardingMatch",

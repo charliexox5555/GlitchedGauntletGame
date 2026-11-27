@@ -9,24 +9,16 @@ export type Round = {
 	kit: { string }?, -- powers already on when the round starts
 	offer: any?, -- { ids } or "glitch"
 }
-export type Script = { handGuns: boolean, rounds: { [number]: Round } }
+export type Script = { roundsToWin: number, rounds: { [number]: Round } }
 
 return table.freeze({
 	-- The mode new players go to (Lobby Config.MODES id).
 	BEGINNER_MODE = "beginner",
-	-- A solo new player's first this-many Beginner matches start at once in this lobby server against bots
-	-- (QueueService → MatchHost), no queue and no teleport (owner 2026-11-25: match 2's queue lost 16%).
-	INSTANT_MATCHES = 2,
-	-- Server load (owner 2026-11-26: "25 duels happening at the same time ... too much for a server"): each instant
-	-- match is the player + 3 bots + its own arena copy. At this many matches running in a lobby server (pad duels
-	-- included), a new player goes through the normal queue to their own match server instead. Tune from the live
-	-- "server slow" HealthLog lines (MatchHost).
-	MAX_LOBBY_MATCHES = 8,
-	-- With this many matches already running, a new player's instant match waits up to PAIR_WAIT seconds for
-	-- another new player at the same onboarding match, and the two play one match on opposite teams (fewer bots,
-	-- a real opponent). A quiet server starts at once.
-	PAIR_WHEN_BUSY = 3,
-	PAIR_WAIT = 2.5,
+	-- A solo new player's first this-many Beginner matches skip the queue wait: a reserved match server with bots
+	-- at once, like every match (QueueService). Owner 2026-11-27: onboarding matches no longer run inside the
+	-- lobby (hub) server ("it's just going to cause lag ... overusage of matches in the server"). Studio has no
+	-- teleports, so there the match runs in the Studio server as a stand-in.
+	LAUNCH_AT_ONCE = 2,
 	-- Beginner 2v2 is offered (Play menu tile, the server accepts it) below this level.
 	BEGINNER_MAX_LEVEL = 5,
 
@@ -44,16 +36,24 @@ return table.freeze({
 	-- "Weapons", Settings, PLAY). Each unlock gets one NEW pop (bit in `seen`).
 	-- After match 2 (2026-11-26, vault/01 Design/First Ten Minutes.md: the lobby opens up once they've played
 	-- two, so the Backpack isn't needed before).
+	-- The Range goes first (2026-11-27, First Ten Minutes §13): the Task Path's first part is there, and its coins
+	-- pay for the first gun unlock (Config/Economy, economy pass 2026-11-27).
 	UNLOCKS = table.freeze({
+		{ id = "Range", at = 2, bit = 16 },
 		{ id = "Backpack", at = 2, bit = 4 },
 		{ id = "Shop", at = 2, bit = 2 },
 		{ id = "Party", at = 2, bit = 1 },
 	}),
-	SEEN_MAX = 7, -- all bits above set
+	SEEN_MAX = 31, -- all bits above and FIRST_UNLOCK's set
 	-- A NEW pop only shows within this many matches of its unlock (players who were
 	-- past it before onboarding shipped never get a pile of old NEW pops).
 	NEW_WINDOW = 3,
 	NEW_TEXT = "NEW",
+
+	-- The first gun unlock (First Ten Minutes §13, replaces the old free case and its OPEN / EQUIP steps): back in
+	-- the lobby after `fromMatches` matches, owning only the starter guns and with coins for the cheapest locked one,
+	-- the Locker icon pulses with `text`; it opens on that gun. Once (its `bit` in `seen`), never once a gun is bought.
+	FIRST_UNLOCK = table.freeze({ fromMatches = 1, bit = 8, text = "UNLOCK A GUN" }),
 
 	-- The old free case for finishing Match 1 (the Starter Case, Config/Skins CASES.Starter). No longer granted
 	-- (owner 2026-11-27: too strong, RIVALS doesn't); saves that still hold one keep it and open it from the
@@ -88,32 +88,28 @@ return table.freeze({
 		scan = 0.25, -- seconds between passes that pick up spawns, respawns and the watched view
 	}),
 
-	-- The first two matches, round by round (vault/01 Design/First Ten Minutes.md; owner 2026-11-26: learn by
-	-- playing, one new thing per round, no menus they can't read yet). Index = the onboarding match (1 = the very
-	-- first). DraftService deals from it, MatchService hides a `select = "none"` round's pick screen.
-	--   handGuns: no gun row; each phase's HANDED_GUNS gun is handed out.
+	-- The first two matches, round by round (vault/01 Design/First Ten Minutes.md §13, the loadout update
+	-- 2026-11-27): the real loadout and rules (Classic in round 1, Havoc from round 2), one new thing per round, only
+	-- the draft scripted. Index = the onboarding match (1 = the very first). DraftService deals from it,
+	-- MatchService hides a `select = "none"` round's pick screen and reads `roundsToWin`.
+	--   roundsToWin: first to this (owner 2026-11-27: "could be 4 ... maybe even the full 5"; Claude's pick 4, the
+	--     fewest rounds match 1 can have, so its four steps always fit).
 	--   select = "none": no pick screen; the round starts with `kit` already on (just the 3-2-1).
-	--   offer = { ids }: only these new powers; "glitch": only the Glitched card (on the `kit` power if it can).
-	--   Rounds not listed deal the normal power cards (still focused: no gun row, no empty columns).
+	--   offer = { ids }: only these new powers; "glitch": only the Glitched card (on the first level-1 power).
+	--   Rounds not listed deal the normal power cards (still focused: no empty columns).
 	SCRIPT = table.freeze({
 		table.freeze({
-			handGuns = true,
+			roundsToWin = 4,
 			rounds = table.freeze({
-				[1] = table.freeze({ select = "none", kit = table.freeze({ "Dash" }) }),
-				[2] = table.freeze({ offer = table.freeze({ "Updraft", "Frost" }) }),
-				[3] = table.freeze({ offer = "glitch" }),
+				[1] = table.freeze({ select = "none" }), -- sidearm round: move, shoot, no power yet
+				[2] = table.freeze({ offer = table.freeze({ "Dash", "Updraft" }) }), -- a power (single taps)
+				[3] = table.freeze({ offer = table.freeze({ "Frost", "Molly" }) }), -- powers stack (held throws)
+				[4] = table.freeze({ offer = "glitch" }), -- upgrades: the Glitched card
 			}),
 		}),
-		table.freeze({ handGuns = true, rounds = table.freeze({}) }),
+		-- match 2: the real draft from round 1 (three cards), A/B upgrades from round 2
+		table.freeze({ roundsToWin = 4, rounds = table.freeze({}) }),
 	}) :: { Script },
-	-- The gun handed out while `handGuns`, by the boosted round (MatchState.phaseRound; owner picks 2026-11-26:
-	-- forgiving at Arena range). Kept from the old tiers until the onboarding update (build order step 5).
-	HANDED_GUNS = table.freeze({
-		table.freeze({ fromRound = 1, gun = "Sheriff" }),
-		table.freeze({ fromRound = 2, gun = "Spectre" }), -- Prowler
-		table.freeze({ fromRound = 4, gun = "Vandal" }), -- Havoc
-		table.freeze({ fromRound = 7, gun = "Odin" }), -- Mauler
-	}) :: { { fromRound: number, gun: string } },
 	-- A `select = "none"` round: seconds before its 3-2-1 (time for everyone to spawn behind the barrier).
 	HIDDEN_SELECT_TIME = 1.5,
 
