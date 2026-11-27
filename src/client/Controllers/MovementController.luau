@@ -58,6 +58,8 @@ local function update(dt: number)
 	if state == "Air" and previous ~= "Air" and vy > Juice.JUMP.minRise then
 		local jump = Juice.JUMP.sound
 		AudioController.play(jump.id, { group = "Foley", volume = jump.volume, pitch = jump.pitch })
+		-- The takeoff coil: the eye trails the body for a moment.
+		CameraDrop.takeoff(cameraDrop, Juice.JUMP.takeoffDip)
 	end
 	if state == "Air" then
 		fallSpeed = math.max(fallSpeed, -vy)

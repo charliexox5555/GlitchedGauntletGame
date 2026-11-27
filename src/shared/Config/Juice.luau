@@ -344,6 +344,13 @@ return table.freeze({
 	-- Jumping: a soft cloth sound as you leave the ground.
 	JUMP = table.freeze({
 		minRise = 8, -- studs/s up that counts as a jump (not a step or a bump)
+		-- 2026-11-27 (movement feel pass): the eye lags the body for a moment
+		-- as you jump (a coil, then the snap up), on the crouch/landing
+		-- spring. Measured peak: ~0.6x this (0.12 -> 0.07-0.08 studs), the same
+		-- ratio as the landing dip's.
+		-- LihFolk "Camera Shake and Camera FX": 0.35-stud takeoff lag; ours is
+		-- smaller because a 4.4-stud hop is short. 0 = off.
+		takeoffDip = 0.12,
 		-- "Cloth Flap 2" (ProSoundEffects), higher and quieter. PROVISIONAL, audition.
 		-- 2026-11-14: none of our own: Roblox's default jump plays (Config/Audio
 		-- ROBLOX_CHARACTER_SOUNDS). Ours was "gun:jump" (the pack's cloth flicks).

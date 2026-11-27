@@ -54,6 +54,14 @@ function CameraDrop.land(s: State, fallSpeed: number): number
 	return k
 end
 
+-- Leaving the ground on a jump: the eye trails the body, dipping about
+-- `dip` studs (Juice JUMP.takeoffDip) and springing back.
+function CameraDrop.takeoff(s: State, dip: number)
+	if dip > 0 then
+		CameraDrop.impulse(s, dip * math.sqrt(Movement.CAMERA_STIFFNESS) * math.exp(1))
+	end
+end
+
 -- One frame. Returns the drop (studs to lower the eye).
 function CameraDrop.step(s: State, moveState: string?, dt: number): number
 	local target = CameraDrop.target(moveState)
