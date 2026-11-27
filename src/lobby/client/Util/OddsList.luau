@@ -587,7 +587,9 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 			list.CanvasPosition = position
 			return
 		end
-		local sections = SkinCases.sections(case.id, PlayerData.skins(player))
+		-- this player's odds: only skins for the guns they own (Shared/SkinCases.pool)
+		local sections =
+			SkinCases.sections(case.id, PlayerData.skins(player), PlayerData.guns(player))
 		local hasReward = false
 		for _, section in sections do
 			if section.odds > 0 then
@@ -597,7 +599,8 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 		end
 		note.Text = if hasReward
 			then ShopCatalog.ODDS_NOTE
-			else "No skins left to unlock in this case. Held cases return Tickets up to your wallet limit."
+			else "No skins left for your guns in this case. Unlock a gun to add its skins. "
+				.. "Held cases return Tickets up to your wallet limit."
 		local position = list.CanvasPosition
 		render(list, sections, expanded)
 		list.CanvasPosition = position
@@ -607,22 +610,27 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 			refresh()
 		end
 	end
-	local changed: RBXScriptConnection?
-	-- a power case follows the power deck (LockerMods), a skin case the owned skins
-	local replicaName = if PowerCases.isPowerCase(case.id)
-		then PlayerData.MODS
-		else PlayerData.SKINS
+	local changed: { [string]: RBXScriptConnection } = {}
+	-- a power case follows the power deck (LockerMods), a skin case the owned skins and the owned guns
+	-- (LockerGuns: a gun unlock adds its skins to the odds)
+	local replicaNames = if PowerCases.isPowerCase(case.id)
+		then { PlayerData.MODS }
+		else { PlayerData.SKINS, PlayerData.GUNS }
 	local function watch(replica: Instance?)
-		if replica and replica.Name == replicaName and replica:IsA("StringValue") then
-			if changed then
-				changed:Disconnect()
+		if replica and table.find(replicaNames, replica.Name) and replica:IsA("StringValue") then
+			local old = changed[replica.Name]
+			if old then
+				old:Disconnect()
 			end
-			changed = replica:GetPropertyChangedSignal("Value"):Connect(refreshIfVisible)
+			changed[replica.Name] =
+				replica:GetPropertyChangedSignal("Value"):Connect(refreshIfVisible)
 		end
 	end
-	watch(player:FindFirstChild(replicaName))
+	for _, name in replicaNames do
+		watch(player:FindFirstChild(name))
+	end
 	local added = player.ChildAdded:Connect(function(replica)
-		if replica.Name == replicaName then
+		if table.find(replicaNames, replica.Name) then
 			watch(replica)
 			refreshIfVisible()
 		end
@@ -630,9 +638,10 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 	local readiness = StateValues.changed(player, "DataReady"):Connect(refreshIfVisible)
 	local destroying: RBXScriptConnection
 	local function disconnect()
-		if changed then
-			changed:Disconnect()
+		for _, connection in changed do
+			connection:Disconnect()
 		end
+		table.clear(changed)
 		added:Disconnect()
 		readiness:Disconnect()
 		destroying:Disconnect()

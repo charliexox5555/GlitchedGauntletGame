@@ -88,7 +88,8 @@ ShopCatalog.RARITY_COLOR = table.freeze({
 }) :: { [string]: Color3 }
 
 -- the odds disclaimer shown under every case's contents
-ShopCatalog.ODDS_NOTE = "These are your odds for the next case. Owned skins have a 0% chance. "
+ShopCatalog.ODDS_NOTE = "Only skins for guns you own. These are your odds for the next case. "
+	.. "Owned skins have a 0% chance. "
 	.. "Each crate in OPEN 3 uses updated odds. "
 	.. "Cases aren't sold where local rules restrict paid random items."
 

@@ -10,9 +10,15 @@
 -- Playback = Giltfold), then a gun in the line, each among what the player doesn't own
 -- yet. A tier or section with nothing left drops out and the rest scale up
 -- (ShopCatalog.ODDS_NOTE).
+--
+-- Only skins for guns the player owns (owner 2026-11-27; vault Loadout and Power Deck →
+-- "Launch plan"): the pool takes their gun loadout (Shared/GunLoadout, starters always owned)
+-- and the odds recalculate per player. Knife skins are always in (everyone has the knife).
+-- Guns outside the active set (Config/Loadout) are never in a case or the daily shop.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
@@ -38,12 +44,24 @@ function SkinCases.sectionOf(gunId: string): Skins.SectionId
 	return if gunId == "Knife" then "Knives" else "Guns"
 end
 
--- Every skin in the game a case could hold (models present, tier in cases).
+-- A gun whose skins can drop or be sold: the knife, or a gun in the active set.
+function SkinCases.isActive(gunId: string): boolean
+	return gunId == "Knife" or GunLoadout.slotOf(gunId) ~= nil
+end
+
+-- A skin this player can use: the knife, or an active gun they own.
+function SkinCases.usable(gunId: string, guns: GunLoadout.Loadout): boolean
+	return gunId == "Knife" or (guns.owned[gunId] == true and GunLoadout.slotOf(gunId) ~= nil)
+end
+
+-- Every skin in the game a case could hold (models present, tier in cases, active guns only).
 local function allPairs(): { Pair }
 	local out: { Pair } = {}
 	local guns: { string } = {}
 	for id in Weapons.list do
-		table.insert(guns, id)
+		if SkinCases.isActive(id) then
+			table.insert(guns, id)
+		end
 	end
 	table.sort(guns)
 	for _, gun in guns do
@@ -60,14 +78,15 @@ local function allPairs(): { Pair }
 	return out
 end
 
--- Every skin cases can hold (bundle-only tiers left out): the daily shop's pool too.
+-- Every skin cases can hold (bundle-only tiers left out, active guns only): the daily
+-- shop's pool too.
 function SkinCases.all(): { Pair }
 	return allPairs()
 end
 
--- The skins a case can give, by section (only sections the case has a chance for,
--- only tiers it holds).
-function SkinCases.pool(caseId: string): { [Skins.SectionId]: { Pair } }
+-- The skins a case can give this player, by section (only sections the case has a
+-- chance for, only tiers it holds, only guns they own: `guns` is their loadout).
+function SkinCases.pool(caseId: string, guns: GunLoadout.Loadout): { [Skins.SectionId]: { Pair } }
 	local def = Skins.CASES[caseId]
 	local out: { [Skins.SectionId]: { Pair } } = {}
 	if not def then
@@ -78,6 +97,7 @@ function SkinCases.pool(caseId: string): { [Skins.SectionId]: { Pair } }
 			(def.sections[p.section] or 0) > 0
 			and (def.tiers[p.tier] or 0) > 0
 			and (def.guns == nil or table.find(def.guns, p.gun) ~= nil)
+			and SkinCases.usable(p.gun, guns)
 		then
 			local list = out[p.section] or {}
 			table.insert(list, p)
@@ -132,12 +152,16 @@ end
 
 -- Keep owned rows in the list at 0%. The available skins split their line's odds
 -- evenly, and empty lines, tiers and sections drop out of the roll.
-function SkinCases.contents(caseId: string, owned: PlayerData.Skins?): { Entry }
+function SkinCases.contents(
+	caseId: string,
+	owned: PlayerData.Skins?,
+	guns: GunLoadout.Loadout
+): { Entry }
 	local def = Skins.CASES[caseId]
 	if not def then
 		return {}
 	end
-	local pool = SkinCases.pool(caseId)
+	local pool = SkinCases.pool(caseId, guns)
 	local available: { [Skins.SectionId]: { [Skins.TierId]: Lines } } = {}
 	local total = 0
 	local skins = owned or {}
@@ -159,10 +183,10 @@ function SkinCases.contents(caseId: string, owned: PlayerData.Skins?): { Entry }
 		for _, p in list do
 			local odds = 0
 			local lines = tiers[p.tier]
-			local guns = lines and lines.byLine[p.line]
-			if lines and guns and not PlayerData.owns(skins, p.gun, p.line) then
+			local lineGuns = lines and lines.byLine[p.line]
+			if lines and lineGuns and not PlayerData.owns(skins, p.gun, p.line) then
 				local tierShare = share * (def.tiers[p.tier] or 0) / tierTotal
-				odds = tierShare / #lines.names / #guns
+				odds = tierShare / #lines.names / #lineGuns
 			end
 			table.insert(out, {
 				gun = p.gun,
@@ -197,12 +221,16 @@ export type Section = { id: Skins.SectionId, name: string, odds: number, tiers: 
 -- The CONTENTS: each section with its chance, inside it each tier with its chance
 -- (highest first), inside that one group per skin line (the line's combined odds,
 -- its skins with their own). Knives are one skin per line, so each is its own group.
-function SkinCases.sections(caseId: string, owned: PlayerData.Skins?): { Section }
+function SkinCases.sections(
+	caseId: string,
+	owned: PlayerData.Skins?,
+	guns: GunLoadout.Loadout
+): { Section }
 	local out: { Section } = {}
 	local bySection: { [string]: Section } = {}
 	local byTierKey: { [string]: TierBlock } = {}
 	local byGroup: { [string]: Group } = {}
-	for _, e in SkinCases.contents(caseId, owned) do
+	for _, e in SkinCases.contents(caseId, owned, guns) do
 		local sec = bySection[e.section]
 		if not sec then
 			sec = { id = e.section, name = Skins.SECTIONS[e.section].name, odds = 0, tiers = {} }
@@ -255,14 +283,37 @@ local function weighted<K>(keys: { K }, weights: { [K]: number }, rng: Random): 
 	return last
 end
 
--- One roll for a player who owns `owned`, with `rng` (seeded per purchase so a
--- retried save write rolls the same). nil = the case has nothing left for them.
-function SkinCases.roll(caseId: string, owned: PlayerData.Skins, rng: Random): Pair?
+-- How many skins this case can still give a player (unowned skins for guns they own).
+function SkinCases.unowned(
+	caseId: string,
+	owned: PlayerData.Skins,
+	guns: GunLoadout.Loadout
+): number
+	local n = 0
+	for _, list in SkinCases.pool(caseId, guns) do
+		for _, p in list do
+			if not PlayerData.owns(owned, p.gun, p.line) then
+				n += 1
+			end
+		end
+	end
+	return n
+end
+
+-- One roll for a player who owns the skins `owned` and the guns in `guns`, with `rng`
+-- (seeded per purchase so a retried save write rolls the same). nil = the case has
+-- nothing left for them.
+function SkinCases.roll(
+	caseId: string,
+	owned: PlayerData.Skins,
+	guns: GunLoadout.Loadout,
+	rng: Random
+): Pair?
 	local def = Skins.CASES[caseId]
 	if not def then
 		return nil
 	end
-	local pool = SkinCases.pool(caseId)
+	local pool = SkinCases.pool(caseId, guns)
 	-- what's left, by section then tier
 	local open: { [Skins.SectionId]: { [Skins.TierId]: Lines } } = {}
 	local sectionW: { [Skins.SectionId]: number } = {}
@@ -288,8 +339,8 @@ function SkinCases.roll(caseId: string, owned: PlayerData.Skins, rng: Random): P
 		return nil
 	end
 	local l = tiers[tier]
-	local guns = l.byLine[l.names[rng:NextInteger(1, #l.names)]]
-	return guns[rng:NextInteger(1, #guns)]
+	local lineGuns = l.byLine[l.names[rng:NextInteger(1, #l.names)]]
+	return lineGuns[rng:NextInteger(1, #lineGuns)]
 end
 
 -- "PRISM VANDAL" ("BAT" for the PopCircuit knife, like the Locker).

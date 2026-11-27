@@ -71,7 +71,7 @@ local REASON_TEXT: { [string]: string } = {
 	invalid = "Purchase failed",
 	slow = "Slow down a little",
 	noCase = "You don't have that case",
-	ownAll = "You already own everything that case can give",
+	ownAll = "You own every skin that case has for your guns",
 }
 
 local function reject(reason: string)
@@ -85,20 +85,12 @@ local function send(player: Player, payload: LobbyNet.ShopEventPayload)
 end
 
 -- How many skins (or, from a power case, powers: Shared/PowerCases) this case can still give a player.
+-- Skins: only for guns they own (Shared/SkinCases.unowned, owner 2026-11-27).
 local function unownedIn(caseId: string, data: PlayerData.Data): number
 	if PowerCases.isPowerCase(caseId) then
 		return #PowerCases.unowned(caseId, data.mods)
 	end
-	local skins = data.skins
-	local n = 0
-	for _, list in SkinCases.pool(caseId) do
-		for _, p in list do
-			if not PlayerData.owns(skins, p.gun, p.line) then
-				n += 1
-			end
-		end
-	end
-	return n
+	return SkinCases.unowned(caseId, data.skins, data.guns)
 end
 
 local function buyCase(player: Player, caseId: string)
@@ -262,7 +254,7 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 				end
 				continue
 			end
-			local pair = SkinCases.roll(caseId, data.skins, rng)
+			local pair = SkinCases.roll(caseId, data.skins, data.guns, rng)
 			if pair then
 				PlayerData.grantSkin(data, pair.gun, pair.line)
 				table.insert(rewards, {
@@ -303,10 +295,11 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 			count = ticketsBack,
 			ticketsBack = ticketsBack,
 			text = if ticketsBack > 0
-				then `You own everything in it: {ticketsBack} Ticket{if ticketsBack == 1
+				then `You own every skin in it for your guns: {ticketsBack} Ticket{if ticketsBack
+						== 1
 					then ""
 					else "s"} back`
-				else "You already own everything in it",
+				else "You own every skin in it for your guns",
 		})
 		return
 	end
