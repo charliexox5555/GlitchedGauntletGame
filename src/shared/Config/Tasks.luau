@@ -12,7 +12,7 @@ local Match = require(script.Parent.Match)
 
 local POWER_COUNT = 12 -- the powers in the game (Config/Mods); "use every power" asks for this many
 
--- What a task counts. Filters on the task narrow it (`teamSize`, `tier`, `level`).
+-- What a task counts. Filters on the task narrow it (`teamSize`, `slot`, `level`).
 export type Kind =
 	"rangeVisit" -- walk into the Range (target 1)
 	| "rangeTargets" -- shatter Range air targets
@@ -26,10 +26,10 @@ export type Kind =
 	| "roundNoDeath" -- win a round without dying
 	| "roundClutch" -- win a round as your team's last player alive
 	| "roundAce" -- eliminate the whole enemy team alone in one round; `teamSize` = only that mode
-	| "elims" -- eliminations; `tier` = only with that weapon tier
+	| "elims" -- eliminations; `slot` = only with the gun in that loadout slot
 	| "headshotElims" -- eliminations by a headshot
 	| "multiElim" -- `level` eliminations within MULTI_ELIM_WINDOW, counted per streak
-	| "tierSweep" -- an elimination with every weapon tier in one match
+	| "slotSweep" -- an elimination with both your primary and your secondary in one match
 	| "powerDraft" -- powers drafted
 	| "powerUse" -- power uses
 	| "powerDistinct" -- different powers used (all of them = POWER_COUNT)
@@ -38,6 +38,9 @@ export type Kind =
 	| "mapWinDistinct" -- different maps won on
 	| "level" -- reach this player level (checks the current level)
 
+-- The loadout slots a task can filter on (the knife's "Melee" slot only counts for plain eliminations).
+export type Slot = "Primary" | "Secondary"
+
 export type Task = {
 	id: string, -- unique across the Path, saved with the player's progress: never rename one that shipped
 	-- target: never lower a shipped task's target (a save past the new target reads as done and skips its coins)
@@ -45,7 +48,7 @@ export type Task = {
 	target: number,
 	text: string,
 	teamSize: number?, -- 1, 2 or 3: only matches of that size
-	tier: number?, -- weapon tier (1 = Sidearm)
+	slot: Slot?, -- elims: only with the gun in this loadout slot (Config/Weapons `slot`)
 	level: number?, -- powerLevel: the level; multiElim: eliminations in the streak
 }
 export type Part = { tasks: { Task } }
@@ -119,10 +122,10 @@ local SETS: { TaskSet } = {
 			part(
 				t("roo2_powers", "powerDistinct", 5, "Use %d different powers"),
 				t(
-					"roo2_tierSweep",
-					"tierSweep",
+					"roo2_bothGuns",
+					"slotSweep",
 					1,
-					"Get an elimination with every weapon tier in one match"
+					"Get an elimination with your primary and your secondary in one match"
 				),
 				t("roo2_wins", "matchWin", 3, "Win %d matches")
 			),
@@ -182,7 +185,13 @@ local SETS: { TaskSet } = {
 			),
 			part(
 				t("due3_clutch", "roundClutch", 1, "Win a round as your team's last player alive"),
-				t("due3_sidearm", "elims", 10, "Get %d eliminations with a Sidearm", { tier = 1 }),
+				t(
+					"due3_secondary",
+					"elims",
+					10,
+					"Get %d eliminations with your secondary",
+					{ slot = "Secondary" }
+				),
 				t("due3_wins", "matchWin", 12, "Win %d matches")
 			),
 		},
@@ -258,4 +267,10 @@ return table.freeze({
 	MULTI_ELIM_WINDOW = 4, -- s between eliminations for a double / triple
 	POWER_COUNT = POWER_COUNT,
 	SETS = table.freeze(SETS),
+	-- Old task id → its replacement (2026-11-26: the weapon tiers left with the gun loadout), so a save's
+	-- progress on the old task carries over (TaskPath.clean).
+	RENAMED = table.freeze({
+		roo2_tierSweep = "roo2_bothGuns",
+		due3_sidearm = "due3_secondary",
+	} :: { [string]: string }),
 })

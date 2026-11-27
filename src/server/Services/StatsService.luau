@@ -12,7 +12,7 @@
 -- they dealt to their killer and took from them this life (`CombatReport`).
 --
 -- And the task Path's match counts (vault/01 Design/Tasks and Rewards.md): headshot and multi eliminations,
--- eliminations by weapon tier, rounds won (without dying, as the last alive, an ace), powers drafted, used
+-- eliminations by loadout slot, rounds won (without dying, as the last alive, an ace), powers drafted, used
 -- and levelled. MatchService feeds the round ends (roundEnded), draft picks (notePick) and power uses
 -- (noteUse) and reads one player's counts at the match end (taskStats).
 
@@ -73,7 +73,7 @@ type Entry = {
 	lastGun: string?, -- the gun of their latest hit
 	-- the task Path
 	headshotElims: number,
-	tierElims: { number }, -- [weapon tier] = eliminations
+	slotElims: { Primary: number, Secondary: number }, -- eliminations by the gun's loadout slot
 	chain: number, -- eliminations in the current multi-elimination streak
 	lastKillAt: number,
 	doubles: number,
@@ -97,7 +97,6 @@ local pair: { [string]: { [string]: number } } = {}
 local roundKills: { [string]: RoundKiller } = {}
 local roundDamageTaken: { [number]: number } = { [1] = 0, [2] = 0 }
 local limiter = RateLimit.new(MatchConfig.RATE)
-local tiersDealt: { [number]: boolean } = {} -- weapon tiers of the rounds played this match
 
 -- Who holds a fighter's Mod attributes: the Player, or a bot's owner stand-in.
 local function holderOf(id: string): Instance?
@@ -183,7 +182,7 @@ local function entryOf(x: Instance): Entry?
 			hurtBy = {},
 			gunKills = {},
 			headshotElims = 0,
-			tierElims = { 0, 0, 0, 0 },
+			slotElims = { Primary = 0, Secondary = 0 },
 			chain = 0,
 			lastKillAt = -math.huge,
 			doubles = 0,
@@ -290,9 +289,9 @@ local function onHit(
 		if gun then
 			a.gunKills[gun] = (a.gunKills[gun] or 0) + 1
 			local config = Weapons.get(gun)
-			local tier = config and config.tier
-			if typeof(tier) == "number" and a.tierElims[tier] then
-				a.tierElims[tier] += 1
+			local slot = config and config.slot
+			if slot == "Primary" or slot == "Secondary" then
+				a.slotElims[slot] += 1
 			end
 		end
 		if headshot then
@@ -324,7 +323,6 @@ function StatsService.reset()
 	table.clear(entries)
 	table.clear(pair)
 	table.clear(roundKills)
-	table.clear(tiersDealt)
 	roundDamageTaken[1] = 0
 	roundDamageTaken[2] = 0
 end
@@ -343,15 +341,13 @@ function StatsService.newRound()
 end
 
 -- A round's end (MatchService): `winner` 1 or 2, how many fighters each side started it with, the winning side's
--- fighters still alive (Players or bot models) and the round's weapon tier.
+-- fighters still alive (Players or bot models).
 function StatsService.roundEnded(
 	winner: number,
 	winnerStart: number,
 	loserStart: number,
-	survivors: { Instance },
-	tier: number
+	survivors: { Instance }
 )
-	tiersDealt[tier] = true
 	for _, e in entries do
 		if e.team == winner then
 			e.roundsWon += 1
@@ -407,12 +403,6 @@ function StatsService.taskStats(userId: number): { [string]: any }
 	if not e then
 		return {}
 	end
-	local sweep = next(tiersDealt) ~= nil
-	for tier in tiersDealt do
-		if (e.tierElims[tier] or 0) == 0 then
-			sweep = false
-		end
-	end
 	local levels = { 0, 0, 0 }
 	for _, n in e.powerMax do
 		for l = 1, math.min(n, 3) do
@@ -424,8 +414,7 @@ function StatsService.taskStats(userId: number): { [string]: any }
 		headshotElims = e.headshotElims,
 		doubles = e.doubles,
 		triples = e.triples,
-		tierElims = table.clone(e.tierElims),
-		tierSweep = sweep,
+		slotElims = table.clone(e.slotElims),
 		roundsWon = e.roundsWon,
 		roundsNoDeath = e.roundsNoDeath,
 		clutches = e.clutches,

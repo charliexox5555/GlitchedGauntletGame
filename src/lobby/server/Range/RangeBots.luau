@@ -124,11 +124,15 @@ local function onHit(
 			elseif attacker:IsA("Model") then Players:GetPlayerFromCharacter(attacker)
 			else nil
 		if shooter then
-			-- the gun in their hand (WorldModel keeps its id on the Player): its tier, for tier-only tasks
+			-- the gun in their hand (WorldModel keeps its id on the Player): its loadout slot, for slot-only tasks
 			local gunId = StateValues.get(shooter, "WeaponId")
 			local config = if typeof(gunId) == "string" then Weapons.get(gunId) else nil
-			local tier = if config and config.fireMode ~= "Melee" then config.tier else nil
-			RangeEvents.fire(shooter, "bot", if typeof(tier) == "number" then tier else nil)
+			local slot = config and config.slot
+			RangeEvents.fire(
+				shooter,
+				"bot",
+				if slot == "Primary" or slot == "Secondary" then slot else nil
+			)
 		end
 	end
 	return nil

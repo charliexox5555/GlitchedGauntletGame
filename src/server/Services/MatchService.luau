@@ -1499,8 +1499,7 @@ local function runMatch(): boolean
 					winner,
 					roundStartCounts[winner],
 					roundStartCounts[3 - winner],
-					survivors(winner),
-					DraftService.phaseFor(round).tier
+					survivors(winner)
 				)
 			end)
 			if not ok then

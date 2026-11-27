@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Task Path: tier tasks replaced (2026-11-26, not published).** The two tasks that used weapon tiers now use the loadout: Rookie "an elimination with your primary and your secondary in one match" and Duelist "10 eliminations with your secondary"; same targets and coins, old progress carries over. Studio bot match: a secondary kill moved the Duelist task to 1/10. [Tasks and Rewards](01%20Design/Tasks%20and%20Rewards.md#tier-tasks-replaced-2026-11-26)
+
 - **Back to Draft Duels (2026-11-26, Studio, not published).** The owner retired the PowerDuels name: the loading title uses the Draft Duels sprites and two-beat timing again (`tools/studio/BuildDuelsLoading.luau`, `src/first/LoadingScreen`, `Config/Loading` sting 0.21), the Sparks layer is gone, and the power card's back shows the Draft Duels mark. "Powers" stays. A loading tip about weapon tiers now describes the loadout. Roblox Dashboard name, icon and thumbnails: owner.
 
 - **Step 2 built: gun loadout + the real Locker v3 (2026-11-26, Studio-tested, not published).** Guns are owned (Havoc + Classic to start, coins unlock the rest, prices placeholder), a primary + secondary is picked in the new Locker; round 1 is sidearms only, round 2+ your full loadout; the gun row and weapon tiers are gone from the draft; bots get random pairs. The Locker v3 is live in code (GUNS / POWERS 3D card / KNIFE, skins strip). Admin F8: + ALL GUNS / STARTER GUNS. [Step 2](01%20Design/Loadout%20and%20Power%20Deck.md#step-2-plan-gun-loadout-and-the-real-locker-v3-2026-11-26)
@@ -28,8 +30,6 @@
 - **Lobby controller shortcuts (2026-11-26, not published).** Like RIVALS: PLAY = X, party + = Y, Locker / Shop / Backpack / Settings = D-pad left / up / right / down, each with the pad's icon on the button; all six are Settings KEYBINDS rows (LOBBY). [Lobby UI](01%20Design/Lobby%20UI%20and%20Queue.md#controller-shortcuts-on-the-lobby-bar-2026-11-26)
 
 - **Playtest fixes (2026-11-26, not published).** Free case = a Prowler or Havoc skin (40/42/16/2), the gun they hold in match 2; touch power nudge gets a gold ring; power keys follow rebinds and controllers (pad button names match the pad); pick screen works on controller (LB/RB, D-pad, A, X); pad-duel camera stuck fixed (Locker camera closed on match start; hung character loads no longer block arena spawns). [Notes](01%20Design/First%20Ten%20Minutes.md#9-owner-playtest-notes-2026-11-26)
-
-- **First Ten Minutes built (2026-11-26, not published).** A new player's match 1 starts with no pick screen (Prowler + Dash), then two power cards, GUNS UP, one Glitched card; no gun row in the first two matches; a gold first-use nudge on new powers; match 1 ends on NEXT MATCH / LOBBY, the free case opens and equips itself in the lobby, then NEXT MATCH starts match 2; menus unlock after match 2. Fixed two pre-existing lobby bugs (stuck `DuelLoading`, a closed Backpack coming back after a match). Verified in Studio; phone and win path not seen. Test: F8 → START FULL ONBOARDING. [Plan + results](01%20Design/First%20Ten%20Minutes.md#8-built-2026-11-26)
 
 - **Earlier status** (2026-11-23 back to Week 1): [Status History](05%20Production/Status%20History.md) (grep only).
 - **Blockers:** none known (pre-publish cleanup & Shop compliance items queued in the audit).

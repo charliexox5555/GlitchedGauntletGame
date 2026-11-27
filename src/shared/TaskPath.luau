@@ -24,6 +24,9 @@ export type State = {
 	title: string?,
 }
 
+-- Eliminations by loadout slot (Config/Weapons `slot`; the knife counts in neither).
+export type SlotCounts = { Primary: number, Secondary: number }
+
 -- One player's finished (or left) match, as the match server counted it (StatsService.taskStats).
 export type MatchStats = {
 	played: boolean, -- finished it (a leaver: false)
@@ -40,8 +43,7 @@ export type MatchStats = {
 	headshotElims: number,
 	doubles: number, -- double eliminations (a triple counts as one too)
 	triples: number,
-	tierElims: { number }, -- [weapon tier] = eliminations with a gun of that tier
-	tierSweep: boolean, -- an elimination with every weapon tier the match dealt
+	slotElims: SlotCounts, -- eliminations with the gun in each loadout slot (slotSweep = both above 0)
 	drafted: number, -- powers drafted (new powers and upgrades)
 	uses: number, -- power uses
 	powersUsed: { string }, -- the different powers they used
@@ -49,9 +51,9 @@ export type MatchStats = {
 }
 
 -- Range counts since the last range write (LobbyServer TaskService). Downed Range bots also count for
--- "eliminations" tasks (owner 2026-11-26: "it might actually make players play longer"); `botTiers` = bots
--- downed by weapon tier, for tier-only elimination tasks.
-export type RangeStats = { visit: number, targets: number, bots: number, botTiers: { number } }
+-- "eliminations" tasks (owner 2026-11-26: "it might actually make players play longer"); `botSlots` = bots
+-- downed by the gun's loadout slot, for slot-only elimination tasks.
+export type RangeStats = { visit: number, targets: number, bots: number, botSlots: SlotCounts }
 
 export type Done = { id: string, text: string, coins: number }
 export type Payout = {
@@ -112,6 +114,13 @@ function TaskPath.clean(raw: unknown): State
 	end
 	local n = if typeof(t.n) == "table" then t.n :: { [unknown]: unknown } else {}
 	local seen = if typeof(t.seen) == "table" then t.seen :: { [unknown]: unknown } else {}
+	-- progress saved under a task's old id (Config/Tasks RENAMED) counts for its replacement
+	for old, new in Tasks.RENAMED do
+		if n[new] == nil and n[old] ~= nil then
+			n = table.clone(n)
+			n[new] = n[old]
+		end
+	end
 	for _, task in part.tasks do
 		local v = whole(n[task.id], 0, task.target)
 		if v and v > 0 then
@@ -217,13 +226,13 @@ local function matchGain(s: State, task: Tasks.Task, m: MatchStats): number
 	elseif k == "roundAce" then
 		return m.aces
 	elseif k == "elims" then
-		return if task.tier then m.tierElims[task.tier] or 0 else m.elims
+		return if task.slot then m.slotElims[task.slot] else m.elims
 	elseif k == "headshotElims" then
 		return m.headshotElims
 	elseif k == "multiElim" then
 		return if task.level == 3 then m.triples else m.doubles
-	elseif k == "tierSweep" then
-		return if m.tierSweep then 1 else 0
+	elseif k == "slotSweep" then
+		return if m.slotElims.Primary > 0 and m.slotElims.Secondary > 0 then 1 else 0
 	elseif k == "powerDraft" then
 		return m.drafted
 	elseif k == "powerUse" then
@@ -252,7 +261,7 @@ local function rangeGain(task: Tasks.Task, r: RangeStats): number
 	elseif task.kind == "rangeBots" then
 		return r.bots
 	elseif task.kind == "elims" then
-		return if task.tier then r.botTiers[task.tier] or 0 else r.bots
+		return if task.slot then r.botSlots[task.slot] else r.bots
 	end
 	return 0
 end
@@ -388,6 +397,11 @@ local function list(raw: unknown, max: number, maxLen: number): { string }
 	return out
 end
 
+local function slotCounts(raw: unknown): SlotCounts
+	local t = if typeof(raw) == "table" then raw :: { [string]: unknown } else {}
+	return { Primary = whole(t.Primary, 0, 1000) or 0, Secondary = whole(t.Secondary, 0, 1000) or 0 }
+end
+
 local function counts(raw: unknown, size: number): { number }
 	local out: { number } = {}
 	for i = 1, size do
@@ -420,8 +434,7 @@ function TaskPath.cleanMatch(raw: unknown): MatchStats?
 		headshotElims = n(t.headshotElims),
 		doubles = n(t.doubles),
 		triples = n(t.triples),
-		tierElims = counts(t.tierElims, 4),
-		tierSweep = t.tierSweep == true,
+		slotElims = slotCounts(t.slotElims),
 		drafted = n(t.drafted),
 		uses = n(t.uses),
 		powersUsed = list(t.powersUsed, Tasks.POWER_COUNT + 8, MAX_ID),
