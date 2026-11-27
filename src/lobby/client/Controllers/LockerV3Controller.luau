@@ -945,6 +945,23 @@ local function runWipe(fromY: number, toY: number, time: number, atCover: () -> 
 end
 
 local function reveal(arg: any?)
+	if stageFolder or dof then
+		-- reopened during the close wipe: that close never concealed, so drop its stage first (it left a
+		-- second blur in Lighting for good, a stage folder and a doubled render binding)
+		RunService:UnbindFromRenderStep("LockerV3")
+		for _, c in openConnections do
+			c:Disconnect()
+		end
+		table.clear(openConnections)
+		if dof then
+			dof:Destroy()
+			dof = nil
+		end
+		if stageFolder then
+			stageFolder:Destroy()
+			stageFolder = nil
+		end
+	end
 	local folder = Instance.new("Folder")
 	folder.Name = "LockerV3Stage"
 	local c = PowerCardFace.clone()
