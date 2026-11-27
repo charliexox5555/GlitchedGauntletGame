@@ -634,14 +634,21 @@ function MapVoteController.start()
 			pcall(player.RequestStreamAroundAsync, player, origin, 4)
 		end)
 	end
+	-- Sent again every READY_RESEND s until acknowledged, but the ack is looked for every READY_POLL s, so the loading
+	-- screen closes as soon as the server has it (it used to sleep the full 0.5 s after each send).
+	local READY_RESEND, READY_POLL = 0.5, 0.05
 	local ready = Net.event("MatchReady")
+	local resendAt = 0
 	while StateValues.get(player, "MatchVoteReady") ~= matchId do
 		local phase = MatchState.phase()
 		if phase ~= nil and phase ~= "Waiting" then
 			break
 		end
-		ready:FireServer()
-		task.wait(0.5)
+		if os.clock() >= resendAt then
+			ready:FireServer()
+			resendAt = os.clock() + READY_RESEND
+		end
+		task.wait(READY_POLL)
 	end
 	HealthLog.stage("match screens ready", player, matchId)
 	-- The loading screens' "match is set up" stage (src/first/LoadingScreen, DuelLoadingController); local only.
