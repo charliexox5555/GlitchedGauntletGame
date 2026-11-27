@@ -17,6 +17,12 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Net = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Net") :: ModuleScript)
+local HookLife = require(
+	game:GetService("ServerScriptService")
+		:WaitForChild("Server")
+		:WaitForChild("Services")
+		:WaitForChild("HookLife") :: ModuleScript
+)
 
 export type Plan = {
 	matchId: string,
@@ -219,7 +225,7 @@ end
 -- A callback for a shared service's event that only runs while this match is alive and only for what this match
 -- owns (argument `argIndex`: the player, humanoid or body the event is about).
 function Context.filtered(argIndex: number, fn: (...any) -> ...any): (...any) -> ...any
-	return function(...: any): ...any
+	local wrapper = function(...: any): ...any
 		if not Context.alive then
 			return nil
 		end
@@ -228,6 +234,11 @@ function Context.filtered(argIndex: number, fn: (...any) -> ...any): (...any) ->
 		end
 		return fn(...)
 	end
+	-- the shared hook lists drop it once this match has ended (Services/HookLife)
+	HookLife.mark(wrapper, function(): boolean
+		return not Context.alive
+	end)
+	return wrapper
 end
 
 -- Set up --------------------------------------------------------------------------

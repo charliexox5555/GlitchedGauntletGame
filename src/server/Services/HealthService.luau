@@ -10,6 +10,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Health = require(ReplicatedStorage.Shared.Health)
+local HookLife = require(script.Parent.HookLife)
 
 local HealthService = {}
 
@@ -30,6 +31,7 @@ end
 
 -- Runs `fn` for every fighter that goes down (after the attribute is set).
 function HealthService.onDowned(fn: (humanoid: Humanoid) -> ())
+	HookLife.prune(downedHandlers) -- ended matches' handlers
 	table.insert(downedHandlers, fn)
 end
 

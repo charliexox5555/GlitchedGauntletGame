@@ -20,6 +20,7 @@ local Types = require(Shared.Types)
 local Weapons = require(Shared.Config.Weapons)
 
 local HealthService = require(script.Parent.Parent.HealthService)
+local HookLife = require(script.Parent.Parent.HookLife)
 local Spectated = require(script.Parent.Parent.Parent.Bots.Spectated)
 local Targets = require(script.Parent.Targets)
 
@@ -197,18 +198,21 @@ end
 
 -- Every hit by a player or a bot (match stats).
 function Damage.onHit(fn: HitListener)
+	HookLife.prune(hitListeners) -- ended matches' listeners
 	table.insert(hitListeners, fn)
 end
 
 -- A Mod's damage guard: sees every hit on a combatant and returns the amount
 -- to deal (0 blocks it: a Barrier, a Ghost dash, Crash Recovery).
 function Damage.addDamageGuard(fn: DamageGuard)
+	HookLife.prune(damageGuards)
 	table.insert(damageGuards, fn)
 end
 
 -- A Mod's damage modifier: player-on-player damage (guns and Mods) before
 -- the guards (Ping Spike's bonus on revealed enemies).
 function Damage.addDamageModifier(fn: DamageModifier)
+	HookLife.prune(damageModifiers)
 	table.insert(damageModifiers, fn)
 end
 

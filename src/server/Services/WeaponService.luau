@@ -29,6 +29,7 @@ local Combat = require(Shared.Config.Combat)
 local MatchState = require(Shared.MatchState)
 local PlayZone = require(Shared.PlayZone)
 local MovementGuard = require(script.Parent.MovementGuard)
+local HookLife = require(script.Parent.HookLife)
 local Status = require(Shared.Mods.Status)
 local StatusEffects = require(Shared.Config.StatusEffects)
 local FireRate = require(Shared.Util.FireRate)
@@ -452,10 +453,12 @@ function WeaponService.onRays(fn: (
 	dirs: { Vector3 },
 	config: Types.WeaponConfig
 ) -> ())
+	HookLife.prune(rayListeners) -- ended matches' listeners
 	table.insert(rayListeners, fn)
 end
 
 function WeaponService.onShot(fn: (player: Player, weaponId: string, hit: boolean) -> ())
+	HookLife.prune(shotListeners) -- ended matches' listeners
 	table.insert(shotListeners, fn)
 end
 
