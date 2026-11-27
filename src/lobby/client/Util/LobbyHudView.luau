@@ -1323,7 +1323,6 @@ local calloutText: string? = nil
 local CALLOUT_GAP = 14 -- px between the tag's pointer and the party circle
 local CALLOUT_MIN_W, CALLOUT_PER_CHAR = 56, 13 -- tag width: base + per letter
 
-local BADGE_MAX_CHARS = 4 -- callouts this short sit on the icon as a badge
 local BADGE_DX, BADGE_DY = 24, 38 -- from the item's top middle to the badge's bottom middle
 
 placeCallout = function(s: State, animate: boolean)
@@ -1344,9 +1343,9 @@ placeCallout = function(s: State, animate: boolean)
 	elseif id then
 		local b = s.items[id]
 		x = if b and b.Visible then b.Position.X.Offset else nil
-		if b and b.Visible and text and #text <= BADGE_MAX_CHARS then
-			-- a short word (NEW) is a badge on the icon's top corner: higher up it sat on PLAY, which spans
-			-- the middle of the bar (2026-11-26, the lobby opening up after match 2)
+		if b and b.Visible and text then
+			-- a bar item's callout (NEW, UNLOCK) is a badge on the icon's top corner: higher up it sat on PLAY,
+			-- which spans the middle of the bar (2026-11-26; 2026-11-27 for every word, not just short ones)
 			x = b.Position.X.Offset + BADGE_DX
 			y = b.Position.Y.Offset + BADGE_DY
 		end

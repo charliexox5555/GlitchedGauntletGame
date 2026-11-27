@@ -153,7 +153,8 @@ local function apply()
 		if shortcut then playNew else nil,
 		if shortcut then OnbConfig.PLAY_SUB_NEW else nil
 	)
-	local showBubble = not blocking and Onboarding.bubble(matches)
+	-- one hint at a time: the first-unlock callout holds the PLAY bubble back until the Locker is opened
+	local showBubble = not blocking and not unlockGun and Onboarding.bubble(matches)
 	LobbyHudView.bubble(showBubble, OnbConfig.BUBBLE_TEXT)
 end
 

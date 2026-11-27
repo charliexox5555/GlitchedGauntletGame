@@ -53,7 +53,7 @@ return table.freeze({
 	-- The first gun unlock (First Ten Minutes §13, replaces the old free case and its OPEN / EQUIP steps): back in
 	-- the lobby after `fromMatches` matches, owning only the starter guns and with coins for the cheapest locked one,
 	-- the Locker icon pulses with `text`; it opens on that gun. Once (its `bit` in `seen`), never once a gun is bought.
-	FIRST_UNLOCK = table.freeze({ fromMatches = 1, bit = 8, text = "UNLOCK A GUN" }),
+	FIRST_UNLOCK = table.freeze({ fromMatches = 1, bit = 8, text = "UNLOCK" }),
 
 	-- The old free case for finishing Match 1 (the Starter Case, Config/Skins CASES.Starter). No longer granted
 	-- (owner 2026-11-27: too strong, RIVALS doesn't); saves that still hold one keep it and open it from the
