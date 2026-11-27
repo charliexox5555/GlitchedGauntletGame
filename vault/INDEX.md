@@ -35,6 +35,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Gunplay.md` (55): movement, slide, spread, recoil, aim assist, feedback, health/downed (§3), viewmodel (§6), feel roadmap (§5)
 - `01 Design/Movement Feel 2026-11-27.md` (6): movement / game-feel audit, ranked: running jumps were stuck in "Sprint" (fixed), stair-step air flicker, takeoff coil, touch jump push, Dash Ghost afterimage pool; before/after numbers, owner calls
 - `01 Design/Gun Balance.md` (10): health, shields, every gun's damage, TTK
+- `01 Design/Gun Levels.md` (11): gun levels 1-50 (step 3 of the loadout update, built 2026-11-27): XP per kill/round/win with that gun, stat steps by category (Handling, Reload, Stability, Accuracy), coin levels to LV 30, milestones every 5, the Locker card, the level-up moment, test results
 - [Gun and round balance playtest](05%20Production/Playtests/2026-11-19%20Gun%20and%20Round%20Balance.md): shot breakpoints, Sheriff in round two, Elite and Mod draft variety
 - [Ammo and assists playtest](05%20Production/Playtests/2026-11-19%20Ammo%20and%20Assists.md): reserve limits, Classic backup and assist feedback
 - [Overtime Zone](02%20Art/Overtime%20Zone.md): Blender meshes, curtain texture and Studio setup
