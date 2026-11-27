@@ -309,6 +309,7 @@ function BottomHud.setSpectating(on: boolean)
 end
 
 -- Called every frame by HudController with the local character's state.
+local healthRestKey: string? = nil -- the resting state setHealth last drew (nil while animating)
 function BottomHud.setHealth(health: number, max: number, shield: number, dt: number)
 	TouchHud.setHealth(health, max, shield) -- the touch screen's simple bar
 	local r = ui
@@ -336,6 +337,14 @@ function BottomHud.setHealth(health: number, max: number, shield: number, dt: nu
 
 	-- a hit flashes the number red and shakes the panel
 	local sinceHit = now - hitAt
+	-- At rest (no flash, shake, low-health pulse or chip drain) and nothing changed: nothing to write. This runs
+	-- every frame, so a resting panel used to rewrite ~40 properties a frame (code audit 2026-11-27).
+	local animating = low or sinceHit < math.max(0.4, HIT_SHAKE) or chipFrac > frac
+	local restKey = if animating then nil else `{frac}|{chipFrac}|{shield}`
+	if restKey and restKey == healthRestKey then
+		return
+	end
+	healthRestKey = restKey
 	local flash = math.clamp(1 - sinceHit / 0.4, 0, 1)
 	local base = if low then RED else WHITE
 	local value = r.hpNumber:FindFirstChild("Value")
@@ -538,6 +547,7 @@ function BottomHud.setMod(index: number, info: ModInfo)
 end
 
 local function bind(gui: ScreenGui)
+	healthRestKey = nil -- a new screen draws its first frame
 	local root = gui:WaitForChild("Root") :: Frame
 	local health = root:WaitForChild("Health") :: Frame
 	local hpBody = health:WaitForChild("Body") :: Frame

@@ -114,6 +114,7 @@ function CaseShowController.start()
 	if RunService:IsStudio() then
 		bindPreview(me)
 	end
+	local shows: { [Player]: CaseOpening.Handle } = setmetatable({}, { __mode = "k" }) :: any
 	LobbyNet.event("CaseShow").OnClientEvent:Connect(function(p: LobbyNet.CaseShowPayload)
 		if typeof(p) ~= "table" or typeof(p.userId) ~= "number" or p.userId == me.UserId then
 			return
@@ -143,9 +144,22 @@ function CaseShowController.start()
 		then
 			return
 		end
+		-- at most MAX_ONLOOKER_SHOWS at once, one per player (the nearest come first: the rest just aren't shown)
+		local live = 0
+		for who, handle in shows do
+			if handle:isDead() then
+				shows[who] = nil
+			else
+				live += 1
+			end
+		end
+		if shows[owner] or live >= OpeningConfig.MAX_ONLOOKER_SHOWS then
+			return
+		end
 		local crateTier = if typeof(p.crate) == "number" then p.crate else 1
 		local h = CaseOpening.start(owner, crateTier, false, p.count)
 		if h then
+			shows[owner] = h
 			h:reveal(p.results)
 		end
 	end)

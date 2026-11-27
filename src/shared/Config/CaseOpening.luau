@@ -67,6 +67,9 @@ return table.freeze({
 		buttonStep = 218,
 	}),
 	VIEW_DISTANCE = 140,
+	-- other players' openings shown at once (one per player): a busy lobby can't stack dozens of crates and
+	-- packs on a phone (code audit 2026-11-27)
+	MAX_ONLOOKER_SHOWS = 2,
 
 	TOSS = 1.0, -- s, from the chest to the floor, ~1.5 bounces
 	TOSS_HEIGHT = 3.2, -- studs of the first arc

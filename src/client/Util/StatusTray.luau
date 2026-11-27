@@ -17,6 +17,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local UiWait = require(ReplicatedStorage.Shared.Util.UiWait)
 local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
@@ -130,6 +131,9 @@ type Entry = {
 	countLabel: TextLabel,
 	tagLabel: TextLabel,
 	leaving: boolean,
+	-- what draw() last wrote (it runs every frame: only changes are written; code audit 2026-11-27)
+	drawn: string?,
+	drawnFill: number?,
 }
 
 type State = {
@@ -161,7 +165,30 @@ local function tween(obj: Instance, time: number, goal: { [string]: any }, style
 end
 
 local function child<T>(parent: Instance, name: string): T
-	return (parent:WaitForChild(name) :: any) :: T
+	return UiWait.child(parent, name) :: T -- a timeout and a clear error, not a hang (code audit 2026-11-27)
+end
+
+-- A part of a fresh clone, without yielding: entry() runs in the render step, and the template's parts are
+-- checked once at bind (checkTemplate), where waiting is fine.
+local function part<T>(parent: Instance, name: string): T
+	local found = parent:FindFirstChild(name)
+	if not found then
+		error(`[UI] status entry template: {parent.Name}.{name} is missing`)
+	end
+	return (found :: any) :: T
+end
+
+-- Every part entry() reads, waited for once with a timeout (an error here leaves the tray off).
+local function checkTemplate(template: Instance)
+	local body = child(template, "Body") :: Instance
+	local ring = child(body, "Ring") :: Instance
+	for i = 1, SEGMENTS do
+		child(ring, "Seg" .. i)
+	end
+	child(child(body, "Disc") :: Instance, "Icon")
+	child(child(body, "Count") :: Instance, "Label")
+	child(body, "Pop")
+	child(child(template, "Tag") :: Instance, "Label")
 end
 
 local function iconOf(modId: string): string
@@ -181,23 +208,23 @@ local function entry(s: State, key: string, order: number): Entry
 	local holder = s.template:Clone()
 	holder.Name = key
 	holder.LayoutOrder = order
-	local body = child(holder, "Body") :: Frame
-	local ring = child(body, "Ring") :: Frame
+	local body = part(holder, "Body") :: Frame
+	local ring = part(body, "Ring") :: Frame
 	local segs: { ImageLabel } = {}
 	for i = 1, SEGMENTS do
-		segs[i] = child(ring, "Seg" .. i)
+		segs[i] = part(ring, "Seg" .. i)
 	end
-	local disc = child(body, "Disc") :: Frame
-	local count = child(body, "Count") :: Frame
-	local tag = child(holder, "Tag") :: Frame
+	local disc = part(body, "Disc") :: Frame
+	local count = part(body, "Count") :: Frame
+	local tag = part(holder, "Tag") :: Frame
 	local made: Entry = {
 		holder = holder,
-		pop = child(body, "Pop"),
+		pop = part(body, "Pop"),
 		segs = segs,
-		icon = child(disc, "Icon"),
+		icon = part(disc, "Icon"),
 		count = count,
-		countLabel = child(count, "Label"),
-		tagLabel = child(tag, "Label"),
+		countLabel = part(count, "Label"),
+		tagLabel = part(tag, "Label"),
 		leaving = false,
 	}
 	made.pop.Scale = 0.4
@@ -231,14 +258,31 @@ local function draw(
 	left: number,
 	count: number?
 )
-	e.icon.Image = icon
-	e.tagLabel.Text = label
 	local color = if buff then ALLY else ENEMY
-	-- Smooth drain: whole segments lit, the one going out fades.
-	local exact = math.clamp(left, 0, 1) * SEGMENTS
+	local look = `{icon}|{label}|{buff}|{count or ""}`
+	local relook = e.drawn ~= look
+	if relook then
+		e.drawn = look
+		e.drawnFill = nil -- the colour changed with it: repaint every segment
+		e.icon.Image = icon
+		e.tagLabel.Text = label
+		e.count.Visible = count ~= nil
+		if count then
+			e.countLabel.Text = tostring(count)
+		end
+	end
+	-- Smooth drain: whole segments lit, the one going out fades. Drawn in 1/64ths of a segment, so a full ring
+	-- that doesn't move writes nothing.
+	local exact = math.floor(math.clamp(left, 0, 1) * SEGMENTS * 64 + 0.5) / 64
+	if e.drawnFill == exact then
+		return
+	end
+	e.drawnFill = exact
 	local full = math.floor(exact)
 	for i, seg in e.segs do
-		seg.ImageColor3 = color
+		if relook then
+			seg.ImageColor3 = color
+		end
 		if i <= full then
 			seg.ImageTransparency = 0
 		elseif i == full + 1 then
@@ -247,12 +291,9 @@ local function draw(
 			seg.ImageTransparency = SPENT
 		end
 	end
-	e.count.Visible = count ~= nil
-	if count then
-		e.countLabel.Text = tostring(count)
-	end
 end
 
+local activeKeys: { [string]: boolean } = {} -- reused by step() every frame (no table per frame)
 local function step()
 	local s = state
 	if not s then
@@ -260,7 +301,8 @@ local function step()
 	end
 	local character = player.Character
 	local serverNow = Workspace:GetServerTimeNow()
-	local active: { [string]: boolean } = {}
+	local active = activeKeys
+	table.clear(active)
 	for _, kind in TIMED do
 		local untilAt = if character then StateValues.get(character, kind.attr) else nil
 		local left = if typeof(untilAt) == "number" then untilAt - serverNow else 0
@@ -334,10 +376,11 @@ local function bind(gui: ScreenGui)
 		hint = hint,
 		hintPlate = plate,
 		hintLabel = child(plate, "Label"),
-		template = UiRoot.templates():WaitForChild("Status"):WaitForChild("Entry") :: Frame,
+		template = UiWait.child(UiWait.child(UiRoot.templates(), "Status"), "Entry") :: Frame,
 		entries = {},
 		shownHint = "",
 	}
+	checkTemplate(s.template)
 	-- The row sizes to its entries, so it keeps its 1080p pixel design and one
 	-- UIScale (vault/04 Tech/UI Architecture.md §5). Desktop: over the bottom
 	-- HUD's Mod row, scaled like it (no 0.6 floor: that pushed UI off phones).
@@ -376,7 +419,12 @@ function StatusTray.start(_isCompact: boolean?)
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end
-		bind(gui)
+		-- a missing Studio part leaves the tray off with a warning instead of hanging it (code audit 2026-11-27)
+		local ok, err = pcall(bind, gui)
+		if not ok then
+			state = nil
+			warn(`[UI] status tray not available: {err}`)
+		end
 	end)
 end
 

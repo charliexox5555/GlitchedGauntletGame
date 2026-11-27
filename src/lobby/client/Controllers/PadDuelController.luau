@@ -61,12 +61,25 @@ local function label(
 	return t
 end
 
+local waiting: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local function track(zone: Instance)
 	if not zone:IsA("BasePart") or tracked[zone] then
 		return
 	end
 	local model = zone.Parent
-	if not model or model:GetAttribute("PadMode") == nil then
+	if not model then
+		return
+	end
+	-- Pads get their attributes from the server a moment after they stream in: wait for PadMode once
+	-- (code audit 2026-11-27: this was a GetTagged poll every 0.1 s).
+	if model:GetAttribute("PadMode") == nil then
+		if not waiting[zone] then
+			waiting[zone] = true
+			model:GetAttributeChangedSignal("PadMode"):Once(function()
+				waiting[zone] = nil
+				track(zone)
+			end)
+		end
 		return
 	end
 	local bordersA: { BasePart } = {}
@@ -156,7 +169,7 @@ function PadDuelController.start()
 	CollectionService:GetInstanceAddedSignal(TAG):Connect(function(zone)
 		task.defer(track, zone)
 	end)
-	-- Pads get their attributes from the server a moment after they stream in.
+	-- The countdown blink and the counts redraw ten times a second.
 	local acc = 0
 	RunService.Heartbeat:Connect(function(dt)
 		if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
@@ -167,11 +180,6 @@ function PadDuelController.start()
 			return
 		end
 		acc = 0
-		for _, zone in CollectionService:GetTagged(TAG) do
-			if not tracked[zone] then
-				track(zone)
-			end
-		end
 		update()
 	end)
 end

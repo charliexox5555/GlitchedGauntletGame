@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local Router = require(script.Parent.Parent.Util.Router)
 local SkinStore = require(game:GetService("ReplicatedStorage").Shared.SkinStore)
 
 local LobbyGunDisplays = {}
@@ -228,7 +229,8 @@ end
 
 -- Turning guns (Spin): about the world up axis through their centre, with a small bob.
 local function step()
-	if PlayZone.get(Players.LocalPlayer) ~= "Lobby" then
+	-- a full-screen menu covers the world (the Locker shows its own stage): nothing here is seen
+	if PlayZone.get(Players.LocalPlayer) ~= "Lobby" or Router.current() ~= nil then
 		return
 	end
 	local cam = workspace.CurrentCamera
@@ -241,6 +243,12 @@ local function step()
 		local m, c, base = s.model, s.centre, s.base
 		if rate ~= 0 and m and c and base then
 			if (cam.CFrame.Position - c).Magnitude > SPIN_RANGE then
+				continue
+			end
+			-- off screen: hold still (the turn is by the clock, so it's in step again when seen; code audit
+			-- 2026-11-27: every in-range gun was pivoted every frame)
+			local _, onScreen = cam:WorldToViewportPoint(c)
+			if not onScreen then
 				continue
 			end
 			local turn = CFrame.new(c) * CFrame.Angles(0, math.rad(rate * t), 0) * CFrame.new(-c)

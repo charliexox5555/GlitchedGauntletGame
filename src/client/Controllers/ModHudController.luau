@@ -50,6 +50,7 @@ type SlotState = {
 	buttonText: TextLabel?,
 	shownTouch: string,
 	nudgeScale: UIScale?, -- the touch button's nudge pulse
+	info: BottomHud.ModInfo?, -- reused every frame for BottomHud.setMod (no table per slot per frame)
 }
 
 -- The charge meter (Recon).
@@ -333,22 +334,27 @@ local function writeSlot(ui: SlotState, view: ModController.SlotView, slot: numb
 	-- The Studio-built bottom HUD (desktop) shows the slot; touch uses the
 	-- touch screen's Mod buttons below.
 	if not TouchHud.active() and BottomHud.active() then
-		BottomHud.setMod(slot, {
-			id = id,
-			icon = if view.def then view.def.icon or "" else "",
-			role = if view.def then view.def.role else nil,
-			level = view.level,
-			key = key,
-			cooling = cooling,
-			share = share,
-			seconds = secs,
-			charges = view.charges,
-			max = view.max,
-			held = view.held,
-			denied = now - ui.deniedAt,
-			active = if activeLeft > 0 then activeLeft / ui.activeTotal else 0,
-			nudge = nudge,
-		})
+		local info = ui.info
+		if not info then
+			info = {} :: any
+			ui.info = info
+		end
+		local i = info :: BottomHud.ModInfo
+		i.id = id
+		i.icon = if view.def then view.def.icon or "" else ""
+		i.role = if view.def then view.def.role else nil
+		i.level = view.level
+		i.key = key
+		i.cooling = cooling
+		i.share = share
+		i.seconds = secs
+		i.charges = view.charges
+		i.max = view.max
+		i.held = view.held
+		i.denied = now - ui.deniedAt
+		i.active = if activeLeft > 0 then activeLeft / ui.activeTotal else 0
+		i.nudge = nudge
+		BottomHud.setMod(slot, i)
 	end
 	-- Touch: the nudged button breathes (its own UIScale, so it never fights the press scale).
 	local tb = ui.button
