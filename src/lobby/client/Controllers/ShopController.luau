@@ -154,7 +154,8 @@ local function cancelScrollTween()
 end
 
 local function child<T>(parent: Instance, name: string): T
-	return (parent:WaitForChild(name) :: any) :: T
+	-- a timeout and a clear error, not a hang (code audit 2026-11-27); required here: this module is at the 200-local limit
+	return require(ReplicatedStorage.Shared.Util.UiWait).child(parent, name) :: T
 end
 
 local function pop(obj: Instance): UIScale?
@@ -1122,8 +1123,10 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	local separately = ShopCatalog.separately(bundle)
 	local was = child(actions, "Separately") :: Frame
 	was.Visible = separately > bundle.robux
-	local wasLabel = was:FindFirstChild("Amount", true) :: TextLabel -- Plate.Row.Amount
-	wasLabel.Text = commas(separately)
+	local wasLabel = was:FindFirstChild("Amount", true) -- Plate.Row.Amount
+	if wasLabel and wasLabel:IsA("TextLabel") then
+		wasLabel.Text = commas(separately)
+	end
 
 	-- the page steps aside (the tab bar stays, like RIVALS); the preview comes in
 	for _, page in pages do

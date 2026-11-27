@@ -166,11 +166,25 @@ local function watchFeature()
 		local gui = source:Clone()
 		gui.Adornee = screen
 		gui.Active = true
-		local card = gui:FindFirstChild("FeatureCard") :: TextButton
-		local art = card:FindFirstChild("Art") :: ImageLabel
-		local hero = card:FindFirstChild("Hero") :: ImageLabel
-		local title = card:FindFirstChild("Title") :: TextLabel
-		local subtitle = card:FindFirstChild("Subtitle") :: TextLabel
+		-- a screen missing a child is skipped (and says so) instead of stopping the others (code audit 2026-11-27)
+		local card = gui:FindFirstChild("FeatureCard")
+		local art = card and card:FindFirstChild("Art")
+		local hero = card and card:FindFirstChild("Hero")
+		local title = card and card:FindFirstChild("Title")
+		local subtitle = card and card:FindFirstChild("Subtitle")
+		if
+			not (card and card:IsA("TextButton"))
+			or not (art and art:IsA("ImageLabel"))
+			or not (hero and hero:IsA("ImageLabel"))
+			or not (title and title:IsA("TextLabel"))
+			or not (subtitle and subtitle:IsA("TextLabel"))
+		then
+			warn(
+				`[ShopDisplays] {screen:GetFullName()}: ShopBoard.FeatureCard is missing a part; skipped`
+			)
+			gui:Destroy()
+			return
+		end
 		local prompt = screen:FindFirstChildWhichIsA("ProximityPrompt")
 		local home = art.Position
 		local index = 1
@@ -238,7 +252,10 @@ local function watchFeature()
 		end
 	end
 
-	CollectionService:GetInstanceAddedSignal(FEATURE):Connect(mount)
+	-- each screen mounts in its own thread: one ShopBoard still streaming in doesn't hold up the rest
+	CollectionService:GetInstanceAddedSignal(FEATURE):Connect(function(source)
+		task.spawn(mount, source)
+	end)
 	CollectionService:GetInstanceRemovedSignal(FEATURE):Connect(function(source)
 		local unmount = mounted[source]
 		if unmount then
@@ -247,7 +264,7 @@ local function watchFeature()
 		end
 	end)
 	for _, source in CollectionService:GetTagged(FEATURE) do
-		mount(source)
+		task.spawn(mount, source)
 	end
 end
 

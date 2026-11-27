@@ -50,6 +50,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local RangeTransition = require(script.Parent.Parent.Util.RangeTransition)
 local PowerCardFace = require(script.Parent.Parent.Util.PowerCardFace)
 local Router = require(script.Parent.Parent.Util.Router)
+local ArmedHideController = require(script.Parent.ArmedHideController)
 
 local LockerV3Controller = {}
 
@@ -1090,6 +1091,8 @@ local function conceal()
 		end
 	end
 	table.clear(hiddenGuis)
+	-- closed by a pad duel or the range starting: the lobby screens go to ArmedHide, not back on screen
+	ArmedHideController.refresh()
 	if dof then
 		dof:Destroy()
 		dof = nil
@@ -1230,7 +1233,23 @@ function rebuildGunRows()
 	buildGunRows()
 end
 
+local tilesFor = "" -- the owned set the tiles were built for
 local function buildTiles()
+	local m = mods()
+	-- A tile only shows owned or locked: an equip or any other save change keeps the grid (code audit 2026-11-27:
+	-- it was rebuilt, ~20 tiles cloned, on every change while POWERS was open).
+	local ownedIds: { string } = {}
+	for id, on in m.owned do
+		if on then
+			table.insert(ownedIds, id)
+		end
+	end
+	table.sort(ownedIds)
+	local key = table.concat(ownedIds, ",")
+	if key == tilesFor and next(tiles) ~= nil then
+		return
+	end
+	tilesFor = key
 	local grid = find(left, "Powers.List.Grid")
 	local ownedTpl = find(grid, "TileOwned") :: GuiButton
 	local lockedTpl = find(grid, "TileLocked") :: GuiButton
@@ -1239,7 +1258,6 @@ local function buildTiles()
 		t:Destroy()
 	end
 	table.clear(tiles)
-	local m = mods()
 	for i, id in ModsConfig.ORDER do
 		local def = Mods.def(id)
 		if not def or not Mods.isBuilt(id) then

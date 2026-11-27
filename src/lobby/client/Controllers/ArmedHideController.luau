@@ -54,6 +54,15 @@ local function show()
 	table.clear(hidden)
 end
 
+-- A menu that turned lobby screens off itself (the Locker hides the HUD while open) and turns them back on after
+-- the zone changed calls this, so they're taken over and hidden again while armed (code audit 2026-11-27: a pad
+-- duel that started with the Locker open showed the lobby HUD over the duel 0.3 s later, after the close wipe).
+function ArmedHideController.refresh()
+	if PlayZone.isArmed(player) then
+		hide()
+	end
+end
+
 function ArmedHideController.start()
 	PlayZone.onLocalChanged(function(zone)
 		if zone == "Lobby" then
