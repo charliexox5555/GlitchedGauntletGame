@@ -28,6 +28,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Battle Pass Season 1 Contents.md` (3): DRAFT Season 1 pass list for owner review: 30 tiers free/premium, 2 skin lines, charms, 2 powers, coins/tickets/cases, titles, flags (2026-11-26)
 - `01 Design/Match Flow.md` (10): rounds, select/draft, timers, weapon phases, as built
 - `01 Design/First Ten Minutes.md` (11): new-player plan, minute by minute: fight first, one new thing per round, hints without words, what unlocks when, build order, targets, owner decisions
+- `01 Design/Loadout and Power Deck.md` (5): direction 2026-11-26: coins unlock powers and guns, gun loadout before the match, round 1 secondary, powers drafted from your own deck, keys in draft order, fewer guns, economy rules, build order
 - `01 Design/Gunplay.md` (55): movement, slide, spread, recoil, aim assist, feedback, health/downed (§3), viewmodel (§6), feel roadmap (§5)
 - `01 Design/Gun Balance.md` (10): health, shields, every gun's damage, TTK
 - [Gun and round balance playtest](05%20Production/Playtests/2026-11-19%20Gun%20and%20Round%20Balance.md): shot breakpoints, Sheriff in round two, Elite and Mod draft variety
