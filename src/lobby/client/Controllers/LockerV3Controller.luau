@@ -1542,6 +1542,14 @@ function LockerV3Controller.start()
 	gui = g
 	gui.Enabled = false
 	gui.ResetOnSpawn = false
+	-- A closed Locker stays off (the LobbyKit pages' rule). TRY IN THE RANGE closes it and travels at once, so
+	-- ArmedHideController took the screen mid-close wipe and turned it back on in the lobby with the Locker closed:
+	-- the panels over the lobby HUD with no room or camera (release check 2026-11-27).
+	gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+		if gui.Enabled and not isOpen then
+			gui.Enabled = false
+		end
+	end)
 	-- fit() owns this screen's "Fit" scales (Shared/UiLayout leaves CustomFit ones alone)
 	for _, d in gui:GetDescendants() do
 		if d:IsA("UIScale") and d.Name == "Fit" then
