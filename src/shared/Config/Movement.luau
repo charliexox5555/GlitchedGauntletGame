@@ -65,6 +65,17 @@ return table.freeze({
 	-- an edge. Neither changes how high or far a jump goes.
 	JUMP_BUFFER = 0.12,
 	COYOTE_TIME = 0.1,
+	-- 2026-11-27 (movement feel pass, vault/01 Design/Movement Feel
+	-- 2026-11-27.md): a jump out of the (automatic) run used to stay "Sprint"
+	-- the whole way up and down, so most jumps had no landing dip, no air FOV,
+	-- no air crosshair and the sprint spread instead of the air spread. You
+	-- are "Air" now once you rise faster than AIR_RISE studs/s (a jump: at
+	-- once) or have been off the floor AIR_GRACE seconds (a ledge). A step
+	-- down a stair (about 0.08 s off the floor at a run) stays on the ground,
+	-- so it no longer flickers the crosshair or adds the landing spread.
+	-- A jump out of the run keeps the run's speed in the air.
+	AIR_RISE = 8,
+	AIR_GRACE = 0.1,
 	AIR_FOV_KICK = 1.5, -- degrees on top of what you had when you left the ground
 
 	CROUCH_CAMERA_DROP = 1.4, -- studs the camera lowers while crouched

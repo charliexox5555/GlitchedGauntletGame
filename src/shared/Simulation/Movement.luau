@@ -26,6 +26,7 @@
 --   SprintBlock     time() until running is allowed again (firing cancels the run)
 --   RunSince        time() you started moving forward this stretch (the run builds from it)
 --   WasGrounded     last step's ground contact
+--   AirSince        time() this stretch off the floor began (nil on the floor)
 --
 -- Player state fields read here (set by the server):
 --   MoveMult, AdsMult  equipped weapon's movement multipliers (WeaponService)
@@ -122,8 +123,29 @@ local function stepCharacter(player: Player, character: Model)
 	local sprintBlock = (StateValues.get(character, "SprintBlock") :: number?) or 0
 	local runSince = StateValues.get(character, "RunSince") :: number?
 	local wasGrounded = (StateValues.get(character, "WasGrounded") :: boolean?) ~= false
+	local airSince = StateValues.get(character, "AirSince") :: number?
 
 	local grounded = humanoid.FloorMaterial ~= Enum.Material.Air
+	-- In the air for the move state (Movement.AIR_RISE / AIR_GRACE): a jump
+	-- at once, a ledge after a moment, a stair step not at all.
+	if grounded then
+		airSince = nil
+	else
+		airSince = airSince or now
+	end
+	-- (The floor reading lags a takeoff by about 60 ms, measured: the
+	-- Humanoid's own Jumping state doesn't.)
+	local airborne = (
+		not grounded
+		and (
+			root.AssemblyLinearVelocity.Y > Movement.AIR_RISE
+			or now - (airSince or now) >= Movement.AIR_GRACE
+		)
+	)
+		or (
+			humanoid:GetState() == Enum.HumanoidStateType.Jumping
+			and root.AssemblyLinearVelocity.Y > Movement.AIR_RISE
+		)
 	local moveDir = humanoid.MoveDirection
 	local moving = moveDir.Magnitude > 0.1
 	local look = root.CFrame.LookVector * Vector3.new(1, 0, 1)
@@ -239,17 +261,17 @@ local function stepCharacter(player: Player, character: Model)
 	elseif crouchIn then
 		state = "Crouch"
 		speed = Movement.CROUCH_SPEED
-	elseif canSprint then
-		state = "Sprint"
-		-- It builds from the walk instead of snapping to full speed. (Straight
-		-- out of a slide it's already there.)
+	elseif canSprint or airborne then
+		-- The run builds from the walk instead of snapping to full speed.
+		-- (Straight out of a slide it's already there.) A jump out of it
+		-- keeps that speed in the air (it used to stay "Sprint" up there).
 		local build = if now - slideEnd < Movement.RUN_RAMP
 			then 1
 			else math.clamp(runTime / Movement.RUN_RAMP, 0, 1)
-		speed = lerp(Movement.WALK_SPEED, Movement.SPRINT_SPEED, build)
-	elseif not grounded then
-		state = "Air"
-		speed = Movement.WALK_SPEED
+		state = if airborne then "Air" else "Sprint"
+		speed = if canSprint
+			then lerp(Movement.WALK_SPEED, Movement.SPRINT_SPEED, build)
+			else Movement.WALK_SPEED
 	elseif moving then
 		state = "Walk"
 		speed = Movement.WALK_SPEED
@@ -261,9 +283,17 @@ local function stepCharacter(player: Player, character: Model)
 	-- The touch stick's push scales the speeds you steer (not a slide, a
 	-- jump's carry or a dash): easing the stick back slows you smoothly.
 	-- Idle too, so the first frame off a resting stick isn't a walk-speed lurch.
+	-- A plain jump too (not a slide-jump's carry): a light push used to jump
+	-- at full walk speed.
 	if
 		push < 1
-		and (state == "Idle" or state == "Walk" or state == "Sprint" or state == "Crouch")
+		and (
+			state == "Idle"
+			or state == "Walk"
+			or state == "Sprint"
+			or state == "Crouch"
+			or (state == "Air" and slideJump <= 0)
+		)
 	then
 		speed *= push
 	end
@@ -355,6 +385,7 @@ local function stepCharacter(player: Player, character: Model)
 	set(character, "SprintBlock", sprintBlock)
 	set(character, "RunSince", runSince)
 	set(character, "WasGrounded", grounded)
+	set(character, "AirSince", airSince)
 end
 
 local function step(_dt: number)

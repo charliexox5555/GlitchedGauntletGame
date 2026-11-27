@@ -16,6 +16,7 @@ local names = {
 	"SprintBlock",
 	"RunSince",
 	"WasGrounded",
+	"AirSince",
 	"DashWindows",
 	"DashDecoy",
 	"DashDecoyRun",
