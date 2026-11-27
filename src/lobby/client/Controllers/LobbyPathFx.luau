@@ -38,7 +38,14 @@ type Run = {
 	speed: number,
 	origin: Vector3,
 }
-type Line = { anchor: BasePart, folder: Folder, beam: Beam, origin: Vector3, phase: number }
+type Line = {
+	anchor: BasePart,
+	folder: Folder,
+	beam: Beam,
+	origin: Vector3,
+	phase: number,
+	lastStep: number?,
+}
 
 local runs: { [BasePart]: Run } = {}
 local lines: { [BasePart]: Line } = {}
@@ -232,7 +239,10 @@ local function step()
 			local k = if behind >= 0 and behind <= TAIL then 1 - behind / TAIL else 0
 			local tr = BASE_T - (BASE_T - 0.05) * k
 			for _, b in pair do
-				b.Transparency = tr
+				-- most chevrons sit at BASE_T: only write the ones that move (a write costs a render update)
+				if b.Transparency ~= tr then
+					b.Transparency = tr
+				end
 			end
 		end
 	end
@@ -241,7 +251,12 @@ local function step()
 			continue
 		end
 		local p = (t * LINE_SPEED + l.phase) % 1.3 -- a pause between pulses
-		l.beam.Transparency = pulse(p)
+		-- a new sequence only when the pulse has moved a visible step (and none in the pause after it)
+		local q = if p >= 1 then -1 else math.floor(p * 200)
+		if q ~= l.lastStep then
+			l.lastStep = q
+			l.beam.Transparency = pulse(p)
+		end
 	end
 end
 

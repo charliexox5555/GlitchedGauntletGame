@@ -246,7 +246,22 @@ local function openRow(row: Frame, delay: number)
 	end)
 end
 
-local function renderList()
+local renderList: () -> ()
+-- Many changes land in one frame (a joining player's state folder fires once per field, a matchmaking
+-- wave moves many players): one rebuild at the end of the frame instead of one per change.
+local listQueued = false
+local function renderListSoon()
+	if listQueued then
+		return
+	end
+	listQueued = true
+	task.defer(function()
+		listQueued = false
+		renderList()
+	end)
+end
+
+function renderList()
 	local s = state
 	if not s then
 		return
@@ -354,9 +369,7 @@ local function watch(p: Player)
 		return
 	end
 	-- the zone is an attribute (Shared/PlayZone), not a StateValue
-	zoneWatched[p] = p:GetAttributeChangedSignal(PlayZone.ATTRIBUTE):Connect(function()
-		renderList()
-	end)
+	zoneWatched[p] = p:GetAttributeChangedSignal(PlayZone.ATTRIBUTE):Connect(renderListSoon)
 	watched[p] = StateValues.anyChanged(p):Connect(function(name: string)
 		if
 			name == "QueueStatus"
@@ -364,11 +377,11 @@ local function watch(p: Player)
 			or name == "Level"
 			or name == "WinStreak"
 		then
-			renderList()
+			renderListSoon()
 		end
 		if name == "PartyKey" or name == "PartyLeader" then
 			LobbyHudView.renderParty()
-			renderList()
+			renderListSoon()
 		end
 	end)
 end

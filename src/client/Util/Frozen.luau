@@ -78,8 +78,10 @@ local function resume(animator: Animator)
 end
 
 -- The bodies a freeze can land on (as Util/FrostFx: players and dummies).
-function Frozen.bodies(): { Model }
-	local out = {}
+-- `into`: a list to clear and fill (the per-frame caller reuses one).
+function Frozen.bodies(into: { Model }?): { Model }
+	local out = into or {}
+	table.clear(out)
 	for _, other in Players:GetPlayers() do
 		local character = other.Character
 		if character then
@@ -98,10 +100,13 @@ function Frozen.bodies(): { Model }
 end
 
 -- Before the animation step, so the pose holds on this frame already.
+-- reused every frame: this runs all match long, mostly with nobody frozen
+local frameBodies: { Model } = {}
+local seen: { [Animator]: boolean } = {}
 local function preAnimation()
 	local now = Workspace:GetServerTimeNow()
-	local seen: { [Animator]: boolean } = {}
-	for _, body in Frozen.bodies() do
+	table.clear(seen)
+	for _, body in Frozen.bodies(frameBodies) do
 		if Status.stunned(body, now) then
 			local animator = animatorOf(body)
 			if animator then

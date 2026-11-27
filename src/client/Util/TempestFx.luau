@@ -168,7 +168,19 @@ end
 
 -- A shot landing on the world: glowing droplets kicked off the surface and a short
 -- static crackle mark.
+-- Each splash is ~7 instances (part, emitters, light, decal plate) for its whole life, per pellet, for
+-- every shooter: a fast gun made ~70 a second (code audit 2026-11-27). Past SPLASH_CAP alive, the
+-- extra impacts skip the splash (the shared ImpactFx hole still shows).
+local SPLASH_CAP = 8
+local liveSplashes = 0
 function TempestFx.splash(position: Vector3, normal: Vector3)
+	if liveSplashes >= SPLASH_CAP then
+		return
+	end
+	liveSplashes += 1
+	task.delay(0.6, function()
+		liveSplashes -= 1
+	end)
 	local part = Instance.new("Part")
 	part.Name = "TempestSplash"
 	part.Anchored = true
