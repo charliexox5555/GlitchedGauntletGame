@@ -101,6 +101,9 @@ return table.freeze({
 	-- The Play menu's "N SEARCHING" line and dot on each mode tile (Controllers/PlayMenuController). Off (owner
 	-- 2026-11-26: "I don't want people thinking that there's 0 people queuing"); back on once there are more players.
 	SHOW_QUEUE_COUNTS = false,
+	-- The Locker v3 (vault/01 Design/Loadout and Power Deck.md, step 2): Controllers/LockerV3Controller owns the
+	-- Locker menu; false gives it back to Locker v4 (Controllers/LockerController, skins only, no gun loadout).
+	LOCKER_V3 = true,
 	-- Remote token buckets { perSecond, burst } (Shared/Util/RateLimit).
 	-- Remote token buckets about 2x the fastest honest use; rejects are dropped
 	-- and counted, never kicked (LihFolk: Rate Limiting and Abuse Prevention).
@@ -110,6 +113,7 @@ return table.freeze({
 		PartyRequest = { 2, 6 },
 		LockerRequest = { 4, 10 }, -- equips (quick clicking through skins)
 		LockerModRequest = { 2, 4 }, -- saved changes to paid Mod choices
+		LockerGunRequest = { 2, 4 }, -- gun unlocks (coins) and loadout equips, each a save
 		ShopRequest = { 0.5, 3 }, -- purchase clicks
 		ShopWrite = { 1 / 6, 5 }, -- DataStore writes from the Shop (about 10 a minute)
 		SettingsRequest = { 1, 4 }, -- the client sends 1.5 s after the last change, and on close

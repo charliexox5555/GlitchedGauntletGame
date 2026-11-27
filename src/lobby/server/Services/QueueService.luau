@@ -293,7 +293,10 @@ local function startLaunch(
 		-- Once found, new Mod changes are blocked. Let a choice already being
 		-- saved commit before the destination server reads the player's data.
 		for _, p in players do
-			while hooks.stillIn(p) and LockerService.isSavingMods(p) do
+			while
+				hooks.stillIn(p)
+				and (LockerService.isSavingMods(p) or LockerService.isSavingGuns(p))
+			do
 				task.wait(0.1)
 			end
 		end

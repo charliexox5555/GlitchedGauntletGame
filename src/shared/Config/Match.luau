@@ -2,14 +2,14 @@
 -- The match: timers, the round win, weapon phases and the draft
 -- (vault/01 Design/Match Flow.md). Replicated: nothing secret here.
 
--- One installed gun is drawn per pool. Shield overrides apply to the chosen gun.
+-- A weapon phase: which guns a round hands out (Shared/GunLoadout.forRound) and its shield.
 export type Phase = {
 	name: string,
+	label: string, -- the 3-2-1 banner's line ("Sidearms only")
 	tier: number,
 	fromRound: number,
 	flatShield: number?,
 	shieldByGun: { [string]: number }?,
-	gunPools: { { string } }?,
 }
 export type MapEntry = { id: string, minTeam: number, maxTeam: number, name: string?, image: string? }
 
@@ -115,8 +115,8 @@ return table.freeze({
 	-- Onboarding matches (owner 2026-11-25, vault/05 Production/Fantasy and Retention Plan 2026-11-25.md): a Beginner
 	-- match where every real player has fewer saved matches than this. It is first to FIRST_MATCH_ROUNDS_TO_WIN
 	-- (match 2 lost a third of players at first to 4) and shows the better guns early: round N deals the weapon
-	-- phase of round ONBOARDING_PHASE_ROUNDS[N] (later rounds: the last entry), so Light from round 1, Heavy from
-	-- round 2, Elite from round 4.
+	-- phase of round ONBOARDING_PHASE_ROUNDS[N] (later rounds: the last entry); Config/Onboarding HANDED_GUNS
+	-- reads the same boosted round.
 	ONBOARDING_MATCHES = 2,
 	ONBOARDING_PHASE_ROUNDS = { 2, 4, 4, 7, 7 } :: { number },
 	LATE_SPAWN_WAIT = 6, -- seconds a slow spawn gets past the countdown (3 until 2026-11-22: void spawns)
@@ -225,40 +225,14 @@ return table.freeze({
 		recentKill = 1, -- seconds: the losing side's last down must be this recent (elimination ends the round within 0.1 s)
 	},
 
-	-- One shared offer per round. Pools mix weapon roles, with installed guns
-	-- from this tier or lower filling any vacancies.
+	-- The gun loadout (vault/01 Design/Loadout and Power Deck.md, step 2; was four tiers with a gun row in the
+	-- draft): round 1 hands out only your secondary (its own shield, Config/Weapons), later rounds your primary
+	-- and secondary with a flat 50 shield. Config/Loadout SECONDARY_ROUNDS says how many rounds are sidearm only;
+	-- keep it in step with Loadout's fromRound.
 	PHASES = {
-		{ name = "Sidearm", tier = 1, fromRound = 1 },
-		{
-			name = "Light",
-			tier = 2,
-			fromRound = 2,
-			shieldByGun = { Sheriff = 50 },
-			gunPools = { { "Spectre", "Stinger" }, { "Bucky", "Judge" }, { "Bulldog", "Marshal" } },
-		},
-		{
-			name = "Heavy",
-			tier = 3,
-			fromRound = 4,
-			flatShield = 50,
-			gunPools = { { "Vandal", "Phantom" }, { "Guardian", "Outlaw" }, { "Ares" } },
-		},
-		{
-			name = "Elite",
-			tier = 4,
-			fromRound = 7,
-			flatShield = 50,
-			gunPools = { { "Vandal", "Phantom", "Guardian" }, { "Odin" }, { "Operator" } },
-		},
+		{ name = "Sidearm", label = "Sidearms only", tier = 1, fromRound = 1 },
+		{ name = "Loadout", label = "Full loadout", tier = 2, fromRound = 2, flatShield = 50 },
 	} :: { Phase },
-	GUN_POOLS_BY_ROUND = {
-		[2] = {
-			{ "Bulldog", "Spectre" },
-			{ "Stinger", "Bucky", "Judge", "Marshal" },
-			{ "Sheriff" },
-		},
-	} :: { [number]: { { string } } },
-	GUN_OFFERS = 3,
 	ABILITY_LEVEL = "L1", -- a newly drafted ability's level
 	-- Upgrades (vault/01 Design/Abilities/Upgrade Paths.md): every filled slot's
 	-- column offers that ability's next level (empty slots offer a new ability).

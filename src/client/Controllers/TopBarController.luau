@@ -92,6 +92,11 @@ local function tierName(round: number): string
 	return string.upper(MatchState.phaseFor(round).name)
 end
 
+-- The round's guns in words ("SIDEARMS ONLY", "FULL LOADOUT"; Config/Match PHASES label).
+local function gunsLabel(round: number): string
+	return string.upper(MatchState.phaseFor(round).label)
+end
+
 local function myTeam(): number
 	return Teams.of(player) or 1
 end
@@ -464,7 +469,7 @@ function TopBarController.start()
 		elseif round <= 0 then
 			info = string.format("FIRST TO %d", MatchState.roundsToWin())
 		elseif phase == "Draft" then
-			info = string.format("DRAFT · %s GUNS", tierName(round))
+			info = string.format("DRAFT · %s", gunsLabel(round))
 		elseif matchPoint then
 			info = string.format('ROUND %d · <font color="#FFC83D">MATCH POINT</font>', round)
 		else

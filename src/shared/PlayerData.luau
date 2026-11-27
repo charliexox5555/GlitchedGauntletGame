@@ -13,6 +13,8 @@
 --     tasks = Shared/TaskPath { set, part, n, seen, title } (the task Path; 2026-11-26),
 --     season = Shared/SeasonPass { id, premium, tier, secs, rounds, free, prem, winDay }
 --              (the season pass; 2026-11-26),
+--     guns = Shared/GunLoadout { owned = { [gunId] = true }, primary, secondary } (the gun loadout:
+--            owned guns and the pair taken into matches; 2026-11-26),
 --     charms = { owned = { name }, on = name? }, titles = { owned = { text }, on = text? }
 --              (pass cosmetics; `on` = equipped, wired in Build Plan phases 5 and 6; 2026-11-26),
 --     buys = { starter = bool (Starter Bundle bought), free = bool (the one free daily
@@ -38,6 +40,7 @@
 --   StateValues "FreeDailyUsed", "StarterBought" (buys.free, buys.starter)
 --   StateValues "OnbFav", "OnbFavDone", "OnbSeen" (onb: favorite asks, NEW pops seen)
 --   StringValue "Tasks"  JSON of `tasks` (the task Path panel)
+--   StringValue "LockerGuns"  JSON of `guns` (the Locker, the match draft)
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -53,6 +56,7 @@ local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
+local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
 local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 
@@ -67,6 +71,7 @@ export type Data = {
 	tx: { string },
 	skins: Skins,
 	mods: ModLoadout.Loadout,
+	guns: GunLoadout.Loadout,
 	prog: Progress.Prog,
 	tickets: number,
 	login: LoginRewards.Login,
@@ -109,6 +114,7 @@ PlayerData.VERSION = 1
 PlayerData.REPLICA = "Inventory"
 PlayerData.SKINS = "Skins"
 PlayerData.MODS = "LockerMods"
+PlayerData.GUNS = "LockerGuns"
 PlayerData.DAILY = "DailyShop"
 PlayerData.TASKS = "Tasks"
 PlayerData.SEASON = "Season" -- the season pass state (Shared/SeasonPass), JSON
@@ -231,6 +237,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		tx = {},
 		skins = {},
 		mods = ModLoadout.clean(nil),
+		guns = GunLoadout.clean(nil),
 		prog = Progress.new(),
 		tickets = Economy.STARTING_TICKETS,
 		login = LoginRewards.new(),
@@ -269,6 +276,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		else count((raw :: any).tickets, Economy.MAX_TICKETS) or 0
 	local t = raw :: { [string]: unknown }
 	data.mods = ModLoadout.clean(t.mods)
+	data.guns = GunLoadout.clean(t.guns)
 	data.coins = count(t.coins, Inventory.MAX_COINS) or 0
 	if typeof(t.items) == "table" then
 		for id, n in t.items :: { [unknown]: unknown } do
@@ -439,6 +447,7 @@ function PlayerData.publish(player: Player, data: Data?)
 	end
 	setJson(player, PlayerData.SKINS, if data then data.skins else {})
 	setJson(player, PlayerData.MODS, if data then data.mods else {})
+	setJson(player, PlayerData.GUNS, if data then data.guns else {})
 	setJson(player, PlayerData.DAILY, if data then data.daily else DailyShop.new())
 	setJson(player, PlayerData.TASKS, if data then data.tasks else TaskPath.new())
 	setJson(player, PlayerData.SEASON, if data then data.season else SeasonPass.new())
@@ -487,6 +496,18 @@ function PlayerData.mods(player: Player): ModLoadout.Loadout
 		end
 	end
 	return ModLoadout.clean(nil)
+end
+
+-- The published gun loadout (the starter pair until the save loads).
+function PlayerData.guns(player: Player): GunLoadout.Loadout
+	local value = player:FindFirstChild(PlayerData.GUNS)
+	if value and value:IsA("StringValue") and value.Value ~= "" then
+		local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
+		if ok then
+			return GunLoadout.clean(decoded)
+		end
+	end
+	return GunLoadout.clean(nil)
 end
 
 -- The published daily shop (empty until the server rolls it).

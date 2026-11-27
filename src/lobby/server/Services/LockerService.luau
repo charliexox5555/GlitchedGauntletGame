@@ -25,6 +25,7 @@ local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
+local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
@@ -53,6 +54,8 @@ local records: { [Player]: Record } = {}
 local limiter = RateLimit.new(Config.RATE)
 local rejects: { [string]: number } = {}
 local savingMods: { [Player]: boolean } = {}
+local savingGuns: { [Player]: boolean } = {}
+local GUN_ACTIONS = table.freeze({ unlock = true, equip = true })
 
 local function reject(reason: string)
 	rejects[reason] = (rejects[reason] or 0) + 1
@@ -236,6 +239,11 @@ function LockerService.isSavingMods(player: Player): boolean
 	return savingMods[player] == true
 end
 
+-- A gun unlock / equip still writing (the queue waits for it before a found match teleports).
+function LockerService.isSavingGuns(player: Player): boolean
+	return savingGuns[player] == true
+end
+
 local function saveModChoice(player: Player, idArg: unknown, equippedArg: unknown): boolean
 	local id = Validate.string(idArg, ModLoadout.MAX_ID_LENGTH)
 	local equipped = Validate.boolean(equippedArg)
@@ -284,6 +292,72 @@ local function saveModChoice(player: Player, idArg: unknown, equippedArg: unknow
 	return saved
 end
 
+-- The gun loadout (vault/01 Design/Loadout and Power Deck.md, step 2): unlock a gun with coins, or put an
+-- owned gun into its slot. Lobby only, never while a match is found; one write at a time per player; every
+-- rule is checked again on the latest save inside the transaction. Returns (ok, reason).
+local function gunChoice(player: Player, actionArg: unknown, idArg: unknown): (boolean, string?)
+	local action = Validate.enum(actionArg, GUN_ACTIONS)
+	local id = Validate.string(idArg, GunLoadout.MAX_ID_LENGTH)
+	local queueStatus = StateValues.get(player, "QueueStatus")
+	if not action or not id or not GunLoadout.slotOf(id) then
+		return false, "bad"
+	end
+	if
+		savingGuns[player]
+		or PlayZone.get(player) ~= "Lobby"
+		or queueStatus == "found"
+		or queueStatus == "teleporting"
+	then
+		return false, "busy"
+	end
+	local data = PlayerDataService.get(player)
+	if not data then
+		return false, "loading"
+	end
+	local price = GunLoadout.price(id)
+	if action == "unlock" then
+		if not GunLoadout.canUnlock(data.guns, id) or not price then
+			return false, "owned"
+		elseif data.coins < price then
+			return false, "coins"
+		end
+	elseif not GunLoadout.canEquip(data.guns, id) then
+		return false, "notOwned"
+	elseif id == data.guns.primary or id == data.guns.secondary then
+		return false, "same" -- already in its slot: no write
+	end
+	savingGuns[player] = true
+	local ok, reason = PlayerDataService.transact(
+		player,
+		PlayerDataService.newTxId(),
+		function(latest)
+			if action == "unlock" then
+				if not price or not GunLoadout.canUnlock(latest.guns, id) then
+					return false, "owned"
+				elseif latest.coins < price then
+					return false, "coins"
+				end
+				latest.coins -= price
+				latest.guns.owned[id] = true
+				GunLoadout.equip(latest.guns, id) -- a new gun goes straight into its slot
+				return true
+			end
+			if id == latest.guns.primary or id == latest.guns.secondary then
+				return false, "same"
+			end
+			if not GunLoadout.equip(latest.guns, id) then
+				return false, "notOwned"
+			end
+			return true
+		end
+	)
+	savingGuns[player] = nil
+	if ok and action == "unlock" then
+		Telemetry.event(player, "GunUnlocked", price or 0, id)
+	end
+	return ok, if ok then nil else (reason or "failed")
+end
+
 function LockerService.reset(player: Player)
 	local rec = records[player]
 	if not rec then
@@ -321,6 +395,22 @@ function LockerService.start()
 			modRequest:FireClient(player, saved)
 		end
 	end)
+	local gunRequest = LobbyNet.event("LockerGunRequest")
+	gunRequest.OnServerEvent:Connect(function(player, action, id)
+		local ok, reason = false, "slow"
+		if limiter:allow(player, "LockerGunRequest") then
+			ok, reason = gunChoice(player, action, id)
+		end
+		if player.Parent == Players then
+			gunRequest:FireClient(
+				player,
+				if typeof(action) == "string" then string.sub(action, 1, 8) else "",
+				if typeof(id) == "string" then string.sub(id, 1, GunLoadout.MAX_ID_LENGTH) else "",
+				ok,
+				reason
+			)
+		end
+	end)
 	-- skins loaded or granted: re-filter what this player wears
 	PlayerDataService.changed:Connect(publish)
 	Players.PlayerAdded:Connect(load)
@@ -328,6 +418,7 @@ function LockerService.start()
 		task.spawn(load, p)
 	end
 	Players.PlayerRemoving:Connect(function(p)
+		savingGuns[p] = nil
 		local rec = records[p]
 		limiter:forget(p)
 		if rec then

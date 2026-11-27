@@ -473,23 +473,7 @@ local function roundButton(
 	}, f)
 	make("UICorner", { CornerRadius = UDim.new(1, 0) }, b)
 	grad(b, colors[1], colors[2])
-	local shine = make("Frame", {
-		Name = "Shine",
-		BackgroundColor3 = WHITE,
-		BackgroundTransparency = 0.78,
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 5),
-		Size = UDim2.fromOffset(70, 36),
-		ZIndex = 5,
-	}, b)
-	make("UICorner", { CornerRadius = UDim.new(1, 0) }, shine)
-	make("UIGradient", {
-		Rotation = 90,
-		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0),
-			NumberSequenceKeypoint.new(1, 1),
-		}),
-	}, shine)
+	-- no shine on the round buttons (owner 2026-11-26: the glow on Back / Flip "does not look good")
 	icon(b, "Icon", img, 0, 0, 44, {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),

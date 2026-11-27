@@ -1,6 +1,11 @@
 --!strict
--- The between-round draft (vault/01 Design/Match Flow.md): deals each player 3
--- guns and 3 ability cards, takes their picks, then hands them to MatchService.
+-- The between-round draft (vault/01 Design/Match Flow.md): deals each player their
+-- ability cards, takes their picks, then hands them to MatchService.
+--
+-- Guns (vault/01 Design/Loadout and Power Deck.md, step 2): no gun row any more. Each seat takes its gun
+-- loadout (Shared/GunLoadout: a player's saved primary + secondary, a bot's random pair) when the draft
+-- closes; Config/Loadout SECONDARY_ROUNDS rounds hand out only the secondary. Onboarding matches still hand
+-- out Config/Onboarding HANDED_GUNS until the onboarding update.
 -- The server rolls and stores every offer, and a pick is only ever checked
 -- against that stored list, so a client can't ask for anything it wasn't dealt.
 --
@@ -21,6 +26,7 @@ local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Dev = require(ReplicatedStorage.Shared.Config.Dev)
+local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local MatchState = require(script.Parent.Parent.MatchState)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
@@ -34,7 +40,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local DraftService = {}
 
-local ACTIONS = { Gun = true, Ability = true, Lock = true, Sync = true }
+local ACTIONS = { Ability = true, Lock = true, Sync = true }
 
 -- What one side of the draft holds for the whole match (players and the test
 -- opponent alike; `key` is a Player or the opponent's marker table).
@@ -44,13 +50,14 @@ export type Seat = {
 	levels: { string }, -- its level per slot, "" = empty
 	sidearm: string?,
 	primary: string?,
-	shield: number, -- what the gun chosen this round gives
+	shield: number, -- what this round's gun gives
+	botGuns: GunLoadout.Loadout?, -- a bot's pair for the whole match (players read their save)
 	-- This draft:
-	guns: { string },
+	guns: { string }, -- always empty since the gun loadout (kept for the offer's shape and old clients)
 	abilities: { string },
 	upgrades: { MatchState.UpgradeCard },
 	lastNewMods: { string }, -- the new powers this seat was offered last draft (not dealt again while others can be)
-	gun: string?,
+	gun: string?, -- onboarding only: the handed gun
 	ability: string?, -- a new ability's id, or an upgrade card's key
 	glitchBonus: number, -- the glitch chance's rise since the last glitch card
 	glitchDealt: boolean, -- this seat has been dealt a glitch card this match (the onboarding guarantee)
@@ -65,8 +72,6 @@ local limiter = RateLimit.new(Config.RATE)
 local seats: { [any]: Seat } = {}
 local open = false
 local rng = Random.new()
-local gunOffer: { string } = {}
-local gunOfferRound = 0
 local abilityOfferCounts: { [string]: number } = {}
 -- Told about every pick that lands (MatchService hands these to StatsService for the task Path).
 local pickListeners: { (key: any, powerId: string, level: string) -> () } = {}
@@ -84,72 +89,17 @@ function DraftService.onPicked(fn: (key: any, powerId: string, level: string) ->
 	table.insert(pickListeners, fn)
 end
 
-local function shuffled(list: { string }): { string }
-	local out = table.clone(list)
-	for i = #out, 2, -1 do
-		local j = rng:NextInteger(1, i)
-		out[i], out[j] = out[j], out[i]
+-- Onboarding: the gun HANDED_GUNS gives for `round` (by the boosted round), if it is installed.
+local function handedGun(round: number): string?
+	local at = MatchState.phaseRound(round)
+	local gun: string? = nil
+	for _, h in OnbConfig.HANDED_GUNS do
+		if at >= h.fromRound then
+			gun = h.gun
+		end
 	end
-	return out
-end
-
-local function rollGuns(phase: Config.Phase, round: number): { string }
-	local offer: { string } = {}
 	local folder = ReplicatedStorage:FindFirstChild("Weapons")
-	if not folder then
-		return offer
-	end
-	local alternatives: { [number]: { string } } = {}
-	for _, pool in Config.GUN_POOLS_BY_ROUND[round] or phase.gunPools or {} do
-		local installed: { string } = {}
-		for _, id in pool do
-			if Weapons.get(id) and folder:FindFirstChild(id) and not table.find(offer, id) then
-				table.insert(installed, id)
-			end
-		end
-		if #installed > 0 then
-			local order = shuffled(installed)
-			table.insert(offer, table.remove(order, 1) :: string)
-			alternatives[#offer] = order
-		end
-	end
-
-	local same = #offer == Config.GUN_OFFERS and #offer == #gunOffer
-	for _, id in offer do
-		same = same and table.find(gunOffer, id) ~= nil
-	end
-	if same then
-		local rotatable: { number } = {}
-		for index, others in alternatives do
-			if #others > 0 then
-				table.insert(rotatable, index)
-			end
-		end
-		if #rotatable > 0 then
-			local index = rotatable[rng:NextInteger(1, #rotatable)]
-			offer[index] = alternatives[index][1]
-		end
-	end
-
-	for tier = phase.tier, 1, -1 do
-		if #offer >= Config.GUN_OFFERS then
-			break
-		end
-		local group: { string } = {}
-		for id, gun in Weapons.list do
-			if gun.tier == tier and folder:FindFirstChild(id) and not table.find(offer, id) then
-				table.insert(group, id)
-			end
-		end
-		table.sort(group)
-		for _, id in shuffled(group) do
-			table.insert(offer, id)
-			if #offer == Config.GUN_OFFERS then
-				break
-			end
-		end
-	end
-	return offer
+	return if gun and Weapons.get(gun) and folder and folder:FindFirstChild(gun) then gun else nil
 end
 
 -- The powers a seat may be dealt: a player's deck, or (a bot: `human` false) every built power.
@@ -293,8 +243,6 @@ end
 function DraftService.reset()
 	table.clear(seats)
 	open = false
-	gunOffer = {}
-	gunOfferRound = 0
 end
 
 function DraftService.seat(key: any): Seat
@@ -452,8 +400,7 @@ local function dealScripted(s: Seat, step: OnbConfig.Round, deck: { string }): b
 end
 
 -- Deals one seat this draft's cards. Something is selected from the start
--- (vault/05 Production/Match Structure Revamp.md): your gun while it's still
--- on offer, else the first gun; the first ability card. Bots pick over it.
+-- (vault/05 Production/Match Structure Revamp.md): the first ability card. Bots pick over it.
 local function deal(key: any)
 	local s = DraftService.seat(key)
 	local human = isPlayer(key)
@@ -462,24 +409,19 @@ local function deal(key: any)
 	if human then
 		pruneKit(s, loadout)
 	end
-	local phase = DraftService.phaseFor(dealt.round)
-	s.guns = gunOffer
+	s.guns = {}
 	s.abilities = {}
 	s.upgrades = {}
 	s.locked = false
-	local current = if phase.tier == 1 then s.sidearm else s.primary
-	s.gun = if current and table.find(gunOffer, current) then current else gunOffer[1]
+	s.gun = nil
 	s.focus, s.hidden = false, false
 	-- Onboarding: a new player's first matches follow Config/Onboarding SCRIPT (no gun row: the phase's gun is
 	-- handed out; scripted rounds deal only what they name).
 	local plan = if human then DraftService.script() else nil
 	if plan then
 		s.focus = true
-		local handed = plan.handGuns and OnbConfig.HANDED_GUNS[phase.name]
-		local folder = ReplicatedStorage:FindFirstChild("Weapons")
-		if handed and Weapons.get(handed) and folder and folder:FindFirstChild(handed) then
-			s.guns = { handed }
-			s.gun = handed
+		if plan.handGuns then
+			s.gun = handedGun(dealt.round)
 		end
 		local step = plan.rounds[dealt.round]
 		if step and dealScripted(s, step, deck) then
@@ -524,19 +466,13 @@ local function deal(key: any)
 	end
 end
 
--- The same guns are available to both sides for this round. Shuffle seat
--- order so the same side doesn't consistently get first pick of the Mod pools.
+-- Shuffle seat order so the same side doesn't consistently get first pick of the Mod pools.
 function DraftService.open(
 	keys: { any },
 	round: number,
 	endsAt: number,
 	enemyKitOf: (key: any) -> { string }
 )
-	local phase = DraftService.phaseFor(round)
-	if round ~= gunOfferRound then
-		gunOffer = rollGuns(phase, MatchState.phaseRound(round))
-		gunOfferRound = round
-	end
 	table.clear(abilityOfferCounts)
 	dealt.round, dealt.endsAt, dealt.enemyKitOf = round, endsAt, enemyKitOf
 	local order = table.clone(keys)
@@ -609,18 +545,27 @@ function DraftService.close(keys: { any })
 	local phaseName = DraftService.phaseFor(dealt.round).name
 	for _, key in keys do
 		local s = DraftService.seat(key)
-		local gun = s.gun or s.guns[1]
-		if gun then
-			local config = Weapons.get(gun)
+		local handed = s.gun
+		if handed then
+			-- onboarding: the handed gun (a secondary replaces both guns, a primary comes with the Classic)
+			local config = Weapons.get(handed)
 			if config and config.slot == "Secondary" then
-				s.sidearm = gun
-				s.primary = nil
+				s.sidearm, s.primary = handed, nil
 			else
-				s.primary = gun
-				s.sidearm = Weapons.DEFAULT_LOADOUT.Secondary
+				s.primary, s.sidearm = handed, Weapons.DEFAULT_LOADOUT.Secondary
 			end
+		else
+			-- the saved loadout, read now so a Locker change made before the match is in
+			local guns: GunLoadout.Loadout
+			if isPlayer(key) then
+				guns = PlayerData.guns(key)
+			else
+				guns = s.botGuns or GunLoadout.random(rng)
+				s.botGuns = guns
+			end
+			s.primary, s.sidearm = GunLoadout.forRound(guns, dealt.round)
 		end
-		s.shield = MatchState.shieldFor(phaseName, gun)
+		s.shield = MatchState.shieldFor(phaseName, s.primary or s.sidearm)
 		-- Your pick, else the first card.
 		local first = s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
 		local pick = s.ability or first
@@ -665,9 +610,9 @@ local function onPick(player: Player, actionArg: unknown, idArg: unknown)
 		return
 	end
 	if action == "Lock" then
-		-- Nothing to confirm until both rows have a pick.
+		-- Nothing to confirm until a card is picked (no gun row since the gun loadout).
 		local nothingToPick = #s.abilities == 0 and #s.upgrades == 0
-		if s.gun ~= nil and (s.ability ~= nil or nothingToPick) then
+		if s.ability ~= nil or nothingToPick then
 			s.locked = true
 			StateValues.set(player, "DraftLocked", true)
 		end
@@ -676,9 +621,7 @@ local function onPick(player: Player, actionArg: unknown, idArg: unknown)
 	if typeof(idArg) ~= "string" or #idArg > ModLoadout.MAX_ID_LENGTH + #":A2" then
 		return
 	end
-	if action == "Gun" and table.find(s.guns, idArg) then
-		s.gun = idArg
-	elseif action == "Ability" and (table.find(s.abilities, idArg) or upgradeByKey(s, idArg)) then
+	if action == "Ability" and (table.find(s.abilities, idArg) or upgradeByKey(s, idArg)) then
 		s.ability = idArg
 	end
 end

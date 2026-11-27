@@ -1767,10 +1767,10 @@ function AdminPanelController.start()
 	end
 
 	-- The power deck (vault/01 Design/Loadout and Power Deck.md): stand-ins for power cases while testing.
-	local powersCard = makeSectionCard(utilPage, "POWERS · DECK", C.sky, 5)
+	local powersCard = makeSectionCard(utilPage, "POWERS · GUNS", C.sky, 5)
 	label({
 		parent = powersCard,
-		text = "Unlock powers (cases come later) or go back to the starter deck.",
+		text = "Unlock powers (cases come later) and guns, or go back to the starters.",
 		size = 11,
 		color = C.sub,
 		pos = UDim2.fromOffset(0, 24),
@@ -1788,6 +1788,8 @@ function AdminPanelController.start()
 		{ text = "+ NEXT POWER", action = "grantNextPower", bg = C.sky, fg = C.darkText },
 		{ text = "+ ALL POWERS", action = "grantAllPowers", bg = C.surface, fg = C.mint },
 		{ text = "STARTER DECK", action = "resetPowers", bg = C.surface, fg = C.sub },
+		{ text = "+ ALL GUNS", action = "grantAllGuns", bg = C.surface, fg = C.mint },
+		{ text = "STARTER GUNS", action = "resetGuns", bg = C.surface, fg = C.sub },
 	}
 	for i, entry in powerButtons do
 		button({
@@ -1796,8 +1798,8 @@ function AdminPanelController.start()
 			bg = entry.bg,
 			fg = entry.fg,
 			border = if i > 1 then C.strokeBright else nil,
-			size = UDim2.new(1 / 3, -6, 1, 0),
-			textSize = 11,
+			size = UDim2.new(1 / #powerButtons, -6, 1, 0),
+			textSize = 10,
 			font = FONT_HEAVY,
 			layoutOrder = i,
 			onClick = function()

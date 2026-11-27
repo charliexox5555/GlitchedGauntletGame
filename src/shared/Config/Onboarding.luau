@@ -113,13 +113,14 @@ return table.freeze({
 		}),
 		table.freeze({ handGuns = true, rounds = table.freeze({}) }),
 	}) :: { Script },
-	-- The gun each weapon phase hands out while `handGuns` (owner picks 2026-11-26: forgiving at Arena range).
+	-- The gun handed out while `handGuns`, by the boosted round (MatchState.phaseRound; owner picks 2026-11-26:
+	-- forgiving at Arena range). Kept from the old tiers until the onboarding update (build order step 5).
 	HANDED_GUNS = table.freeze({
-		Sidearm = "Sheriff",
-		Light = "Spectre", -- Prowler
-		Heavy = "Vandal", -- Havoc
-		Elite = "Odin", -- Mauler
-	}) :: { [string]: string },
+		table.freeze({ fromRound = 1, gun = "Sheriff" }),
+		table.freeze({ fromRound = 2, gun = "Spectre" }), -- Prowler
+		table.freeze({ fromRound = 4, gun = "Vandal" }), -- Havoc
+		table.freeze({ fromRound = 7, gun = "Odin" }), -- Mauler
+	}) :: { { fromRound: number, gun: string } },
 	-- A `select = "none"` round: seconds before its 3-2-1 (time for everyone to spawn behind the barrier).
 	HIDDEN_SELECT_TIME = 1.5,
 

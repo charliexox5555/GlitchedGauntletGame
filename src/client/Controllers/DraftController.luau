@@ -116,7 +116,8 @@ local function canLock(): boolean
 	if not o then
 		return false
 	end
-	return selectedGun ~= nil and (selectedAbility ~= nil or nothingToPick(o))
+	-- the gun loadout (Locker) replaced the gun row: an offer with no guns needs only the card
+	return (selectedGun ~= nil or #o.guns == 0) and (selectedAbility ~= nil or nothingToPick(o))
 end
 
 -- A card's text: the level's note, without its "Path name: " lead on an
@@ -246,7 +247,10 @@ local function hintText(): (string, Color3)
 		local first = selectedAbility
 			or o.abilities[1]
 			or (o.upgrades and o.upgrades[1] and o.upgrades[1].key)
-		local parts = { if config then config.displayName else gun or "" }
+		local parts: { string } = {}
+		if config then
+			table.insert(parts, config.displayName)
+		end
 		if first then
 			table.insert(parts, cardName(first))
 		end
@@ -257,14 +261,14 @@ local function hintText(): (string, Color3)
 		),
 			C.gold
 	end
-	if not selectedGun then
+	if not selectedGun and #o.guns > 0 then
 		return if touch
 			then "Tap a gun, then one card."
 			else "Pick a gun (1, 2, 3) and one card (Q, E, T).",
 			C.textSecondary
 	end
 	if not nothingToPick(o) then
-		return if touch
+		return if touch and selectedGun
 			then string.format(
 				"Gun: %s. Now tap one card (tap another gun to change).",
 				string.upper(

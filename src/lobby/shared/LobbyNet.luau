@@ -9,6 +9,7 @@
 -- PartyEvent (server -> one client): PartyEventPayload below
 -- LockerRequest (client -> server): ("equip", gunId, line) (Services/LockerService)
 -- LockerModRequest: (modId, equipped) -> client (saved), with state in LockerMods
+-- LockerGunRequest: ("unlock" | "equip", gunId) -> client (action, gunId, ok, reason?), state in LockerGuns
 -- ShopRequest (client -> server): ("buyCase", caseId) | ("openCase", itemId, count?, requestId?) |
 --   ("buyDaily", slot) | ("devCoins") |
 --   ("devSkins") (Services/ShopService)
@@ -136,6 +137,7 @@ local EVENTS = {
 	"PartyEvent",
 	"LockerRequest",
 	"LockerModRequest",
+	"LockerGunRequest",
 	"ShopRequest",
 	"ShopEvent",
 	"CaseShow",

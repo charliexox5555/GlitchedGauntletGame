@@ -21,6 +21,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
+local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
 local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local Locker = require(ReplicatedStorage.Shared.Locker)
@@ -234,7 +235,9 @@ local function buildGuns()
 	for _, class in CLASSES do
 		local ids: { string } = {}
 		for _, cfg in Weapons.list do
-			if cfg.slot == slot and cfg.class == class[1] and installed(cfg.id) then
+			-- the active set only (Config/Loadout; parked guns stay out); the knife has no loadout slot
+			local active = cfg.slot == "Melee" or GunLoadout.slotOf(cfg.id) ~= nil
+			if cfg.slot == slot and cfg.class == class[1] and active and installed(cfg.id) then
 				table.insert(ids, cfg.id)
 			end
 		end

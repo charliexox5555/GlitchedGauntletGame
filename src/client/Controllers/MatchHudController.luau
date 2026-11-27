@@ -218,12 +218,12 @@ local function refresh(ui: Ui)
 				elseif myScore == need then "You need one more round"
 				else "They need one more round"
 		elseif round > 1 and tierFor(round - 1).name ~= tier.name then
-			-- The tier went up: the 3-2-1 hands out the bigger guns (vault/01 Design/First Ten Minutes.md).
+			-- The primaries come out (the gun loadout: round 1 is sidearms only; vault/01 Design/First Ten Minutes.md).
 			title, tone = "GUNS UP", "gold"
-			sub = string.format("%s guns", tier.name)
+			sub = tier.label
 		else
 			title = "GET READY"
-			sub = string.format("%s guns", tier.name)
+			sub = tier.label
 		end
 	elseif phase == "Live" then
 		if now - liveSince < FIGHT_MESSAGE_TIME then

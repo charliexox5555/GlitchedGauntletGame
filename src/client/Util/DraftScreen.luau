@@ -641,6 +641,7 @@ function DraftScreen.show(view: View, handlers: Handlers)
 		fillColumn(col, view.columns[i] or {})
 	end
 	-- Focus: the columns with cards side by side in the middle, lifted into the empty gun row's space.
+	-- No guns (the gun loadout, vault/01 Design/Loadout and Power Deck.md step 2): every column, lifted the same.
 	local inUse: { Column } = {}
 	for _, col in s.columns do
 		col.frame.Visible = not view.focus or #col.shown > 0
@@ -648,7 +649,12 @@ function DraftScreen.show(view: View, handlers: Handlers)
 			table.insert(inUse, col)
 		end
 	end
-	if view.focus and #inUse > 0 then
+	if not view.focus and #view.guns == 0 then
+		for _, col in s.columns do
+			col.frame.Position = col.home - UDim2.fromOffset(0, FOCUS_LIFT)
+		end
+		s.lockButton.Position = s.lockHome - UDim2.fromOffset(0, FOCUS_LIFT)
+	elseif view.focus and #inUse > 0 then
 		local home1, home2 = s.columns[1].home, s.columns[2].home
 		local step = home2.X.Offset - home1.X.Offset -- one column + its gap
 		local middle = home2.X.Offset -- the centre column's place

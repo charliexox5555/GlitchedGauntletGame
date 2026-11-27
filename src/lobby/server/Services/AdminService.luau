@@ -17,6 +17,8 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
+local LoadoutConfig = require(ReplicatedStorage.Shared.Config.Loadout)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
@@ -375,6 +377,30 @@ local function buildMutation(
 			return true
 		end,
 			string.format("Powers back to the starter deck <- %s", targetName)
+	elseif action == "grantAllGuns" then
+		-- The gun loadout (vault/01 Design/Loadout and Power Deck.md, step 2): every gun in the active set owned.
+		return function(data: Data)
+			local added = 0
+			for _, list in { LoadoutConfig.PRIMARIES, LoadoutConfig.SECONDARIES } do
+				for _, id in list do
+					if not data.guns.owned[id] then
+						data.guns.owned[id] = true
+						added += 1
+					end
+				end
+			end
+			if added == 0 then
+				return false, "All guns already owned"
+			end
+			return true
+		end,
+			string.format("Granted ALL guns -> %s", targetName)
+	elseif action == "resetGuns" then
+		return function(data: Data)
+			data.guns = GunLoadout.clean(nil) -- the starter pair only
+			return true
+		end,
+			string.format("Guns back to the starter pair <- %s", targetName)
 	elseif action == "clearAllSkins" then
 		return function(data: Data)
 			table.clear(data.skins)
@@ -508,6 +534,7 @@ local function buildMutation(
 			data.items = fresh.items
 			data.skins = fresh.skins
 			data.mods = fresh.mods
+			data.guns = fresh.guns
 			data.prog = fresh.prog
 			data.login = fresh.login
 			data.daily = DailyRoll.roll(fresh.skins, Economy.day(os.time()), Random.new())

@@ -91,7 +91,11 @@ end
 
 -- Who can be counted: in the lobby (not the range, not a duel), up and about, not searching the global queue.
 local function eligible(player: Player): BasePart?
-	if PlayZone.get(player) ~= "Lobby" or LockerService.isSavingMods(player) then
+	if
+		PlayZone.get(player) ~= "Lobby"
+		or LockerService.isSavingMods(player)
+		or LockerService.isSavingGuns(player)
+	then
 		return nil
 	end
 	local status = StateValues.get(player, "QueueStatus")

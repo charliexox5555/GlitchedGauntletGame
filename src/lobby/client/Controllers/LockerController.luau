@@ -24,6 +24,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+local LobbyConfig = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Locker = require(ReplicatedStorage.Shared.Locker)
@@ -1284,6 +1285,9 @@ local function release()
 end
 
 function LockerController.init()
+	if LobbyConfig.LOCKER_V3 then
+		return -- Controllers/LockerV3Controller owns the Locker (Lobby Config LOCKER_V3)
+	end
 	local playerGui = player:WaitForChild("PlayerGui")
 	local g = playerGui:WaitForChild("Locker", 15)
 	if not g or not g:IsA("ScreenGui") then
