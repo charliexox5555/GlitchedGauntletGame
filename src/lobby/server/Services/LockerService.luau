@@ -258,11 +258,24 @@ local function saveModChoice(player: Player, idArg: unknown, equippedArg: unknow
 	if not data or not data.mods.owned[id] then
 		return false
 	end
+	local allowed = if equipped
+		then ModLoadout.canEquip(data.mods, id)
+		else ModLoadout.canUnequip(data.mods, id)
+	if not allowed then
+		return false
+	end
 
+	-- The power deck (vault/01 Design/Loadout and Power Deck.md): owned powers only, between
+	-- Config/Mods DECK_MIN and DECK_SIZE equipped, checked again on the latest save.
 	savingMods[player] = true
 	local saved = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(latest)
 		if not latest.mods.owned[id] then
 			return false, "notOwned"
+		end
+		if equipped and not ModLoadout.canEquip(latest.mods, id) then
+			return false, "deckFull"
+		elseif not equipped and not ModLoadout.canUnequip(latest.mods, id) then
+			return false, "deckMin"
 		end
 		latest.mods.equipped[id] = if equipped then true else nil
 		return true

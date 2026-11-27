@@ -6,9 +6,10 @@
 -- levels change what a Mod does; each Mod module dispatches on them. The
 -- upgrade paths: vault/01 Design/Abilities/Upgrade Paths.md (2026-11-03).
 --
--- `slot`: every ability lives in one fixed slot (1 = Q, 2 = E, 3 = T for now;
--- keys become rebindable later). The draft only fills a slot with its own
--- abilities. `paths`: the names of path A, path B and the glitch path.
+-- Slots follow draft order (vault/01 Design/Loadout and Power Deck.md, 2026-11-26): a match's 1st power
+-- goes on slot 1 (Q), the 2nd on slot 2 (E), the 3rd on slot 3 (T); players rebind the slots in Settings
+-- (kMod1-3). No power owns a key. `free`: in every draft without being owned or equipped (none since the
+-- power deck: every save owns STARTER_DECK, the rest are unlocks). `paths`: path A, path B and the glitch path.
 --
 -- Charges (vault/01 Design/Abilities/00 Abilities.md → Charges): every L1 has
 -- `charges`, how many uses a round starts with (RoundService refills them:
@@ -27,9 +28,8 @@ local defs: { [string]: ModDef } = {
 	Dash = {
 		id = "Dash",
 		name = "Dash",
-		free = true,
+		free = false,
 		role = "Mobility",
-		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Long Dash", B = "Ghost", G = "Desync" },
 		block = "Dash",
 		activation = "Instant",
@@ -106,9 +106,8 @@ local defs: { [string]: ModDef } = {
 	Updraft = {
 		id = "Updraft",
 		name = "Updraft",
-		free = true,
+		free = false,
 		role = "Mobility",
-		slot = 1, -- Q (vault/01 Design/Abilities/Upgrade Paths.md)
 		-- Upgrade Paths.md calls them Height / Charges / Slam.
 		paths = { A = "High Rise", B = "Second Wind", G = "Crash Down" },
 		block = "Launch",
@@ -153,9 +152,8 @@ local defs: { [string]: ModDef } = {
 	Molly = {
 		id = "Molly",
 		name = "Molly",
-		free = true,
+		free = false,
 		role = "Damage",
-		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Recharge", B = "Bigger Fire", G = "Fork Fire" },
 		block = "Projectile",
 		activation = "HeldThrow",
@@ -230,9 +228,8 @@ local defs: { [string]: ModDef } = {
 	Firewall = {
 		id = "Firewall",
 		name = "Firewall",
-		free = true,
+		free = false,
 		role = "Control",
-		slot = 3, -- T (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Short Wall", B = "Long Wall", G = "Frost Wall" },
 		block = "Wall",
 		activation = "HeldSteer",
@@ -279,9 +276,8 @@ local defs: { [string]: ModDef } = {
 	Frost = {
 		id = "Frost",
 		name = "Frost",
-		free = true,
+		free = false,
 		role = "Control",
-		slot = 3, -- T (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Stockpile", B = "Big Burst", G = "Freeze Frame" },
 		block = "Projectile",
 		activation = "HeldThrow",
@@ -325,9 +321,8 @@ local defs: { [string]: ModDef } = {
 	Recon = {
 		id = "Recon",
 		name = "Recon",
-		free = true,
+		free = false,
 		role = "Info",
-		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Recharge", B = "More Pulses", G = "Ping Spike" },
 		block = "Reveal",
 		activation = "HeldCharge",
@@ -392,9 +387,8 @@ local defs: { [string]: ModDef } = {
 	HealOrb = {
 		id = "HealOrb",
 		name = "Heal Orb",
-		free = true,
+		free = false,
 		role = "Sustain",
-		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Charges", B = "Long Heal", G = "Barrier" },
 		block = "Target",
 		activation = "HeldTarget",
@@ -448,9 +442,8 @@ local defs: { [string]: ModDef } = {
 	Stim = {
 		id = "Stim",
 		name = "Stim",
-		free = true,
+		free = false,
 		role = "Team buff",
-		slot = 1, -- Q (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Quick Stims", B = "Strong Stim", G = "Heal Zone" },
 		block = "Zone",
 		activation = "Instant",
@@ -510,9 +503,8 @@ local defs: { [string]: ModDef } = {
 	Recall = {
 		id = "Recall",
 		name = "Recall",
-		free = true,
+		free = false,
 		role = "Escape",
-		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
 		paths = { A = "Recharge", B = "Long Range", G = "Crash Recovery" },
 		block = "Placeable",
 		activation = "HeldPlace",
@@ -569,9 +561,8 @@ local defs: { [string]: ModDef } = {
 	ShockDart = {
 		id = "ShockDart",
 		name = "Shock Dart",
-		free = true,
+		free = false,
 		role = "Damage",
-		slot = 2, -- E, like Recon (same bow: you never hold both)
 		paths = { A = "Recharge", B = "More Darts", G = "Static" },
 		block = "Projectile",
 		activation = "HeldCharge",
@@ -640,9 +631,8 @@ local defs: { [string]: ModDef } = {
 	Flash = {
 		id = "Flash",
 		name = "Flash",
-		free = true,
+		free = false,
 		role = "Control",
-		slot = 1, -- Q
 		paths = { A = "More Flashes", B = "Recharge", G = "Exposure" },
 		block = "Projectile",
 		activation = "HeldThrow",
@@ -720,9 +710,8 @@ local defs: { [string]: ModDef } = {
 	Roller = {
 		id = "Roller",
 		name = "Roller",
-		free = true,
+		free = false,
 		role = "Damage",
-		slot = 3, -- T
 		paths = { A = "More Bots", B = "Faster", G = "Remote" },
 		block = "Placeable",
 		activation = "HeldPlace",
@@ -830,6 +819,15 @@ return table.freeze({
 	defs = defs,
 	ORDER = ORDER,
 	SLOTS = 3,
+	-- The power deck (vault/01 Design/Loadout and Power Deck.md, owner 2026-11-26): the draft deals only the
+	-- powers a player owns and has equipped, at most DECK_SIZE of them (owner: 10, room for more powers and
+	-- power cases). Every save owns and equips STARTER_DECK (Shared/ModLoadout migrates older saves);
+	-- the rest come from power cases and the battle pass. Bump STARTER_VERSION when the starter list changes
+	-- so saves get the new starters once.
+	DECK_SIZE = 10,
+	DECK_MIN = 3, -- never fewer equipped than this (Claude's pick: a match can always fill Q, E and T)
+	STARTER_DECK = { "Dash", "Updraft", "Molly", "Frost" },
+	STARTER_VERSION = 1,
 	-- Every level, and the levels each one builds on (in order).
 	LEVELS = { "L1", "A2", "A3", "B2", "B3", "G2", "G3" },
 	CHAIN = {
@@ -1017,7 +1015,7 @@ return table.freeze({
 
 	-- Test-mode servers start everyone with these (a match drafts them).
 	TEST_LOADOUT = {
-		{ id = "Updraft", level = "L1" }, -- slot 1 (Q)
+		{ id = "Updraft", level = "L1" }, -- slot 1 (Q): slots follow this order
 		{ id = "Dash", level = "L1" }, -- slot 2 (E)
 		{ id = "Firewall", level = "L1" }, -- slot 3 (T)
 	} :: { Types.SlotLoadout },

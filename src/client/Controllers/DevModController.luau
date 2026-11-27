@@ -300,15 +300,10 @@ local function build(): TextButton
 	for _, id in Config.ORDER do
 		local def = Mods.def(id)
 		local built = Mods.isBuilt(id)
-		-- Each Mod has its own slot (Config/Mods `slot`): picking one jumps there.
-		local name = if def
-			then string.format("%s (%s)", def.name, ModController.keyLabel(def.slot))
-			else id
+		-- Slots follow draft order (no power owns a key): a power goes on the selected slot.
+		local name = if def then def.name else id
 		local b = button(name, 140, modRow, function()
 			if built then
-				if def then
-					selectedSlot = def.slot
-				end
 				send("SetSlot", selectedSlot, id, selectedLevel)
 			end
 		end)

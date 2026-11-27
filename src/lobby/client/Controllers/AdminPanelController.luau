@@ -1464,10 +1464,20 @@ function AdminPanelController.start()
 	-- =========================================================================
 	-- TAB 4: UTILITIES & DANGER ZONE
 	-- =========================================================================
-	local utilPage = makePage("Utilities")
-	pad(utilPage, 12, 12, 12, 12)
+	-- Six cards: the page scrolls (fixed-height cells, two a row).
+	local utilFrame = makePage("Utilities")
+	local utilPage = Instance.new("ScrollingFrame")
+	utilPage.Size = UDim2.fromScale(1, 1)
+	utilPage.BackgroundTransparency = 1
+	utilPage.BorderSizePixel = 0
+	utilPage.ScrollingDirection = Enum.ScrollingDirection.Y
+	utilPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	utilPage.CanvasSize = UDim2.new()
+	utilPage.ScrollBarThickness = 4
+	utilPage.Parent = utilFrame
+	pad(utilPage, 12, 16, 12, 12)
 	local utilGrid = Instance.new("UIGridLayout")
-	utilGrid.CellSize = UDim2.new(0.5, -6, 0.5, -6)
+	utilGrid.CellSize = UDim2.new(0.5, -6, 0, 168)
 	utilGrid.CellPadding = UDim2.fromOffset(12, 12)
 	utilGrid.SortOrder = Enum.SortOrder.LayoutOrder
 	utilGrid.Parent = utilPage
@@ -1754,6 +1764,46 @@ function AdminPanelController.start()
 		end
 		workspace:GetAttributeChangedSignal("QuickMatch"):Connect(syncQuickMatch)
 		syncQuickMatch()
+	end
+
+	-- The power deck (vault/01 Design/Loadout and Power Deck.md): stand-ins for power cases while testing.
+	local powersCard = makeSectionCard(utilPage, "POWERS · DECK", C.sky, 5)
+	label({
+		parent = powersCard,
+		text = "Unlock powers (cases come later) or go back to the starter deck.",
+		size = 11,
+		color = C.sub,
+		pos = UDim2.fromOffset(0, 24),
+	})
+	local powersRow = Instance.new("Frame")
+	powersRow.Position = UDim2.fromOffset(0, 62)
+	powersRow.Size = UDim2.new(1, 0, 0, 36)
+	powersRow.BackgroundTransparency = 1
+	powersRow.Parent = powersCard
+	local powersLayout = Instance.new("UIListLayout")
+	powersLayout.FillDirection = Enum.FillDirection.Horizontal
+	powersLayout.Padding = UDim.new(0, 8)
+	powersLayout.Parent = powersRow
+	local powerButtons: { { text: string, action: string, bg: Color3, fg: Color3 } } = {
+		{ text = "+ NEXT POWER", action = "grantNextPower", bg = C.sky, fg = C.darkText },
+		{ text = "+ ALL POWERS", action = "grantAllPowers", bg = C.surface, fg = C.mint },
+		{ text = "STARTER DECK", action = "resetPowers", bg = C.surface, fg = C.sub },
+	}
+	for i, entry in powerButtons do
+		button({
+			parent = powersRow,
+			text = entry.text,
+			bg = entry.bg,
+			fg = entry.fg,
+			border = if i > 1 then C.strokeBright else nil,
+			size = UDim2.new(1 / 3, -6, 1, 0),
+			textSize = 11,
+			font = FONT_HEAVY,
+			layoutOrder = i,
+			onClick = function()
+				send(entry.action)
+			end,
+		})
 	end
 
 	-- =========================================================================

@@ -1,19 +1,18 @@
 # Loadout and Power Deck (direction, 2026-11-26)
 
-**Why.** The owner, after two days of ad data (D1 3.19% for the 24th cohort; average play time 6.7, then 8.7 min; about 30% of new players reach match 3): "there's nothing to work towards." Everything resets after a match, and skins don't change how you play. RIVALS, Hypershot and Murder Duels all give a reason to keep playing: you unlock guns or powers. The owner's call: "a much better direction … it is copying rivals a bit, but I'm adding on the powers." This note is the plan; nothing is built.
+**Why.** The owner, after two days of ad data (D1 3.19% for the 24th cohort; average play time 6.7, then 8.7 min; about 30% of new players reach match 3): "there's nothing to work towards." Everything resets after a match, and skins don't change how you play. RIVALS, Hypershot and Murder Duels all give a reason to keep playing: you unlock guns or powers. The owner's call: "a much better direction … it is copying rivals a bit, but I'm adding on the powers." This note is the plan. **Step 1 (the power deck) is built** (2026-11-26, see [Step 1 built](#step-1-built-2026-11-26)); the rest is not.
 
 **Core loop, one sentence:** play matches → earn **coins** → unlock **powers and guns** → build your **loadout and power deck** → try new combos in matches → play again.
 
 ## Decisions (owner 2026-11-26, Claude's picks where the owner left it open)
 
-1. **Currency: coins**, not keys (owner: "coins are so good, I don't want to copy the rivals keys"). Powers and guns are bought once with coins. Coins come from matches, tasks and the battle pass. Guns and powers are sidegrades, not upgrades, so coins bought with Robux buy variety, not a win.
+1. **Currency: coins**, not keys (owner: "coins are so good, I don't want to copy the rivals keys"). Guns are bought once with coins. **Powers come from power cases, not direct coin buys** (owner 2026-11-26: "they will be in cases not by coins"; a step of its own after step 1). Coins come from matches, tasks and the battle pass. Guns and powers are sidegrades, not upgrades, so coins bought with Robux buy variety, not a win.
 2. **Guns are a loadout, chosen before the match** (Locker): one primary and one secondary, plus the knife. The gun row on the pick screen goes, along with the shared weapon tiers that rose each round. The pick screen was 39% of mid-match quits (MatchLeft, 2026-11-26), and this makes each pause one decision.
 3. **Round 1 is a secondary round** (owner's idea; Claude: yes, low friction, a known pattern): everyone plays round 1 with their secondary, the primary from round 2. That makes the secondary choice matter and keeps a small step up in the match. **Exception:** a new player's onboarding matches skip it; they open on the starter primary (First Ten Minutes: show the fantasy first).
 4. **Powers stay drafted**, which is the game's identity. Each round you are dealt 3 cards **from your own equipped deck** (new powers while you have a free slot, upgrades of the ones you have, the odd Glitched card) and pick 1. Powers stack through the match: "stack them until you're unstoppable". This replaces the rising gun tiers as the match's escalation.
-   - **Deck:** you equip up to 6 powers in the Locker.
-   - **Starter deck:** Dash, Updraft plus 2 more (proposed Molly and Frost; owner picks).
-   - The other powers unlock with coins.
-   - The draft already only deals powers a player may use (`ModLoadout.eligible`: free, or owned and equipped; the Locker has an ABILITIES tab). Today every power is `free = true`.
+   - **Deck:** you equip up to **10** powers in the Locker (owner 2026-11-26: room "as we add power cases and more powers"; was 6). At least 3 stay equipped (Claude's pick, so a match can always fill Q, E and T).
+   - **Starter deck:** **Dash, Updraft, Molly, Frost** (owner 2026-11-26). Every save owns and equips them, existing saves too.
+   - The other powers come from power cases (next step) and the battle pass (Smoke, Electric Shock).
 5. **Keys follow draft order, not the power** (Claude's pick; the owner left it open):
    - Your 1st power goes on slot 1 (Q), the 2nd on slot 2 (E), the 3rd on slot 3 (T). Players rebind the three slots in Settings (KEYBINDS → MODS).
    - Why not per-power keys in the Locker: more setup for a 10-year-old, and keys change between matches.
@@ -62,7 +61,7 @@ Source: [RIVALS UI study](../03%20Research/Rivals%20Reference/UI%20and%20Client.
 - **Stage:** the gun (or power) shown big in the middle of a 3D locker set in the lobby (we already have the Locker room and its camera rise). The UI sits in two side columns.
 - **Left column, tabs and lists:**
   - **GUNS** (Primary and Secondary lists, locked ones with a lock and price).
-  - **POWERS** (your deck of 6 slots at the top, then every power card).
+  - **POWERS** (your deck of 10 slots at the top, then every power card).
   - **KNIFE** (skins only).
   - The selected item is a large card at the top.
 - **Right column, cards that change with the selection:**
@@ -82,10 +81,10 @@ Today a match pays 15 coins for finishing and 20 for a win, halved against bots,
 
 ## Build order (each step playtested with the owner before the next)
 (Updated 2026-11-26: the gun loadout ships with the new Locker; weapon levels, contracts and stats follow.)
-1. **Power deck and unlocks.**
-   - Coin prices per power.
+1. **Power deck and unlocks.** **Built 2026-11-26** ([Step 1 built](#step-1-built-2026-11-26)).
+   - ~~Coin prices per power~~: powers come from cases.
    - A starter deck.
-   - A Locker deck screen (equip up to 6).
+   - A Locker deck screen (equip up to 10).
    - The draft deals from the deck.
    - Order-based key slots: `DraftService` columns become "a new power or an upgrade" cards, and `ModService` slots fill in draft order.
 2. **Gun loadout and the new Locker (gun pages: unlock, equip).**
@@ -99,8 +98,19 @@ Today a match pays 15 coins for finishing and 20 for a win, halved against bots,
    - After match 2 the first unlock is affordable.
    - The first task points at it ("Unlock your first power").
 
+## Step 1 built (2026-11-26)
+- **Data:** `Config/Mods`: no power is `free` any more, and the per-power `slot` is gone. New: `DECK_SIZE = 10`, `DECK_MIN = 3`, `STARTER_DECK`, `STARTER_VERSION`. `Shared/ModLoadout`: the saved `mods = { owned, equipped, starter }`; `clean` gives any save below the current `starter` version the starters once (owned and equipped), so existing players get them and a starter they unequip later stays off. The deck is capped at 10 (starters first, then by name). **`ModLoadout.grant(loadout, id)`** (owned, equipped while there is room) is what power cases and the battle pass should call; `canEquip` / `canUnequip` hold the 3–10 rule.
+- **Draft** (`DraftService`): a player is dealt only their deck; bots draw from every built power. One new power per empty slot, from the deck, none the seat already holds, last draft's cards only when nothing else is left. A picked new power lands on the **first empty slot**, so keys follow draft order. Upgrades stay per filled slot (A/B, the odd Glitched card). The onboarding script still works, with Dash now on Q.
+- **Draft screen** (`DraftController`, `Util/DraftScreen`): each empty column shows one new power, and its tab names the first empty slot's key (round 1: all three say Q). Filled columns show their own key. Tabs and pick keys follow the Settings MOD 1–3 bindings (keyboard; the bumpers still step cards).
+- **Locker** (`Util/LockerAbilities`, POWERS tab, still code-built inside the Locker canvas): a **DECK n / 10** line; starters first; owned powers EQUIP / UNEQUIP, DECK FULL when there's no room, a message if you'd drop under 3; powers you don't own say LOCKED. Server (`LockerService`, `LockerModRequest`): owned only, 3–10 equipped, checked again inside the save transaction, rate-limited, Lobby only. The RIVALS-style Locker above replaces this screen in step 2.
+- **Admin (F8 → Utilities → POWERS · DECK):** + NEXT POWER, + ALL POWERS, STARTER DECK, standing in for power cases while testing. The Utilities page scrolls now.
+- **Dev panel:** SetSlot puts a power on the picked slot and clears it from any other.
+- **Studio playtest** (`FreshOnboarding`): the new save got the 4 starters. Match 1 dealt Dash (Q), Updraft (E), Dash Glitched, then Molly (T), all from the starter deck. In the Locker, + NEXT POWER unlocked Firewall, and unequip/equip saved. Equipping a power you don't own, an 11th power, or dropping under 3 were all refused. Match 2 round 1 offered Molly / Dash / Firewall, all on Q; the match ended with Molly Q, Updraft E, Firewall T (impossible with fixed slots). Not checked: phones, a controller, a live server, the round-2 mixed screen (upgrades plus new cards on E) by eye.
+- **Before publishing:** until power cases ship, players have only the 4 starters (plus the battle pass powers). Ship with the power case, or accept that for a while.
+- **Battle pass note:** `Lobby/SeasonRewards` grants a pass power with `owned` + `equipped = true` directly; it should call `ModLoadout.grant` so a full deck isn't pushed past 10 (`clean` trims it on the next load either way).
+
 ## Open (owner)
-- The 2 starter powers beside Dash and Updraft.
+- ~~The 2 starter powers~~ Molly and Frost. ~~Deck size~~ 10.
 - The gun cut.
-- Deck size (6 proposed).
 - Whether the onboarding matches keep the scripted Glitched card.
+- Power case: price, odds, what a duplicate gives (owner: decide later; the packs idea above says power XP).

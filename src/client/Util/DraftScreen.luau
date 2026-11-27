@@ -1,7 +1,8 @@
 --!strict
 -- The draft screen (vault/02 Art/UI Draft Screen.md, v4): three guns on top,
 -- three ability columns (a new card, 2-3 upgrade half-cards, or MAXED) under
--- their Q / E / T tabs, and a gold LOCK IN that names your picks. The layout
+-- their Q / E / T tabs (an empty column's tab names the first empty slot: new powers
+-- fill slots in draft order, vault/01 Design/Loadout and Power Deck.md), and a gold LOCK IN that names your picks. The layout
 -- is built in Studio (StarterGui.DraftScreen, backup
 -- tools/studio/BuildDraftScreen.luau); this module only fills and animates it.
 -- DraftController owns the logic (offer, keys, remote calls, the hint text,
@@ -49,6 +50,7 @@ export type PathView = {
 
 export type ColumnView = {
 	new: NewView?,
+	keySlot: number?, -- a new card: the slot it lands on (its tab shows that key); nil: the column's own
 	paths: { PathView }?,
 	maxed: { icon: string, sub: string }?,
 }
@@ -106,6 +108,8 @@ type Column = {
 	frame: Frame,
 	home: UDim2, -- the Studio position (focus mode moves the column)
 	tab: Frame,
+	index: number, -- its own slot
+	tabText: unknown, -- the tab's Studio KeyText (Q / E / T), used when a slot has no key bound
 	new: Pickable,
 	newCard: CanvasGroup,
 	paths: { Pickable },
@@ -302,6 +306,8 @@ local function bind(gui: ScreenGui)
 			frame = frame,
 			home = frame.Position,
 			tab = child(frame, "Key") :: Frame,
+			index = i,
+			tabText = (child(frame, "Key") :: Frame):GetAttribute("KeyText"),
 			new = new,
 			newCard = new.card,
 			paths = paths,
@@ -544,6 +550,13 @@ local function fillColumn(col: Column, v: ColumnView)
 		o.Visible = false
 	end
 	col.new.id = ""
+	-- The tab names its slot's keyboard key (Settings kMod1-3); keyboard only, as built (the bumpers step cards).
+	local keys = InputGlyphs.keysFor("Mod" .. (v.keySlot or col.index))
+	local text = if keys[1] then InputGlyphs.keyName(keys[1]) else col.tabText
+	if typeof(text) == "string" and col.tab:GetAttribute("KeyText") ~= text then
+		col.tab:SetAttribute("KeyText", text)
+		InputGlyphs.apply(col.tab)
+	end
 	local paths = v.paths or {}
 	if v.new then
 		fillNew(col.new, v.new)

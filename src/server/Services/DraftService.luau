@@ -4,12 +4,13 @@
 -- The server rolls and stores every offer, and a pick is only ever checked
 -- against that stored list, so a client can't ask for anything it wasn't dealt.
 --
--- Abilities live in fixed slots (Config/Mods `slot`), and the ability row has
--- one column per slot, like Gauntlet: Glitched: an empty slot offers one new
--- ability for that slot; a filled slot offers its upgrades
--- (vault/01 Design/Abilities/Upgrade Paths.md): at level 1, path A and path B
--- (and sometimes the glitch path); at level 2, the next level of its path. One
--- card per draft, from any column.
+-- The power deck (vault/01 Design/Loadout and Power Deck.md, 2026-11-26): a player is dealt only the powers in
+-- their own deck (Shared/ModLoadout: owned and equipped; bots draw from every built power). Slots fill in
+-- draft order: the match's 1st power goes on slot 1 (Q), the 2nd on slot 2 (E), the 3rd on slot 3 (T). The
+-- ability row keeps one column per slot: a filled slot offers its upgrades
+-- (vault/01 Design/Abilities/Upgrade Paths.md: at level 1 path A and path B, sometimes the glitch path; at
+-- level 2 the next level of its path); each empty slot shows one new power from the deck, and whichever new
+-- power is picked lands on the first empty slot. One card per draft, from any column.
 
 local Context = require(script.Parent.Parent.Context) -- this match (MatchKit/Context)
 local Players = Context.players
@@ -48,7 +49,7 @@ export type Seat = {
 	guns: { string },
 	abilities: { string },
 	upgrades: { MatchState.UpgradeCard },
-	lastNewMods: { [number]: string }, -- the most recent offer in each empty slot
+	lastNewMods: { string }, -- the new powers this seat was offered last draft (not dealt again while others can be)
 	gun: string?,
 	ability: string?, -- a new ability's id, or an upgrade card's key
 	glitchBonus: number, -- the glitch chance's rise since the last glitch card
@@ -151,26 +152,42 @@ local function rollGuns(phase: Config.Phase, round: number): { string }
 	return offer
 end
 
-local function abilityPools(loadout: ModLoadout.Loadout?): { { string } }
-	local pools: { { string } } = {}
-	for slot = 1, ModsConfig.SLOTS do
-		pools[slot] = {}
-	end
-	for id, def in ModsConfig.defs do
-		if Mods.isBuilt(id) and ModLoadout.eligible(id, loadout) then
-			table.insert(pools[def.slot], id)
+-- The powers a seat may be dealt: a player's deck, or (a bot: `human` false) every built power.
+local function deckOf(loadout: ModLoadout.Loadout?, human: boolean): { string }
+	local deck: { string } = {}
+	for _, id in ModsConfig.ORDER do
+		if Mods.isBuilt(id) and (not human or ModLoadout.eligible(id, loadout)) then
+			table.insert(deck, id)
 		end
 	end
-	return pools
+	return deck
 end
 
-local function rollNewMod(pool: { string }, previous: string?): string?
-	local choices: { string } = {}
-	local bestCount = math.huge
+-- The first empty slot (the next power's key), nil when all are filled.
+local function firstFree(kit: { string }): number?
+	for slot = 1, ModsConfig.SLOTS do
+		if kit[slot] == "" then
+			return slot
+		end
+	end
+	return nil
+end
+
+-- One new power from `pool` the seat doesn't hold and hasn't been dealt this draft. Cards offered to fewer seats
+-- first; last draft's cards only when nothing else is left.
+local function rollNewMod(s: Seat, pool: { string }): string?
+	local fresh: { string } = {}
+	local stale: { string } = {}
 	for _, id in pool do
-		if id == previous and #pool > 1 then
+		if table.find(s.kit, id) or table.find(s.abilities, id) then
 			continue
 		end
+		table.insert(if table.find(s.lastNewMods, id) then stale else fresh, id)
+	end
+	local candidates = if #fresh > 0 then fresh else stale
+	local choices: { string } = {}
+	local bestCount = math.huge
+	for _, id in candidates do
 		local count = abilityOfferCounts[id] or 0
 		if count < bestCount then
 			table.clear(choices)
@@ -369,17 +386,19 @@ end
 
 -- A scripted round (vault/01 Design/First Ten Minutes.md): its start kit, then only the cards it names. False when
 -- nothing it names can be dealt, so the normal deal runs instead.
-local function dealScripted(s: Seat, step: OnbConfig.Round, pools: { { string } }): boolean
+local function dealScripted(s: Seat, step: OnbConfig.Round, deck: { string }): boolean
 	for _, id in step.kit or {} do
 		local def = Mods.def(id)
+		local slot = firstFree(s.kit)
 		if
 			def
+			and slot
 			and Mods.isBuilt(id)
-			and s.kit[def.slot] == ""
-			and table.find(pools[def.slot], id)
+			and not table.find(s.kit, def.id)
+			and table.find(deck, def.id)
 		then
-			s.kit[def.slot] = def.id
-			s.levels[def.slot] = Config.ABILITY_LEVEL
+			s.kit[slot] = def.id
+			s.levels[slot] = Config.ABILITY_LEVEL
 		end
 	end
 	if step.select == "none" then
@@ -416,7 +435,13 @@ local function dealScripted(s: Seat, step: OnbConfig.Round, pools: { { string } 
 	elseif typeof(offer) == "table" then
 		for _, id in offer do
 			local def = Mods.def(id)
-			if def and s.kit[def.slot] == "" and table.find(pools[def.slot], id) then
+			if
+				def
+				and firstFree(s.kit)
+				and not table.find(s.kit, def.id)
+				and not table.find(s.abilities, def.id)
+				and table.find(deck, def.id)
+			then
 				table.insert(s.abilities, def.id)
 			end
 		end
@@ -433,7 +458,7 @@ local function deal(key: any)
 	local s = DraftService.seat(key)
 	local human = isPlayer(key)
 	local loadout = if human then PlayerData.mods(key) else nil
-	local pools = abilityPools(loadout)
+	local deck = deckOf(loadout, human)
 	if human then
 		pruneKit(s, loadout)
 	end
@@ -457,25 +482,25 @@ local function deal(key: any)
 			s.gun = handed
 		end
 		local step = plan.rounds[dealt.round]
-		if step and dealScripted(s, step, pools) then
+		if step and dealScripted(s, step, deck) then
 			s.dealtRound = dealt.round
 			sendOffer(key, s)
 			return
 		end
 		s.abilities, s.upgrades, s.ability, s.locked, s.hidden = {}, {}, nil, false, false
 	end
-	-- Each empty slot gets a new roll for this seat. Prefer cards that have
-	-- been offered to fewer seats and skip the seat's previous card.
+	-- One new power from the deck per empty slot (all of them land on the first empty slot when picked).
+	-- Prefer cards that have been offered to fewer seats and skip the seat's last offer.
 	for slot = 1, ModsConfig.SLOTS do
 		if s.kit[slot] ~= "" then
 			continue
 		end
-		local id = rollNewMod(pools[slot], s.lastNewMods[slot])
+		local id = rollNewMod(s, deck)
 		if id then
-			s.lastNewMods[slot] = id
 			table.insert(s.abilities, id)
 		end
 	end
+	s.lastNewMods = table.clone(s.abilities)
 	-- Onboarding (owner 2026-11-25): a new player is dealt a Glitched card by round GLITCH.onboardingRound, and it
 	-- comes preselected so the moment happens even if they don't look.
 	local guarantee = human
@@ -601,9 +626,10 @@ function DraftService.close(keys: { any })
 		local pick = s.ability or first
 		local def = pick and Mods.def(pick)
 		local upgrade = pick and upgradeByKey(s, pick)
-		if def and table.find(s.abilities, def.id) and s.kit[def.slot] == "" then
-			s.kit[def.slot] = def.id
-			s.levels[def.slot] = Config.ABILITY_LEVEL
+		local free = firstFree(s.kit)
+		if def and free and table.find(s.abilities, def.id) and not table.find(s.kit, def.id) then
+			s.kit[free] = def.id
+			s.levels[free] = Config.ABILITY_LEVEL
 			tellPick(key, def.id, Config.ABILITY_LEVEL)
 		elseif upgrade and s.kit[upgrade.slot] == upgrade.id then
 			s.levels[upgrade.slot] = upgrade.level

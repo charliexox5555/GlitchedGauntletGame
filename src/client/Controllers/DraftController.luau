@@ -389,7 +389,16 @@ local function onKey(input: InputObject)
 		end
 		return
 	end
-	local slot = SLOT_KEYS[key]
+	-- A slot's own key (Settings kMod1-3, Q / E / T by default) cycles that column; new powers sit on the
+	-- first empty slot's key.
+	local slot: number? = nil
+	for s = 1, ModsConfig.SLOTS do
+		if table.find((InputGlyphs.keysFor("Mod" .. s)), key) then
+			slot = s
+			break
+		end
+	end
+	slot = slot or SLOT_KEYS[key]
 	if not slot then
 		return
 	end
@@ -422,6 +431,17 @@ local function gunShield(phaseName: string, id: string): number
 	return MatchState.shieldFor(phaseName, id)
 end
 
+-- The first empty slot: where any new power lands (slots fill in draft order, vault/01 Design/Loadout and
+-- Power Deck.md), nil when all are filled.
+local function firstFree(o: MatchState.DraftOffer): number?
+	for slot = 1, ModsConfig.SLOTS do
+		if (o.kit[slot] or "") == "" then
+			return slot
+		end
+	end
+	return nil
+end
+
 -- What the screen shows for an offer (Util/DraftScreen fills it in).
 local function screenView(o: MatchState.DraftOffer): DraftScreen.View
 	local guns: { DraftScreen.GunView } = {}
@@ -435,25 +455,29 @@ local function screenView(o: MatchState.DraftOffer): DraftScreen.View
 		})
 	end
 	local columns: { DraftScreen.ColumnView } = {}
+	local free = firstFree(o)
+	local newShown = 0
 	for slot = 1, ModsConfig.SLOTS do
 		local owned = o.kit[slot] or ""
 		local level = (o.levels or {})[slot] or ""
 		local col: DraftScreen.ColumnView = {}
 		if owned == "" then
-			for _, id in o.abilities do
-				local def = Mods.def(id)
-				if def and def.slot == slot and not col.new then
-					local l1Note = cardNote(id, "L1")
-					col.new = {
-						key = id,
-						name = def.name,
-						role = def.role,
-						color = Theme.ROLE[def.role] or C.ally,
-						art = Theme.CARD_ART[id] or "",
-						note = if string.sub(l1Note, -1) == "." then l1Note else l1Note .. ".",
-						charges = chargesText(id),
-					}
-				end
+			-- Each empty column shows the next new power; all of them go on the first empty slot (its key).
+			newShown += 1
+			local id = o.abilities[newShown]
+			local def = id and Mods.def(id)
+			if id and def then
+				col.keySlot = free
+				local l1Note = cardNote(id, "L1")
+				col.new = {
+					key = id,
+					name = def.name,
+					role = def.role,
+					color = Theme.ROLE[def.role] or C.ally,
+					art = Theme.CARD_ART[id] or "",
+					note = if string.sub(l1Note, -1) == "." then l1Note else l1Note .. ".",
+					charges = chargesText(id),
+				}
 			end
 		else
 			local def = Mods.def(owned)
@@ -557,19 +581,18 @@ local function showScreen(o: MatchState.DraftOffer)
 			end)
 		)
 	end
-	for slot = 1, ModsConfig.SLOTS do
-		if (o.kit[slot] or "") == "" then
-			for _, id in o.abilities do
-				local def = Mods.def(id)
-				if def and def.slot == slot then
-					table.insert(
-						abilityCards,
-						record(id, slot, function()
-							selectedAbility = id
-							Net.event("DraftPick"):FireServer("Ability", id)
-						end)
-					)
-				end
+	-- New powers all land on the first empty slot, so its key cycles through them.
+	local free = firstFree(o)
+	if free then
+		for _, id in o.abilities do
+			if Mods.def(id) then
+				table.insert(
+					abilityCards,
+					record(id, free, function()
+						selectedAbility = id
+						Net.event("DraftPick"):FireServer("Ability", id)
+					end)
+				)
 			end
 		end
 	end

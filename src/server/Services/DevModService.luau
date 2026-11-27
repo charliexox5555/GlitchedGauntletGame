@@ -242,9 +242,12 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 		local level = Validate.enum(c, LEVELS)
 		local def = id and Mods.def(id)
 		if slot and id and level and def and Mods.isBuilt(id) then
-			-- Every ability has its own slot (Config/Mods `slot`): it goes there,
-			-- whichever tab asked.
-			ModService.setSlot(player, def.slot, id, level)
+			-- Slots follow draft order, so a power goes on the picked slot; one power is never on two slots.
+			local other = ModService.slotOf(player, id)
+			if other and other ~= slot then
+				ModService.setSlot(player, other, nil, "L1")
+			end
+			ModService.setSlot(player, slot, id, level)
 		end
 	elseif action == "ClearSlot" then
 		local slot = Validate.integer(a, 1, Config.SLOTS)

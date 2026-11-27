@@ -17,6 +17,9 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
+local Mods = require(ReplicatedStorage.Shared.Mods)
+local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local OnboardingConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
@@ -340,6 +343,38 @@ local function buildMutation(
 			return true
 		end,
 			string.format("Granted ALL skins -> %s", targetName)
+	elseif action == "grantAllPowers" then
+		-- The power deck (vault/01 Design/Loadout and Power Deck.md): every built power owned, the deck fills up
+		-- to Config/Mods DECK_SIZE.
+		return function(data: Data)
+			local added = 0
+			for _, id in ModsConfig.ORDER do
+				if Mods.isBuilt(id) and ModLoadout.grant(data.mods, id) then
+					added += 1
+				end
+			end
+			if added == 0 then
+				return false, "All powers already owned"
+			end
+			return true
+		end,
+			string.format("Granted ALL powers -> %s", targetName)
+	elseif action == "grantNextPower" then
+		return function(data: Data)
+			for _, id in ModsConfig.ORDER do
+				if Mods.isBuilt(id) and ModLoadout.grant(data.mods, id) then
+					return true
+				end
+			end
+			return false, "All powers already owned"
+		end,
+			string.format("Granted the next power -> %s", targetName)
+	elseif action == "resetPowers" then
+		return function(data: Data)
+			data.mods = ModLoadout.clean(nil) -- the starter deck only
+			return true
+		end,
+			string.format("Powers back to the starter deck <- %s", targetName)
 	elseif action == "clearAllSkins" then
 		return function(data: Data)
 			table.clear(data.skins)

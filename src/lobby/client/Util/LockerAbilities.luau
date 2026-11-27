@@ -1,5 +1,8 @@
 --!strict
--- The Mod collection fills the existing Locker canvas under its tabs.
+-- The Mod collection fills the existing Locker canvas under its tabs: the power deck
+-- (vault/01 Design/Loadout and Power Deck.md). A DECK n / 10 line on top; every owned power can be
+-- equipped into the deck the draft deals from (Config/Mods DECK_MIN to DECK_SIZE, the server checks it
+-- again in Services/LockerService); powers not owned show LOCKED.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -49,15 +52,25 @@ function LockerAbilities.mount(canvas: Frame, player: Player): Frame
 	root.Visible = false
 	root.Parent = canvas
 
+	local deckLine = label(
+		root,
+		"Deck",
+		"DECK",
+		Theme.TEXT.titleS.font,
+		COLORS.text,
+		UDim2.new(),
+		UDim2.new(0.3, 0, 0, 40)
+	)
 	local feedback = label(
 		root,
 		"Feedback",
 		"",
 		Theme.TEXT.bodyM.font,
 		COLORS.textSecondary,
-		UDim2.new(),
-		UDim2.new(1, 0, 0, 40)
+		UDim2.new(0.3, 0, 0, 0),
+		UDim2.new(0.7, 0, 0, 40)
 	)
+	feedback.TextXAlignment = Enum.TextXAlignment.Right
 	feedback.Visible = false
 
 	local list = Instance.new("ScrollingFrame")
@@ -86,12 +99,14 @@ function LockerAbilities.mount(canvas: Frame, player: Player): Frame
 			table.insert(ids, id)
 		end
 	end
+	-- The starter deck first, then the catalog order (Config/Mods ORDER).
 	table.sort(ids, function(a, b)
-		local left, right = ModsConfig.defs[a], ModsConfig.defs[b]
-		if left.free ~= right.free then
-			return left.free
+		local sa = table.find(ModsConfig.STARTER_DECK, a) ~= nil
+		local sb = table.find(ModsConfig.STARTER_DECK, b) ~= nil
+		if sa ~= sb then
+			return sa
 		end
-		return left.name < right.name
+		return (table.find(ModsConfig.ORDER, a) or 99) < (table.find(ModsConfig.ORDER, b) or 99)
 	end)
 
 	local remote = LobbyNet.event("LockerModRequest")
@@ -99,21 +114,31 @@ function LockerAbilities.mount(canvas: Frame, player: Player): Frame
 	local pending: string? = nil
 	local actions: { [string]: TextButton } = {}
 	local locks: { [string]: Frame } = {}
-	local textSizes: { [TextLabel]: number } = { [feedback] = 24 }
+	local textSizes: { [TextLabel]: number } = { [feedback] = 24, [deckLine] = 30 }
 
 	local function refresh()
 		loadout = PlayerData.mods(player)
+		local count = ModLoadout.equippedCount(loadout)
+		deckLine.Text = string.format("DECK  %d / %d", count, ModsConfig.DECK_SIZE)
 		for id, button in actions do
 			local owned = loadout.owned[id] == true
 			local equipped = ModLoadout.eligible(id, loadout)
+			-- Equip only with room in the deck; unequip only above the minimum.
+			local can = if equipped
+				then ModLoadout.canUnequip(loadout, id)
+				else ModLoadout.canEquip(loadout, id)
+			local muted = equipped or pending ~= nil or not can
 			button.Visible = owned
 			button.Text = if pending == id
 				then "SAVING…"
 				elseif equipped then "UNEQUIP"
+				elseif not can then "DECK FULL"
 				else "EQUIP"
-			button.BackgroundColor3 = if equipped or pending then COLORS.raised else COLORS.gold
-			button.TextColor3 = if equipped or pending then COLORS.text else COLORS.onAccent
-			button.AutoButtonColor = pending == nil
+			button.BackgroundColor3 = if muted then COLORS.raised else COLORS.gold
+			button.TextColor3 = if muted
+				then (if can or pending then COLORS.text else COLORS.textSecondary)
+				else COLORS.onAccent
+			button.AutoButtonColor = pending == nil and can
 			locks[id].Visible = not owned
 		end
 	end
@@ -219,10 +244,22 @@ function LockerAbilities.mount(canvas: Frame, player: Player): Frame
 				if pending or not loadout.owned[id] then
 					return
 				end
+				local equip = not ModLoadout.eligible(id, loadout)
+				if equip and not ModLoadout.canEquip(loadout, id) then
+					feedback.Text = string.format(
+						"Your deck is full (%d). Unequip a power first.",
+						ModsConfig.DECK_SIZE
+					)
+					return
+				elseif not equip and not ModLoadout.canUnequip(loadout, id) then
+					feedback.Text =
+						string.format("Your deck needs at least %d powers.", ModsConfig.DECK_MIN)
+					return
+				end
 				pending = id
 				feedback.Text = ""
 				refresh()
-				remote:FireServer(id, not ModLoadout.eligible(id, loadout))
+				remote:FireServer(id, equip)
 			end)
 		end
 		Cards.finish(card)
@@ -245,8 +282,9 @@ function LockerAbilities.mount(canvas: Frame, player: Player): Frame
 			button.TextSize = math.max(24, textFloor)
 		end
 		feedback.Visible = feedback.Text ~= ""
-		local top = if feedback.Visible then math.max(40, textFloor + 6) else 0
-		feedback.Size = UDim2.new(1, 0, 0, top)
+		local top = math.max(48, textFloor + 6)
+		feedback.Size = UDim2.new(0.7, 0, 0, top)
+		deckLine.Size = UDim2.new(0.3, 0, 0, top)
 		list.Position = UDim2.fromOffset(0, top)
 		list.Size = UDim2.new(1, 0, 1, -top)
 	end

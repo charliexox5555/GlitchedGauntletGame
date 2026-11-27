@@ -28,7 +28,7 @@ L2/L3 upgrade paths and fixed keys per ability: in review in [Upgrade Paths](Upg
 ## Rules for every base ability
 - **Charges, not one cooldown rule for all.** Each ability sets its own: a number of **charges per round** (refilled at round start, no recharge) and/or a **cooldown**, like Valorant (Jett's dash vs Sova's dart). It's decided per ability below.
 - **Test mode:** there's no round system yet, so the dev panel has a **"Test mode: unlimited charges"** toggle (on by default in Studio). RoundService will later call a "refill charges" function at round start.
-- **Keys:** PC **Q / E / T** · gamepad LB / RB / D-pad up · mobile buttons. Instant abilities fire on press (mobile-friendly).
+- **Keys:** PC **Q / E / T** · gamepad LB / RB / D-pad up · mobile buttons. **2026-11-26:** slots fill in draft order (1st power Q, 2nd E, 3rd T), and the draft deals from your power deck ([Loadout and Power Deck](../Loadout%20and%20Power%20Deck.md)). Instant abilities fire on press (mobile-friendly).
 - **Mobile is provisional:** each spec has a basic mobile layout so it works; a full mobile controls/HUD pass comes later.
 - **Status effects:** shared, server-enforced effects with an expiry time, reusable by any ability. **Hinder** (debuff, see [Frost](Frost.md)) and **Stimmed** (team buff, see [Stim](Stim.md)); they multiply when combined.
 - **Friendly fire (2026-10-29):** damage from your own abilities to **you and your teammates is 50%** of the enemy damage (one config value). Exceptions are set per ability; e.g. you're immune to your own Firewall.
