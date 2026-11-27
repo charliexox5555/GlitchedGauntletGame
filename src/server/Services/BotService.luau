@@ -902,7 +902,10 @@ local function recover(bot: Bot, kind: string, seconds: number, now: number)
 		return
 	end
 	bump(if kind == "turn" then "StuckTurn" else "StuckMove")
-	local owner = root:GetNetworkOwner()
+	local okOwner, owner = pcall(root.GetNetworkOwner, root)
+	if not okOwner then
+		owner = nil
+	end
 	local repinned = pinOwner(root)
 	local state = humanoid:GetState()
 	local nav = bot.nav
@@ -960,7 +963,14 @@ end
 
 local function watchdog(bot: Bot, now: number)
 	local root, humanoid = bot.root, bot.humanoid
-	if not root or not humanoid or not bot.fighting or not Health.isAlive(humanoid) then
+	-- An anchored body (held in place by the match) isn't stuck, and its ownership can't be read.
+	if
+		not root
+		or not humanoid
+		or not bot.fighting
+		or root.Anchored
+		or not Health.isAlive(humanoid)
+	then
 		watches[bot] = nil
 		return
 	end
@@ -1099,7 +1109,10 @@ local function step(dt: number)
 		if not ok then
 			botFailed(bot, "act", result)
 		end
-		watchdog(bot, now)
+		local watched, watchErr = xpcall(watchdog, traceback, bot, now)
+		if not watched then
+			botFailed(bot, "watchdog", watchErr)
+		end
 		if fired then
 			local head = bot.head
 			if head then

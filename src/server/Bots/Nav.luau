@@ -128,13 +128,16 @@ function Nav.canMove(bot: Bot, dir: Vector3, distance: number, jump: boolean?): 
 	if jump and not Nav.clearLine(bot, pos + UP * 1.3, pos + UP * 4.2) then
 		return false
 	end
+	local params = bot.nav.params
+	local blocked = workspace:Blockcast(
+		CFrame.new(pos + UP * lift),
+		BODY,
+		heading * distance,
+		params
+	) ~= nil
 	if
-		workspace:Blockcast(CFrame.new(pos + UP * lift), BODY, heading * distance, bot.nav.params)
-	then
-		return false
-	end
-	if
-		distance <= BotsConfig.STEER_LOOKAHEAD
+		not blocked
+		and distance <= BotsConfig.STEER_LOOKAHEAD
 		and bot.humanoid
 		and bot.humanoid.FloorMaterial == Enum.Material.Air
 	then
@@ -142,9 +145,34 @@ function Nav.canMove(bot: Bot, dir: Vector3, distance: number, jump: boolean?): 
 	end
 	local floor = Nav.ground(bot, pos + heading * distance + UP * lift, 12)
 	local hips = (bot.humanoid and bot.humanoid.HipHeight or 2) + root.Size.Y * 0.5
-	return floor ~= nil
-		and floor.Y >= pos.Y - hips - BotsConfig.MAX_STEP_DOWN
-		and (jump == true or floor.Y <= pos.Y - hips + 2)
+	local feet = pos.Y - hips
+	if not floor or floor.Y < feet - BotsConfig.MAX_STEP_DOWN then
+		return false
+	end
+	local rise = floor.Y - feet
+	if not blocked then
+		return jump == true or rise <= 2
+	end
+	-- Stairs (2026-11-27 bot fixes: bots were trapped in Rooftops' sunken court). Over a flight of steps the
+	-- body box above meets the treads ahead, so the straight cast says "blocked". A rise that climbs evenly
+	-- (each half of the step no steeper than STAIRS allows, so not a ledge) is walkable when the body clears
+	-- the flight with its feet riding the steps.
+	local stairs = BotsConfig.STAIRS
+	if jump or rise < stairs.minRise then
+		return false
+	end
+	local halfLimit = distance * 0.5 * stairs.slope + stairs.step
+	local half = Nav.ground(bot, pos + heading * (distance * 0.5), 12)
+	if not half then
+		return false
+	end
+	local firstRise = half.Y - feet
+	if firstRise < -0.3 or firstRise > halfLimit or rise - firstRise > halfLimit then
+		return false
+	end
+	local raise = math.max(rise - stairs.clearance, 0)
+	return workspace:Blockcast(CFrame.new(pos + UP * raise), BODY, heading * distance, params)
+		== nil
 end
 
 function Nav.zoneAllows(bot: Bot, endPos: Vector3, lead: number?): boolean

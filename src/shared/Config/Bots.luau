@@ -327,6 +327,10 @@ return table.freeze({
 	STEER_EVERY = 0.075,
 	STEER_LOOKAHEAD = 4,
 	MAX_STEP_DOWN = 5,
+	-- Walking up a flight of steps (Bots/Nav canMove): the rise ahead must climb evenly, each half of the
+	-- look-ahead rising at most (half length x slope + step) studs (a sheer ledge fails), and the body box,
+	-- raised by (rise - clearance) studs to ride the steps (its bottom 1.7 studs over the feet), must clear it.
+	STAIRS = table.freeze({ minRise = 0.4, slope = 0.75, step = 0.3, clearance = 1.3 }),
 	SLIDE_CLEARANCE = 10,
 	REPATH_EVERY = 0.8, -- seconds between path computes at most
 	REPATH_MOVE = 3, -- studs the goal must move to force a recompute (at least)...
