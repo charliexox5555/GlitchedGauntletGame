@@ -34,6 +34,8 @@ export type Menu = {
 	-- Gamepad B / Backspace steps back inside the menu first (a confirm window, a skin strip):
 	-- true = handled, so the menu stays open.
 	back: (() -> boolean)?,
+	-- A lazy page builds itself ahead of its first open (Router.warm: the bar button is hovered).
+	warm: (() -> ())?,
 }
 
 local Router = {}
@@ -232,6 +234,15 @@ function Router.toggle(name: string, arg: any?)
 		Router.close()
 	else
 		Router.open(name, arg)
+	end
+end
+
+-- Lets a lazy page (Shop, Battle Pass) build before it is opened, so the first open is as quick as the rest.
+function Router.warm(name: string)
+	local menu = menus[name]
+	local warm = menu and menu.warm
+	if warm then
+		task.defer(warm)
 	end
 end
 

@@ -607,6 +607,11 @@ local function hookItem(s: State, b: TextButton)
 	local pop = icon:FindFirstChild("Pop")
 	b.MouseEnter:Connect(function()
 		hover(true)
+		-- a lazy page (Shop) builds while the pointer is on its button, so its first open is quick
+		local hovered = MENUS[b.Name]
+		if hovered then
+			Router.warm(hovered)
+		end
 	end)
 	b.MouseLeave:Connect(function()
 		hover(false)

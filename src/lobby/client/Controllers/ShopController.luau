@@ -2250,44 +2250,14 @@ end
 
 function ShopController.init()
 	local playerGui = player:WaitForChild("PlayerGui")
-	local g = playerGui:WaitForChild("Shop", 15)
+	-- The coin counter (LobbyCoins) is the lobby HUD's currency: live from join.
 	local cg = playerGui:WaitForChild("LobbyCoins", 15)
-	if not g or not g:IsA("ScreenGui") or not cg or not cg:IsA("ScreenGui") then
-		warn("[Shop] StarterGui.Shop / LobbyCoins missing (tools/studio/BuildShop.luau)")
+	if not cg or not cg:IsA("ScreenGui") then
+		warn("[Shop] UI.Lobby.LobbyCoins missing (tools/studio/BuildShop.luau)")
 		return
 	end
-	gui = g
-	gui.Enabled = false
 	coinsGui = cg
 	coinsGui.Enabled = false
-	templates = UiRoot.templates():WaitForChild("Lobby") :: Folder
-	canvas = child(gui, "Canvas")
-	fit = child(canvas, "Fit")
-	canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		relayout()
-	end)
-	fit:GetPropertyChangedSignal("Scale"):Connect(function()
-		relayout()
-	end)
-	scroll = child(canvas, "Scroll")
-	dim = child(gui, "Dim")
-	popCanvas = child(gui, "PopupCanvas")
-	casePanel = child(popCanvas, "CasePanel")
-	-- BuyCoins3 is in the Studio template (2026-11-27); a copy of BuyCoins if the place lacks it
-	local coins3 = casePanel:FindFirstChild("BuyCoins3")
-	if coins3 and coins3:IsA("GuiButton") then
-		PowerPack.coins3 = coins3
-	else
-		local copy = (child(casePanel, "BuyCoins") :: GuiButton):Clone()
-		copy.Name = "BuyCoins3"
-		copy.Visible = false
-		copy.Parent = casePanel
-		PowerPack.coins3 = copy
-	end
-	confirmPanel = child(popCanvas, "ConfirmPanel")
-	rewardPanel = child(popCanvas, "RewardPanel")
-	oddsPanel = child(popCanvas, "OddsPanel")
-	itemCard = child(canvas, "ItemCard")
 	coinsTop = child(coinsGui, "Top")
 	local bar = child(coinsTop, "Bar") :: Frame
 	coinsAmount = child(bar, "Amount")
@@ -2330,463 +2300,532 @@ function ShopController.init()
 	if ticketsBar then
 		ticketsBar.Visible = false
 	end
-	for _, name in TABS do
-		pages[PAGE_OF[name]] = child(scroll, PAGE_OF[name])
-		tabPlates[name] = child(child(child(scroll, "Tabs"), name), "Plate")
-		hookTab(name, tabPlates[name])
-	end
-	applyLayout()
-
-	-- every card: big ones get the selection frame, small ones lift
-	for _, d in scroll:GetDescendants() do
-		if d:IsA("GuiButton") and d.Name == "Card" then
-			if d:FindFirstChild("Select") then
-				hookBig(d)
-			else
-				hookSmall(d)
-			end
-		end
-	end
-
-	-- cases (prices drawn by drawCasePrices, again once the paid-random-items check is back)
-	local home = pages.Home
-	for _, c in ShopCatalog.CASES do
-		local holder = home:FindFirstChild("Case_" .. c.id, true)
-		local card = holder and holder:FindFirstChild("Card")
-		if card and card:IsA("GuiButton") then
-			table.insert(caseCards, { card = card, case = c })
-			card.Activated:Connect(function()
-				openCasePopup(c)
-			end)
-		end
-	end
-	drawCasePrices()
-	-- bundles
-	for _, b in ShopCatalog.BUNDLES do
-		local holder = pages.Bundles:FindFirstChild("Bundle_" .. b.id, true)
-		local card = holder and holder:FindFirstChild("Card")
-		if card and card:IsA("GuiButton") then
-			-- the card's words come from the catalog (Studio holds the layout)
-			local title = card:FindFirstChild("Title")
-			if title and title:IsA("TextLabel") then
-				title.Text = b.name
-			end
-			local sub = card:FindFirstChild("Sub")
-			if sub and sub:IsA("TextLabel") then
-				sub.Text = b.sub or ""
-			end
-			local tag = card:FindFirstChild("Tag")
-			if tag and tag:IsA("GuiObject") then
-				tag.Visible = b.tag ~= nil
-				local label = tag:FindFirstChild("Label")
-				if label and label:IsA("TextLabel") then
-					label.Text = b.tag or ""
-				end
-			end
-			plateAmount(card, commas(b.robux))
-			priceIcon(card, "robux")
-			fillBundleCard(card, b)
-			if b.slot ~= "Starter" then
-				local c = card
-				table.insert(ownedChecks, function()
-					plateOwned(c, ownsAll(b), commas(b.robux), "robux")
-				end)
-			end
-			if b.slot == "Starter" then
-				local heroPic = card:FindFirstChild("Hero")
-				if heroPic and heroPic:IsA("ImageLabel") then
-					sizeHero(heroPic, ShopFx.art.starter)
-					heroPic.Image = ShopCatalog.ART.starterContents
-				end
-			end
-			-- the Starter is bought through Products.STARTER below (buyStarter)
-			if b.slot ~= "Starter" and (b.soon or #b.items == 0) then
-				card.Activated:Connect(function()
-					LobbyHud.toast("Coming soon: what's in it is still being made", "info")
-				end)
-			elseif b.slot ~= "Starter" then
-				buildBundle(card, b)
-			end
-		end
-	end
-	-- everything else that sells waits for the economy
-	local function soonOn(holderName: string, what: string)
-		local holder = scroll:FindFirstChild(holderName, true)
-		local card = holder and holder:FindFirstChild("Card")
-		if card and card:IsA("GuiButton") then
-			card.Activated:Connect(function()
-				soon(what)
-			end)
-		end
-	end
-	local passHolder = scroll:FindFirstChild("SeasonPass", true)
-	if passHolder and passHolder:IsA("GuiObject") and not SeasonCatalog.screenOn() then
-		passHolder.Visible = false -- no Battle Pass card this update (shared/Config/Release)
-	end
-	local passCardB = passHolder and passHolder:FindFirstChild("Card")
-	if passCardB and passCardB:IsA("GuiButton") then
-		passCardB.Activated:Connect(function()
-			Router.open("BattlePass")
-		end)
-	end
-	local offer = pages.Home:FindFirstChild("Offer", true)
-	local offerCard = offer and offer:FindFirstChild("Card")
-	if offerCard and offerCard:IsA("GuiButton") then
-		local featured = ShopCatalog.featuredBundles(starter ~= nil, Release.SHOP_FULL_LAYOUT)
-		offerCard.Visible = #featured > 0
-		local title = child(offerCard, "Title") :: TextLabel
-		local sub = child(offerCard, "Sub") :: TextLabel
-		local back = child(offerCard, "Art") :: ImageLabel
-		local hero = child(offerCard, "Hero") :: ImageLabel
-		sizeHero(hero, ShopFx.art.home)
-		local emblem = cardEmblem(offerCard, ShopFx.art.homeEmblemPosition)
-		back.ScaleType = Enum.ScaleType.Crop
-		back.ImageColor3 = WHITE
-		local function renderSlide(index: number)
-			local bundle = featured[index]
-			if not bundle then
-				return
-			end
-			local isStarter = bundle.slot == "Starter"
-			local first = bundle.items[1]
-			drawCardEmblem(emblem, first and first.line)
-			title.Text = bundle.name
-			sub.Text = bundle.sub or ""
-			back.Image = bundle.banner or ""
-			hero.Image = if isStarter then ShopCatalog.ART.starterContents else bundle.hero or ""
-			local owned = if isStarter
-				then StateValues.get(player, "StarterBought") == true
-				else ownsAll(bundle)
-			plateOwned(offerCard, owned, commas(bundle.robux), "robux")
-		end
-		local carousel = OfferCarousel.new(offerCard, #featured, renderSlide, function(index)
-			openOffer(featured[index])
-		end, function()
-			return popupOpen ~= nil or not offerCard.Visible
-		end)
-		offerCarousel = carousel
-		table.insert(ownedChecks, carousel.refresh)
-	end
-	local starterRow = pages.Bundles:FindFirstChild("Bundle_Starter", true)
-	local starterCard = starterRow and starterRow:FindFirstChild("Card")
-	if starter and starterCard and starterCard:IsA("GuiButton") then
-		starterCard.Activated:Connect(buyStarter)
-		table.insert(ownedChecks, function()
-			plateOwned(
-				starterCard,
-				StateValues.get(player, "StarterBought") == true,
-				commas(starter.robux),
-				"robux"
-			)
-		end)
-	end
-	-- coin packs (Config/Products.PACKS, in Pack1..Pack6 order)
-	for i, pack in Products.PACKS do
-		local holder = scroll:FindFirstChild("Pack" .. i, true)
-		local card = holder and holder:FindFirstChild("Card")
-		if card and card:IsA("GuiButton") then
-			local packArt = card:FindFirstChild("PackArt")
-			if packArt and packArt:IsA("ImageLabel") and ShopCatalog.PACK_ART[i] then
-				packArt.Image = ShopCatalog.PACK_ART[i]
-			end
-			local back = card:FindFirstChild("Art")
-			if back and back:IsA("ImageLabel") and ShopCatalog.PACK_BACKDROP ~= "" then
-				back.Image = ShopCatalog.PACK_BACKDROP
-				back.ScaleType = Enum.ScaleType.Crop
-				back.ImageColor3 = WHITE
-			end
-			local amount = card:FindFirstChild("Amount")
-			if amount and amount:IsA("TextLabel") then
-				amount.Text = "+" .. commas(pack.coins or 0)
-			end
-			local kind = card:FindFirstChild("Kind")
-			if kind and kind:IsA("TextLabel") then
-				kind.Text = if pack.case then "COINS + CASE" else "COINS"
-			end
-			plateAmount(card, commas(pack.robux))
-			card.Activated:Connect(function()
-				openConfirm({
-					title = "COINS",
-					name = pack.name .. (if pack.case then " + A CASE" else ""),
-					art = ShopCatalog.ART.coinStack,
-					price = pack.robux,
-					currency = "robux",
-					go = function()
-						askRobux("pack", i)
-					end,
-				})
-			end)
-		end
-	end
-	goToPack = function(short: number)
-		setTab("COINS", true)
-		local best: number? = nil
-		for i, pack in Products.PACKS do
-			if (pack.coins or 0) >= short then
-				best = i
-				break
-			end
-		end
-		best = best or #Products.PACKS
-		local holder = scroll:FindFirstChild("Pack" .. best, true)
-		local card = holder and holder:FindFirstChild("Card")
-		LobbyHud.toast(`You need {commas(short)} more coins: this pack covers it`, "info")
-		if card and card:IsA("GuiObject") then
-			task.delay(0.35, function()
-				UiMotion.nudge(card, UiMotion.home(card))
-			end)
-		end
-	end
-	for _, n in { "Charm_1", "Charm_2", "Charm_3", "Emote_1", "Emote_2", "Emote_3" } do
-		soonOn(n, "Buying cosmetics")
-	end
-	local passCard = scroll:FindFirstChild("SeasonPass", true)
-	if passCard and passCard:IsA("GuiObject") and not SeasonCatalog.screenOn() then
-		passCard.Visible = false -- no Battle Pass card this update (shared/Config/Release)
-	end
-	local view = passCard and passCard:FindFirstChild("View", true)
-	if view and view:IsA("GuiButton") then
-		view.Activated:Connect(function()
-			Router.open("BattlePass")
-		end)
-	end
-	hookLogin()
-	-- today's items: the player's own saved list (Services/ShopService rolls it)
-	dailyItems = pages.Daily:FindFirstChild("Items", true)
-	for _, d in scroll:GetDescendants() do
-		if d:IsA("ImageLabel") and d.Name == "Robux" and d.Image ~= "" then
-			robuxIcon = d.Image
-			break
-		end
-	end
-	for i = 1, DailyShop.SIZE do
-		local holder = dailyItems and dailyItems:FindFirstChild("Item" .. i)
-		local card = holder and holder:FindFirstChild("Card")
-		if card and card:IsA("GuiButton") then
-			card.Activated:Connect(function()
-				buyDaily(i, card)
-			end)
-		end
-	end
-	drawDaily()
-	local head = scroll:FindFirstChild("Head_TODAY'S ITEMS", true)
-	local note = head and head:FindFirstChild("Note")
-	dailyNote = if note and note:IsA("TextLabel") then note else nil
-
-	-- popups
-	CloseButton.hook(child(casePanel, "Close") :: GuiButton, function()
-		showPanel(nil)
-	end)
-	CloseButton.hook(child(confirmPanel, "Close") :: GuiButton, function()
-		confirmOpen = nil
-		showPanel(nil)
-	end)
-	CloseButton.hook(child(rewardPanel, "Close") :: GuiButton, function()
-		showPanel(nil)
-	end)
-	do
-		local collect = child(rewardPanel, "Collect") :: GuiButton
-		collect.Activated:Connect(function()
-			if rewardSession then
-				rewardSession.collect(canvas, coinsAmount)
-			end
-			showPanel(nil)
-		end)
-		UserInputService.InputBegan:Connect(function(input: InputObject)
-			if popupOpen ~= rewardPanel then
-				return
-			end
-			if
-				input.UserInputType == Enum.UserInputType.MouseButton1
-				or input.UserInputType == Enum.UserInputType.Touch
-			then
-				local point = Vector2.new(input.Position.X, input.Position.Y)
-				local lo = rewardPanel.AbsolutePosition
-				local hi = lo + rewardPanel.AbsoluteSize
-				if point.X < lo.X or point.X > hi.X or point.Y < lo.Y or point.Y > hi.Y then
-					showPanel(nil)
-				end
-			end
-		end)
-	end
-	do
-		local buy = child(confirmPanel, "Buy") :: GuiButton
-		local sc = pop(buy)
-		buy.MouseEnter:Connect(function()
-			rest(sc, KM.hover)
-		end)
-		buy.MouseLeave:Connect(function()
-			rest(sc, 1)
-		end)
-		buy.Activated:Connect(function()
-			press(sc)
-			confirmBuy(buy)
-		end)
-	end
-	CloseButton.hook(child(oddsPanel, "Close") :: GuiButton, function()
-		showPanel(casePanel) -- back to the case
-	end)
-	local contentsB = child(casePanel, "Contents") :: GuiButton
-	contentsB.Activated:Connect(function()
-		press(pop(contentsB))
-		local c = openCase
-		if c then
-			fillOdds(c)
-			showPanel(oddsPanel)
-		end
-	end)
-	for _, n in { "BuyCoins", "BuyCoins3", "BuyRobux", "BuyRobux3" } do
-		local b = if n == "BuyCoins3"
-			then PowerPack.coins3 :: GuiButton
-			else child(casePanel, n) :: GuiButton
-		local sc = pop(b)
-		b.MouseEnter:Connect(function()
-			rest(sc, KM.hover)
-		end)
-		b.MouseLeave:Connect(function()
-			rest(sc, 1)
-		end)
-		b.Activated:Connect(function()
-			press(sc)
-			buyCase(n, b)
-		end)
-	end
-	-- a click anywhere off a bundle's cells hides the item card
-	UserInputService.InputBegan:Connect(function(input: InputObject)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 and itemCard.Visible then
-			task.defer(function()
-				if not mouseOver(itemCard) then
-					local over = false
-					for _, d in pages.Bundles:GetDescendants() do
-						if
-							d:IsA("GuiButton")
-							and d.Parent
-							and d.Parent.Name == "Contents"
-							and mouseOver(d)
-						then
-							over = true
-						end
-					end
-					if not over then
-						hideItemCard()
-					end
-				end
-			end)
-		end
-	end)
-
-	-- the counter: its + opens COINS; it leaves once you scroll down
+	-- the counter: its + opens COINS (the shop's scroll hides it again, wired in build)
 	local plus = child(bar, "Plus") :: GuiButton
 	plus.Activated:Connect(function()
 		press(pop(plus))
 		Router.open("Shop", "COINS")
 	end)
-	scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
-		if isOpen then
-			showCounter(scroll.CanvasPosition.Y < COUNTER_HIDE_AT)
-		end
-	end)
-	scroll.InputBegan:Connect(function(input: InputObject)
-		if input.UserInputType == Enum.UserInputType.Touch then
-			cancelScrollTween()
-		end
-	end)
-	scroll.InputChanged:Connect(function(input: InputObject)
-		if input.UserInputType == Enum.UserInputType.MouseWheel then
-			cancelScrollTween()
-		end
-	end)
+	Pivot.fix(coinsGui)
 
-	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
-		if popupOpen then
-			showPanel(nil)
-		else
-			Router.close()
+	-- The Shop page itself (~2,300 instances) is copied in and wired on its first open, or when the bar's
+	-- Shop button is hovered (Router.warm), not at join (Shared/UiRoot LAZY; loading pass 2026-11-27).
+	local function build(): boolean
+		if gui then
+			return true
 		end
-	end)
-	-- the skin-bundle preview
-	preview = child(canvas, "Preview")
-	local stageBox = child(preview, "StageBox") :: Frame
-	stage = ItemStage.new(
-		child(stageBox, "Stage") :: Frame,
-		{ length = 9, height = 3.1, distance = 11, showcase = true }
-	)
-	stage:bindDrag(child(stageBox, "DragArea") :: GuiButton)
-	local actions = child(preview, "Actions") :: Frame
-	local backB = child(actions, "Back") :: GuiButton
-	backB.MouseEnter:Connect(function()
-		rest(pop(backB), 1.04)
-	end)
-	backB.MouseLeave:Connect(function()
-		rest(pop(backB), 1)
-	end)
-	backB.Activated:Connect(function()
-		press(pop(backB))
-		closePreview()
-	end)
-	for _, n in { "BuyItem", "BuyBundle" } do
-		local b = child(actions, n) :: GuiButton
-		b.MouseEnter:Connect(function()
-			rest(pop(b), 1.05)
+		local g = playerGui:FindFirstChild("Shop") or UiRoot.mount("Lobby", playerGui, "Shop")[1]
+		if not g or not g:IsA("ScreenGui") then
+			warn("[Shop] UI.Lobby.Shop missing (tools/studio/BuildShop.luau)")
+			return false
+		end
+		gui = g
+		gui.Enabled = false
+		templates = UiRoot.templates():WaitForChild("Lobby") :: Folder
+		canvas = child(gui, "Canvas")
+		fit = child(canvas, "Fit")
+		canvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			relayout()
 		end)
-		b.MouseLeave:Connect(function()
-			rest(pop(b), 1)
+		fit:GetPropertyChangedSignal("Scale"):Connect(function()
+			relayout()
 		end)
-		b.Activated:Connect(function()
-			press(pop(b))
-			local bundle = previewBundle
-			if not bundle then
-				return
+		scroll = child(canvas, "Scroll")
+		dim = child(gui, "Dim")
+		popCanvas = child(gui, "PopupCanvas")
+		casePanel = child(popCanvas, "CasePanel")
+		-- BuyCoins3 is in the Studio template (2026-11-27); a copy of BuyCoins if the place lacks it
+		local coins3 = casePanel:FindFirstChild("BuyCoins3")
+		if coins3 and coins3:IsA("GuiButton") then
+			PowerPack.coins3 = coins3
+		else
+			local copy = (child(casePanel, "BuyCoins") :: GuiButton):Clone()
+			copy.Name = "BuyCoins3"
+			copy.Visible = false
+			copy.Parent = casePanel
+			PowerPack.coins3 = copy
+		end
+		confirmPanel = child(popCanvas, "ConfirmPanel")
+		rewardPanel = child(popCanvas, "RewardPanel")
+		oddsPanel = child(popCanvas, "OddsPanel")
+		itemCard = child(canvas, "ItemCard")
+		for _, name in TABS do
+			pages[PAGE_OF[name]] = child(scroll, PAGE_OF[name])
+			tabPlates[name] = child(child(child(scroll, "Tabs"), name), "Plate")
+			hookTab(name, tabPlates[name])
+		end
+		applyLayout()
+
+		-- every card: big ones get the selection frame, small ones lift
+		for _, d in scroll:GetDescendants() do
+			if d:IsA("GuiButton") and d.Name == "Card" then
+				if d:FindFirstChild("Select") then
+					hookBig(d)
+				else
+					hookSmall(d)
+				end
 			end
-			if n == "BuyBundle" and ownsAll(bundle) then
-				LobbyHud.toast("You already own this whole bundle", "info")
-				return
+		end
+
+		-- cases (prices drawn by drawCasePrices, again once the paid-random-items check is back)
+		local home = pages.Home
+		for _, c in ShopCatalog.CASES do
+			local holder = home:FindFirstChild("Case_" .. c.id, true)
+			local card = holder and holder:FindFirstChild("Card")
+			if card and card:IsA("GuiButton") then
+				table.insert(caseCards, { card = card, case = c })
+				card.Activated:Connect(function()
+					openCasePopup(c)
+				end)
 			end
-			local cur = bundle.items[previewIndex]
-			if
-				n == "BuyItem"
-				and cur
-				and cur.gun
-				and cur.line
-				and PlayerData.owns(PlayerData.skins(player), cur.gun, cur.line)
-			then
-				LobbyHud.toast("You already own this skin", "info")
-				return
+		end
+		drawCasePrices()
+		-- bundles
+		for _, b in ShopCatalog.BUNDLES do
+			local holder = pages.Bundles:FindFirstChild("Bundle_" .. b.id, true)
+			local card = holder and holder:FindFirstChild("Card")
+			if card and card:IsA("GuiButton") then
+				-- the card's words come from the catalog (Studio holds the layout)
+				local title = card:FindFirstChild("Title")
+				if title and title:IsA("TextLabel") then
+					title.Text = b.name
+				end
+				local sub = card:FindFirstChild("Sub")
+				if sub and sub:IsA("TextLabel") then
+					sub.Text = b.sub or ""
+				end
+				local tag = card:FindFirstChild("Tag")
+				if tag and tag:IsA("GuiObject") then
+					tag.Visible = b.tag ~= nil
+					local label = tag:FindFirstChild("Label")
+					if label and label:IsA("TextLabel") then
+						label.Text = b.tag or ""
+					end
+				end
+				plateAmount(card, commas(b.robux))
+				priceIcon(card, "robux")
+				fillBundleCard(card, b)
+				if b.slot ~= "Starter" then
+					local c = card
+					table.insert(ownedChecks, function()
+						plateOwned(c, ownsAll(b), commas(b.robux), "robux")
+					end)
+				end
+				if b.slot == "Starter" then
+					local heroPic = card:FindFirstChild("Hero")
+					if heroPic and heroPic:IsA("ImageLabel") then
+						sizeHero(heroPic, ShopFx.art.starter)
+						heroPic.Image = ShopCatalog.ART.starterContents
+					end
+				end
+				-- the Starter is bought through Products.STARTER below (buyStarter)
+				if b.slot ~= "Starter" and (b.soon or #b.items == 0) then
+					card.Activated:Connect(function()
+						LobbyHud.toast("Coming soon: what's in it is still being made", "info")
+					end)
+				elseif b.slot ~= "Starter" then
+					buildBundle(card, b)
+				end
 			end
-			if n == "BuyBundle" then
-				askRobux("bundle", bundle.id)
-			else
-				local index = previewIndex
-				local item = bundle.items[index]
-				local price = item and ShopCatalog.itemRobux(item)
-				if not item or not price then
+		end
+		-- everything else that sells waits for the economy
+		local function soonOn(holderName: string, what: string)
+			local holder = scroll:FindFirstChild(holderName, true)
+			local card = holder and holder:FindFirstChild("Card")
+			if card and card:IsA("GuiButton") then
+				card.Activated:Connect(function()
+					soon(what)
+				end)
+			end
+		end
+		local passHolder = scroll:FindFirstChild("SeasonPass", true)
+		if passHolder and passHolder:IsA("GuiObject") and not SeasonCatalog.screenOn() then
+			passHolder.Visible = false -- no Battle Pass card this update (shared/Config/Release)
+		end
+		local passCardB = passHolder and passHolder:FindFirstChild("Card")
+		if passCardB and passCardB:IsA("GuiButton") then
+			passCardB.Activated:Connect(function()
+				Router.open("BattlePass")
+			end)
+		end
+		local offer = pages.Home:FindFirstChild("Offer", true)
+		local offerCard = offer and offer:FindFirstChild("Card")
+		if offerCard and offerCard:IsA("GuiButton") then
+			local featured = ShopCatalog.featuredBundles(starter ~= nil, Release.SHOP_FULL_LAYOUT)
+			offerCard.Visible = #featured > 0
+			local title = child(offerCard, "Title") :: TextLabel
+			local sub = child(offerCard, "Sub") :: TextLabel
+			local back = child(offerCard, "Art") :: ImageLabel
+			local hero = child(offerCard, "Hero") :: ImageLabel
+			sizeHero(hero, ShopFx.art.home)
+			local emblem = cardEmblem(offerCard, ShopFx.art.homeEmblemPosition)
+			back.ScaleType = Enum.ScaleType.Crop
+			back.ImageColor3 = WHITE
+			local function renderSlide(index: number)
+				local bundle = featured[index]
+				if not bundle then
 					return
 				end
-				openConfirm({
-					title = "SKIN",
-					name = item.name,
-					art = if item.gun and item.line
-						then SkinArt.portrait(item.gun, item.line)
-						else nil,
-					price = price,
-					currency = "robux",
-					go = function()
-						askRobux("item", bundle.id, index)
-					end,
-				})
+				local isStarter = bundle.slot == "Starter"
+				local first = bundle.items[1]
+				drawCardEmblem(emblem, first and first.line)
+				title.Text = bundle.name
+				sub.Text = bundle.sub or ""
+				back.Image = bundle.banner or ""
+				hero.Image = if isStarter
+					then ShopCatalog.ART.starterContents
+					else bundle.hero or ""
+				local owned = if isStarter
+					then StateValues.get(player, "StarterBought") == true
+					else ownsAll(bundle)
+				plateOwned(offerCard, owned, commas(bundle.robux), "robux")
+			end
+			local carousel = OfferCarousel.new(offerCard, #featured, renderSlide, function(index)
+				openOffer(featured[index])
+			end, function()
+				return popupOpen ~= nil or not offerCard.Visible
+			end)
+			offerCarousel = carousel
+			table.insert(ownedChecks, carousel.refresh)
+		end
+		local starterRow = pages.Bundles:FindFirstChild("Bundle_Starter", true)
+		local starterCard = starterRow and starterRow:FindFirstChild("Card")
+		if starter and starterCard and starterCard:IsA("GuiButton") then
+			starterCard.Activated:Connect(buyStarter)
+			table.insert(ownedChecks, function()
+				plateOwned(
+					starterCard,
+					StateValues.get(player, "StarterBought") == true,
+					commas(starter.robux),
+					"robux"
+				)
+			end)
+		end
+		-- coin packs (Config/Products.PACKS, in Pack1..Pack6 order)
+		for i, pack in Products.PACKS do
+			local holder = scroll:FindFirstChild("Pack" .. i, true)
+			local card = holder and holder:FindFirstChild("Card")
+			if card and card:IsA("GuiButton") then
+				local packArt = card:FindFirstChild("PackArt")
+				if packArt and packArt:IsA("ImageLabel") and ShopCatalog.PACK_ART[i] then
+					packArt.Image = ShopCatalog.PACK_ART[i]
+				end
+				local back = card:FindFirstChild("Art")
+				if back and back:IsA("ImageLabel") and ShopCatalog.PACK_BACKDROP ~= "" then
+					back.Image = ShopCatalog.PACK_BACKDROP
+					back.ScaleType = Enum.ScaleType.Crop
+					back.ImageColor3 = WHITE
+				end
+				local amount = card:FindFirstChild("Amount")
+				if amount and amount:IsA("TextLabel") then
+					amount.Text = "+" .. commas(pack.coins or 0)
+				end
+				local kind = card:FindFirstChild("Kind")
+				if kind and kind:IsA("TextLabel") then
+					kind.Text = if pack.case then "COINS + CASE" else "COINS"
+				end
+				plateAmount(card, commas(pack.robux))
+				card.Activated:Connect(function()
+					openConfirm({
+						title = "COINS",
+						name = pack.name .. (if pack.case then " + A CASE" else ""),
+						art = ShopCatalog.ART.coinStack,
+						price = pack.robux,
+						currency = "robux",
+						go = function()
+							askRobux("pack", i)
+						end,
+					})
+				end)
+			end
+		end
+		goToPack = function(short: number)
+			setTab("COINS", true)
+			local best: number? = nil
+			for i, pack in Products.PACKS do
+				if (pack.coins or 0) >= short then
+					best = i
+					break
+				end
+			end
+			best = best or #Products.PACKS
+			local holder = scroll:FindFirstChild("Pack" .. best, true)
+			local card = holder and holder:FindFirstChild("Card")
+			LobbyHud.toast(`You need {commas(short)} more coins: this pack covers it`, "info")
+			if card and card:IsA("GuiObject") then
+				task.delay(0.35, function()
+					UiMotion.nudge(card, UiMotion.home(card))
+				end)
+			end
+		end
+		for _, n in { "Charm_1", "Charm_2", "Charm_3", "Emote_1", "Emote_2", "Emote_3" } do
+			soonOn(n, "Buying cosmetics")
+		end
+		local passCard = scroll:FindFirstChild("SeasonPass", true)
+		if passCard and passCard:IsA("GuiObject") and not SeasonCatalog.screenOn() then
+			passCard.Visible = false -- no Battle Pass card this update (shared/Config/Release)
+		end
+		local view = passCard and passCard:FindFirstChild("View", true)
+		if view and view:IsA("GuiButton") then
+			view.Activated:Connect(function()
+				Router.open("BattlePass")
+			end)
+		end
+		hookLogin()
+		-- today's items: the player's own saved list (Services/ShopService rolls it)
+		dailyItems = pages.Daily:FindFirstChild("Items", true)
+		for _, d in scroll:GetDescendants() do
+			if d:IsA("ImageLabel") and d.Name == "Robux" and d.Image ~= "" then
+				robuxIcon = d.Image
+				break
+			end
+		end
+		for i = 1, DailyShop.SIZE do
+			local holder = dailyItems and dailyItems:FindFirstChild("Item" .. i)
+			local card = holder and holder:FindFirstChild("Card")
+			if card and card:IsA("GuiButton") then
+				card.Activated:Connect(function()
+					buyDaily(i, card)
+				end)
+			end
+		end
+		drawDaily()
+		local head = scroll:FindFirstChild("Head_TODAY'S ITEMS", true)
+		local note = head and head:FindFirstChild("Note")
+		dailyNote = if note and note:IsA("TextLabel") then note else nil
+
+		-- popups
+		CloseButton.hook(child(casePanel, "Close") :: GuiButton, function()
+			showPanel(nil)
+		end)
+		CloseButton.hook(child(confirmPanel, "Close") :: GuiButton, function()
+			confirmOpen = nil
+			showPanel(nil)
+		end)
+		CloseButton.hook(child(rewardPanel, "Close") :: GuiButton, function()
+			showPanel(nil)
+		end)
+		do
+			local collect = child(rewardPanel, "Collect") :: GuiButton
+			collect.Activated:Connect(function()
+				if rewardSession then
+					rewardSession.collect(canvas, coinsAmount)
+				end
+				showPanel(nil)
+			end)
+			UserInputService.InputBegan:Connect(function(input: InputObject)
+				if popupOpen ~= rewardPanel then
+					return
+				end
+				if
+					input.UserInputType == Enum.UserInputType.MouseButton1
+					or input.UserInputType == Enum.UserInputType.Touch
+				then
+					local point = Vector2.new(input.Position.X, input.Position.Y)
+					local lo = rewardPanel.AbsolutePosition
+					local hi = lo + rewardPanel.AbsoluteSize
+					if point.X < lo.X or point.X > hi.X or point.Y < lo.Y or point.Y > hi.Y then
+						showPanel(nil)
+					end
+				end
+			end)
+		end
+		do
+			local buy = child(confirmPanel, "Buy") :: GuiButton
+			local sc = pop(buy)
+			buy.MouseEnter:Connect(function()
+				rest(sc, KM.hover)
+			end)
+			buy.MouseLeave:Connect(function()
+				rest(sc, 1)
+			end)
+			buy.Activated:Connect(function()
+				press(sc)
+				confirmBuy(buy)
+			end)
+		end
+		CloseButton.hook(child(oddsPanel, "Close") :: GuiButton, function()
+			showPanel(casePanel) -- back to the case
+		end)
+		local contentsB = child(casePanel, "Contents") :: GuiButton
+		contentsB.Activated:Connect(function()
+			press(pop(contentsB))
+			local c = openCase
+			if c then
+				fillOdds(c)
+				showPanel(oddsPanel)
 			end
 		end)
-	end
+		for _, n in { "BuyCoins", "BuyCoins3", "BuyRobux", "BuyRobux3" } do
+			local b = if n == "BuyCoins3"
+				then PowerPack.coins3 :: GuiButton
+				else child(casePanel, n) :: GuiButton
+			local sc = pop(b)
+			b.MouseEnter:Connect(function()
+				rest(sc, KM.hover)
+			end)
+			b.MouseLeave:Connect(function()
+				rest(sc, 1)
+			end)
+			b.Activated:Connect(function()
+				press(sc)
+				buyCase(n, b)
+			end)
+		end
+		-- a click anywhere off a bundle's cells hides the item card
+		UserInputService.InputBegan:Connect(function(input: InputObject)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 and itemCard.Visible then
+				task.defer(function()
+					if not mouseOver(itemCard) then
+						local over = false
+						for _, d in pages.Bundles:GetDescendants() do
+							if
+								d:IsA("GuiButton")
+								and d.Parent
+								and d.Parent.Name == "Contents"
+								and mouseOver(d)
+							then
+								over = true
+							end
+						end
+						if not over then
+							hideItemCard()
+						end
+					end
+				end)
+			end
+		end)
 
-	-- everything that pops grows from its own centre (owner rule)
-	Plates.deepen(gui)
-	Pivot.fix(gui)
-	Pivot.fix(coinsGui)
-	Router.register("Shop", { open = open, close = close, screen = "Shop" })
+		scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+			if isOpen then
+				showCounter(scroll.CanvasPosition.Y < COUNTER_HIDE_AT)
+			end
+		end)
+		scroll.InputBegan:Connect(function(input: InputObject)
+			if input.UserInputType == Enum.UserInputType.Touch then
+				cancelScrollTween()
+			end
+		end)
+		scroll.InputChanged:Connect(function(input: InputObject)
+			if input.UserInputType == Enum.UserInputType.MouseWheel then
+				cancelScrollTween()
+			end
+		end)
+
+		resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
+			if popupOpen then
+				showPanel(nil)
+			else
+				Router.close()
+			end
+		end)
+		-- the skin-bundle preview
+		preview = child(canvas, "Preview")
+		local stageBox = child(preview, "StageBox") :: Frame
+		stage = ItemStage.new(
+			child(stageBox, "Stage") :: Frame,
+			{ length = 9, height = 3.1, distance = 11, showcase = true }
+		)
+		stage:bindDrag(child(stageBox, "DragArea") :: GuiButton)
+		local actions = child(preview, "Actions") :: Frame
+		local backB = child(actions, "Back") :: GuiButton
+		backB.MouseEnter:Connect(function()
+			rest(pop(backB), 1.04)
+		end)
+		backB.MouseLeave:Connect(function()
+			rest(pop(backB), 1)
+		end)
+		backB.Activated:Connect(function()
+			press(pop(backB))
+			closePreview()
+		end)
+		for _, n in { "BuyItem", "BuyBundle" } do
+			local b = child(actions, n) :: GuiButton
+			b.MouseEnter:Connect(function()
+				rest(pop(b), 1.05)
+			end)
+			b.MouseLeave:Connect(function()
+				rest(pop(b), 1)
+			end)
+			b.Activated:Connect(function()
+				press(pop(b))
+				local bundle = previewBundle
+				if not bundle then
+					return
+				end
+				if n == "BuyBundle" and ownsAll(bundle) then
+					LobbyHud.toast("You already own this whole bundle", "info")
+					return
+				end
+				local cur = bundle.items[previewIndex]
+				if
+					n == "BuyItem"
+					and cur
+					and cur.gun
+					and cur.line
+					and PlayerData.owns(PlayerData.skins(player), cur.gun, cur.line)
+				then
+					LobbyHud.toast("You already own this skin", "info")
+					return
+				end
+				if n == "BuyBundle" then
+					askRobux("bundle", bundle.id)
+				else
+					local index = previewIndex
+					local item = bundle.items[index]
+					local price = item and ShopCatalog.itemRobux(item)
+					if not item or not price then
+						return
+					end
+					openConfirm({
+						title = "SKIN",
+						name = item.name,
+						art = if item.gun and item.line
+							then SkinArt.portrait(item.gun, item.line)
+							else nil,
+						price = price,
+						currency = "robux",
+						go = function()
+							askRobux("item", bundle.id, index)
+						end,
+					})
+				end
+			end)
+		end
+
+		-- everything that pops grows from its own centre (owner rule)
+		Plates.deepen(gui)
+		Pivot.fix(gui)
+		-- the state that arrived before the page existed
+		drawDaily()
+		drawLogin()
+		refreshOwned()
+		placeCounter()
+		return true
+	end
+	Router.register("Shop", {
+		open = function(arg: any?)
+			if build() then
+				open(arg)
+			end
+		end,
+		close = close,
+		screen = "Shop",
+		-- a controller starts on the first case (a page built this frame isn't laid out yet, so the
+		-- Router's own pick would land on the scroll frame)
+		focus = function(): GuiObject?
+			local first = caseCards[1]
+			return if first then first.card else nil
+		end,
+		warm = function()
+			build()
+		end,
+	})
 end
 
 function ShopController.start()
-	if not gui then
+	-- (the page builds on first open; until then the draws below find nothing to draw and skip)
+	if not coinsGui then
 		return
 	end
 	StateValues.changed(player, "Coins"):Connect(placeCounter)

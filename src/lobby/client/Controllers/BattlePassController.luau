@@ -27,6 +27,7 @@ local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
@@ -544,16 +545,18 @@ end
 
 --------------------------------------------------------------------------------
 
-function BattlePassController.init()
-	if not SeasonCatalog.screenOn() then
-		return -- closed for this update (shared/Config/Release; Studio: Workspace BattlePassTest)
+-- The page (~900 instances): copied in and wired on its first open, or when the bar's button is hovered
+-- (Router.warm), not at join (Shared/UiRoot LAZY; loading pass 2026-11-27). New page parts get wired here.
+local function build(): boolean
+	if gui then
+		return true
 	end
-	local g = player:WaitForChild("PlayerGui"):WaitForChild("BattlePass", 15)
+	local playerGui = player:WaitForChild("PlayerGui")
+	local g = playerGui:FindFirstChild("BattlePass")
+		or UiRoot.mount("Lobby", playerGui, "BattlePass")[1]
 	if not g or not g:IsA("ScreenGui") then
-		warn(
-			"[BattlePass] StarterGui.BattlePass missing (tools/studio/archive/BuildBattlePass.luau)"
-		)
-		return
+		warn("[BattlePass] UI.Lobby.BattlePass missing (tools/studio/archive/BuildBattlePass.luau)")
+		return false
 	end
 	gui = g
 	gui.Enabled = false
@@ -643,8 +646,27 @@ function BattlePassController.init()
 	-- everything that pops grows from its own centre (owner rule)
 	Plates.deepen(gui)
 	Pivot.fix(gui)
-	Router.register("BattlePass", { open = open, close = close, screen = "BattlePass" })
+	return true
+end
 
+function BattlePassController.init()
+	if not SeasonCatalog.screenOn() then
+		return -- closed for this update (shared/Config/Release; Studio: Workspace BattlePassTest)
+	end
+	Router.register("BattlePass", {
+		open = function()
+			if build() then
+				open()
+			end
+		end,
+		close = close,
+		screen = "BattlePass",
+		warm = function()
+			build()
+		end,
+	})
+
+	-- the season's state and claim answers: live from join (onState redraws only while the page is open)
 	seasonRequest = LobbyNet.event("SeasonRequest")
 	robuxRequest = LobbyNet.event("RobuxRequest")
 	LobbyNet.event("SeasonEvent").OnClientEvent:Connect(onSeasonEvent)
