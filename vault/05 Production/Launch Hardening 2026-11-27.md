@@ -11,6 +11,15 @@ The last pass before the battle pass work. Owner's brief (2026-11-27):
 - **Onboarding matches leave the hub** (owner 2026-11-27): matches 1-2 teleport to a reserved server like every match (less lobby load); fast, clean teleport loading makes that fine.
 - **Economy:** make it good. No compensation needed: nobody plays or has spent Robux yet.
 
+## Why: the retention signal (owner, 2026-11-27)
+The old game (Power Duels, before the draft and loadout update) got Home recommendations. Thumbnails: **CTR over 4%**. **Qualified play-through rate: 0.26%, 0.53% and 0.69%** on different thumbnails. **Average playtime under 5 minutes.** The thumbnails bring people in, but the first minutes don't hold them. Every workstream here is judged by what a brand-new player sees and feels in their first 2-3 minutes, phone first.
+- The funnels to read in Creator Dashboard (Analytics → Funnels / Custom events) for where the old game lost people: `Onboarding_v2`, `Onboarding`, `Matchmaking`, `MapFlow`, and the `MatchLeft` / `MapLeftEarly` events (`src/lobby/server/Telemetry.luau`).
+- Gaps in those funnels for the new flow:
+  - **There is no step between "Save ready" and the first match.** So a bounce on the loading screen or in the first lobby minute can't be told apart from one later on.
+  - **The step lists are out of date:**
+    - Step 9 is "Free case opened", but onboarding no longer gives a free case.
+    - The R4 step comment still says first to 3; the first match is now first to 4.
+
 ## Workstreams (parallel sessions, shared checkout on main)
 | # | Session | Owns | Done when |
 |---|---|---|---|
