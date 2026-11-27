@@ -7,7 +7,8 @@
 -- The player (when still here) gets a ProgressEvent "gain" for the end screen and the
 -- level-up pop; the new level and streak are published on them by PlayerData.
 -- The same write pays match coins (Config/Economy.MATCH_COINS: finishing, a win bonus,
--- half with no real opponent, nothing for leaving, capped per UTC day in `earn`).
+-- half with no real opponent, nothing for leaving, capped per UTC day in `earn`; MATCH_BONUS: per round won and
+-- per elimination, finishing only when they took part, and the day's first win outside the cap).
 -- And the task Path (Shared/TaskPath, owner 2026-11-26): the match's task stats (MatchService, from
 -- StatsService.taskStats) move the showing part in the same write, once the player had finished
 -- Config/Tasks START_AFTER_MATCHES matches before this one; TaskService pays and toasts it.
@@ -40,15 +41,34 @@ local closing = false
 
 local progressEvent: RemoteEvent = LobbyNet.event("ProgressEvent")
 
--- Coins for one match (before the daily cap).
-local function matchCoins(result: Progress.Result): number
+-- Coins for one match (before the daily cap). `matchesBefore`: matches finished before this one.
+local function matchCoins(result: Progress.Result, matchesBefore: number): number
 	if result.left then
 		return 0
 	end
 	local pay = Economy.MATCH_COINS
-	local n = pay.finish + (if result.won then pay.win else 0)
+	local bonus = Economy.MATCH_BONUS
+	local rounds = math.clamp(math.floor(result.roundsWon), 0, bonus.maxRounds)
+	local kills = math.clamp(math.floor(result.kills), 0, bonus.maxKills)
+	local tookPart = rounds > 0
+		or kills > 0
+		or result.won
+		or matchesBefore < bonus.onboardingMatches
+	local n = (if tookPart then pay.finish else 0)
+		+ (if result.won then pay.win else 0)
+		+ rounds * bonus.perRound
+		+ kills * bonus.perKill
 	if not result.counts then
 		n *= pay.botScale
+	end
+	return math.floor(n)
+end
+
+-- The day's first-win bonus (once a UTC day, outside the daily cap).
+local function firstWinCoins(result: Progress.Result): number
+	local n = Economy.MATCH_BONUS.firstWin
+	if not result.counts then
+		n *= Economy.MATCH_COINS.botScale
 	end
 	return math.floor(n)
 end
@@ -82,6 +102,7 @@ function ProgressionService.report(
 		local paid = 0
 		local taskPay: TaskPath.Payout? = nil
 		local seasonTiers = 0
+		local firstWin = 0
 		local ok, why = false, nil :: string?
 		for attempt = 0, #RETRY_AFTER do
 			if attempt > 0 then
@@ -118,9 +139,19 @@ function ProgressionService.report(
 					data.earn = { day = today, coins = 0 }
 				end
 				local room = math.max(Economy.MATCH_COINS.dailyCap - data.earn.coins, 0)
-				paid = math.min(matchCoins(result), room, Inventory.MAX_COINS - data.coins)
+				paid = math.min(
+					matchCoins(result, matchesBefore),
+					room,
+					Inventory.MAX_COINS - data.coins
+				)
 				data.coins += paid
 				data.earn.coins += paid
+				firstWin = 0
+				if result.won and not result.left and data.earn.win ~= true then
+					firstWin = math.min(firstWinCoins(result), Inventory.MAX_COINS - data.coins)
+					data.earn.win = true
+					data.coins += firstWin
+				end
 				return true
 			end)
 			if ok or (why ~= "saving" and why ~= "busy") then
@@ -162,7 +193,8 @@ function ProgressionService.report(
 				streakFrom = g.streakFrom,
 				streakTo = g.streakTo,
 				lostOffer = g.lostOffer,
-				coins = paid,
+				coins = paid + firstWin,
+				firstWin = if firstWin > 0 then firstWin else nil, -- the day's first-win bonus, part of `coins`
 				seasonTiers = seasonTiers, -- season pass tiers this match gave (the pass screen, phase 4)
 			})
 			TaskService.notify(player, taskPay)

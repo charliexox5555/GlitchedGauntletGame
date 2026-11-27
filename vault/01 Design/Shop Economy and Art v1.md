@@ -400,3 +400,12 @@ Estimated from the earn model above, not rerun. Assumes bots, 1 h a day, login c
 - **Whole set (30,900):** about 30-35 h. With all 8 SURGE packs too (42,900): about 50 h.
 - **Robux:** the whole set is about the 1,999 R$ pack (32,000). Every gun can still be earned; guns are sidegrades ([Gun Balance](Gun%20Balance.md)), so a bought gun is choice, not power.
 - **Check at the first readout:** the second unlock's timing (it was the "something to look forward to" in hour 1), and whether players stall between 1,000 and 2,000.
+
+### Match pay logic added (2026-11-27, "Needs code" 1-3)
+Built with the gun grind, so playing well pays more toward a 1,000-6,000 gun. `Config/Economy.MATCH_BONUS`, paid in `ProgressionService` in the same write as XP:
+- **Per round won: 3 coins** (up to 5 rounds). **Per elimination: 1 coin** (up to 10). A close loss now pays.
+- **Finishing (10) needs taking part:** an elimination, a round won, or a win. The first 2 matches always pay it, so a struggling new player still earns. Idling through a lost bot match now pays 0 (it was 6).
+- **First win of the day: +100**, once a UTC day, outside the 600 daily cap (`earn.win` in the save, reset with the day). The end screen says "FIRST WIN".
+- Everything above is ×0.6 against bots.
+- **New averages (estimate, 50% rounds won, about 4.5 eliminations):** a bot match pays about 25 (was 18), a real-player match about 42 (was 30). The daily cap is unchanged at 600.
+- Still open: 4 (a same-opponent cap) and 6 (login). Login now has a red dot on the Shop icon while today's reward waits.

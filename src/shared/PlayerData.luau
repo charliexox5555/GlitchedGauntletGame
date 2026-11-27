@@ -8,7 +8,8 @@
 --     tickets = number (earn-only case currency, Config/Economy; 2026-11-22),
 --     login = Shared/LoginRewards { last = UTC day, step } (2026-11-22),
 --     daily = Shared/DailyShop { day, picks = { { gun, line } }, bought = { slot } },
---     earn = { day = UTC day, coins = match coins earned that day } (2026-11-22),
+--     earn = { day = UTC day, coins = match coins earned that day, win = the day's first-win bonus paid }
+--            (2026-11-22; `win` 2026-11-27),
 --     onb = Shared/Onboarding { fav, favDone, seen } (new-player flow; 2026-11-22),
 --     tasks = Shared/TaskPath { set, part, n, seen, title } (the task Path; 2026-11-26),
 --     season = Shared/SeasonPass { id, premium, tier, secs, rounds, free, prem, winDay }
@@ -76,7 +77,7 @@ export type Data = {
 	tickets: number,
 	login: LoginRewards.Login,
 	daily: DailyShop.Daily,
-	earn: { day: number, coins: number },
+	earn: { day: number, coins: number, win: boolean? },
 	buys: Buys,
 	onb: Onboarding.Onb,
 	tasks: TaskPath.State,
@@ -267,7 +268,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	if typeof(earn) == "table" then
 		local day, got = count(earn.day, 1e7), count(earn.coins, Inventory.MAX_COINS)
 		if day and got then
-			data.earn = { day = day, coins = got }
+			data.earn = { day = day, coins = got, win = if earn.win == true then true else nil }
 		end
 	end
 	-- a save from before Tickets existed gets the starting Tickets too

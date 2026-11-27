@@ -43,6 +43,19 @@ Economy.POWER_PACK = table.freeze({ coins = 1500 })
 -- Economy pass 2026-11-27 (was 15 / 20 / 0.5 / 400): most of the pay is for the win, so idling through a lost
 -- bot match pays little (6 coins), and the cap is about 4 hours of bot matches or 2.5 of real ones.
 Economy.MATCH_COINS = table.freeze({ finish = 10, win = 40, botScale = 0.6, dailyCap = 600 })
+-- On top of that (2026-11-27, Economy pass -> "Needs code" 1-3): coins per round won and per elimination, each
+-- capped, so a close loss pays; `finish` only for a player who took part (an elimination or a round won; the
+-- first `ONBOARDING` matches always pay it), so idling through bot matches earns nothing; and the day's first win
+-- pays `firstWin` once a UTC day, outside the daily cap. Rounds, kills and the first win are scaled by `botScale`
+-- like the rest.
+Economy.MATCH_BONUS = table.freeze({
+	perRound = 3,
+	maxRounds = 5,
+	perKill = 1,
+	maxKills = 10,
+	firstWin = 100,
+	onboardingMatches = 2,
+})
 
 -- The daily shop: PER PLAYER, rolled by the server at the player's first visit of the
 -- UTC day and saved (PlayerData `daily`), so nothing off their list can be bought.
