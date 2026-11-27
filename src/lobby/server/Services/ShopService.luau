@@ -6,10 +6,8 @@
 --
 -- ShopRequest (client -> server):
 --   ("buyCase", caseId)  pay the case's Ticket price, +1 of its inventory item
---   ("buyPack", 1|3, "coins"|"tickets")  SURGE power packs: coins where paid random items are
---                        allowed, else Tickets (Config/Economy.POWER_PACK); the currency the
---                        popup showed must match, so it never charges what it didn't show;
---                        never more packs than the powers unowned
+--   ("buyPack", 1|3)     SURGE power packs for coins (Config/Economy.POWER_PACK), never more
+--                        packs than the powers unowned
 --   ("buyDaily", slot)   buy slot 1..8 of the player's saved daily shop (coin tiers)
 --   ("claimFree", slot)  the one free daily skin (Shared/DailyShop.freeSlot must be slot)
 --   ("openCase", itemId, count?, requestId?) use one or three held cases and
@@ -24,8 +22,8 @@
 -- Skin cases are bought only with Tickets, which are earned and never sold for Robux, so a
 -- case is not a paid random item (LihFolk: Paid Random Items and Odds Disclosure) and
 -- needs no PolicyService gate. A case inside a Robux pack will be gated where it's granted.
--- The power pack costs coins, which ARE sold, so its coin price is a paid random item: offered
--- only where PolicyService allows (LobbyServer/PaidRandom, fail closed), Tickets elsewhere.
+-- The power pack costs coins (owner 2026-11-27: coins only). The game is rated as having paid
+-- random items, so it isn't offered in the restricted countries at all; no PolicyService gate.
 -- The daily shop is rolled here (Shared/DailyRoll) at the player's first data of the UTC
 -- day, and again for anyone still online after midnight, and saved before it's shown.
 
@@ -53,7 +51,6 @@ local PlayerDataService = require(script.Parent.PlayerDataService)
 local Telemetry = require(script.Parent.Parent.Telemetry)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SkinStoreService = require(script.Parent.SkinStoreService)
-local PaidRandom = require(script.Parent.Parent.PaidRandom)
 
 local ShopService = {}
 
@@ -80,8 +77,6 @@ local REASON_TEXT: { [string]: string } = {
 	noCase = "You don't have that case",
 	ownAll = "You own every skin that case has for your guns",
 	ownAllPowers = "You already own every power (or hold packs for the rest)",
-	policy = "Couldn't check the shop rules for your region, try again",
-	priceChanged = "That price changed, take another look",
 }
 
 local function reject(reason: string)
@@ -103,11 +98,11 @@ local function unownedIn(caseId: string, data: PlayerData.Data): number
 	return SkinCases.unowned(caseId, data.skins, data.guns)
 end
 
--- The SURGE power pack (vault/01 Design/Loadout and Power Deck.md -> Launch plan, owner 2026-11-27): one or
--- three for coins where paid random items are allowed, else for earn-only Tickets (Config/Economy.POWER_PACK).
--- Never more held packs than the powers still unowned, so every pack bought can give a new power.
+-- The SURGE power pack (vault/01 Design/Loadout and Power Deck.md -> Launch plan, owner 2026-11-27): coins
+-- only, one or three (Config/Economy.POWER_PACK). Never more held packs than the powers still unowned, so
+-- every pack bought can give a new power.
 local POWER_CASE = "Power"
-local function buyPowerPack(player: Player, count: number, shown: string)
+local function buyPowerPack(player: Player, count: number)
 	local itemId = Inventory.BY_CASE[POWER_CASE]
 	local def = if itemId then Inventory.ITEMS[itemId] else nil
 	if not def or def.retired then
@@ -134,34 +129,18 @@ local function buyPowerPack(player: Player, count: number, shown: string)
 		send(player, { kind = "failed", text = REASON_TEXT.full })
 		return
 	end
+	local price = Economy.POWER_PACK.coins * count
+	if known.coins < price then
+		send(player, { kind = "failed", text = REASON_TEXT.coins })
+		return
+	end
 	if not limiter:allow(player, "ShopWrite") then
 		send(player, { kind = "failed", text = REASON_TEXT.slow })
 		return
 	end
-	local answered, allowed = PaidRandom.check(player)
-	if not answered then
-		send(player, { kind = "failed", text = REASON_TEXT.policy })
-		return
-	end
-	if shown ~= (if allowed then "coins" else "tickets") then
-		send(player, { kind = "failed", text = REASON_TEXT.priceChanged })
-		return
-	end
-	local coins = if allowed then Economy.POWER_PACK.coins * count else 0
-	local tickets = if allowed then 0 else Economy.POWER_PACK.restrictedTickets * count
-	if known.coins < coins or known.tickets < tickets then
-		send(
-			player,
-			{ kind = "failed", text = if allowed then REASON_TEXT.coins else REASON_TEXT.tickets }
-		)
-		return
-	end
 	local ok, why = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
-		if data.coins < coins then
+		if data.coins < price then
 			return false, "coins"
-		end
-		if data.tickets < tickets then
-			return false, "tickets"
 		end
 		local have = data.items[def.id] or 0
 		if have + count > def.maxStack then
@@ -170,17 +149,12 @@ local function buyPowerPack(player: Player, count: number, shown: string)
 		if unownedIn(POWER_CASE, data) - have < count then
 			return false, "ownAllPowers"
 		end
-		data.coins -= coins
-		data.tickets -= tickets
+		data.coins -= price
 		data.items[def.id] = have + count
 		return true
 	end)
 	if ok then
-		Telemetry.event(
-			player,
-			if allowed then "Power pack coin purchase" else "Power pack ticket purchase",
-			count
-		)
+		Telemetry.event(player, "Power pack coin purchase", count)
 		send(player, {
 			kind = "bought",
 			item = def.id,
@@ -668,11 +642,7 @@ local function onRequest(
 			reject("badCount")
 			return
 		end
-		if count ~= "coins" and count ~= "tickets" then
-			reject("badArgs")
-			return
-		end
-		buyPowerPack(player, arg :: number, count :: string)
+		buyPowerPack(player, arg :: number)
 	elseif action == "openCase" then
 		if typeof(arg) ~= "string" or #arg > 32 then
 			reject("badArgs")

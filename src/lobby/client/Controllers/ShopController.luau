@@ -22,9 +22,7 @@
 --   CONTENTS lists every outcome with its odds (adding up to 100%) and the
 --   note. Where PolicyService says paid random items are restricted (or the
 --   check fails) the case can't be bought; the server will enforce the same.
---   The SURGE power pack's popup: BUY x1 / x3 with coins, then x1 / x3 with Robux
---   (Config/Economy.POWER_PACK, Config/Products caseId "Power"); where paid random
---   items are restricted, x1 / x3 with Tickets only.
+--   The SURGE power pack's popup: BUY x1 / x3 for coins only (Config/Economy.POWER_PACK).
 -- Every device; Shared/UiLayout sizes it (the Fit scales on Canvas, PopupCanvas, Top).
 
 local Players = game:GetService("Players")
@@ -105,9 +103,6 @@ local PowerPack = {
 	isPack = require(ReplicatedStorage.Shared.PowerCases).isPowerCase,
 	coins3 = nil :: GuiButton?, -- BUY x3 for coins (Studio CasePanel.BuyCoins3)
 	buy = nil :: ((count: number, button: GuiObject?) -> ())?, -- set with the confirm popup
-	-- the case popup's row: widths / gaps by button count (three keep the Studio 230 / 20)
-	width = { [4] = 182 } :: { [number]: number },
-	gap = { [4] = 14 } :: { [number]: number },
 }
 -- Robux cases are paid random items: shown only once Roblox says they're allowed here
 -- (display only, fail closed; Services/RobuxService checks again)
@@ -588,16 +583,15 @@ local function openCasePopup(case: ShopCatalog.Case)
 	art.Image = case.art or ""
 	-- Robux first (one / three), Tickets second (owner 2026-11-22); where paid random items
 	-- aren't allowed only Tickets (Config/Products.CASES, Config/Economy.CASE_TICKETS).
-	-- The power pack: coins x1 / x3 first, then Robux x1 / x3 (owner 2026-11-27); a Robux
-	-- product with id 0 isn't created on Roblox yet, so its button stays hidden.
+	-- The power pack: coins only, BUY x1 / BUY x3 (owner 2026-11-27).
 	local power = PowerPack.isPack(case.id)
 	local byCount = Products.CASES[case.id] or {}
 	local one, three = byCount[1], byCount[3]
 	local r1, r3 =
 		child(casePanel, "BuyRobux") :: GuiObject, child(casePanel, "BuyRobux3") :: GuiObject
 	local buy, buy3 = child(casePanel, "BuyCoins") :: GuiObject, PowerPack.coins3 :: GuiButton
-	r1.Visible = not casesRestricted and one ~= nil and one.id ~= 0
-	r3.Visible = not casesRestricted and three ~= nil and three.id ~= 0
+	r1.Visible = not power and not casesRestricted and one ~= nil
+	r3.Visible = not power and not casesRestricted and three ~= nil
 	buy3.Visible = power
 	if one then
 		setPlate(r1, commas(one.robux))
@@ -607,23 +601,16 @@ local function openCasePopup(case: ShopCatalog.Case)
 	end
 	local row: { GuiObject } = {}
 	if power then
-		local pack = Economy.POWER_PACK
-		local kind: "coins" | "tickets" = if casesRestricted then "tickets" else "coins"
 		for i, b in { buy, buy3 } do
 			local n = if i == 1 then 1 else Inventory.BATCH_OPEN_COUNT
-			setPlate(
-				b,
-				if kind == "coins"
-					then commas(pack.coins * n)
-					else ticketWords(pack.restrictedTickets * n)
-			)
-			priceIcon(b, kind)
+			setPlate(b, commas(Economy.POWER_PACK.coins * n))
+			priceIcon(b, "coins")
 			local kicker = b:FindFirstChild("Kicker")
 			if kicker and kicker:IsA("TextLabel") then
 				kicker.Text = `BUY x{n}`
 			end
 		end
-		row = { buy, buy3, r1, r3 }
+		row = { buy, buy3 }
 	else
 		setPlate(buy, ticketWords(Economy.CASE_TICKETS[case.id] or 0))
 		priceIcon(buy, "tickets")
@@ -642,7 +629,7 @@ local function openCasePopup(case: ShopCatalog.Case)
 		end
 	end
 	local n = #shown
-	local w, gap = PowerPack.width[n] or 230, PowerPack.gap[n] or 20
+	local w, gap = 230, 20 -- the Studio layout
 	local left = (casePanel.Size.X.Offset - (n * w + (n - 1) * gap)) / 2 + w / 2
 	for i, b in shown do
 		b.Size = UDim2.new(0, w, b.Size.Y.Scale, b.Size.Y.Offset)
@@ -1557,9 +1544,8 @@ askRobux = function(what: string, a: any?, b: any?)
 	LobbyNet.event("RobuxRequest"):FireServer(what, a, b)
 end
 
--- SURGE power packs for coins (Tickets where paid random items are restricted). The server
--- checks everything again (Services/ShopService "buyPack") and refuses a currency it wouldn't
--- charge; short of coins -> the COINS tab with the pack that covers it.
+-- SURGE power packs for coins. The server checks everything again (Services/ShopService
+-- "buyPack"); short of coins -> the COINS tab with the pack that covers it.
 PowerPack.buy = function(count: number, button: GuiObject?)
 	if buying then
 		return
@@ -1568,28 +1554,18 @@ PowerPack.buy = function(count: number, button: GuiObject?)
 		LobbyHud.toast("Your save is still loading", "info")
 		return
 	end
-	local pack = Economy.POWER_PACK
-	if casesRestricted then
-		if PlayerData.tickets(player) < pack.restrictedTickets * count then
-			denied(button, false, true)
-			LobbyHud.toast("Not enough Tickets: claim daily rewards to earn more", "error")
-			return
-		end
-	else
-		local short = pack.coins * count - PlayerData.coins(player)
-		if short > 0 then
-			denied(button, true)
-			LobbyHud.toast("Not enough coins", "error")
-			showPanel(nil)
-			goToPack(short)
-			return
-		end
+	local short = Economy.POWER_PACK.coins * count - PlayerData.coins(player)
+	if short > 0 then
+		denied(button, true)
+		LobbyHud.toast("Not enough coins", "error")
+		showPanel(nil)
+		goToPack(short)
+		return
 	end
 	lastBuyButton = button
 	buying = true
 	UiSfx.cue("Confirm")
-	LobbyNet.event("ShopRequest")
-		:FireServer("buyPack", count, if casesRestricted then "tickets" else "coins")
+	LobbyNet.event("ShopRequest"):FireServer("buyPack", count)
 	task.delay(8, function() -- no answer: let them try again
 		buying = false
 	end)
@@ -1601,15 +1577,10 @@ local function drawCasePrices()
 	for _, cc in caseCards do
 		local one = (Products.CASES[cc.case.id] or {})[1]
 		if PowerPack.isPack(cc.case.id) then
-			-- the power pack leads with coins (Tickets where paid random items are restricted)
-			if casesRestricted then
-				plateAmount(cc.card, ticketWords(Economy.POWER_PACK.restrictedTickets))
-				priceIcon(cc.card, "tickets")
-			else
-				plateAmount(cc.card, commas(Economy.POWER_PACK.coins))
-				priceIcon(cc.card, "coins")
-			end
-		elseif one and one.id ~= 0 and not casesRestricted then
+			-- the power pack: coins only
+			plateAmount(cc.card, commas(Economy.POWER_PACK.coins))
+			priceIcon(cc.card, "coins")
+		elseif one and not casesRestricted then
 			plateAmount(cc.card, commas(one.robux))
 			priceIcon(cc.card, "robux")
 		else

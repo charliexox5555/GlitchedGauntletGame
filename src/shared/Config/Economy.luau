@@ -4,8 +4,7 @@
 --   Coins    earned (login rewards, match pay) and sold in coin packs; buy Common / Rare
 --            daily skins and the streak save. Balance cap: Config/Inventory.MAX_COINS.
 --   Tickets  EARN-ONLY, never sold for Robux and never inside anything bought with Robux
---            (that keeps cases outside Roblox's paid-random-items rules). Buy skin cases,
---            and the power pack where paid random items are restricted (POWER_PACK).
+--            (that keeps cases outside Roblox's paid-random-items rules). Buy skin cases.
 -- Shared/LoginRewards reads LOGIN; LobbyServer/LoginRewardService grants it.
 local Economy = {}
 
@@ -33,12 +32,10 @@ Economy.LOGIN = table.freeze({
 Economy.CASE_TICKETS =
 	table.freeze({ Standard = 1, Elite = 3, Apex = 6, Knife = 8 }) :: { [string]: number }
 
--- The SURGE power pack (vault/01 Design/Loadout and Power Deck.md -> Launch plan, owner 2026-11-27): bought
--- with coins (one or three, `coins` each), or Robux (Config/Products kind "case", caseId "Power"). Coins are
--- sold for Robux, so a pack is a paid random item either way: both are sold only where PolicyService allows
--- paid random items. Where it doesn't, a pack costs `restrictedTickets` earn-only Tickets instead, so every
--- player can still unlock powers. A pack that can't be given (every power owned) pays back `coins`.
-Economy.POWER_PACK = table.freeze({ coins = 1500, restrictedTickets = 4 })
+-- The SURGE power pack (vault/01 Design/Loadout and Power Deck.md -> Launch plan, owner 2026-11-27): COINS
+-- ONLY, `coins` each (one or three at a time), no Robux product. A pack opened when every power is already
+-- owned pays `coins` back.
+Economy.POWER_PACK = table.freeze({ coins = 1500 })
 
 -- Match pay in coins (ProgressionService, in the same write as the XP). Leaving pays
 -- nothing; matches with no real player on the other side pay `botScale` of it. At most

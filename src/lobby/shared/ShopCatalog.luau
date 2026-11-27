@@ -126,7 +126,7 @@ ShopCatalog.CASES = {
 		color = Color3.fromHex("1E8A5C"),
 	},
 	{
-		id = "Power", -- powers only (Shared/PowerCases): a power you don't own yet; coins or Robux (Config/Economy.POWER_PACK)
+		id = "Power", -- powers only (Shared/PowerCases): a power you don't own yet; coins only (Config/Economy.POWER_PACK)
 		name = "SURGE PACK",
 		art = "rbxassetid://88263832595455", -- art-source/ui/pack/pack_power.png (a card pack, owner 2026-11-26)
 		color = Color3.fromHex("C9961F"),

@@ -11,11 +11,7 @@
 --                  (Tickets bought with Robux would make Ticket cases paid random too)
 --   kind "case"    `count` x `case` (a Config/Inventory item) for shop case `caseId`; only
 --                  prompted where paid random items are allowed (owner 2026-11-22: case
---                  prices show Robux first, Tickets as the second option). caseId "Power" is
---                  the SURGE power pack: never more packs than the powers still unowned
---                  (a pack it can't give pays Economy.POWER_PACK.coins back)
--- id 0 = NOT CREATED YET on Roblox: never prompted, its Shop button stays hidden, and it isn't
--- in BY_ID. The owner creates it on the Creator Dashboard and puts the real id here.
+--                  prices show Robux first, Tickets as the second option)
 --   kind "skin"    one skin from a fixed `skin` target or a saved purchase intent
 --                  (daily shop slot / bundle item sharing a price-based product)
 --   kind "season"      the season pass premium track + its title (Config/Season), once
@@ -208,27 +204,6 @@ Products.LIST = table.freeze({
 		caseId = "Knife",
 		count = 3,
 	}),
-	-- the SURGE power pack (owner 2026-11-27; vault/01 Design/Loadout and Power Deck.md -> Launch
-	-- plan): priced from the coin packs' best rate (32,000 for 1,999 = 16 coins a Robux), so Robux is
-	-- never cheaper than coins: 1,500 coins = 94 R$ -> 99; 4,500 coins = 281 R$ -> 289 (not 279).
-	table.freeze({
-		id = 0, -- not created yet (owner: Creator Dashboard, "SURGE PACK", 99 R$)
-		kind = "case",
-		robux = 99,
-		name = "SURGE PACK",
-		case = "CasePower",
-		caseId = "Power",
-		count = 1,
-	}),
-	table.freeze({
-		id = 0, -- not created yet (owner: Creator Dashboard, "3 SURGE PACKS", 289 R$)
-		kind = "case",
-		robux = 289,
-		name = "3 SURGE PACKS",
-		case = "CasePower",
-		caseId = "Power",
-		count = 3,
-	}),
 	Products.RUINED_REAVER,
 	-- shared skin products, by price
 	table.freeze({ id = 3734910801, kind = "skin", robux = 349, name = "WEAPON SKIN" }),
@@ -243,11 +218,9 @@ Products.PACKS = {} :: { Product }
 Products.SKIN_BY_PRICE = {} :: { [number]: Product }
 Products.BUNDLE = {} :: { [string]: Product }
 Products.STARTER = nil :: Product?
-Products.CASES = {} :: { [string]: { [number]: Product } } -- [caseId][count]; check `id ~= 0` before selling
+Products.CASES = {} :: { [string]: { [number]: Product } } -- [caseId][count]
 for _, p in Products.LIST do
-	if p.id ~= 0 then -- 0 = not created on Roblox yet
-		Products.BY_ID[p.id] = p
-	end
+	Products.BY_ID[p.id] = p
 	if p.kind == "coins" then
 		table.insert(Products.PACKS, p)
 	elseif p.kind == "skin" and not p.skin then
