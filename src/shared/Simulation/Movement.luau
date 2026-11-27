@@ -133,8 +133,10 @@ local function stepCharacter(player: Player, character: Model)
 	else
 		airSince = airSince or now
 	end
-	-- (The floor reading lags a takeoff by about 60 ms, measured: the
-	-- Humanoid's own Jumping state doesn't.)
+	-- (The floor reading lags a takeoff by about 60 ms, measured, and can
+	-- still read a crate edge on the way up: the Humanoid's own Jumping /
+	-- Freefall state doesn't.)
+	local humanoidState = humanoid:GetState()
 	local airborne = (
 		not grounded
 		and (
@@ -143,8 +145,10 @@ local function stepCharacter(player: Player, character: Model)
 		)
 	)
 		or (
-			humanoid:GetState() == Enum.HumanoidStateType.Jumping
-			and root.AssemblyLinearVelocity.Y > Movement.AIR_RISE
+			(
+				humanoidState == Enum.HumanoidStateType.Jumping
+				or humanoidState == Enum.HumanoidStateType.Freefall
+			) and root.AssemblyLinearVelocity.Y > Movement.AIR_RISE
 		)
 	local moveDir = humanoid.MoveDirection
 	local moving = moveDir.Magnitude > 0.1
