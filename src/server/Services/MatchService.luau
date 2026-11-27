@@ -62,7 +62,14 @@ local MAP_RETRY = 5
 local SPAWN_TRIES = 4
 local SPAWN_BACKOFF = { 0.5, 1, 2 }
 local STREAM_WAIT = 6 -- seconds a spawn may wait for its area to stream to the player
-local spawning: { [Player]: boolean } = {}
+-- os.clock() a spawn began; one older than SPAWN_STALE is treated as hung (a load that never
+-- returned must not keep that player out of every later spawn this match)
+local spawning: { [Player]: number } = {}
+local SPAWN_STALE = 45 -- longer than a slow real spawn (stream wait + 4 tries + their waits)
+local function spawnBusy(player: Player): boolean
+	local since = spawning[player]
+	return since ~= nil and os.clock() - since < SPAWN_STALE
+end
 local firstMatch = false -- this match is a new player's first (isFirstMatch, set in runMatch)
 local onboardingMatch = false -- every real player is under Config.ONBOARDING_MATCHES (set in runMatch)
 -- The body each player's own client last said is on its screen with floor under it (BodyReady).
@@ -322,10 +329,11 @@ local function onBodyReady(player: Player, body: unknown, at: unknown)
 end
 
 local function spawnPlayer(player: Player, spawn: SpawnLocation?)
-	if spawning[player] or player.Parent ~= PlayersService then
+	if spawnBusy(player) or player.Parent ~= PlayersService then
 		return
 	end
-	spawning[player] = true
+	local mySpawn = os.clock()
+	spawning[player] = mySpawn
 	local okRun, runErr = pcall(function()
 		player.RespawnLocation = if Context.ownsServer then spawn else nil
 		local map = MapService.map()
@@ -405,7 +413,9 @@ local function spawnPlayer(player: Player, spawn: SpawnLocation?)
 			end
 		end
 	end)
-	spawning[player] = nil
+	if spawning[player] == mySpawn then -- a stale spawn must not clear a newer one's mark
+		spawning[player] = nil
+	end
 	if not okRun then
 		warn("[MatchService] spawnPlayer error for", player.Name, runErr)
 	end
@@ -440,7 +450,7 @@ end
 -- who joined after the round's spawn.
 local function spawnMissing()
 	spawnPlayers(function(player: Player): boolean
-		return not onArena(player) and not spawning[player]
+		return not onArena(player) and not spawnBusy(player)
 	end)
 end
 
@@ -1265,6 +1275,25 @@ end
 
 type RoundOutcome = "next" | "stop" | "abandon"
 
+local function cancelSlowLoad(reason: string)
+	HealthLog.problem("match load cancelled", nil, `{Context.id}: {reason}`)
+	MatchState.set("Phase", "Cancelled")
+	local mode = matchMode()
+	local requeueMode: string? = if Context.ownsServer
+			or Context.hosted
+			or mode == "beginner"
+		then mode
+		else nil
+	MatchEndService.cancelAndRequeue(requeueMode)
+	if Context.ownsServer and not RunService:IsStudio() then
+		local until_ = os.clock() + Config.MATCH_END.emptyWait
+		while #Players:GetPlayers() > 0 and os.clock() < until_ do
+			task.wait(5)
+			MatchEndService.resendStranded()
+		end
+	end
+end
+
 -- Runs one match. Returns true when the players voted a rematch.
 local roundHistory: { string } = {} -- the match end screen's round chips (MatchState list "RoundHistory")
 
@@ -1591,6 +1620,11 @@ local function runMatch(): boolean
 	if forfeitBy == 0 then
 		return false -- everyone left
 	end
+	if forfeitBy == nil and roundErrors >= Config.MAX_ROUND_ERRORS and scores[1] == scores[2] then
+		-- broken rounds on a tied score: nobody won, so no win or loss is recorded (it used to give team 2 the win)
+		cancelSlowLoad(`{roundErrors} round errors on a tied score`)
+		return false
+	end
 	setAllLocked(true)
 	ZoneService.stop()
 	BotService.setFighting(false)
@@ -1615,25 +1649,6 @@ local function runMatch(): boolean
 	end
 	-- a new player's first match: the results screen shows NEXT MATCH / LOBBY instead of a rematch
 	return MatchEndService.run(matchWinner, matchMode(), firstMatch)
-end
-
-local function cancelSlowLoad(reason: string)
-	HealthLog.problem("match load cancelled", nil, `{Context.id}: {reason}`)
-	MatchState.set("Phase", "Cancelled")
-	local mode = matchMode()
-	local requeueMode: string? = if Context.ownsServer
-			or Context.hosted
-			or mode == "beginner"
-		then mode
-		else nil
-	MatchEndService.cancelAndRequeue(requeueMode)
-	if Context.ownsServer and not RunService:IsStudio() then
-		local until_ = os.clock() + Config.MATCH_END.emptyWait
-		while #Players:GetPlayers() > 0 and os.clock() < until_ do
-			task.wait(5)
-			MatchEndService.resendStranded()
-		end
-	end
 end
 
 local function waitForPlayers(): boolean

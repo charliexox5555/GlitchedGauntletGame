@@ -146,13 +146,17 @@ function Targets.path(
 			return false, budget.mult
 		end
 		local part = result.Instance
-		if combatantOf(part) then
-			return false, budget.mult -- hit the dummy/character body itself
+		local body = combatantOf(part)
+		if body then
+			-- a body (the target's, or someone in front): not a wall, so it neither stops the round
+			-- nor spends penetration, but a wall behind it still counts (it used to end the check here)
+			params:AddToFilter(body)
+		else
+			if not Penetration.pass(budget, part, result.Position, dir) then
+				return true, 0
+			end
+			params:AddToFilter(part)
 		end
-		if not Penetration.pass(budget, part, result.Position, dir) then
-			return true, 0
-		end
-		params:AddToFilter(part)
 		origin = result.Position
 	end
 	return true, 0

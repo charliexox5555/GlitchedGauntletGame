@@ -352,11 +352,30 @@ module.trigger = function(player: Player, _level: string): boolean
 	return any
 end
 
+-- Every match's kit (and the range's) calls module.server, all on the one shared `bots` list, so
+-- only the oldest live connection steps it: N kits stepping it would roll N times as fast. A torn-down
+-- kit's connection disconnects with its runner and drops out.
+local steppers: { RBXScriptConnection } = {}
+
 module.server = function(_api: Types.ServerApi)
 	if not RunService:IsServer() then
 		return
 	end
-	RunService.Heartbeat:Connect(step)
+	local mine: RBXScriptConnection
+	mine = RunService.Heartbeat:Connect(function(dt: number)
+		while steppers[1] and not steppers[1].Connected do
+			table.remove(steppers, 1)
+		end
+		if steppers[1] == mine then
+			step(dt)
+		end
+	end)
+	for i = #steppers, 1, -1 do
+		if not steppers[i].Connected then
+			table.remove(steppers, i) -- kits gone since (the list stays as long as the live kits)
+		end
+	end
+	table.insert(steppers, mine)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		for i = #bots, 1, -1 do
 			if bots[i].ctx.player == player then

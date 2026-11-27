@@ -66,10 +66,7 @@ end
 
 -- How far back a hit may be rewound for this shooter (seconds).
 function Hits.rewindWindow(player: Player): number
-	local ok, ping = pcall(function()
-		return player:GetNetworkPing()
-	end)
-	local p = if ok and typeof(ping) == "number" then ping else 0.1
+	local p = Hits.networkPing(player) -- NaN-safe and clamped
 	return math.min(p * 2 + Combat.REWIND_EXTRA, Combat.REWIND_MAX)
 end
 

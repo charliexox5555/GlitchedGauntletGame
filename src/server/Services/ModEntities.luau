@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared.Net)
 local Teams = require(Shared.Mods.Teams)
+local PlayZone = require(Shared.PlayZone)
 
 local ModEntities = {}
 
@@ -77,13 +78,20 @@ local function remove(obj: Object, why: string)
 	end
 	objects[obj.part] = nil
 	StateValues.set(obj.part, "RemovedWhy", why)
-	Net.event("ModFx"):FireAllClients("ObjectGone", {
+	local gone = {
 		kind = obj.kind,
 		at = obj.part.Position,
 		size = obj.part.Size,
 		why = why,
 		team = Teams.of(obj.owner),
-	})
+	}
+	-- only to the owner's own match (other duels and the lobby don't need it), like ShotFx
+	local fx = Net.event("ModFx")
+	for _, viewer in Players:GetPlayers() do
+		if PlayZone.inSameScope(viewer, obj.owner) then
+			fx:FireClient(viewer, "ObjectGone", gone)
+		end
+	end
 	obj.part:Destroy()
 end
 

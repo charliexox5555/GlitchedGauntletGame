@@ -160,6 +160,10 @@ function SpectateService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		limiter:forget(player)
 		sentMods[player] = nil
+		-- the kit's PlayerRemoving also fires when a player is sent home: stop streaming around the target
+		if watching[player] and player.Parent == PlayersService then
+			player.ReplicationFocus = nil
+		end
 		watching[player] = nil
 		Spectated.sync(watching, Context.id)
 		task.defer(recheck) -- anyone watching them
