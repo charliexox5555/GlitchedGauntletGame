@@ -19,6 +19,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
+local TextChatService = game:GetService("TextChatService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ServerRole = require(Shared:WaitForChild("ServerRole") :: ModuleScript)
@@ -50,6 +52,30 @@ local LOBBY_CONTROLLERS: { [string]: boolean } = {
 }
 local LOBBY_ZOOM = 12 -- studs: the lobby camera distance after leaving first person
 
+local TAG = "Client"
+-- Runs one controller's init protected, in order. An error is logged and skipped; an init still
+-- yielding after INIT_WAIT s (a WaitForChild on a renamed Studio child) is left to finish on its own
+-- while the rest go on, so one controller can't stop every other one from starting (code audit 2026-11-27).
+local INIT_WAIT = 15
+local function runInit(name: string, init: () -> ())
+	local done = false
+	task.spawn(function()
+		local ok, err = pcall(init)
+		if not ok then
+			warn(`[{TAG}] {name}.init failed: {err}`)
+		end
+		done = true
+	end)
+	local t = os.clock()
+	while not done do
+		if os.clock() - t > INIT_WAIT then
+			warn(`[{TAG}] {name}.init still waiting after {INIT_WAIT} s; starting the rest`)
+			return
+		end
+		task.wait()
+	end
+end
+
 local function runControllers(lobbyOnly: boolean)
 	-- The match's screens (PlayerScripts.UI.Match, Shared/UiRoot).
 	if not lobbyOnly then
@@ -58,18 +84,25 @@ local function runControllers(lobbyOnly: boolean)
 
 	local Controllers = script:FindFirstChild("Controllers")
 
+	-- Each require and init runs protected (runInit): one broken controller is logged and skipped, and
+	-- the rest still start (it used to stop every controller, and READY with it).
 	local loaded: { [string]: any } = {}
 	if Controllers then
 		for _, child in Controllers:GetChildren() do
 			if child:IsA("ModuleScript") and (not lobbyOnly or LOBBY_CONTROLLERS[child.Name]) then
-				loaded[child.Name] = require(child) :: any
+				local ok, result = pcall(require, child)
+				if ok then
+					loaded[child.Name] = result :: any
+				else
+					warn(`[Client] {child.Name} failed to load: {result}`)
+				end
 			end
 		end
 	end
 
-	for _, controller in loaded do
+	for name, controller in loaded do
 		if typeof(controller.init) == "function" then
-			controller.init()
+			runInit(name, controller.init)
 		end
 	end
 
@@ -103,6 +136,7 @@ local runner: LocalScript? = nil
 local runnerArmed = false -- the running copy is a full match client (else the lobby set)
 local guisBefore: { [Instance]: boolean } = {}
 local lobbyPlayerList: boolean? = nil
+local chatAlignment: any = nil -- the chat window's alignment before a match client moved it
 
 -- What the match client may leave behind: its screens, the camera setup, the
 -- mouse lock, the viewmodel and effects under the camera.
@@ -185,6 +219,36 @@ local function cleanUp()
 	if voteBlur then
 		voteBlur:Destroy()
 	end
+	-- What a runner changed outside its own script and no controller undoes (code audit 2026-11-27):
+	-- the aim-zoom mouse speed, no-reset and the moved chat (MatchHudController), a wall's haze blur
+	-- (WallFx), and the effect folders and ambience its controllers made (made again on demand).
+	UserInputService.MouseDeltaSensitivity = 1
+	pcall(StarterGui.SetCore, StarterGui, "ResetButtonCallback", true)
+	local window = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
+	if window and chatAlignment ~= nil then
+		pcall(function()
+			(window :: any).VerticalAlignment = chatAlignment
+		end)
+	end
+	local haze = Lighting:FindFirstChild("FirewallHazeBlur")
+	if haze then
+		haze:Destroy()
+	end
+	for _, name in { "Effects", "ModFx", "ModPreview" } do
+		local f = workspace:FindFirstChild(name)
+		if f and f:IsA("Folder") then
+			f:Destroy()
+		end
+	end
+	local ambience = SoundService:FindFirstChild("Ambience")
+	if ambience and ambience:IsA("Folder") then
+		ambience:Destroy()
+	end
+	for _, spot in workspace.Terrain:GetChildren() do
+		if spot.Name == "AmbienceSpot" and spot:IsA("Attachment") then
+			spot:Destroy()
+		end
+	end
 end
 
 local function stop()
@@ -255,6 +319,8 @@ local function start(armed: boolean)
 		local ok, enabled =
 			pcall(StarterGui.GetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList)
 		lobbyPlayerList = if ok then enabled else nil
+		local window = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
+		chatAlignment = if window then (window :: any).VerticalAlignment else nil
 	end
 	local copy = script:Clone()
 	copy.Name = "ClientRunner"

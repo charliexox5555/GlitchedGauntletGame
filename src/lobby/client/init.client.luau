@@ -33,18 +33,47 @@ LobbyLook.apply(playerGui)
 
 local Controllers = script:FindFirstChild("Controllers")
 
+local TAG = "Lobby"
+-- Runs one controller's init protected, in order. An error is logged and skipped; an init still
+-- yielding after INIT_WAIT s (a WaitForChild on a renamed Studio child) is left to finish on its own
+-- while the rest go on, so one controller can't stop every other one from starting (code audit 2026-11-27).
+local INIT_WAIT = 15
+local function runInit(name: string, init: () -> ())
+	local done = false
+	task.spawn(function()
+		local ok, err = pcall(init)
+		if not ok then
+			warn(`[{TAG}] {name}.init failed: {err}`)
+		end
+		done = true
+	end)
+	local t = os.clock()
+	while not done do
+		if os.clock() - t > INIT_WAIT then
+			warn(`[{TAG}] {name}.init still waiting after {INIT_WAIT} s; starting the rest`)
+			return
+		end
+		task.wait()
+	end
+end
+
 local loaded: { [string]: any } = {}
 if Controllers then
 	for _, child in Controllers:GetChildren() do
 		if child:IsA("ModuleScript") then
-			loaded[child.Name] = require(child) :: any
+			local ok, result = pcall(require, child)
+			if ok then
+				loaded[child.Name] = result :: any
+			else
+				warn(`[Lobby] {child.Name} failed to load: {result}`)
+			end
 		end
 	end
 end
 
-for _, controller in loaded do
+for name, controller in loaded do
 	if typeof(controller.init) == "function" then
-		controller.init()
+		runInit(name, controller.init)
 	end
 end
 
