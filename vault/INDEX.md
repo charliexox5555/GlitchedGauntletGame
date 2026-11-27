@@ -52,6 +52,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Handoff - Charms 2026-11-27.md`: charm decisions (one charm per gun, all 14 guns + skins), checked facts (CharmPoint on every gun), open questions; paste-in prompt `04 Tech/Prompts/2026-11-27 Charms (Antigravity).md` (model in Blender, attach, swing, VFX, Locker equip, pass, tests)
 - `02 Art/Skins/Arcade and Frostbite Handoff.md`: Season 1 pass skin lines for a new Opus chat: Arcade Havoc first for approval, then the rest; owner questions (Frostbite gun count, concept sheet or straight to Blender)
 - `02 Art/Skins/Arcade/Build Ledger.md` (8): Arcade line build ledger: palette, scripts, Havoc v01-v07 checks, Studio install, first-person effects and tests
+- `02 Art/Skins/Arcade/Gun Brief.md` (6): per-gun brief for the other 13 Arcade guns (order, method, line language, flat_group names, gates, self-grade), Blender only
 - `05 Production/Handoff - Battle Pass Build 2026-11-27.md`: briefs for the rest of the pass build, for another AI (name tags, match titles, charms, powers, goodie bags, phone/CLAIM ALL/Shop card, art, season end + launch), shared rules, owner questions
 - `05 Production/Handoff - Battle Pass 2026-11-27.md`: owner handoff after launch hardening: what the game is now, battle pass phases done/open, what the new gun prices, gun levels and owned guns mean for the pass, retention levers from the funnels, publish checklist
 - [Shadow Mist idle playtest](05%20Production/Playtests/2026-11-17%20Shadow%20Mist%20Idle.md)

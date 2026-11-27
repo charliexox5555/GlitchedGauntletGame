@@ -14,7 +14,9 @@ MASTER = Path(bpy.data.filepath)
 VERSION = MASTER.stem.split("_")[-1]
 ROOT = MASTER.parents[6]
 GUN = MASTER.stem.split("_")[0]
-ADS_DISTANCE = {"Guardian": 0.33, "Vandal": 0.36, "Spectre": 0.37, "Operator": 0.70}[GUN] if GUN != "Classic" else None
+# Pass ADS_DISTANCE (Config/Weapons adsDistance; None for alt-fire pistols) in the exec globals for new guns.
+ADS_DISTANCE = globals()["ADS_DISTANCE"] if "ADS_DISTANCE" in globals() else (
+    {"Guardian": 0.33, "Vandal": 0.36, "Spectre": 0.37, "Operator": 0.70}[GUN] if GUN != "Classic" else None)
 STOCK = ROOT / f"art-source/weapons/RemasterV2/{GUN}/{GUN}_RemasterV2_v05.blend"
 OUT = ROOT / f"vault/02 Art/Skins/Arcade/out/{GUN}_{VERSION}_views"
 OUT.mkdir(parents=True, exist_ok=True)
