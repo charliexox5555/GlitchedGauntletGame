@@ -363,8 +363,8 @@ local weapons: { [string]: WeaponConfig } = {
 	},
 
 	-- SMGs --------------------------------------------------------------
-	-- Stinger v2 (roster 04): Uzi-type SMG, mag in the grip. Shreds up
-	-- close; slower than Valorant's 16/s so the body TTK isn't instant.
+	-- Stinger v2 (roster 04): Uzi-type SMG, mag in the grip. Back in the loadout 2026-11-27 (Gun Balance.md):
+	-- the fastest fire rate and the fastest close kill, paid for with heavy kick and steep falloff.
 	Stinger = {
 		id = "Stinger",
 		displayName = "Hornet",
@@ -373,35 +373,37 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 13, head = 21, legs = 11 },
+		damage = { body = 12, head = 19, legs = 10 },
 		pellets = 1,
 		pelletSpread = 0,
-		fireInterval = 0.075, -- 13.3 rounds/s
-		magSize = 20,
+		fireInterval = 0.058, -- 17.2 rounds/s: the fastest trigger (2026-11-27 balance pass)
+		magSize = 30,
 		reloadTime = 2.1,
 		emptyReloadTime = 2.5, -- mag, then the knob rack
 		equipTime = 0.4,
 		drawTime = 1.0, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 400,
-		falloff = { { from = 54, multiplier = 0.76 }, { from = 105, multiplier = 0.65 } },
+		falloff = { { from = 40, multiplier = 0.75 }, { from = 80, multiplier = 0.6 } }, -- a close-range hose
 		spread = {
 			first = 0.45,
 			adsMultiplier = 0.6,
 			protected = 2,
 			protectedGrowth = 0.03,
-			growth = 0.1,
-			max = 1.4,
+			growth = 0.12,
+			max = 1.6,
 			recoveryTime = 0.3,
 		},
+		-- A ton of kick (owner 2026-11-27): about three times the Havoc's climb per second, and it jumps
+		-- side to side. Hold on through it and nothing kills faster up close.
 		recoil = {
-			up = 0.25,
-			protected = 4,
-			upAfter = 0.15,
-			side = 0.18,
-			switchChance = 0.15,
-			switchMinTime = 0.4,
-			recover = 0.75,
-			recoverTime = 0.25,
+			up = 0.5,
+			protected = 2,
+			upAfter = 0.42,
+			side = 0.4,
+			switchChance = 0.3,
+			switchMinTime = 0.25,
+			recover = 0.7,
+			recoverTime = 0.3,
 		},
 		adsFov = 72, -- 1.15x zoom
 		adsDistance = OPEN_IRONS_ADS,
@@ -424,7 +426,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 12, head = 19, legs = 10 },
+		damage = { body = 13, head = 21, legs = 11 }, -- 12 to kill 150 (2026-11-27)
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.075, -- 13.3 rounds/s
@@ -477,7 +479,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Pump",
-		damage = { body = 6, head = 8, legs = 5 }, -- per pellet
+		damage = { body = 7, head = 10, legs = 6 }, -- per pellet: 11 of 15 kill 150 in two (2026-11-27)
 		pellets = 15,
 		pelletSpread = 3,
 		fireInterval = 0.91, -- 1.1 shots/s (the pump)
@@ -587,11 +589,14 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 2,
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
-		fireMode = "Auto",
-		damage = { body = 17, head = 27, legs = 14 },
+		-- Three-round bursts (2026-11-27 balance pass, was full auto): every burst lands in a tight group,
+		-- one click per burst. Seven body hits (three bursts) or five heads kill 150.
+		fireMode = "Burst",
+		burst = { count = 3, interval = 0.07 },
+		damage = { body = 22, head = 35, legs = 18 },
 		pellets = 1,
 		pelletSpread = 0,
-		fireInterval = 0.11, -- 9.1 rounds/s
+		fireInterval = 0.27, -- from the last round of a burst to the next burst
 		magSize = 24,
 		reloadTime = 2.3,
 		emptyReloadTime = 2.7,
@@ -599,23 +604,23 @@ local weapons: { [string]: WeaponConfig } = {
 		drawTime = 1.12, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 500,
 		spread = {
-			first = 0.3,
-			adsMultiplier = 0.6,
-			protected = 3,
+			first = 0.22,
+			adsMultiplier = 0.5, -- 0.11 aimed
+			protected = 3, -- a whole burst
 			protectedGrowth = 0.02,
-			growth = 0.12,
-			max = 1.25,
-			recoveryTime = 0.375,
+			growth = 0.15,
+			max = 1.0,
+			recoveryTime = 0.28,
 		},
 		recoil = {
-			up = 0.38,
-			protected = 6,
-			upAfter = 0.22,
-			side = 0.25,
+			up = 0.32,
+			protected = 3,
+			upAfter = 0.3,
+			side = 0.15,
 			switchChance = 0.12,
 			switchMinTime = 0.6,
-			recover = 0.75,
-			recoverTime = 0.3,
+			recover = 0.85,
+			recoverTime = 0.22,
 		},
 		adsFov = 68, -- 1.25x zoom
 		adsDistance = 0.38, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
@@ -681,8 +686,9 @@ local weapons: { [string]: WeaponConfig } = {
 	},
 
 	-- Snipers ------------------------------------------------------------
-	-- Marshal (roster 11): cheap lever-action scoped rifle. One-shots a head
-	-- only with no shield up; loads round by round through the side gate (firing mid-reload
+	-- Marshal (roster 11): light lever-action scoped rifle. Back in the loadout 2026-11-27 (Gun Balance.md):
+	-- the quick sniper, accurate from the hip and fast on its feet; a headshot plus any body hit kills,
+	-- but no one-shot (that's the Deadeye). Loads round by round through the side gate (firing mid-reload
 	-- keeps the rounds loaded).
 	Marshal = {
 		id = "Marshal",
@@ -692,98 +698,45 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 0, -- with this gun in the Sidearm and Light phases
 		fireMode = "Bolt", -- the lever cycles after every shot
-		damage = { body = 52, head = 110, legs = 44 },
+		damage = { body = 55, head = 120, legs = 47 }, -- head + any body hit kills 150
 		pellets = 1,
 		pelletSpread = 0,
-		fireInterval = 0.667, -- 1.5 rounds/s
+		fireInterval = 0.58, -- 1.7 rounds/s: the lever is back home at frame 14 of the Fire clip
 		magSize = 5,
 		reloadTime = 2.5, -- a full load (5 rounds); fallback for the clip-based timing
 		emptyReloadTime = 2.5,
-		shellReload = { start = 0.3, insert = 0.4, finish = 0.35 },
+		shellReload = { start = 0.25, insert = 0.34, finish = 0.3 },
 		shellHand = "Right", -- round 3: rounds go in with the right hand, the left steadies the gun
-		equipTime = 0.7,
-		drawTime = 1.5, -- works the lever (x1.25 2026-11-08: owner, draws too fast)
+		equipTime = 0.55,
+		drawTime = 1.2, -- works the lever (2026-11-27: quicker, was 1.5)
 		range = 800,
 		spread = {
-			first = 1, -- hip
+			first = 0.3, -- hip: accurate unscoped (owner 2026-11-27), was 1
 			adsMultiplier = 0, -- scoped: exactly where you aim (standing)
 			protected = 0,
 			protectedGrowth = 0,
-			growth = 0.5,
-			max = 2,
-			recoveryTime = 0.6,
+			growth = 0.4,
+			max = 1.5,
+			recoveryTime = 0.45,
 		},
 		recoil = {
-			up = 2.5,
+			up = 1.8,
 			protected = 1,
-			upAfter = 2.5,
-			side = 0.3,
+			upAfter = 1.8,
+			side = 0.25,
 			switchChance = 0.5,
 			switchMinTime = 0.3,
 			recover = 0.85,
-			recoverTime = 0.35,
+			recoverTime = 0.3,
 		},
 		scope = { zoom = 3.5 },
 		adsFov = 50, -- unused (the scope sets the zoom)
-		adsTime = 0.25,
-		moveMultiplier = 0.95,
-		adsMoveMultiplier = 0.6,
-		penetration = "Light",
-		viewmodelOffset = SCOPED_VM,
-		tracerColor = TRACER,
-	},
-
-	-- Outlaw v2 (roster 12): twin-barrel break-action scoped rifle. Two quick
-	-- shots (upper barrel first), then a slow reload. Two body hits leave a
-	-- full-shield opponent with 14 HP.
-	Outlaw = {
-		id = "Outlaw",
-		displayName = "TwinShot",
-		class = "Sniper",
-		tier = 3,
-		slot = "Primary",
-		fireMode = "Semi",
-		damage = { body = 68, head = 130, legs = 56 },
-		pellets = 1,
-		pelletSpread = 0,
-		fireInterval = 0.42,
-		magSize = 2,
-		reloadTime = 2.3, -- one round (the upper barrel)
-		emptyReloadTime = 3.8, -- both
-		muzzles = { "Muzzle", "MuzzleLower" },
-		shellsOnFire = false, -- the reload clip shows the spent rounds
-		-- 2026-11-08 (owner: rounds came out of nowhere): carried in by hand.
-		carry = {
-			{ joint = "RoundUpper", show = "both", follow = true },
-			{ joint = "RoundLower", show = "both", follow = true },
-		},
-		equipTime = 0.75,
-		drawTime = 1.38, -- snaps the action (x1.25 2026-11-08: owner, draws too fast)
-		range = 800,
-		spread = {
-			first = 3.5, -- hip
-			adsMultiplier = 0,
-			protected = 0,
-			protectedGrowth = 0,
-			growth = 0.5,
-			max = 4,
-			recoveryTime = 0.5,
-		},
-		recoil = {
-			up = 3.6,
-			protected = 1,
-			upAfter = 3.6,
-			side = 0.5,
-			switchChance = 0.5,
-			switchMinTime = 0.2,
-			recover = 0.85,
-			recoverTime = 0.35,
-		},
-		scope = { zoom = 3.5 },
-		adsFov = 50, -- unused (the scope sets the zoom)
-		adsTime = 0.28,
-		moveMultiplier = 0.9,
-		adsMoveMultiplier = 0.55,
+		adsTime = 0.18,
+		-- The fastest gun to run with (owner 2026-11-27: "faster movement speed") and a light movement
+		-- penalty (Config/Combat MOVE_PENALTY LightSniper), so it can be shot on the move from the hip.
+		moveMultiplier = 1.05,
+		adsMoveMultiplier = 0.75,
+		moveClass = "LightSniper",
 		penetration = "Light",
 		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
@@ -898,7 +851,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 4,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 13, head = 20, legs = 11 },
+		damage = { body = 14, head = 22, legs = 12 }, -- 11 to kill 150 (2026-11-27)
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.075,

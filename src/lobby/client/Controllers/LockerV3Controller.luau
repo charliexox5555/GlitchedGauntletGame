@@ -370,8 +370,16 @@ local function fillOverview(id: string)
 	if not cfg then
 		return
 	end
+	-- Average seconds per round: a burst gun's rounds come `burst.interval` apart, then the gap.
+	local function interval(c: any): number
+		local b = c.burst
+		if b then
+			return (c.fireInterval + (b.count - 1) * b.interval) / b.count
+		end
+		return c.fireInterval
+	end
 	local function dps(c: any): number
-		return c.damage.body * (c.pellets or 1) / math.max(c.fireInterval, 0.01)
+		return c.damage.body * (c.pellets or 1) / math.max(interval(c), 0.01)
 	end
 	local best = { dps = 1, rate = 1, mag = 1 }
 	for _, list in { LoadoutConfig.PRIMARIES, LoadoutConfig.SECONDARIES } do
@@ -379,7 +387,7 @@ local function fillOverview(id: string)
 			local g = Weapons.get(gid)
 			if g then
 				best.dps = math.max(best.dps, dps(g))
-				best.rate = math.max(best.rate, 1 / g.fireInterval)
+				best.rate = math.max(best.rate, 1 / interval(g))
 				best.mag = math.max(best.mag, g.magSize)
 			end
 		end
@@ -396,8 +404,8 @@ local function fillOverview(id: string)
 		},
 		{
 			"FIRE RATE",
-			1 / c.fireInterval / best.rate,
-			string.format("%.1f / s", 1 / c.fireInterval),
+			1 / interval(c) / best.rate,
+			string.format("%.1f / s", 1 / interval(c)),
 		},
 		{
 			"HANDLING",

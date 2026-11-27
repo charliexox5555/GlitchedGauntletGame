@@ -24,6 +24,8 @@ return table.freeze({
 		Shotgun = { crouchWalk = 0, walk = 0.2, sprint = 0.4, slide = 0.3, air = 1 },
 		MachineGun = { crouchWalk = 0.3, walk = 1.0, sprint = 2.0, slide = 1.5, air = 3.5 },
 		Sniper = { crouchWalk = 1, walk = 2.5, sprint = 5, slide = 4, air = 8 },
+		-- The Scout (Marshal, moveClass): a sniper you can shoot on the move (owner 2026-11-27).
+		LightSniper = { crouchWalk = 0.2, walk = 0.6, sprint = 1.2, slide = 1.0, air = 2.5 },
 		Wildcard = { crouchWalk = 0.2, walk = 0.8, sprint = 1.5, slide = 1.2, air = 3 },
 		Melee = { crouchWalk = 0, walk = 0, sprint = 0, slide = 0, air = 0 },
 	},
