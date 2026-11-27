@@ -336,18 +336,21 @@ Owner brief: "Make sure all the economy is good". Nobody has played or paid yet,
 | Streak save | 100 coins, doubling to 1,600 | unchanged |
 | Bundles, Epic+ skins, premium pass | Robux only | unchanged (cosmetic) |
 
-### Hours to each goal (lifetime coins earned ≥ the cost; 50% rounds won, onboarding matches mostly won)
+### Hours to each goal (lifetime coins earned ≥ the cost, counting the 500 starting coins; 50% rounds won, onboarding matches mostly won)
+Corrected 2026-11-27: the first version left out `Config/Inventory.STARTING_COINS` = 500 (the owner's number, 2026-11-22). The onboarding session measured it in Studio. The table below includes it, on both sides.
 | Goal (coins) | Bots, 1 h/day | Bots, 2 h/day | Bots, 3 h/day | Bots, never claims login | Real players, 1 h/day |
 |---|---|---|---|---|---|
-| First gun (400) | match 3 → **match 3** | m3 → m3 | m3 → m3 | match 5 → **match 3** | m3 → m3 |
-| First gun + first pack (1,900) | 2.1 h → **1.1 h** | 2.2 → 1.1 | 2.2 → 1.1 | 2.2 → 1.1 | 1.6 → 1.1 |
-| Whole gun set (before 9,350, after 10,500) | 11.0 h → **8.5 h** | 13.6 → **11.3** | 14.2 → **12.1** | 19.8 → **14.1** | 9.0 → **7.0** |
-| Guns + all 8 packs (after 22,500) | 27 h → 25 h | 40 → 32 | 46 → 35 | 84 → 46 | 25 → 20 |
-| Coins earned by hour 1 / 3 / 10 (bots, 1 h/day) | 856 / 2,756 / 8,868 → **1,408 / 4,096 / 11,547** | | | | |
+| First gun (400) | after match 1 → **after match 1** | same | same | same | same |
+| First gun + first pack (1,900) | 1.5 h → **1.0 h** | 1.5 → 1.0 | 1.5 → 1.0 | 1.5 → 1.1 | 1.1 → 0.6 |
+| Whole gun set (before 9,350, after 10,500) | 9.9 h → **8.0 h** | 12.1 → **11.3** | 13.6 → **11.5** | 17.3 → **13.6** | 8.5 → **6.7** |
+| Guns + all 8 packs (after 22,500) | 27 h → 23 h | 37 → 30 | 46 → 33 | 79 → 46 | 25 → 20 |
+| Coins held by hour 1 / 3 / 10 if nothing is spent (bots, 1 h/day) | 1,356 / 3,256 / 9,368 → **1,908 / 4,596 / 12,047** | | | | |
 
-- **The first unlock:** match 1 and 2 (onboarding, against bots) pay about 30 coins each when won. The Task Path opens after match 2, and its first part (the Range: visit, 10 targets, 3 bots, about 3 minutes) pays 3 × 100 + 200 = **500**. That makes **about 560 coins before match 3**, enough for any 400 gun (Prowler, Sheriff, Shorty) or the 500 Hush. The day-1 login adds 250 if it's claimed. Recruit part 2 (match 3-5) pays another 500, enough for a second gun. All of Recruit (1,900) is done by about match 8, the first hour.
+- **The first unlock: after match 1.** A new save holds 500 coins, and match 1 (onboarding, against bots) pays 30 for a win or 6 for a loss. The onboarding flow shows the Locker's UNLOCK badge back in the lobby after match 1, and any 400 gun (Prowler, Sheriff, Shorty) is affordable then. **Kept on purpose** (Claude's pick): the 500 is the owner's number; match 2 lost a third of new players, so an unlock before it helps; and every other target still holds. It is earlier than the "2-3 matches" target, so the owner can set `STARTING_COINS` to 0 instead. The first unlock would then land before match 3, from the Range part of the Task Path.
+- **The second unlock: before match 3.** After the first gun, about 130 coins are left; match 2 adds about 30. The Task Path opens after match 2, and its first part (the Range: visit, 10 targets, 3 bots, about 3 minutes) pays 3 × 100 + 200 = **500**: about 660 coins, enough for a second 400 gun or the Hush. The day-1 login adds 250 if it's claimed. Recruit part 2 (match 3-5) pays another 500. All of Recruit (1,900) is done by about match 8, the first hour, so the first SURGE pack is affordable at about 1 h even after the first gun.
+- **Only one Task Path part shows at a time,** so a player who skips the Range earns no task coins at all. The onboarding session made the Range the after-match-2 unlock with the first NEW badge.
 - **Tasks carry the early game, matches the late game.** After Duelist (~14 h) a player earns about 145 coins an hour against bots (~240 against real players), plus about 2,500 a week from login. That pays for the packs and the Common/Rare daily skins.
-- **3 h/day players** finish the guns later in hours than 1 h/day players, because login pays per day. At most 12 h is inside the target. A player who never claims the login takes 14 h: the onboarding session should point new players at the DAILY tab.
+- **3 h/day players** finish the guns later in hours than 1 h/day players, because login pays per day. At most 11.5 h is inside the target. A player who never claims the login takes 13.6 h: the onboarding session should point new players at the DAILY tab.
 - **How these were worked out:** a per-match model (scratch script, not in the repo) adds match pay under the daily cap, the login loop by day played, and each Task Path part at an estimated match count. Recruit is done by match 8, Rookie by 28, Contender by 54, Duelist by 115, Veteran by about 200 (level 20), Champion by about 370 (level 30). Those estimates assume 4.5 eliminations a match, about 1 headshot elimination and 50% wins.
 
 ### Robux, the shortcut (coin packs unchanged)
