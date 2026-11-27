@@ -294,3 +294,61 @@ Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, P
 - The deck sits at the rear of the receiver, not centred: the handle slot takes the front half, and the ADS view rules out anything taller or further forward. The stock receiver's vertical panel line at x -.25 shows above and below the deck.
 - The stock Neon square under the deck was removed (the front-sight Neon strips are kept). The stock fire selector's one flush face was lifted 0.004 in the master.
 - Not installed: the Studio upload and install wait for your go.
+
+## Guardian (Marksman)
+Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, PID 40136 checked). Scripts: `13_guardian.py` (build), `21_review_guardian.py` (stations; the stock file has its own `Cam_Hip`), `sheet_guardian.json`. No shared script was changed.
+
+**Stock measured** (ray-cast depth maps, both sides, and every clip swept relative to Root):
+- Upper receiver side face y .086 (x -.013 to .89, z .2336-.416), panel lines at x .10 and .83, and the charging channel on the left (floor .070, x .30-.79, z .326-.366). The handle knob (y .112-.136, z .318-.375) rests at x .688-.767 and comes back to x .48 in Draw. A stock Neon strip sat at x .353-.557, z .282-.296.
+- Lower receiver face .080 with a side recess (floor .075, x -.05 to .14, z .15-.215) on both sides. Left: the fire selector (x .09-.173, up to z .243 in Draw) and the bolt catch (x .404-.47, top .235). Right: the ejection port above z .268; the bolt runs back to x .193. Pins at x .21/.37, z .19 on both sides.
+- Front block x .877-1.136 (y .092). Handguard x 1.123-2.355 (y .088, bottom .189, keel .223, shoulder .41, top .432) with two rows of six round-ended slots; CharmLoop on its rear lower-left (x 1.165-1.197, z .206-.248); front sight on the rail at x 2.214-2.301. The rail base's front face shares the handguard's front plane (x 2.355): the stock's one coplanar pair.
+- Barrel r .04 (12 facets) x 2.34-2.79; round-ported brake r .058 x 2.78-2.998; Muzzle x 2.9984. Stock body face .070, cheek riser x -.553/-.98, butt pad x -1.08/-1.245. Magazine face .060 below its PANEL band.
+- No scope: open hex ring and hooded post (`Guardian_Sights`). ADS: adsDistance 0.33 (`Config/Weapons`), adsFov 58, eye x -.275, z .4984.
+
+| Version | What changed |
+|---|---|
+| v01 | First build, 5,934 tris (1.36×). Audit: 0 faults in new geometry, 0 floating, contract equal, 0 animated intersections, ADS rays clear. One coplanar pair: the new handguard's front face on the rail base's front face (x 2.355), inherited from the stock layout. Review: the joystick ball overlaps the cyan button in first person. |
+| **v02** | Handguard nose extended to x 2.362 (0.007 past the rail end); buttons moved 0.002-0.006 forward, away from the joystick. Audit clean. **Candidate.** |
+
+**What the Arcade Marksman has**
+- **Control deck** (left, Root): a long, low panel on the upper receiver under the charging channel (x .20-.70, z .24-.316, raked ends), ahead of the fire selector and above the bolt catch. Rear to front: a joystick, three buttons in collars rising toward the muzzle (cyan, yellow, magenta; r .020 in r .026 collars, as the Prowler), a pixel screen in a bezel, and a cyan light pipe on the deck's top edge over the screen (it sits between the deck top and the channel). It covers the stock Neon strip, which was removed.
+- **Coin door** (right) on the lower receiver over the stock side recess, behind the magwell: two lilac coin entries with yellow lit slots and a magenta stripe. The two right-side pins it covers were removed.
+- **Handguard** on the stock envelope: three-by-two faceted vents (pointed ends) behind the support hand keep the Marksman's read; a recessed violet field ahead of it on both sides (pixel-stepped corner, magenta band, cyan line, starburst, pixel trail); a magenta T-molding trim along each lower chamfer from just ahead of the charm loop; a raked cabinet nose under the barrel.
+- **Stock frame art**: raked band and line with a pixel trail on the top bar ahead of the window (the first-person side).
+- **Cabinet butt** replacing the pad: raked marquee top with a cyan light, a stepped rear, and a recessed side-art field on both sides (starburst, band and line). It swallows the body's rear member by 0.03.
+- **Brake**: an eight-sided stepped brake (rear collar, light-ring groove with the cyan ring, a ported main section with two faceted through-ports per side, a stepped nose and a bore with the Muzzle locator).
+- **Mag stripe**: magenta, bone `Mag`, raked on the plain lower face between the PANEL band and the base plate (top z -.082), far below the magwell.
+- All 12 `flat_group` names are on Root parts: `ARButton1-3`, `ARStickBall`, `ARScreen*`, `ARDeckLight`, `ARTrim`, `ARBrakeLight`. The screen pixel is 0.0085, as on the other guns.
+
+**v02 results**
+- **Master:** `art-source/weapons/Skins/Arcade/Guardian/v02/Guardian_Arcade_v02.blend`. **Export:** `v02x/` (`Guardian_Arcade_RobloxFlat.fbx`, `manifest_flat.json`, 36 parts, all 12 AR groups as their own parts, the sights as `SK_Root_Sight_*`).
+- **Triangles:** 5,934 against 4,374 for the stock gun (1.36×, inside the 1.5× budget).
+- **Audit** (`out/Guardian_v02_views/audit.json`, ADS distance 0.33):
+  - 0 faults in new geometry. The only faults are the stock's own open islands, inherited unchanged: receiver, rail teeth, sights, grip, pins, bolt catch and selector, plus the dressed copies of the stock tube and ring (`AR_StockFrame:0-1`) and the barrel tube (`AR_BarrelTube:0`), with bounds identical to the stock's.
+  - 0 coplanar pairs (the stock's one pair is gone).
+  - 0 floating parts.
+  - Bones, locators and actions are identical to the stock.
+  - 0 animated intersections across Draw, Fire, Inspect, Reload and ReloadEmpty.
+  - All 5 ADS rays are clear. The post ray hits only `Guardian_Sights`. Nothing new shows in the ADS render at 68°, at the game's 58°, or in an extra check at 72° (16:9 and 21:9): the receiver's rear end hides the joystick.
+- **Flat export:** 0 coplanar lifts, 0 flipped islands, 0 crossed faces. The one-sided magenta re-import shows no holes (`out/Guardian_v02x_flat_check/`); the magenta seen through the brake is its through-ports, as on the stock brake.
+- **Review sheet:** [Guardian_v02_review.png](out/Guardian_v02_review.png)
+- **Self-grade:** 9/10 (the gun's grade is its lowest area).
+
+| Area | Grade |
+|---|---|
+| Silhouette | 9 |
+| Crispness | 9 |
+| Layering | 9 |
+| Connections | 9 |
+| ADS | 9 |
+| Palette | 9 |
+| Budget | 9 |
+| Contract | 10 |
+
+**For the owner**
+- Three buttons fit; nothing sits on a moving bone.
+- The deck is long and low (under the charging channel), not a tall plate: the channel and the knob take the receiver's upper half, and a taller deck would show in ADS. Its ends leave the stock panel lines at x .10 and .83 showing.
+- The stock receiver Neon strip under the deck and the two right-side lower pins under the coin door were removed.
+- The stock handguard's round-ended slots are kept as faceted vents (three by two, behind the support hand) rather than replaced by a second art field.
+- In first person the joystick ball still slightly overlaps the cyan button, as on the approved Havoc and Spirit.
+- Not installed: the Studio upload and install wait for your go.
