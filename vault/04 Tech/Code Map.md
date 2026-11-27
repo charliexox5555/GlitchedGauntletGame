@@ -140,6 +140,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | Controller | Owns |
 |---|---|
 | `init.client.luau` (host) | runs a fresh client controller set per zone in a lobby server. On leaving a combat zone, releases touch bindings and gamepad selection, unbinds render steps, tears down results, and restores camera, core UI and lobby lighting. |
+| `MapLoadController` (2026-11-27) | the match client's map loading: preloads the map vote pictures (`Config/Match MAPS.image`) at start; logs `[Health] C map here` (arrival seconds after `MapService` stamped `LoadedAt`, instance count) and `map content` / `map content failed` (one preload per unique mesh / image). No remotes. [Loading and Performance](Loading%20and%20Performance%202026-11-27.md) |
 | `MatchLightingController` | applies the current pad duel's authored lighting on its player's client. `Shared/MapLighting` keeps the original lobby effects so scripts can use the same instances after return. In the range it applies the range's profile instead (`Config/RangeLighting`, `MapLighting.applyProfile`). |
 | `WeaponController` | fire input, spread, recoil, predicted hit marker, sends `Fire`/`Reload`/`Equip`/`Aim` |
 | `ViewmodelController` (1817 l) | first-person gun and arms rig (also shows a spectated or replayed fighter's view via `setSubject`); uses `Util/ViewmodelTracks` (keyframed tracks), `Util/ViewmodelHeldMods` (held Mods, gestures, free hand), `Util/ViewmodelArms/Rig/Motion`, `GunAnimator`, `MagDrop` |
