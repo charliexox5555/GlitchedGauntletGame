@@ -46,6 +46,7 @@ local BallisticGlass = require(ReplicatedStorage.Shared.Util.BallisticGlass)
 local Types = require(Shared.Types)
 local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
+local GunLevels = require(Shared.GunLevels)
 
 local AudioController = require(script.Parent.AudioController)
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
@@ -1602,8 +1603,16 @@ local function onWeaponState(state: Types.WeaponState)
 		if not incoming then
 			slots[slot] = nil
 		else
-			local config = Weapons.get(incoming.id)
-			if config then
+			local base = Weapons.get(incoming.id)
+			if base then
+				-- the gun at the level the server built its slot at (Shared/GunLevels), so reload and draw times match
+				-- what it enforces; a new slot only, like the server, which keeps a slot's config until it hands out a
+				-- fresh one
+				local level = incoming.level
+				local config = GunLevels.apply(
+					base,
+					if typeof(level) == "number" and level == level then level else 1
+				)
 				local existing = slots[slot]
 				if not existing or existing.id ~= incoming.id then
 					if config.class == "Melee" then

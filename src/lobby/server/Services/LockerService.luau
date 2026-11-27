@@ -26,6 +26,7 @@ local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
+local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
@@ -33,6 +34,7 @@ local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Validate = require(ReplicatedStorage.Shared.Util.Validate)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local GunLevelsConfig = require(ReplicatedStorage.Shared.Config.GunLevels)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local Telemetry = require(script.Parent.Parent.Telemetry)
 
@@ -58,7 +60,9 @@ local limiter = RateLimit.new(Config.RATE)
 local rejects: { [string]: number } = {}
 local savingMods: { [Player]: boolean } = {}
 local savingGuns: { [Player]: boolean } = {}
-local GUN_ACTIONS = table.freeze({ unlock = true, equip = true })
+-- level: buy one gun level with coins (vault/01 Design/Gun Levels.md, Config/GunLevels COIN)
+local GUN_ACTIONS = table.freeze({ unlock = true, equip = true, level = true })
+local lastLevelBuy: { [Player]: number } = {}
 
 local function reject(reason: string)
 	rejects[reason] = (rejects[reason] or 0) + 1
@@ -311,9 +315,16 @@ local function saveModChoice(player: Player, idArg: unknown, equippedArg: unknow
 end
 
 -- The gun loadout (vault/01 Design/Loadout and Power Deck.md, step 2): unlock a gun with coins, or put an
--- owned gun into its slot. Lobby only, never while a match is found; one write at a time per player; every
+-- owned gun into its slot, or buy one level of an owned gun (`priceArg`: the price the confirm showed; the server
+-- prices it again on the latest save and refuses a different one, so nobody pays a price they didn't see; it
+-- never sets what is paid). Lobby only, never while a match is found; one write at a time per player; every
 -- rule is checked again on the latest save inside the transaction. Returns (ok, reason).
-local function gunChoice(player: Player, actionArg: unknown, idArg: unknown): (boolean, string?)
+local function gunChoice(
+	player: Player,
+	actionArg: unknown,
+	idArg: unknown,
+	priceArg: unknown
+): (boolean, string?)
 	local action = Validate.enum(actionArg, GUN_ACTIONS)
 	local id = Validate.string(idArg, GunLoadout.MAX_ID_LENGTH)
 	local queueStatus = StateValues.get(player, "QueueStatus")
@@ -333,7 +344,26 @@ local function gunChoice(player: Player, actionArg: unknown, idArg: unknown): (b
 		return false, "loading"
 	end
 	local price = GunLoadout.price(id)
-	if action == "unlock" then
+	if action == "level" then
+		local seen = Validate.number(priceArg, 0, 1e7)
+		local levelPrice = GunLevels.coinPrice(data.gunxp[id] or 0)
+		local now = os.clock()
+		if not seen or seen ~= math.floor(seen) then
+			return false, "bad"
+		elseif not data.guns.owned[id] or not GunLevels.levels(id) then
+			return false, "notOwned"
+		elseif not levelPrice then
+			return false, "maxed" -- at the coin cap: play to level further
+		elseif levelPrice ~= seen then
+			return false, "price"
+		elseif data.coins < levelPrice then
+			return false, "coins"
+		elseif now - (lastLevelBuy[player] or -math.huge) < GunLevelsConfig.COIN.rate then
+			return false, "slow"
+		end
+		lastLevelBuy[player] = now
+		price = levelPrice
+	elseif action == "unlock" then
 		if not GunLoadout.canUnlock(data.guns, id) or not price then
 			return false, "owned"
 		elseif data.coins < price then
@@ -349,6 +379,23 @@ local function gunChoice(player: Player, actionArg: unknown, idArg: unknown): (b
 		player,
 		PlayerDataService.newTxId(),
 		function(latest)
+			if action == "level" then
+				-- priced again on the latest save: the confirmed price, or nothing is written
+				local total = latest.gunxp[id] or 0
+				local now = GunLevels.coinPrice(total)
+				if not latest.guns.owned[id] then
+					return false, "notOwned"
+				elseif not now then
+					return false, "maxed"
+				elseif now ~= price then
+					return false, "price"
+				elseif latest.coins < now then
+					return false, "coins"
+				end
+				latest.coins -= now
+				latest.gunxp[id] = GunLevels.boughtTotal(total)
+				return true
+			end
 			if action == "unlock" then
 				if not price or not GunLoadout.canUnlock(latest.guns, id) then
 					return false, "owned"
@@ -370,6 +417,9 @@ local function gunChoice(player: Player, actionArg: unknown, idArg: unknown): (b
 		end
 	)
 	savingGuns[player] = nil
+	if ok and action == "level" then
+		Telemetry.event(player, "GunLevelBought", price or 0, id)
+	end
 	if ok and action == "unlock" then
 		Telemetry.event(player, "GunUnlocked", price or 0, id)
 		Telemetry.onboardingV3(player, Telemetry.V3.FIRST_GUN, id)
@@ -415,10 +465,10 @@ function LockerService.start()
 		end
 	end)
 	local gunRequest = LobbyNet.event("LockerGunRequest")
-	gunRequest.OnServerEvent:Connect(function(player, action, id)
+	gunRequest.OnServerEvent:Connect(function(player, action, id, price)
 		local ok, reason = false, "slow"
 		if limiter:allow(player, "LockerGunRequest") then
-			ok, reason = gunChoice(player, action, id)
+			ok, reason = gunChoice(player, action, id, price)
 		end
 		if player.Parent == Players then
 			gunRequest:FireClient(
@@ -459,6 +509,7 @@ function LockerService.start()
 		savingGuns[p] = nil
 		local rec = records[p]
 		limiter:forget(p)
+		lastLevelBuy[p] = nil
 		if rec then
 			save(p) -- returns at once if a write is already running; it finishes on its own
 			while rec.saving do

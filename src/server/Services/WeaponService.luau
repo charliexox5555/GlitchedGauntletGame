@@ -42,6 +42,7 @@ local Ammo = require(Shared.Util.Ammo)
 local Types = require(Shared.Types)
 local Validate = require(Shared.Util.Validate)
 local Weapons = require(Shared.Config.Weapons)
+local GunLevels = require(Shared.GunLevels)
 
 local StatusService = require(script.Parent.StatusService)
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -179,7 +180,7 @@ local reject = Hits.reject
 local function snapshot(state: PlayerState, resync: boolean?): Types.WeaponState
 	local slots = {}
 	for slot, s in state.slots do
-		slots[slot] = { id = s.id, ammo = s.ammo, reserve = s.reserve }
+		slots[slot] = { id = s.id, ammo = s.ammo, reserve = s.reserve, level = s.config.gunLevel }
 	end
 	return {
 		slots = slots,
@@ -207,12 +208,14 @@ local function sendState(player: Player, resync: boolean?)
 	end
 end
 
--- `endless`: no reserve limit (test mode, the lobby range).
-local function newSlot(id: string, endless: boolean?): SlotState?
-	local config = Weapons.get(id)
-	if not config then
+-- `endless`: no reserve limit (test mode, the lobby range). The config is the gun at the player's level
+-- (Shared/GunLevels: handling, reload, stability, accuracy steps), the same one their client builds.
+local function newSlot(player: Player, id: string, endless: boolean?): SlotState?
+	local base = Weapons.get(id)
+	if not base then
 		return nil
 	end
+	local config = GunLevels.apply(base, GunLevels.levelOf(player, id))
 	return {
 		id = id,
 		config = config,
@@ -280,7 +283,7 @@ function WeaponService.giveLoadout(player: Player)
 	local slots: { [Slot]: SlotState } = {}
 	for _, slot in SLOTS do
 		local id = loadout[slot]
-		local s = if id then newSlot(id, PlayZone.get(player) == "Range") else nil
+		local s = if id then newSlot(player, id, PlayZone.get(player) == "Range") else nil
 		if s then
 			slots[slot] = s
 		end
@@ -346,13 +349,13 @@ function WeaponService.setWeapon(player: Player, slot: Slot, id: string)
 	if not state then
 		return
 	end
-	local s = newSlot(id, PlayZone.get(player) == "Range")
+	local s = newSlot(player, id, PlayZone.get(player) == "Range")
 	if not s then
 		return
 	end
 	state.slots[slot] = s
 	if state.equipped == slot then
-		state.equipReadyAt = os.clock() + drawSeconds(config) * 0.7 / statusMult(player, "equip")
+		state.equipReadyAt = os.clock() + drawSeconds(s.config) * 0.7 / statusMult(player, "equip")
 		refreshWorldModel(player)
 	end
 	sendState(player)

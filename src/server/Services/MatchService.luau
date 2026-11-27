@@ -778,6 +778,12 @@ local function reportProgress(
 		warn("[MatchService] task stats failed:", taskStats)
 		taskStats = nil
 	end
+	-- gun levels (Shared/GunLevels): kills and rounds per gun from the server's own records, guarded the same way
+	local gunsOk, gunStats = pcall(StatsService.gunStats, userId)
+	if not gunsOk then
+		warn("[MatchService] gun stats failed:", gunStats)
+		gunStats = nil
+	end
 	local ok, err = pcall(ProgressionService.report, matchKey, userId, {
 		won = won and not left,
 		left = left,
@@ -791,7 +797,7 @@ local function reportProgress(
 		kills = killsOf(userId),
 		opponents = opponents,
 		liveSeconds = math.floor(liveSecs[userId] or 0),
-	}, MatchState.get("Mode"), taskStats)
+	}, MatchState.get("Mode"), taskStats, gunStats)
 	if not ok then
 		warn("[MatchService] progression report failed:", err)
 	end

@@ -151,6 +151,8 @@ export type WeaponConfig = {
 	recoil: Recoil,
 	adsFov: number,
 	adsTime: number,
+	-- set by Shared/GunLevels.apply on a levelled copy (nil = the base config, level 1)
+	gunLevel: number?,
 	moveMultiplier: number,
 	adsMoveMultiplier: number,
 	penetration: Penetration,
@@ -200,7 +202,8 @@ export type HitClaim = {
 	pellet: number,
 }
 
-export type WeaponSlotState = { id: string, ammo: number, reserve: number? }
+-- `level`: the gun level the server built the slot at (Shared/GunLevels; nil = 1): the client builds the same config
+export type WeaponSlotState = { id: string, ammo: number, reserve: number?, level: number? }
 
 export type WeaponState = {
 	slots: { [Slot]: WeaponSlotState },

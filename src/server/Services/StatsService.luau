@@ -70,6 +70,9 @@ type Entry = {
 	taken: number,
 	hurtBy: { [string]: number }, -- attacker id → last hit time
 	gunKills: { [string]: number }, -- weapon id → eliminations with it
+	-- gun levels (Shared/GunLevels, players only): rounds played / won with each gun in the loadout
+	gunRounds: { [string]: number },
+	gunRoundsWon: { [string]: number },
 	lastGun: string?, -- the gun of their latest hit
 	-- the task Path
 	headshotElims: number,
@@ -181,6 +184,8 @@ local function entryOf(x: Instance): Entry?
 			taken = 0,
 			hurtBy = {},
 			gunKills = {},
+			gunRounds = {},
+			gunRoundsWon = {},
 			headshotElims = 0,
 			slotElims = { Primary = 0, Secondary = 0 },
 			chain = 0,
@@ -349,6 +354,20 @@ function StatsService.roundEnded(
 	survivors: { Instance }
 )
 	for _, e in entries do
+		-- gun levels: every player's guns this round (the loadout WeaponService handed out, not the client's word)
+		local player = if e.userId then Players:GetPlayerByUserId(e.userId) else nil
+		if player and (e.team == 1 or e.team == 2) then
+			local loadout = WeaponService.getLoadout(player)
+			for _, slot in { "Primary", "Secondary" } do
+				local gun = loadout[slot :: any]
+				if typeof(gun) == "string" then
+					e.gunRounds[gun] = (e.gunRounds[gun] or 0) + 1
+					if e.team == winner then
+						e.gunRoundsWon[gun] = (e.gunRoundsWon[gun] or 0) + 1
+					end
+				end
+			end
+		end
 		if e.team == winner then
 			e.roundsWon += 1
 			local rk = roundKills[e.id]
@@ -425,6 +444,28 @@ function StatsService.taskStats(userId: number): { [string]: any }
 		powerLevels = levels,
 		glitch = e.glitch,
 	}
+end
+
+-- One player's guns this match for gun levels (Shared/GunLevels.MatchGuns; ProgressionService checks it
+-- again): eliminations from the server's hit records, rounds from the loadouts it handed out.
+function StatsService.gunStats(
+	userId: number
+): { [string]: { kills: number, rounds: number, roundsWon: number } }
+	local e = entries["p" .. userId]
+	local out = {}
+	if not e then
+		return out
+	end
+	for gun, n in e.gunRounds do
+		out[gun] =
+			{ kills = e.gunKills[gun] or 0, rounds = n, roundsWon = e.gunRoundsWon[gun] or 0 }
+	end
+	for gun, n in e.gunKills do
+		if not out[gun] then
+			out[gun] = { kills = n, rounds = 0, roundsWon = 0 }
+		end
+	end
+	return out
 end
 
 -- Makes sure everyone in the match has a line, even with nothing on it.

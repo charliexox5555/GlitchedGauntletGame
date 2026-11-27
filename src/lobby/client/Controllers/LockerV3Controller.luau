@@ -16,7 +16,10 @@
 -- The screen is Studio-built (StarterGui.LockerV3; the build script tools/studio/BuildLockerV3.luau, then
 -- tools/studio/PromoteLockerV3.luau turned the mockup into templates: RowOwned / RowLocked, TileOwned /
 -- TileLocked); the card is ReplicatedStorage.LockerV3Stage.PowerCard. This module fills and moves them.
--- Not yet (build order step 3): weapon levels, contracts, statistics; their rows stay hidden.
+--   * gun levels (vault/01 Design/Gun Levels.md): the Level card under an owned gun's Details (level, XP bar, the
+--     next stat step, "Reward at LV N", LEVEL UP for coins through LockerGunRequest "level" after the confirm
+--     window); the Overview shows the gun at your level (Shared/GunLevels.apply).
+-- Not yet (build order step 3): contracts, statistics; their rows stay hidden.
 
 local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
@@ -27,6 +30,8 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
+local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
+local GunLevelsConfig = require(ReplicatedStorage.Shared.Config.GunLevels)
 local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local LoadoutConfig = require(ReplicatedStorage.Shared.Config.Loadout)
 local LobbyConfig = require(ReplicatedStorage.Lobby.Config)
@@ -133,6 +138,8 @@ local dof: DepthOfFieldEffect? = nil
 local gunBusy = false
 local modBusy = false
 local toast: TextLabel? = nil
+-- the confirm window's purpose ("unlock" a gun or buy a "level") and the level price it showed
+local Confirm = { kind = "unlock", price = 0 }
 
 local function find(parent: Instance, path: string): Instance
 	local node: Instance = parent
@@ -372,10 +379,14 @@ end
 
 -- Overview: the gun's numbers as bars against the best in the active set.
 local function fillOverview(id: string)
-	local cfg = Weapons.get(id)
-	if not cfg then
+	local base = Weapons.get(id)
+	if not base then
 		return
 	end
+	-- the gun at your level (an owned gun): its reload, handling and spread as you'll have them
+	local cfg = if guns().owned[id]
+		then GunLevels.apply(base, GunLevels.levelOf(player, id))
+		else base
 	-- Average seconds per round: a burst gun's rounds come `burst.interval` apart, then the gap.
 	local function interval(c: any): number
 		local b = c.burst
@@ -490,6 +501,11 @@ local function refreshGunRows()
 			tag.Visible = equipped
 		end
 		row:SetAttribute("Owned", owned)
+		local lv = row:FindFirstChild("Level")
+		if owned and lv and lv:IsA("TextLabel") then
+			lv.Visible = GunLevels.levels(id)
+			lv.Text = `LV {GunLevels.levelOf(player, id)}`
+		end
 		styleRow(row, id == selectedGun and mode ~= "knife")
 	end
 	local function count(list: { string }): number
@@ -524,6 +540,81 @@ local function refreshGunRows()
 end
 
 local refreshSkins: () -> ()
+
+-- The Level card (an owned gun): level, the bar, the next stat step, the next milestone and LEVEL UP for coins.
+local function refreshLevelCard(id: string)
+	local levelCard = ownedPanel:FindFirstChild("Level")
+	if not (levelCard and levelCard:IsA("Frame")) then
+		return
+	end
+	local show = mode == "guns" and guns().owned[id] == true and GunLevels.levels(id)
+	levelCard.Visible = show
+	if not show then
+		return
+	end
+	local total = GunLevels.read(player)[id] or 0
+	local level, into, need = GunLevels.level(total)
+	set(levelCard, "Number", "Text", tostring(level))
+	set(
+		levelCard,
+		"Xp",
+		"Text",
+		if need > 0 then `{commas(into)} / {commas(need)} XP` else "MAX LEVEL"
+	)
+	local fill = find(levelCard, "Bar.Fill") :: Frame
+	fill.Size = UDim2.fromScale(if need > 0 then math.clamp(into / need, 0.02, 1) else 1, 1)
+	local nextCategory = GunLevels.category(level + 1)
+	local nextLabel = levelCard:FindFirstChild("Next")
+	if nextLabel and nextLabel:IsA("TextLabel") then
+		nextLabel.Text = if nextCategory
+			then string.format(
+				"NEXT LEVEL  +%.1f%% %s",
+				GunLevels.stepSize(nextCategory) * 100,
+				(GunLevelsConfig.LABELS :: any)[nextCategory]
+			)
+			else "EVERY STAT STEP EARNED"
+	end
+	local at = GunLevels.nextMilestone(level)
+	set(
+		levelCard,
+		"Reward.Text",
+		"Text",
+		if at then `Reward at LV {at}` else "Every reward reached"
+	)
+	set(levelCard, "Reward.Chip", "Visible", false) -- the rewards themselves come later (owner 2026-11-27)
+	local row = levelCard:FindFirstChild("LevelUp")
+	if not row then
+		return
+	end
+	local price = GunLevels.coinPrice(total)
+	local button = find(row, "Button") :: GuiButton
+	button.Visible = price ~= nil
+	if price then
+		-- gold only when it is the one thing to do here (EQUIP is gold on a gun that isn't in the loadout)
+		local g = guns()
+		local inLoadout = id == g.primary or id == g.secondary
+		paint(button, if inLoadout then GOLD else DARK, commas(price), inLoadout)
+		set(row, "Title", "Text", "Level up now")
+		set(
+			row,
+			"Sub",
+			"Text",
+			if coins() >= price
+				then "Skip one level with coins"
+				else `You need {commas(price - coins())} more coins`
+		)
+	else
+		set(row, "Title", "Text", if need > 0 then "Play to level up" else "Max level")
+		set(
+			row,
+			"Sub",
+			"Text",
+			if need > 0
+				then `Coins level a gun up to LV {GunLevelsConfig.COIN.maxLevel}`
+				else "Every stat step earned"
+		)
+	end
+end
 
 local function refreshGunPanel()
 	local g = guns()
@@ -580,6 +671,7 @@ local function refreshGunPanel()
 		)
 	end
 	fillOverview(id)
+	refreshLevelCard(id)
 	previewLine = if owned then equippedLine(id) else "Stock"
 	showGun(id, previewLine, not owned)
 	if stripOpen then
@@ -1314,18 +1406,50 @@ local function hideConfirm()
 	c:SetAttribute("Opening", false)
 end
 
-local function showConfirm(id: string)
+local function showConfirm(id: string, levelPrice: number?)
 	local c = confirmFrame
 	if not c then
 		return
 	end
-	local price = GunLoadout.price(id) or 0
+	local price = levelPrice or GunLoadout.price(id) or 0
 	confirmGun = id
+	Confirm.kind = if levelPrice then "level" else "unlock"
+	Confirm.price = price
 	local body = find(c, "Box.Body")
-	set(body, "Title", "Text", `UNLOCK {string.upper(gunName(id))}?`)
+	if levelPrice then
+		local level = GunLevels.levelOf(player, id)
+		local category = GunLevels.category(level + 1)
+		set(body, "Title", "Text", `LEVEL UP {string.upper(gunName(id))}?`)
+		set(
+			body,
+			"Sub",
+			"Text",
+			string.format(
+				"LV %d → %d  ·  +%.1f%% %s  ·  %s coins left",
+				level,
+				level + 1,
+				if category then GunLevels.stepSize(category) * 100 else 0,
+				if category then (GunLevelsConfig.LABELS :: any)[category] else "",
+				commas(coins() - price)
+			)
+		)
+	else
+		set(body, "Title", "Text", `UNLOCK {string.upper(gunName(id))}?`)
+		set(body, "Sub", "Text", `You'll have {commas(coins() - price)} coins left`)
+	end
 	set(body, "Render", "Image", Theme.GUN[id] or "")
 	set(body, "Price.Amount", "Text", commas(price))
-	set(body, "Sub", "Text", `You'll have {commas(coins() - price)} coins left`)
+	local okLabel = find(body, "Ok"):FindFirstChild("Label")
+	if okLabel and okLabel:IsA("TextLabel") then
+		if okLabel:GetAttribute("Words") == nil then
+			okLabel:SetAttribute("Words", okLabel.Text) -- the template's own word for an unlock
+		end
+		local words = okLabel:GetAttribute("Words")
+		okLabel.Text = if levelPrice
+			then "LEVEL UP"
+			elseif typeof(words) == "string" then words
+			else okLabel.Text
+	end
 	c:SetAttribute("Opening", true)
 	c.Visible = true
 	-- a controller's selection stays inside the window and starts on UNLOCK
@@ -1349,12 +1473,12 @@ end
 
 -- requests -----------------------------------------------------------------------------------------------------------------
 
-local function requestGun(action: string, id: string)
+local function requestGun(action: string, id: string, price: number?)
 	if gunBusy then
 		return
 	end
 	gunBusy = true
-	LobbyNet.event("LockerGunRequest"):FireServer(action, id)
+	LobbyNet.event("LockerGunRequest"):FireServer(action, id, price)
 	task.delay(5, function()
 		gunBusy = false -- a reply that never came never locks the buttons
 	end)
@@ -1367,6 +1491,8 @@ local REASONS: { [string]: string } = {
 	slow = "Too fast, try again",
 	notOwned = "You don't own that gun yet",
 	owned = "Already yours",
+	price = "The price changed, check it again",
+	maxed = `Coins level a gun up to LV {GunLevelsConfig.COIN.maxLevel}`,
 }
 
 local function onGunReply(action: unknown, id: unknown, ok: unknown, reason: unknown)
@@ -1379,6 +1505,14 @@ local function onGunReply(action: unknown, id: unknown, ok: unknown, reason: unk
 			UiSfx.cue("Purchase")
 			rebuildGunRows()
 			say(`{string.upper(gunName(if typeof(id) == "string" then id else ""))} UNLOCKED`)
+		elseif action == "level" and typeof(id) == "string" then
+			UiSfx.cue("Purchase")
+			say(`{string.upper(gunName(id))} · LV {GunLevels.levelOf(player, id)}`)
+			local levelCard = ownedPanel:FindFirstChild("Level")
+			local number = levelCard and levelCard:FindFirstChild("Number")
+			if number and number:IsA("GuiObject") then
+				UiMotion.slideIn(number, 0, 10, 0, 0.24) -- the new number drops in
+			end
 		end
 		refreshGunRows()
 		refreshGunPanel()
@@ -1442,7 +1576,6 @@ function LockerV3Controller.start()
 	-- not built yet (build order step 3): levels, contracts, statistics, power previews; charms and kill FX
 	for _, path in
 		{
-			"Level",
 			"Actions.Contracts",
 			"Actions.Statistics",
 		}
@@ -1571,8 +1704,27 @@ function LockerV3Controller.start()
 			say(REASONS.coins)
 			return
 		end
+		confirmReturn = find(lockedPanel, "Unlock.Buy.Button") :: GuiObject
 		showConfirm(selectedGun)
 	end)
+	-- LEVEL UP with coins (the Level card), after the confirm window
+	local levelRow = find(ownedPanel, "Level"):FindFirstChild("LevelUp")
+	if levelRow then
+		local levelButton = find(levelRow, "Button") :: GuiButton
+		juice(levelButton)
+		levelButton.Activated:Connect(function()
+			local price = GunLevels.coinPrice(GunLevels.read(player)[selectedGun] or 0)
+			if mode ~= "guns" or not guns().owned[selectedGun] or not price then
+				return
+			end
+			if coins() < price then
+				say(REASONS.coins)
+				return
+			end
+			confirmReturn = levelButton
+			showConfirm(selectedGun, price)
+		end)
+	end
 	onPress(lockedPanel, "Unlock.Try.Button", function()
 		-- straight to the Range behind its loading card (LobbyServer RangeService checks the zone)
 		Router.close()
@@ -1591,7 +1743,11 @@ function LockerV3Controller.start()
 		onPress(c, "Box.Body.Ok", function()
 			hideConfirm()
 			if confirmGun ~= "" then
-				requestGun("unlock", confirmGun)
+				if Confirm.kind == "level" then
+					requestGun("level", confirmGun, Confirm.price)
+				else
+					requestGun("unlock", confirmGun)
+				end
 			end
 		end)
 		onPress(c, "Box.Body.Cancel", hideConfirm)
@@ -1675,7 +1831,7 @@ function LockerV3Controller.start()
 		end
 	end
 	task.spawn(function()
-		for _, name in { PlayerData.GUNS, PlayerData.MODS, PlayerData.SKINS } do
+		for _, name in { PlayerData.GUNS, PlayerData.MODS, PlayerData.SKINS, GunLevels.REPLICA } do
 			local v = player:WaitForChild(name, 60)
 			if v and v:IsA("StringValue") then
 				v.Changed:Connect(onData)

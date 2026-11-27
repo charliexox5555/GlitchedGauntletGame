@@ -4,12 +4,19 @@
 -- (and wraps on a level up, with a LEVEL UP pop), the XP numbers and the streak line.
 -- Fed by the server's ProgressEvent "gain" (lobby Services/ProgressionService), which lands a
 -- moment after the match ends; the bar plays once the end screen is up.
+-- Gun levels (vault/01 Design/Gun Levels.md): the gain's `guns` ({ id, xp, from, to, total } per gun) fill the
+-- Studio-built Right.GunProgress row under it: the gun that levelled (else the one with the most XP), its +XP and
+-- bar, and on a level up a gold "+0.7% RELOAD" pop with the step the new level gave.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Progression = require(ReplicatedStorage.Shared.Config.Progression)
+local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
+local GunLevelsConfig = require(ReplicatedStorage.Shared.Config.GunLevels)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local ProgressController = {}
@@ -39,6 +46,118 @@ end
 local function label(panel: Frame, name: string): TextLabel?
 	local l = panel:FindFirstChild(name)
 	return if l and l:IsA("TextLabel") then l else nil
+end
+
+-- The gun gain to show: one that levelled (the most XP among them), else the most XP.
+local function pickGun(
+	list: unknown
+): { id: string, xp: number, from: number, to: number, total: number }?
+	if typeof(list) ~= "table" then
+		return nil
+	end
+	local best = nil
+	local bestScore = -1
+	for i, e in list :: { any } do
+		if i > 8 then
+			break
+		end
+		if typeof(e) == "table" and typeof(e.id) == "string" and Weapons.get(e.id) then
+			local xp, from, to, total = num(e.xp, 0), num(e.from, 1), num(e.to, 1), num(e.total, 0)
+			local score = xp + (if to > from then 1e6 else 0)
+			if score > bestScore then
+				bestScore = score
+				best = { id = e.id :: string, xp = xp, from = from, to = to, total = total }
+			end
+		end
+	end
+	return best
+end
+
+-- The gun row: filled now, played once the end screen is up (after the player bar starts).
+local function playGun(screen: ScreenGui, panel: Frame, g: { [string]: any }, my: number)
+	local row = panel.Parent and panel.Parent:FindFirstChild("GunProgress")
+	if not (row and row:IsA("Frame")) then
+		return
+	end
+	local gun = pickGun(g.guns)
+	row.Visible = gun ~= nil
+	if not gun then
+		return
+	end
+	local track = row:FindFirstChild("Track")
+	local fill = track and track:FindFirstChild("Fill")
+	local nameLabel, gainLabel, step = label(row, "Name"), label(row, "Gain"), label(row, "Step")
+	local render = row:FindFirstChild("Render")
+	if render and render:IsA("ImageLabel") then
+		render.Image = Theme.GUN[gun.id] or ""
+	end
+	local config = Weapons.get(gun.id)
+	local gunName = string.upper(if config then config.displayName else gun.id)
+	local function nameAt(level: number)
+		if nameLabel then
+			nameLabel.Text = `{gunName}  LV {level}`
+		end
+	end
+	nameAt(gun.from)
+	if gainLabel then
+		gainLabel.Text = `+{gun.xp} XP`
+		gainLabel.Visible = true
+	end
+	if step then
+		step.Visible = false
+	end
+	if not (fill and fill:IsA("Frame")) then
+		return
+	end
+	local level, into, need = GunLevels.level(gun.total)
+	local before = math.max(gun.total - gun.xp, 0)
+	local _, intoBefore, needBefore = GunLevels.level(before)
+	local function share(i: number, n: number): number
+		return if n > 0 then math.clamp(i / n, 0, 1) else 1
+	end
+	fill.Size = UDim2.fromScale(share(intoBefore, needBefore), 1)
+	task.spawn(function()
+		local t = os.clock()
+		while not screen.Enabled and os.clock() - t < 30 do
+			task.wait(0.2)
+		end
+		if my ~= token or not screen.Enabled then
+			return
+		end
+		task.wait(1.0) -- after the player bar
+		if gun.to > gun.from then
+			local tw = TweenService:Create(fill, QUINT_OUT, { Size = UDim2.fromScale(1, 1) })
+			tw:Play()
+			tw.Completed:Wait()
+			if my ~= token then
+				return
+			end
+			nameAt(level)
+			local category = GunLevels.category(level)
+			if step then
+				-- the step the newest level gave (the name already shows the new level; the row is narrow)
+				step.Text = if category
+					then string.format(
+						"+%.1f%% %s",
+						GunLevels.stepSize(category) * 100,
+						(GunLevelsConfig.LABELS :: any)[category]
+					)
+					else "LEVEL UP"
+				step.Visible = true
+				if gainLabel then
+					gainLabel.Visible = false
+				end
+				local pop = step:FindFirstChild("Pop")
+				if pop and pop:IsA("UIScale") then
+					pop.Scale = 0.4
+					TweenService:Create(pop, POP, { Scale = 1 }):Play()
+				end
+			end
+			fill.Size = UDim2.fromScale(0, 1)
+		end
+		TweenService:Create(fill, QUINT_OUT, { Size = UDim2.fromScale(share(into, need), 1) })
+			:Play()
+	end)
 end
 
 local function play(g: { [string]: any })
@@ -96,6 +215,7 @@ local function play(g: { [string]: any })
 		up.Visible = false
 	end
 	panel.Visible = true
+	playGun(screen, panel, g, my)
 
 	task.spawn(function()
 		-- wait for the end screen to be up (the cutscene plays first)
@@ -160,6 +280,10 @@ function ProgressController.start()
 			local _, panel = find()
 			if panel then
 				panel.Visible = false
+				local row = panel.Parent and panel.Parent:FindFirstChild("GunProgress")
+				if row and row:IsA("GuiObject") then
+					row.Visible = false
+				end
 			end
 		end
 	end)

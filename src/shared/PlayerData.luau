@@ -16,6 +16,8 @@
 --              (the season pass; 2026-11-26),
 --     guns = Shared/GunLoadout { owned = { [gunId] = true }, primary, secondary } (the gun loadout:
 --            owned guns and the pair taken into matches; 2026-11-26),
+--     gunxp = Shared/GunLevels { [gunId] = total XP } (gun levels; 2026-11-27: a save without it is every
+--             gun at level 1, no version bump, same as `prog`),
 --     charms = { owned = { name }, on = name? }, titles = { owned = { text }, on = text? }
 --              (pass cosmetics; `on` = equipped, wired in Build Plan phases 5 and 6; 2026-11-26),
 --     buys = { starter = bool (Starter Bundle bought), free = bool (the one free daily
@@ -42,6 +44,7 @@
 --   StateValues "OnbFav", "OnbFavDone", "OnbSeen" (onb: favorite asks, NEW pops seen)
 --   StringValue "Tasks"  JSON of `tasks` (the task Path panel)
 --   StringValue "LockerGuns"  JSON of `guns` (the Locker, the match draft)
+--   StringValue "GunXp"  JSON of `gunxp` (Shared/GunLevels.read: the Locker card, both sides' gun stats)
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -58,6 +61,7 @@ local DailyShop = require(ReplicatedStorage.Shared.DailyShop)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
+local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
 local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 
@@ -73,6 +77,7 @@ export type Data = {
 	skins: Skins,
 	mods: ModLoadout.Loadout,
 	guns: GunLoadout.Loadout,
+	gunxp: GunLevels.GunXp,
 	prog: Progress.Prog,
 	tickets: number,
 	login: LoginRewards.Login,
@@ -239,6 +244,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		skins = {},
 		mods = ModLoadout.clean(nil),
 		guns = GunLoadout.clean(nil),
+		gunxp = {},
 		prog = Progress.new(),
 		tickets = Economy.STARTING_TICKETS,
 		login = LoginRewards.new(),
@@ -278,6 +284,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	local t = raw :: { [string]: unknown }
 	data.mods = ModLoadout.clean(t.mods)
 	data.guns = GunLoadout.clean(t.guns)
+	data.gunxp = GunLevels.clean(t.gunxp)
 	data.coins = count(t.coins, Inventory.MAX_COINS) or 0
 	if typeof(t.items) == "table" then
 		for id, n in t.items :: { [unknown]: unknown } do
@@ -344,6 +351,7 @@ function PlayerData.valid(data: Data): boolean
 		or not Onboarding.valid(data.onb)
 		or not TaskPath.valid(data.tasks)
 		or not SeasonPass.valid(data.season)
+		or not GunLevels.valid(data.gunxp)
 		or #data.charms.owned > MAX_OWNED
 		or #data.titles.owned > MAX_OWNED
 	then
@@ -449,6 +457,7 @@ function PlayerData.publish(player: Player, data: Data?)
 	setJson(player, PlayerData.SKINS, if data then data.skins else {})
 	setJson(player, PlayerData.MODS, if data then data.mods else {})
 	setJson(player, PlayerData.GUNS, if data then data.guns else {})
+	setJson(player, GunLevels.REPLICA, if data then data.gunxp else {})
 	setJson(player, PlayerData.DAILY, if data then data.daily else DailyShop.new())
 	setJson(player, PlayerData.TASKS, if data then data.tasks else TaskPath.new())
 	setJson(player, PlayerData.SEASON, if data then data.season else SeasonPass.new())

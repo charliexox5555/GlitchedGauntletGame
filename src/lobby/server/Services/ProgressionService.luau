@@ -15,6 +15,9 @@
 -- And the season pass (Shared/SeasonPass, Battle Pass Build Plan phase 2): time in live rounds and rounds
 -- won move the pass in the same write, while the pass is open (Release.BATTLE_PASS_OPEN, or Studio)
 -- and the season hasn't ended.
+-- And gun levels (Shared/GunLevels, vault/01 Design/Gun Levels.md): XP for each gun the player carried, from the
+-- match server's kill and round records per gun (StatsService.gunStats, checked again here), in the same write;
+-- the "gain" event carries each gun's before/after for the end screen's level-up moment.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -23,6 +26,7 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Progress = require(ReplicatedStorage.Shared.Progress)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
+local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
 local Onboarding = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
@@ -84,7 +88,8 @@ function ProgressionService.report(
 	userId: number,
 	result: Progress.Result,
 	mode: unknown,
-	taskStats: unknown -- TaskPath.MatchStats (checked again here)
+	taskStats: unknown, -- TaskPath.MatchStats (checked again here)
+	gunStats: unknown? -- GunLevels.MatchGuns (checked again here)
 )
 	if
 		typeof(matchKey) ~= "string"
@@ -95,6 +100,7 @@ function ProgressionService.report(
 		return
 	end
 	local stats = TaskPath.cleanMatch(taskStats)
+	local gunMatch = if result.left then nil else GunLevels.cleanMatch(gunStats)
 	task.spawn(function()
 		pending += 1
 		local txId = string.sub(`m:{matchKey}:{userId}`, 1, 64)
@@ -103,6 +109,7 @@ function ProgressionService.report(
 		local taskPay: TaskPath.Payout? = nil
 		local seasonTiers = 0
 		local firstWin = 0
+		local gunGains: { GunLevels.Gain } = {}
 		local ok, why = false, nil :: string?
 		for attempt = 0, #RETRY_AFTER do
 			if attempt > 0 then
@@ -115,6 +122,11 @@ function ProgressionService.report(
 			ok, why = PlayerDataService.transactUserId(userId, txId, function(data: PlayerData.Data)
 				taskPay = nil
 				seasonTiers = 0
+				gunGains = {}
+				if gunMatch then
+					gunGains =
+						GunLevels.applyMatch(data.gunxp, gunMatch, result.won, not result.counts)
+				end
 				local now = os.time()
 				local matchesBefore = data.prog.matches
 				gain = Progress.apply(data.prog, result, now)
@@ -196,6 +208,7 @@ function ProgressionService.report(
 				coins = paid + firstWin,
 				firstWin = if firstWin > 0 then firstWin else nil, -- the day's first-win bonus, part of `coins`
 				seasonTiers = seasonTiers, -- season pass tiers this match gave (the pass screen, phase 4)
+				guns = gunGains, -- gun levels: { id, xp, from, to, total } per gun that gained
 			})
 			TaskService.notify(player, taskPay)
 		end
