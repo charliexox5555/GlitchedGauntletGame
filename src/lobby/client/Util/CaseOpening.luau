@@ -1207,11 +1207,8 @@ function CaseOpening.start(
 ): Handle?
 	local tierDef = Crates.TIERS[crateTier]
 	if tierDef and tierDef.pack then
-		-- a card pack (the SURGE power pack): it rips open in front of your own camera; nobody else sees it
-		if not isLocal then
-			return nil
-		end
-		return PackOpening.start(owner, crateTier, count) :: any
+		-- a card pack (the SURGE power pack): it floats at the opener and rips open (Util/PackOpening)
+		return PackOpening.start(owner, crateTier, isLocal, count) :: any
 	end
 	local ownerRoot = rootOf(owner)
 	if not ownerRoot then

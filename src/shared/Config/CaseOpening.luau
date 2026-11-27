@@ -231,34 +231,57 @@ return table.freeze({
 	OTHERS_VOLUME = 0.5, -- someone else's opening is quieter (RIVALS does the same)
 	ROLLOFF = Vector2.new(16, 80), -- studs: full volume / silent (16: the camera behind you stays at full)
 	-- The SURGE power pack (Util/PackOpening; owner 2026-11-26: "a card pack, and it rips open the card pack and
-	-- looks cool"). Yours only, in front of your camera over a dim backdrop: it flies in, shakes (TIER_SHAKES, the
-	-- tier glow from the second-to-last), strains for TIER_FX.hold, the top strip tears off from the notch with
-	-- sparks, the power card slides out, flips to its face in the tier glow with a small name plate, then drops
-	-- into the Backpack. Seconds unless noted.
+	-- looks cool"). Tossed out in front of the opener, it floats, shakes (TIER_SHAKES, the tier glow from the
+	-- second-to-last), strains for TIER_FX.hold, the top strip tears off from the notch with sparks, the power card
+	-- slides out, flips to its face in the tier glow with a small name plate, then arcs into the opener. Nearby
+	-- players see it too (CaseShow). Seconds unless noted.
 	PACK = table.freeze({
-		SCREEN = 0.44, -- of the screen's height the pack fills (its distance follows the FOV)
-		DIM = 0.3, -- backdrop transparency (0 = black)
-		IN_TIME = 0.5,
-		IN_SPIN = 200, -- degrees of yaw while flying in
+		-- in the world at the opener, like the crates (owner 2026-11-27); poses are in pack units (the template's
+		-- studs, 2.4 tall), WORLD_SCALE turns them into world studs
+		WORLD_SCALE = 2.8,
+		DISTANCE = 7, -- studs in front of the opener it floats
+		MIN_DISTANCE = 4, -- pulled in to this when a wall is closer
+		HOVER = 3.6, -- studs: its centre above the opener's root (clear of their head from the camera)
+		TOSS_ARC = 1.2, -- pack units the toss rises above the straight line
+		IN_TIME = 0.55,
+		IN_SPIN = 200, -- degrees of yaw while tossed
 		SWAY = 4, -- degrees of idle sway while waiting
 		SHAKE_EVERY = 0.42,
 		SHAKE_ANGLES = { 5, 7, 9, 11, 13 }, -- degrees of roll, growing
 		RIP_TIME = 0.34, -- the strip tears off from the notch to its far end
 		RIP_LIFT = 26, -- degrees the strip turns up while tearing
-		STRIP_FLY = 0.55, -- then it flies off
-		CARD_SCALE = 0.6, -- the card inside the pack (2.12 x 2.65 studs at 1)
+		STRIP_FLY = 0.55, -- then it flies off and fades
+		CARD_SCALE = 0.6, -- the card inside the pack (2.12 x 2.65 at 1)
 		SLIDE_TIME = 0.5, -- the card slides up out of the pack
-		SLIDE_UP = 1.7, -- studs (pack scale)
-		DROP_TIME = 0.45, -- the empty pack drops away and fades
-		FLIP_TIME = 0.55, -- the card comes to the centre, grows and flips to its face
-		CARD_GROW = 1.0, -- card scale after the flip (pack scale)
+		SLIDE_UP = 1.7, -- pack units
+		DROP_TIME = 0.45, -- the empty pack sinks and fades
+		PACK_SINK = 1.6, -- pack units
+		FLIP_TIME = 0.55, -- the card rises, grows and flips to its face
+		CARD_GROW = 0.85, -- card scale after the flip
+		CARD_LIFT = 0.5, -- pack units the shown card sits above the pack's centre
 		HOLD = 2.6, -- the card stays
-		OUT_TIME = 0.35, -- it drops into the Backpack
-		CARD_LIFT = 0.5, -- studs (pack scale) the shown card sits above the centre, clear of the PLAY bar
-		PLATE_Y = 0.72, -- the name plate's centre (of the screen's height), just under the card
-		AURA_TEASE = 4.6, -- studs: the tier glow behind the pack from the second-to-last shake
+		OUT_TIME = 0.7, -- it arcs into the opener
+		FLY_ARC = 1.5, -- pack units the arc rises
+		PLATE_SIZE = Vector2.new(2.3, 0.55), -- pack units: the name plate billboard over the card
+		PLATE_UP = 0.45, -- pack units from the card's top edge to the plate's centre
+		AURA_TEASE = 4.6, -- pack units: the tier glow behind the pack from the second-to-last shake
 		AURA_HOLD = 6, -- while it strains
 		AURA_BURST = 7.5, -- behind the card on the flip (+0.6 per tier step)
+		LIGHT_RANGE = 4, -- pack units: the light on the pack (tier-coloured from the strain)
+		COIL = 0.16, -- it pulls back and down before the rip snaps
+		POP = 1.6, -- the card's overshoot as it grows on the flip (Back easing strength)
+		RING_SIZE = 9, -- pack units: the shockwave ring on the flip grows to this
+		HALO_SIZE = 3.6, -- pack units (+0.4 per tier step): the dashed halo spinning behind the card, Rare up
+		HALO_SPIN = 30, -- degrees per second
+		TWINKLES = 4, -- stars per second round the held card (+3 per tier step)
+		-- OPEN 3: the packs in a row across the opener's view, farther out, smaller cards; the best tier leads and
+		-- the others play their sounds quieter; tossed and collected one after another
+		BATCH_DISTANCE = 10, -- studs
+		BATCH_SPREAD = 6.5, -- studs between the packs
+		BATCH_CARD = 0.8, -- the shown card (and its plate and glow) against a lone pack's
+		TOSS_STAGGER = 0.12,
+		FLY_STAGGER = 0.15,
+		FOLLOW_VOLUME = 0.45,
 		-- PSE "Paper Tear Fast Harsh Rip Rustling Movement 1" (1.1 s); its first slice is the shake crinkle
 		Rip = s(9125724621, 0.85, 1.0),
 		Crinkle = s(9125724621, 0.32, 1.35, 0.14),
