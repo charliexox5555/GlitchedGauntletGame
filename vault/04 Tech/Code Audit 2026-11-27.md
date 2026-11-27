@@ -83,6 +83,7 @@ Checker: 3 errors, 0 warnings, 30 info. The 3 errors (`GlobalQueue` MemoryStore 
 - Studio smoke test: passed (below).
 
 ## Smoke test (Studio, 2026-11-27 01:55-02:08, Studio FreshOnboarding profile)
+Shared Studio note: the onboarding session's lock write crossed mine at 01:55. The match below was one Play session we both observed; the Locker/Shop checks after 02:02 likely ran in onboarding's restarted session. All of it was the same synced code on main.
 - Lobby boot 0.12 s, data ready at once, lobby client ready +0.3 s, **no `init failed` warnings** from the new protected boots.
 - A Beginner 2v2 bot match (instant onboarding match, in-server in Studio) ran 4 rounds to `MatchEnd` (winner team 2), about 2 minutes.
 - **The teardown path changed in #1 works:** the player was back in `Lobby` 7 s after the end, `Workspace.Matches` and `ReplicatedStorage.Matches` held only `range` (arena and state folder gone), and the character loaded ("body ok").
