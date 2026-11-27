@@ -241,8 +241,8 @@ local function matchPass()
 		end
 	end
 	tryCall("counts", function()
-		-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 		local store = lease :: MemoryStoreSortedMap
+		-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 		store:SetAsync("counts", waiting, COUNTS_TTL)
 	end)
 	counts = waiting
@@ -320,8 +320,8 @@ local function pollLoop()
 			elseif value == nil then
 				-- Expired (a slow heartbeat): write it again as it was.
 				tryCall("rewrite", function()
-					-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 					local store = tickets :: MemoryStoreSortedMap
+					-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 					store:SetAsync(id, data, TICKET_TTL, data.since)
 				end)
 			end
@@ -341,8 +341,8 @@ local function heartbeatLoop()
 				continue
 			end
 			tryCall("heartbeat", function()
-				-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 				local store = tickets :: MemoryStoreSortedMap
+				-- lihfolk-ignore: datastore-no-pcall (MemoryStore, inside tryCall, which pcalls)
 				store:UpdateAsync(id, function(old: any)
 					if typeof(old) == "table" and old.state == "waiting" then
 						return old

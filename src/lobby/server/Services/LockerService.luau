@@ -152,9 +152,20 @@ local function load(player: Player)
 		publish(player)
 		return
 	end
-	local ok, data = retry("load " .. player.UserId, function()
-		return store:GetAsync(Locker.key(player.UserId))
-	end)
+	-- keep trying (backoff) until it lands or they leave: a failed load never saves, so
+	-- giving up after one round would drop every equip for the whole session
+	local ok, data = false, nil
+	local pause = 3
+	while true do
+		ok, data = retry("load " .. player.UserId, function()
+			return store:GetAsync(Locker.key(player.UserId))
+		end)
+		if ok or records[player] ~= rec then
+			break
+		end
+		task.wait(pause)
+		pause = math.min(pause * 2, 30)
+	end
 	if records[player] ~= rec then
 		return -- left while loading
 	end
@@ -165,6 +176,10 @@ local function load(player: Player)
 			if rec.skins[gunId] == nil then
 				rec.skins[gunId] = line
 			end
+		end
+		if rec.dirty then
+			-- equips made while loading: their delayed save found nothing loaded yet
+			task.spawn(save, player)
 		end
 	end
 	publish(player)
