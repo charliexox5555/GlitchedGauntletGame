@@ -32,6 +32,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/First Ten Minutes.md` (11): new-player plan, minute by minute: fight first, one new thing per round, hints without words, what unlocks when, build order, targets, owner decisions
 - `01 Design/Loadout and Power Deck.md` (17): direction 2026-11-26 (**step 1 power deck built**: starter deck, deck of 10, draft from the deck, keys in draft order, powers from cases; **Locker v3 mockup**: RIVALS-style 3D stage, draggable power card): coins unlock guns, gun loadout before the match, round 1 secondary, powers drafted from your own deck, keys in draft order, fewer guns, economy rules, build order
 - `01 Design/Gunplay.md` (55): movement, slide, spread, recoil, aim assist, feedback, health/downed (§3), viewmodel (§6), feel roadmap (§5)
+- `01 Design/Movement Feel 2026-11-27.md` (6): movement / game-feel audit, ranked: running jumps were stuck in "Sprint" (fixed), stair-step air flicker, takeoff coil, touch jump push, Dash Ghost afterimage pool; before/after numbers, owner calls
 - `01 Design/Gun Balance.md` (10): health, shields, every gun's damage, TTK
 - [Gun and round balance playtest](05%20Production/Playtests/2026-11-19%20Gun%20and%20Round%20Balance.md): shot breakpoints, Sheriff in round two, Elite and Mod draft variety
 - [Ammo and assists playtest](05%20Production/Playtests/2026-11-19%20Ammo%20and%20Assists.md): reserve limits, Classic backup and assist feedback

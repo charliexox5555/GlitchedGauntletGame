@@ -96,7 +96,7 @@ Studio Edit-mode micro-benchmarks on the real data (median of 5 × 2,000 calls, 
 | Server `Status.mults` (no status) | 1.40 µs | per player per Heartbeat | ~17 µs a frame at 12 players. Unchanged. |
 | Server Motion sample (insert + `remove(1)` on 60) | 0.14 µs | per player per Heartbeat | Unchanged. |
 
-DashGhost and `ModFeelController.stepCharacters` were left to the movement-feel session.
+DashGhost and `ModFeelController.stepCharacters` were left to the movement-feel session. **Done 2026-11-27** ([Movement Feel 2026-11-27](../01%20Design/Movement%20Feel%202026-11-27.md)): DashGhost afterimages pooled (0 clones after a dasher's first dash, setAlpha targets cached); stepCharacters measured at 1.7 µs per player per frame, left as is.
 
 - **`Damage.hurt` cross-match bots (fixed, `802795e9`).** A bot with a `MatchId` (BotService sets it) takes no damage from a player who isn't in the Match zone or is in another match. Range and test dummies have no `MatchId`, so they're unaffected, and a whole-server match's players with no id still hit their bots.
 - **`ModRecall` hook slot (fixed, `802795e9`).** There is now one Crash Recovery hook per kit, keyed by `Context.id` through a new `ServerApi.matchId`. Each is taken once by that kit's `ModService.start` and then cleared, so an ended kit isn't kept alive.
