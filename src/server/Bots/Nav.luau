@@ -170,9 +170,16 @@ function Nav.canMove(bot: Bot, dir: Vector3, distance: number, jump: boolean?): 
 	if firstRise < -0.3 or firstRise > halfLimit or rise - firstRise > halfLimit then
 		return false
 	end
-	local raise = math.max(rise - stairs.clearance, 0)
-	return workspace:Blockcast(CFrame.new(pos + UP * raise), BODY, heading * distance, params)
-		== nil
+	-- The box (turned to face the heading) reaches half its depth past the look-ahead point, where the
+	-- flight is higher still: raise it for the floor under its front edge (measured on Rooftops' steps).
+	local front = Nav.ground(bot, pos + heading * (distance + BODY.Z * 0.5), 12)
+	local top = if front then math.max(rise, front.Y - feet) else rise
+	if top - rise > halfLimit then
+		return false
+	end
+	local raise = math.max(top - stairs.clearance, 0)
+	local facing = CFrame.lookAlong(pos + UP * raise, heading)
+	return workspace:Blockcast(facing, BODY, heading * distance, params) == nil
 end
 
 function Nav.zoneAllows(bot: Bot, endPos: Vector3, lead: number?): boolean
