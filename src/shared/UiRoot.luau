@@ -17,11 +17,13 @@
 -- so you see your edit, and a warning says it is parked.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 
 local UiLayout = require(script.Parent.UiLayout)
 local InputGlyphs = require(script.Parent.InputGlyphs)
+local ServerRole = require(script.Parent.ServerRole)
 
 local UiRoot = {}
 
@@ -34,6 +36,14 @@ UiRoot.PARKED_TEMPLATES = "UiEdit_Templates" -- the ScreenGui UiEdit wraps Templ
 
 -- Screens a controller clones itself (it owns the copy); `mount` skips these.
 UiRoot.SELF_COPIED = table.freeze({ MapVote = true })
+
+-- Lobby-only screens (loading pass 2026-11-27): Studio keeps them in ServerStorage.LobbyUI, and only a lobby
+-- server parents that folder into ReplicatedStorage (LobbyServer init), so reserved match servers never send
+-- them. UI.Lobby in PlayerScripts keeps what a match client also uses (Settings, LobbyTasks).
+UiRoot.LOBBY_ONLY = "LobbyUI" -- also the ReplicatedStorage attribute: "ready" | "none"
+local LOBBY_WAIT = 15 -- s
+-- Heavy pages their controller mounts on first open (`mount(group, playerGui, name)`), not at join.
+UiRoot.LAZY = table.freeze({ Shop = true, BattlePass = true })
 
 -- Layers (§4). A screen opts in by setting its `Layer` attribute (and an
 -- optional `LayerOrder` 0-9); until then `mount` leaves its settings alone.
@@ -81,6 +91,54 @@ function UiRoot.applyLayer(gui: ScreenGui)
 		+ (if typeof(extra) == "number" then math.clamp(extra, 0, 9) else 0)
 end
 
+-- The lobby-only screens folder (ReplicatedStorage.LobbyUI) on a lobby server, else nil.
+local function lobbyOnly(): Instance?
+	if not ServerRole.isLobby() then
+		return nil
+	end
+	local here = ReplicatedStorage:FindFirstChild(UiRoot.LOBBY_ONLY)
+	if here then
+		return here
+	end
+	-- The lobby server says whether the folder is coming ("ready") or not ("none": an older place keeps
+	-- everything in UI.Lobby), so a client never stalls on a folder that won't come.
+	local t0 = os.clock()
+	while
+		ReplicatedStorage:GetAttribute(UiRoot.LOBBY_ONLY) == nil
+		and os.clock() - t0 < LOBBY_WAIT
+	do
+		task.wait(0.1)
+	end
+	if ReplicatedStorage:GetAttribute(UiRoot.LOBBY_ONLY) ~= "ready" then
+		return nil
+	end
+	local found = ReplicatedStorage:WaitForChild(UiRoot.LOBBY_ONLY, LOBBY_WAIT)
+	if not found then
+		warn(
+			`[UiRoot] ReplicatedStorage.{UiRoot.LOBBY_ONLY} missing (LobbyServer parents it from ServerStorage)`
+		)
+	end
+	return found
+end
+
+-- The folders that hold `group`'s screens.
+local function folders(group: Group): { Instance }
+	local list: { Instance } = {}
+	local own = root():WaitForChild(group, 10)
+	if own then
+		table.insert(list, own)
+	else
+		warn(`[UiRoot] PlayerScripts.{UiRoot.FOLDER}.{group} missing`)
+	end
+	if group == "Lobby" then
+		local extra = lobbyOnly()
+		if extra then
+			table.insert(list, extra)
+		end
+	end
+	return list
+end
+
 -- The template screen `name` of `group` (yields until it exists). A parked
 -- copy wins in Studio.
 function UiRoot.source(group: Group, name: string): ScreenGui
@@ -88,23 +146,38 @@ function UiRoot.source(group: Group, name: string): ScreenGui
 	if edit then
 		return edit
 	end
-	return root():WaitForChild(group):WaitForChild(name) :: ScreenGui
+	local own = root():WaitForChild(group)
+	local here = own:FindFirstChild(name)
+	if here then
+		return here :: ScreenGui
+	end
+	local extra = if group == "Lobby" then lobbyOnly() else nil
+	if extra then
+		local found = extra:FindFirstChild(name)
+		if found then
+			return found :: ScreenGui
+		end
+	end
+	return own:WaitForChild(name) :: ScreenGui
 end
 
--- Copies every screen of `group` (bar the self-copied ones) into `playerGui`,
--- replacing older copies. Returns the copies.
+-- Copies every screen of `group` (bar the self-copied and lazy ones) into
+-- `playerGui`, replacing older copies. `only` copies just that screen (a lazy
+-- page's first open). Returns the copies.
 function UiRoot.mount(group: Group, playerGui: Instance, only: string?): { ScreenGui }
 	local made: { ScreenGui } = {}
-	local folder = root():WaitForChild(group, 10)
-	if not folder then
-		warn(`[UiRoot] PlayerScripts.{UiRoot.FOLDER}.{group} missing`)
-		return made
+	local sources: { Instance } = {}
+	for _, folder in folders(group) do
+		for _, s in folder:GetChildren() do
+			table.insert(sources, s)
+		end
 	end
-	for _, source in folder:GetChildren() do
+	for _, source in sources do
 		if
 			not source:IsA("ScreenGui")
 			or UiRoot.SELF_COPIED[source.Name]
 			or (only and source.Name ~= only)
+			or (not only and UiRoot.LAZY[source.Name])
 		then
 			continue
 		end

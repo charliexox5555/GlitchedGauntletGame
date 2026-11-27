@@ -1,14 +1,16 @@
 --!strict
 -- Edit a Studio-built screen (vault/04 Tech/UI Architecture.md §3).
 --
--- The UI lives in StarterPlayer.StarterPlayerScripts.UI (Lobby / Match /
--- Templates, plus Mockups: design screens the game never mounts), where Studio doesn't draw it. This parks a screen in StarterGui
+-- The UI lives in StarterPlayer.StarterPlayerScripts.UI (Lobby / Match / Templates), and the lobby-only screens
+-- (Shop, Locker, Battle Pass, ...) in ServerStorage.LobbyUI, which only a lobby server hands to its clients
+-- (Shared/UiRoot LOBBY_ONLY, 2026-11-27). Old and design screens are in ServerStorage.UiArchive (Mockups, LockerV2).
+-- Studio doesn't draw any of these. This parks a screen in StarterGui
 -- so it shows in the edit viewport, and stores it back when you're done.
 -- While a screen is parked, a Studio playtest shows the parked copy
 -- (Shared/UiRoot) and warns. Store everything back before you save the place.
 --
 -- Use: set ACTION and NAME below, paste the whole file into the Command Bar.
---   ACTION = "park",  NAME = "Shop"       -- show one screen (Lobby, Match or Mockups)
+--   ACTION = "park",  NAME = "Shop"       -- show one screen (from any of the homes below)
 --   ACTION = "park",  NAME = "Templates"  -- show the row/cell templates
 --   ACTION = "store", NAME = "*"          -- put everything parked back
 --   ACTION = "list",  NAME = ""           -- what is where
@@ -16,6 +18,7 @@
 local ACTION = "list"
 local NAME = ""
 
+local ServerStorage = game:GetService("ServerStorage")
 local StarterGui = game:GetService("StarterGui")
 local StarterPlayer = game:GetService("StarterPlayer")
 
@@ -26,6 +29,30 @@ local ui = StarterPlayer.StarterPlayerScripts:FindFirstChild("UI")
 if not ui then
 	warn("[UiEdit] StarterPlayer.StarterPlayerScripts.UI is missing")
 	return "missing UI folder"
+end
+
+-- Where each group's screens live (the name is stored on a parked screen, so `store` puts it back).
+local GROUPS = { "Lobby", "LobbyOnly", "Match", "Archive/Mockups" }
+local function home(group: string, make: boolean?): Instance?
+	if group == "LobbyOnly" then
+		local f = ServerStorage:FindFirstChild("LobbyUI")
+		if not f and make then
+			f = Instance.new("Folder")
+			f.Name = "LobbyUI"
+			f.Parent = ServerStorage
+		end
+		return f
+	elseif group == "Archive/Mockups" then
+		local archive = ServerStorage:FindFirstChild("UiArchive")
+		return archive and archive:FindFirstChild("Mockups")
+	end
+	local f = ui:FindFirstChild(group)
+	if not f and make then
+		f = Instance.new("Folder")
+		f.Name = group
+		f.Parent = ui
+	end
+	return f
 end
 
 local function park(name: string): string
@@ -43,8 +70,8 @@ local function park(name: string): string
 		holder.Parent = StarterGui
 		return "parked Templates (StarterGui." .. TEMPLATE_HOLDER .. ")"
 	end
-	for _, group in { "Lobby", "Match", "Mockups" } do
-		local folder = ui:FindFirstChild(group)
+	for _, group in GROUPS do
+		local folder = home(group)
 		local gui = folder and folder:FindFirstChild(name)
 		if gui and gui:IsA("ScreenGui") then
 			gui:SetAttribute(PARKED, group)
@@ -54,7 +81,7 @@ local function park(name: string): string
 			return `parked {group}.{name}`
 		end
 	end
-	return `no screen named {name} in UI.Lobby, UI.Match or UI.Mockups`
+	return `no screen named {name} in UI.Lobby, ServerStorage.LobbyUI, UI.Match or UiArchive.Mockups`
 end
 
 local function store(name: string): { string }
@@ -85,13 +112,7 @@ local function store(name: string): { string }
 			end
 			gui:SetAttribute(PARKED, nil)
 			gui:SetAttribute("UiEditWasEnabled", nil)
-			local home = ui:FindFirstChild(from)
-			if not home then
-				home = Instance.new("Folder")
-				home.Name = from
-				home.Parent = ui
-			end
-			gui.Parent = home
+			gui.Parent = home(from, true) or ui
 			table.insert(done, `{from}.{gui.Name}`)
 		end
 	end
@@ -109,8 +130,8 @@ elseif ACTION == "store" then
 end
 
 local lines = {}
-for _, group in { "Lobby", "Match", "Mockups" } do
-	local folder = ui:FindFirstChild(group)
+for _, group in GROUPS do
+	local folder = home(group)
 	local names = {}
 	for _, c in (if folder then folder:GetChildren() else {}) do
 		table.insert(names, c.Name)

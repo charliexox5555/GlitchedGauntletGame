@@ -35,7 +35,13 @@ function Sheet.show(
 	Sheet.clear()
 	local ui = StarterPlayer.StarterPlayerScripts:FindFirstChild("UI")
 	local folder = ui and ui:FindFirstChild(group)
-	local screen = (folder and folder:FindFirstChild(name)) or StarterGui:FindFirstChild(name)
+	-- lobby-only screens live in ServerStorage.LobbyUI (Shared/UiRoot LOBBY_ONLY)
+	local lobbyOnly = if group == "Lobby"
+		then game:GetService("ServerStorage"):FindFirstChild("LobbyUI")
+		else nil
+	local screen = (folder and folder:FindFirstChild(name))
+		or (lobbyOnly and lobbyOnly:FindFirstChild(name))
+		or StarterGui:FindFirstChild(name)
 	assert(screen and screen:IsA("ScreenGui"), `no ScreenGui {group}.{name}`)
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "UiDeviceSheet"

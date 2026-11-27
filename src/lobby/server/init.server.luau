@@ -21,6 +21,18 @@ local MATCH_SERVICES: { [string]: boolean } = {
 local role = ServerRole.get()
 local Services = script:FindFirstChild("Services")
 
+-- Lobby-only screens (Shop, Locker, Battle Pass, ...): Studio keeps them in ServerStorage, and only a lobby
+-- server hands them to its clients, first thing, so reserved match servers never send them (Shared/UiRoot
+-- LOBBY_ONLY; loading pass 2026-11-27).
+if role == "Lobby" then
+	local lobbyUi = game:GetService("ServerStorage"):FindFirstChild("LobbyUI")
+	if lobbyUi then
+		lobbyUi.Parent = ReplicatedStorage
+	end
+	-- clients wait for the folder only when it is coming (an older place keeps everything in UI.Lobby)
+	ReplicatedStorage:SetAttribute("LobbyUI", if lobbyUi then "ready" else "none")
+end
+
 -- Boot timing (owner 2026-11-22: "stuck on LOADING YOUR DATA"): a player who joins a fresh
 -- server waits for this whole boot before their save even starts loading, so any require or
 -- init slower than SLOW_STEP is named in the F9 Server log.
