@@ -38,6 +38,25 @@
    - The owner confirms the cut. Balance moves from "tier power" to "same strength, different range", a pass in [Gun Balance](Gun%20Balance.md).
 7. **The battle pass and tasks pay coins and unlocks**, not only cosmetics, so they matter.
 
+## Locker and weapon progression (owner 2026-11-26, from RIVALS' weapon pages)
+The Locker becomes a weapon hub: open a gun to unlock it, level it up, see its rewards, contracts and lifetime stats. It is a big piece of work; the owner agrees it's the right way.
+- **Gun pages:** each gun has its own page: preview, unlock (coins), level and reward track, contracts, lifetime stats (kills, headshot %, wins with it), skins.
+- **Weapon levels (Claude's pick):**
+  - Levels come from **playing with the gun** (XP for kills, wins and rounds played with it), so players have a reason to stick with a gun and come back to it. Coins don't buy levels.
+  - Level rewards are **cosmetic and coins only** (wraps, charms, kill effects, banners, a coin payout), never stats. This keeps guns as sidegrades and avoids pay-to-win.
+- **Contracts:** per-gun challenges ("10 headshots with the Deadeye") that pay coins or cosmetics. Same engine as the tasks the owner is building: share it, don't build two.
+- **Gun identity:** with no weapon tiers, every gun gets a clear signature so picking one is a playstyle, all around the same strength. Done in a [Gun Balance](Gun%20Balance.md) pass and playtested. Starting ideas:
+  - Deadeye: one-shot headshot, slow.
+  - Pump: big close burst.
+  - Lancer: accurate bursts.
+  - Mauler: big magazine, slow to start.
+  - Prowler: fastest on the move.
+  - Marksman: two-tap mid range.
+  - Spirit: quiet, no tracers.
+  - Havoc: the honest all-rounder.
+- **Knives:** skins only for now, with no knife abilities.
+- **Look:** a new Locker in the game's own style (`gauntlet-ui-style`), laid out like RIVALS' weapon pages: study, don't copy (`rivals-reference`). Built in Studio as real ScreenGuis; the owner edits.
+
 ## Economy (needs a pass before launch)
 Today a match pays 15 coins for finishing and 20 for a win, halved against bots, with a 400-coin daily cap (`Config/Economy.MATCH_COINS`). At about 10 coins a bot match, a 1,000-coin unlock is 100 matches. That is far too slow. Rules for the pass:
 - **The first unlock comes in the first session:** about 150 coins, reachable after match 2 plus the first task.
@@ -45,18 +64,20 @@ Today a match pays 15 coins for finishing and 20 for a win, halved against bots,
 - Tasks and the battle pass carry most of the coins.
 
 ## Build order (each step playtested with the owner before the next)
+(Updated 2026-11-26: the gun loadout ships with the new Locker; weapon levels, contracts and stats follow.)
 1. **Power deck and unlocks.**
    - Coin prices per power.
    - A starter deck.
    - A Locker deck screen (equip up to 6).
    - The draft deals from the deck.
    - Order-based key slots: `DraftService` columns become "a new power or an upgrade" cards, and `ModService` slots fill in draft order.
-2. **Gun loadout.**
+2. **Gun loadout and the new Locker (gun pages: unlock, equip).**
    - Primary and secondary chosen in the Locker; the gun row leaves the pick screen; tier escalation goes.
    - The secondary-round rule.
    - Unlocks with coins, and the gun cut.
-3. **Economy pass:** coin rewards, the task and battle pass payouts, prices.
-4. **Onboarding update:**
+3. **Weapon levels, contracts, stats** (contracts share the tasks engine), and the gun identity pass.
+4. **Economy pass:** coin rewards, the task and battle pass payouts, prices.
+5. **Onboarding update:**
    - Match 1 gives the starter loadout.
    - After match 2 the first unlock is affordable.
    - The first task points at it ("Unlock your first power").
