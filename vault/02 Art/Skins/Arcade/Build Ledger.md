@@ -1,0 +1,79 @@
+# Arcade build ledger (Season 1 battle pass, Rare)
+
+The Arcade line, built one gun at a time from [Arcade and Frostbite Handoff](../Arcade%20and%20Frostbite%20Handoff.md). Each gun is built in Blender on its stock RemasterV2 v05 rig, audited, self-graded, and shown to the owner before it goes on. Method, gates and rubric are copied from the [Rare Line Rework Handoff](../Rare%20Line%20Rework%20Handoff.md) and the [Slipframe rework ledger](../Slipframe/Rework%20Ledger.md). The checks are from [Skin Build Pitfalls](../Skin%20Build%20Pitfalls.md).
+
+## Line language (from the owner's ChatGPT concept, 2026-11-27)
+- **Cabinet body**: deep purple with a violet side-art field. Bold flat stripes (magenta band plus cyan line, raked about 30°) and a yellow eight-point starburst. Pixel steps cut into the field corners.
+- **Signature parts** (shape changes):
+  - a cabinet control deck on the player-facing side, with a pixel screen in a bezel and three faceted buttons in collars;
+  - a joystick ball on the charging knob;
+  - a coin door on the ejection side;
+  - a cabinet-profile butt with a marquee light;
+  - a stepped octagonal brake with a light ring.
+- **Kept from stock, on owner direction:**
+  - The ADS and charm mount are the same family across every gun. The concept's top joystick, sight shape and charm ring are not copied.
+  - The stock rear ring, front post, `CharmLoop` and `CharmPoint` are unchanged.
+
+### Palette (roles, `mf_hex`)
+| Role | Hex | Roblox |
+|---|---|---|
+| AR Body | `2A1745` | SmoothPlastic |
+| AR Panel | `3D2569` | SmoothPlastic |
+| AR Dark | `17121F` | SmoothPlastic |
+| AR Grip | `1E1929` | SmoothPlastic |
+| AR Metal | `2D3040` | Metal |
+| AR Accent | `6F6890` | SmoothPlastic |
+| AR Screen | `0B1424` | SmoothPlastic (never Glass) |
+| AR Magenta / Cyan / Yellow | `E01E8C` / `14C8DC` / `F5C518` | Neon (tune brightness in Studio) |
+| AR BtnMagenta / BtnCyan / BtnYellow | `E8338F` / `1FB8D2` / `F2C230` | SmoothPlastic |
+
+### Scripts (`tools/blender/arcade/`)
+- `arcade_lib.py`: the shared kit (loft, fold, recess, `prism_along`, `pixel_solid`, star plates, `dress`).
+- `10_vandal.py`: the build.
+- `49_audit.py`: the Slipframe audit, ported.
+- `20_review.py` + `21_review_vandal.py`: the captures.
+- `53_export.py`: the flat export and the re-import check.
+- `30_sheet.py`: the review sheet.
+
+## Vandal (Havoc), hero gun
+
+| Version | What changed |
+|---|---|
+| v01 | First build. Neon renders washed out; buttons and joystick too small. |
+| v02 | Buttons r 0.024 in r 0.030 collars; bigger joystick; cyan light pipe on the deck; purple butt. Audit found 2 flush faces (light strip against a recess wall, barrel cap against handguard cap). |
+| v03 | Both flush faces fixed. Full review. The mag stripe didn't line up with the stock cyan strip. |
+| v04 | Mag stripe realigned, but it clipped the magwell on 1 reload frame. |
+| **v05** | Mag stripe top lowered to z 0.052. **Candidate shown to the owner.** |
+
+**v05 results**
+- Master: `art-source/weapons/Skins/Arcade/Vandal/v05/Vandal_Arcade_v05.blend`. Export copy: `v05x/` (`Vandal_Arcade_RobloxFlat.fbx`, `manifest_flat.json`, 32 parts).
+- **Triangles:** 6,673 against 5,171 for the stock gun (1.29×, inside the 1.5-2× Rare budget). It is above the Art Direction 5K primary guide.
+- **Audit** (`out/Vandal_v05_views/audit.json`):
+  - 0 faults in new geometry. The 37 open-border islands are the stock gun's own, inherited unchanged.
+  - 0 coplanar pairs.
+  - Floating: only the charging handle group, which the stock gun has too. The joystick seats on its knob.
+  - Bones, locators and actions are identical to the stock.
+  - 0 animated intersections across the Draw, Fire, Inspect, Reload and ReloadEmpty clips.
+- **ADS:** all five `findOccluders` rays are clear. The post ray hits only `Vandal_FrontSight`, and the sights export as `SK_Root_Sight_*`. The joystick ball shows outside the ring at the lower left, nowhere near the window.
+- **Flat export:**
+  - 0 coplanar lifts needed, 0 flipped islands, 0 crossed faces.
+  - The one-sided magenta re-import shows no holes (`out/Vandal_v05x_flat_check/`).
+- **Review sheet:** [Vandal_v05_review.png](out/Vandal_v05_review.png) (local, git-ignored). It has hero, sides, top, first person, ADS, join close-ups, the Studio check and the stock comparison.
+- **Self-grade** (handoff rubric; the gun's grade is its lowest score). Overall **9/10**.
+
+| Area | Grade |
+|---|---|
+| Silhouette | 9 |
+| Crispness | 9 |
+| Layering | 9 |
+| Connections | 9 |
+| ADS | 9 |
+| Palette | 9 |
+| Budget | 9 |
+| Contract | 10 |
+
+**Owner review:** waiting (2026-11-27).
+
+**Notes for later:**
+- `export_skin_items_flat.VANDAL_VER` needs `"Arcade": "v05"` (or the approved version) before the other guns export, so they take the Vandal's palette.
+- The Neon brightness is untested in Studio.
