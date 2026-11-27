@@ -22,12 +22,24 @@ local FloorHoldController = {}
 local HOLD = Config.FLOOR_HOLD
 local player = Players.LocalPlayer
 local tokens: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+local HELD = "FloorHeld" -- local attribute on a root this controller anchored (client-set, never replicated)
 
 -- This screen has `character` at `targetPos` (the ArenaSpawn it waited for; the server checks it's the current one).
 local function ready(character: Model, targetPos: Vector3?)
 	if player.Character == character and character.Parent and PlayZone.get(player) == "Match" then
 		Net.event("BodyReady"):FireServer(character, targetPos)
 	end
+end
+
+-- Lets go of a hold this controller put on `root` (any runner's): only roots carrying the HELD mark, so an anchor
+-- someone else owns (the lobby's match lift) is left alone.
+local function release(root: BasePart)
+	if root:GetAttribute(HELD) ~= true then
+		return
+	end
+	root:SetAttribute(HELD, nil)
+	root.AssemblyLinearVelocity = Vector3.zero
+	root.Anchored = false
 end
 
 local function hold(character: Model, targetPos: Vector3?)
@@ -60,13 +72,15 @@ local function hold(character: Model, targetPos: Vector3?)
 		return workspace:Raycast(root.Position, Vector3.new(0, -HOLD.probe, 0), params) ~= nil
 	end
 	if floor() then
+		release(root)
 		ready(character, targetPos)
 		return
 	end
-	local anchoredHere = false
-	if not root.Anchored then
+	-- Marked on the root, not remembered in this call: a hold left by a destroyed runner (lobby → match) or by an
+	-- older hold this one replaced is still ours to let go of (code audit 2026-11-27: the fighter stayed frozen).
+	if not root.Anchored or root:GetAttribute(HELD) == true then
 		root.Anchored = true
-		anchoredHere = true
+		root:SetAttribute(HELD, true)
 	end
 	root.AssemblyLinearVelocity = Vector3.zero
 	task.spawn(function()
@@ -84,9 +98,8 @@ local function hold(character: Model, targetPos: Vector3?)
 	do
 		task.wait(HOLD.check)
 	end
-	if tokens[character] == my and anchoredHere and root.Parent then
-		root.AssemblyLinearVelocity = Vector3.zero
-		root.Anchored = false
+	if tokens[character] == my and root.Parent then
+		release(root)
 	end
 	if tokens[character] == my and os.clock() - started >= HOLD.max then
 		warn(string.format("[Health] C floor hold: no floor after %ds, let go", HOLD.max))
