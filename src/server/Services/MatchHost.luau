@@ -448,12 +448,34 @@ local function hostedArrival(player: Player)
 	if not entry then
 		local plan = planFor(player)
 		if not plan or not listed(plan, player.UserId) then
+			-- Walks this reserved server's lobby instead of playing: say so, it reads as "the map never loaded".
+			HealthLog.problem(
+				"hosted arrival without a plan",
+				player,
+				if plan then "not listed" else "no TeleportData"
+			)
 			return
 		end
-		hostedEntry = launchInstance(plan, { player }, true)
+		-- Listed players who got here first without a plan of their own (a lost TeleportData) play too.
+		local players = { player }
+		for _, other in Players:GetPlayers() do
+			if
+				other ~= player
+				and listed(plan, other.UserId)
+				and PlayZone.get(other) == "Lobby"
+			then
+				table.insert(players, other)
+			end
+		end
+		hostedEntry = launchInstance(plan, players, true)
 		return
 	end
 	if entry.ending or not entry.plan or not listed(entry.plan, player.UserId) then
+		HealthLog.problem(
+			"hosted arrival not seated",
+			player,
+			if entry.ending then "match already ending" else "not listed"
+		)
 		return
 	end
 	if table.find(entry.players, player) then
