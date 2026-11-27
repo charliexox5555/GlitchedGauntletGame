@@ -80,7 +80,14 @@ Checker: 3 errors, 0 warnings, 30 info. The 3 errors (`GlobalQueue` MemoryStore 
 
 ## Checks
 - `stylua --check src`: clean on committed code (the only diffs were other sessions' uncommitted edits). `selene src`: 0 errors, 0 warnings. `rojo build default.project.json -o %TEMP%/ca_check.rbxl`: builds. LihFolk checker: 0 errors.
-- Studio smoke test: see the Status line in [00 Home](../00%20Home.md) and below.
+- Studio smoke test: passed (below).
 
-## Smoke test
-(filled in after the run)
+## Smoke test (Studio, 2026-11-27 01:55-02:08, Studio FreshOnboarding profile)
+- Lobby boot 0.12 s, data ready at once, lobby client ready +0.3 s, **no `init failed` warnings** from the new protected boots.
+- A Beginner 2v2 bot match (instant onboarding match, in-server in Studio) ran 4 rounds to `MatchEnd` (winner team 2), about 2 minutes.
+- **The teardown path changed in #1 works:** the player was back in `Lobby` 7 s after the end, `Workspace.Matches` and `ReplicatedStorage.Matches` held only `range` (arena and state folder gone), and the character loaded ("body ok").
+- **The runner cleanup (#9) works:** back in the lobby, MouseDeltaSensitivity was 1, there was no FirewallHazeBlur, no Effects/ModFx/ModPreview folders and no SoundService Ambience folder.
+- **Locker:** opened from the bar (one LockerV3Focus, one stage), closed with Back (no blur left, camera Custom, LobbyBar back). The close-wipe reopen race (#7) couldn't be clicked: the bar is hidden during the wipe.
+- **Shop:** opened from the coins "+" (a new player's bar shows only Locker and Settings), COINS page drawn.
+- **Console:** no errors. The only warnings were the existing ones (Rubik font temp read, `rbxassetid://203785492` asset type).
+- Seen on the way, mobile-ui's in-progress layout: the bar's Shop and Locker buttons overlapped (Shop 754-883, Locker 824-953 px at 1919 wide), so a click on Shop's centre opened the Locker.
