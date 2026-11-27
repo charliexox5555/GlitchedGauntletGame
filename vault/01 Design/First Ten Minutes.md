@@ -1,6 +1,6 @@
 # First Ten Minutes (plan, 2026-11-26)
 
-The owner's brief: plan the first ten minutes so new players get hooked and learn the game **by playing**: one new thing at a time, nobody talking at them, no menus they can't understand yet ("okay, I pick one of these 3 guns. What gun do I pick?"). This note is the plan; §8 says what was built (2026-11-26).
+The owner's brief: plan the first ten minutes so new players get hooked and learn the game **by playing**: one new thing at a time, nobody talking at them, no menus they can't understand yet ("okay, I pick one of these 3 guns. What gun do I pick?"). This note is the plan; §8 says what was built (2026-11-26). **The match flow of §3-§5 and §8 is replaced by [§13, onboarding for the loadout update](#13-onboarding-for-the-loadout-update-2026-11-27)** (2026-11-27: owned guns, round 1 sidearms, no tiers, no free case). The rules (§1), the learn-by-playing call (§2) and the readouts stay.
 
 Inputs:
 - The live funnel ([readout 2026-11-26](../05%20Production/Fantasy%20and%20Retention%20Plan%202026-11-25.md#8-readout-2026-11-26-61-players-last-hour-ad-traffic)).
@@ -30,6 +30,8 @@ Inputs:
 - The Range (being built now) is the **optional** practice place: reachable from the lobby once it unlocks, never forced. The bots in a new player's first two matches are the tutorial: Rookie bots, red enemies, Arena only.
 
 ## 3. What a new player sees, minute by minute
+
+> **[REPLACED 2026-11-27 by §13.]** Handed-out guns, GUNS UP tiers and the free case no longer exist. Kept as history.
 
 Today a new player reaches the fight like this: loading → auto-start → **round 1's pick screen** (3 guns and 3 powers, up to 22 s, ends early on lock-in) → 3-2-1 → fight. Beginner already skips the map vote (Arena only). The changes below are marked **NEW**; everything else is already built.
 
@@ -166,6 +168,8 @@ Read `MatchLeft` (phase, last round W/L, device) alongside. If gap quits are mos
 6. The Range: show it after match 2 as optional practice, or keep it hidden until match 3.
 
 ## 8. Built (2026-11-26)
+
+> **[REPLACED 2026-11-27 by §13]** for the match script, the guns and the case. The bug fixes below still hold.
 
 The owner approved the plan and Claude's picks ("I like this … whatever you think is best for the second match"), with two changes: **no friend rule** (everyone goes straight in) and **no auto-start into match 2**.
 
@@ -339,3 +343,58 @@ Measured in Studio (Beginner): round end 2.1 s, then 5 s of picking, then the 3-
 - `PAIR_WHEN_BUSY = 3`: with 3 or more matches running, a new player waits up to `PAIR_WAIT` 2.5 s for another new player at the same onboarding match, and the two play one match on opposite teams. A quiet server starts at once.
 - `MatchHost.watchLoad` logs `server slow` (HealthLog: matches, players, fps) when a lobby with matches running drops under 45 fps over 30 s. Tune the cap from those lines. Studio can't measure server load.
 - Not tested in Studio: the cap and the pairing need several real players. Both are code-reviewed only.
+
+## 13. Onboarding for the loadout update (2026-11-27)
+Owner (2026-11-27): "redo onboarding ... with the new system, change it up a little bit, make it different"; "we don't need to be 3 rounds. It could be 4 rounds. Honestly, we could maybe even go up to the full 5. Like Rivals has it." Earlier: no free skin case in onboarding (done, commit c4e4f1b9).
+
+What changed under it: guns are owned (a new player has the **Classic** and the **Havoc**), round 1 of every match is sidearms only, the shared weapon tiers are gone, powers come from your own deck (starters **Dash, Updraft, Molly, Frost**). The old script handed out Sheriff / Prowler / Havoc / Mauler, which new players don't own. Now the onboarding plays the **real loadout and the real rules**, and only the draft is scripted.
+
+**Length: both onboarding matches are first to 4** (Claude's pick from "4, maybe 5"). Four rounds is the shortest match 1 can be, so the four steps below always fit, even in a 4-0 win. **To make match 1 first to 5, set `Config/Onboarding SCRIPT[1].roundsToWin = 5`** (match 2: `SCRIPT[2]`). First to 3 (`FIRST_MATCH_ROUNDS_TO_WIN`) is gone.
+
+### Match 1: one new thing per round
+| Round | Before it | The one new thing | In hand |
+|---|---|---|---|
+| 1 | No pick screen: 1.5 s to spawn, then the 3-2-1 ("GET READY · Sidearms only") | Move, shoot, red enemies. Round 1 is a pistol round, as in every match. No power yet | Classic |
+| 2 | **The first draft:** two big cards, **Dash** or **Updraft** (single taps), one gold and preselected | **A power, chosen in the draft.** Its key pulses until the first use. The Havoc comes out by the game's own rule, with the existing "GUNS UP · Full loadout" banner | Classic + Havoc |
+| 3 | Two big cards: **Frost** or **Molly** (held throws) | **Powers stack:** a second power on the next key, and the held-throw hint | Classic + Havoc |
+| 4 | One centred **Glitched** card on their first power, preselected | **Upgrades:** powers level up, and Glitched cards break the rules | Classic + Havoc |
+| 5+ | The normal deal (a third power, or A/B upgrades) | — | Classic + Havoc |
+
+How it differs from the old flow:
+- No power in round 1, so the first fight is the plain gunfight every real match opens with.
+- The first power is a choice, not a gift.
+- Both throws come in round 3.
+- The Glitched card moves to round 4.
+
+### Match 2: the real draft
+- **Round 1 has the real pick screen:** one new power per slot (three cards from their deck), during the sidearm round. **New:** a choice of three.
+- **Round 2 on: the real columns.** These are A/B upgrades for powers they hold, or a new power on an empty slot. **New:** upgrade paths.
+- There is no scripted Glitched card any more (they saw one in match 1). The normal chance applies.
+- **Their own saved loadout.** A gun they unlocked after match 1 is in their hands from round 2 of match 2.
+- The pick screen stays in focus mode as before (no empty columns).
+
+### Back in the lobby: the first unlock
+This replaces the old free case and its OPEN / EQUIP callouts.
+- **When it shows:** back in the lobby after match 1 or later, with only the starter guns owned and coins ≥ the cheapest locked gun.
+- **What it does:** the Locker icon pulses and carries the tag **UNLOCK A GUN**. Clicking it opens the Locker on the cheapest gun they can afford, with its UNLOCK button in view, so the purchase is one more click (the real confirm).
+- **First time only:** it is seen once (bit 8 of `onb.seen`) and never shows again. It also never shows once they own any non-starter gun.
+- It goes before the Shop / Backpack / Party NEW badges, one callout at a time.
+- **When it lands depends on the coin numbers.** Workstream 5 targets the first unlock in 2-3 matches. With the old pay (about 17 coins for a bot match against a 400-coin gun), it wouldn't show for weeks.
+
+### Removed
+- `HANDED_GUNS` and the script's `handGuns`.
+- The onboarding weapon-phase boost (`ONBOARDING_PHASE_ROUNDS`, MatchState `PhaseBoost`).
+- `FIRST_MATCH_ROUNDS_TO_WIN`, replaced by the per-match `roundsToWin` in the script.
+- `GLITCH.onboardingRound`, since round 4's script step does that job now.
+
+### Unchanged
+- Rookie bots, red enemies, the Arena only and the first-use power nudge.
+- NEXT MATCH / LOBBY after match 1.
+- The lobby menus unlock after match 2.
+- PLAY stays straight-to-Beginner until match 3.
+- Bots keep random loadouts from the active set, so a new player sees the guns they can unlock.
+
+### Admin testing
+- **RESET SAVE TO DEFAULT** (`resetProfile`) makes a brand-new save: starter guns and starting coins. This is the full new-player path, including the first-unlock moment once they can afford a gun.
+- **START FULL ONBOARDING** (`startOnboarding`) replays matches 1-2 with the save's own guns, deck and coins. The unlock moment shows only if they still own just the starters.
+- Studio: `Workspace.FreshOnboarding = true` before Play gives a throwaway fresh save.
