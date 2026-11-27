@@ -110,3 +110,6 @@ art-source/audio/riftforge/knife_v1/
 
 # Generated vault map cache (tools/vault_map.py)
 tools/.cache/
+
+# UI device-check captures (show Roblox's own top bar and test UI; kept local)
+art-source/ui/device-check-*/
