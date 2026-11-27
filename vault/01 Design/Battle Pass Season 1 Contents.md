@@ -8,8 +8,9 @@ First full list of what's in the Season 1 pass, for the owner to go through item
   - Premium: 500 / 650 / 750 / 900 / 1,000 / 1,200 = **5,000**, at tiers 3 / 7 / 11 / 16 / 22 / 27.
   - Free: 200 / 300 / 400 / 500 / 600 = **2,000**, at tiers 1 / 12 / 20 / 28 / 30.
   - In `SeasonCatalog`.
-- **Goodie bags join Season 1.** A pass reward that opens into other things, like RIVALS' bags with wrap boxes, finisher packs and charm capsules. Not built; the proposal and open questions are in [Handoff - Battle Pass Build](../05%20Production/Handoff%20-%20Battle%20Pass%20Build%202026-11-27.md#e-goodie-bags).
-- **Owner note:** "I'm not gonna make new skins for things." To confirm: do Arcade and Frostbite still get made, or do pass skins reuse existing lines? See the handoff.
+- **Goodie bags join Season 1.** 3 bags, at premium tier 14 and tiers 18 and 19, kept in the Backpack and opened with the odds shown. Odds, most common first: coins, a charm pack, a case, a random-gun Arcade skin (working odds 60 / 25 / 10 / 5). Not built; it comes after the charm pack: [Handoff - Battle Pass Build](../05%20Production/Handoff%20-%20Battle%20Pass%20Build%202026-11-27.md#e-goodie-bags).
+- **Arcade and Frostbite are being made** (owner, 2026-11-27): [Arcade and Frostbite Handoff](../02%20Art/Skins/Arcade%20and%20Frostbite%20Handoff.md).
+- **Charms go one per gun:** the player puts each charm on one gun, and it saves. Built by Antigravity: [Handoff - Charms](../05%20Production/Handoff%20-%20Charms%202026-11-27.md). A charm pack (like SURGE) comes later.
 
 ## Frame (kept from the placeholder)
 - 30 tiers. Free track for everyone, premium track **689 Robux**, **+5 levels 499 Robux**.

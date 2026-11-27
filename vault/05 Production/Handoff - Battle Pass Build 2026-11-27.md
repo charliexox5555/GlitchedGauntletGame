@@ -11,10 +11,10 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
 | 4 The pass screen on the real save | Done, except the phone layout (F) |
 | 5 Titles | Done: data, equip, profile card, lobby player list. Name tags (A) and the match scoreboard / end screen (B) are briefs here. |
 | Random-gun skins, raised coins | Done (2026-11-27) |
-| 6 Charms | Brief C |
+| 6 Charms | [Handoff - Charms](Handoff%20-%20Charms%202026-11-27.md) (Antigravity) |
 | 7 Powers (Smoke, Electric Shock) | Brief D |
-| Goodie bags | Brief E (needs owner answers first) |
-| 8 Art | Brief G |
+| Goodie bags | Brief E (answered; after the charm pack) |
+| 8 Art | Skins: [Arcade and Frostbite Handoff](../02%20Art/Skins/Arcade%20and%20Frostbite%20Handoff.md) (Opus); charms: in the charms handoff |
 | 9 Season end and launch | Brief H |
 
 ## Rules for every brief (paste with each one)
@@ -74,21 +74,10 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
   - Phone size 844x390 has no overlap (Device Emulator: the owner checks).
 
 ## C. Charms (build plan phase 6)
-**Goal:** a charm hangs from the gun and swings.
-- **Data that exists:**
-  - `data.charms = { owned, on }`, granted by pass claims (`SeasonRewards.grant`, kind `Charm`, by name such as `JOYSTICK`).
-  - Every gun has a `CharmPoint` attachment.
-- **Build:**
-  - **Equip:** `LockerRequest ("charm", name or "")`, like the title equip in `Services/LockerService` (one charm on all guns, owner can change).
-  - **Publish:** `on` as a `Charm` StateValue (copy how `Title` is published in `PlayerData.publish`).
-  - **Locker slot:** a charm slot in the Locker.
-  - **Runtime:**
-    - Hang the charm model from `CharmPoint` on the viewmodel and the third-person gun, with a spring swing from movement, turning and recoil.
-    - Epic charms get a small effect.
-    - High Score shows this match's kills from a server-set attribute.
-    - Pool the models and clean up on unequip.
-  - **Models:** the 8 charm models are art (brief G). Until then use a simple stand-in clearly named `Placeholder` (owner rule: no placeholder bricks in shipped art, so it must be replaced before launch).
-- **Done when:** all 8 charms swing in first and third person in Studio, equip saves across a rejoin, and there are no leaked connections.
+**Moved to its own handoff (owner 2026-11-27, built in Antigravity):** [Handoff - Charms](Handoff%20-%20Charms%202026-11-27.md), with the paste-in prompt [2026-11-27 Charms (Antigravity)](../04%20Tech/Prompts/2026-11-27%20Charms%20(Antigravity).md).
+- Decided: **each charm goes on one gun** (saved per gun; moving it takes it off the other gun).
+- Charms are for all 14 guns and every skin.
+- A **charm pack** (like the SURGE pack, not a case) comes after.
 
 ## D. Powers: Smoke and Electric Shock (build plan phase 7)
 **Goal:** the two pass powers, locked to the pass.
@@ -104,16 +93,17 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
 - **Done when:** a player who hasn't claimed them never sees them in a draft; both pass the three passes in a bot match; and the owner OKs the feel.
 
 ## E. Goodie bags
-**Owner 2026-11-27:** add goodie bags to Season 1. Like RIVALS' bags that open into wrap boxes, finisher packs and charm capsules. **Needs owner answers before building:**
-1. **What a bag holds.** Proposal: 1 roll from a table, e.g. 55% coins (300-800), 25% a Standard Case, 15% a random charm not owned (from a pool of extra charms), 5% a random-gun Arcade skin.
-2. **How many and where.** Proposal: 3 bags, replacing premium 2 Tickets (tier 14), free Standard Case (tier 18) and premium Elite Case (tier 19).
-3. **Opened straight away on claim, or kept in the Backpack** to open later like cases. Proposal: kept in the Backpack (`data.items`, a new `Inventory.ITEMS` entry), opened with the case-opening flow.
-4. **Odds shown?** A bag from the pass isn't bought directly, but premium is paid. Show the odds anyway, as cases do (`Util/OddsList`).
+**Owner answers (2026-11-27):**
+- **Odds, most common first:** coins, then a **charm pack** (less rare), then a **case** (rare), then a random-gun **Arcade skin** (rarest). Working odds, tune in config: coins 60% (300-800), charm pack 25%, Standard Case 10%, Arcade skin 5%.
+- **Count and placement as proposed:** 3 bags, replacing premium 2 Tickets (tier 14), free Standard Case (tier 18) and premium Elite Case (tier 19).
+- **Kept in the Backpack** and opened like a case, with the odds shown.
 
-**Build after the answers:**
+**Depends on** the charm pack, which comes after charms (C). Build the bags after the pack exists, or ship them first with the charm-pack slot paying a random unowned charm.
+
+**Build:**
 - An `Inventory.ITEMS` entry (`BagSeason1`), a roll table in config, and a `Bag` reward kind in `SeasonCatalog` / `SeasonRewards.grant`.
 - The open action in `ShopService` (`openCase` is the pattern: roll, grant and use the item in one write).
-- The Backpack shows it, with odds.
+- The Backpack shows it, with odds (`Util/OddsList`).
 
 **Done when:** claim → Backpack → open pays one roll, a double-open pays once, and the odds panel shows.
 
@@ -124,10 +114,9 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
 - **Done when:** all three are visible in Studio, and the owner OKs the phone screenshot.
 
 ## G. Art (build plan phase 8)
-- **First, an owner question.** On 2026-11-27 the owner said "I'm not gonna make new skins for things". Ask whether Arcade (Rare) and Frostbite (Legendary) are still made, or whether pass skins reuse existing lines. Pass skins are now random-gun, so a line needs a model for **every gun in `Config/Loadout`** (10 primaries + 4 secondaries), or `SeasonRewards.rollGun` must only roll guns that have the line's model (`Shared/Locker.valid(gun, line)`). Pick one before launch: today it rolls any active gun.
-- **8 charm models.**
-- Blender pipeline: `gauntlet-build-style`, `gauntlet-model-joins`, the Style Bible, and the owner's weapon art bar (self-grade 9+). Neither line goes into cases.
-- **Done when:** the owner OKs the renders, then sees them in Studio.
+- **Skins:** confirmed (owner 2026-11-27). Arcade and Frostbite are being made, in a new Opus chat, starting with one skin for approval: [Arcade and Frostbite Handoff](../02%20Art/Skins/Arcade%20and%20Frostbite%20Handoff.md). The Outlaw/TwinShot is gone.
+  - Before launch, every line a pass tier can roll must have a model for every gun the roll can pick. Otherwise `SeasonRewards.rollGun` must also require `Locker.hasSkin(gun, line)`. That handoff asks the owner how many guns Frostbite covers.
+- **Charm models:** part of the charms handoff (C).
 
 ## H. Season end and launch (build plan phase 9)
 - **Season end:** at `Season.endsAt()`, unclaimed rewards already reached are paid on the next join or save (`SeasonRewards.claimAll` inside one write), then the season locks. Changing `Season.ID` wipes progress, so pay first.
@@ -140,7 +129,8 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
   - Check that every reward kind has its art (G) and that the two powers are built (D).
 - **Done when:** a forced season end in Studio pays leftovers exactly once.
 
-## Owner answers still needed
-1. Goodie bags: contents, count and placement, kept or opened at once (E).
-2. Arcade and Frostbite: still made, or reuse existing skins (G)?
-3. Charms: one charm on all guns, or one per gun (C)?
+## Owner answers
+1. ~~Goodie bags~~: answered 2026-11-27 (E).
+2. ~~Arcade and Frostbite~~: being made (G).
+3. ~~Charms~~: one charm on one gun (C).
+4. Still open: Frostbite's gun count (in the skins handoff), and charm duplicates later (in the charms handoff).
