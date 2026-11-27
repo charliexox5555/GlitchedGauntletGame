@@ -23,7 +23,7 @@ local RISE_T = 1.45
 local RISE = 7
 local OVERSHOOT = 0.35
 local SETTLE_T = 0.35
-local HOLD = 2.1 -- how long the overlay waits; the server teleports 3.5 s after "found"
+local HOLD = 2.1 -- how long the overlay waits; the server teleports Lobby Config.matchFoundDelay (2.0 s) after "found"
 -- the queue bays' team colours (keep in step with LobbyPadFx TEAM)
 local TEAM = { [1] = Color3.fromHex("FFB627"), [2] = Color3.fromHex("2EC8FF") }
 local GOLD = Color3.fromHex("FFB627")
