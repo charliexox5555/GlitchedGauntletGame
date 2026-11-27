@@ -230,4 +230,37 @@ return table.freeze({
 	LOCAL_VOLUME = 1.35, -- your own opening, on top of the volumes above (owner 2026-11-25: louder)
 	OTHERS_VOLUME = 0.5, -- someone else's opening is quieter (RIVALS does the same)
 	ROLLOFF = Vector2.new(16, 80), -- studs: full volume / silent (16: the camera behind you stays at full)
+	-- The SURGE power pack (Util/PackOpening; owner 2026-11-26: "a card pack, and it rips open the card pack and
+	-- looks cool"). Yours only, in front of your camera over a dim backdrop: it flies in, shakes (TIER_SHAKES, the
+	-- tier glow from the second-to-last), strains for TIER_FX.hold, the top strip tears off from the notch with
+	-- sparks, the power card slides out, flips to its face in the tier glow with a small name plate, then drops
+	-- into the Backpack. Seconds unless noted.
+	PACK = table.freeze({
+		SCREEN = 0.44, -- of the screen's height the pack fills (its distance follows the FOV)
+		DIM = 0.3, -- backdrop transparency (0 = black)
+		IN_TIME = 0.5,
+		IN_SPIN = 200, -- degrees of yaw while flying in
+		SWAY = 4, -- degrees of idle sway while waiting
+		SHAKE_EVERY = 0.42,
+		SHAKE_ANGLES = { 5, 7, 9, 11, 13 }, -- degrees of roll, growing
+		RIP_TIME = 0.34, -- the strip tears off from the notch to its far end
+		RIP_LIFT = 26, -- degrees the strip turns up while tearing
+		STRIP_FLY = 0.55, -- then it flies off
+		CARD_SCALE = 0.6, -- the card inside the pack (2.12 x 2.65 studs at 1)
+		SLIDE_TIME = 0.5, -- the card slides up out of the pack
+		SLIDE_UP = 1.7, -- studs (pack scale)
+		DROP_TIME = 0.45, -- the empty pack drops away and fades
+		FLIP_TIME = 0.55, -- the card comes to the centre, grows and flips to its face
+		CARD_GROW = 1.0, -- card scale after the flip (pack scale)
+		HOLD = 2.6, -- the card stays
+		OUT_TIME = 0.35, -- it drops into the Backpack
+		CARD_LIFT = 0.5, -- studs (pack scale) the shown card sits above the centre, clear of the PLAY bar
+		PLATE_Y = 0.72, -- the name plate's centre (of the screen's height), just under the card
+		AURA_TEASE = 4.6, -- studs: the tier glow behind the pack from the second-to-last shake
+		AURA_HOLD = 6, -- while it strains
+		AURA_BURST = 7.5, -- behind the card on the flip (+0.6 per tier step)
+		-- PSE "Paper Tear Fast Harsh Rip Rustling Movement 1" (1.1 s); its first slice is the shake crinkle
+		Rip = s(9125724621, 0.85, 1.0),
+		Crinkle = s(9125724621, 0.32, 1.35, 0.14),
+	}),
 })

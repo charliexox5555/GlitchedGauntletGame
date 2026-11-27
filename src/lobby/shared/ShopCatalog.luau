@@ -126,8 +126,8 @@ ShopCatalog.CASES = {
 	},
 	{
 		id = "Power", -- powers only (Shared/PowerCases): a power you don't own yet, Tickets only
-		name = "SURGE CASE",
-		art = "rbxassetid://104790440951707", -- crate_power_wide.png
+		name = "SURGE PACK",
+		art = "rbxassetid://88263832595455", -- art-source/ui/pack/pack_power.png (a card pack, owner 2026-11-26)
 		color = Color3.fromHex("C9961F"),
 	},
 } :: { Case }

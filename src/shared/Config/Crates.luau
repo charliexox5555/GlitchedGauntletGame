@@ -12,6 +12,7 @@ export type Tier = {
 	roles: { [Role]: Look },
 	template: string?, -- the model in ReplicatedStorage.Crates (default TEMPLATE, the big crate)
 	scale: number?, -- the in-world opening's scale (default Config/CaseOpening.SCALE)
+	pack: boolean?, -- a card pack (Util/PackOpening: it floats in front of your camera and rips open), not a crate
 }
 
 local function look(hex: string, material: Enum.Material?): Look
@@ -105,7 +106,10 @@ local TIERS: { [number]: Tier } = {
 	-- (tools/blender/crates/build_power_case.py, 2.0 studs long, opened at 2x), charcoal and gold
 	[7] = {
 		name = "Surge",
-		template = "PowerCase",
+		-- a card pack, not a case (owner 2026-11-26: "it rips open the card pack and looks cool"):
+		-- tools/blender/crates/build_power_pack.py + tools/studio/BuildPack.luau; Util/PackOpening plays it
+		template = "PowerPack",
+		pack = true,
 		scale = 2.0,
 		accent = Color3.fromHex("FFC83D"),
 		roles = {

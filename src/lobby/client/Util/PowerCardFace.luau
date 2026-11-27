@@ -40,7 +40,7 @@ local function setText(parent: Instance, name: string, text: string)
 	end
 end
 
--- Fills the card for power `id`; `foot` is the bottom-right word ("" for none, "POWER CASE", "NEW").
+-- Fills the card for power `id`; `foot` is the bottom-right word ("" for none, "POWER PACK", "NEW").
 function PowerCardFace.fill(card: Model, id: string, foot: string)
 	local def = Mods.def(id)
 	local f = PowerCardFace.front(card)

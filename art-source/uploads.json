@@ -8062,6 +8062,24 @@
   "type": "Decal",
   "uploaded": "2026-11-16 18:37:11"
  },
+ "art-source/ui/pack/pack_power.png": {
+  "assetId": 74423269339773,
+  "name": "GG pack_power",
+  "type": "Decal",
+  "uploaded": "2026-11-26 23:46:58"
+ },
+ "art-source/ui/pack/pack_power_card.png": {
+  "assetId": 135435236581854,
+  "name": "GG pack_power_card",
+  "type": "Decal",
+  "uploaded": "2026-11-26 23:47:04"
+ },
+ "art-source/ui/pack/surge_bolt.png": {
+  "assetId": 124366563168977,
+  "name": "GG surge bolt",
+  "type": "Decal",
+  "uploaded": "2026-11-26 23:42:31"
+ },
  "art-source/ui/powerduels/ui/duels.png": {
   "assetId": 120431138519485,
   "imageId": 113740015524735,

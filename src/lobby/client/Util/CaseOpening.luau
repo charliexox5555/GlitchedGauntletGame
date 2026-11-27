@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local Cfg = require(ReplicatedStorage.Shared.Config.CaseOpening)
+local Crates = require(ReplicatedStorage.Shared.Config.Crates)
 local CrateLook = require(ReplicatedStorage.Shared.CrateLook)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
@@ -31,6 +32,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local Vfx = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ItemStage = require(script.Parent.ItemStage)
+local PackOpening = require(script.Parent.PackOpening)
 local PowerCardFace = require(script.Parent.PowerCardFace)
 -- the name plate over a rising power card is smaller than a skin's (owner 2026-11-26: "a bit too large")
 local POWER_CARD_SCALE = 0.7
@@ -1203,6 +1205,14 @@ function CaseOpening.start(
 	isLocal: boolean,
 	count: number
 ): Handle?
+	local tierDef = Crates.TIERS[crateTier]
+	if tierDef and tierDef.pack then
+		-- a card pack (the SURGE power pack): it rips open in front of your own camera; nobody else sees it
+		if not isLocal then
+			return nil
+		end
+		return PackOpening.start(owner, crateTier, count) :: any
+	end
 	local ownerRoot = rootOf(owner)
 	if not ownerRoot then
 		return nil

@@ -55,7 +55,7 @@ card.LayoutOrder = 1
 local button = need(card, "Card")
 local art = button:FindFirstChild("CaseArt")
 if art and art:IsA("ImageLabel") then
-	art.Image = "rbxassetid://137034219078301" -- art-source/ui/shop/crates/crate_power_card.png
+	art.Image = "rbxassetid://84988833141911" -- art-source/ui/pack/pack_power_card.png
 end
 local name = button:FindFirstChild("Name")
 if name and name:IsA("TextLabel") then
@@ -63,7 +63,7 @@ if name and name:IsA("TextLabel") then
 end
 local kind = button:FindFirstChild("Kind")
 if kind and kind:IsA("TextLabel") then
-	kind.Text = "POWER CASE"
+	kind.Text = "POWER PACK"
 end
 card.Parent = row
 row.Parent = home

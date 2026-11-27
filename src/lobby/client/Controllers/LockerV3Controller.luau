@@ -693,7 +693,7 @@ end
 local function fillCard(id: string, owned: boolean)
 	local c = card
 	if c then
-		PowerCardFace.fill(c, id, if owned then "" else "POWER CASE")
+		PowerCardFace.fill(c, id, if owned then "" else "POWER PACK")
 	end
 end
 
@@ -777,7 +777,7 @@ local function refreshPowerPanel()
 	end
 	local b = find(powerPanel, "DeckButton.Button")
 	if not owned then
-		paint(b, GOLD, "OPEN POWER CASES", true)
+		paint(b, GOLD, "OPEN POWER PACKS", true)
 	elseif m.equipped[id] then
 		paint(
 			b,

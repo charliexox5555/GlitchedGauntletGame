@@ -1,0 +1,39 @@
+{
+ "parts": {
+  "Body_Foil": {
+   "group": "Body",
+   "role": "Foil",
+   "tris": 520
+  },
+  "Body_Seal": {
+   "group": "Body",
+   "role": "Seal",
+   "tris": 936
+  },
+  "Top_Seal": {
+   "group": "Top",
+   "role": "Seal",
+   "tris": 948
+  },
+  "Body_Label": {
+   "group": "Body",
+   "role": "Label",
+   "tris": 92
+  }
+ },
+ "pivots": {
+  "Body": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "Top": [
+   0.8600000143051147,
+   0.0,
+   0.9300000071525574
+  ]
+ },
+ "units": "studs",
+ "axes": "blender X=width, -Y=front, Z=up, origin=centre",
+ "tris": 2496
+}
