@@ -109,6 +109,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/UI Locker.md` (24): **Locker** plan: weapons synced into the Lobby (`tools/studio/SyncWeapons.luau`), 3D gun on a hidden stage, per-gun skins, Abilities = your Mod collection (buyable Mods, changed Money decision) (2026-11-15)
 - `02 Art/UI Notifications.md` (4): **match notifications** (long band under the top bar, match point, no 3-2-1) and the de-AI pass on the HUD (2026-11-14)
 - `02 Art/UI Combat HUD Mockup.md` (7): **health, ammo and Mod slots mockup** (2026-11-14) in the top bar style; states board, design, open questions
+- `02 Art/UI Device Check 2026-11-27.md` (6): **phone / tablet / controller check** (launch hardening): scorebug vs Roblox's buttons and Settings fixed, touch row under the menu bar, Locker v3 safe area, controller focus and B in lobby pages, measured checker `tools/studio/UiOverlapCheck.luau`, open items
 - `02 Art/UI Mobile Controls.md` (23): **mobile touch controls concept** (2026-11-22): control list and sizes, default phone layout, icon look, layout editor saved as fractions, owner questions
 - `02 Art/UI Theme v4 Soft Edge.md` (10): **UI theme direction v4.1** (2026-11-12): plates with one cut, HUD on fades, circles, Sarpanch + Titillium Web, motion, layouts, mobile, Figma boards, owner questions
 - `02 Art/Model Style Interview.md` (4): the owner's modelling rules (no curves/spheres, carved ends), the reference-screenshot interview question bank, design methods

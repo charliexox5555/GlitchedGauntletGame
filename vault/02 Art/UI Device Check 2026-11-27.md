@@ -1,0 +1,56 @@
+# UI device check (2026-11-27)
+
+Workstream 4 of [Launch Hardening 2026-11-27](../05%20Production/Launch%20Hardening%202026-11-27.md). Owner (phone): "the settings button and also the top bar button overlapped with the look of the scoreboard at the top". 81% of players are on mobile. Rules: [UI Architecture](../04%20Tech/UI%20Architecture.md) §4-7, `gauntlet-ui-style` §5.
+
+## How it was checked
+- **Live playtests** in Studio's Device Emulator:
+  - iPhone 7 (667x375);
+  - iPhone 13 (844x390, notch);
+  - iPhone 17 Pro (874x402, notch, a 749x381 safe area);
+  - iPad 6th gen (1024x768);
+  - HD 1080.
+  - Everything ran in a 3v3 bot match (the widest scorebug), using the Studio switch `Workspace.HostedTest = "3v3"`, plus the lobby.
+- **Measured** with [`tools/studio/UiOverlapCheck.luau`](../../tools/studio/UiOverlapCheck.luau), pasted into the Client datamodel.
+  - It lists overlaps between buttons of different screens, the scorebug and Roblox's own top-bar buttons.
+  - It also lists clipped text and text drawn under 12 px.
+- **Roblox's top bar isn't in `screen_capture`** (it's core UI). Full-window screenshots of Studio show it, which is how the row-under-the-menu-bar bug was found.
+- **Captures** are local only, in `art-source/ui/device-check-2026-11-27/`, because they show Roblox's top bar and Studio test UI. That folder is in `.gitignore`.
+  - Before: `01`, `02` (iPhone 13 with Roblox's bar, our row behind its menu bar), `11` (Locker).
+  - After: `03`-`08` (match), `09` (lobby), `10` (Shop), `12` (Locker).
+
+## Findings and fixes
+| # | Where | Found (measured) | Fix |
+|---|---|---|---|
+| 1 | Match scorebug, phones | It reserved a fixed `0.46 × height` on each side. Roblox's buttons end at x 208, and Settings sat at x 220-264, inside the bar (the owner's report). The weapon slots took the top-right too | `TopBarController` measures its neighbours each 0.5 s: Roblox's buttons (`TopbarInset`), our Settings/Leave, the touch weapon slots and the scoreboard row. It shrinks to fit, centred. Under 80% size or 30 px it moves under Roblox's row |
+| 2 | Settings on touch | It sat in the top row next to Roblox's buttons | It joins the scoreboard/inspect row under Roblox's buttons (`MatchSettingsButton`), so the top row is Roblox, the scorebug and the weapon slots only |
+| 3 | Scoreboard/inspect row | After a device change it sat ~27 px high, behind Roblox's expanded menu bar (iPhone 13). `TouchLayout.base` resized TopLeft, then read its stale `AbsoluteSize` | The row is placed again on TopLeft's `AbsoluteSize` change. A saved custom spot (`TLCustom`) still wins |
+| 4 | Scorebug LV chips | They drew at 5-6 px on phones and 11 px (clipped) at 1080p | 14 px design; hidden when they would draw under 12 px |
+| 5 | Scorebug round line | 10.5 px on an iPad | Hidden under 12 px, as it already was on phones |
+| 6 | Kill feed, phones | 9-10 px text (row `ScreenScale` PhoneBoost 2) | Studio template `UI.Templates.KillFeed.Row.ScreenScale` PhoneBoost **2.5** (≈12 px at 381 tall) |
+| 7 | Round banner (Notify), phones | At y 18% it covered a 3v3 scorebug that had moved under Roblox's row (bottom ≈ 25%) | Studio template `UI.Match.Notify.Root` PhonePosition y **0.27** |
+| 8 | Locker v3, notched phones | The gun list ran under the notch (x -62), and the loadout card sat under Roblox's buttons | `fit()` keeps the panels in the device safe area. The left column starts under Roblox's buttons (scaled 0.37 → 0.33 on a 401 px phone), and the title slides clear. Desktop unchanged |
+| 9 | Locker v3, touch | A second finger made the card jump | Only the first finger turns it |
+
+**Scorebug result:**
+- 1v1 and 2v2 stay in the top row on phones.
+- On a phone, 3v3 moves under Roblox's row: 0.35 scale on an iPhone 7 (clock about 11 px), 0.43 on an iPhone 13.
+- Tablet and desktop stay in the top row, and desktop is unchanged (scale 1).
+
+**Overlaps after the fixes:** 0 at every size (the Studio-only GUNS / TEST / SKINS / ADMIN / RANGE buttons aren't counted).
+
+## Controller
+- **Every lobby page now keeps the selection inside it.** LobbyKit pages (Settings, Profile, Rewards, Backpack, Loadout, StreakSave, NPC talk) now pass their screen to the Router. Before, only the Shop, Battle Pass, Locker, Party and Play did.
+- **B steps back before it closes** (`Router` menu `back`):
+  - Locker v3: confirm, then the skin strip, then the Locker.
+  - The confirm window traps the selection and starts on UNLOCK.
+  - The right stick turns the card or gun.
+- **Draft:** the selection starts on the first card when a controller is the active input (`InputMode`, so FORCE CONTROLS counts), and also when one is picked up mid-draft.
+- **Checked live:** gamepad B closes the Shop. The Shop's selection lands on a case.
+- **Not checked live:** the draft and the Locker on a real pad. Studio's MCP keyboard tool sends keyboard input (`GamepadEnabled` stays false). The controller emulator needs clicking through its panel, which didn't fit the shared Studio slot.
+
+## Still open
+- **Small lobby text on phones:** LobbyTasks 5 px, LobbyBar labels and the LobbyPlayerList at 6 px (749x381). The lobby HUD's Fit and PhoneBoost need a per-screen phone pass, which is design work.
+- **BottomHud key chips at 1080p:** 9-11 px.
+- **3v3 scorebug on an iPhone 7:** about 0.35 scale. If that reads small on a real phone, hide the headshots below a size on phones.
+- **Not covered this pass:** the SURGE pack popup and world-space opening, the Backpack, Rewards, death screen, match end and loading screen on phones. They were checked in parts 4-6 of UI Architecture, but not re-captured. Loading belongs to the loading-perf session.
+- **Owner:** save the place (two Studio template edits: the KillFeed PhoneBoost and the Notify PhonePosition), then play once on a real phone and with a pad.
