@@ -7780,6 +7780,84 @@
   "type": "Decal",
   "uploaded": "2026-11-20 19:43:14"
  },
+ "art-source/ui/locker-v3/icons/arrow.png": {
+  "assetId": 136962732865712,
+  "name": "GG Locker icon arrow",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:35"
+ },
+ "art-source/ui/locker-v3/icons/card.png": {
+  "assetId": 85369698235564,
+  "name": "GG Locker icon card",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:38"
+ },
+ "art-source/ui/locker-v3/icons/charm.png": {
+  "assetId": 84566164193672,
+  "name": "GG Locker icon charm",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:41"
+ },
+ "art-source/ui/locker-v3/icons/close.png": {
+  "assetId": 136688056458781,
+  "name": "GG Locker icon close",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:44"
+ },
+ "art-source/ui/locker-v3/icons/contracts.png": {
+  "assetId": 88539916399502,
+  "name": "GG Locker icon contracts",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:47"
+ },
+ "art-source/ui/locker-v3/icons/eye.png": {
+  "assetId": 127649384123527,
+  "name": "GG Locker icon eye",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:50"
+ },
+ "art-source/ui/locker-v3/icons/levelup.png": {
+  "assetId": 126595720413944,
+  "name": "GG Locker icon levelup",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:53"
+ },
+ "art-source/ui/locker-v3/icons/play.png": {
+  "assetId": 113313581950688,
+  "name": "GG Locker icon play",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:56"
+ },
+ "art-source/ui/locker-v3/icons/reward.png": {
+  "assetId": 100950497229970,
+  "name": "GG Locker icon reward",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:57:59"
+ },
+ "art-source/ui/locker-v3/icons/skin.png": {
+  "assetId": 124736187655781,
+  "name": "GG Locker icon skin",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:58:02"
+ },
+ "art-source/ui/locker-v3/icons/star.png": {
+  "assetId": 87235137422943,
+  "name": "GG Locker icon star",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:58:05"
+ },
+ "art-source/ui/locker-v3/icons/stats.png": {
+  "assetId": 89978390475746,
+  "name": "GG Locker icon stats",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:58:08"
+ },
+ "art-source/ui/locker-v3/icons/target.png": {
+  "assetId": 87886784416695,
+  "name": "GG Locker icon target",
+  "type": "Decal",
+  "uploaded": "2026-11-26 21:58:12"
+ },
  "art-source/ui/mapvote/BigWhitebox.png": {
   "assetId": 85974467885516,
   "name": "GG Map Vote BigWhitebox",
