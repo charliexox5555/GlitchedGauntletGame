@@ -39,6 +39,7 @@ function PowerCases.pool(_caseId: string): { string }
 			and Mods.isBuilt(id)
 			and not def.free
 			and not table.find(ModsConfig.STARTER_DECK, id)
+			and Season.POWER_UNLOCKS[id] == nil
 		then
 			table.insert(out, id)
 		end
