@@ -60,7 +60,8 @@ local LIST_AWAY = 440 -- least px the player list slides right when hidden with 
 local QUINT = Enum.EasingStyle.Quint
 local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
 
--- Bar buttons → the Router's menus.
+-- Bar buttons → the Router's menus, and what each opens with (setItemArg).
+local itemArgs: { [string]: any } = {}
 local MENUS: { [string]: string } = {
 	Locker = "Locker",
 	Shop = "Shop",
@@ -608,7 +609,7 @@ local function hookItem(s: State, b: TextButton)
 			return
 		end
 		if menu then
-			Router.toggle(menu)
+			Router.toggle(menu, itemArgs[b.Name])
 		end
 	end
 	b.Activated:Connect(activate)
@@ -1368,6 +1369,12 @@ function LobbyHudView.callout(id: string?, text: string?)
 	placeCallout(s, animate)
 end
 
+-- What a bar item's menu opens with (Router arg), or nil for its default: the first-unlock callout opens the
+-- Locker on the gun it points at (Controllers/OnboardingController).
+function LobbyHudView.setItemArg(id: string, arg: any?)
+	itemArgs[id] = arg
+end
+
 -- Highlights a bottom bar item icon (nil clears).
 function LobbyHudView.highlight(id: string?)
 	local s = state
@@ -1406,6 +1413,13 @@ function LobbyHudView.setUnlocked(id: string, on: boolean)
 		end
 		target.Visible = on
 	end
+end
+
+-- The HUD part is on screen now (a bar item or "Party"), so a callout for it can show.
+function LobbyHudView.shown(id: string): boolean
+	local s = state
+	local target: GuiObject? = if not s then nil elseif id == "Party" then s.party else s.items[id]
+	return target ~= nil and target.Visible
 end
 
 -- The "Join the queue to start playing!" bubble over PLAY (Studio-built

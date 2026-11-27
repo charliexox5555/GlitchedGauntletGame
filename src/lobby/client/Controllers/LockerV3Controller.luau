@@ -976,7 +976,11 @@ local function reveal(arg: any?)
 			hideOthers() -- screens that come back on while the Locker is open (HUD refreshes)
 		end)
 	)
-	selectedGun = guns().primary
+	-- `{ gun = id }` opens on that gun (the first-unlock callout, Controllers/OnboardingController)
+	local focusGun = if typeof(arg) == "table" then (arg :: any).gun else nil
+	selectedGun = if typeof(focusGun) == "string" and rows[focusGun]
+		then focusGun
+		else guns().primary
 	refreshCoins()
 	setMode(if arg == "powers" then "powers" else "guns")
 	entrance()

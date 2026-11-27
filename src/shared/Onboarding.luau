@@ -5,11 +5,13 @@
 -- Saved in PlayerData as `onb` (2026-11-22, no version bump: older saves get new()):
 --   fav      favorite prompts shown so far (0..FAV_MAX_ASKS)
 --   favDone  the player favorited the game (or already had): never ask again
---   seen     bitset of the HUD unlock "NEW" pops already seen (Config UNLOCKS bits)
+--   seen     bitset of the HUD unlock "NEW" pops already seen (Config UNLOCKS bits) and the first-unlock
+--            callout (Config FIRST_UNLOCK bit)
 -- Published on the player as StateValues "OnbFav", "OnbFavDone", "OnbSeen".
 -- Matches played is the saved prog.matches (published "Matches").
 
 local Config = require(script.Parent.Config.Onboarding)
+local Loadout = require(script.Parent.Config.Loadout)
 
 export type Onb = {
 	fav: number,
@@ -100,12 +102,62 @@ end
 
 -- A known unlock bit (the server accepts only these).
 function Onboarding.isBit(bit: number): boolean
+	if bit == Config.FIRST_UNLOCK.bit then
+		return true
+	end
 	for _, u in Config.UNLOCKS do
 		if u.bit == bit then
 			return true
 		end
 	end
 	return false
+end
+
+-- The bit may be marked seen at `matches` played (its menu or callout has appeared by then).
+function Onboarding.bitAllowed(bit: number, matches: number): boolean
+	if bit == Config.FIRST_UNLOCK.bit then
+		return matches >= Config.FIRST_UNLOCK.fromMatches
+	end
+	for _, u in Config.UNLOCKS do
+		if u.bit == bit then
+			return Onboarding.unlocked(u.id, matches)
+		end
+	end
+	return false
+end
+
+-- The first gun unlock (vault/01 Design/First Ten Minutes.md §13): the gun the Locker callout points at, or nil.
+-- Due after FIRST_UNLOCK.fromMatches matches while the player owns only the starter guns, hasn't seen the
+-- callout and has the coins for a locked gun: the cheapest one (Locker order on a tie).
+function Onboarding.firstUnlock(
+	matches: number,
+	seen: number,
+	owned: { [string]: boolean },
+	coins: number
+): string?
+	local f = Config.FIRST_UNLOCK
+	if matches < f.fromMatches or bit32.band(seen, f.bit) ~= 0 then
+		return nil
+	end
+	local best: string? = nil
+	for _, list in { Loadout.PRIMARIES, Loadout.SECONDARIES } do
+		for _, id in list do
+			local starter = id == Loadout.STARTER.Primary or id == Loadout.STARTER.Secondary
+			if owned[id] and not starter then
+				return nil -- they've bought a gun already
+			end
+			local price = Loadout.PRICES[id]
+			if
+				not owned[id]
+				and price
+				and price <= coins
+				and (best == nil or price < (Loadout.PRICES[best] :: number))
+			then
+				best = id
+			end
+		end
+	end
+	return best
 end
 
 -- The NEW pop for this unlock is due (unlocked recently, not seen yet).

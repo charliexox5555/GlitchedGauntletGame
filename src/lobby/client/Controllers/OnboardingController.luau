@@ -6,8 +6,9 @@
 --  * the "Join the queue to start playing!" bubble over PLAY while idle;
 --  * the HUD unlocks by matches played (Config/Onboarding UNLOCKS: all after match 2),
 --    each with one NEW callout until that menu is opened;
---  * no free case after match 1 any more (owner 2026-11-27: too strong, RIVALS doesn't);
---    an old save's unopened Starter Case just sits in the Backpack;
+--  * the first gun unlock (vault/01 Design/First Ten Minutes.md §13, replaces the old free case): once they
+--    have the coins for a gun and own only the starters, the Locker pulses with UNLOCK A GUN and opens on
+--    that gun; shown once (Config/Onboarding FIRST_UNLOCK), before the NEW badges;
 --  * the favorite prompt back in the lobby (Shared/FavoritePrompt).
 -- It only reads the server-published state (Matches, Level, OnbSeen, ...) and asks:
 -- the server decides the queue (QueueService refuses Beginner at level 10+) and
@@ -33,6 +34,8 @@ local player = Players.LocalPlayer
 
 -- The menu that counts as "opened" for each unlock's NEW callout.
 local MENU_OF: { [string]: string } = { Party = "Party", Shop = "Shop", Backpack = "Backpack" }
+-- ...and the zone that counts for one with no menu (the Range bar button travels straight there)
+local ZONE_OF: { [string]: string } = { Range = "Range" }
 
 local autoQueued = false -- once per session
 local favAskedFor: number? = nil -- the o.fav count already prompted this session
@@ -68,13 +71,30 @@ local function seenBits(): number
 	return bits
 end
 
-local function markSeen(id: string)
-	local b = Onboarding.bitOf(id)
-	if not b or seenSent[b] or Onboarding.hasBit(seenBits(), b) then
+local function sendSeen(b: number)
+	if seenSent[b] or Onboarding.hasBit(seenBits(), b) then
 		return
 	end
 	seenSent[b] = true
 	LobbyNet.event("OnboardingRequest"):FireServer("seen", b)
+end
+
+local function markSeen(id: string)
+	local b = Onboarding.bitOf(id)
+	if b then
+		sendSeen(b)
+	end
+end
+
+-- The gun the first-unlock callout points at right now (nil: not due).
+local unlockGun: string? = nil
+local function firstUnlockDue(): string?
+	return Onboarding.firstUnlock(
+		num("Matches", 0),
+		seenBits(),
+		PlayerData.guns(player).owned,
+		PlayerData.coins(player)
+	)
 end
 
 -- PLAY while new: queue Beginner 2v2 instead of opening the menu.
@@ -107,10 +127,14 @@ local function apply()
 
 	local dueId: string? = nil
 	local dueText: string? = nil
-	if not blocking then
+	unlockGun = if blocking then nil else firstUnlockDue()
+	if unlockGun then
+		-- the first gun unlock goes first: the Locker pulses and opens on that gun
+		dueId, dueText = "Locker", OnbConfig.FIRST_UNLOCK.text
+	elseif not blocking then
 		local seen = seenBits()
 		for _, u in OnbConfig.UNLOCKS do
-			if Onboarding.newPop(u.id, matches, seen) then
+			if Onboarding.newPop(u.id, matches, seen) and LobbyHudView.shown(u.id) then
 				dueId = u.id
 				dueText = OnbConfig.NEW_TEXT
 				break
@@ -122,7 +146,8 @@ local function apply()
 		calloutTextShown = dueText
 		LobbyHudView.callout(dueId, dueText)
 	end
-	LobbyHudView.highlight(nil)
+	LobbyHudView.highlight(if unlockGun then "Locker" else nil)
+	LobbyHudView.setItemArg("Locker", if unlockGun then { gun = unlockGun } else nil)
 	local shortcut = Onboarding.playShortcut(matches, level)
 	LobbyHudView.setPlay(
 		if shortcut then playNew else nil,
@@ -198,15 +223,32 @@ function OnboardingController.start()
 			"OnbSeen",
 			"OnbFav",
 			"OnbFavDone",
+			"Coins",
 		}
 	do
 		StateValues.changed(player, name):Connect(refresh)
 	end
+	-- the first-unlock callout also follows the owned guns (an unlock ends it for good)
+	task.spawn(function()
+		local value = player:WaitForChild(PlayerData.GUNS, 30)
+		if value and value:IsA("StringValue") then
+			value.Changed:Connect(refresh)
+			refresh()
+		end
+	end)
 	task.spawn(function()
 		local replica = PlayerData.replica(player)
 		if replica then
 			replica.Changed:Connect(refresh)
 			refresh()
+		end
+	end)
+	-- going to an unlocked zone (the Range) clears its NEW callout for good
+	player:GetAttributeChangedSignal(PlayZone.ATTRIBUTE):Connect(function()
+		for id, zone in ZONE_OF do
+			if PlayZone.get(player) == zone and Onboarding.unlocked(id, num("Matches", 0)) then
+				markSeen(id)
+			end
 		end
 	end)
 	for _, attr in
@@ -240,8 +282,12 @@ function OnboardingController.start()
 			refresh()
 		end)
 	end
-	-- opening an unlocked menu clears its NEW callout for good
+	-- opening an unlocked menu clears its NEW callout for good (the Locker: the first-unlock callout)
 	Router.onChanged(function(current: string?)
+		if current == "Locker" and unlockGun then
+			sendSeen(OnbConfig.FIRST_UNLOCK.bit)
+			apply()
+		end
 		for id, menu in MENU_OF do
 			if current == menu then
 				markSeen(id)

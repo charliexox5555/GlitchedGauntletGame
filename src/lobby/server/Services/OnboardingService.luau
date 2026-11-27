@@ -5,7 +5,7 @@
 --
 -- OnboardingRequest (client -> server):
 --   ("favAsked", favorited: boolean)  the client showed the favorite prompt (and its result)
---   ("seen", bit: number)             the client showed a HUD unlock's NEW pop
+--   ("seen", bit: number)             the client showed a HUD unlock's NEW pop (or the first-unlock callout)
 -- Both only ever move the saved state forward (asks count up to the cap, bits only
 -- set, favDone only turns on), so a lying client can at most skip its own prompts.
 -- An ask is only counted when the rules say one was due (Shared/Onboarding.favAsk).
@@ -87,14 +87,7 @@ local function onSeen(player: Player, bit: unknown)
 	end
 	local saved = write(player, "seen", function(data: PlayerData.Data)
 		local o = data.onb
-		local unlocked = false
-		for _, item in OnbConfig.UNLOCKS do
-			if item.bit == b then
-				unlocked = Onboarding.unlocked(item.id, data.prog.matches)
-				break
-			end
-		end
-		if not unlocked or Onboarding.hasBit(o.seen, b) then
+		if not Onboarding.bitAllowed(b, data.prog.matches) or Onboarding.hasBit(o.seen, b) then
 			return false, "nothing"
 		end
 		o.seen = bit32.bor(o.seen, b)
