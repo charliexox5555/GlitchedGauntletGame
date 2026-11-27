@@ -197,8 +197,8 @@ local function refresh(ui: Ui)
 	local tier = tierFor(round)
 	local roundTag = string.format("ROUND %d · %s", round, string.upper(tier.name))
 	local roundsGoal = MatchState.roundsToWin()
-	local need = roundsGoal - 1
-	local matchPoint = myScore == need or theirScore == need
+	local pointScore = roundsGoal - 1
+	local matchPoint = myScore == pointScore or theirScore == pointScore
 
 	local kicker, title, sub, tone = "", "", "", "neutral" :: Tone
 	if phase == "Vote" then
@@ -215,9 +215,9 @@ local function refresh(ui: Ui)
 		kicker = string.format("ROUND %d", round)
 		if matchPoint then
 			title, tone = "MATCH POINT", "gold"
-			sub = if myScore == need and theirScore == need
+			sub = if myScore == pointScore and theirScore == pointScore
 				then "Next round wins it"
-				elseif myScore == need then "You need one more round"
+				elseif myScore == pointScore then "You need one more round"
 				else "They need one more round"
 		elseif round > 1 and tierFor(round - 1).name ~= tier.name then
 			-- The primaries come out (the gun loadout: round 1 is sidearms only; vault/01 Design/First Ten Minutes.md).
