@@ -232,3 +232,65 @@ Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, P
 - The stock receiver's rear-cap underside was lifted 0.004 in the master to clear the stock's one flush pair.
 - In first person, the joystick ball slightly overlaps the cyan button, the same as the approved Havoc.
 - Not installed: the Studio upload and install wait for your go.
+
+## Spectre (Prowler)
+Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, PID 40136 checked). Scripts: `12_spectre.py` (build), `21_review_spectre.py` (stations; the stock file has its own `Cam_Hip`), `sheet_spectre.json`. No shared script was changed.
+
+**Stock measured** (ray-cast depth maps, both sides, and every clip swept):
+- Upper receiver side face y .082 (z .277-.417) with the charging-handle slot (floor .068, x .16-.56, z .374-.404). The knob rests at x .59-.70 and never comes behind x .45; in Draw and the reloads it swings inward and forward to x .725.
+- Lower receiver face .078 (x -.18 to .685, z .14-.265). The fire selector lever sweeps up to z .287 at x .13 and .294 at x .21 in Reload.
+- A stock Neon square (x -.162 to -.095) sits in a shallow receiver pocket (z .288-.325).
+- Right side: ejection port above z .36 (bolt back to x .107), mag release at x .39-.43.
+- Handguard x .697-1.14, y .090, bottom .23, top .473; CharmLoop on its lower-left chamfer (x .784-.816); front sight base on top (x .969-1.064).
+- Barrel stub r .065 (x 1.137-1.262), round can r .091 to x 1.904, Muzzle x 1.901. Stock frame face .066, butt pad x -.955 to -1.067. Magazine face .056 with a raked recessed panel (.052).
+- ADS: adsDistance 0.37 (`Config/Weapons`), eye x -.5155, z .524; the game's adsFov is 72.
+
+| Version | What changed |
+|---|---|
+| v01 | First build, 5,280 tris (1.56×). The audit found the charging handle running through the new handguard on every clip, 3 open edges at the handguard's rear (a 0.003 chamfer ring under a 0.004 bevel), and the stock fire selector's one flush pair. |
+| v02 | Budget pass: deck, coin door and coin entries are front-chamfered slabs (their backs are buried, so the bevel there was wasted); tapered button collars and washer; a 4-ring joystick ball. The handguard starts at the receiver's front face (.697, as stock) with a knob slot in its rear-left and a hidden pocket for the handle's inward swing. The selector's flush Metal face is lifted 0.004 in the build. Audit clean, 5,009 tris. Review: the joystick ball and the deck light pipe showed in ADS. |
+| v03 | Deck moved behind the handle slot, joystick far back and low so it falls below the ADS view at 72°; every deck part is under the receiver's top-left edge as seen from the eye ((.524 - z) > 1.325 y). A 72° ADS check showed the deck's top-rear corner (behind the receiver's end, nothing hides it). |
+| v04 | Deck's top-rear corner raked away. Review: the stock Neon-square pocket showed as a dark slot under the deck. |
+| v05 | Deck bottom lowered to .282 to cover the pocket, raked up ahead of x .10 to clear the selector lever. |
+| **v06** | Stock-frame pixel trail reordered to grow away from the band, as on the Havoc and Spirit. **Candidate.** |
+
+**What the Arcade Prowler has**
+- **Control deck** (left, Root) on the upper receiver behind the handle slot, with a raked rear corner and a raked front: a joystick at the rear, three buttons (r .020 in r .026 collars, scaled down for the SMG) rising toward the muzzle (cyan, yellow, magenta), a pixel screen in a bezel, and a cyan light pipe on the deck's top edge over the screen.
+- **Coin door** (right) on the lower receiver behind the mag release: two lilac coin entries with yellow lit slots and a magenta stripe.
+- **Handguard** on the stock envelope with a raked cabinet nose under the barrel stub, recessed violet fields on both sides (pixel-stepped corner, magenta band, cyan line, starburst, pixel trail), a magenta T-molding trim along each lower chamfer ahead of the charm loop, and a slot where the charging-handle knob runs in.
+- **Stock frame art**: raked band and line with a pixel trail on the top bar (the big first-person surface).
+- **Cabinet butt** replacing the pad: raked marquee top with a cyan light, a stepped rear, and a recessed side-art field on both sides (starburst, band and line).
+- **Suppressor**: an eight-sided stepped can (rear section, light-ring groove with the cyan ring, main can, stepped end cap, bore with the Muzzle locator).
+- **Mag stripe**: magenta, bone `Mag`, raked along the magazine's front band between the recessed panel and the front edge, top at z -.07.
+- All 12 `flat_group` names are on Root parts: `ARButton1-3`, `ARStickBall`, `ARScreen*`, `ARDeckLight`, `ARTrim`, `ARBrakeLight`. The screen pixel is 0.0085, the same as the Havoc and Spirit.
+
+**v06 results**
+- **Master:** `art-source/weapons/Skins/Arcade/Spectre/v06/Spectre_Arcade_v06.blend`. **Export:** `v06x/` (`Spectre_Arcade_RobloxFlat.fbx`, `manifest_flat.json`, 35 parts, all 12 AR groups as their own parts).
+- **Triangles:** 5,003 against 3,389 for the stock gun (1.48×, inside the 1.5× budget).
+- **Audit** (`out/Spectre_v06_views/audit.json`, ADS distance 0.37):
+  - 0 faults in new geometry. The only faults are the stock's own open islands, inherited unchanged: the receiver's, sights', grip's, pins' and selector's, plus the dressed copies of the buffer mount (`AR_StockFrame:0`), barrel stub (`AR_BarrelStub:0`) and front-sight Neon strips (`AR_SightNeon:0-1`), with bounds identical to the stock's.
+  - 0 coplanar pairs.
+  - Floating: only the stock magazine group (it floats in the stock audit too); the mag stripes ride on it, buried 0.003 in its face.
+  - Bones, locators and actions are identical to the stock.
+  - 0 animated intersections across Draw, Fire, Inspect, Reload and ReloadEmpty.
+  - All 5 ADS rays are clear. The post ray hits only `Spectre_Sights`. Nothing new shows in the ADS render at 68° or in an extra check at the game's 72° (16:9 and 21:9).
+- **Flat export:** 0 coplanar lifts, 0 flipped islands, 0 crossed faces. The one-sided magenta re-import shows no holes (`out/Spectre_v06x_flat_check/`). Its volume test lists `SK_Mag_05`: the stock magazine's brass cartridge faces, which are open once split from their Metal faces and sit inside the magwell. The Slipframe Spectre r02x export lists the same part.
+- **Review sheet:** [Spectre_v06_review.png](out/Spectre_v06_review.png)
+- **Self-grade:** 9/10 (the gun's grade is its lowest area).
+
+| Area | Grade |
+|---|---|
+| Silhouette | 9 |
+| Crispness | 9 |
+| Layering | 9 |
+| Connections | 9 |
+| ADS | 9 |
+| Palette | 9 |
+| Budget | 9 |
+| Contract | 10 |
+
+**For the owner**
+- Three buttons fit (scaled down); nothing sits on a moving bone.
+- The deck sits at the rear of the receiver, not centred: the handle slot takes the front half, and the ADS view rules out anything taller or further forward. The stock receiver's vertical panel line at x -.25 shows above and below the deck.
+- The stock Neon square under the deck was removed (the front-sight Neon strips are kept). The stock fire selector's one flush face was lifted 0.004 in the master.
+- Not installed: the Studio upload and install wait for your go.
