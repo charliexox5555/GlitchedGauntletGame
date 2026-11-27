@@ -26,6 +26,12 @@ STATIONS = {
     "mag": ((0.20, 0.9, -0.10), (0.65, 0, -0.08), 0.55),
     "rear_sight": ((-0.35, 0.5, 0.30), (0.14, 0, 0.48), 0.45),
     "front_sight": ((0.30, 0.6, 0.30), (2.26, 0, 0.47), 0.45),
+    # Gap sweep (v03): culled magenta close-ups of the stock joins it closed (20_review shoots culled_* of
+    # every station). The full three-way sweep is in out/Guardian_v03_gapsweep/.
+    "rail_riser_join": ((0.2, 0.8, 0.15), (1.00, 0, 0.41), 0.34),
+    "rail_riser_join_right": ((0.2, -0.8, 0.15), (1.00, 0, 0.41), 0.34),
+    "front_sight_join": ((0.4, 0.5, 0.25), (2.257, 0, 0.45), 0.20),
+    "tube_ring_join": ((0.3, 0.7, 0.2), (-0.02, 0, 0.33), 0.24),
 }
 FINISH_EXTRA = ["deck", "coin_door", "butt", "brake", "joystick", "stock_art", "handguard_front"]
 exec((Path(bpy.data.filepath).parents[6] / "tools/blender/arcade/20_review.py").read_text(encoding="utf-8"))

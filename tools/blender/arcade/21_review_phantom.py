@@ -25,6 +25,14 @@ STATIONS = {
     "mag": ((0.20, 0.9, -0.10), (0.70, 0, -0.06), 0.60),
     "rear_sight": ((-0.35, 0.5, 0.30), (0.15, 0, 0.53), 0.45),
     "front_sight": ((0.30, 0.6, 0.30), (1.55, 0, 0.50), 0.45),
+    # Gap sweep (v05): culled magenta close-ups of the stock joins it closed (20_review shoots culled_* of
+    # every station). The full three-way sweep is in out/Phantom_v05_gapsweep/.
+    "trigger_join": ((0.5, 0.6, -0.35), (0.40, 0, 0.12), 0.34),
+    "trigger_join_right": ((0.5, -0.6, -0.35), (0.40, 0, 0.12), 0.34),
+    "trigger_join_below": ((0.05, 0.02, -0.9), (0.32, 0, 0.08), 0.40),
+    "guard_grip_join": ((-0.4, 0.6, -0.2), (0.16, 0, 0.08), 0.22),
+    "rail_tip_join": ((0.3, 0.8, 0.2), (1.60, 0, 0.42), 0.20),
+    "front_sight_join": ((0.4, 0.5, 0.25), (1.54, 0, 0.48), 0.24),
 }
 FINISH_EXTRA = ["deck", "coin_door", "butt", "can", "joystick"]
 exec((Path(bpy.data.filepath).parents[6] / "tools/blender/arcade/20_review.py").read_text(encoding="utf-8"))

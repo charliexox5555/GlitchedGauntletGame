@@ -48,6 +48,67 @@ dress("Stock", copy_name="AR_StockFrame", keep=lambda island: limits(island, 0)[
 dress("Suppressor", copy_name="AR_BarrelStub", keep=lambda island: limits(island, 0)[1] < 1.27)
 
 
+def nudge(obj, pick, delta, island=None):
+    """Move the vertices of a retained part that pick(world point) selects (rest pose, world space).
+    island(lo, hi) limits the move to the connected pieces whose world bounds pass."""
+    matrix = obj.matrix_world
+    inverse = matrix.inverted()
+    allowed = None
+    if island:
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        allowed = set()
+        for group in components(bm):
+            points = [matrix @ v.co for v in group]
+            lo = Vector([min(p[i] for p in points) for i in range(3)])
+            hi = Vector([max(p[i] for p in points) for i in range(3)])
+            if island(lo, hi):
+                allowed.update(v.index for v in group)
+        bm.free()
+    moved = 0
+    for vertex in obj.data.vertices:
+        if allowed is not None and vertex.index not in allowed:
+            continue
+        point = matrix @ vertex.co
+        if pick(point):
+            vertex.co = inverse @ (point + Vector(delta))
+            moved += 1
+    obj.data.update()
+    return moved
+
+
+# Gap sweep (owner 2026-11-27: "make sure there's no like gaps"). Culled magenta close-ups and measured
+# joins found these stock gaps; each part is now buried 0.02+ in what it meets:
+# - lower receiver to handguard: the lower receiver stops at x .683, the handguard started at .697, so a
+#   0.014 see-through slot sat under the upper receiver, a daylight notch sat under the rail base at the
+#   upper receiver's chamfered front-top corner, and the upper receiver's front face stood 0.003 off the
+#   handguard (see the handguard);
+# - grip: its open top was only 0.0036 into the receiver's underside (.131), and its front-top corner
+#   stopped 0.004 short of the trigger guard's rear member (x .132): the top rises 0.02 and the front-top
+#   corner runs 0.022 forward into the member;
+# - buffer mount: 0.008 into the upper receiver (rear x -.33): its front is now -.308;
+# - barrel stub: 0.009 into the handguard's nose: its rear is now 1.107;
+# - front sight: the base sat 0.003 into the handguard top (.473) and the post 0.004 into the base: both
+#   feet run 0.02 deeper; the hood wings' outer feet hung 0.006 over the handguard: they now reach it;
+# - rear sight post: 0.013 into the receiver top: its foot is now .419.
+SIGHTS = native("Sights")
+gap_moves = {
+    "grip_front_top": nudge(native("Grip"), lambda p: p.x > 0.11 and p.z > 0.118, (0.022, 0, 0)),
+    "grip_top": nudge(native("Grip"), lambda p: p.z > 0.125 and p.x > -0.17, (0, 0, 0.020)),
+    "buffer_mount": nudge(bpy.data.objects["AR_StockFrame"], lambda p: p.x > -0.325, (0.014, 0, 0),
+                          lambda lo, hi: abs(lo.x + 0.43) < 0.01 and abs(hi.x + 0.322) < 0.01),
+    "barrel_stub": nudge(bpy.data.objects["AR_BarrelStub"], lambda p: p.x < 1.14, (-0.030, 0, 0)),
+    "front_sight_base": nudge(SIGHTS, lambda p: p.z < 0.471, (0, 0, -0.020),
+                              lambda lo, hi: lo.x < 0.97 and hi.x > 1.06 and hi.z < 0.5),
+    "front_sight_post": nudge(SIGHTS, lambda p: p.z < 0.487, (0, 0, -0.020),
+                              lambda lo, hi: lo.x > 1.01 and hi.x < 1.025 and lo.z > 0.48 and hi.z < 0.53),
+    "front_sight_wings": nudge(SIGHTS, lambda p: p.z < 0.48, (0, 0, -0.012),
+                               lambda lo, hi: lo.x > 1.0 and hi.x < 1.035 and hi.y > 0.044),
+    "rear_sight_post": nudge(SIGHTS, lambda p: p.z < 0.43, (0, 0, -0.010),
+                             lambda lo, hi: lo.x < -0.06 and hi.x > -0.045 and lo.z < 0.43),
+}
+
+
 def crect(x0, z0, x1, z1, c):
     return [(x0 + c, z0), (x1 - c, z0), (x1, z0 + c), (x1, z1 - c),
             (x1 - c, z1), (x0 + c, z1), (x0, z1 - c), (x0, z0 + c)]
@@ -150,17 +211,22 @@ side("AR_CoinStripe_Right", [(0.236, 0.160), (0.271, 0.160), (0.313, 0.248), (0.
      -0.088, -0.094, MAGENTA)
 
 # ---------------------------------------------------------------- handguard
-# Stock envelope (y .090, keel .260, shoulder .443, top .473) from the receiver's front face (.697,
-# as the stock); the front rakes back under the barrel stub like a cabinet front.
+# Stock envelope (y .090, keel .260, shoulder .443, top .473); the front rakes back under the barrel stub
+# like a cabinet front. Gap sweep: the rear starts at x .650, not at the receiver's front face (.697, as
+# the stock), so it sleeves 0.047 over the upper receiver and 0.033 over the lower receiver (front .683),
+# closing the slot between them and the notch under the rail base. The last rail tooth (x .63-.654) and
+# the two lower-receiver pins beside it run 0.004 into the sleeve's rear wall instead of standing a
+# hairline off it.
 hand = folded("AR_Handguard", (
-    (0.697, 0.230, 0.473, 0.090, 0.443, 0.260, 0.056),
+    (0.650, 0.230, 0.473, 0.090, 0.443, 0.260, 0.056),
     (1.100, 0.230, 0.473, 0.090, 0.443, 0.260, 0.056),
     (1.146, 0.282, 0.470, 0.084, 0.440, 0.300, 0.052),
 ), BODY, bevel=0.004)
 # The charging-handle knob (rest x .70, up to .71 in the clips) runs on into a slot in the handguard's
-# rear-left; a pocket behind the receiver's front face takes the handle's inward swing in Draw.
-recess(hand, "AR_HandleSlotCut", crect(0.690, 0.312, 0.716, 0.422, 0.002), 0.062, 0.15, role=DARK)
-recess(hand, "AR_HandlePocketCut", crect(0.690, 0.312, 0.730, 0.424, 0.004), -0.060, 0.066, role=DARK)
+# rear-left; a pocket behind the receiver's front face takes the handle's inward swing in Draw. Both start
+# at .637 so they clear the sleeve.
+recess(hand, "AR_HandleSlotCut", crect(0.637, 0.312, 0.716, 0.422, 0.002), 0.062, 0.15, role=DARK)
+recess(hand, "AR_HandlePocketCut", crect(0.637, 0.312, 0.730, 0.424, 0.004), -0.060, 0.066, role=DARK)
 FIELD = [(0.840, 0.312), (0.856, 0.312), (0.856, 0.295), (0.872, 0.295), (0.872, 0.278),
          (1.082, 0.278), (1.110, 0.306), (1.110, 0.404), (1.082, 0.432), (0.860, 0.432), (0.840, 0.412)]
 MAG_STRIPE = [(0.905, 0.281), (0.945, 0.281), (1.025, 0.429), (0.985, 0.429)]
@@ -227,3 +293,4 @@ for sign, label in ((1, "Left"), (-1, "Right")):
          0.053 * sign, 0.060 * sign, MAGENTA, bone="Mag")
 
 result = finish_master(deck)
+result["gap_moves"] = gap_moves

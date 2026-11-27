@@ -49,6 +49,64 @@ dress("Stock", copy_name="AR_StockFrame", keep=lambda island: limits(island, 0)[
 dress("Barrel", copy_name="AR_BarrelTube", keep=lambda island: limits(island, 0)[1] < 2.795)
 
 
+def nudge(obj, pick, delta, island=None):
+    """Move the vertices of a retained part that pick(world point) selects (rest pose, world space).
+    island(lo, hi) limits the move to the connected pieces whose world bounds pass."""
+    matrix = obj.matrix_world
+    inverse = matrix.inverted()
+    allowed = None
+    if island:
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        allowed = set()
+        for group in components(bm):
+            points = [matrix @ v.co for v in group]
+            lo = Vector([min(p[i] for p in points) for i in range(3)])
+            hi = Vector([max(p[i] for p in points) for i in range(3)])
+            if island(lo, hi):
+                allowed.update(v.index for v in group)
+        bm.free()
+    moved = 0
+    for vertex in obj.data.vertices:
+        if allowed is not None and vertex.index not in allowed:
+            continue
+        point = matrix @ vertex.co
+        if pick(point):
+            vertex.co = inverse @ (point + Vector(delta))
+            moved += 1
+    obj.data.update()
+    return moved
+
+
+# Gap sweep (owner 2026-11-27: "make sure there's no like gaps"). Culled magenta close-ups and measured
+# joins found these stock gaps; each part is now buried 0.02+ in what it meets:
+# - the rail bridged 0.020 over the front block (top .394) from the receiver (x .89) to the handguard,
+#   a see-through slot under it: a dark riser now carries it (see the rail riser);
+# - front sight base: 0.002 into the rail (top .436): its foot is now .414; the post 0.004 into the base:
+#   its foot is now .440;
+# - rear sight base: 0.006 into the receiver top (.416): its foot is now .396;
+# - castle ring and buffer tube: 0.010 / 0.007 into the receiver's rear (x -.013): the ring moves 0.012
+#   forward and the tube's front runs to x .010;
+# - barrel: 0.020 into the brake's collar: its end is now 2.800 (0.030);
+# - the handguard ran only 0.013 over the front block, and the cabinet butt 0.018 over the stock's rear
+#   member (see the handguard and the butt).
+SIGHTS = native("Sights")
+FRAME = bpy.data.objects["AR_StockFrame"]
+gap_moves = {
+    "front_sight_base": nudge(SIGHTS, lambda p: p.z < 0.435, (0, 0, -0.020),
+                              lambda lo, hi: lo.x > 2.2 and hi.x < 2.31 and lo.z > 0.43 and hi.z < 0.465),
+    "front_sight_post": nudge(SIGHTS, lambda p: p.z < 0.459, (0, 0, -0.018),
+                              lambda lo, hi: hi.y < 0.006 and lo.z > 0.45 and hi.z < 0.5),
+    "rear_sight_base": nudge(SIGHTS, lambda p: p.z < 0.411, (0, 0, -0.014),
+                             lambda lo, hi: hi.x < 0.2 and lo.z < 0.42),
+    "castle_ring": nudge(FRAME, lambda p: True, (0.012, 0, 0),
+                         lambda lo, hi: abs(lo.x + 0.03) < 0.005 and abs(hi.x + 0.003) < 0.005),
+    "buffer_tube": nudge(FRAME, lambda p: p.x > -0.01, (0.016, 0, 0),
+                         lambda lo, hi: abs(lo.x + 0.36) < 0.01 and abs(hi.x + 0.006) < 0.005),
+    "barrel_end": nudge(bpy.data.objects["AR_BarrelTube"], lambda p: p.x > 2.785, (0.010, 0, 0)),
+}
+
+
 def crect(x0, z0, x1, z1, c):
     return [(x0 + c, z0), (x1 - c, z0), (x1, z0 + c), (x1, z1 - c),
             (x1 - c, z1), (x0 + c, z1), (x0, z1 - c), (x0, z0 + c)]
@@ -155,12 +213,13 @@ side("AR_CoinStripe_Right", [(0.312, 0.146), (0.347, 0.146), (0.389, 0.221), (0.
      -0.090, -0.096, MAGENTA)
 
 # ---------------------------------------------------------------- handguard
-# Stock envelope (y .088, keel .223, shoulder .41, top .432) from x 1.123, as stock, to x 2.362 (0.007
+# Stock envelope (y .088, keel .223, shoulder .41, top .432) from x 1.115 (gap sweep: 0.021 over the
+# front block, which ends at 1.136; the stock started at 1.123) to x 2.362 (0.007
 # past the rail base's front face at 2.355, so the two never share a plane); the front rakes
 # back under the barrel like a cabinet front. Faceted vents behind the support hand keep the
 # Marksman's read; the side-art field sits ahead of it.
 hand = folded("AR_Handguard", (
-    (1.123, 0.189, 0.432, 0.088, 0.410, 0.223, 0.066),
+    (1.115, 0.189, 0.432, 0.088, 0.410, 0.223, 0.066),
     (2.290, 0.189, 0.432, 0.088, 0.410, 0.223, 0.066),
     (2.362, 0.262, 0.428, 0.082, 0.406, 0.290, 0.060),
 ), BODY, bevel=0.004)
@@ -184,6 +243,13 @@ for sign, label in ((1, "Left"), (-1, "Right")):
                        [(0, 0.003), (0.008, 0.0068), (1.032, 0.0068), (1.040, 0.003)], MAGENTA)
     trim["flat_group"] = "ARTrim"
 
+# ---------------------------------------------------------------- rail riser
+# Gap sweep: the stock rail base (z .414-.436, y +-.03) bridged 0.020 over the front block (top .394)
+# from the upper receiver (front x .89) to the handguard, a slot you could see through. A dark riser,
+# narrower than the rail (y +-.022), now carries it: 0.020 into the front block, the rail, the receiver
+# and the handguard. From the side it reads as the rail's spine, as on the Havoc.
+side("AR_RailRiser", [(0.870, 0.374), (1.143, 0.374), (1.143, 0.434), (0.870, 0.434)], -0.022, 0.022, DARK)
+
 # ---------------------------------------------------------------- stock frame art
 # Raked band and line on the top bar ahead of the window, a pixel trail growing back from the band.
 for sign, label in ((1, "Left"), (-1, "Right")):
@@ -195,12 +261,12 @@ for sign, label in ((1, "Left"), (-1, "Right")):
         side(f"AR_StockPixel_{label}_{k + 1}", square(x, 0.320, size), 0.067 * sign, 0.074 * sign, MAGENTA)
 
 # ---------------------------------------------------------------- cabinet butt
-# Front swallows the body's rear member (x -1.034/-1.085) by 0.03; raked marquee top; stepped rear;
-# bottom and top stepped clear of the body's (-.16 / .403).
+# Front swallows the body's rear member (x -1.034/-1.085) by 0.04 (gap sweep: was -1.055, 0.018 measured
+# past the bevel); raked marquee top; stepped rear; bottom and top stepped clear of the body's (-.16 / .403).
 butt = side("AR_CabinetButt", [
-    (-1.055, 0.414), (-1.205, 0.442), (-1.238, 0.424), (-1.245, 0.376), (-1.226, 0.360),
+    (-1.045, 0.414), (-1.205, 0.442), (-1.238, 0.424), (-1.245, 0.376), (-1.226, 0.360),
     (-1.220, 0.196), (-1.245, 0.178), (-1.245, 0.134), (-1.226, 0.116), (-1.226, -0.140),
-    (-1.200, -0.176), (-1.055, -0.176),
+    (-1.200, -0.176), (-1.045, -0.176),
 ], -0.078, 0.078, BODY, bevel=0.008)
 MARQUEE = [(-1.095, 0.366), (-1.200, 0.366), (-1.212, 0.378), (-1.212, 0.416), (-1.198, 0.428), (-1.095, 0.409)]
 BUTT_FIELD = [(-1.111, -0.140), (-1.180, -0.140), (-1.180, -0.126), (-1.194, -0.126), (-1.194, -0.112),
@@ -237,3 +303,4 @@ for sign, label in ((1, "Left"), (-1, "Right")):
          0.057 * sign, 0.064 * sign, MAGENTA, bone="Mag")
 
 result = finish_master(deck)
+result["gap_moves"] = gap_moves

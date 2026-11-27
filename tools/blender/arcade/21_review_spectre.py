@@ -24,6 +24,14 @@ STATIONS = {
     "mag": ((0.20, 0.9, -0.10), (0.65, 0, -0.20), 0.70),
     "rear_sight": ((-0.35, 0.5, 0.30), (-0.05, 0, 0.53), 0.45),
     "front_sight": ((0.30, 0.6, 0.30), (1.02, 0, 0.50), 0.45),
+    # Gap sweep (v07): culled magenta close-ups of the stock joins it closed (20_review shoots culled_* of
+    # every station). The full three-way sweep is in out/Spectre_v07_gapsweep/.
+    "lower_hg_join": ((0.2, 0.8, -0.3), (0.67, 0, 0.26), 0.24),
+    "lower_hg_join_right": ((0.2, -0.8, -0.3), (0.67, 0, 0.26), 0.24),
+    "lower_hg_join_below": ((0.05, 0.02, -0.9), (0.67, 0, 0.24), 0.30),
+    "rail_hg_join": ((0.3, 0.8, 0.3), (0.66, 0, 0.45), 0.20),
+    "grip_guard_join": ((0.4, 0.6, -0.2), (0.13, 0, 0.08), 0.22),
+    "front_sight_join": ((0.4, 0.5, 0.25), (1.015, 0, 0.48), 0.20),
 }
 FINISH_EXTRA = ["deck", "coin_door", "butt", "can", "joystick", "stock_art"]
 exec((Path(bpy.data.filepath).parents[6] / "tools/blender/arcade/20_review.py").read_text(encoding="utf-8"))

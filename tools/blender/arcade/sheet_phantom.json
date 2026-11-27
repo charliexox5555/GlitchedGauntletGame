@@ -4,7 +4,7 @@
   ["finish_coin_door.png", "Coin door (right)"],
   ["finish_butt.png", "Cabinet butt: marquee and side art"],
   ["finish_can.png", "Stepped suppressor can and light ring"],
-  ["wb_handguard_receiver.png", "Handguard to receiver, handle slot"],
-  ["wb_handguard_under.png", "Handguard kick and lit trim"],
-  ["wb_stock_art.png", "Stock frame art"]
+  ["culled_trigger_join.png", "Trigger guard seated in receiver and grip (culled)"],
+  ["culled_rail_tip_join.png", "Rail tip on the handguard nose (culled)"],
+  ["culled_front_sight_join.png", "Front sight base seated in the rail (culled)"]
 ]

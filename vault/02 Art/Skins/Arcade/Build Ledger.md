@@ -104,6 +104,18 @@ The Arcade line, built one gun at a time from [Arcade and Frostbite Handoff](../
 - **Flat export:** 0 lifts, flips or crossed faces. The one-sided magenta re-import is clean.
 - **Self-grade:** 9/10. [Review sheet](out/Vandal_v07_review.png)
 
+### Gap sweep (2026-11-27): v08
+The owner's "no gaps" sweep on v07: culled magenta close-ups of every join from both sides and below (`out/Vandal_v08_gapsweep/`), plus measured joins and a see-through silhouette check.
+- **Gaps found:**
+  - **the same trigger-area gap as the Bulldog:** the guard's front post stopped **0.010** under the lower receiver, with an 0.011 slot to the magwell lip in front of it, and the guard's rear bar ended 0.0034 short of the grip;
+  - a see-through notch under the rail where the upper receiver's chamfer meets the front block;
+  - the coin door's top stopped 0.003 under the stock right side box;
+  - shallow joins: the buffer tube 0.004 in the rear cap; the gas tube 0.010 in the front sight block; the barrel 0.018 in the brake; the front sight tower 0.004 in its block; the rear sight post 0.004 in its base; the sling lug 0.010 and nose collar 0.015 in the handguard; the butt only 0.010 over the stock frame.
+- **Fixed in `10_vandal.py`:** the guard post moves 0.031 forward into the magwell lip and 0.031 up into the receiver (top .185). The guard's rear runs to x .094. The rail spine starts at .775. The coin door's top runs 0.008 under the box. Tube, gas tube, barrel, sight feet, lug and collar are buried 0.02+ (hidden; the ADS ring and post are unchanged). Butt front at -1.078.
+- **Checked, no gap:** the grip top, the magwell, the handguard to front block and its nose, the deck, the brake and the rail over the handguard (a dark reveal backed by the spine, as stock). The chamfer notches where stock blocks meet are outline notches.
+- **v08 results:** master `art-source/weapons/Skins/Arcade/Vandal/v08/Vandal_Arcade_v08.blend`, export `v08x/` (38 parts). 6,977 tris (unchanged). Audit (ADS 0.36): the same 37 stock open islands as v07; 0 coplanar; floating only the stock charging handle; contract equal; 0 animated intersections; all 5 ADS rays clear (post ray: `Vandal_FrontSight` only). Flat export: 0 lifts, flips or crossed faces, clean one-sided re-import. Self-grade **9/10** (unchanged). [Review sheet](out/Vandal_v08_review.png)
+- **Reinstall needed:** Studio still has the v07x install. v08x replaces it later: the guard, rail, coin door, butt, barrel and sight parts changed.
+
 ## Studio install (2026-11-27, place 71551303511506)
 
 **Install**
@@ -233,6 +245,17 @@ Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, P
 - In first person, the joystick ball slightly overlaps the cyan button, the same as the approved Havoc.
 - Not installed: the Studio upload and install wait for your go.
 
+### Gap sweep (2026-11-27): v05
+The owner's "no gaps" sweep on v04: culled magenta close-ups of every join from both sides and below (`out/Phantom_v05_gapsweep/`), plus measured joins and a see-through silhouette check.
+- **Gaps found (all stock except the rail tip):**
+  - the trigger guard's rear bar ended **0.015** short of the grip; its front post only reached the receiver's underside (0.002), and the grip's top sat exactly on it;
+  - the rail's tip hung over the handguard's tapered nose: a daylight wedge up to 0.02;
+  - the front sight base floated **0.012** over the rail on its clamp, with hairline slots at both ends; its hood and blade sat 0.002-0.005 in the base, the rear sight block 0.004 and its base 0.006;
+  - the barrel stub sat 0.002 in the nose cap; the buffer tube and castle ring 0.008 / 0.014 in the rear cap; the butt 0.018 over the frame, with a sliver under the lower brace.
+- **Fixed in `11_phantom.py`:** guard bar to x .145 and post top to .184 (0.02+ in), grip top raised 0.02. The handguard nose keeps its top (.431) to x 1.626, 0.007 past the rail end, then steps down to the cap. Sight feet buried 0.02 (hidden; the rear ring and front hood above the bases are unchanged). Stub rear to 1.615, tube front to -.150, ring 0.007 forward, butt front at -0.950.
+- **Checked, no gap:** the magwell and its rib notches, the coin door and deck, the handguard to receiver collar, the can mount, the charm loop. The rear ring stands on its block as stock. The pins 0.006 ahead of the deck's front are a spacing, not a join.
+- **v05 results:** master `art-source/weapons/Skins/Arcade/Phantom/v05/Phantom_Arcade_v05.blend`, export `v05x/` (36 parts). 6,732 tris (1.43x). Audit (ADS 0.42): the same stock-only open islands as v04; 0 coplanar; floating only the stock charging handle; contract equal; 0 animated intersections; all 5 ADS rays clear (post ray: `Phantom_Sights` only). Flat export: 0 lifts, flips or crossed faces, clean one-sided re-import. Self-grade **9/10** (unchanged). [Review sheet](out/Phantom_v05_review.png)
+
 ## Spectre (Prowler)
 Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, PID 40136 checked). Scripts: `12_spectre.py` (build), `21_review_spectre.py` (stations; the stock file has its own `Cam_Hip`), `sheet_spectre.json`. No shared script was changed.
 
@@ -295,6 +318,18 @@ Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, P
 - The stock Neon square under the deck was removed (the front-sight Neon strips are kept). The stock fire selector's one flush face was lifted 0.004 in the master.
 - Not installed: the Studio upload and install wait for your go.
 
+### Gap sweep (2026-11-27): v07
+The owner's "no gaps" sweep on v06: culled magenta close-ups of every join from both sides and below (`out/Spectre_v07_gapsweep/`), plus measured joins and a see-through silhouette check.
+- **Gaps found (all stock):**
+  - lower receiver to handguard: the lower receiver stops at x .683, the handguard started at .697, leaving a **0.014** see-through slot under the upper receiver;
+  - a daylight notch under the rail base at the upper receiver's chamfered front-top corner, and a 0.003 hairline between the upper receiver's front face and the handguard;
+  - the grip's front-top corner stood **0.004** off the trigger guard's rear member, and its open top was only 0.0036 into the receiver;
+  - the buffer mount sat 0.008 in the receiver and the barrel stub 0.009 in the handguard nose;
+  - the front sight base and post sat 0.003-0.004 deep, and the hood wings' outer feet hung 0.006 over the handguard; the rear sight post was 0.013 in the receiver.
+- **Fixed in `12_spectre.py`:** the handguard now starts at x .650, a sleeve 0.047 over the upper and 0.033 over the lower receiver. The knob slot and pocket start at .637. The last rail tooth and the two pins beside it run 0.004 into the sleeve's wall. The grip's top rises 0.02 and its front-top corner runs 0.022 into the guard member. Mount front to -.308, stub rear to 1.107, sight feet buried 0.02 (hidden), wing feet reach the handguard.
+- **Checked, no gap:** the trigger guard (one piece with the lower receiver), the magwell, the coin door and deck, the butt, the handguard nose, the can mount. The wedge under the grip-to-guard contact and the stock frame's window corners are outline notches.
+- **v07 results:** master `art-source/weapons/Skins/Arcade/Spectre/v07/Spectre_Arcade_v07.blend`, export `v07x/` (35 parts). 5,003 tris (1.48x). Audit (ADS 0.37): the same stock-only open islands as v06; 0 coplanar; floating only the stock magazine group, as before; contract equal; 0 animated intersections (the knob runs clear in the longer slot); all 5 ADS rays clear (post ray: `Spectre_Sights` only). Flat export: 0 lifts, flips or crossed faces; clean re-import, with the same `SK_Mag_05` cartridge note as v06. Self-grade **9/10** (unchanged). [Review sheet](out/Spectre_v07_review.png)
+
 ## Guardian (Marksman)
 Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, PID 40136 checked). Scripts: `13_guardian.py` (build), `21_review_guardian.py` (stations; the stock file has its own `Cam_Hip`), `sheet_guardian.json`. No shared script was changed.
 
@@ -352,6 +387,17 @@ Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, P
 - The stock handguard's round-ended slots are kept as faceted vents (three by two, behind the support hand) rather than replaced by a second art field.
 - In first person the joystick ball still slightly overlaps the cyan button, as on the approved Havoc and Spirit.
 - Not installed: the Studio upload and install wait for your go.
+
+### Gap sweep (2026-11-27): v03
+The owner's "no gaps" sweep on v02: culled magenta close-ups of every join from both sides and below (`out/Guardian_v03_gapsweep/`), plus measured joins (island near-misses, air between facing surfaces, how deep each end sits) and a see-through silhouette check.
+- **Gaps found (all stock):**
+  - the rail bridged **0.020** over the front block (top .394), from the receiver (x .89) to the handguard: a see-through slot under the rail;
+  - the front sight base sat only 0.002 on the rail, its post 0.004 in the base; the rear sight base 0.006 in the receiver;
+  - the castle ring and buffer tube sat 0.010 / 0.007 in the receiver's rear; the barrel 0.020 in the brake collar;
+  - the handguard ran 0.013 over the front block; the butt 0.018 over the stock's rear member.
+- **Fixed in `13_guardian.py`:** a dark `AR_RailRiser` (y ±.022, under the ±.03 rail) carries the rail, 0.02 into the block, rail, receiver and handguard. Sight feet buried 0.02 (hidden; the ADS ring, hood and post above the base are unchanged). Ring forward 0.012, tube to x .010, barrel end to 2.800. Handguard from x 1.115, butt front at -1.045.
+- **Checked, no gap:** the trigger guard and grip (one piece with the receiver; the grip is 0.03+ into it), the magwell, the coin door and deck edges, the handguard nose and the brake. The chamfer notches where stock blocks meet and the stock frame's window corners are outline notches, not gaps.
+- **v03 results:** master `art-source/weapons/Skins/Arcade/Guardian/v03/Guardian_Arcade_v03.blend`, export `v03x/` (36 parts). 5,950 tris (1.36x). Audit (ADS 0.33): the same stock-only open islands as v02, 0 coplanar, 0 floating, contract equal, 0 animated intersections, all 5 ADS rays clear (post ray: `Guardian_Sights` only). Flat export: 0 lifts, flips or crossed faces, clean one-sided re-import. Self-grade **9/10** (unchanged). [Review sheet](out/Guardian_v03_review.png)
 
 ## Bulldog (Lancer)
 Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, PID 40136 checked). Scripts: `14_bulldog.py` (build), `21_review_bulldog.py` (stations; the stock file has its own `Cam_Hip`), `sheet_bulldog.json`. No shared script was changed.

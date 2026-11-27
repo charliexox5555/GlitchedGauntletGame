@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Cabinet deck: pixel screen and buttons"],
+  ["finish_joystick.png", "Deck joystick and buttons"],
+  ["finish_coin_door.png", "Coin door (right), seated under the side box"],
+  ["finish_butt.png", "Cabinet butt"],
+  ["finish_brake.png", "Stepped brake"],
+  ["culled_trigger_join.png", "Trigger guard post in the receiver and magwell (culled)"],
+  ["culled_guard_grip_join.png", "Trigger guard rear in the grip (culled)"],
+  ["culled_rail_join.png", "Rail spine over the receiver joint (culled)"]
+]

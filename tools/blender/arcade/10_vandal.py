@@ -31,6 +31,75 @@ dress("Stock", copy_name="AR_StockFrame", keep=lambda island: limits(island, 0)[
 dress("Barrel", copy_name="AR_BarrelTube", keep=lambda island: limits(island, 0)[0] < 2.38)
 
 
+def nudge(obj, pick, delta, island=None):
+    """Move the vertices of a retained part that pick(world point) selects (rest pose, world space).
+    island(lo, hi) limits the move to the connected pieces whose world bounds pass."""
+    matrix = obj.matrix_world
+    inverse = matrix.inverted()
+    allowed = None
+    if island:
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        allowed = set()
+        for group in components(bm):
+            points = [matrix @ v.co for v in group]
+            lo = Vector([min(p[i] for p in points) for i in range(3)])
+            hi = Vector([max(p[i] for p in points) for i in range(3)])
+            if island(lo, hi):
+                allowed.update(v.index for v in group)
+        bm.free()
+    moved = 0
+    for vertex in obj.data.vertices:
+        if allowed is not None and vertex.index not in allowed:
+            continue
+        point = matrix @ vertex.co
+        if pick(point):
+            vertex.co = inverse @ (point + Vector(delta))
+            moved += 1
+    obj.data.update()
+    return moved
+
+
+# Gap sweep (owner 2026-11-27: "make sure there's no like gaps"). Culled magenta close-ups and measured
+# joins found these stock gaps; each part is now buried 0.02+ in what it meets:
+# - trigger guard front post: its top stopped at z .154, 0.010 under the lower receiver (.164), and its
+#   front face left an 0.011 slot to the magwell lip (x .4212): the post moves 0.031 forward (front .441)
+#   and its top 0.031 up (.185);
+# - trigger guard rear: the bar ended 0.0034 short of the grip's front face (x .1147): now x .094;
+# - the rail's spine started at x .80, leaving a see-through notch under the rail where the upper
+#   receiver's chamfer meets the front block: it now starts at .775 (hidden in the upper receiver);
+# - buffer tube: only 0.004 into the receiver's rear cap (x -.178): its front is now -.148;
+# - gas tube: only 0.010 into the front sight block (x 1.95): its front is now 1.98;
+# - barrel: 0.018 into the brake: its end is now 2.402 (0.030);
+# - front sight tower: 0.004 into its block (top .39): its foot is now .368;
+# - rear sight post: 0.004 into its base (top .462): its foot is now .440;
+# - handguard hardware: the sling lug ran 0.010 and the nose collar 0.015 into the handguard: 0.022/0.025;
+# - the coin door's top stopped 0.003 under the stock right side box (see the coin door);
+# - the cabinet butt swallowed the stock frame by only 0.010 (see the butt).
+GUARD = lambda lo, hi: lo.x > 0.11 and hi.x > 0.4  # the trigger guard piece of Vandal_Grip
+gap_moves = {
+    "guard_post_forward": nudge(native("Grip"), lambda p: p.x > 0.36, (0.031, 0, 0), GUARD),
+    "guard_post_up": nudge(native("Grip"), lambda p: p.z > 0.14, (0, 0, 0.031), GUARD),
+    "guard_rear": nudge(native("Grip"), lambda p: p.x < 0.127, (-0.024, 0, 0), GUARD),
+    "rail_spine": nudge(native("Rail"), lambda p: p.x < 0.801, (-0.025, 0, 0),
+                        lambda lo, hi: lo.x > 0.79 and hi.x > 1.55 and hi.z < 0.43),
+    "buffer_tube": nudge(bpy.data.objects["AR_StockFrame"], lambda p: p.x > -0.18, (0.026, 0, 0),
+                         lambda lo, hi: abs(lo.x + 0.425) < 0.01 and abs(hi.x + 0.174) < 0.01),
+    "gas_tube": nudge(bpy.data.objects["AR_BarrelTube"], lambda p: p.x > 1.955, (0.020, 0, 0),
+                      lambda lo, hi: lo.z > 0.31),
+    "barrel_end": nudge(bpy.data.objects["AR_BarrelTube"], lambda p: p.x > 2.385, (0.012, 0, 0),
+                        lambda lo, hi: hi.x > 2.3),
+    "front_sight_tower": nudge(native("FrontSight"), lambda p: p.z < 0.3875, (0, 0, -0.018),
+                               lambda lo, hi: lo.z > 0.38 and hi.z > 0.59),
+    "rear_sight_post": nudge(native("RearSight"), lambda p: p.z < 0.459, (0, 0, -0.018),
+                             lambda lo, hi: lo.z > 0.45 and hi.z < 0.5 and hi.y < 0.03),
+    "sling_lug": nudge(bpy.data.objects["AR_HandguardHardware"], lambda p: p.z > 0.17, (0, 0, 0.012),
+                       lambda lo, hi: hi.z < 0.18),
+    "nose_collar": nudge(bpy.data.objects["AR_HandguardHardware"], lambda p: p.x < 1.635, (-0.010, 0, 0),
+                         lambda lo, hi: lo.x > 1.6),
+}
+
+
 def crect(x0, z0, x1, z1, c):
     return [(x0 + c, z0), (x1 - c, z0), (x1, z0 + c), (x1, z1 - c),
             (x1 - c, z1), (x0 + c, z1), (x0, z1 - c), (x0, z0 + c)]
@@ -85,7 +154,10 @@ side("AR_DeckLight_Left", [(0.300, 0.259), (0.697, 0.259), (0.712, 0.274), (0.31
      0.088, 0.096, CYAN)["flat_group"] = "ARDeckLight"
 
 # ---------------------------------------------------------------- right: coin door
-coin = side("AR_CoinDoor_Right", DECK, -0.083, -0.098, METAL, bevel=0.0018)
+# The door's top runs 0.008 up under the stock side box (x .30-.338, bottom .268, 0.006 prouder than the
+# door) instead of stopping 0.003 short of it (gap sweep).
+COIN = [(x, 0.276 if z == 0.265 else z) for x, z in DECK]
+coin = side("AR_CoinDoor_Right", COIN, -0.083, -0.098, METAL, bevel=0.0018)
 for i, x in enumerate((0.320, 0.440)):
     block = side(f"AR_CoinEntry_{i + 1}", crect(x - 0.030, 0.203, x + 0.030, 0.252, 0.006),
                  -0.094, -0.110, ACCENT, bevel=0.0015)
@@ -133,10 +205,12 @@ for sign, label in ((1, "Left"), (-1, "Right")):
              (x + size / 2, 0.300 + size / 2), (x - size / 2, 0.300 + size / 2)], 0.059 * sign, 0.067 * sign, MAGENTA)
 
 # ---------------------------------------------------------------- cabinet butt
+# Front at x -1.078 (gap sweep: was -1.090, only 0.010 over the frame's top member): it now swallows the
+# top member (to -1.100) by 0.022 and the rear upright (to -1.107) by 0.029.
 butt = side("AR_CabinetButt", [
-    (-1.090, 0.428), (-1.232, 0.428), (-1.266, 0.404), (-1.266, 0.352), (-1.246, 0.336),
+    (-1.078, 0.428), (-1.232, 0.428), (-1.266, 0.404), (-1.266, 0.352), (-1.246, 0.336),
     (-1.236, 0.215), (-1.268, 0.196), (-1.268, 0.160), (-1.250, 0.142), (-1.250, -0.152),
-    (-1.226, -0.180), (-1.090, -0.180),
+    (-1.226, -0.180), (-1.078, -0.180),
 ], -0.078, 0.078, BODY, bevel=0.008)
 MARQUEE = [(-1.240, 0.362), (-1.112, 0.362), (-1.112, 0.404), (-1.222, 0.404), (-1.240, 0.390)]
 for sign, label in ((1, "Left"), (-1, "Right")):
@@ -159,3 +233,4 @@ for sign, label in ((1, "Left"), (-1, "Right")):
          0.054 * sign, 0.062 * sign, MAGENTA, bone="Mag")
 
 result = finish_master(deck)
+result["gap_moves"] = gap_moves

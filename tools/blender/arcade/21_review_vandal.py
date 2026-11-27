@@ -21,6 +21,14 @@ STATIONS = {
     "stock_art": ((0.10, 0.9, 0.30), (-0.80, 0, 0.30), 0.60),
     "rear_sight": ((-0.35, 0.5, 0.30), (0.08, 0, 0.50), 0.45),
     "front_sight": ((0.30, 0.6, 0.30), (2.02, 0, 0.42), 0.50),
+    # Gap sweep (v08): culled magenta close-ups of the stock joins it closed (20_review shoots culled_* of
+    # every station). The full three-way sweep is in out/Vandal_v08_gapsweep/.
+    "trigger_join": ((0.5, 0.6, -0.35), (0.42, 0, 0.13), 0.30),
+    "trigger_join_right": ((0.5, -0.6, -0.35), (0.42, 0, 0.13), 0.30),
+    "trigger_join_below": ((0.05, 0.02, -0.9), (0.30, 0, 0.08), 0.40),
+    "guard_grip_join": ((-0.4, 0.6, -0.2), (0.11, 0, 0.05), 0.22),
+    "rail_join": ((0.3, 0.8, 0.1), (0.80, 0, 0.41), 0.20),
+    "coin_box_join": ((0.2, -0.8, 0.2), (0.32, 0, 0.27), 0.18),
 }
 FINISH_EXTRA = ["deck", "coin_door", "butt", "brake", "joystick"]
 exec((Path(bpy.data.filepath).parents[6] / "tools/blender/arcade/20_review.py").read_text(encoding="utf-8"))
