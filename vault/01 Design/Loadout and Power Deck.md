@@ -57,6 +57,23 @@ The Locker becomes a weapon hub: open a gun to unlock it, level it up, see its r
 - **Knives:** skins only for now, with no knife abilities.
 - **Look:** a new Locker in the game's own style (`gauntlet-ui-style`), laid out like RIVALS' weapon pages: study, don't copy (`rivals-reference`). Built in Studio as real ScreenGuis; the owner edits.
 
+## Locker design from the RIVALS study (2026-11-26)
+Source: [RIVALS UI study](../03%20Research/Rivals%20Reference/UI%20and%20Client.md#loadout--weapon-pages-study-2026-11-26) (owner: "it should look much more like rivals … a nice looking UI, nothing like the one we currently have"). A full revamp in our Soft Edge style (`gauntlet-ui-style`: plates with one cut corner, Rubik Heavy, one gold act-now thing per screen, no pills or glow), built in Studio as real ScreenGuis for the owner to edit.
+- **Stage:** the gun (or power) shown big in the middle of a 3D locker set in the lobby (we already have the Locker room and its camera rise). The UI sits in two side columns.
+- **Left column, tabs and lists:**
+  - **GUNS** (Primary and Secondary lists, locked ones with a lock and price).
+  - **POWERS** (your deck of 6 slots at the top, then every power card).
+  - **KNIFE** (skins only).
+  - The selected item is a large card at the top.
+- **Right column, cards that change with the selection:**
+  - **Owned gun:** Details (name, role line, favourite) → Level (bar, next reward) → Contracts → Overview (inline stats: damage near/far, range, fire rate, spread, headshot, magazine, move speed) → Statistics (lifetime: kills, headshots, wins, damage, playtime).
+  - **Locked gun:** a lock over the model, then **UNLOCK (coins, gold)** and **TRY IN THE RANGE** (we have the Range).
+  - **Power:** Details → Level → its upgrade paths A / B / Glitched shown as cards → Statistics → EQUIP TO DECK.
+- **Bottom bar:** SKIN, and later WRAP / CHARM / KILL EFFECT; BACK.
+- **Levels:** from use only (XP per kill, round and win with that gun or power), about 50 XP a level early. Rewards are cosmetics and coins, a milestone every 5 levels. No buying levels at first.
+- **Contracts:** two tracks per gun, eliminations and playtime, ending in prestige finishes (our own names and looks). They share the tasks engine.
+- **Power card packs (owner idea, later):** packs bought with coins give random power cards. A new card unlocks a power; a duplicate becomes that power's XP. Roblox rules: paid random items must show their odds, and coins can be bought with Robux, so the pack screen lists odds (as our cases already do). Keep direct coin unlocks too, so no power is only behind luck.
+
 ## Economy (needs a pass before launch)
 Today a match pays 15 coins for finishing and 20 for a win, halved against bots, with a 400-coin daily cap (`Config/Economy.MATCH_COINS`). At about 10 coins a bot match, a 1,000-coin unlock is 100 matches. That is far too slow. Rules for the pass:
 - **The first unlock comes in the first session:** about 150 coins, reachable after match 2 plus the first task.

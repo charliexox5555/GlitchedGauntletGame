@@ -74,3 +74,37 @@ Paths below are in the RIVALS file. `UI.` = `StarterPlayer.StarterPlayerScripts.
 - Favorite prompt: `Controllers.LobbyController._PromptStuff`, 1 s after landing in the lobby, once per session, at duels played = 5 or the first win; notification opt-in at 8 played / 2nd win.
 - What we took: [Handoff - Onboarding and Bots](../../05%20Production/Handoff%20-%20Onboarding%20and%20Bots.md) → Phase 1 results.
 
+
+## Loadout / weapon pages (study 2026-11-26, for our Locker revamp)
+The RIVALS file was running (the owner had started Play). Clicked through `MainGui.MainFrame.Equipment` and read the code without running it. Captures are in `third-party/ui/loadout/` (git-ignored): 01 weapon page, 02 locked weapon, 03 overview metrics, 04 statistics.
+
+**Layout.** The camera sits in a 3D locker room: the gun floats over a workbench in the middle, and the UI fills the side columns, about 25% of the width each.
+- **Left** (`Left.List`, a scroll list):
+  - At the top, a **Career** card: the avatar plus one icon per class (ability, primary, secondary, melee, utility).
+  - Under it, the selected weapon card (name plus a gun render).
+  - Then one `EquipmentClassSlot` per class (Primary, Secondary, …), listing that class's weapons. Locked ones are greyed with padlocks; special or limited guns have animated gold or purple names.
+  - A "Dismiss N notifications" row.
+- **Right** (`Right.List`), with stacked cards that change with what is selected:
+  1. **Details:** name, two bullet lines (class, one-line role), a favourite toggle.
+  2. **Level:** an XP bar (level number over it, 0–50), "Level up now!" with a key price, "Reward at Level 5" with the reward icon.
+  3. **Actions**, each a row with a big coloured button:
+     - Contracts → (earn free rewards).
+     - Overview 👁 (expands inline: equip cooldown, move speed, damage near→far, falloff range, fire rate, spread, headshot damage, ammo).
+     - Statistics 👁 (expands inline: playtime, rounds and wins, damage and eliminations split by sliding / crouching / airborne / blinded, deaths, assists).
+  - On the Career page the actions are Career, Collection, Performance, Duel History, Maps.
+- **A locked gun** gets gold chains and a padlock over the model, and the right panel swaps to **Unlock now** (35 keys), **Free Trial** (play 1 duel), **Try out for free** (range), and a special offer.
+- **Bottom bar** (customise): Leave, Skin, Wrap, Charm, Finisher; a top name display.
+
+**Code** (read only):
+- `PlayerScripts.Modules.UserInterface.Equipment` (+ `EquipmentState`, `Scene.UnlockModel`, `Interface.Right.Overview.MetricsGuide`), `EquipmentButtonSlot`, `EquipmentMetricCard`, `BaseContractSlot/ContractSlot`, `Pages.Contracts`.
+- Shared rules in `ReplicatedStorage.Modules.ContractsLibrary` (26 KB), `StatisticsLibrary` (130 KB) and `LootLibrary`.
+
+**Rules worth knowing:**
+- **Weapon level XP:** `max(50, floor(5 + 4(n−1) + (min(n,99)/40)² × 100))`, so 50 XP a level early, rising later, max 99.
+- **Buying the rest of a level:** `clamp(floor(10 × (1 − progress)), 1, 10)` keys.
+- **Level rewards:** a key at level 5, a white wrap at 50, a black wrap at 99. Career levels give a random "Experience" item every 10.
+- **Weapon contracts** have two tracks per weapon:
+  - **Eliminations:** 5, 20, 100, 500, 2,000, 10,000, 20,000, 30,000, 40,000 × a per-weapon factor. Rewards: key → charm capsule ×2 → wrap box → mastery camos Gold → Diamond → Midas Touch → Diamond Hands → Dark Matter.
+  - **Playtime:** 5 min, 20 min, 1 h, 6 h, 12 h, 24 h, 48 h, 72 h. Rewards: key, charm capsule, the weapon's colour, wrap boxes, a chibi version.
+  - Map contracts give dioramas.
+- **What we take:** the structure (side columns around a 3D gun, cards that change with the selection, inline overview and stats, a locked state with clear unlock actions, levels from use, two contract tracks with prestige camos at the top). Not their art, layout proportions or names. Ours is in [Loadout and Power Deck](../../01%20Design/Loadout%20and%20Power%20Deck.md#locker-design-from-the-rivals-study-2026-11-26).
