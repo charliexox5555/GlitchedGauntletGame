@@ -43,6 +43,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Abilities/<Shock Dart|Flash|Roller>.md` (3–4 each): the free pack, built 2026-11-17 (numbers, how it's built, sounds, bots, counter-play)
 - `01 Design/Bots.md` (29): AI bots: seats, brain, perception, aim, Mods, tuning
 - `05 Production/Bot Redesign 2026-11-17.md`: shooter research, movement and Mod redesign, difficulty profiles, Studio test results
+- `05 Production/Launch Hardening 2026-11-27.md`: last pass before the battle pass (loading, bots, onboarding redo, phone/controller UI, economy, full code audit); workstreams and done criteria
 - [Shadow Mist idle playtest](05%20Production/Playtests/2026-11-17%20Shadow%20Mist%20Idle.md)
 - [Shadow Mist action polish](05%20Production/Playtests/2026-11-18%20Shadow%20Mist%20Action%20Polish.md)
 - `05 Production/Playtests/2026-11-17 Bot Redesign.md`: Studio route, combat and overtime observations
