@@ -5,6 +5,7 @@
 --   * Left.Guns.List: RowVandal -> RowOwned, RowBulldog -> RowLocked (hidden templates); other mock rows go.
 --   * Left.Powers.List.Grid: TileDash -> TileOwned, TileFirewall -> TileLocked; other mock tiles go.
 --   * Bottom: a Skins strip (a Template tile inside) and a Toast line.
+--   * the LOCKER title moves from the top-left corner (under Roblox's buttons) to the left of the tabs.
 --   * the mockup's Preview script and the showcase guns go; ReplicatedStorage.LockerV3Stage keeps the PowerCard.
 
 local SG = game:GetService("StarterGui")
@@ -187,6 +188,18 @@ stroke.Thickness = 2
 stroke.Transparency = 0.5
 stroke.Parent = toast
 toast.Parent = bottom
+
+-- the LOCKER title sits next to the tabs: Roblox's own buttons cover the top-left corner (owner 2026-11-26)
+local title = gui:FindFirstChild("Left") and need(gui, "Left"):FindFirstChild("Title")
+	or need(gui, "Top"):FindFirstChild("Title")
+if title and title:IsA("TextLabel") then
+	title.Parent = need(gui, "Top")
+	title.AnchorPoint = Vector2.new(1, 0)
+	title.Position = UDim2.fromOffset(112, 33)
+	title.Size = UDim2.fromOffset(300, 52)
+	title.TextXAlignment = Enum.TextXAlignment.Right
+	title.TextSize = 42
+end
 
 gui.Enabled = false
 gui.ResetOnSpawn = false
