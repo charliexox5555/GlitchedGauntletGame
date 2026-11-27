@@ -8,6 +8,7 @@ The last pass before the battle pass work. Owner's brief (2026-11-27):
 - **UI on every device:** on a phone, the settings and top bar buttons overlap the scoreboard at the top.
 - **Bots:** about half are sometimes glitched (they don't turn, don't move well).
 - **Check phone and controller.**
+- **Onboarding matches leave the hub** (owner 2026-11-27): matches 1-2 teleport to a reserved server like every match (less lobby load); fast, clean teleport loading makes that fine.
 - **Economy:** make it good. No compensation needed: nobody plays or has spent Robux yet.
 
 ## Workstreams (parallel sessions, shared checkout on main)
