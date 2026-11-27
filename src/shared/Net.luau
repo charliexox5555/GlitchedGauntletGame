@@ -68,23 +68,33 @@ local FOLDER_NAME = "Remotes"
 
 local folder: Instance
 if RunService:IsServer() then
-	local existing = ReplicatedStorage:FindFirstChild(FOLDER_NAME)
-	if existing then
-		existing:Destroy()
+	-- Reuse a folder that already exists, like LobbyNet: a second require (a Studio MCP or command-bar
+	-- require) used to destroy the live remotes out from under the running handlers. A remote of the
+	-- wrong class (a stale saved copy) is replaced.
+	local f = ReplicatedStorage:FindFirstChild(FOLDER_NAME)
+	if not f then
+		f = Instance.new("Folder")
+		f.Name = FOLDER_NAME
+		f.Parent = ReplicatedStorage
 	end
-	local f = Instance.new("Folder")
-	f.Name = FOLDER_NAME
+	local function ensure(name: string, className: string)
+		local r = (f :: Instance):FindFirstChild(name)
+		if r and r.ClassName == className then
+			return
+		end
+		if r then
+			r:Destroy()
+		end
+		local made = Instance.new(className)
+		made.Name = name
+		made.Parent = f
+	end
 	for _, name in RELIABLE do
-		local r = Instance.new("RemoteEvent")
-		r.Name = name
-		r.Parent = f
+		ensure(name, "RemoteEvent")
 	end
 	for _, name in UNRELIABLE do
-		local r = Instance.new("UnreliableRemoteEvent")
-		r.Name = name
-		r.Parent = f
+		ensure(name, "UnreliableRemoteEvent")
 	end
-	f.Parent = ReplicatedStorage
 	folder = f
 else
 	folder = ReplicatedStorage:WaitForChild(FOLDER_NAME)

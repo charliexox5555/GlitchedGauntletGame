@@ -99,9 +99,8 @@ local function unlight(body: Model)
 	end
 	lit[body] = nil
 	h:Destroy()
-	if body.Parent then
-		LimbHold.release(body)
-	end
+	-- always: a body destroyed while lit stayed in LimbHold's list for good (and kept its step running)
+	LimbHold.release(body)
 end
 
 local function light(body: Model)

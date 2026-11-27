@@ -332,13 +332,18 @@ local function itemSub(item: ShopCatalog.Item): string
 	return string.upper(item.kind)
 end
 
+local itemCardGen = 0 -- bumped by every show, so a hide that finishes late can't hide a newer card
 local function hideItemCard()
 	if itemCard.Visible then
 		local s = pop(itemCard)
 		if s then
+			local gen = itemCardGen
 			local t = tween(s, 0.12, { Scale = 0.9 }, QUINT, IN)
 			t.Completed:Once(function()
-				itemCard.Visible = false
+				-- moving between tiles shows the next card before this finishes (even under reduced motion)
+				if itemCardGen == gen then
+					itemCard.Visible = false
+				end
 			end)
 		else
 			itemCard.Visible = false
@@ -347,6 +352,7 @@ local function hideItemCard()
 end
 
 local function showItemCard(item: ShopCatalog.Item, at: GuiObject)
+	itemCardGen += 1
 	local cell = child(itemCard, "Cell") :: Frame
 	Thumb.item(cell, item)
 	cell.BackgroundColor3 = ShopTheme.INNER;

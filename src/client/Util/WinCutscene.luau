@@ -1025,6 +1025,10 @@ function WinCutscene.stop()
 			end
 		end
 	end
+	-- the ending song stops with the screen (it played on into a rematch's draft)
+	if r.song then
+		r.song:Stop()
+	end
 	r.folder:Destroy()
 	r.gui:Destroy()
 	r.grade:Destroy()

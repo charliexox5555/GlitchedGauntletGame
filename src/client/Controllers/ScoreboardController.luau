@@ -68,6 +68,7 @@ type State = {
 
 local state: State? = nil
 local open = false
+local openGen = 0 -- each open's ask loop ends when a newer open (or a close) starts
 local lines: { Line } = {}
 
 local function child<T>(parent: Instance, name: string): T
@@ -231,6 +232,7 @@ local function setOpen(on: boolean)
 		return
 	end
 	open = on
+	openGen += 1
 	s.gui.Enabled = on
 	if on then
 		render() -- the last lines at once, fresh ones a moment later
@@ -238,8 +240,10 @@ local function setOpen(on: boolean)
 		s.pop.Scale = target * 0.96
 		TweenService:Create(s.pop, TweenInfo.new(0.18, Enum.EasingStyle.Quint), { Scale = target })
 			:Play()
+		local gen = openGen
 		task.spawn(function()
-			while open do
+			-- a quick close and reopen used to leave the old loop running beside the new one
+			while open and openGen == gen do
 				Net.event("Scoreboard"):FireServer()
 				task.wait(ASK_EVERY)
 			end

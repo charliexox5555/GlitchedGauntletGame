@@ -129,8 +129,12 @@ local function decode(field: StringValue): any
 	elseif code == "+" or code == "-" then
 		value = if code == "+" then math.huge else -math.huge
 	else
-		local data = HttpService:JSONDecode(body)
-		if code == "v" then
+		-- a malformed field reads as nil (and is cached) instead of throwing on every get
+		local ok, decodedData = pcall(HttpService.JSONDecode, HttpService, body)
+		local data: any = if ok and typeof(decodedData) == "table" then decodedData else nil
+		if not data then
+			value = nil
+		elseif code == "v" then
 			value = Vector3.new(data[1], data[2], data[3])
 		elseif code == "c" then
 			value = CFrame.new(table.unpack(data))
