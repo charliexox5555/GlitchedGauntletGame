@@ -13,7 +13,7 @@ First full list of what's in the Season 1 pass, for the owner to go through item
 
 ## New content the pass needs
 - **Skin line A, "Arcade"** (Rare: shape change; theme picked by the owner 2026-11-26): neon arcade cabinet, coin slot, joystick and button details, pixel-screen panels. 8 guns. Classic (the one free skin), Vandal, Sheriff, Spectre, Ghost, Bulldog, Marshal, Operator.
-- **Skin line B, "Frostbite"** (Legendary: animation + its own sounds, the chase line; owner 2026-11-26): faceted ice crystal over dark metal, cold blue-white glow, ice that grows on inspect and cracks on kill. Guns: Phantom, Outlaw, Vandal, Knife.
+- **Skin line B, "Frostbite"** (Legendary: animation + its own sounds, the chase line; owner 2026-11-26): faceted ice crystal over dark metal, cold blue-white glow, ice that grows on inspect and cracks on kill. Guns: Phantom, Guardian (Marksman), Vandal, Knife (the Outlaw/TwinShot was removed from the game on 2026-11-27; its slot went to the Marksman, which had no pass skin).
 - **8 charms** (2 free, 6 premium), owner-approved 2026-11-26. See Charms below. There's no charm system yet, so this needs building.
 - **2 new powers**: **Smoke** (free) and **Electric Shock** (premium). See Powers below.
 - **Titles shown in game.** Champion is saved but not displayed yet.
@@ -44,7 +44,7 @@ First full list of what's in the Season 1 pass, for the owner to go through item
 | 21 | — | Arcade **Marshal** |
 | 22 | 1 Ticket | 450 coins |
 | 23 | — | Charm: **Thunder Orb** (Epic) |
-| 24 | — | Frostbite **Outlaw** |
+| 24 | — | Frostbite **Marksman** (Guardian; was the Outlaw, removed 2026-11-27) |
 | 25 | Charm: **Ice Cube** (Rare) | Apex Case |
 | 26 | — | Arcade **Operator** |
 | 27 | — | 500 coins |

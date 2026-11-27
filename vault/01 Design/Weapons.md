@@ -1,6 +1,8 @@
 # Weapons: Roster, Tiers and Mechanics
 
 > **Superseded 2026-10-25.** The old roster is being removed and the game rebuilt one gun at a time (gun 1: Vandal). Damage now follows [Gun Balance](Gun%20Balance.md) (headshot about ×1.6). The tier/round structure below is kept as a reference until the new roster is planned.
+>
+> **The live gun set (2026-11-27)** is the loadout in `Config/Loadout`: 10 primaries (Havoc, Prowler, Hornet, Pump, Lancer, Marksman, Scout, Spirit, Mauler, Deadeye) and 4 secondaries (Classic, Sheriff, Shorty, Hush), each with its role and TTK in [Gun Balance](Gun%20Balance.md). Weapon tiers are gone ([Loadout and Power Deck](Loadout%20and%20Power%20Deck.md)). The TwinShot (Outlaw) was removed on 2026-11-27; Buckshot (Judge) and Barrage (Ares) are parked.
 
 All numbers are **starting values for playtesting**, not final balance. Every player has **100 HP** per round. "TTK" means time-to-kill on body shots at close range, with every shot hitting.
 
