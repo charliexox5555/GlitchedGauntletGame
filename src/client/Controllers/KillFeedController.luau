@@ -13,6 +13,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local UiWait = require(ReplicatedStorage.Shared.Util.UiWait)
+local need = UiWait.child
 local TweenService = game:GetService("TweenService")
 
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
@@ -375,31 +377,31 @@ end
 local function bind(gui: ScreenGui)
 	-- The screen is Scale (tools/studio/modules/UiToScale); each device's size
 	-- and place come from Shared/UiLayout (phones: the right side, 2x).
-	local canvas = gui:WaitForChild("Canvas") :: Frame
-	feed = canvas:WaitForChild("Feed") :: Frame
-	local holder = canvas:WaitForChild("KillPop") :: Frame
-	local group = holder:WaitForChild("Group") :: CanvasGroup
-	local disc = group:WaitForChild("Disc") :: Frame
-	local ring = group:WaitForChild("Ring") :: Frame
+	local canvas = need(gui, "Canvas") :: Frame
+	feed = need(canvas, "Feed") :: Frame
+	local holder = need(canvas, "KillPop") :: Frame
+	local group = need(holder, "Group") :: CanvasGroup
+	local disc = need(group, "Disc") :: Frame
+	local ring = need(group, "Ring") :: Frame
 	local segs: { ImageLabel } = {}
 	for i = 1, SEGMENTS do
-		segs[i] = ring:WaitForChild("Seg" .. i) :: ImageLabel
+		segs[i] = need(ring, "Seg" .. i) :: ImageLabel
 	end
 	pop = {
 		holder = holder,
-		scale = holder:WaitForChild("Pop") :: UIScale,
+		scale = need(holder, "Pop") :: UIScale,
 		group = group,
 		segs = segs,
-		emblem = disc:WaitForChild("Emblem") :: ImageLabel,
+		emblem = need(disc, "Emblem") :: ImageLabel,
 		splits = {
-			disc:WaitForChild("SplitA") :: ImageLabel,
-			disc:WaitForChild("SplitB") :: ImageLabel,
+			need(disc, "SplitA") :: ImageLabel,
+			need(disc, "SplitB") :: ImageLabel,
 		},
-		flash = disc:WaitForChild("Flash") :: Frame,
-		wave = holder:WaitForChild("Wave") :: ImageLabel,
+		flash = need(disc, "Flash") :: Frame,
+		wave = need(holder, "Wave") :: ImageLabel,
 	}
-	local folder = UiRoot.templates():WaitForChild("KillFeed")
-	template = folder:WaitForChild("Row") :: Frame
+	local folder = need(UiRoot.templates(), "KillFeed")
+	template = need(folder, "Row") :: Frame
 end
 
 function KillFeedController.start()
@@ -408,7 +410,13 @@ function KillFeedController.start()
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end
-		bind(gui)
+		-- a missing Studio part turns the feed off with a warning instead of hanging it (code audit 2026-11-27)
+		local ok, err = pcall(bind, gui)
+		if not ok then
+			feed, template, pop = nil, nil, nil
+			warn(`[UI] kill feed not available: {err}`)
+			return
+		end
 		-- Settings SHOW KILL FEED: the rows of recent kills (your own kill pop stays).
 		SettingsApply.onChanged(function()
 			if feed then

@@ -10,6 +10,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local UiWait = require(ReplicatedStorage.Shared.Util.UiWait)
 local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
@@ -72,7 +73,7 @@ local openGen = 0 -- each open's ask loop ends when a newer open (or a close) st
 local lines: { Line } = {}
 
 local function child<T>(parent: Instance, name: string): T
-	return (parent:WaitForChild(name) :: any) :: T
+	return UiWait.child(parent, name) :: T -- a timeout and a clear error, not a hang (code audit 2026-11-27)
 end
 
 -- Alive right now: a player's character, or a bot's body (by its BotId).
@@ -269,7 +270,7 @@ local function bind(gui: ScreenGui)
 		round = child(top, "Round"),
 		us = child(score, "Us"),
 		them = child(score, "Them"),
-		templates = UiRoot.templates():WaitForChild("Scoreboard") :: Folder,
+		templates = UiWait.child(UiRoot.templates(), "Scoreboard") :: Folder,
 	}
 	-- A fit canvas: Shared/UiLayout sizes it per device.
 	gui.Enabled = false

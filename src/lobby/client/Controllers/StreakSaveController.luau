@@ -18,6 +18,8 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local Router = require(script.Parent.Parent.Util.Router)
+local UiWait = require(ReplicatedStorage.Shared.Util.UiWait)
+local need = UiWait.child
 local LobbyHud = require(script.Parent.LobbyHud)
 
 local StreakSaveController = {}
@@ -165,22 +167,22 @@ function StreakSaveController.init()
 	gui = g
 	g.Enabled = false
 	-- lihfolk-ignore: findfirstchild-chain (every lookup below is nil-guarded with `and`)
-	local canvas = g:WaitForChild("Canvas") :: Frame
-	card = canvas:WaitForChild("Card") :: Frame
-	streakLabel = card:WaitForChild("Streak") :: TextLabel
-	endsLabel = card:WaitForChild("Ends") :: TextLabel
-	noteLabel = card:WaitForChild("Note") :: TextLabel
-	local action = card:WaitForChild("Action") :: TextButton
-	actionLabel = action:WaitForChild("Label") :: TextLabel
-	coinIcon = action:WaitForChild("Coin") :: ImageLabel
+	local canvas = need(g, "Canvas") :: Frame
+	card = need(canvas, "Card") :: Frame
+	streakLabel = need(card, "Streak") :: TextLabel
+	endsLabel = need(card, "Ends") :: TextLabel
+	noteLabel = need(card, "Note") :: TextLabel
+	local action = need(card, "Action") :: TextButton
+	actionLabel = need(action, "Label") :: TextLabel
+	coinIcon = need(action, "Coin") :: ImageLabel
 	local flame = card:FindFirstChild("Flame")
 	flamePop = flame and flame:FindFirstChild("Pop") :: UIScale?
 	LobbyKit.button(action, buy)
 	LobbyKit.page({
 		name = "StreakSave",
 		gui = g,
-		wash = g:WaitForChild("Wash") :: Frame,
-		close = canvas:WaitForChild("Close") :: GuiButton,
+		wash = need(g, "Wash") :: Frame,
+		close = need(canvas, "Close") :: GuiButton,
 		focus = function()
 			return action
 		end,

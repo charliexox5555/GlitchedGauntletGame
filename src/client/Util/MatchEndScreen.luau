@@ -12,6 +12,7 @@ local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ScreenPoint = require(ReplicatedStorage.Shared.ScreenPoint)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
+local UiWait = require(ReplicatedStorage.Shared.Util.UiWait)
 local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -104,7 +105,7 @@ local state: State? = nil
 local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
-	return (parent:WaitForChild(name) :: any) :: T
+	return UiWait.child(parent, name) :: T -- a timeout and a clear error, not a hang (code audit 2026-11-27)
 end
 
 -- A soft shadow behind a piece, sized from where the piece really is.
@@ -379,7 +380,7 @@ local function bind(gui: ScreenGui)
 		rounds = child(canvas, "Rounds"),
 		board = child(canvas, "Board"),
 		right = right,
-		templates = UiRoot.templates():WaitForChild("MatchEnd") :: Folder,
+		templates = UiWait.child(UiRoot.templates(), "MatchEnd") :: Folder,
 		buttons = {},
 		onChoice = nil,
 		plates = {},

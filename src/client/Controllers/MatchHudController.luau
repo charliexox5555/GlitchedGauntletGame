@@ -11,6 +11,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local UiWait = require(ReplicatedStorage.Shared.Util.UiWait)
+local need = UiWait.child
 local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 local TweenService = game:GetService("TweenService")
@@ -96,15 +98,15 @@ end
 
 local function bind(): Ui
 	local gui = WaitGui("Notify") :: ScreenGui
-	local root = gui:WaitForChild("Root") :: Frame
-	local band = root:WaitForChild("Band") :: CanvasGroup
+	local root = need(gui, "Root") :: Frame
+	local band = need(root, "Band") :: CanvasGroup
 	local ui: Ui = {
 		gui = gui,
-		fit = root:WaitForChild("Fit") :: UIScale,
+		fit = need(root, "Fit") :: UIScale,
 		band = band,
-		title = band:WaitForChild("Title") :: TextLabel,
-		titleShadow = band:WaitForChild("Shadow") :: TextLabel,
-		sub = band:WaitForChild("Sub") :: TextLabel,
+		title = need(band, "Title") :: TextLabel,
+		titleShadow = need(band, "Shadow") :: TextLabel,
+		sub = need(band, "Sub") :: TextLabel,
 		full = band.Size,
 		shown = "",
 		token = 0,
@@ -341,7 +343,11 @@ function MatchHudController.start()
 			suddenSince = os.clock()
 		end
 	end)
-	local ui = bind()
+	-- a missing Studio part leaves the banner off with a warning instead of hanging (code audit 2026-11-27)
+	local ui = UiWait.try("round banner (Notify)", bind)
+	if not ui then
+		return
+	end
 	while true do
 		refresh(ui)
 		task.wait(TICK)

@@ -19,6 +19,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
+local UiWait = require(ReplicatedStorage.Shared.Util.UiWait)
+local need = UiWait.child
 local RunService = game:GetService("RunService")
 
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -273,29 +275,29 @@ end
 function TopBarController.start()
 	local gui = ownCopy()
 	local baseOrder = gui.DisplayOrder
-	local root = gui:WaitForChild("Root") :: Frame
-	local fit = root:WaitForChild("Fit") :: UIScale
+	local root = need(gui, "Root") :: Frame
+	local fit = need(root, "Fit") :: UIScale
 	-- This controller sets the bar's scale (phone-aware, below): Shared/UiLayout must not write it too. Both
 	-- writing it was an endless resize fight on phones (the live "exponential deferred event growth" error).
 	fit:SetAttribute("CustomFit", true)
-	local shadow = root:WaitForChild("Shadow") :: ImageLabel
-	local bar = root:WaitForChild("Bar") :: Frame
-	local timer = (bar:WaitForChild("Centre") :: Frame):WaitForChild("Timer") :: Frame
-	local clock = timer:WaitForChild("Clock") :: Frame
-	local timeLabel = clock:WaitForChild("Time") :: TextLabel
-	local icon = clock:WaitForChild("Icon") :: ImageLabel
-	local infoLabel = timer:WaitForChild("Info") :: TextLabel
-	local timerEdge = timer:WaitForChild("Edge") :: UIStroke
-	local timerPop = timer:WaitForChild("Pop") :: UIScale
-	local template = UiRoot.templates():WaitForChild("TopBar"):WaitForChild("Player") :: Frame
+	local shadow = need(root, "Shadow") :: ImageLabel
+	local bar = need(root, "Bar") :: Frame
+	local timer = need(need(bar, "Centre"), "Timer") :: Frame
+	local clock = need(timer, "Clock") :: Frame
+	local timeLabel = need(clock, "Time") :: TextLabel
+	local icon = need(clock, "Icon") :: ImageLabel
+	local infoLabel = need(timer, "Info") :: TextLabel
+	local timerEdge = need(timer, "Edge") :: UIStroke
+	local timerPop = need(timer, "Pop") :: UIScale
+	local template = need(need(UiRoot.templates(), "TopBar"), "Player") :: Frame
 
 	local function side(name: string): Side
-		local block = bar:WaitForChild(name) :: Frame
-		local body = block:WaitForChild("Body") :: Frame
+		local block = need(bar, name) :: Frame
+		local body = need(block, "Body") :: Frame
 		-- The number and its shadow sit in a centred Inner frame (its pop scales
 		-- from the middle; the Score item keeps its size in the row).
-		local score = (body:WaitForChild("Score") :: Frame):WaitForChild("Inner") :: Frame
-		local players = body:WaitForChild("Players") :: Frame
+		local score = need(need(body, "Score"), "Inner") :: Frame
+		local players = need(body, "Players") :: Frame
 		-- The Studio preview cells only show the layout in Edit mode.
 		for _, child in players:GetChildren() do
 			if StateValues.get(child, "Preview") then
@@ -305,13 +307,13 @@ function TopBarController.start()
 		local cellColor = StateValues.get(body, "CellColor")
 		return {
 			block = block,
-			blockPop = block:WaitForChild("Pop") :: UIScale,
+			blockPop = need(block, "Pop") :: UIScale,
 			body = body,
-			slant = block:WaitForChild("Slant") :: ImageLabel,
+			slant = need(block, "Slant") :: ImageLabel,
 			players = players,
-			value = score:WaitForChild("Value") :: TextLabel,
-			valueShadow = score:WaitForChild("Shadow") :: TextLabel,
-			pop = score:WaitForChild("Pop") :: UIScale,
+			value = need(score, "Value") :: TextLabel,
+			valueShadow = need(score, "Shadow") :: TextLabel,
+			pop = need(score, "Pop") :: UIScale,
 			color = body.BackgroundColor3,
 			cellColor = if typeof(cellColor) == "Color3" then cellColor else Color3.new(0, 0, 0),
 			shown = -1,
@@ -424,10 +426,10 @@ function TopBarController.start()
 
 	local function newSlot(key: string, f: Fighter): Slot
 		local holder = template:Clone()
-		local cell = holder:WaitForChild("Cell") :: CanvasGroup
+		local cell = need(holder, "Cell") :: CanvasGroup
 		cell.BackgroundColor3 = sides[key].cellColor
-		local head = cell:WaitForChild("Headshot") :: ImageLabel
-		local pop = cell:WaitForChild("Pop") :: UIScale
+		local head = need(cell, "Headshot") :: ImageLabel
+		local pop = need(cell, "Pop") :: UIScale
 		pop.Scale = 0.5
 		local skull = Instance.new("ImageLabel")
 		skull.Name = "DeathSkull"
