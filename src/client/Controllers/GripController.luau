@@ -48,6 +48,7 @@ type Rig = {
 	hand: BasePart?, -- the right hand, which carries the gun
 	rest: CFrame, -- the gun's handle in the hand's frame, at rest (no kick)
 	probe: BasePart?, -- a visible part of the gun (the Handle itself is invisible)
+	probeAt: number, -- os.clock() of the last full search for one (PROBE_EVERY)
 	base: Vector3, -- where the hand goes, in the handle's frame, before any slide
 	forward: Vector3, -- the barrel's direction, in the handle's frame
 	slide: number, -- studs the hand has slid back from `base`
@@ -123,6 +124,7 @@ local function newRig(character: Model): Rig?
 		hand = nil,
 		rest = CFrame.identity,
 		probe = nil,
+		probeAt = 0,
 		base = Vector3.zero,
 		forward = Vector3.new(0, 0, -1),
 		slide = 0,
@@ -200,6 +202,7 @@ local function refreshGun(rig: Rig)
 	rig.gun = if gun and gun:IsA("Model") then gun else nil
 	rig.hand = nil
 	rig.probe = nil
+	rig.probeAt = 0
 	rig.slide = 0
 	if rig.target then
 		rig.target:Destroy()
@@ -247,6 +250,8 @@ local function refreshGun(rig: Rig)
 	rig.left.Target = target
 end
 
+local PROBE_EVERY = 0.1 -- seconds between searches for a visible gun part while it is hidden
+
 -- Whether the left hand belongs on the gun right now.
 local function wantsGrip(rig: Rig): boolean
 	if not rig.target or not Health.isAlive(rig.humanoid) then
@@ -281,6 +286,13 @@ local function wantsGrip(rig: Rig): boolean
 	-- is in the hand.
 	local probe = rig.probe
 	if not probe or probe.Transparency >= 1 then
+		-- While the gun stays hidden this searched every part every frame, per rig (measured 2026-11-27:
+		-- 16.6 us a search on the Vandal's 103 parts, desktop): search again at most every PROBE_EVERY s.
+		local now = os.clock()
+		if now - rig.probeAt < PROBE_EVERY then
+			return false
+		end
+		rig.probeAt = now
 		probe = nil
 		for _, d in (rig.gun :: Model):GetDescendants() do
 			if d:IsA("BasePart") and d.Transparency < 1 then

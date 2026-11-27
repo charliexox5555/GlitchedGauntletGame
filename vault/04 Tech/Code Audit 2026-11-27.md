@@ -82,6 +82,25 @@ Checker: 3 errors, 0 warnings, 30 info. The 3 errors (`GlobalQueue` MemoryStore 
 - `stylua --check src`: clean on committed code (the only diffs were other sessions' uncommitted edits). `selene src`: 0 errors, 0 warnings. `rojo build default.project.json -o %TEMP%/ca_check.rbxl`: builds. LihFolk checker: 0 errors.
 - Studio smoke test: passed (below).
 
+## Wave 2: measured perf pass and two server items (2026-11-27)
+Studio Edit-mode micro-benchmarks on the real data (median of 5 × 2,000 calls, desktop; budget at 60 fps is 16,700 µs a frame, and a phone is roughly 3-5x slower):
+
+| Item | Measured | How often | Verdict |
+|---|---|---|---|
+| GripController visible-part search while the gun is hidden | **16.6 µs** a search (Vandal, 103 parts) | every frame per rig in that window | **Fixed:** searches at most every 0.1 s (`PROBE_EVERY`), so about 6x less while it lasts. |
+| Viewmodel `tunedHand({...})` table | 0.06 µs | 1 a frame (rifle) | Not real. Unchanged. |
+| `NumberSequence.new` (RiftforgeEffects ribbons) | 0.12 µs each, a Beam write 0.37 µs | 2 per ribbon a frame | ~2-4 µs a frame. Unchanged. |
+| `NumberSequence` with 3 keypoints (KnifeSwipeFx) | 0.74 µs | 2 beams a frame, only mid-swipe | Unchanged. |
+| MapLife gull closure | 0.02 µs | per gull a frame | **No map has a LifeGull** (0 in place and in `ServerStorage.Maps`). Unchanged. |
+| BlastFx `worldParams` (new RaycastParams + 6 lookups) | 1.39 µs | 24 a second while arcs live | Unchanged. |
+| Server `Status.mults` (no status) | 1.40 µs | per player per Heartbeat | ~17 µs a frame at 12 players. Unchanged. |
+| Server Motion sample (insert + `remove(1)` on 60) | 0.14 µs | per player per Heartbeat | Unchanged. |
+
+DashGhost and `ModFeelController.stepCharacters` were left to the movement-feel session.
+
+- **`Damage.hurt` cross-match bots (fixed, `802795e9`).** A bot with a `MatchId` (BotService sets it) takes no damage from a player who isn't in the Match zone or is in another match. Range and test dummies have no `MatchId`, so they're unaffected, and a whole-server match's players with no id still hit their bots.
+- **`ModRecall` hook slot (fixed, `802795e9`).** There is now one Crash Recovery hook per kit, keyed by `Context.id` through a new `ServerApi.matchId`. Each is taken once by that kit's `ModService.start` and then cleared, so an ended kit isn't kept alive.
+
 ## Routed from loading-perf (2026-11-27, Studio cold HostedTest="2v2" + LockMap Snowpeak4)
 - **`MapVoteController` `game.Loaded` wait before MatchReady: not the cause.** On a cold hosted join the game was already loaded when MatchReady's code got there, so the wait cost 0 s (the new `[Health] C game loaded (waited X s)` line prints only when it actually waits, so a slow phone join will show it in live logs). The gap: zone +0.0 s → the server saw MatchReady at +2.7 s; the client logged "match screens ready" at +2.1 s, "lobby client ready" +0.2 s, "map here" +0.6 s. So it is the match client's own boot (controller requires and inits, then MapVoteController.start) plus the retry interval, not the Loaded wait. Not changed.
 - **`Util/MatchLift` HOLD comment** fixed (`039c1664`): the server teleports `Config.matchFoundDelay` (2.0 s) after "found".
