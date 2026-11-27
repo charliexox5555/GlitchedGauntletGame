@@ -1,12 +1,14 @@
 --!strict
 -- The Locker v3 (vault/01 Design/Loadout and Power Deck.md → "Locker v3 mockup" and "Step 2 plan"; owner
 -- 2026-11-26: "Yes, this direction"). RIVALS' weapon-page structure in our style:
---   * the stage is the lobby's own Locker room: the camera at FOV 20 with depth of field on the armoury wall,
---     the gun (in its equipped skin) or the power card floating in the middle. While it is open the plinth
---     circle, the Armorer, the floating displays and every character near the shot are hidden locally.
+--   * the stage is its own copy of the lobby's Locker room, 3,000 studs away where nobody walks
+--     (Workspace.LockerV3Room, tools/studio/BuildLockerRoom.luau; owner 2026-11-26: "I can walk around and see
+--     myself in the locker"): the camera at FOV 20 with depth of field on the armoury wall, the gun (in its
+--     equipped skin) or the power card floating in the middle. Opening rises the camera behind a wipe (as v4 did).
 --   * GUNS: the loadout card, the Primary and Secondary lists (Config/Loadout), EQUIP / UNLOCK (coins) /
---     TRY IN THE RANGE through LockerGunRequest (Services/LockerService), SKIN opens a strip of owned skins
---     (LockerRequest, as Locker v4 did), Overview shows the gun's numbers (Config/Weapons).
+--     TRY IN THE RANGE through LockerGunRequest (Services/LockerService; an unlock asks first in a confirm
+--     window), SKIN opens a strip of EVERY skin of that gun: owned ones equip (LockerRequest), the rest preview
+--     with their tier so players see what they work towards. Overview shows the gun's numbers (Config/Weapons).
 --   * POWERS: the deck of 10 and every power; the power is a real 3D card (the draft card's face, the logo on
 --     the back, a coloured edge) that leans toward the mouse, turns when dragged and flips; ADD TO DECK /
 --     REMOVE through LockerModRequest.
@@ -20,6 +22,7 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
@@ -31,13 +34,18 @@ local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
+local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
+local SkinsConfig = require(ReplicatedStorage.Shared.Config.Skins)
 local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
+local RangeTransition = require(script.Parent.Parent.Util.RangeTransition)
 local Router = require(script.Parent.Parent.Util.Router)
 
 local LockerV3Controller = {}
@@ -45,10 +53,15 @@ local LockerV3Controller = {}
 local player = Players.LocalPlayer
 
 -- the stage (the lobby Locker room, LobbyV5.Shell.Locker; camera looking +X, screen right = +Z)
-local STAGE = Vector3.new(80, 6.6, -1600)
-local CAMERA = CFrame.lookAt(Vector3.new(67, 7.8, -1600), Vector3.new(80, 6.8, -1600))
+local ROOM_OFFSET = Vector3.new(0, 0, -3000) -- tools/studio/BuildLockerRoom.luau OFFSET
+local STAGE = Vector3.new(80, 6.6, -1600) + ROOM_OFFSET
+local CAMERA = CFrame.lookAt(
+	Vector3.new(67, 7.8, -1600) + ROOM_OFFSET,
+	Vector3.new(80, 6.8, -1600) + ROOM_OFFSET
+)
 local FOV = 20
-local HIDE_RADIUS = 16 -- characters and displays this close to the stage are hidden while open
+local RISE, RISE_TIME = 14, 0.32 -- the camera lifts off as the wipe comes up (Locker v4's open)
+local WIPE_IN, WIPE_OUT = 0.72, 0.6
 local GUN_LENGTH = 4.1 -- every gun is scaled to about this long (pistols read as big as rifles)
 local GUN_REST = CFrame.Angles(0, math.rad(14), 0)
 	* CFrame.Angles(math.rad(-24), 0, 0)
@@ -80,6 +93,7 @@ local center: Frame
 local ownedPanel: Frame
 local lockedPanel: Frame
 local powerPanel: Frame
+local overviewCard: Frame
 local lockPlate: Frame
 local skinStrip: ScrollingFrame
 local card: Model? = nil
@@ -101,7 +115,10 @@ local stageFolder: Folder? = nil
 local yaw, pitch, targetYaw, targetPitch = 0, 0, 0, 0
 local dragging = false
 local lastPos = Vector2.zero
-local hiddenParts: { BasePart } = {}
+local wipe: Frame? = nil
+local passToken = 0
+local confirmFrame: Frame? = nil
+local confirmGun = ""
 local hiddenGuis: { ScreenGui } = {}
 local openConnections: { RBXScriptConnection } = {}
 local savedCamType: Enum.CameraType? = nil
@@ -190,49 +207,52 @@ local function paint(button: Instance, colors: { Color3 }, words: string, ink: b
 	end
 end
 
+-- feel: hover and press ------------------------------------------------------------------------------------------------
+
+-- A chunky or round button grows a little on hover and dips on press, from its centre (memory: pops scale from
+-- the centre). Its anchor moves to the centre first, keeping it where it was.
+local function juice(b: GuiButton)
+	if b:GetAttribute("Juiced") then
+		return
+	end
+	b:SetAttribute("Juiced", true)
+	local a = b.AnchorPoint
+	local size = b.Size
+	b.AnchorPoint = Vector2.new(0.5, 0.5)
+	b.Position = b.Position
+		+ UDim2.new(
+			size.X.Scale * (0.5 - a.X),
+			size.X.Offset * (0.5 - a.X),
+			size.Y.Scale * (0.5 - a.Y),
+			size.Y.Offset * (0.5 - a.Y)
+		)
+	local pop = Instance.new("UIScale")
+	pop.Name = "Pop"
+	pop.Parent = b
+	UiMotion.button(b, pop, function() end, { hover = 1.05 })
+end
+
+-- A list row or tile brightens under the mouse (rows sit in layouts, so they don't move).
+local function hoverTint(b: GuiButton)
+	b.MouseEnter:Connect(function()
+		local bg = b:FindFirstChild("Bg")
+		if bg and bg:IsA("ImageLabel") and bg.ImageColor3 == PANEL then
+			UiMotion.tween(bg, 0.12, { ImageTransparency = 0.12 })
+		elseif b.BackgroundTransparency < 1 then
+			UiMotion.tween(b, 0.12, { BackgroundColor3 = Color3.fromHex("24242A") })
+		end
+	end)
+	b.MouseLeave:Connect(function()
+		local bg = b:FindFirstChild("Bg")
+		if bg and bg:IsA("ImageLabel") and bg.ImageColor3 == PANEL then
+			UiMotion.tween(bg, 0.12, { ImageTransparency = 0.3 })
+		elseif b.BackgroundTransparency < 1 then
+			UiMotion.tween(b, 0.12, { BackgroundColor3 = Color3.fromHex("141418") })
+		end
+	end)
+end
+
 -- stage ---------------------------------------------------------------------------------------------------------
-
-local function hideLocal(root: Instance)
-	for _, p in root:GetDescendants() do
-		if p:IsA("BasePart") and p.LocalTransparencyModifier < 1 then
-			p.LocalTransparencyModifier = 1
-			table.insert(hiddenParts, p)
-		end
-	end
-end
-
-local function nearStage(p: Vector3): boolean
-	return (Vector3.new(p.X, 0, p.Z) - Vector3.new(STAGE.X, 0, STAGE.Z)).Magnitude < HIDE_RADIUS
-end
-
--- Things between the camera and the wall: the plinth circle, the Armorer, the floating displays, characters.
-local function clearShot()
-	local lobby = workspace:FindFirstChild("LobbyV5")
-	for _, name in { "GunCircle", "Armorer" } do
-		local o = lobby and lobby:FindFirstChild(name, true)
-		if o then
-			hideLocal(o)
-		end
-	end
-	local displays = workspace:FindFirstChild("LobbyGunDisplays")
-	if displays then
-		for _, m in displays:GetChildren() do
-			if
-				m:IsA("Model")
-				and m:GetPivot().Position.X < 92
-				and nearStage(m:GetPivot().Position)
-			then
-				hideLocal(m)
-			end
-		end
-	end
-	for _, other in Players:GetPlayers() do
-		local c = other.Character
-		if c and c.PrimaryPart and nearStage(c.PrimaryPart.Position) then
-			hideLocal(c)
-		end
-	end
-end
 
 local function showGun(id: string, line: string, isLocked: boolean)
 	local folder = stageFolder
@@ -396,7 +416,7 @@ local function fillOverview(id: string)
 		},
 		{ "MAGAZINE", c.magSize / best.mag, tostring(c.magSize) },
 	}
-	local o = find(ownedPanel, "Overview")
+	local o = overviewCard
 	for i, r in stats do
 		local n = o:FindFirstChild("N" .. i)
 		local b = o:FindFirstChild("B" .. i)
@@ -517,8 +537,10 @@ local function refreshGunPanel()
 	local actionsCard = find(ownedPanel, "Actions") :: Frame
 	actionsCard.Visible = mode ~= "knife"
 	if mode == "knife" then
-		set(ownedPanel, "Overview", "Visible", false)
+		overviewCard.Visible = false
 	end
+	-- one Overview card, under whichever gun panel shows
+	overviewCard.Parent = if owned then ownedPanel else lockedPanel
 	if not owned then
 		local price = GunLoadout.price(id) or 0
 		local buy = find(lockedPanel, "Unlock.Buy.Button")
@@ -543,6 +565,7 @@ end
 local function selectGun(id: string)
 	if selectedGun ~= id then
 		UiSfx.claim()
+		UiMotion.slideIn(find(right, "Stack") :: GuiObject, 28, 0, 0, 0.24)
 	end
 	selectedGun = id
 	refreshGunRows()
@@ -551,15 +574,37 @@ end
 
 -- skins: a strip of the owned skins for the gun on the stage (Locker v4's tray, simpler) --------------------------
 
-local function ownedLines(gunId: string): { string }
+-- Every skin of the gun: owned ones first (Locker order), then the rest by tier, so players see what's out there.
+local function skinLines(gunId: string): { { line: string, owned: boolean } }
 	local skins = PlayerData.skins(player)
-	local out: { string } = {}
+	local owned, locked = {}, {}
 	for _, line in Locker.linesFor(gunId) do
 		if PlayerData.owns(skins, gunId, line) then
-			table.insert(out, line)
+			table.insert(owned, { line = line, owned = true })
+		else
+			table.insert(locked, { line = line, owned = false })
 		end
 	end
-	return out
+	local function order(line: string): number
+		local tier = SkinCases.tierOf(gunId, line)
+		local def = tier and SkinsConfig.TIERS[tier]
+		return if def then def.order else 99
+	end
+	table.sort(locked, function(a, b)
+		local oa, ob = order(a.line), order(b.line)
+		if oa ~= ob then
+			return oa < ob
+		end
+		return a.line < b.line
+	end)
+	for _, e in locked do
+		table.insert(owned, e)
+	end
+	return owned
+end
+
+local function skinGun(): string
+	return if mode == "knife" then "Knife" else selectedGun
 end
 
 refreshSkins = function()
@@ -567,17 +612,33 @@ refreshSkins = function()
 		t:Destroy()
 	end
 	table.clear(skinTiles)
-	local gunId = if mode == "knife" then "Knife" else selectedGun
+	local gunId = skinGun()
+	local gunOwned = mode == "knife" or guns().owned[gunId] == true
 	local on = equippedLine(gunId)
 	local tpl = find(skinStrip, "Template") :: GuiButton
-	for i, line in ownedLines(gunId) do
+	for i, e in skinLines(gunId) do
+		local line = e.line
 		local t = tpl:Clone()
 		t.Name = line
 		t.LayoutOrder = i
 		t.Visible = true
 		set(t, "Name", "Text", string.upper(if line == "Stock" then "Default" else line))
+		set(t, "Name", "TextTransparency", if e.owned then 0 else 0.35)
 		set(t, "Art", "Image", SkinArt.side(gunId, line) or Theme.GUN[gunId] or "")
-		set(t, "On", "Visible", line == on)
+		set(t, "Art", "ImageTransparency", if e.owned then 0 else 0.45)
+		set(t, "On", "Visible", e.owned and gunOwned and line == on)
+		local tier = if line == "Stock" then nil else SkinCases.tierOf(gunId, line)
+		local tierDef = tier and SkinsConfig.TIERS[tier]
+		local tierLabel = t:FindFirstChild("Tier")
+		if tierLabel and tierLabel:IsA("TextLabel") then
+			tierLabel.Visible = tierDef ~= nil
+			tierLabel.Text = if tierDef then tierDef.name else ""
+			tierLabel.TextColor3 = if tierDef then tierDef.color else WHITE
+		end
+		local lock = t:FindFirstChild("Lock")
+		if lock and lock:IsA("GuiObject") then
+			lock.Visible = not e.owned
+		end
 		local bg = t:FindFirstChild("Bg")
 		if bg and bg:IsA("ImageLabel") then
 			bg.ImageColor3 = if line == previewLine then WHITE else PANEL
@@ -585,12 +646,16 @@ refreshSkins = function()
 		end
 		t.Activated:Connect(function()
 			previewLine = line
-			showGun(gunId, line, false)
-			if line ~= equippedLine(gunId) then
+			showGun(gunId, line, not gunOwned)
+			if e.owned and gunOwned and line ~= equippedLine(gunId) then
 				LobbyNet.event("LockerRequest"):FireServer("equip", gunId, line)
+			elseif not e.owned then
+				local where = if tierDef and not tierDef.inCases then "bundles" else "skin cases"
+				say(`{if tierDef then tierDef.name else "SKIN"} · from {where}`)
 			end
 			refreshSkins()
 		end)
+		hoverTint(t)
 		t.Parent = skinStrip
 		table.insert(skinTiles, t)
 	end
@@ -602,6 +667,7 @@ local function setStrip(open: boolean)
 	set(bottom, "Hint", "Visible", not open)
 	if open then
 		refreshSkins()
+		UiMotion.slideIn(skinStrip, 0, 40, 0, 0.26)
 	end
 end
 
@@ -749,6 +815,9 @@ local function refreshPowerPanel()
 end
 
 local function selectPower(id: string, spin: boolean)
+	if selectedPower ~= id then
+		UiMotion.slideIn(find(right, "Stack") :: GuiObject, 28, 0, 0, 0.24)
+	end
 	selectedPower = id
 	refreshPowerPanel()
 	if spin then
@@ -781,6 +850,9 @@ local function setMode(newMode: Mode)
 	set(bottom, "PowerBar", "Visible", not gunsMode)
 	targetYaw, targetPitch = 0, 0
 	setStrip(false)
+	-- the new tab's list and cards come in from their sides
+	UiMotion.slideIn(find(left, if gunsMode then "Guns" else "Powers") :: GuiObject, -40, 0, 0, 0.3)
+	UiMotion.slideIn(find(right, "Stack") :: GuiObject, 40, 0, 0.03, 0.3)
 	if gunsMode then
 		if newMode == "knife" then
 			selectedGun = "Knife"
@@ -843,19 +915,46 @@ local function fit()
 			u.Scale = s
 		end
 	end
+	local box = confirmFrame and confirmFrame:FindFirstChild("Box")
+	local u = box and box:FindFirstChild("Fit")
+	if u and u:IsA("UIScale") then
+		u.Scale = s
+	end
 end
 
-local function open(arg: any?)
-	if isOpen then
+-- The columns come in from their edges, a beat apart (UI Theme v4 motion: Quint out, no overshoot).
+local function entrance()
+	UiMotion.slideIn(left, -90, 0, 0, 0.42)
+	UiMotion.slideIn(right, 90, 0, 0.05, 0.42)
+	UiMotion.slideIn(top, 0, -50, 0.03, 0.36)
+	UiMotion.slideIn(find(gui, "TopRight") :: GuiObject, 0, -50, 0.06, 0.36)
+	UiMotion.slideIn(bottom, 0, 70, 0.08, 0.4)
+end
+
+-- The wipe: two screens tall, run from one end to the other; `atCover` when it covers the screen.
+local function runWipe(fromY: number, toY: number, time: number, atCover: () -> ())
+	local w = wipe
+	if not w then
+		atCover()
 		return
 	end
-	isOpen = true
-	UiSfx.cue("LockerIn")
-	task.spawn(function()
-		pcall(function()
-			player:RequestStreamAroundAsync(STAGE)
-		end)
+	w.Visible = true
+	w.Position = UDim2.new(0.5, 0, fromY, 0)
+	local tw = TweenService:Create(
+		w,
+		TweenInfo.new(time, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut),
+		{ Position = UDim2.new(0.5, 0, toY, 0) }
+	)
+	tw:Play()
+	task.delay(time * 0.5, atCover)
+	tw.Completed:Once(function(state: Enum.PlaybackState)
+		if state == Enum.PlaybackState.Completed then
+			w.Visible = false
+		end
 	end)
+end
+
+local function reveal(arg: any?)
 	local src = ReplicatedStorage:FindFirstChild("LockerV3Stage")
 	local folder = Instance.new("Folder")
 	folder.Name = "LockerV3Stage"
@@ -875,9 +974,6 @@ local function open(arg: any?)
 	end
 	folder.Parent = workspace
 	stageFolder = folder
-	local camera = workspace.CurrentCamera
-	savedCamType = camera.CameraType
-	savedFov = camera.FieldOfView
 	local d = Instance.new("DepthOfFieldEffect")
 	d.Name = "LockerV3Focus"
 	d.FarIntensity = 0.75
@@ -886,7 +982,6 @@ local function open(arg: any?)
 	d.InFocusRadius = 15
 	d.Parent = Lighting
 	dof = d
-	clearShot()
 	RunService:BindToRenderStep("LockerV3", Enum.RenderPriority.Last.Value, onRender)
 	gui.Enabled = true
 	fit()
@@ -895,32 +990,21 @@ local function open(arg: any?)
 	table.insert(
 		openConnections,
 		RunService.Heartbeat:Connect(function()
-			-- other screens that come back on while the Locker is open (HUD refreshes) and players walking in
-			hideOthers()
+			hideOthers() -- screens that come back on while the Locker is open (HUD refreshes)
 		end)
 	)
 	selectedGun = guns().primary
 	refreshCoins()
 	setMode(if arg == "powers" then "powers" else "guns")
+	entrance()
 end
 
-local function close()
-	if not isOpen then
-		return
-	end
-	isOpen = false
-	UiSfx.cue("LockerOut")
+local function conceal()
 	RunService:UnbindFromRenderStep("LockerV3")
 	for _, c in openConnections do
 		c:Disconnect()
 	end
 	table.clear(openConnections)
-	for _, p in hiddenParts do
-		if p.Parent then
-			p.LocalTransparencyModifier = 0
-		end
-	end
-	table.clear(hiddenParts)
 	for _, g in hiddenGuis do
 		if g.Parent then
 			g.Enabled = true
@@ -938,10 +1022,65 @@ local function close()
 	current, card, front, sweep = nil, nil, nil, nil
 	dragging = false
 	gui.Enabled = false
+	if confirmFrame then
+		confirmFrame.Visible = false
+	end
 	local camera = workspace.CurrentCamera
 	camera.FieldOfView = savedFov
 	camera.CameraType = savedCamType or Enum.CameraType.Custom
 	savedCamType = nil
+end
+
+local function open(arg: any?)
+	if isOpen then
+		return
+	end
+	isOpen = true
+	passToken += 1
+	local my = passToken
+	UiSfx.cue("LockerIn")
+	local camera = workspace.CurrentCamera
+	if not savedCamType then
+		savedCamType = camera.CameraType
+		savedFov = camera.FieldOfView
+	end
+	if UiMotion.reduced() then
+		reveal(arg)
+		return
+	end
+	camera.CameraType = Enum.CameraType.Scriptable
+	-- the camera lifts off (not in first person in the Range: the arms would float up with it)
+	if PlayZone.get(player) ~= "Range" then
+		TweenService:Create(
+			camera,
+			TweenInfo.new(RISE_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{ CFrame = camera.CFrame * CFrame.new(0, RISE, 0) }
+		):Play()
+	end
+	runWipe(-1, 2, WIPE_IN, function()
+		if passToken == my and isOpen then
+			reveal(arg)
+		end
+	end)
+end
+
+local function close()
+	if not isOpen then
+		return
+	end
+	isOpen = false
+	passToken += 1
+	local my = passToken
+	UiSfx.cue("LockerOut")
+	if UiMotion.reduced() then
+		conceal()
+		return
+	end
+	runWipe(2, -1, WIPE_OUT, function()
+		if passToken == my and not isOpen then
+			conceal()
+		end
+	end)
 end
 
 -- build the lists from the templates ------------------------------------------------------------------------------------
@@ -982,6 +1121,7 @@ local function buildGunRows()
 			end
 			selectGun(id)
 		end)
+		hoverTint(row)
 		row.Parent = list
 		rows[id] = row
 	end
@@ -1045,9 +1185,53 @@ local function buildTiles()
 		t.Activated:Connect(function()
 			selectPower(id, true)
 		end)
+		hoverTint(t)
 		t.Parent = grid
 		tiles[id] = t
 	end
+end
+
+-- the unlock confirmation -----------------------------------------------------------------------------------------------
+
+local function hideConfirm()
+	local c = confirmFrame
+	if not c or not c.Visible then
+		return
+	end
+	local shade = find(c, "Shade") :: GuiObject
+	local pop = find(c, "Box.Body.Pop") :: UIScale
+	UiMotion.out(shade, { BackgroundTransparency = 1 }, 0.14)
+	UiMotion.out(pop, { Scale = 0.92 }, 0.14).Completed:Once(function()
+		if confirmFrame == c and not c:GetAttribute("Opening") then
+			c.Visible = false
+		end
+	end)
+	c:SetAttribute("Opening", false)
+end
+
+local function showConfirm(id: string)
+	local c = confirmFrame
+	if not c then
+		return
+	end
+	local price = GunLoadout.price(id) or 0
+	confirmGun = id
+	local body = find(c, "Box.Body")
+	set(body, "Title", "Text", `UNLOCK {string.upper(gunName(id))}?`)
+	set(body, "Render", "Image", Theme.GUN[id] or "")
+	set(body, "Price.Amount", "Text", commas(price))
+	set(body, "Sub", "Text", `You'll have {commas(coins() - price)} coins left`)
+	c:SetAttribute("Opening", true)
+	c.Visible = true
+	local shade = find(c, "Shade") :: GuiObject
+	local pop = find(body, "Pop") :: UIScale
+	shade.BackgroundTransparency = 1
+	pop.Scale = 0.9
+	UiMotion.tween(shade, 0.2, { BackgroundTransparency = 0.45 })
+	UiMotion.tween(pop, 0.26, { Scale = 1 })
+	task.delay(0.3, function()
+		c:SetAttribute("Opening", false)
+	end)
 end
 
 -- requests -----------------------------------------------------------------------------------------------------------------
@@ -1118,9 +1302,15 @@ function LockerV3Controller.start()
 	ownedPanel = find(stack, "GunOwned") :: Frame
 	lockedPanel = find(stack, "GunLocked") :: Frame
 	powerPanel = find(stack, "Power") :: Frame
+	overviewCard = find(ownedPanel, "Overview") :: Frame
 	lockPlate = find(center, "Lock") :: Frame
 	skinStrip = find(bottom, "Skins") :: ScrollingFrame
 	skinStrip.Visible = false
+	-- a long strip starts at its left end (centred, a scrolling list opens in its middle)
+	local stripLayout = skinStrip:FindFirstChildOfClass("UIListLayout")
+	if stripLayout then
+		stripLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	end
 	local t = bottom:FindFirstChild("Toast")
 	toast = if t and t:IsA("TextLabel") then t else nil
 	if toast then
@@ -1137,6 +1327,9 @@ function LockerV3Controller.start()
 		}
 	do
 		set(ownedPanel, path, "Visible", false)
+	end
+	for _, panel in { ownedPanel, lockedPanel, powerPanel } do
+		set(panel, "Details.Favorite", "Visible", false) -- favourites: not built
 	end
 	set(powerPanel, "Level", "Visible", false)
 	set(powerPanel, "Actions", "Visible", false)
@@ -1158,6 +1351,58 @@ function LockerV3Controller.start()
 	buildTiles()
 
 	Router.register("Locker", { open = open, close = close, screen = "LockerV3", clear = true })
+
+	-- the wipe (above everything, two screens tall, soft top and bottom edges; Locker v4's)
+	local wipeGui = Instance.new("ScreenGui")
+	wipeGui.Name = "LockerV3Wipe"
+	wipeGui:SetAttribute("LobbyGui", true) -- the match client never clears it (src/client init)
+	wipeGui:SetAttribute("KeepWithLocker", true)
+	wipeGui.ResetOnSpawn = false
+	wipeGui.IgnoreGuiInset = true
+	wipeGui.ScreenInsets = Enum.ScreenInsets.None
+	wipeGui.DisplayOrder = 60
+	local w = Instance.new("Frame")
+	w.Name = "Wipe"
+	w.AnchorPoint = Vector2.new(0.5, 0.5)
+	w.Size = UDim2.fromScale(1, 2)
+	w.BackgroundColor3 = Color3.fromHex("121215")
+	w.BorderSizePixel = 0
+	w.Visible = false
+	local edge = Instance.new("UIGradient")
+	edge.Rotation = 90
+	edge.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.1, 0),
+		NumberSequenceKeypoint.new(0.9, 0),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	edge.Parent = w
+	w.Parent = wipeGui
+	wipeGui.Parent = player.PlayerGui
+	wipe = w
+
+	-- hover / press on every chunky and round button
+	for _, path in
+		{
+			"Right.Stack.GunOwned.Equip.Button",
+			"Right.Stack.GunOwned.Actions.OverviewRow.Button",
+			"Right.Stack.GunLocked.Unlock.Buy.Button",
+			"Right.Stack.GunLocked.Unlock.Try.Button",
+			"Right.Stack.GunLocked.Actions.OverviewRow.Button",
+			"Right.Stack.Power.DeckButton.Button",
+			"Bottom.GunBar.Back.Button",
+			"Bottom.GunBar.Skin.Button",
+			"Bottom.PowerBar.Back.Button",
+			"Bottom.PowerBar.Flip.Button",
+		}
+	do
+		juice(find(gui, path) :: GuiButton)
+	end
+	for _, b in find(top, "Tabs"):GetChildren() do
+		if b:IsA("GuiButton") then
+			juice(b)
+		end
+	end
 
 	-- tabs
 	for _, b in find(top, "Tabs"):GetChildren() do
@@ -1188,16 +1433,34 @@ function LockerV3Controller.start()
 			say(REASONS.coins)
 			return
 		end
-		requestGun("unlock", selectedGun)
+		showConfirm(selectedGun)
 	end)
 	onPress(lockedPanel, "Unlock.Try.Button", function()
+		-- straight to the Range behind its loading card (LobbyServer RangeService checks the zone)
 		Router.close()
-		Router.open("Range")
+		RangeTransition.travel()
 	end)
+	-- the confirm window
+	local c = gui:FindFirstChild("Confirm")
+	if c and c:IsA("Frame") then
+		confirmFrame = c
+		c.Visible = false
+		onPress(c, "Box.Body.Ok", function()
+			hideConfirm()
+			if confirmGun ~= "" then
+				requestGun("unlock", confirmGun)
+			end
+		end)
+		onPress(c, "Box.Body.Cancel", hideConfirm)
+		onPress(c, "Shade", hideConfirm)
+		for _, name in { "Ok", "Cancel" } do
+			juice(find(c, "Box.Body." .. name) :: GuiButton)
+		end
+	end
 	-- Overview opens / closes its bars (owned and locked panels share one Overview, on the owned panel)
 	for _, panel in { ownedPanel, lockedPanel } do
 		onPress(panel, "Actions.OverviewRow.Button", function()
-			local o = find(ownedPanel, "Overview") :: Frame
+			local o = overviewCard :: Frame
 			o.Visible = not o.Visible
 		end)
 	end
