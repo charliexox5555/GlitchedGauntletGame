@@ -21,6 +21,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local CoreUi = require(ReplicatedStorage.Shared.CoreUi)
 local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local CameraController = require(script.Parent.CameraController)
@@ -94,7 +95,9 @@ local function setOpen(value: boolean)
 	CameraController.setCursorVisible(value)
 	-- Gamepad: selection starts on the picked power card (LihFolk: Gamepad and Console UX); LB / RB and the
 	-- D-pad step the picks, A picks the selected card, X locks in.
-	if UserInputService.GamepadEnabled then
+	-- (InputMode: the active input, so a pad that is only plugged in doesn't grab the mouse player's
+	-- selection, and Settings FORCE CONTROLS counts; picking a pad up mid-draft is handled in start.)
+	if InputMode.gamepad() or not value then
 		task.defer(function()
 			local first = abilityCards[1] or gunCards[1]
 			GuiService.SelectedObject = if value and first then first.button else nil
@@ -648,6 +651,15 @@ end
 
 function DraftController.start()
 	compact = Device.compact()
+	-- A controller picked up while the draft is open gets a selection on the first card.
+	InputMode.changed:Connect(function()
+		if isOpen and InputMode.gamepad() and GuiService.SelectedObject == nil then
+			local first = abilityCards[1] or gunCards[1]
+			if first then
+				GuiService.SelectedObject = first.button
+			end
+		end
+	end)
 	-- An offer that landed before the screen bound opens once it does.
 	DraftScreen.start(nil, function()
 		local o = offer

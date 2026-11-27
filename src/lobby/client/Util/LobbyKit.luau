@@ -159,6 +159,7 @@ export type PageSpec = {
 	gui: ScreenGui,
 	wash: GuiObject?, -- the full-screen violet wash, faded in
 	focus: (() -> GuiObject?)?, -- where gamepad selection starts
+	back: (() -> boolean)?, -- B steps back inside the page first (true = handled; Util/Router)
 	close: GuiButton?, -- the drawn-X close
 	onOpen: ((arg: any?) -> ())?,
 	onClose: (() -> ())?,
@@ -183,6 +184,8 @@ function LobbyKit.page(spec: PageSpec): Page
 
 	Router.register(spec.name, {
 		focus = spec.focus,
+		screen = spec.gui.Name, -- traps gamepad selection inside the page
+		back = spec.back,
 		open = function(arg: any?)
 			token += 1
 			if open then

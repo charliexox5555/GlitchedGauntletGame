@@ -31,6 +31,9 @@ export type Menu = {
 	screen: string?,
 	-- No blur / grade behind it (the Locker shows its own 3D stage).
 	clear: boolean?,
+	-- Gamepad B / Backspace steps back inside the menu first (a confirm window, a skin strip):
+	-- true = handled, so the menu stays open.
+	back: (() -> boolean)?,
 }
 
 local Router = {}
@@ -258,6 +261,11 @@ UserInputService.InputBegan:Connect(function(input, processed)
 		or (input.KeyCode == Enum.KeyCode.Backspace and not processed)
 	then
 		UiSfx.play("Back")
+		local name = current :: string
+		local back = menus[name] and menus[name].back
+		if back and back() then
+			return
+		end
 		Router.close()
 	end
 end)
