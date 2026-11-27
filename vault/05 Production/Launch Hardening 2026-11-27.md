@@ -19,6 +19,7 @@ The old game (Power Duels, before the draft and loadout update) got Home recomme
   - **The step lists are out of date:**
     - Step 9 is "Free case opened", but onboarding no longer gives a free case.
     - The R4 step comment still says first to 3; the first match is now first to 4.
+- **Fixed 2026-11-27:** a new funnel, **Onboarding_v3**, covers both gaps: steps for the save, the loading screen, the first move, the queue and the teleport, then every round of match 1, the Locker unlock, and matches 2-3. Guide: [Onboarding Funnel v3](../04%20Tech/Onboarding%20Funnel%20v3.md).
 
 ## Workstreams (parallel sessions, shared checkout on main)
 | # | Session | Owns | Done when |

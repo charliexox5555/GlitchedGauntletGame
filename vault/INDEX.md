@@ -17,6 +17,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `04 Tech/Code Map.md` (70): every Service/Controller, its remotes and attributes; pick code files from here
 - [Vault Map](04%20Tech/Vault%20Map.md) (4): `tools/vault_map.py`: section search, note outlines, link graph and vault health; why not an LLM knowledge graph (Graphify)
 - `04 Tech/Architecture.md` (18): repo layout, shot validation walkthrough, match system, test range, Rojo/Studio gotchas, code rules
+- [Onboarding Funnel v3](04%20Tech/Onboarding%20Funnel%20v3.md) (6): the owner's guide to the new-player funnel `Onboarding_v3`: where each funnel is in Creator Dashboard, all 27 steps and what a drop at each one points to, how it's built, the Studio check
 - `04 Tech/Loading and Performance 2026-11-27.md` (12): how a match map reaches a player (lobby → reserved server → map), the five failure causes found and fixed, 21 Studio match starts, cost per map (instances, meshes, server clone ms), client/server costs (boot, PlayerGui, streaming), phone test steps, findings routed to other workstreams
 - `04 Tech/Place Merge Plan.md` (24): the Lobby + match merge (2026-11-21): owner decisions, server roles, global queue, pad duels as in-server matches, range, Studio move, results
 - `04 Tech/Developer Handoff.md` (21): both places, player journey, edit map, Studio audit, troubleshooting and release handoff

@@ -431,3 +431,6 @@ Fresh ephemeral save (`FreshOnboarding`), Rookie bots, the player idle, two runs
   - The Range NEW badge taking over after the Locker is opened (the run ended inside the Locker).
   - The real reserved-server teleport: Studio can't teleport, so it hosts the match in-server.
   - A won round, and phones.
+
+## 14. Onboarding_v3 funnel (2026-11-27)
+The funnel for this flow is **Onboarding_v3**: 27 steps from the save loading to match 3, the teleport and every round of match 1 included. Steps, the Creator Dashboard path and what each drop means: [Onboarding Funnel v3](../04%20Tech/Onboarding%20Funnel%20v3.md). Onboarding_v2 (§10) keeps running for comparison.
