@@ -72,8 +72,75 @@ The Arcade line, built one gun at a time from [Arcade and Frostbite Handoff](../
 | Budget | 9 |
 | Contract | 10 |
 
-**Owner review:** waiting (2026-11-27).
+**Owner review (2026-11-27):** "looks really good". Wanted:
+- a bit more pop, so it reads as more than a reskin;
+- the joystick out of the ADS view;
+- small in-game effects (buttons and screen);
+- the final check, then install it.
 
-**Notes for later:**
-- `export_skin_items_flat.VANDAL_VER` needs `"Arcade": "v05"` (or the approved version) before the other guns export, so they take the Vandal's palette.
-- The Neon brightness is untested in Studio.
+
+### Vandal v06 to v07: final touches
+**What changed**
+- **Joystick on the deck.** It moved off the charging knob to the rear of the deck, left of the buttons, like a real control panel. It no longer shows in ADS.
+- **Buttons reordered** to cyan, yellow, magenta, so the ball isn't next to a same-colour button. Buttons are r 0.022 in r 0.028 collars.
+- **Lit edge trim.** A magenta T-molding bar is seated into each lower handguard corner.
+- **Pixel speed trails** behind the handguard and stock stripes.
+- **Screen glows.** The screen floor is Neon `12234A`.
+- **Brighter colours.** Side-art field `47297C`, body `2C1650`.
+- **Separate parts for the effects.** These carry `flat_group` names and export as their own parts:
+  - `ARButton1-3`, `ARStickBall`
+  - `ARScreen`, `ARScreenShip`, `ARScreenShot`, `ARScreenStars`, `ARScreenBlip`
+  - `ARDeckLight`, `ARTrim`, `ARBrakeLight`
+
+**v07 results**
+- **Master:** `art-source/weapons/Skins/Arcade/Vandal/v07/Vandal_Arcade_v07.blend`. Export: `v07x/` (38 parts).
+- **Triangles:** 6,977.
+- **Audit:**
+  - 0 faults in new geometry, 0 coplanar pairs.
+  - Floating: only the stock charging handle.
+  - Bones, locators and actions are identical to the stock.
+  - 0 animated intersections.
+  - All 5 ADS rays are clear, and nothing new shows in the ADS view.
+- **Flat export:** 0 lifts, flips or crossed faces. The one-sided magenta re-import is clean.
+- **Self-grade:** 9/10. [Review sheet](out/Vandal_v07_review.png)
+
+## Studio install (2026-11-27, place 71551303511506)
+
+**Install**
+1. Uploaded `Vandal_Arcade_RobloxFlat.fbx` as group model **122087200971885**.
+2. Ran `make_flat_install_jobs.py` with `--version v07x`, then `InstallFlatSkin`. 38 MeshParts came in.
+   - `KEPT` is now optional for Vandal installs that replace every stock part.
+3. Moved the model to `ServerStorage.WeaponSkins.Arcade.Vandal` and tagged it `GGAsset_LobbySkins_265` + `GauntletAuthoredData`. The row is in `Config/AssetData/LobbySkins.luau`; the attributes were removed.
+4. Removed the staging folder.
+
+**Registration**
+- `Config/Skins` has `Arcade = { tier = "Rare", kind = "shape", pass = true }`. The new `pass` flag keeps a line out of `SkinCases.allPairs`, so it never appears in cases or the daily shop.
+- Arcade is added to `Config/SkinPreview` lines and `Locker.COLORS` (`D6339C`).
+- The Locker hint for an unowned pass skin says "from the battle pass".
+- `Lobby/SeasonRewards.rollGun` only rolls guns that have the line's model (`Locker.hasSkin`). Until more Arcade guns are built, every Arcade tier rolls the Havoc, and a player who already owns it gets `Season.SKIN_FALLBACK_COINS`.
+- `export_skin_items_flat.VANDAL_VER["Arcade"] = "v07x"`, so the other guns take the Havoc's palette.
+
+**Effects** (`Config/Arcade`, `client/Util/ArcadeEffects`, hooked into `ViewmodelController`). All local to the player's first-person view.
+- **Each shot:** presses the next button in by 0.006, lights it Neon, and flashes the deck light in that button's colour. The pixel shot then steps 4 pixels toward the muzzle.
+- **Idle:** the ship bobs one pixel every 0.55 s, and the stars and blip blink.
+- **Inspect:** a button chase, with the deck light following and the ship cruising.
+- **Mag seats (`MagIn`):** all three buttons flash.
+- **Cleanup:** the parts live in the camera clone and are destroyed with it.
+
+**Tests** (Studio Play, Lobby role)
+- **Server:**
+  - `SkinStore.has("Arcade", "Vandal")` is true.
+  - The Havoc's Locker lines include Arcade.
+  - Arcade is not in the case pool.
+  - `rollGun` gives the Havoc, then coins once it's owned.
+- **Locker:** admin grant, then equip. The ARCADE tile shows as RARE and EQUIPPED, and the 3D preview is correct.
+- **Range:**
+  - The viewmodel loads all 12 AR parts and 5 motors.
+  - Over 4 shots the buttons cycle 1, 2, 3, 1 (Neon, pressed −0.0048 at viewmodel scale 0.8), the shot steps −0.0068 then −0.0204, and the deck light cycles `1FB8D2`, `F2C230`, `E8338F`.
+  - Inspect shows the chase on screen.
+- **Lint and build:** stylua, selene and the Rojo build are clean.
+
+**Left to do**
+- The Locker portrait (`ItemPortraits["Vandal/Arcade"]`) and the Arcade line emblem. The tile shows the stock picture until then.
+- The other 13 Arcade guns, one at a time, with the same checks.
+- **Owner:** save the place.

@@ -13,6 +13,7 @@ local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local Locker = require(ReplicatedStorage.Shared.Locker)
 local SeasonCatalog = require(script.Parent.SeasonCatalog)
 
 export type Claimed = { tier: number, track: SeasonPass.Track, rewards: { SeasonCatalog.Reward } }
@@ -21,11 +22,12 @@ local SeasonRewards = {}
 
 -- A random-gun skin's gun: one the player owns without that line, else one they don't own
 -- yet without it (the Locker shows it waiting on the locked gun), else nil (every gun has it).
+-- Only guns the line has a model for (pass lines are built one gun at a time).
 function SeasonRewards.rollGun(data: PlayerData.Data, line: string, rng: Random?): string?
 	local mine, others = {}, {}
 	for _, list in { Loadout.PRIMARIES, Loadout.SECONDARIES } do
 		for _, id in list do
-			if not PlayerData.owns(data.skins, id, line) then
+			if not PlayerData.owns(data.skins, id, line) and Locker.hasSkin(id, line) then
 				table.insert(if data.guns.owned[id] then mine else others, id)
 			end
 		end

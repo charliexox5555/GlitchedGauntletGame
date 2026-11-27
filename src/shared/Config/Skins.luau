@@ -18,6 +18,7 @@ export type Line = {
 	tier: TierId,
 	kind: "reskin" | "shape" | "animated",
 	guns: { [string]: TierId }?, -- per-gun tier overrides (the line's animated melee)
+	pass: boolean?, -- battle pass only: never in cases or the daily shop
 }
 
 local TIERS: { [TierId]: Tier } = {
@@ -77,6 +78,7 @@ local LINES: { [string]: Line } = {
 	Payload = { tier = "Rare", kind = "shape" },
 	Giltfold = { tier = "Rare", kind = "shape", guns = { Knife = "Epic" } }, -- the Fan opens and shuts
 	Breakwater = { tier = "Rare", kind = "shape" }, -- rescue hardware, pump inspect
+	Arcade = { tier = "Rare", kind = "shape", pass = true }, -- Season 1 pass: cabinet deck, pixel screen, buttons
 	-- animated
 	Moltframe = { tier = "Epic", kind = "animated" }, -- flowing violet chambers, surge VFX, violet muzzle & close accents
 	Playback = { tier = "Epic", kind = "animated" }, -- reactive reels & VU meter, deck VFX, retro muzzle, tape audio & custom tanto

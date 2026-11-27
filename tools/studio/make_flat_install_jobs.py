@@ -80,7 +80,7 @@ def job(key, asset_id, version):
     j = {"line": line, "gun": gun, "item": item, "version": version, "assetId": asset_id,
          "replaced": {p: True for p in m["replaced_stock_prefixes"]},
          "tiles": {t: {"id": TILES[t][0], "studs": TILES[t][1]} for t in sorted(used)}}
-    if item == "Vandal":
+    if item == "Vandal" and line in KEPT:  # lines that replace every stock part keep nothing
         j["kept"] = list(KEPT[line])
     if m.get("joints"):
         j["joints"] = m["joints"]

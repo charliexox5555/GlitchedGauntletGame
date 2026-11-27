@@ -67,7 +67,8 @@ local function allPairs(): { Pair }
 	for _, gun in guns do
 		for _, line in Locker.linesFor(gun) do
 			local tier = if line ~= "Stock" then SkinCases.tierOf(gun, line) else nil
-			if tier and Skins.TIERS[tier].inCases then
+			local def = Skins.LINES[line]
+			if tier and Skins.TIERS[tier].inCases and not (def and def.pass) then
 				table.insert(
 					out,
 					{ gun = gun, line = line, tier = tier, section = SkinCases.sectionOf(gun) }

@@ -36,13 +36,13 @@ cutters.hide_render = True
  MAGENTA, CYAN, YELLOW, BTN_MAGENTA, BTN_CYAN, BTN_YELLOW) = range(13)
 # (role, hex, roughness, metallic, emission)
 PALETTE = (
-    ("Body", "2A1745", 0.46, 0.12, 0.0),        # deep cabinet purple
-    ("Panel", "3D2569", 0.52, 0.08, 0.0),       # side-art field violet
+    ("Body", "2C1650", 0.46, 0.12, 0.0),        # deep cabinet purple
+    ("Panel", "47297C", 0.52, 0.08, 0.0),       # side-art field violet
     ("Dark", "17121F", 0.55, 0.10, 0.0),        # bezels, rail, sights
     ("Grip", "1E1929", 0.78, 0.0, 0.0),         # polymer
     ("Metal", "2D3040", 0.34, 0.70, 0.0),       # barrel, brake
     ("Accent", "6F6890", 0.42, 0.30, 0.0),      # lilac nickel: pins, knob
-    ("Screen", "0B1424", 0.30, 0.0, 0.0),       # pixel screen floor (never Glass)
+    ("Screen", "12234A", 0.30, 0.0, 0.8),       # glowing pixel screen floor (Neon, never Glass)
     ("Magenta", "E01E8C", 0.40, 0.0, 1.3),      # Neon
     ("Cyan", "14C8DC", 0.40, 0.0, 1.3),         # Neon
     ("Yellow", "F5C518", 0.40, 0.0, 1.3),       # Neon, small

@@ -111,6 +111,7 @@ Locker.COLORS = table.freeze({
 	Riftforge = Color3.fromHex("C84BFF"),
 	RuinBlighted = Color3.fromHex("5DE4CC"),
 	TempestStrike = Color3.fromHex("8DBCF7"),
+	Arcade = Color3.fromHex("D6339C"),
 }) :: { [string]: Color3 }
 
 -- Each line's emblem (owner 2026-11-15: skins need an identity besides

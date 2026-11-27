@@ -767,7 +767,11 @@ refreshSkins = function()
 			if e.owned and gunOwned and line ~= equippedLine(gunId) then
 				LobbyNet.event("LockerRequest"):FireServer("equip", gunId, line)
 			elseif not e.owned then
-				local where = if tierDef and not tierDef.inCases then "bundles" else "skin cases"
+				local lineDef = SkinsConfig.LINES[line]
+				local where = if lineDef and lineDef.pass
+					then "the battle pass"
+					elseif tierDef and not tierDef.inCases then "bundles"
+					else "skin cases"
 				say(`{if tierDef then tierDef.name else "SKIN"} · from {where}`)
 			end
 			refreshSkins()

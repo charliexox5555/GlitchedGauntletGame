@@ -41,7 +41,7 @@ layout = [
     (VIEWS / "finish_first_person.png", "First person (held camera)", 0, 1110, 1200, 690),
     (VIEWS / "finish_ads.png", "Aiming down sights", 1200, 1110, 1200, 690),
     (VIEWS / "finish_deck.png", "Cabinet deck: pixel screen and buttons", 0, 1800, 600, 400),
-    (VIEWS / "finish_joystick.png", "Joystick charging knob", 600, 1800, 600, 400),
+    (VIEWS / "finish_joystick.png", "Deck joystick and buttons", 600, 1800, 600, 400),
     (VIEWS / "finish_coin_door.png", "Coin door (right)", 1200, 1800, 600, 400),
     (VIEWS / "finish_butt.png", "Cabinet butt", 1800, 1800, 600, 400),
     (VIEWS / "finish_brake.png", "Stepped brake", 0, 2200, 600, 400),

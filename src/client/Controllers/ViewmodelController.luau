@@ -60,6 +60,7 @@ local TempestIdle = require(script.Parent.Parent.Util.TempestIdle)
 local TempestKatana = require(script.Parent.Parent.Util.TempestKatana)
 local SlipframeArc = require(script.Parent.Parent.Util.SlipframeArc)
 local SlipframeEffects = require(script.Parent.Parent.Util.SlipframeEffects)
+local ArcadeEffects = require(script.Parent.Parent.Util.ArcadeEffects)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
@@ -154,6 +155,7 @@ type Gun = {
 	shadowMist: ShadowMistIdle.State?,
 	tempest: TempestIdle.State?,
 	slipframe: SlipframeEffects.State?,
+	arcade: ArcadeEffects.State?,
 	moltframe: boolean?,
 	playback: boolean?,
 	sundial: boolean?,
@@ -1083,6 +1085,8 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		else
 			gun.slipframe = SlipframeEffects.new(m, scale, templateId)
 		end
+	elseif skinLine == "Arcade" and templateId ~= "Knife" then
+		gun.arcade = ArcadeEffects.new(m, scale, templateId)
 	elseif skinLine == "Moltframe" then
 		gun.moltframe = true
 	elseif skinLine == "Playback" then
@@ -1567,6 +1571,9 @@ local function bump(kind: string)
 	if right and right.tempest then
 		TempestIdle.beat(right.tempest, kind)
 	end
+	if right and right.arcade and kind == "MagIn" then
+		ArcadeEffects.pulse(right.arcade, "Seat")
+	end
 	if right and right.slipframe and kind == "MagIn" then
 		SlipframeEffects.pulse(right.slipframe, "Seat")
 	end
@@ -1974,6 +1981,9 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 		if cycle and not guns.Left then
 			ViewmodelTracks.play(playing, "Cycle", cycle)
 		end
+	end
+	if gun.arcade then
+		ArcadeEffects.pulse(gun.arcade, "Fire")
 	end
 	if gun.slipframe then
 		SlipframeEffects.pulse(gun.slipframe, "Fire")
@@ -3276,6 +3286,15 @@ local function update(dt: number)
 					if swing and not swing.fading then swing.time / swing.length else nil,
 					if swing then swing.track.hit else nil,
 					swing ~= nil and swing.track == VM.TRACKS.HeavyStab
+				)
+			end
+			if gun.arcade then
+				local inspect = playing.Inspect
+				ArcadeEffects.step(
+					gun.arcade,
+					dt,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					visible
 				)
 			end
 			if gun.slipframe then

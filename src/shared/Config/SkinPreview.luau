@@ -34,6 +34,7 @@ local lines = {
 	"Riftforge",
 	shadowMistLine,
 	"TempestStrike",
+	"Arcade",
 }
 
 return table.freeze({
