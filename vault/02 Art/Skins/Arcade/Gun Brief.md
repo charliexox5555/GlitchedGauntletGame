@@ -62,6 +62,20 @@ The in-game names are in `src/shared/Config/Weapons.luau`.
   - every decorative layer has its own lift, at least 0.004 apart.
 - **Stock contract:** keep the stock rig, bones, locators (`Muzzle`, `AimPoint`, grips, `Eject`, `CharmPoint`) and actions, and the stock `CharmLoop` (charms are the same on every gun). The audit's `contract_equal` must be all true.
 - **ADS:** keep the stock sights (named `*Sight*`). Scope lenses are untouched. Nothing new may sit in the sight picture: check the ADS render, not only the rays.
+- **No gaps anywhere (owner, 2026-11-27).** The owner spotted a gap where the trigger area meets the body at the front, on the Bulldog. Every join gets a culled magenta close-up from both sides and from below: trigger guard and lower receiver, grip, mag well, stock, handguard and barrel. That includes stock joins you didn't change. Close any gap you see by burying the part 0.02+, and log what you fixed.
+- **Moved charm points: Odin, Shorty and Classic (owner, 2026-11-27).** The owner moved these guns' charm points (and, on the Shorty and Classic, their ring parts) in the Studio guns, so the v05 .blend positions are out of date. In Blender coordinates the new CharmPoints are:
+
+  | Gun | CharmPoint (x, y, z) |
+  |---|---|
+  | Odin | (1.18, 0.126, 0.435) |
+  | Shorty | (0.74, 0.116, 0.215) |
+  | Classic | (0.74, 0.084, 0.205) |
+  | Judge | (1.27, 0.124, 0.445) (not an Arcade gun) |
+
+  On these guns:
+  - leave the stock `CharmLoop` **unskinned**: stock materials, not dressed, not hidden, so the exporter lists it as untouched and the Studio install keeps the owner's moved ring;
+  - keep every Arcade part clear of the new charm point, with room for a hanging charm to swing (about 0.09 around and below it);
+  - note this in the ledger.
 - **Budget:** about 1.5× the stock triangles at most.
 - **Gate:**
   - 0 faults in new geometry (stock open islands that are unchanged don't count);
