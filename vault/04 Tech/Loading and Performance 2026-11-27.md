@@ -64,7 +64,7 @@ Arrival scales with the instance count (about 20,000 instances a second over loo
 | What | Measured | Note |
 |---|---|---|
 | Match client boot (all controllers required + init) | **496 ms** on the Studio PC | The first controller to require the shared tree (`WeaponController`: Viewmodel, Weapons, Effects ...) pays 344 ms of it; no single controller is slow. A phone is several times slower. |
-| Hosted join → `MatchReady` | 2.0-4.9 s after the zone change (S `client ready`) | Not broken down yet: the match client's boot is ~0.5 s of it, and `MapVoteController` also waits for `game.Loaded` before it signals (suspected bulk, unmeasured). The loading screen covers it ("SETTING UP THE MATCH"). |
+| Hosted join → `MatchReady` | 2.0-4.9 s after the zone change (S `client ready`) | Measured by code-audit (cold HostedTest, Snowpeak4): zone +0.0, lobby client ready +0.2, map here +0.6, match screens ready +2.1, server ready +2.7. The `game.Loaded` wait in `MapVoteController` cost 0 s (already loaded); the gap is the match client's own controller requires / inits before `MapVoteController.start`, plus the 0.5 s `MatchReady` retry. `[Health] C game loaded (waited X s)` now logs when that wait does cost something (a slow phone). The loading screen covers it ("SETTING UP THE MATCH"). |
 | Loading screen's own time | READY → closed: ~1-2 s on a join (`minHold` 2.2 s from the reveal), ~1 s on a teleport arrival (only the READY shine) | Owner decisions (v2.1 hold, "tightened for ad retention"); not changed. |
 | Lobby client | Workspace 14,676 instances; LobbyV5 8,624 of 20,692 streamed in at spawn (target radius 512) | Streaming settings kept: Min 128 / Target 512 / PauseOutsideLoadedArea / Opportunistic. |
 | Hosted match client (before its spawn) | LobbyV5 **1,031** streamed; Workspace 7,594 with Snowpeak4 | The arena slot is 800 studs above the lobby, so a match player gets almost none of the lobby. No `ReplicationFocus` change needed. |
@@ -83,8 +83,8 @@ Real teleports, phone bandwidth and phone memory can't run in Studio. After the 
 
 ## Routed to other workstreams (not changed here)
 - **mobile-ui / owner:** ~8,500 PlayerGui instances per player; old `LockerV2` (602) still ships; `LockerV3Room` is Persistent for every client (could stream in when the Locker opens).
-- **bots / code-audit:** `Range/RangeBots` steps on reserved match servers with nobody in the range.
-- **code-audit:** `MapVoteController` waits for `game.Loaded` before `MatchReady` (suspected part of the 2-5 s zone → ready gap in Studio; measure before changing); `Util/MatchLift` HOLD comment still says the server teleports at 3.5 s (it's 2.0 s).
+- **bots / code-audit:** `Range/RangeBots` stepped on reserved match servers with nobody in the range. **Done** by code-audit (`aa3b6e9e`): it steps only while someone is in the Lobby or Range zone (41 range bots, 0 moving during a hosted match).
+- **code-audit:** the `game.Loaded` wait before `MatchReady` measured 0 s: not the cause, kept, now logged when it waits. The zone → ready gap is the match client's boot (requires / inits) plus the 0.5 s retry: the next lever if a phone shows it slow. `Util/MatchLift` HOLD comment fixed (`039c1664`).
 - **owner (maps):** OldTown4 (7,577 instances, 2,451 MeshParts) and Rooftops4 (5,538) are the heaviest to send; the biggest win for phones is fewer parts in those two.
 - Every match start logs `ContentId rbxassetid://203785492 ... Asset type does not match` and `rbxassetid://81504106 ... not found` (not referenced in `src/`: a Studio-owned asset).
 
