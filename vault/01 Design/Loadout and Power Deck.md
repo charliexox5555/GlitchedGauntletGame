@@ -78,6 +78,7 @@ Today a match pays 15 coins for finishing and 20 for a win, halved against bots,
 - **The first unlock comes in the first session:** about 150 coins, reachable after match 2 plus the first task.
 - **Then roughly one unlock per 1–2 play sessions,** prices rising.
 - Tasks and the battle pass carry most of the coins.
+- **Done 2026-11-27 (config only):** three 400-coin first picks, reachable after match 2 + the Range tasks (~560 coins), gun set 10,500, match pay 10 / +40 a win (×0.6 vs bots, cap 600), Task Path 16,375 coins. Table and hours to each goal: [Shop Economy → Economy pass](Shop%20Economy%20and%20Art%20v1.md#economy-pass-earn-vs-spend-hours-to-each-goal-2026-11-27).
 
 ## Build order (each step playtested with the owner before the next)
 (Updated 2026-11-26: the gun loadout ships with the new Locker; weapon levels, contracts and stats follow.)

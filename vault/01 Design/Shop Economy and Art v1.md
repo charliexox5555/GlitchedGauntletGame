@@ -303,3 +303,71 @@ Ruined Reaver is the sixth item in the 999 Robux Ruin-Blighted bundle. The Shop 
 Ruined Reaver also has a dedicated 449 Robux developer product (`3735030099`) with its own Roblox product icon (`98157339938469`). Its bundle item prompts that product and the receipt grants `Knife/RuinBlighted` from the product ID. The 999 Robux bundle compares against 2,194 Robux separately (five guns at 349 Robux each and Ruined Reaver at 449 Robux).
 
 Verified the dedicated prompt, receipt grants and retries, ownership guard, and comparison total in a local Luau harness. The Rojo build passed. The updated Shop still needs to be published and tested in the Roblox client.
+
+## Economy pass: earn vs spend, hours to each goal (2026-11-27)
+Owner brief: "Make sure all the economy is good". Nobody has played or paid yet, so nothing needed compensating. **Config numbers only** (commit d0df1121); the payouts that need code are listed at the end. The targets below are Claude's proposal for the owner to tune.
+
+**Targets:** first gun unlock in about 2-3 matches · first SURGE pack in about the first hour · whole gun set in about 8-12 hours · skins as the long-term sink · Robux always a fair shortcut, never the only way.
+
+### Match length (Config/Match, normal first to 5)
+- At 50% rounds won, a first-to-5 lasts **7.5 rounds** on average (5 to 9).
+- One round is about 9 s of select (it skips once everyone has locked in), about 35 s of fight (estimated: the 50 s clock, then sudden death) and 2.5 s of round end.
+- Around that come the queue and load (~30 s), the map vote (~12 s), the first select (16 s), the match end (2.5 s pause + 8 s cutscene + ~15 s results) and ~20 s back to the lobby.
+- **About 7.4 minutes a match, 8 matches an hour.** Not measured yet: log real round times at the first playtest and redo this table if a round is far from 35 s.
+
+### Every way to earn
+| Source | Before | After | Notes |
+|---|---|---|---|
+| Match pay (`Economy.MATCH_COINS`) | finish 15, win +20; ×0.5 vs bots; cap 400/day | **finish 10, win +40; ×0.6 vs bots; cap 600/day** | Per bot match: a loss pays 6, a win 30, an average 18 (was 12.5). A real-player match pays 10 / 50, average 30. Leaving pays 0. |
+| Per round, per kill, first win of the day | none | none | Need code (see below). XP already pays per round and per kill. |
+| Task Path (`Config/Tasks`, one time per account) | 12,850 coins, 3 Tickets | **16,375 coins, 3 Tickets** | Recruit 50/100/200 → **100/200/400** (1,900 in all); Rookie 75/150/+Ticket → **100/200/+Ticket +300**; Contender → **125/250/500**; Duelist → **150/300/+Ticket +500**; Veteran → **175/350/750**; Champion unchanged (200/400/1,000 + Ticket + title). Each set is coins per task / bonus per part / set reward. Targets unchanged. |
+| Login (`Economy.LOGIN`, 7-day loop) | 2,500 coins + 6 Tickets + a Standard Case a week | unchanged | Claimed by hand in the Shop's DAILY tab. |
+| Season pass (`SeasonCatalog`, not open yet) | free 1,000 coins + 2 Tickets; premium 2,250 coins + 3 Tickets | unchanged | One tier per 30 min of live rounds or 25 rounds won (half vs bots): about 45 h of bot play for all 30 tiers, ~23 h vs real players. |
+| XP (`Config/Progression`) | finish 20, win 30, 4/round, 2/kill, half vs bots | unchanged | About 30 XP a bot match. Level 15 is about 110 bot matches. `LEVEL_REWARDS` is still empty. |
+| Tickets | login 6/week, Task Path 3, pass 2 free / 3 premium | unchanged | Earn-only. Cases cost 1 / 3 / 6 / 8 Tickets. |
+
+### Every way to spend
+| Sink | Before | After |
+|---|---|---|
+| Guns (`Loadout.PRICES`; Havoc + Classic free) | Sheriff, Shorty 400 · Prowler, Hush 500 · Hornet, Pump 600 · Lancer 750 · Marksman 900 · Scout, Spirit 1,000 · Mauler 1,200 · Deadeye 1,500 = **9,350** | **Prowler, Sheriff, Shorty 400** · Hush 500 · Hornet, Pump 600 · Lancer 900 · Marksman 1,000 · Scout, Spirit 1,200 · Mauler 1,500 · Deadeye 1,800 = **10,500** |
+| SURGE pack (8 powers outside the starter deck) | 1,500 / 4,500 for three = 12,000 for all 8 | unchanged |
+| Daily shop | Common 1,000, Rare 2,500 coins; Epic and up Robux only | unchanged (the long-term coin sink) |
+| Skin cases | Tickets or Robux | unchanged (skins stay the long-term sink) |
+| Streak save | 100 coins, doubling to 1,600 | unchanged |
+| Bundles, Epic+ skins, premium pass | Robux only | unchanged (cosmetic) |
+
+### Hours to each goal (lifetime coins earned ≥ the cost; 50% rounds won, onboarding matches mostly won)
+| Goal (coins) | Bots, 1 h/day | Bots, 2 h/day | Bots, 3 h/day | Bots, never claims login | Real players, 1 h/day |
+|---|---|---|---|---|---|
+| First gun (400) | match 3 → **match 3** | m3 → m3 | m3 → m3 | match 5 → **match 3** | m3 → m3 |
+| First gun + first pack (1,900) | 2.1 h → **1.1 h** | 2.2 → 1.1 | 2.2 → 1.1 | 2.2 → 1.1 | 1.6 → 1.1 |
+| Whole gun set (before 9,350, after 10,500) | 11.0 h → **8.5 h** | 13.6 → **11.3** | 14.2 → **12.1** | 19.8 → **14.1** | 9.0 → **7.0** |
+| Guns + all 8 packs (after 22,500) | 27 h → 25 h | 40 → 32 | 46 → 35 | 84 → 46 | 25 → 20 |
+| Coins earned by hour 1 / 3 / 10 (bots, 1 h/day) | 856 / 2,756 / 8,868 → **1,408 / 4,096 / 11,547** | | | | |
+
+- **The first unlock:** match 1 and 2 (onboarding, against bots) pay about 30 coins each when won. The Task Path opens after match 2, and its first part (the Range: visit, 10 targets, 3 bots, about 3 minutes) pays 3 × 100 + 200 = **500**. That makes **about 560 coins before match 3**, enough for any 400 gun (Prowler, Sheriff, Shorty) or the 500 Hush. The day-1 login adds 250 if it's claimed. Recruit part 2 (match 3-5) pays another 500, enough for a second gun. All of Recruit (1,900) is done by about match 8, the first hour.
+- **Tasks carry the early game, matches the late game.** After Duelist (~14 h) a player earns about 145 coins an hour against bots (~240 against real players), plus about 2,500 a week from login. That pays for the packs and the Common/Rare daily skins.
+- **3 h/day players** finish the guns later in hours than 1 h/day players, because login pays per day. At most 12 h is inside the target. A player who never claims the login takes 14 h: the onboarding session should point new players at the DAILY tab.
+- **How these were worked out:** a per-match model (scratch script, not in the repo) adds match pay under the daily cap, the login loop by day played, and each Task Path part at an estimated match count. Recruit is done by match 8, Rookie by 28, Contender by 54, Duelist by 115, Veteran by about 200 (level 20), Champion by about 370 (level 30). Those estimates assume 4.5 eliminations a match, about 1 headshot elimination and 50% wins.
+
+### Robux, the shortcut (coin packs unchanged)
+- The packs give 10.2 → 16 coins per Robux: 49 = 500, 99 = 1,200, 199 = 2,600, 499 = 7,000, 999 = 15,000, 1,999 = 32,000.
+- Measured against steady bot play (~145 coins/h): 49 R$ ≈ 3.4 h of play, 199 R$ ≈ 18 h.
+- The whole gun set (10,500) ≈ 797 R$ (7,000 + 2,600 + 1,200 packs). All 8 powers (12,000) ≈ the 999 pack.
+- Every gun and every power can be earned. Robux-only things are cosmetic (Epic+ skins, bundles, premium pass). Tickets are never sold.
+- Kept as they were: the growing bonus is clean, and the power pack has no Robux product to undercut.
+
+### Exploit and "pointless purchase" checks
+- **Sell-back / refund loops: none.** Guns and skins can't be sold. A SURGE pack refunds its 1,500 only when no power is left, and a buy is refused once held packs cover the unowned powers, so it nets 0. Robux that can't be granted pays 10 coins a Robux (`ROBUX_TO_COINS`), below every pack's rate, so it is no conversion trick.
+- **Task farming against bots:** bounded. Tasks pay once per account (16,375 in all); bots counting is the owner's call (2026-11-26).
+- **Quitting early:** leaving pays 0 coins, doesn't count as a played match for tasks and is passed to the season pass as `left`. OK.
+- **Idling through bot matches** (needs a macro to press NEXT MATCH): it pays 6 coins per ~3.8 min lost match, about 95/h, below real play (~145/h) and capped at 600 a day. It was 7.5 per match at 15/20, so moving the pay onto the win made it less worth it. The real fix needs code (below).
+- **Earlier purchases made pointless: none found.** Prices go up with depth, not power (the guns are sidegrades, [Gun Balance](Gun%20Balance.md)). The pass's Arcade/Frostbite skins aren't sold anywhere else. The pass-only powers (Smoke, Electric Shock) aren't built yet, so a pack can't roll them today. The Starter Bundle (67 R$, 1,500 coins + cases) beats the 99 R$ pack once per player, as an intro offer should.
+
+### Needs code (not done: config only)
+1. **Coins per round won and per kill**, like XP (for example 3 a round, up to 15; 1 a kill, up to 10). A close loss then pays, and `finish` can stay small. `ProgressionService.matchCoins` already gets `roundsWon` and `kills`.
+2. **A first-win-of-the-day coin bonus** (for example +100). The season pass has `FIRST_WIN_ROUNDS`, but coins have nothing like it.
+3. **Pay `finish` only to a player who took part** (dealt damage, won a round or had live input), so an idle macro earns nothing.
+4. **Match coins against the same real opponent:** cap them per day like the streak (`STREAK.sameOpponentPerDay` = 3). Two friends could otherwise trade 1v1 wins (one quits, a bot backfills, the other wins). Check how `MatchService` scores that case.
+5. **When Smoke / Electric Shock are built:** leave `Season.POWER_UNLOCKS` out of `PowerCases.pool`, or a pack could roll a pass power and make that pass tier pointless.
+6. **Login is claimed by hand** (Shop DAILY tab). An onboarding callout or an auto-claim on join is worth it: it is the biggest gap between the "1 h/day" and "never claims" columns.
