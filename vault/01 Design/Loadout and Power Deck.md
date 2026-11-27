@@ -114,3 +114,21 @@ Today a match pays 15 coins for finishing and 20 for a win, halved against bots,
 - The gun cut.
 - Whether the onboarding matches keep the scripted Glitched card.
 - Power case: price, odds, what a duplicate gives (owner: decide later; the packs idea above says power XP).
+
+## Locker v2 mockup (2026-11-26)
+Built in Studio as `StarterGui.LockerV2` by [BuildLockerV2.luau](../../tools/studio/BuildLockerV2.luau). It is a static layout for the owner to review and edit, with no code wired to it. It is **off by default**: tick `Enabled` in Studio to look at it. Captures are in `art-source/ui/locker-v2/`.
+- **Three states:** owned gun, locked gun, power. Each is a pair of frames shown together (`Left.Guns` / `Left.Powers`, `Center.Gun` / `Lock` / `Power`, `Right.GunOwned` / `GunLocked` / `Power`). Switch them in Explorer, or set the workspace attribute `LockerV2State` (`owned` | `locked` | `power`) and re-run the script.
+- **Layout (design 1920 × 1080):** tabs GUNS / POWERS / KNIFE and coins on top.
+  - **Left (460 px):**
+    - Guns: the loadout (primary and secondary) then the class lists, with level, EQUIPPED tags, and the dimmed name and coin price for locked guns.
+    - Powers: the deck (5 × 2 slots, 4 / 10) then every power, with a role tag or POWER CASE.
+  - **Middle:** the gun or power (the 3D stage in game).
+  - **Right (460 px):** Details (name, role tag, one line), Level (bar, next reward), Contracts and Statistics rows, and Overview (10-segment bars plus a value).
+    - Locked gun: a big padlock over the dimmed gun, a gold UNLOCK with the coin price, and TRY IN THE RANGE.
+    - Power: Level, then the A / B / Glitched upgrade paths.
+- **Rules from the self-review:**
+  - **Gold** only for the one act-now action: EQUIP on an owned gun that isn't equipped, UNLOCK on a locked one, ADD TO DECK on an owned power outside the deck. Already equipped or in the deck shows a dark EQUIPPED / REMOVE FROM DECK.
+  - **Tags size to their words.**
+  - **No small lock icons in rows:** the image reads as a dash at 22 px.
+- **The stats and names are placeholders:** Havoc 12, Deadeye 1,500 coins and so on. The real numbers come from `Config/Weapons` and the gun pass.
+- **Open (owner):** the look, spacing and words; the stage behind (3D Locker room); whether the KNIFE tab is enough for skins; where SKINS opens.
