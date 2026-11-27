@@ -6,6 +6,8 @@
 --     showing; `level` tasks check the player's current level instead.
 --   * Bots count everywhere (owner 2026-11-26). Coins are the main reward; a Ticket only at the end of
 --     sets 2, 4 and 6 (skins stay premium).
+--   * Coin amounts: the economy pass 2026-11-27 (vault/01 Design/Shop Economy and Art v1.md): RECRUIT pays
+--     1,900 so a new player can unlock a gun after the Range part and open a SURGE pack in about the first hour.
 --   * Every count is decided by the server from match results and range hits, never sent by the client.
 -- `text` is shown with string.format(text, target).
 local Match = require(script.Parent.Match)
@@ -86,9 +88,9 @@ local SETS: { TaskSet } = {
 	{
 		id = "Recruit",
 		name = "RECRUIT",
-		coins = 50,
-		partBonus = 100,
-		reward = { coins = 200 },
+		coins = 100,
+		partBonus = 200,
+		reward = { coins = 400 },
 		parts = {
 			part(
 				t("rec1_rangeVisit", "rangeVisit", 1, "Visit the Range"),
@@ -110,9 +112,9 @@ local SETS: { TaskSet } = {
 	{
 		id = "Rookie",
 		name = "ROOKIE",
-		coins = 75,
-		partBonus = 150,
-		reward = { tickets = 1 },
+		coins = 100,
+		partBonus = 200,
+		reward = { tickets = 1, coins = 300 },
 		parts = {
 			part(
 				t("roo1_play1v1", "matchPlay", 1, "Play a 1v1", { teamSize = 1 }),
@@ -139,9 +141,9 @@ local SETS: { TaskSet } = {
 	{
 		id = "Contender",
 		name = "CONTENDER",
-		coins = 100,
-		partBonus = 200,
-		reward = { coins = 400 },
+		coins = 125,
+		partBonus = 250,
+		reward = { coins = 500 },
 		parts = {
 			part(
 				t("con1_wins", "matchWin", 5, "Win %d matches"),
@@ -169,9 +171,9 @@ local SETS: { TaskSet } = {
 	{
 		id = "Duelist",
 		name = "DUELIST",
-		coins = 125,
-		partBonus = 250,
-		reward = { tickets = 1 },
+		coins = 150,
+		partBonus = 300,
+		reward = { tickets = 1, coins = 500 },
 		parts = {
 			part(
 				t("due1_wins1v1", "matchWin", 5, "Win %d 1v1s", { teamSize = 1 }),
@@ -199,9 +201,9 @@ local SETS: { TaskSet } = {
 	{
 		id = "Veteran",
 		name = "VETERAN",
-		coins = 150,
-		partBonus = 300,
-		reward = { coins = 600 },
+		coins = 175,
+		partBonus = 350,
+		reward = { coins = 750 },
 		parts = {
 			part(
 				t("vet1_wins", "matchWin", 15, "Win %d matches"),

@@ -12,7 +12,7 @@ Economy.DAY_SECONDS = 86400 -- days are UTC: day index = os.time() // DAY_SECOND
 
 -- Tickets
 Economy.MAX_TICKETS = 100_000
-Economy.STARTING_TICKETS = 0 -- new players earn a free Standard Case right after finishing Match 1
+Economy.STARTING_TICKETS = 0 -- no free case for match 1 any more (owner 2026-11-27)
 
 -- Login rewards: a 7-day loop. Claim once per UTC day; the day after the last claim
 -- gives the next step, a missed day starts again at step 1, after step 7 comes step 1.
@@ -40,7 +40,9 @@ Economy.POWER_PACK = table.freeze({ coins = 1500 })
 -- Match pay in coins (ProgressionService, in the same write as the XP). Leaving pays
 -- nothing; matches with no real player on the other side pay `botScale` of it. At most
 -- `dailyCap` coins a UTC day from matches.
-Economy.MATCH_COINS = table.freeze({ finish = 15, win = 20, botScale = 0.5, dailyCap = 400 })
+-- Economy pass 2026-11-27 (was 15 / 20 / 0.5 / 400): most of the pay is for the win, so idling through a lost
+-- bot match pays little (6 coins), and the cap is about 4 hours of bot matches or 2.5 of real ones.
+Economy.MATCH_COINS = table.freeze({ finish = 10, win = 40, botScale = 0.6, dailyCap = 600 })
 
 -- The daily shop: PER PLAYER, rolled by the server at the player's first visit of the
 -- UTC day and saved (PlayerData `daily`), so nothing off their list can be bought.

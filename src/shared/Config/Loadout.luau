@@ -27,20 +27,21 @@ return table.freeze({
 	-- Every save owns and equips these.
 	STARTER = table.freeze({ Primary = "Vandal", Secondary = "Classic" }),
 
-	-- Coins to unlock (placeholders until the economy pass, build order step 4).
+	-- Coins to unlock (economy pass 2026-11-27, vault/01 Design/Shop Economy and Art v1.md -> Economy pass):
+	-- three 400 picks for the first unlock (after match 2 + the Range tasks), the whole set 10,500 coins.
 	PRICES = table.freeze({
+		Spectre = 400,
 		Sheriff = 400,
 		Shorty = 400,
 		Ghost = 500,
-		Spectre = 500,
 		Stinger = 600,
 		Bucky = 600,
-		Bulldog = 750,
-		Guardian = 900,
-		Marshal = 1000,
-		Phantom = 1000,
-		Odin = 1200,
-		Operator = 1500,
+		Bulldog = 900,
+		Guardian = 1000,
+		Marshal = 1200,
+		Phantom = 1200,
+		Odin = 1500,
+		Operator = 1800,
 	} :: { [string]: number }),
 
 	-- Rounds 1..N give only the secondary; later rounds give primary + secondary.
