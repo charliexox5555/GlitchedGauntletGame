@@ -429,11 +429,54 @@ def previews(out):
 	return paths
 
 
+def art():
+	"""The UI pictures, like build_knife_case.py's art(): a 3/4 icon (Backpack, Shop popup) and an end-on card
+	view (Shop card), transparent. Raw renders: crop them with a 10 px border afterwards."""
+	sc = bpy.context.scene
+	sc.render.engine = "BLENDER_EEVEE"
+	sc.render.film_transparent = True
+	sc.render.image_settings.file_format = "PNG"
+	sc.render.image_settings.color_mode = "RGBA"
+	sc.view_settings.view_transform = "Standard"
+	look()
+	k = 0.78  # this case against the big crate's views (3.1 long, 1.1 tall)
+	tgt = Vector((0, 0, 0.62))
+	for name, loc, energy, size in (("Key", (-4, -5, 6), 420, 4), ("Fill", (5, -3, 3), 120, 5), ("Rim", (2, 6, 5), 300, 3)):
+		lt = bpy.data.objects.get("Power" + name) or bpy.data.objects.new("Power" + name, bpy.data.lights.new("Power" + name, "AREA"))
+		if lt.name not in sc.collection.objects:
+			sc.collection.objects.link(lt)
+		lt.location = Vector(loc) * k
+		lt.data.energy, lt.data.size = energy * k * k, size * k
+		lt.rotation_euler = (tgt - lt.location).to_track_quat("-Z", "Y").to_euler()
+	cam = bpy.data.objects.get("PowerCam") or bpy.data.objects.new("PowerCam", bpy.data.cameras.new("PowerCam"))
+	if cam.name not in sc.collection.objects:
+		sc.collection.objects.link(cam)
+	sc.camera = cam
+	cam.data.type = "PERSP"
+	pose(0)
+	out = []
+	for path, loc, lens, res in (
+		(os.path.join(ROOT, "art-source", "ui", "backpack", "crate_power.png"), (-2.9, -4.4, 3.3), 50, 512),
+		(os.path.join(ROOT, "art-source", "ui", "shop", "crates", "crate_power_card_raw.png"), (-4.6, -3.4, 4.0), 55, 640),
+	):
+		cam.location = Vector(loc) * k
+		cam.rotation_euler = (tgt - cam.location).to_track_quat("-Z", "Y").to_euler()
+		cam.data.lens = lens
+		sc.render.resolution_x = sc.render.resolution_y = res
+		sc.render.filepath = path
+		bpy.ops.render.render(write_still=True)
+		out.append(path)
+	sc.render.film_transparent = False
+	return out
+
+
 info = build()
 result = {"parts": len(info["parts"]), "tris": info["tris"]}
 _preview = globals().get("POWER_PREVIEW") or os.environ.get("POWER_PREVIEW")
 if _preview:
 	result["previews"] = previews(_preview)
+if globals().get("POWER_ART") or os.environ.get("POWER_ART"):
+	result["art"] = art()
 if globals().get("POWER_EXPORT") or os.environ.get("POWER_EXPORT"):
 	pose(0)
 	bpy.ops.object.select_all(action="DESELECT")

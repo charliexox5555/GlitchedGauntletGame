@@ -49,7 +49,8 @@ export type PartyEventPayload = {
 	text: string?, -- "info": a short message
 }
 
-export type CaseReward = { gun: string, line: string, tier: string, name: string }
+-- A skin (gun, line), or a power (power = Config/Mods id; gun and line are "") from a power case (Shared/PowerCases).
+export type CaseReward = { gun: string, line: string, tier: string, name: string, power: string? }
 
 export type ShopEventPayload = {
 	openRequest: number?, -- Backpack case-opening response, including failures

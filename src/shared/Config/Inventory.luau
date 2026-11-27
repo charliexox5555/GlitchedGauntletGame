@@ -73,6 +73,17 @@ local ITEMS: { [string]: ItemDef } = {
 		maxStack = 999,
 		icon = "rbxassetid://111410900647363",
 	},
+	-- the first power case (vault/01 Design/Loadout and Power Deck.md -> Power cases): a power you don't own yet,
+	-- never a duplicate (Shared/PowerCases); Tickets only, no Robux product
+	CasePower = {
+		id = "CasePower",
+		kind = "Case",
+		name = "SURGE CASE",
+		tier = 7, -- Config/Crates [7]: its own model, PowerCase
+		case = "Power",
+		maxStack = 999,
+		icon = "rbxassetid://137034219078301", -- art-source/ui/shop/crates/crate_power_card.png
+	},
 }
 
 -- the item each Shop case puts in the inventory

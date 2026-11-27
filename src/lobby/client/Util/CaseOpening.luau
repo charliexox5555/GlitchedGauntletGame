@@ -31,8 +31,14 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local Vfx = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ItemStage = require(script.Parent.ItemStage)
+local PowerCardFace = require(script.Parent.PowerCardFace)
+-- the name plate over a rising power card is smaller than a skin's (owner 2026-11-26: "a bit too large")
+local POWER_CARD_SCALE = 0.7
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
-export type Result = { gun: string, line: string, tier: string, name: string }
+-- A skin, or a power from a power case (power = Config/Mods id, gun and line ""; Shared/PowerCases): its
+-- 3D card rises instead of a gun (Util/PowerCardFace).
+export type Result = { gun: string, line: string, tier: string, name: string, power: string? }
 
 local CaseOpening = {}
 
@@ -427,7 +433,17 @@ local function card(
 	pic.Position = UDim2.fromScale(0.46, 0.44)
 	pic.Size = UDim2.fromScale(1.35, 1.35)
 	pic.ScaleType = Enum.ScaleType.Fit
-	pic.Image = SkinArt.portrait(result.gun, result.line) or ""
+	if result.power then
+		-- a power: its card art, cropped to the tile (owner 2026-11-26: the icons should look better)
+		PowerCardFace.thumb(pic, result.power)
+		pic.Position = UDim2.fromScale(0.5, 0.5)
+		pic.Size = UDim2.fromScale(0.94, 0.94)
+		local pc = Instance.new("UICorner")
+		pc.CornerRadius = UDim.new(0.1, 0)
+		pc.Parent = pic
+	else
+		pic.Image = SkinArt.portrait(result.gun, result.line) or ""
+	end
 	pic.ZIndex = 3
 	pic.Parent = tile
 	local x0 = 0.06 + Cfg.CARD_TILE
@@ -657,7 +673,7 @@ local function startCrate(
 			return
 		end
 		local tier = Skins.TIERS[r.tier :: any] or Skins.TIERS.Common
-		tierColor = tier.color
+		tierColor = tier.color -- a power's tier too (Config/PowerCases)
 		tierOrder = tier.order
 		sound(Cfg.SOUNDS.Tease, root, gain)
 		local strip = stripPart
@@ -681,8 +697,30 @@ local function startCrate(
 			return
 		end
 		local top = land.Position + Vector3.new(0, 1.0 * scale, 0)
-		local src = Locker.skinModel(r.gun, r.line)
-		if src and src:FindFirstChildWhichIsA("BasePart", true) then
+		local src = if r.power then nil else Locker.skinModel(r.gun, r.line)
+		local powerCard = if r.power then PowerCardFace.clone() else nil
+		if powerCard and r.power then
+			-- a power: its card rises out of the case (front toward the opener, like the crate's front)
+			PowerCardFace.fill(powerCard, r.power, "NEW")
+			for _, d in powerCard:GetDescendants() do
+				if d:IsA("BasePart") then
+					d.Anchored = true
+					d.CanCollide = false
+					d.CanQuery = false
+					d.CanTouch = false
+				end
+			end
+			local size = powerCard:GetExtentsSize()
+			local longest = math.max(size.X, size.Y, size.Z)
+			if longest > 0 then
+				skinScale = Cfg.SKIN_LENGTH * 0.62 / longest
+				powerCard:ScaleTo(skinScale)
+			end
+			powerCard.Name = "CaseSkin"
+			powerCard:PivotTo(CFrame.new(top - Vector3.new(0, 0.6, 0)) * land.Rotation)
+			powerCard.Parent = workspace
+			skin = powerCard
+		elseif src and src:FindFirstChildWhichIsA("BasePart", true) then
 			local m = ItemStage.presentable(src)
 			local size = m:GetExtentsSize()
 			local longest = math.max(size.X, size.Y, size.Z)
@@ -749,13 +787,15 @@ local function startCrate(
 			anchor :: BasePart,
 			r,
 			tier.color,
-			tier.name,
+			if r.power then tier.name .. " POWER" else tier.name,
 			tier.order,
 			if isLocal then nil else owner.DisplayName,
-			if count > #Cfg.BATCH_ANGLES
-				then Cfg.WIDE_CARD_SCALE
-				elseif count > 1 then Cfg.BATCH_CARD_SCALE
-				else 1
+			(
+				if count > #Cfg.BATCH_ANGLES
+					then Cfg.WIDE_CARD_SCALE
+					elseif count > 1 then Cfg.BATCH_CARD_SCALE
+					else 1
+			) * (if r.power then POWER_CARD_SCALE else 1)
 		)
 	end
 
@@ -1120,10 +1160,15 @@ local function startCrate(
 		if r then
 			fx = (Cfg.TIER_FX :: any)[r.tier] or Cfg.TIER_FX.Common
 			-- Ask now so an on-demand skin and its art arrive before the lid opens.
-			Locker.skinModel(r.gun, r.line)
+			if not r.power then
+				Locker.skinModel(r.gun, r.line)
+			end
 			task.spawn(function()
 				local imgs: { Instance } = {}
-				for _, url in { SkinArt.portrait(r.gun, r.line), SkinArt.side(r.gun, r.line) } do
+				local urls = if r.power
+					then { Theme.CARD_ART[r.power or ""] }
+					else { SkinArt.portrait(r.gun, r.line), SkinArt.side(r.gun, r.line) }
+				for _, url in urls do
 					if typeof(url) == "string" and url ~= "" then
 						local lbl = Instance.new("ImageLabel")
 						lbl.Image = url
@@ -1285,8 +1330,13 @@ function CaseOpening.start(
 			end
 			for i = 1, shown do
 				local reward = results[i]
-				local model = Locker.skinModel(reward.gun, reward.line)
-				if not model or not model:FindFirstChildWhichIsA("BasePart", true) then
+				local model = if reward.power
+					then nil
+					else Locker.skinModel(reward.gun, reward.line)
+				if
+					not reward.power
+					and (not model or not model:FindFirstChildWhichIsA("BasePart", true))
+				then
 					return false
 				end
 			end

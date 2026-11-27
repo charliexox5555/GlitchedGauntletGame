@@ -8223,6 +8223,18 @@
   "type": "Decal",
   "uploaded": "2026-11-20 23:04:23"
  },
+ "art-source/ui/shop/crates/crate_power_card.png": {
+  "assetId": 104330323770402,
+  "name": "GG crate_power_card",
+  "type": "Decal",
+  "uploaded": "2026-11-26 23:29:19"
+ },
+ "art-source/ui/shop/crates/crate_power_wide.png": {
+  "assetId": 124197608356999,
+  "name": "GG crate_power_wide",
+  "type": "Decal",
+  "uploaded": "2026-11-26 23:29:22"
+ },
  "art-source/ui/shop/crates/crate_standard_card.png": {
   "assetId": 77828972663261,
   "name": "GG UI Shop crate card standard",

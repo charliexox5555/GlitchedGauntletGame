@@ -101,6 +101,22 @@ local TIERS: { [number]: Tier } = {
 			Interior = look("0B1226"),
 		},
 	},
+	-- the SURGE power case (vault/01 Design/Loadout and Power Deck.md -> Power cases): its own compact chest
+	-- (tools/blender/crates/build_power_case.py, 2.0 studs long, opened at 2x), charcoal and gold
+	[7] = {
+		name = "Surge",
+		template = "PowerCase",
+		scale = 2.0,
+		accent = Color3.fromHex("FFC83D"),
+		roles = {
+			Body = look("41444C"),
+			Frame = look("18191D"),
+			Hardware = look("9DA2A9", Enum.Material.Metal),
+			Light = look("E8AE34", Enum.Material.Neon),
+			Gem = look("E8AE34", Enum.Material.Neon),
+			Interior = look("141518"),
+		},
+	},
 }
 
 return table.freeze({

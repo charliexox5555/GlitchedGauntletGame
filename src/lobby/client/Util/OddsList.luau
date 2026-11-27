@@ -19,6 +19,10 @@ local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local PowerCases = require(ReplicatedStorage.Shared.PowerCases)
+local Mods = require(ReplicatedStorage.Shared.Mods)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local PowerCardFace = require(script.Parent.PowerCardFace)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Weapons = require(game:GetService("ReplicatedStorage").Shared.Config.Weapons)
@@ -435,6 +439,128 @@ local function render(
 	end
 end
 
+-- A power case (Shared/PowerCases): a tier is rolled first, then a power in it; each tier lists its powers with
+-- their chance (owned ones 0%, never a duplicate). Pictures are the powers' card art.
+local function renderPowers(list: ScrollingFrame, caseId: string, mods: any)
+	for _, c in list:GetChildren() do
+		if c:IsA("Frame") then
+			c:Destroy()
+		end
+	end
+	local template = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("ShopOddsRow") :: Frame
+	local font = (child(template, "Name") :: TextLabel).FontFace
+	local parent = list.Parent
+	local showInfo = infoCard(if parent and parent:IsA("GuiObject") then parent else list, font)
+	local powerOdds, tierOdds = PowerCases.odds(caseId, mods)
+	local pool = PowerCases.pool(caseId)
+	local order = 0
+	local function row(): Frame
+		order += 1
+		local r = template:Clone()
+		r.LayoutOrder = order
+		return r
+	end
+	local left = #PowerCases.unowned(caseId, mods)
+	local head = row()
+	head.Name = "Section_Powers"
+	head.BackgroundTransparency = 1;
+	(child(head, "Cell") :: Frame).Visible = false
+	local hn = child(head, "Name") :: TextLabel
+	hn.Text = "POWERS"
+	hn.TextColor3 = WHITE
+	hn.TextSize = 26
+	shiftX(hn, -66)
+	local hs = child(head, "Sub") :: TextLabel
+	hs.Text = if left == 0
+		then "ALL OWNED"
+		else "A TIER IS ROLLED FIRST, THEN A POWER IN IT  ·  NEVER A DUPLICATE"
+	shiftX(hs, -66);
+	(child(head, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(if left > 0 then 100 else 0)
+	head.Parent = list
+	for _, tierId in PowerCases.TIER_ORDER do
+		local inTier: { string } = {}
+		for _, id in pool do
+			if PowerCases.tierOf(id) == tierId then
+				table.insert(inTier, id)
+			end
+		end
+		if #inTier == 0 then
+			continue
+		end
+		local tierDef = (Skins.TIERS :: any)[tierId]
+		local available = 0
+		for _, id in inTier do
+			if not mods.owned[id] then
+				available += 1
+			end
+		end
+		local th = row()
+		th.Name = "Tier_" .. tierId
+		th.BackgroundTransparency = 1;
+		(child(th, "Cell") :: Frame).Visible = false
+		local tn = child(th, "Name") :: TextLabel
+		tn.Text = tierDef.name
+		tn.TextColor3 = tierDef.color
+		tn.TextSize = 22
+		shiftX(tn, -66)
+		local ts = child(th, "Sub") :: TextLabel
+		ts.Text = if available == 0
+			then "ALL OWNED"
+			else string.format(
+				"%d %s AVAILABLE",
+				available,
+				if available == 1 then "POWER" else "POWERS"
+			)
+		shiftX(ts, -66)
+		local tp = child(th, "Pct") :: TextLabel
+		tp.Text = ShopCatalog.formatOdds((tierOdds[tierId] or 0) * 100)
+		tp.TextColor3 = tierDef.color
+		th.Parent = list
+		for _, id in inTier do
+			local def = Mods.def(id)
+			if not def then
+				continue
+			end
+			local has = mods.owned[id] == true
+			local r = row()
+			r.Name = "Power_" .. id
+			local cell = child(r, "Cell") :: Frame
+			cell.BackgroundColor3 = tierDef.color
+			local art = Theme.CARD_ART[id]
+			local hit = picture(r, art, id)
+			local pic = cell:FindFirstChild("Pic")
+			if pic and pic:IsA("ImageLabel") then
+				-- the card art, cropped square inside the tier tile
+				PowerCardFace.thumb(pic, id)
+				pic.Position = UDim2.fromScale(0.5, 0.5)
+				pic.Size = UDim2.fromScale(0.9, 0.9)
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(0.12, 0)
+				corner.Parent = pic
+			end
+			local name = child(r, "Name") :: TextLabel
+			name.Text = string.upper(def.name)
+			name.TextColor3 = tierDef.color
+			local sub = child(r, "Sub") :: TextLabel
+			sub.Text = if has
+				then "OWNED"
+				else string.format("%s %s POWER", tierDef.name, string.upper(def.role));
+			(child(r, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds((powerOdds[id] or 0) * 100)
+			hit.Activated:Connect(function()
+				showInfo(
+					cell,
+					art,
+					tierDef.color,
+					string.upper(def.name),
+					sub.Text,
+					((def.levels.L1 :: any).note or "")
+				)
+			end)
+			r.Parent = list
+		end
+	end
+end
+
 function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextLabel)
 	local cleanup = subscriptions[list]
 	if cleanup then
@@ -447,6 +573,18 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 		if not PlayerData.ready(player) then
 			note.Text = "Loading your case odds…"
 			render(list, {}, expanded)
+			return
+		end
+		if PowerCases.isPowerCase(case.id) then
+			local mods = PlayerData.mods(player)
+			local left = #PowerCases.unowned(case.id, mods)
+			note.Text = if left > 0
+				then "These are your odds for the next one: a tier is rolled first (among tiers with a power you don't own), "
+					.. "then each power in it has the same chance; owned ones 0%. Not sold where local rules restrict paid random items."
+				else "You own every power in this case."
+			local position = list.CanvasPosition
+			renderPowers(list, case.id, mods)
+			list.CanvasPosition = position
 			return
 		end
 		local sections = SkinCases.sections(case.id, PlayerData.skins(player))
@@ -470,17 +608,21 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 		end
 	end
 	local changed: RBXScriptConnection?
+	-- a power case follows the power deck (LockerMods), a skin case the owned skins
+	local replicaName = if PowerCases.isPowerCase(case.id)
+		then PlayerData.MODS
+		else PlayerData.SKINS
 	local function watch(replica: Instance?)
-		if replica and replica.Name == PlayerData.SKINS and replica:IsA("StringValue") then
+		if replica and replica.Name == replicaName and replica:IsA("StringValue") then
 			if changed then
 				changed:Disconnect()
 			end
 			changed = replica:GetPropertyChangedSignal("Value"):Connect(refreshIfVisible)
 		end
 	end
-	watch(player:FindFirstChild(PlayerData.SKINS))
+	watch(player:FindFirstChild(replicaName))
 	local added = player.ChildAdded:Connect(function(replica)
-		if replica.Name == PlayerData.SKINS then
+		if replica.Name == replicaName then
 			watch(replica)
 			refreshIfVisible()
 		end

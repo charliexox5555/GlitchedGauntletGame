@@ -35,6 +35,9 @@ local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
+local PowerCases = require(ReplicatedStorage.Shared.PowerCases)
+local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
+local Mods = require(ReplicatedStorage.Shared.Mods)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
@@ -81,8 +84,12 @@ local function send(player: Player, payload: LobbyNet.ShopEventPayload)
 	end
 end
 
--- How many skins this case can still give a player who owns `skins`.
-local function unownedIn(caseId: string, skins: PlayerData.Skins): number
+-- How many skins (or, from a power case, powers: Shared/PowerCases) this case can still give a player.
+local function unownedIn(caseId: string, data: PlayerData.Data): number
+	if PowerCases.isPowerCase(caseId) then
+		return #PowerCases.unowned(caseId, data.mods)
+	end
+	local skins = data.skins
 	local n = 0
 	for _, list in SkinCases.pool(caseId) do
 		for _, p in list do
@@ -115,7 +122,7 @@ local function buyCase(player: Player, caseId: string)
 		return
 	end
 	-- never sell a case that has nothing left for them (each held one needs a skin)
-	if known and unownedIn(caseId, known.skins) <= (known.items[def.id] or 0) then
+	if known and unownedIn(caseId, known) <= (known.items[def.id] or 0) then
 		send(player, { kind = "failed", text = REASON_TEXT.ownAll })
 		return
 	end
@@ -131,7 +138,7 @@ local function buyCase(player: Player, caseId: string)
 		if held >= def.maxStack then
 			return false, "full"
 		end
-		if unownedIn(caseId, data.skins) <= held then
+		if unownedIn(caseId, data) <= held then
 			return false, "ownAll"
 		end
 		data.tickets -= price
@@ -177,7 +184,9 @@ function ShopService.showOpening(
 		end
 	end
 	for _, reward in rewards do
-		SkinStoreService.sendTo(viewers, reward.gun, reward.line)
+		if not reward.power then -- a power is a card, no model to deliver
+			SkinStoreService.sendTo(viewers, reward.gun, reward.line)
+		end
 	end
 	local show: LobbyNet.CaseShowPayload = {
 		userId = player.UserId,
@@ -235,6 +244,24 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 		local rng = Random.new(seed)
 		local before = data.tickets
 		for _ = 1, count do
+			if PowerCases.isPowerCase(caseId) then
+				-- a power case: a power they don't own yet, never a duplicate (vault: Power cases)
+				local id = PowerCases.roll(caseId, data.mods, rng)
+				local mod = id and Mods.def(id)
+				if id and mod then
+					ModLoadout.grant(data.mods, id)
+					table.insert(rewards, {
+						gun = "",
+						line = "",
+						power = id,
+						tier = PowerCases.tierOf(id), -- Config/PowerCases: the opening grows with it
+						name = string.upper(mod.name),
+					})
+				else
+					data.tickets = math.min(data.tickets + refund, Economy.MAX_TICKETS)
+				end
+				continue
+			end
 			local pair = SkinCases.roll(caseId, data.skins, rng)
 			if pair then
 				PlayerData.grantSkin(data, pair.gun, pair.line)
@@ -259,6 +286,11 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 	local first = rewards[1]
 	Telemetry.funnel(player, "Case opening", txId, 2, "Opening saved", caseId)
 	Telemetry.event(player, "Cases opened", count, caseId)
+	for _, r in rewards do
+		if r.power then
+			Telemetry.event(player, "Power granted", 1, r.power)
+		end
+	end
 	if firstOnbOpen then
 		Telemetry.onboarding(player, 15)
 		Telemetry.caseOnboarding(player, 3, "Case opened")

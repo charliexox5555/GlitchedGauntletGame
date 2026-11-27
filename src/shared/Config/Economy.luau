@@ -31,7 +31,7 @@ Economy.LOGIN = table.freeze({
 
 -- What each case costs in Tickets (wired with the Shop purchases, step 2 of the plan).
 Economy.CASE_TICKETS =
-	table.freeze({ Standard = 1, Elite = 3, Apex = 6, Knife = 8 }) :: { [string]: number }
+	table.freeze({ Standard = 1, Elite = 3, Apex = 6, Knife = 8, Power = 4 }) :: { [string]: number }
 
 -- Match pay in coins (ProgressionService, in the same write as the XP). Leaving pays
 -- nothing; matches with no real player on the other side pay `botScale` of it. At most

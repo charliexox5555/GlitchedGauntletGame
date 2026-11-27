@@ -24,6 +24,8 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local PowerCardFace = require(script.Parent.Parent.Util.PowerCardFace)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
@@ -283,12 +285,20 @@ function BackpackController.init()
 	end
 
 	-- the result of an opening: picture (else the line's emblem), name in the tier colour
-	local function fillReveal(gun: string, line: string, tierId: string?, name: string)
+	local function fillReveal(
+		gun: string,
+		line: string,
+		tierId: string?,
+		name: string,
+		power: string?
+	)
 		local tier = Skins.TIERS[(tierId or "Common") :: any] or Skins.TIERS.Common
 		local art = child(reveal, "Art") :: ImageLabel
 		local emblem = child(reveal, "Emblem") :: ImageLabel
-		local pic = SkinArt.portrait(gun, line) -- the square portrait, like the case card
+		-- the square portrait, like the case card; a power shows its card art, cropped
+		local pic = if power then Theme.CARD_ART[power] else SkinArt.portrait(gun, line)
 		art.Image = pic or ""
+		PowerCardFace.thumb(art, power)
 		art.Visible = pic ~= nil
 		emblem.Image = Locker.EMBLEMS[line] or ""
 		emblem.ImageColor3 = Locker.COLORS[line] or tier.color
@@ -313,17 +323,21 @@ function BackpackController.init()
 			letter.TextColor3 = Locker.COLORS[line] or tier.color
 			letter.Visible = pic == nil and Locker.EMBLEMS[line] == nil
 		end
+		-- a power: its role colour and role word instead of a skin tier
+		local color = tier.color -- a power is ranked in the same tiers (Config/PowerCases)
 		local title = child(reveal, "Name") :: TextLabel
 		title.Text = name
-		title.TextColor3 = tier.color
+		title.TextColor3 = color
 		local plate = child(reveal, "Tier") :: Frame
-		plate.BackgroundColor3 = tier.color
+		plate.BackgroundColor3 = color
 		for _, cap in plate:GetChildren() do
 			if cap:IsA("ImageLabel") then
-				cap.ImageColor3 = tier.color
+				cap.ImageColor3 = color
 			end
 		end
-		(child(plate, "Label") :: TextLabel).Text = tier.name
+		(child(plate, "Label") :: TextLabel).Text = if power
+			then tier.name .. " POWER"
+			else tier.name
 	end
 
 	-- the item popup: a case shows CONTENTS and OPEN
@@ -512,7 +526,11 @@ function BackpackController.init()
 		if hint and hint:IsA("GuiObject") then
 			hint.Visible = not reveal.Visible
 		end
-		equipAll.Visible = many
+		local anySkin = false
+		for _, r in revealed do
+			anySkin = anySkin or r.power == nil
+		end
+		equipAll.Visible = many and anySkin
 		equipButton.Size, equipAll.Size, doneButton.Size = buttonSize, buttonSize, buttonSize
 		-- the free case (openGift): its skin is already on, so one gold button in the middle
 		local gift = giftClosed ~= nil and reveal.Visible and #revealed == 1
@@ -565,6 +583,7 @@ function BackpackController.init()
 				else DARK_PLATE
 			local art = child(cell, "Art") :: ImageLabel
 			art.Image = SkinArt.portrait(r.gun, r.line) or ""
+			PowerCardFace.thumb(art, r.power)
 			art.ImageTransparency = if current then 0 else 0.25
 			local word = if isOn(r) then "EQUIPPED" else ""
 			for _, name in { "Count", "CountShadow" } do
@@ -593,14 +612,20 @@ function BackpackController.init()
 			endGift()
 			return
 		end
-		fillReveal(result.gun, result.line, result.tier, result.name)
+		fillReveal(result.gun, result.line, result.tier, result.name, result.power)
 		local tier = Skins.TIERS[(result.tier or "Common") :: any] or Skins.TIERS.Common
+		local word = if result.power then "NEW POWER" else "NEW SKIN"
 		local kicker = reveal:FindFirstChild("Kicker")
 		if kicker and kicker:IsA("TextLabel") then
 			kicker.Text = if #revealed > 1
-				then `NEW SKIN  ·  {revealIndex} OF {#revealed}`
+				then `{word}  ·  {revealIndex} OF {#revealed}`
 				elseif giftClosed then "NEW SKIN  ·  EQUIPPED"
-				else "NEW SKIN"
+				else word
+		end
+		-- a power is already in your collection (and your deck when it has room): the button goes to it
+		local equipLabel = equipButton:FindFirstChild("Label")
+		if equipLabel and equipLabel:IsA("TextLabel") then
+			equipLabel.Text = if result.power then "SEE IN LOCKER" else "EQUIP"
 		end
 		local edge = reveal:FindFirstChild("RevealEdge")
 		if not (edge and edge:IsA("UIStroke")) then
@@ -684,6 +709,10 @@ function BackpackController.init()
 			and StateValues.get(player, "OnbSkinEquipped") ~= true
 			and revealIndex >= #revealed
 		local result = revealed[revealIndex]
+		if result and result.power then
+			Router.open("Locker", "powers")
+			return
+		end
 		if result then
 			LobbyNet.event("LockerRequest"):FireServer("equip", result.gun, result.line)
 			task.spawn(function()
@@ -715,6 +744,9 @@ function BackpackController.init()
 		local byGun: { [string]: LobbyNet.CaseReward } = {}
 		local guns = 0
 		for _, r in revealed do
+			if r.power then
+				continue -- powers have nothing to equip
+			end
 			if not byGun[r.gun] then
 				guns += 1
 			end
@@ -806,7 +838,7 @@ function BackpackController.init()
 				end
 				crate = nil
 				player:SetAttribute("CaseOpeningActive", false)
-				if rewards and #rewards > 0 then
+				if rewards and #rewards > 0 and not rewards[1].power then
 					player:SetAttribute("OnbNewSkinGun", rewards[1].gun)
 					player:SetAttribute("OnbNewSkinLine", rewards[1].line)
 					if giftClosed then

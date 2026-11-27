@@ -124,6 +124,12 @@ ShopCatalog.CASES = {
 		art = "rbxassetid://75937518028942", -- crate_knife_wide.png
 		color = Color3.fromHex("1E8A5C"),
 	},
+	{
+		id = "Power", -- powers only (Shared/PowerCases): a power you don't own yet, Tickets only
+		name = "SURGE CASE",
+		art = "rbxassetid://104790440951707", -- crate_power_wide.png
+		color = Color3.fromHex("C9961F"),
+	},
 } :: { Case }
 
 -- The launch bundles (owner 2026-11-20): two featured skin-line bundles and a

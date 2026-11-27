@@ -46,6 +46,7 @@ local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local RangeTransition = require(script.Parent.Parent.Util.RangeTransition)
+local PowerCardFace = require(script.Parent.Parent.Util.PowerCardFace)
 local Router = require(script.Parent.Parent.Util.Router)
 
 local LockerV3Controller = {}
@@ -97,7 +98,6 @@ local overviewCard: Frame
 local lockPlate: Frame
 local skinStrip: ScrollingFrame
 local card: Model? = nil
-local front: Frame? = nil
 local sweep: UIGradient? = nil
 
 local isOpen = false
@@ -691,27 +691,9 @@ local function pathNote(def: any, p: string): string
 end
 
 local function fillCard(id: string, owned: boolean)
-	local f = front
 	local c = card
-	local def = Mods.def(id)
-	if not (f and c and def) then
-		return
-	end
-	local roleColor = Theme.ROLE[def.role] or WHITE
-	set(f, "Art", "Image", Theme.CARD_ART[id] or "")
-	set(f, "Band", "BackgroundColor3", roleColor)
-	set(f, "Title", "Text", string.upper(def.name))
-	set(f, "Role", "Text", string.upper(def.role))
-	set(f, "Note", "Text", ((def.levels.L1 :: any).note or "") .. ".")
-	set(f, "Level", "Text", if owned then "" else "POWER CASE")
-	local back = c:FindFirstChild("Back", true)
-	local backCard = back and back:FindFirstChild("Card")
-	if backCard then
-		set(backCard, "Band", "BackgroundColor3", roleColor)
-	end
-	local edge = c:FindFirstChild("Edge")
-	if edge and edge:IsA("BasePart") then
-		edge.Color = roleColor
+	if c then
+		PowerCardFace.fill(c, id, if owned then "" else "POWER CASE")
 	end
 end
 
@@ -795,7 +777,7 @@ local function refreshPowerPanel()
 	end
 	local b = find(powerPanel, "DeckButton.Button")
 	if not owned then
-		paint(b, DARK, "FROM POWER CASES", false)
+		paint(b, GOLD, "OPEN POWER CASES", true)
 	elseif m.equipped[id] then
 		paint(
 			b,
@@ -955,21 +937,14 @@ local function runWipe(fromY: number, toY: number, time: number, atCover: () -> 
 end
 
 local function reveal(arg: any?)
-	local src = ReplicatedStorage:FindFirstChild("LockerV3Stage")
 	local folder = Instance.new("Folder")
 	folder.Name = "LockerV3Stage"
-	local cardSrc = src and src:FindFirstChild("PowerCard")
-	if cardSrc and cardSrc:IsA("Model") then
-		local c = cardSrc:Clone()
+	local c = PowerCardFace.clone()
+	if c then
 		c.Parent = folder
 		card = c
-		local face = c:FindFirstChild("Face")
-		local f = face and face:FindFirstChild("Front")
-		local fc = f and f:FindFirstChild("Card")
-		front = if fc and fc:IsA("Frame") then fc else nil
-		local shine = fc and fc:FindFirstChild("Shine")
-		local sw = shine and shine:FindFirstChild("Sweep")
-		sweep = if sw and sw:IsA("UIGradient") then sw else nil
+		local _, sw = PowerCardFace.front(c)
+		sweep = sw
 		c:PivotTo(CFrame.new(0, -500, 0))
 	end
 	folder.Parent = workspace
@@ -1019,7 +994,7 @@ local function conceal()
 		stageFolder:Destroy()
 		stageFolder = nil
 	end
-	current, card, front, sweep = nil, nil, nil, nil
+	current, card, sweep = nil, nil, nil
 	dragging = false
 	gui.Enabled = false
 	if confirmFrame then
@@ -1468,10 +1443,13 @@ function LockerV3Controller.start()
 	onPress(powerPanel, "DeckButton.Button", function()
 		local m = mods()
 		local id = selectedPower
-		if modBusy or not m.owned[id] then
-			if not m.owned[id] then
-				say("Powers come from power cases")
-			end
+		if not m.owned[id] then
+			-- a locked power: straight to the power cases in the Shop
+			Router.close()
+			Router.open("Shop", "CASES")
+			return
+		end
+		if modBusy then
 			return
 		end
 		local equip = not m.equipped[id]

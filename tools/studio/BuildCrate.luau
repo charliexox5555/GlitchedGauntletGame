@@ -7,7 +7,8 @@
 -- Sources (art-source/lobby/Exports/assets.json):
 --   Crate      tools/blender/crates/build_crate.py      -> Crate.fbx      (Standard, Elite, Apex)
 --   KnifeCase  tools/blender/crates/build_knife_case.py -> KnifeCase.fbx  (the Knife case)
--- Both have the same part names and rig, only sizes differ. Blender to Roblox axes:
+--   PowerCase  tools/blender/crates/build_power_case.py -> PowerCase.fbx  (the SURGE power case)
+-- All have the same part names and rig, only sizes differ. Blender to Roblox axes:
 -- Roblox (x, y, z) = Blender (-x, z, y), 1 unit = 1 stud; the front faces -Z.
 --
 -- Rig (Motor6D, so the Animation Editor and code can both drive it):
@@ -23,7 +24,7 @@
 -- Attachments for effects: Base_Body.Burst (inside, the loot reveal), Base_Body.Seam (front of
 -- the lid seam), Base_Light.Glow, Gem_Gem.GemFx. Colours come from Shared/CrateLook per tier.
 
-local WHICH = "Crate" -- or "KnifeCase"
+local WHICH = "Crate" -- or "KnifeCase" / "PowerCase"
 
 type Target = {
 	asset: number,
@@ -55,6 +56,18 @@ local TARGETS: { [string]: Target } = {
 		},
 		burst = Vector3.new(0, 0.25, 0),
 		seam = Vector3.new(0, 0.316, -0.31),
+	},
+	PowerCase = {
+		asset = 115433948006962,
+		pivots = {
+			Lid = Vector3.new(0, 0.73, 0.71),
+			LatchL = Vector3.new(-0.64, -0.735, 0.45),
+			LatchR = Vector3.new(0.64, -0.735, 0.45),
+			Handle = Vector3.new(0, -0.745, 0.25),
+			Gem = Vector3.new(0, 0, 1.26),
+		},
+		burst = Vector3.new(0, 0.5, 0),
+		seam = Vector3.new(0, 0.71, -0.76),
 	},
 }
 local target = TARGETS[WHICH]
