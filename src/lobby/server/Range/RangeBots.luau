@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 
 local RangeCarriage = require(ReplicatedStorage.Shared.RangeCarriage)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local RangeEvents = require(script.Parent.RangeEvents)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -474,51 +475,38 @@ function RangeBots.start(services: MatchServices)
 	services.Damage.onHit(onHit)
 	services.Damage.addDamageGuard(damageGuard)
 
-	for _, bot in CollectionService:GetTagged(RangeBots.BOT_TAG) do
-		if bot:IsA("Model") then
-			prepare(bot)
-		end
-	end
-	CollectionService:GetInstanceAddedSignal(RangeBots.BOT_TAG):Connect(function(bot)
-		if bot:IsA("Model") then
-			task.defer(prepare, bot)
-		end
-	end)
-	for _, inst in CollectionService:GetTagged(CARRIAGE_TAG) do
-		addCarriage(inst)
-	end
-	CollectionService:GetInstanceAddedSignal(CARRIAGE_TAG):Connect(addCarriage)
-
-	-- Nobody in the Lobby or the Range (a reserved server mid-match: everyone is in the Match zone): nobody can
-	-- see the range, so its 39 bots and carriages don't step (loading-perf 2026-11-27: they were among the top
-	-- server costs in a hosted match). Checked once a second; it picks up again when someone is back.
-	local watchedClock, watched = 1, true
-	local boardClock, carriageClock = 0, 0
-	RunService.Heartbeat:Connect(function(dt: number)
-		watchedClock += dt
-		if watchedClock >= 1 then
-			watchedClock = 0
-			local was = watched
-			watched = false
-			for _, p in Players:GetPlayers() do
-				local zone = PlayZone.get(p)
-				if zone == "Lobby" or zone == "Range" then
-					watched = true
-					break
-				end
-			end
-			if was and not watched then
-				-- Move persists: stop the strafers where they are, or they'd walk off their lanes
-				for _, st in strafers do
-					if st.humanoid.Parent then
-						st.humanoid:Move(Vector3.zero, false)
-					end
-				end
-			end
-		end
-		if not watched then
+	-- The bots and carriages step only while someone is in the Range (loading-perf 2026-11-27: the range's 39
+	-- bots were among the top server costs of a hosted match, where everyone is in the Match zone). No
+	-- Heartbeat work at all otherwise: the step is connected when the first player walks in and disconnected
+	-- when the last one leaves (PlayZone.changed, PlayerRemoving). A reserved match server also sets the bots
+	-- up only on that first visit, since most of its players never go there.
+	local set = false
+	local function setUp()
+		if set then
 			return
 		end
+		set = true
+		for _, bot in CollectionService:GetTagged(RangeBots.BOT_TAG) do
+			if bot:IsA("Model") then
+				prepare(bot)
+			end
+		end
+		CollectionService:GetInstanceAddedSignal(RangeBots.BOT_TAG):Connect(function(bot)
+			if bot:IsA("Model") then
+				task.defer(prepare, bot)
+			end
+		end)
+		for _, inst in CollectionService:GetTagged(CARRIAGE_TAG) do
+			addCarriage(inst)
+		end
+		CollectionService:GetInstanceAddedSignal(CARRIAGE_TAG):Connect(addCarriage)
+	end
+	if not ServerRole.isHosted() then
+		setUp()
+	end
+
+	local boardClock, carriageClock = 0, 0
+	local function step(dt: number)
 		carriageClock += dt
 		if carriageClock >= CARRIAGE_STEP then
 			carriageClock = 0
@@ -530,7 +518,37 @@ function RangeBots.start(services: MatchServices)
 			boardClock = 0
 			stepDamageBoards()
 		end
+	end
+	local stepping: RBXScriptConnection? = nil
+	local function refresh(leaving: Player?)
+		local anyone = false
+		for _, p in Players:GetPlayers() do
+			if p ~= leaving and PlayZone.get(p) == "Range" then
+				anyone = true
+				break
+			end
+		end
+		if anyone and not stepping then
+			setUp()
+			stepping = RunService.Heartbeat:Connect(step)
+		elseif not anyone and stepping then
+			stepping:Disconnect()
+			stepping = nil
+			-- Move persists: stop the strafers where they are, or they'd walk off their lanes
+			for _, st in strafers do
+				if st.humanoid.Parent then
+					st.humanoid:Move(Vector3.zero, false)
+				end
+			end
+		end
+	end
+	PlayZone.changed:Connect(function(_player: Player, zone: string, previous: string)
+		if zone == "Range" or previous == "Range" then
+			refresh()
+		end
 	end)
+	Players.PlayerRemoving:Connect(refresh)
+	refresh()
 end
 
 return RangeBots
