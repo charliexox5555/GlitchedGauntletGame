@@ -90,9 +90,7 @@ function MapService.load(id: string): boolean
 	if Context.ownsServer then
 		MapLighting.applyMatch(source)
 	end
-	if active then
-		active:Destroy()
-	end
+	local previous = active
 	local map = source:Clone()
 	MapGeometry.prepare(map, id)
 	-- A pad duel (MatchKit/Context): its own name and map slot, in its own world folder.
@@ -100,17 +98,29 @@ function MapService.load(id: string): boolean
 	map:SetAttribute("MatchId", if Context.ownsServer then nil else Context.id)
 	map:PivotTo(map:GetPivot().Rotation + Context.mapOrigin)
 	MovementGuard.register(map)
+	-- For the client's arrival line (Controllers/MapLoadController): which map, and when the server sent it.
+	map:SetAttribute("MapId", id)
+	map:SetAttribute("LoadedAt", workspace:GetServerTimeNow())
 	-- Whole map loaded for everyone, so an enemy never streams out mid-fight. A
 	-- pad duel's map only for its own players (lobby players never need it).
-	if Context.ownsServer then
-		map.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
-	else
-		map.ModelStreamingMode = Enum.ModelStreamingMode.PersistentPerPlayer
+	map.ModelStreamingMode = if Context.ownsServer
+		then Enum.ModelStreamingMode.Persistent
+		else Enum.ModelStreamingMode.PersistentPerPlayer
+	map.Parent = Context.world
+	if not Context.ownsServer then
+		-- Once the map is in the world, and guarded like the other call sites: one bad player can't abort the
+		-- load (vault/04 Tech/Loading and Performance 2026-11-27.md).
 		for _, p in Players:GetPlayers() do
-			map:AddPersistentPlayer(p)
+			local ok, err = pcall(map.AddPersistentPlayer, map, p)
+			if not ok then
+				warn("[MapService] AddPersistentPlayer failed for", p.Name, err)
+			end
 		end
 	end
-	map.Parent = Context.world
+	-- The old map goes only once the new one is in, so a load that throws keeps a map to play on.
+	if previous and previous ~= map then
+		previous:Destroy()
+	end
 	active = map
 	activeSpawns = { {}, {} }
 	activeBarriers = {}

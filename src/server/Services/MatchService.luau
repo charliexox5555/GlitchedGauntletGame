@@ -1374,9 +1374,9 @@ local function runMatch(): boolean
 		MapService.resetGlass()
 		MapService.setBarriers(true)
 		applyTakeovers()
-		-- The select opens first; a voted map still to load attaches right after it (pendingMap), so its
-		-- download runs behind the select screen. Everyone spawns once it's in.
-		local picking = openDraft(round)
+		-- A voted map still to load (pendingMap) goes in just before the select opens: its download still runs
+		-- behind the select screen, and an error opening the select can no longer keep the map from loading
+		-- (2026-11-27: a draft error left the vote's map unloaded for every retry). Everyone spawns once it's in.
 		local nextMap = pendingMap
 		if nextMap then
 			pendingMap = nil
@@ -1386,6 +1386,7 @@ local function runMatch(): boolean
 				MapService.setBarriers(true)
 			end
 		end
+		local picking = openDraft(round)
 		spawnEveryone()
 		if not draftReported then
 			draftReported = true
