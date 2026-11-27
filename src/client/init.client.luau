@@ -28,6 +28,7 @@ local PlayZone = require(Shared:WaitForChild("PlayZone") :: ModuleScript)
 local UiRoot = require(Shared:WaitForChild("UiRoot") :: ModuleScript)
 local MapLighting = require(Shared:WaitForChild("MapLighting") :: ModuleScript)
 local CoreUi = require(Shared:WaitForChild("CoreUi") :: ModuleScript)
+local StateValues = require(Shared:WaitForChild("StateValues") :: ModuleScript)
 local MovementSim =
 	require(Shared:WaitForChild("Simulation"):WaitForChild("Movement") :: ModuleScript)
 local PoseSim = require(Shared:WaitForChild("Simulation"):WaitForChild("Poses") :: ModuleScript)
@@ -131,6 +132,24 @@ end
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+
+-- The long-lived StateValues owners are watched from here, the host (never destroyed), so their
+-- change signals aren't fed by a runner that is thrown away on the next zone change (Shared/StateValues).
+StateValues.prewatch(workspace)
+StateValues.prewatch(ReplicatedStorage)
+local function prewatchPlayer(p: Player)
+	StateValues.prewatch(p)
+	if p.Character then
+		StateValues.prewatch(p.Character)
+	end
+	p.CharacterAdded:Connect(function(character)
+		StateValues.prewatch(character)
+	end)
+end
+Players.PlayerAdded:Connect(prewatchPlayer)
+for _, p in Players:GetPlayers() do
+	prewatchPlayer(p)
+end
 
 local runner: LocalScript? = nil
 local runnerArmed = false -- the running copy is a full match client (else the lobby set)

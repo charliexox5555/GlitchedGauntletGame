@@ -287,16 +287,22 @@ function StateValues.clear(owner: Instance)
 	byInstance[owner] = nil
 end
 
-type Watch = { all: BindableEvent, fields: { [string]: BindableEvent } }
+-- `feeds`: the connections that feed the events. They belong to the script that first asked: a match
+-- client runner (thrown away on every zone change) took them with it, and the cached watcher went
+-- silent for everyone for the rest of the session (code audit 2026-11-27). A later watch() that finds
+-- them gone feeds the same events again; the client host also pre-watches the long-lived owners.
+type Watch = {
+	all: BindableEvent,
+	fields: { [string]: BindableEvent },
+	feeds: { RBXScriptConnection },
+}
 local watching: { [Instance]: Watch } = {}
 
-local function watch(owner: Instance): Watch
-	local current = watching[owner]
-	if current then
-		return current
+local function feed(owner: Instance, watcher: Watch)
+	for _, c in watcher.feeds do
+		c:Disconnect()
 	end
-	local watcher: Watch = { all = Instance.new("BindableEvent"), fields = {} }
-	watching[owner] = watcher
+	table.clear(watcher.feeds)
 	local function emit(name: string)
 		watcher.all:Fire(name)
 		local signal = watcher.fields[name]
@@ -306,39 +312,75 @@ local function watch(owner: Instance): Watch
 	end
 	local function attach(field: Instance, added: boolean)
 		if field:IsA("StringValue") then
-			field:GetPropertyChangedSignal("Value"):Connect(function()
-				emit(field.Name)
-			end)
+			table.insert(
+				watcher.feeds,
+				field:GetPropertyChangedSignal("Value"):Connect(function()
+					emit(field.Name)
+				end)
+			)
 			if added then
 				emit(field.Name)
 			end
 		end
 	end
 	local function attachFolder(folder: Instance, added: boolean)
-		folder.ChildAdded:Connect(function(field)
-			attach(field, true)
-		end)
+		table.insert(
+			watcher.feeds,
+			folder.ChildAdded:Connect(function(field)
+				attach(field, true)
+			end)
+		)
 		for _, field in folder:GetChildren() do
 			attach(field, added)
 		end
 	end
+	-- the owner's own connections first: feeds[1] is the liveness probe watch() reads
+	table.insert(
+		watcher.feeds,
+		owner.ChildAdded:Connect(function(child)
+			if child.Name == FOLDER then
+				attachFolder(child, true)
+			end
+		end)
+	)
+	table.insert(
+		watcher.feeds,
+		owner.Destroying:Once(function()
+			watching[owner] = nil
+			for _, c in watcher.feeds do
+				c:Disconnect()
+			end
+			watcher.all:Destroy()
+			for _, signal in watcher.fields do
+				signal:Destroy()
+			end
+		end)
+	)
 	local folder = owner:FindFirstChild(FOLDER)
 	if folder then
 		attachFolder(folder, false)
 	end
-	owner.ChildAdded:Connect(function(child)
-		if child.Name == FOLDER then
-			attachFolder(child, true)
+end
+
+local function watch(owner: Instance): Watch
+	local current = watching[owner]
+	if current then
+		local probe = current.feeds[1] -- the owner's ChildAdded (all feeds come from one script)
+		if not (probe and probe.Connected) then
+			feed(owner, current) -- the script that fed it is gone
 		end
-	end)
-	owner.Destroying:Once(function()
-		watching[owner] = nil
-		watcher.all:Destroy()
-		for _, signal in watcher.fields do
-			signal:Destroy()
-		end
-	end)
+		return current
+	end
+	local watcher: Watch = { all = Instance.new("BindableEvent"), fields = {}, feeds = {} }
+	watching[owner] = watcher
+	feed(owner, watcher)
 	return watcher
+end
+
+-- Starts watching `owner` from the calling script, so its change signals are fed by a script that
+-- lives as long as that one (the client host calls it for long-lived owners before any runner does).
+function StateValues.prewatch(owner: Instance)
+	watch(owner)
 end
 
 function StateValues.changed(owner: Instance, name: string): RBXScriptSignal
