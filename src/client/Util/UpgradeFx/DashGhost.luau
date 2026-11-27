@@ -36,9 +36,7 @@ local DashGhost = {}
 
 local player = Players.LocalPlayer
 
-local AFTERIMAGE_EVERY = 0.06 -- seconds between Ghost afterimages
-local AFTERIMAGE_LIFE = 0.3
-local AFTERIMAGE_ALPHA = 0.55 -- transparency at birth
+local TRAIL = Config.DASH_FEEL.ghostTrail -- afterimage timing, look and caps
 local SHIMMER_HZ = 9 -- the close-enemy flicker
 local SHIMMER_DEPTH = 0.12 -- +- around cloakShimmerAlpha
 local FADE_OUT = 0.15 -- seconds the cloak takes to come off
@@ -49,11 +47,25 @@ type Shown = {
 	alpha: number,
 	display: Enum.HumanoidDisplayDistanceType?, -- the name tag we hid
 	nextImage: number,
+	-- The parts and decals setAlpha writes, found once (not GetDescendants
+	-- every frame: ~79 us a frame per dasher, measured 2026-11-27), again
+	-- only when something is added to the body meanwhile.
+	targets: { BasePart | Decal },
+	dirty: boolean,
+	added: RBXScriptConnection?,
 }
 local shown: { [Model]: Shown } = setmetatable({}, { __mode = "k" }) :: any
 
-type Afterimage = { parts: { BasePart }, born: number }
-local afterimages: { Afterimage } = {}
+-- Afterimages: per dasher, a pool of body copies (one image = one copy of
+-- every visible part, in `sources` order), shown by moving them into place
+-- and fading them; a finished image is hidden (Transparency 1), not
+-- destroyed, and reused by the next one. Pools of dashers that stopped
+-- dashing are destroyed after TRAIL.keep seconds.
+type Image = { parts: { BasePart }, born: number, live: boolean }
+type Trail = { sources: { BasePart }, images: { Image }, lastUsed: number }
+local trails: { [Model]: Trail } = {}
+local liveImages = 0
+local PER_DASHER = math.ceil(TRAIL.life / TRAIL.every) + 1
 
 local folder: Folder? = nil
 local cue: ColorCorrectionEffect? = nil
@@ -86,11 +98,23 @@ function DashGhost.statsOf(owner: Player): { [string]: any }?
 	return nil
 end
 
-local function setAlpha(character: Model, alpha: number)
+local function findTargets(character: Model): { BasePart | Decal }
+	local list: { BasePart | Decal } = {}
 	for _, d in character:GetDescendants() do
 		if d:IsA("BasePart") or d:IsA("Decal") then
-			d.LocalTransparencyModifier = alpha
+			table.insert(list, d)
 		end
+	end
+	return list
+end
+
+local function setAlpha(state: Shown, character: Model, alpha: number)
+	if state.dirty then
+		state.dirty = false
+		state.targets = findTargets(character)
+	end
+	for _, d in state.targets do
+		d.LocalTransparencyModifier = alpha
 	end
 end
 
@@ -108,19 +132,20 @@ local function revealed(character: Model): boolean
 	return false
 end
 
--- A team-tinted ForceField copy of the body where it is now, fading out.
-local function afterimage(character: Model, color: Color3)
+-- One pooled image: a team-tinted ForceField copy of each source part.
+local function newImage(sources: { BasePart }, color: Color3): Image
 	local parts: { BasePart } = {}
 	local parent = fxFolder()
-	for _, d in character:GetDescendants() do
-		if not d:IsA("BasePart") or d.Transparency >= 1 or d.Name == "HumanoidRootPart" then
-			continue
-		end
+	for _, d in sources do
 		local ok, copy = pcall(d.Clone, d)
-		if not ok or not copy then
-			continue
+		local part: BasePart
+		if ok and copy then
+			part = copy :: BasePart
+		else
+			-- (Keeps the copies in step with `sources`; too small to see.)
+			part = Instance.new("Part")
+			part.Size = Vector3.one * 0.001
 		end
-		local part = copy :: BasePart
 		part:ClearAllChildren() -- welds would tie the copy to the body
 		part.Anchored = true
 		part.CanCollide = false
@@ -129,30 +154,119 @@ local function afterimage(character: Model, color: Color3)
 		part.CastShadow = false
 		part.Material = Enum.Material.ForceField
 		part.Color = color
-		part.Transparency = AFTERIMAGE_ALPHA
+		part.Transparency = 1
 		part.LocalTransparencyModifier = 0
 		part.CFrame = d.CFrame
 		part.Parent = parent
 		table.insert(parts, part)
 	end
-	table.insert(afterimages, { parts = parts, born = os.clock() })
+	return { parts = parts, born = 0, live = false }
+end
+
+local function hideImage(image: Image)
+	image.live = false
+	liveImages -= 1
+	for _, p in image.parts do
+		p.Transparency = 1
+	end
+end
+
+local function dropTrail(character: Model, trail: Trail)
+	for _, image in trail.images do
+		if image.live then
+			liveImages -= 1
+		end
+		for _, p in image.parts do
+			p:Destroy()
+		end
+	end
+	trails[character] = nil
+end
+
+-- A team-tinted copy of the body where it is now, fading out (pooled).
+local cframes: { CFrame } = {}
+local function afterimage(character: Model, color: Color3)
+	local now = os.clock()
+	local trail = trails[character]
+	if not trail then
+		-- The visible body, found once per pool (its copies match it by index).
+		local sources: { BasePart } = {}
+		for _, d in character:GetDescendants() do
+			if
+				d:IsA("BasePart")
+				and d.Archivable
+				and d.Transparency < 1
+				and d.Name ~= "HumanoidRootPart"
+			then
+				table.insert(sources, d)
+			end
+		end
+		trail = { sources = sources, images = {}, lastUsed = now }
+		trails[character] = trail
+	end
+	local t = trail :: Trail
+	t.lastUsed = now
+	-- A free image of this dasher's, else a new one (up to PER_DASHER),
+	-- else their oldest; nothing new past TRAIL.maxImages for everyone.
+	local image: Image? = nil
+	local oldest: Image? = nil
+	for _, candidate in t.images do
+		if not candidate.live then
+			image = candidate
+			break
+		end
+		if not oldest or candidate.born < (oldest :: Image).born then
+			oldest = candidate
+		end
+	end
+	if not image then
+		if #t.images < PER_DASHER and liveImages < TRAIL.maxImages then
+			image = newImage(t.sources, color)
+			table.insert(t.images, image :: Image)
+		elseif oldest then
+			image = oldest
+			hideImage(oldest)
+		end
+	end
+	if not image or liveImages >= TRAIL.maxImages then
+		return
+	end
+	local img = image :: Image
+	table.clear(cframes)
+	for i, src in t.sources do
+		cframes[i] = src.CFrame
+	end
+	Workspace:BulkMoveTo(img.parts, cframes, Enum.BulkMoveMode.FireCFrameChanged)
+	for i, p in img.parts do
+		-- (A part the body has lost since stays hidden.)
+		p.Transparency = if t.sources[i].Parent then TRAIL.alpha else 1
+	end
+	img.born = now
+	img.live = true
+	liveImages += 1
 end
 
 local function stepAfterimages()
 	local now = os.clock()
-	for i = #afterimages, 1, -1 do
-		local a = afterimages[i]
-		local k = (now - a.born) / AFTERIMAGE_LIFE
-		if k >= 1 then
-			for _, p in a.parts do
-				p:Destroy()
+	for character, trail in trails do
+		for _, image in trail.images do
+			if not image.live then
+				continue
 			end
-			table.remove(afterimages, i)
-		else
-			local alpha = AFTERIMAGE_ALPHA + (1 - AFTERIMAGE_ALPHA) * k
-			for _, p in a.parts do
-				p.Transparency = alpha
+			local k = (now - image.born) / TRAIL.life
+			if k >= 1 then
+				hideImage(image)
+			else
+				local alpha = TRAIL.alpha + (1 - TRAIL.alpha) * k
+				for _, p in image.parts do
+					if p.Transparency < 1 then
+						p.Transparency = alpha
+					end
+				end
 			end
+		end
+		if not character.Parent or now - trail.lastUsed > TRAIL.keep then
+			dropTrail(character, trail)
 		end
 	end
 end
@@ -160,8 +274,7 @@ end
 -- How see-through `character` (owned by `owner`) is to us right now, and
 -- whether it's a cloak (name tag hidden).
 local function alphaFor(owner: Player, character: Model, now: number): (number, boolean)
-	local dodgeUntil = select(1, DashMod.windows(character))
-	local cloakUntil = select(2, DashMod.windows(character))
+	local dodgeUntil, cloakUntil = DashMod.windows(character)
 	local start = number(character, "DashStart")
 	if now >= dodgeUntil and now >= cloakUntil then
 		return 0, false
@@ -261,15 +374,26 @@ function DashGhost.step()
 			continue
 		end
 		if not s then
-			s = { alpha = 0, display = nil, nextImage = 0 }
-			shown[character] = s
+			local made: Shown = {
+				alpha = 0,
+				display = nil,
+				nextImage = 0,
+				targets = {},
+				dirty = true,
+				added = nil,
+			}
+			made.added = character.DescendantAdded:Connect(function()
+				made.dirty = true
+			end)
+			s = made
+			shown[character] = made
 		end
 		local state = s :: Shown
-		setAlpha(character, alpha)
+		setAlpha(state, character, alpha)
 		state.alpha = alpha
 		-- Ghost afterimages while the dodge window is open.
-		if now < select(1, DashMod.windows(character)) and os.clock() >= state.nextImage then
-			state.nextImage = os.clock() + AFTERIMAGE_EVERY
+		if now < (DashMod.windows(character)) and os.clock() >= state.nextImage then
+			state.nextImage = os.clock() + TRAIL.every
 			afterimage(character, TeamColor.forOwner(other))
 		end
 		-- The name tag goes with the body.
@@ -284,6 +408,10 @@ function DashGhost.step()
 			end
 		end
 		if alpha <= 0 then
+			local added = state.added
+			if added then
+				added:Disconnect()
+			end
 			shown[character] = nil
 		end
 	end

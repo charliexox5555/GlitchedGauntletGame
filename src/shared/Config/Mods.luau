@@ -893,6 +893,18 @@ return table.freeze({
 		shake = 0.12,
 		trailTime = 0.35, -- the wind trail others see lingers this long
 		crackle = true, -- play the Dash_Crackle layer (on/off to try the classic feel)
+		-- Ghost (B2/B3) afterimages others see (client/Util/UpgradeFx/DashGhost).
+		-- 2026-11-27 (movement feel pass, measured): each image cloned the whole
+		-- visible body (36 parts), about 600 parts/s per dasher while the dodge
+		-- window ran. The copies are now pooled per dasher and moved with
+		-- BulkMoveTo (no clones after a dasher's first dash), and capped.
+		ghostTrail = {
+			every = 0.06, -- seconds between images
+			life = 0.3, -- seconds each fades over
+			alpha = 0.55, -- transparency at birth
+			maxImages = 12, -- live images across every dasher (one dasher uses about 6)
+			keep = 3, -- seconds a dasher's pooled copies are kept after their last image
+		},
 	},
 
 	-- Updraft feel (vault/01 Design/Abilities/Updraft.md → First person, What
