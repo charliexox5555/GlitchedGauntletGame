@@ -10,6 +10,7 @@ local Config = require(script.Parent.Config.PowerCases)
 local Mods = require(script.Parent.Mods)
 local ModsConfig = require(script.Parent.Config.Mods)
 local ModLoadout = require(script.Parent.ModLoadout)
+local Season = require(script.Parent.Config.Season)
 
 local PowerCases = {}
 
@@ -27,7 +28,8 @@ function PowerCases.tierOf(id: string): string
 	return Config.TIER_OF[id] or Config.DEFAULT_TIER
 end
 
--- Every power the case can give, in Config/Mods order.
+-- Every power the case can give, in Config/Mods order. Battle pass powers (Config/Season POWER_UNLOCKS) never
+-- roll, so a pack can't make a pass tier pointless.
 function PowerCases.pool(_caseId: string): { string }
 	local out: { string } = {}
 	for _, id in ModsConfig.ORDER do
