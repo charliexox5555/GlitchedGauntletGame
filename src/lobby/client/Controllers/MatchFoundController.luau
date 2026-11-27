@@ -129,11 +129,17 @@ local function setTeleportGui()
 	end
 end
 
+-- Handed to Roblox once per "found", the moment it arrives (see openAfterLift).
+local teleportGuiSet = false
+
 local function open()
 	if isOpen then
 		return
 	end
-	setTeleportGui()
+	if not teleportGuiSet then
+		teleportGuiSet = true
+		setTeleportGui()
+	end
 	isOpen = true
 	token += 1
 	local my = token
@@ -156,6 +162,7 @@ local function open()
 end
 
 local function close()
+	teleportGuiSet = false
 	if not isOpen then
 		return
 	end
@@ -183,6 +190,13 @@ local function openAfterLift()
 	if isOpen or pendingOpen then
 		return
 	end
+	-- The teleport screen goes to Roblox now, not after the lift: the server teleports Config.matchFoundDelay
+	-- (2 s) after "found", sooner than the lift's hold ends, and a teleport that starts before SetTeleportGui shows
+	-- Roblox's plain screen instead of ours (vault/04 Tech/Loading and Performance 2026-11-27.md).
+	if not teleportGuiSet then
+		teleportGuiSet = true
+		setTeleportGui()
+	end
 	local hold = MatchLift.play()
 	if hold <= 0 then
 		open()
@@ -201,6 +215,7 @@ end
 
 -- The queue left "found" without a teleport: cancel a pending overlay and put the lift back.
 local function cancelLift()
+	teleportGuiSet = false
 	pendingOpen = false
 	liftToken += 1
 	MatchLift.stop()
