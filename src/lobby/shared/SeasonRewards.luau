@@ -11,11 +11,54 @@ local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 local Season = require(ReplicatedStorage.Shared.Config.Season)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
+local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local SeasonCatalog = require(script.Parent.SeasonCatalog)
 
 export type Claimed = { tier: number, track: SeasonPass.Track, rewards: { SeasonCatalog.Reward } }
 
 local SeasonRewards = {}
+
+-- A random-gun skin's gun: one the player owns without that line, else one they don't own
+-- yet without it (the Locker shows it waiting on the locked gun), else nil (every gun has it).
+function SeasonRewards.rollGun(data: PlayerData.Data, line: string, rng: Random?): string?
+	local mine, others = {}, {}
+	for _, list in { Loadout.PRIMARIES, Loadout.SECONDARIES } do
+		for _, id in list do
+			if not PlayerData.owns(data.skins, id, line) then
+				table.insert(if data.guns.owned[id] then mine else others, id)
+			end
+		end
+	end
+	local pool = if #mine > 0 then mine else others
+	if #pool == 0 then
+		return nil
+	end
+	return pool[(rng or Random.new()):NextInteger(1, #pool)]
+end
+
+-- The reward as it will be paid: a random-gun skin gets its gun (and the gun's name), or
+-- becomes coins when every gun already has the line. Other rewards come back as they are.
+function SeasonRewards.resolve(
+	data: PlayerData.Data,
+	r: SeasonCatalog.Reward,
+	rng: Random?
+): SeasonCatalog.Reward
+	if r.kind ~= "Skin" or not r.randomGun or not r.line then
+		return r
+	end
+	local gun = SeasonRewards.rollGun(data, r.line, rng)
+	if not gun then
+		return { kind = "Coins", name = "COINS", amount = Season.SKIN_FALLBACK_COINS }
+	end
+	return {
+		kind = "Skin",
+		name = string.upper(r.line) .. " " .. string.upper(Weapons.nameOf(gun)),
+		gun = gun,
+		line = r.line,
+		rarity = r.rarity,
+	}
+end
 
 local function amount(r: SeasonCatalog.Reward): number
 	local n = r.amount or 1
@@ -44,7 +87,7 @@ function SeasonRewards.grant(data: PlayerData.Data, r: SeasonCatalog.Reward): bo
 	elseif r.kind == "Charm" then
 		PlayerData.grantOwned(data.charms, r.name)
 	elseif r.kind == "Title" then
-		PlayerData.grantOwned(data.titles, r.title or r.name)
+		PlayerData.grantTitle(data, r.title or r.name)
 	elseif r.kind == "Mod" then
 		-- a pass power: owned and in the draft (Shared/ModLoadout.eligible)
 		if not r.mod then
@@ -62,14 +105,17 @@ end
 -- claimed (tier not reached, no premium, already claimed, or nothing there).
 function SeasonRewards.claim(data: PlayerData.Data, tier: number, track: SeasonPass.Track): Claimed?
 	local s = data.season
-	local rewards = SeasonCatalog.rewards(tier, track)
-	if #rewards == 0 or not SeasonPass.canClaim(s, tier, track) then
+	local listed = SeasonCatalog.rewards(tier, track)
+	if #listed == 0 or not SeasonPass.canClaim(s, tier, track) then
 		return nil
 	end
-	for _, r in rewards do
+	local rewards: { SeasonCatalog.Reward } = {}
+	for _, item in listed do
+		local r = SeasonRewards.resolve(data, item)
 		if not SeasonRewards.grant(data, r) then
 			warn(`[SeasonRewards] tier {tier} {track}: can't pay {r.kind} {r.name}`)
 		end
+		table.insert(rewards, r)
 	end
 	SeasonPass.markClaimed(s, tier, track)
 	return { tier = tier, track = track, rewards = rewards }
@@ -96,7 +142,7 @@ function SeasonRewards.setPremium(data: PlayerData.Data): boolean
 		return false
 	end
 	data.season.premium = true
-	PlayerData.grantOwned(data.titles, Season.PREMIUM_TITLE)
+	PlayerData.grantTitle(data, Season.PREMIUM_TITLE)
 	return true
 end
 

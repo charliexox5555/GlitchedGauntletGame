@@ -6,7 +6,8 @@
 -- LockerSkins only ever lists owned pairs, so an old save that equipped a skin
 -- the player doesn't own shows Stock (2026-11-20: "wipe out all gun skins").
 --
--- LockerRequest (client -> server): ("equip", gunId, line). Type-checked,
+-- LockerRequest (client -> server): ("equip", gunId, line) | ("title", name or "": an owned
+-- title on, or off; lobby only, saved in PlayerData `titles`). Type-checked,
 -- rate-limited, and only pairs whose skin model exists (Shared/Locker.valid).
 -- The server publishes the equipped choices in LockerSkins; clients read it.
 --
@@ -235,6 +236,29 @@ end
 local function onRequest(player: Player, action: unknown, gunId: unknown, line: unknown)
 	if not limiter:allow(player, "LockerRequest") then
 		reject("rate")
+		return
+	end
+	if action == "title" then
+		-- ("title", name) puts an owned title on; ("title", "") takes it off
+		if typeof(gunId) ~= "string" or #gunId > 40 or PlayZone.get(player) ~= "Lobby" then
+			reject("badArgs")
+			return
+		end
+		local name: string? = if gunId == "" then nil else gunId
+		local known = PlayerDataService.get(player)
+		if not known or known.titles.on == name then
+			return
+		end
+		if name and not table.find(known.titles.owned, name) then
+			reject("notOwned")
+			return
+		end
+		PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
+			if data.titles.on == name or not PlayerData.setTitle(data, name) then
+				return false, "nothing"
+			end
+			return true
+		end)
 		return
 	end
 	if typeof(action) ~= "string" or action ~= "equip" then

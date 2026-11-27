@@ -11,6 +11,10 @@
 -- The button: OPEN LOCKER on your own card, INVITE TO PARTY on someone
 -- else's (the same request the player list's INVITE sends; the server
 -- validates and rate-limits it: server/Services/PartyService).
+-- Titles (2026-11-27, vault/04 Tech/Battle Pass Build Plan.md phase 5): the TITLE plate in
+-- the tags row shows anyone's equipped title (the "Title" state value). On your own card
+-- it reads NO TITLE when none is on, and a click opens TITLES: every title you own plus
+-- NONE; a pick goes to LockerRequest ("title", name). A newly earned title toasts here.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,6 +24,8 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Config = require(ReplicatedStorage.Lobby.Config)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local LobbyHud = require(script.Parent.LobbyHud)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -33,11 +39,15 @@ local C = LobbyKit.C
 local MAX_SKINS = 4
 local STREAK_HOT = Color3.fromHex("FF7026")
 local STREAK_COLD = Color3.fromHex("252528")
+local TITLE_ON = Color3.fromHex("FFC83D")
+local TITLE_OFF = Color3.fromHex("2A2A31")
 
 local gui: ScreenGui
 local card: Frame
 local skinTemplate: Frame
 local shown: Player? = nil
+local titleList: Frame
+local optionTemplate: TextButton
 local sentAt: { [number]: number } = {}
 
 local function child<T>(parent: Instance, name: string): T
@@ -105,6 +115,20 @@ local function fill(p: Player)
 	local streakText = streakTag:FindFirstChild("Label")
 	if streakText and streakText:IsA("TextLabel") then
 		streakText.TextColor3 = if hot then C.ink else C.white
+	end
+	local titleTag = tags:FindFirstChild("Title")
+	if titleTag and titleTag:IsA("Frame") then
+		local title = PlayerData.title(p)
+		local mine = p == player
+		titleTag.Visible = mine or title ~= nil
+		setTag(titleTag, title or "NO TITLE")
+		local pickB = titleTag:FindFirstChild("Pick")
+		if pickB and pickB:IsA("GuiObject") then
+			pickB.Visible = mine
+		end
+		if not mine and titleList then
+			titleList.Visible = false
+		end
 	end
 	local xpBar = card:FindFirstChild("XpBar")
 	if xpBar then
@@ -186,6 +210,7 @@ local REFRESH: { [string]: boolean } = {
 	Matches = true,
 	Wins = true,
 	Kills = true,
+	Title = true,
 }
 local watching: RBXScriptConnection? = nil
 local function watch(p: Player?)
@@ -199,6 +224,84 @@ local function watch(p: Player?)
 				fill(p)
 			end
 		end)
+	end
+end
+
+-- TITLES: every owned title (the one on in gold), then NONE.
+local function fillTitleList()
+	for _, c in titleList:GetChildren() do
+		if c:IsA("TextButton") and c ~= optionTemplate then
+			c:Destroy()
+		end
+	end
+	local titles = PlayerData.titles(player)
+	local rows: { string? } = {}
+	for _, name in titles.owned do
+		table.insert(rows, name)
+	end
+	local function add(name: string?, order: number)
+		local b = optionTemplate:Clone()
+		b.Name = "Pick"
+		b.LayoutOrder = order
+		b.Visible = true
+		local on = titles.on == name
+		b.BackgroundColor3 = if on then TITLE_ON else TITLE_OFF
+		local label = child(b, "Label") :: TextLabel
+		label.Text = if name then string.upper(name) else "NONE"
+		label.TextColor3 = if on then C.ink else C.white
+		LobbyKit.button(b, function()
+			titleList.Visible = false
+			if not on then
+				LobbyNet.event("LockerRequest"):FireServer("title", name or "")
+			end
+		end)
+		b.Parent = titleList
+	end
+	for i, name in rows do
+		add(name, i)
+	end
+	add(nil, #rows + 1)
+end
+
+local function toggleTitleList()
+	if shown ~= player then
+		return
+	end
+	if titleList.Visible then
+		titleList.Visible = false
+		return
+	end
+	if #PlayerData.titles(player).owned == 0 then
+		LobbyHud.toast("No titles yet: the Task Path and the Season Pass give them", "info")
+		return
+	end
+	fillTitleList()
+	titleList.Visible = true
+end
+
+-- A title just earned: a toast, pointing to the profile when it didn't go on by itself.
+local knownTitles: { [string]: boolean }? = nil
+local function onTitles()
+	if StateValues.get(player, "DataReady") ~= true then
+		knownTitles = nil -- the save isn't in yet: what loads with it isn't new
+		return
+	end
+	local titles = PlayerData.titles(player)
+	local before = knownTitles
+	knownTitles = {}
+	for _, name in titles.owned do
+		(knownTitles :: { [string]: boolean })[name] = true
+		if before and not before[name] then
+			LobbyHud.toast(
+				if titles.on == name
+					then `NEW TITLE: {string.upper(name)} (EQUIPPED)`
+					else `NEW TITLE: {string.upper(name)}. EQUIP IT ON YOUR PROFILE`,
+				"success"
+			)
+		end
+	end
+	if titleList and titleList.Visible then
+		fillTitleList()
 	end
 end
 
@@ -242,6 +345,12 @@ function ProfileController.init()
 	Plates.deepen(gui)
 	local action = child(card, "Action") :: TextButton
 	LobbyKit.button(action, act)
+	titleList = child(card, "TitleList") :: Frame
+	titleList.Visible = false
+	optionTemplate = child(titleList, "Option") :: TextButton
+	optionTemplate.Visible = false
+	local titleTag = child(child(card, "Tags"), "Title") :: Frame
+	LobbyKit.button(child(titleTag, "Pick") :: GuiButton, toggleTitleList)
 	LobbyKit.page({
 		name = "Profile",
 		gui = gui,
@@ -259,8 +368,28 @@ function ProfileController.init()
 	Router.onChanged(function(name: string?)
 		if name ~= "Profile" then
 			watch(nil)
+			titleList.Visible = false
 		end
 	end)
+	-- your titles: the list and the new-title toast follow the published value
+	local function watchTitles(v: Instance)
+		if v.Name == PlayerData.TITLES and v:IsA("StringValue") then
+			v.Changed:Connect(onTitles)
+			onTitles()
+		end
+	end
+	local existing = player:FindFirstChild(PlayerData.TITLES)
+	if existing then
+		watchTitles(existing)
+	else
+		local conn: RBXScriptConnection
+		conn = player.ChildAdded:Connect(function(v)
+			if v.Name == PlayerData.TITLES then
+				conn:Disconnect()
+				watchTitles(v)
+			end
+		end)
+	end
 	-- someone leaving while you look at them closes their card
 	Players.PlayerRemoving:Connect(function(p: Player)
 		if shown == p and Router.current() == "Profile" then

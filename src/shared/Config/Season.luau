@@ -27,6 +27,9 @@ Season.MAX_MATCH_ROUNDS = 20
 Season.PREMIUM_ROBUX = 689
 Season.SKIP_ROBUX = 499
 Season.SKIP_TIERS = 5
+-- A random-gun skin tier when the player already has that line on every gun: these coins.
+Season.SKIN_FALLBACK_COINS = 500
+
 -- Given the moment premium is bought (Lobby/SeasonRewards.setPremium).
 Season.PREMIUM_TITLE = "SEASON 1"
 

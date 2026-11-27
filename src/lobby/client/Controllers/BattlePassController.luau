@@ -134,6 +134,8 @@ local function rewardDesc(r: SeasonCatalog.Reward): string
 		return "COINS FOR THE SHOP"
 	elseif r.kind == "Case" then
 		return "x1 CASE  ·  SEE ITS CONTENTS FOR THE ODDS"
+	elseif r.kind == "Skin" and not r.gun then
+		return string.format("%s SKIN  ·  FOR A RANDOM GUN YOU OWN", string.upper(r.rarity or ""))
 	elseif r.kind == "Skin" then
 		local cfg = r.gun and Weapons.get(r.gun)
 		return string.format(
@@ -168,9 +170,14 @@ local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?)
 	elseif r.kind == "Case" then
 		local c = r.case and ShopCatalog.case(r.case)
 		art.Image = if c then c.art or "" else ""
-	elseif r.kind == "Skin" then
-		art.Image = if r.gun then Theme.GUN[r.gun] or "" else ""
+	elseif r.kind == "Skin" and r.gun then
+		art.Image = Theme.GUN[r.gun] or ""
 		art.ImageColor3 = if r.line then (Locker.COLORS[r.line] or WHITE) else WHITE
+	elseif r.kind == "Skin" then
+		-- a random-gun skin: the line's colour as a card until its art exists (phase 8)
+		swatch.Visible = true
+		swatch.BackgroundColor3 = if r.line then (Locker.COLORS[r.line] or WHITE) else WHITE;
+		(child(swatch, "Kind") :: TextLabel).Text = "SKIN"
 	else
 		swatch.Visible = true
 		swatch.BackgroundColor3 = KIND_COLOR[r.kind]
@@ -304,7 +311,10 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 		if image then
 			art.Image = image
 		elseif r then
-			card.BackgroundColor3 = KIND_COLOR[r.kind]
+			card.BackgroundColor3 = (
+				if r.kind == "Skin" and r.line then Locker.COLORS[r.line] else nil
+			)
+				or KIND_COLOR[r.kind]
 				or (if r.rarity then ShopCatalog.RARITY_COLOR[r.rarity] else nil)
 				or WHITE;
 			(child(card, "Kind") :: TextLabel).Text = string.upper(r.kind)

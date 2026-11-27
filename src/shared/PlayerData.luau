@@ -124,6 +124,7 @@ PlayerData.GUNS = "LockerGuns"
 PlayerData.DAILY = "DailyShop"
 PlayerData.TASKS = "Tasks"
 PlayerData.SEASON = "Season" -- the season pass state (Shared/SeasonPass), JSON
+PlayerData.TITLES = "Titles" -- owned titles + the one on (JSON); the one on is also the "Title" state value
 local MAX_LINES_PER_GUN = 64
 local MAX_OWNED = 64
 local MAX_NAME = 40
@@ -182,6 +183,28 @@ function PlayerData.grantOwned(o: Owned, name: string): boolean
 		return false
 	end
 	table.insert(o.owned, name)
+	return true
+end
+
+-- Gives a title (the pass, the Task Path's Champion). A new title goes on by itself only
+-- when no title is on (vault/04 Tech/Battle Pass Build Plan.md, phase 5); otherwise the
+-- client's toast points to the profile. False if it was already owned.
+function PlayerData.grantTitle(data: Data, name: string): boolean
+	if not PlayerData.grantOwned(data.titles, name) then
+		return false
+	end
+	if data.titles.on == nil then
+		data.titles.on = name
+	end
+	return true
+end
+
+-- Equips an owned title, or takes it off with nil. False if not owned.
+function PlayerData.setTitle(data: Data, name: string?): boolean
+	if name ~= nil and not table.find(data.titles.owned, name) then
+		return false
+	end
+	data.titles.on = name
 	return true
 end
 
@@ -270,6 +293,10 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	data.season = SeasonPass.clean((raw :: any).season)
 	data.charms = PlayerData.cleanOwned((raw :: any).charms)
 	data.titles = PlayerData.cleanOwned((raw :: any).titles)
+	-- Champion was only kept in the Task Path before titles existed (2026-11-27): move it in
+	if data.tasks.title then
+		PlayerData.grantTitle(data, data.tasks.title)
+	end
 	local earn = (raw :: any).earn
 	if typeof(earn) == "table" then
 		local day, got = count(earn.day, 1e7), count(earn.coins, Inventory.MAX_COINS)
@@ -461,6 +488,8 @@ function PlayerData.publish(player: Player, data: Data?)
 	setJson(player, PlayerData.DAILY, if data then data.daily else DailyShop.new())
 	setJson(player, PlayerData.TASKS, if data then data.tasks else TaskPath.new())
 	setJson(player, PlayerData.SEASON, if data then data.season else SeasonPass.new())
+	setJson(player, PlayerData.TITLES, if data then data.titles else { owned = {} })
+	StateValues.set(player, "Title", if data then data.titles.on or "" else "")
 	-- Inventory last: clients listen to it, and the skins must already be there
 	setJson(player, PlayerData.REPLICA, shown)
 end
@@ -528,6 +557,22 @@ function PlayerData.daily(player: Player): DailyShop.Daily
 	end
 	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
 	return if ok then DailyShop.clean(decoded) else DailyShop.new()
+end
+
+-- The published titles (owned + on), empty until the save loads.
+function PlayerData.titles(player: Player): Owned
+	local value = player:FindFirstChild(PlayerData.TITLES)
+	if not (value and value:IsA("StringValue")) or value.Value == "" then
+		return { owned = {} }
+	end
+	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
+	return if ok then PlayerData.cleanOwned(decoded) else { owned = {} }
+end
+
+-- Any player's equipped title as shown (upper case), or nil. Every client can read it.
+function PlayerData.title(player: Player): string?
+	local v = StateValues.get(player, "Title")
+	return if typeof(v) == "string" and v ~= "" then string.upper(v) else nil
 end
 
 -- The published season pass state (a fresh one until the save loads).

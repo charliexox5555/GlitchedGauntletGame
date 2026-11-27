@@ -2,6 +2,15 @@
 
 First full list of what's in the Season 1 pass, for the owner to go through item by item. Powers, skin lines, charms, coins/tickets/cases and titles are owner-approved (2026-11-26). Season: 6 weeks, a tier per 30 min or 25 rounds won. Still open: final names. It replaces the placeholder tiers in `src/lobby/shared/SeasonCatalog.luau` once approved. The screen is in [UI Battle Pass](../02%20Art/UI%20Battle%20Pass.md).
 
+## Changes (owner, 2026-11-27, after the loadout update)
+- **Skins go to a random gun.** Like RIVALS' wraps, but these are real skins, not wraps. A skin tier names only its line. When it's claimed, the server rolls a gun the player **owns** that doesn't have that line yet. If they have it on every gun they own, it rolls from the guns they don't own yet; if every gun has it, the tier pays 500 coins (`Config/Season.SKIN_FALLBACK_COINS`). The Frostbite Knife (tier 30) stays fixed. In the table below, the gun names now only say which line each tier is; built in `Lobby/SeasonRewards.resolve`.
+- **Coins raised** (guns now cost 400-6,000, the set 30,900):
+  - Premium: 500 / 650 / 750 / 900 / 1,000 / 1,200 = **5,000**, at tiers 3 / 7 / 11 / 16 / 22 / 27.
+  - Free: 200 / 300 / 400 / 500 / 600 = **2,000**, at tiers 1 / 12 / 20 / 28 / 30.
+  - In `SeasonCatalog`.
+- **Goodie bags join Season 1.** A pass reward that opens into other things, like RIVALS' bags with wrap boxes, finisher packs and charm capsules. Not built; the proposal and open questions are in [Handoff - Battle Pass Build](../05%20Production/Handoff%20-%20Battle%20Pass%20Build%202026-11-27.md#e-goodie-bags).
+- **Owner note:** "I'm not gonna make new skins for things." To confirm: do Arcade and Frostbite still get made, or do pass skins reuse existing lines? See the handoff.
+
 ## Frame (kept from the placeholder)
 - 30 tiers. Free track for everyone, premium track **689 Robux**, **+5 levels 499 Robux**.
 - A late premium buyer gets every premium tier already reached. Unclaimed rewards are paid when the season ends.
@@ -58,7 +67,7 @@ First full list of what's in the Season 1 pass, for the owner to go through item
 | Skins | 1 (Arcade Classic) | 11 (7 Arcade, 4 Frostbite incl. Knife) |
 | Charms | 2 | 6 |
 | Powers | Smoke at 10 | Electric Shock at 20 (premium only) |
-| Coins | 1,000 | 2,250 |
+| Coins | 2,000 (was 1,000) | 5,000 (was 2,250) |
 | Tickets | 2 | 3 |
 | Cases | 2 Standard | 1 Standard, 2 Elite, 1 Apex |
 | Titles | — | SEASON 1 (on buying), FROSTBITTEN (tier 30) |

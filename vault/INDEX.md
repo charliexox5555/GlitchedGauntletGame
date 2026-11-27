@@ -49,6 +49,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Bots.md` (29): AI bots: seats, brain, perception, aim, Mods, tuning
 - `05 Production/Bot Redesign 2026-11-17.md`: shooter research, movement and Mod redesign, difficulty profiles, Studio test results
 - `05 Production/Launch Hardening 2026-11-27.md`: last pass before the battle pass (loading, bots, onboarding redo, phone/controller UI, economy, full code audit); workstreams and done criteria
+- `05 Production/Handoff - Battle Pass Build 2026-11-27.md`: briefs for the rest of the pass build, for another AI (name tags, match titles, charms, powers, goodie bags, phone/CLAIM ALL/Shop card, art, season end + launch), shared rules, owner questions
 - `05 Production/Handoff - Battle Pass 2026-11-27.md`: owner handoff after launch hardening: what the game is now, battle pass phases done/open, what the new gun prices, gun levels and owned guns mean for the pass, retention levers from the funnels, publish checklist
 - [Shadow Mist idle playtest](05%20Production/Playtests/2026-11-17%20Shadow%20Mist%20Idle.md)
 - [Shadow Mist action polish](05%20Production/Playtests/2026-11-18%20Shadow%20Mist%20Action%20Polish.md)

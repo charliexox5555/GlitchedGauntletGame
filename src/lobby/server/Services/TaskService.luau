@@ -34,6 +34,9 @@ local inFlight = 0
 function TaskService.pay(data: PlayerData.Data, payout: TaskPath.Payout)
 	data.coins = math.min(data.coins + payout.coins, Inventory.MAX_COINS)
 	data.tickets = math.min(data.tickets + payout.tickets, Economy.MAX_TICKETS)
+	if payout.title then
+		PlayerData.grantTitle(data, payout.title)
+	end
 end
 
 -- After the write landed: the toast, and analytics for each finished set.

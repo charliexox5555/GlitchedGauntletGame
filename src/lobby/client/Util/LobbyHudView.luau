@@ -30,6 +30,7 @@ local SettingsApply = require(game:GetService("ReplicatedStorage").Shared.Settin
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local InputGlyphs = require(ReplicatedStorage.Shared.InputGlyphs)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 
@@ -246,6 +247,12 @@ local function openRow(row: Frame, delay: number)
 	end)
 end
 
+local TITLE_GOLD = Color3.fromHex("FFC83D")
+
+local function escapeRich(text: string): string
+	return (text:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
+end
+
 local renderList: () -> ()
 -- Many changes land in one frame (a joining player's state folder fires once per field, a matchmaking
 -- wave moves many players): one rebuild at the end of the frame instead of one per change.
@@ -298,8 +305,18 @@ function renderList()
 		name.TextColor3 = if mine then ALLY else WHITE
 		local where, color = whereOf(p)
 		local whereLabel = child(row, "Where") :: TextLabel
-		whereLabel.Text = where
 		whereLabel.TextColor3 = color
+		-- an equipped title leads the line in gold (Shared/PlayerData.title)
+		local title = PlayerData.title(p)
+		whereLabel.RichText = title ~= nil
+		whereLabel.Text = if title
+			then string.format(
+				'<font color="#%s">%s</font>  ·  %s',
+				TITLE_GOLD:ToHex(),
+				escapeRich(title),
+				escapeRich(where)
+			)
+			else where
 		local lv = child(child(row, "Level"), "Value") :: TextLabel
 		lv.Text = tostring(numberAttr(p, "Level", 1))
 		local streak = child(row, "Streak") :: Frame
@@ -376,6 +393,7 @@ local function watch(p: Player)
 			or name == "QueueMode"
 			or name == "Level"
 			or name == "WinStreak"
+			or name == "Title"
 		then
 			renderListSoon()
 		end

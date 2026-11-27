@@ -77,5 +77,26 @@
   - **Shop card:** in the launch Shop layout the Season Pass card sits half off the right edge. It needs a slot before launch (phase 9, with `SHOP_FULL_LAYOUT`).
   - **No CLAIM ALL button** on the screen yet. The server action exists.
 
+- **Phase 5 done (2026-11-27): titles.**
+  - `PlayerData.grantTitle` (equips a new title only when none is on) and `setTitle`.
+  - Champion moves in from `tasks.title` on load and through `TaskService.pay`.
+  - The pass titles go through `grantTitle`.
+  - Equip with `LockerRequest ("title", name or "")`: lobby only, owned only.
+  - Published as the `Titles` JSON and the `Title` state value for every player.
+  - The profile card has a TITLE plate and a TITLES list (Studio: `ServerStorage.LobbyUI.Profile`: `Card.Tags.Title`, `Card.TitleList`).
+  - The lobby player list shows the title in gold.
+  - A toast for a new title.
+  - Also: **random-gun skins** (`SeasonRewards.resolve` / `rollGun`) and **coins raised** to premium 5,000 / free 2,000 (owner 2026-11-27).
+
+  Studio:
+  - Champion moved in and went on.
+  - Two random Arcade skins went to owned guns (Havoc, Hornet), with no repeat.
+  - Off / on / forged title worked.
+  - A fake premium purchase added SEASON 1 without replacing Champion, and the toast showed.
+  - The TITLES list equipped SEASON 1, and the plate and player list followed.
+  - The save and Workspace were restored.
+
+  The rest is briefed for another AI in [Handoff - Battle Pass Build](../05%20Production/Handoff%20-%20Battle%20Pass%20Build%202026-11-27.md).
+
 ## Rules for every phase
 `--!strict`. Every number lives in `SeasonCatalog`/Config. The server is the only source for progress, claims and grants. Every remote validates types, rejects non-finite numbers and is rate-limited. One save per match, and a txId on every grant so nothing pays twice.
