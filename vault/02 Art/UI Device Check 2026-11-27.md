@@ -114,3 +114,31 @@ Workstream 4 of [Launch Hardening 2026-11-27](../05%20Production/Launch%20Harden
 - **3v3 scorebug on an iPhone 7:** about 0.35 scale. If that reads small on a real phone, hide the headshots below a size on phones.
 - **Not covered this pass:** the SURGE pack popup and world-space opening, the Backpack, Rewards, death screen, match end and loading screen on phones. They were checked in parts 4-6 of UI Architecture, but not re-captured. Loading belongs to the loading-perf session.
 - **Owner:** save the place (two Studio template edits: the KillFeed PhoneBoost and the Notify PhonePosition), then play once on a real phone and with a pad.
+
+## Wave 2: code-audit fixes in the UI (2026-11-27)
+Routed from [Code Audit 2026-11-27](../04%20Tech/Code%20Audit%202026-11-27.md) → mobile-ui and the client P3 perf list.
+
+**Bugs:**
+- **P2, the Locker vs a pad duel:** a duel (or the range) that started with the Locker open showed the lobby HUD over the duel 0.3 s later. The Locker's close wipe re-enabled the screens it had hidden, which ArmedHide never tracked. After restoring them, the Locker now calls `ArmedHideController.refresh()`, which takes them over while armed.
+- **ShopDisplays:** a ShopBoard missing a part is skipped with a warning, so it doesn't stop the other boards, and each board mounts in its own thread (no chain of 5 s waits).
+- **Shop:** the bundle "separately" `Amount` label is guarded.
+
+**Template waits:** `Shared/Util/UiWait.child` waits up to 10 s, then raises "<path> is missing (Studio template)".
+- **Used in:** KillFeed, MatchHud (Notify), Scoreboard, TopBar, MatchEndScreen, StatusTray, Shop `child()` and StreakSave.
+- **Kill feed, round banner and status tray** bind under `pcall`: a missing part leaves that screen off with a warning instead of hanging it.
+- **StatusTray** checks its entry template once at bind, so nothing yields in the render step.
+- **Not changed:** `Util/WaitGui` waits for a whole screen to be mounted on purpose (a late first spawn).
+
+**Per frame (measured in Studio where it could be):**
+
+| Where | Before | After |
+|---|---|---|
+| BottomHud health panel (desktop, every frame) | 10.0 µs a frame, ~40 writes | **0.83 µs at rest** (an early return; it still animates on a hit or at low health) |
+| LobbyGunDisplays (lobby spawn view) | 9 gun pivots a frame (in range) | **0** (only on-screen guns turn, and none under a menu) |
+| StatusTray | icon, text, colour and 24 segments written every frame per entry, plus a new table a frame | writes only changes; the table is reused |
+| ModHud | 3 `ModInfo` tables a frame | 1 reused per slot |
+| PadDuelController | `GetTagged` every 0.1 s | waits for each pad's `PadMode` once |
+| CaseShow | no cap on other players' openings | at most `MAX_ONLOOKER_SHOWS` = 2, one per player |
+| Locker POWERS | grid rebuilt (~20 clones) on every save change | rebuilt only when the owned set changes |
+
+**Not a bug:** the audit's "Shop and Locker buttons overlap" at 1919 wide. For a new player Shop is hidden, and `layoutBar` only moves visible buttons, so the hidden Shop kept an old spot over the Locker. A click there hits the Locker, which is correct.
