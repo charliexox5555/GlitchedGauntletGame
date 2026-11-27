@@ -372,6 +372,7 @@ local function gunChoice(player: Player, actionArg: unknown, idArg: unknown): (b
 	savingGuns[player] = nil
 	if ok and action == "unlock" then
 		Telemetry.event(player, "GunUnlocked", price or 0, id)
+		Telemetry.onboardingV3(player, Telemetry.V3.FIRST_GUN, id)
 	end
 	return ok, if ok then nil else (reason or "failed")
 end

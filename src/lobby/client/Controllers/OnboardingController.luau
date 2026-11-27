@@ -79,6 +79,16 @@ local function sendSeen(b: number)
 	LobbyNet.event("OnboardingRequest"):FireServer("seen", b)
 end
 
+-- Onboarding_v3 funnel steps only the client sees (OnboardingService "step"): once per session each.
+local stepSent: { [string]: boolean } = {}
+local function sendStep(key: string)
+	if stepSent[key] then
+		return
+	end
+	stepSent[key] = true
+	LobbyNet.event("OnboardingRequest"):FireServer("step", key)
+end
+
 local function markSeen(id: string)
 	local b = Onboarding.bitOf(id)
 	if b then
@@ -147,6 +157,9 @@ local function apply()
 		LobbyHudView.callout(dueId, dueText)
 	end
 	LobbyHudView.highlight(if unlockGun then "Locker" else nil)
+	if unlockGun and ready() then
+		sendStep("callout")
+	end
 	LobbyHudView.setItemArg("Locker", if unlockGun then { gun = unlockGun } else nil)
 	local shortcut = Onboarding.playShortcut(matches, level)
 	LobbyHudView.setPlay(
@@ -264,6 +277,43 @@ function OnboardingController.start()
 	do
 		player:GetAttributeChangedSignal(attr):Connect(refresh)
 	end
+	-- Onboarding_v3 "First move in lobby": the first walk or jump in the lobby before match 1.
+	local function watchFirstMove(char: Model)
+		if stepSent.moved or num("Matches", 0) > 0 then
+			return
+		end
+		local humanoid = char:FindFirstChildOfClass("Humanoid") or char:WaitForChild("Humanoid", 10)
+		if not (humanoid and humanoid:IsA("Humanoid")) then
+			return
+		end
+		local conns: { RBXScriptConnection } = {}
+		local function check()
+			if stepSent.moved or num("Matches", 0) > 0 then
+				for _, c in conns do
+					c:Disconnect()
+				end
+				table.clear(conns)
+				return
+			end
+			if (humanoid.MoveDirection.Magnitude > 0.1 or humanoid.Jump) and ready() then
+				sendStep("moved")
+				check()
+			end
+		end
+		table.insert(conns, humanoid:GetPropertyChangedSignal("MoveDirection"):Connect(check))
+		table.insert(conns, humanoid:GetPropertyChangedSignal("Jump"):Connect(check))
+		table.insert(
+			conns,
+			char.AncestryChanged:Connect(function()
+				if not char:IsDescendantOf(game) then
+					for _, c in conns do
+						c:Disconnect()
+					end
+					table.clear(conns)
+				end
+			end)
+		)
+	end
 	local function watchCharacter(char: Model)
 		task.spawn(function()
 			if
@@ -272,6 +322,7 @@ function OnboardingController.start()
 				refresh()
 			end
 		end)
+		task.spawn(watchFirstMove, char)
 	end
 	player.CharacterAdded:Connect(watchCharacter)
 	if player.Character then

@@ -620,6 +620,13 @@ local function close(bed: Sound?)
 	task.delay(out, function()
 		blur:Destroy()
 	end)
+	-- Onboarding_v3 "Loading screen closed" (the player can act). Sent before the attribute flips, so it always
+	-- reaches the server before the lobby's "moved"; the server decides whether it counts (new players only).
+	local remotes = ReplicatedStorage:FindFirstChild("LobbyRemotes") -- Lobby/LobbyNet
+	local request = remotes and remotes:FindFirstChild("OnboardingRequest")
+	if request and request:IsA("RemoteEvent") then
+		request:FireServer("step", "loaded")
+	end
 	player:SetAttribute("LoadingScreen", false)
 end
 

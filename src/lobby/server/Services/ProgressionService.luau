@@ -148,8 +148,10 @@ function ProgressionService.report(
 				local matches = data and data.prog.matches
 				if matches == 1 then
 					Telemetry.onboarding(player, 12)
+					Telemetry.onboardingV3(player, Telemetry.V3.M1_SAVED, nil, matches)
 				elseif matches == 2 then
 					Telemetry.onboarding(player, 19)
+					Telemetry.onboardingV3(player, Telemetry.V3.M2_SAVED, nil, matches)
 				end
 			end
 			progressEvent:FireClient(player, {

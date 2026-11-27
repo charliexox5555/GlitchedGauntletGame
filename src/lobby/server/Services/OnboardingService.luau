@@ -6,6 +6,9 @@
 -- OnboardingRequest (client -> server):
 --   ("favAsked", favorited: boolean)  the client showed the favorite prompt (and its result)
 --   ("seen", bit: number)             the client showed a HUD unlock's NEW pop (or the first-unlock callout)
+--   ("step", key: string)             an Onboarding_v3 funnel step only the client sees: "loaded" (the loading
+--                                     screen closed), "moved" (first move in the lobby, after "loaded") or
+--                                     "callout" (the first-unlock callout is up; only when the save says it's due)
 -- Both only ever move the saved state forward (asks count up to the cap, bits only
 -- set, favDone only turns on), so a lying client can at most skip its own prompts.
 -- An ask is only counted when the rules say one was due (Shared/Onboarding.favAsk).
@@ -95,7 +98,55 @@ local function onSeen(player: Player, bit: unknown)
 	end)
 	if saved then
 		Telemetry.event(player, "Onboarding unlock viewed", 1, tostring(b))
+		if b == OnbConfig.FIRST_UNLOCK.bit then
+			Telemetry.onboardingV3(player, Telemetry.V3.LOCKER_OPENED)
+		end
 	end
+end
+
+-- Client-only funnel steps: the key picks the step, nothing else is read. Telemetry sends each once, forward only,
+-- in the new-player cohort before match 1 and in a public lobby only, so a lying client can at most mark its own
+-- funnel early; "moved" also needs "loaded" first.
+local CLIENT_STEPS: { [string]: number } = {
+	loaded = Telemetry.V3.LOADING_CLOSED,
+	moved = Telemetry.V3.FIRST_MOVE,
+	callout = Telemetry.V3.LOCKER_SHOWN,
+}
+
+local function onStep(player: Player, key: unknown)
+	if typeof(key) ~= "string" or #key > 8 then
+		reject("badStep")
+		return
+	end
+	local step = CLIENT_STEPS[key]
+	if not step then
+		reject("badStep")
+		return
+	end
+	if
+		step == Telemetry.V3.FIRST_MOVE
+		and not Telemetry.onboardingV3Sent(player, Telemetry.V3.LOADING_CLOSED)
+	then
+		reject("stepOrder")
+		return
+	end
+	if step == Telemetry.V3.LOCKER_SHOWN then
+		local cached = PlayerDataService.get(player)
+		if
+			not cached
+			or Onboarding.firstUnlock(
+					cached.prog.matches,
+					cached.onb.seen,
+					cached.guns.owned,
+					cached.coins
+				)
+				== nil
+		then
+			reject("calloutNotDue")
+			return
+		end
+	end
+	Telemetry.onboardingV3(player, step)
 end
 
 local function onBackpackOpened(player: Player)
@@ -131,6 +182,8 @@ local function onRequest(player: Player, action: unknown, arg: unknown)
 		onSeen(player, arg)
 	elseif action == "backpackOpened" then
 		onBackpackOpened(player)
+	elseif action == "step" then
+		onStep(player, arg)
 	else
 		reject("badAction")
 	end
@@ -148,6 +201,7 @@ function OnboardingService.start()
 		local data = PlayerDataService.get(player)
 		if data and data.prog.matches >= 1 and PlayZone.get(player) == "Lobby" then
 			Telemetry.onboarding(player, 13)
+			Telemetry.onboardingV3(player, Telemetry.V3.LOBBY_AFTER_M1, nil, data.prog.matches)
 			if data.prog.matches >= 2 then
 				Telemetry.onboardingV2(player, Telemetry.V2.LOBBY_AFTER_MATCH_2)
 			end

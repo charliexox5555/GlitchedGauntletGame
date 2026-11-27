@@ -23,6 +23,7 @@ local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local HealthLog = require(ReplicatedStorage.Shared.HealthLog)
+local Telemetry = require(game:GetService("ServerScriptService").LobbyServer.Telemetry)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
@@ -467,6 +468,11 @@ local function hostedArrival(player: Player)
 				table.insert(players, other)
 			end
 		end
+		-- Onboarding_v3 "Match 1 server reached" (Telemetry holds it until the save loads, and only counts it
+		-- before match 1)
+		for _, p in players do
+			Telemetry.onboardingV3(p, Telemetry.V3.M1_ARRIVED, "teleport")
+		end
 		hostedEntry = launchInstance(plan, players, true)
 		return
 	end
@@ -482,6 +488,7 @@ local function hostedArrival(player: Player)
 		return
 	end
 	table.insert(entry.players, player)
+	Telemetry.onboardingV3(player, Telemetry.V3.M1_ARRIVED, "teleport")
 	PlayZone.set(player, "Match", entry.id)
 	if entry.context then
 		entry.context.addPlayer(player)

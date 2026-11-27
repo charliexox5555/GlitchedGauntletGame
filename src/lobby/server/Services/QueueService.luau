@@ -450,6 +450,12 @@ local function tick()
 	end
 end
 
+-- Onboarding_v3 "Match 1 queued" field 1: did they move in the lobby first ("moved") or get queued standing
+-- still ("still": the auto-queue fires 1.2 s after the loading screen closes).
+local function movedLabel(player: Player): string
+	return if Telemetry.onboardingV3Sent(player, Telemetry.V3.FIRST_MOVE) then "moved" else "still"
+end
+
 -- Puts a group in a mode's queue (keeping `since` when it re-forms).
 local function enqueue(members: { Player }, info: Config.ModeInfo, since: number)
 	local entry: Matchmaker.Entry = { players = members, since = since }
@@ -463,6 +469,7 @@ local function enqueue(members: { Player }, info: Config.ModeInfo, since: number
 		local used = onbLaunched[m] or 0
 		if info.id == "beginner" and matches == 0 and used == 0 then
 			Telemetry.onboarding(m, 2)
+			Telemetry.onboardingV3(m, Telemetry.V3.M1_QUEUED, movedLabel(m))
 		elseif matches == 1 or (matches == 0 and used > 0) then
 			Telemetry.onboarding(m, 17)
 		end
@@ -538,9 +545,15 @@ join = function(player: Player, info: Config.ModeInfo)
 		onbLaunched[player] = used + 1
 		Telemetry.queueStop(player, "Queue switched")
 		Telemetry.onboarding(player, if onboardingMatch == 0 then 2 else 17)
+		if onboardingMatch == 0 then
+			Telemetry.onboardingV3(player, Telemetry.V3.M1_QUEUED, movedLabel(player))
+		end
 		local host = getMatchHost()
 		if IS_STUDIO and host then
 			-- Studio has no teleports: the match runs in this server as a stand-in for its reserved server
+			if onboardingMatch == 0 then
+				Telemetry.onboardingV3(player, Telemetry.V3.M1_ARRIVED, "studio")
+			end
 			setState(player, "idle")
 			updateCounts()
 			host.startDuel(info.id, info.teamSize, { { player }, {} }, true, true)

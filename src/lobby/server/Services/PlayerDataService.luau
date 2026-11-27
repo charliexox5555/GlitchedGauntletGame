@@ -352,8 +352,9 @@ local function load(player: Player)
 		rec.settings = nil
 		rec.settingsSeen = true
 		rec.data = PlayerData.clean(nil, true)
-		Telemetry.cohort(player, rec.data.onb.analytics == true)
+		Telemetry.cohort(player, rec.data.onb.analytics == true, rec.data.prog.matches)
 		Telemetry.onboarding(player, 1)
+		Telemetry.onboardingV3(player, Telemetry.V3.SAVE_READY)
 		Telemetry.event(player, "Save ready seconds", os.clock() - beganLoading)
 		PlayerData.publish(player, rec.data)
 		changedEvent:Fire(player)
@@ -379,8 +380,9 @@ local function load(player: Player)
 			rec.settings = if typeof(raw) == "table" then (raw :: any).settings else nil
 			rec.settingsSeen = true
 			rec.data = PlayerData.clean(raw, true)
-			Telemetry.cohort(player, rec.data.onb.analytics == true)
+			Telemetry.cohort(player, rec.data.onb.analytics == true, rec.data.prog.matches)
 			Telemetry.onboarding(player, 1)
+			Telemetry.onboardingV3(player, Telemetry.V3.SAVE_READY)
 			Telemetry.event(player, "Save ready seconds", os.clock() - beganLoading)
 			PlayerData.publish(player, rec.data)
 			changedEvent:Fire(player)

@@ -1232,6 +1232,21 @@ local function reportStage(
 	end
 end
 
+-- Onboarding_v3: match 1's rounds going live and ending, and round 1 of match 2 and 3 going live (Telemetry sends
+-- each once, at the player's saved-match count).
+local function reportOnboardingRound(round: number, done: boolean)
+	local mode = matchMode()
+	for _, player in Players:GetPlayers() do
+		if firstMatch then
+			Telemetry.onboardingV3Round(player, round, done)
+		end
+		if round == 1 and not done then
+			Telemetry.onboardingV3(player, Telemetry.V3.M2_STARTED)
+			Telemetry.onboardingV3(player, Telemetry.V3.M3_STARTED, mode)
+		end
+	end
+end
+
 -- Everyone in the match gets a stats line, even with nothing on it.
 local function noteFighters()
 	for _, player in Players:GetPlayers() do
@@ -1463,6 +1478,7 @@ local function runMatch(): boolean
 			BotService.setFighting(true)
 			roundStartCounts = { teamState(1), teamState(2) }
 			setPhase("Live", Config.ROUND_TIME)
+			reportOnboardingRound(round, false)
 			local fightRound = doneCount + 1
 			if fightRound <= 4 and not liveReported[fightRound] then
 				liveReported[fightRound] = true
@@ -1499,6 +1515,7 @@ local function runMatch(): boolean
 			-- fun; Weapon/Damage deals nothing in that phase). closeRound locks it.
 			eliminated = someoneOut()
 			winner = roundWinner()
+			reportOnboardingRound(round, true)
 			if fightRound <= 4 and not doneReported[fightRound] then
 				doneReported[fightRound] = true
 				doneCount = fightRound
