@@ -48,6 +48,35 @@ Workstream 4 of [Launch Hardening 2026-11-27](../05%20Production/Launch%20Harden
 - **Checked live:** gamepad B closes the Shop. The Shop's selection lands on a case.
 - **Not checked live:** the draft and the Locker on a real pad. Studio's MCP keyboard tool sends keyboard input (`GamepadEnabled` stays false). The controller emulator needs clicking through its panel, which didn't fit the shared Studio slot.
 
+## UI instance count per player (loading pass, routed from loading-perf)
+[Loading and Performance 2026-11-27 → Routed](../04%20Tech/Loading%20and%20Performance%202026-11-27.md) measured about 8,500 PlayerGui instances per player, even on match servers.
+
+**Where they came from:**
+- **StarterGui** held two screens, and Roblox copies StarterGui to every player on every server:
+  - `LockerV2`: 603 instances, unused since `LOCKER_V3 = true`;
+  - `LockerV3`: 523 instances, run only on lobby servers.
+- **`LockerV3Room`** (963 instances, 3,000 studs out) was Persistent, so every client got it.
+- **`UI.Mockups`** (TouchMockup, 186 instances, read by no code) shipped in every client's PlayerScripts.
+- **Admin and dev screens** (AdminPanelGui ~2,740, ModDevPanel, WeaponPicker) are built only for admins. They inflate Studio counts but don't reach players.
+
+**Changes (Studio edits: save the place):**
+- `StarterGui.LockerV2` and `UI.Mockups` moved to `ServerStorage.UiArchive`. That's reversible, and nothing in it reaches clients. StarterGui is now empty.
+- `StarterGui.LockerV3` moved to `UI.Lobby.LockerV3`, so `Shared/UiRoot` mounts it on lobby servers only. Its `Fit` scales are marked `CustomFit` (in the template and by `LockerV3Controller`), so `UiLayout` leaves them to the Locker's `fit()`.
+- `LockerV3Room.ModelStreamingMode` is now **PersistentPerPlayer**. `LockerService` adds lobby players 3 s after they join, so match servers never send it.
+
+**Measured (Studio, desktop, player-facing PlayerGui = everything but the admin and dev screens):**
+
+| Server | Before | After | Also |
+|---|---|---|---|
+| Match (`ServerRole = Match`, 1v1 bots) | ≈ 2,585 (the after count + LockerV2 603 + LockerV3 523) | **1,459** (24 screens) | Room 963 → **0** on the client. PlayerScripts −186 |
+| Lobby | ≈ 6,884 (the after count + LockerV2 603) | **6,281** (32 screens) | Room still sent, 3 s after join (the Locker needs it). PlayerScripts 5,831 |
+
+**Checked after the move:** the Locker v3 opens with its stage on the lobby.
+
+**Not done:**
+- **Lazy-building the Shop (2,279) and Battle Pass (911):** their controllers bind the whole screen at start, so mounting on first open is a refactor of `ShopController` (~2,800 lines) and `BattlePassController`. It's the biggest lobby win left (about 3,200 instances).
+- `PlayerScripts.UI.Lobby` (3,428 template instances) still ships to match clients, because StarterPlayerScripts copies to everyone. Moving the lobby templates to a lobby-only home needs a loader change in `UiRoot`.
+
 ## Still open
 - **Small lobby text on phones:** LobbyTasks 5 px, LobbyBar labels and the LobbyPlayerList at 6 px (749x381). The lobby HUD's Fit and PhoneBoost need a per-screen phone pass, which is design work.
 - **BottomHud key chips at 1080p:** 9-11 px.

@@ -29,6 +29,7 @@ local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
+local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Validate = require(ReplicatedStorage.Shared.Util.Validate)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
@@ -38,6 +39,8 @@ local Telemetry = require(script.Parent.Parent.Telemetry)
 local LockerService = {}
 
 local SAVE_DELAY = 6 -- seconds after the last equip (Roblox: ~1 write per key per 6 s)
+local LOCKER_ROOM = "LockerV3Room" -- Workspace model (tools/studio/BuildLockerRoom.luau)
+local ROOM_DELAY = 3 -- s after joining before the Locker stage is sent
 local MIN_GAP = 6 -- seconds between two writes of one player's key
 
 type Record = {
@@ -426,6 +429,25 @@ function LockerService.start()
 			)
 		end
 	end)
+	-- The Locker v3 stage (Workspace.LockerV3Room, ~960 parts 3,000 studs out) is PersistentPerPlayer (set in
+	-- Studio): only lobby players get it, a little after they join so it doesn't compete with the lobby's first
+	-- stream. Match servers never send it (loading pass 2026-11-27, vault/02 Art/UI Device Check 2026-11-27.md).
+	if ServerRole.get() == "Lobby" then
+		local room = workspace:FindFirstChild(LOCKER_ROOM)
+		if room and room:IsA("Model") then
+			local function give(p: Player)
+				task.delay(ROOM_DELAY, function()
+					if p.Parent == Players and room.Parent then
+						room:AddPersistentPlayer(p)
+					end
+				end)
+			end
+			Players.PlayerAdded:Connect(give)
+			for _, p in Players:GetPlayers() do
+				give(p)
+			end
+		end
+	end
 	-- skins loaded or granted: re-filter what this player wears
 	PlayerDataService.changed:Connect(publish)
 	Players.PlayerAdded:Connect(load)

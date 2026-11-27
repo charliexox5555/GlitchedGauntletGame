@@ -1366,16 +1366,24 @@ function LockerV3Controller.start()
 	if not LobbyConfig.LOCKER_V3 then
 		return
 	end
+	-- The screen lives in PlayerScripts.UI.Lobby (2026-11-27: was StarterGui, which also copied it into every
+	-- match server) and Shared/UiRoot mounts it on lobby servers only.
 	local g = player:WaitForChild("PlayerGui"):WaitForChild("LockerV3", 20)
 	if not (g and g:IsA("ScreenGui")) then
 		warn(
-			"[LockerV3] StarterGui.LockerV3 missing (tools/studio/BuildLockerV3.luau + PromoteLockerV3.luau)"
+			"[LockerV3] UI.Lobby.LockerV3 missing (tools/studio/BuildLockerV3.luau + PromoteLockerV3.luau)"
 		)
 		return
 	end
 	gui = g
 	gui.Enabled = false
 	gui.ResetOnSpawn = false
+	-- fit() owns this screen's "Fit" scales (Shared/UiLayout leaves CustomFit ones alone)
+	for _, d in gui:GetDescendants() do
+		if d:IsA("UIScale") and d.Name == "Fit" then
+			d:SetAttribute("CustomFit", true)
+		end
+	end
 	left = find(gui, "Left") :: Frame
 	right = find(gui, "Right") :: Frame
 	top = find(gui, "Top") :: Frame
