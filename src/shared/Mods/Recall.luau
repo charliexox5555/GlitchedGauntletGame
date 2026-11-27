@@ -149,14 +149,17 @@ end
 -- (Services/ModRecall): it hands its hook in when it loads (before
 -- ModService starts the Mods' server hooks), so shared code never requires
 -- server code.
-local serverHook: ((api: Types.ServerApi) -> ())? = nil
+-- One hook per match kit (a lobby server runs several; one shared slot let a kit that loaded later
+-- hand its guard to another match), taken once by that kit's ModService.start.
+local serverHooks: { [string]: (api: Types.ServerApi) -> () } = {}
 
-function Recall.bindServer(hook: (api: Types.ServerApi) -> ())
-	serverHook = hook
+function Recall.bindServer(matchId: string, hook: (api: Types.ServerApi) -> ())
+	serverHooks[matchId] = hook
 end
 
 module.server = function(api: Types.ServerApi)
-	local hook = serverHook
+	local hook = serverHooks[api.matchId]
+	serverHooks[api.matchId] = nil -- taken: an ended match's kit isn't kept alive by it
 	if hook then
 		hook(api)
 	else

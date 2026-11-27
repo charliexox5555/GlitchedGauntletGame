@@ -1146,6 +1146,7 @@ function ModService.start()
 	RunService.Heartbeat:Connect(stepHeals)
 	-- Mods' own server hooks (passives, damage rules, simulation landings).
 	local api: ModTypes.ServerApi = {
+		matchId = Context.id,
 		slotOf = ModService.slotOf,
 		damage = function(attacker: Player, victim: Model, amount: number, at: Vector3, id: string)
 			WeaponService.damage(attacker, victim, amount, id, at)

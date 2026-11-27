@@ -179,6 +179,8 @@ export type WallSpec = {
 -- damage rule). Damage guards and modifiers run for every hit in the game,
 -- so keep them cheap and return the amount unchanged when they don't apply.
 export type ServerApi = {
+	-- The match (kit) this api belongs to (MatchKit/Context.id): a lobby server runs several at once.
+	matchId: string,
 	-- The slot and level `player` has this Mod in (nil: not slotted).
 	slotOf: (player: Player, id: string) -> (number?, string?),
 	-- Damage from `attacker`'s Mod `id` (kill feed, hit confirm, as ctx.damage).

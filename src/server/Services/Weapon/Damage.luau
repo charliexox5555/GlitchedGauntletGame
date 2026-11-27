@@ -244,6 +244,17 @@ function Damage.hurt(humanoid: Humanoid, amount: number, attacker: Player?): num
 		if attacker and PlayZone.matchId(attacker) ~= PlayZone.matchId(victimPlayer) then
 			return 0
 		end
+	elseif victim and attacker then
+		-- A match's bot (BotService marks it with its match id) only takes a player's damage from that
+		-- same match: arenas 800 studs apart were kept apart by line of sight alone. Range and test
+		-- dummies carry no MatchId, so they're untouched; a whole-server match's players may have none.
+		local botMatch = victim:GetAttribute(PlayZone.MATCH_ID)
+		if typeof(botMatch) == "string" then
+			local mine = PlayZone.matchId(attacker)
+			if PlayZone.get(attacker) ~= "Match" or (mine ~= nil and mine ~= botMatch) then
+				return 0
+			end
+		end
 	end
 	if victim and victim:IsA("Model") then
 		for _, guard in damageGuards do

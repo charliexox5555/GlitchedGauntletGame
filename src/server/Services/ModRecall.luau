@@ -340,7 +340,7 @@ end
 -- Mods/Recall's server hook (run once by ModService.start, in Config/Mods
 -- ORDER: Heal Orb's Barrier guard comes first, so a hit it takes never
 -- reaches this one).
-Recall.bindServer(function(api: ModTypes.ServerApi)
+Recall.bindServer(Context.id, function(api: ModTypes.ServerApi)
 	api.guard(crashGuard(api))
 	api.onRefill(rearm)
 end)
