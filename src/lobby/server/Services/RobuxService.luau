@@ -9,6 +9,10 @@
 --     ("daily", slot)        a Robux-priced slot of the player's saved daily shop
 --     ("starter")            the Starter Bundle (once per player)
 --     ("case", caseId, 1|3)  cases for Robux (only where paid random items are allowed)
+--     ("season")             the season pass premium track (refused once owned)
+--     ("seasonSkip")         +Season.SKIP_TIERS pass tiers (refused at the last tier)
+--   Both season products only while the pass is open (Shared/SeasonPass.open). Pass cases
+--   are not a paid random item check here: the owner's exception (vault/00 Home.md).
 --   The server checks the ask against its own tables and the player's save, then prompts.
 --   For the shared skin products (one per price) it first saves WHICH skin in the player's
 --   data (`buys.intents`, one per product), so the receipt always knows what was paid
@@ -38,6 +42,9 @@ local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local Products = require(ReplicatedStorage.Shared.Config.Products)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local Season = require(ReplicatedStorage.Shared.Config.Season)
+local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
+local SeasonRewards = require(ReplicatedStorage.Lobby.SeasonRewards)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local PlayerDataService = require(script.Parent.PlayerDataService)
@@ -64,7 +71,14 @@ local REASON_TEXT: { [string]: string } = {
 	notSold = "That isn't sold for Robux",
 	promptOpen = "Finish the purchase that's open first",
 	notHere = "Cases can't be bought with Robux where you are: use Tickets",
+	premium = "You already have the Premium Pass",
+	topTier = "Your pass is already at the last tier",
+	passClosed = "The battle pass isn't open right now",
 }
+
+local function passOpen(): boolean
+	return SeasonPass.open(os.time(), RunService:IsStudio())
+end
 
 local function reject(reason: string)
 	rejects[reason] = (rejects[reason] or 0) + 1
@@ -335,6 +349,24 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 			return
 		end
 		prompt(player, product)
+	elseif what == "season" or what == "seasonSkip" then
+		if not passOpen() then
+			fail(player, "passClosed")
+			return
+		end
+		if what == "season" then
+			if known.season.premium then
+				fail(player, "premium")
+				return
+			end
+			prompt(player, Products.SEASON)
+		else
+			if known.season.tier >= Season.TIERS then
+				fail(player, "topTier")
+				return
+			end
+			prompt(player, Products.SEASON_SKIP)
+		end
 	elseif what == "starter" then
 		local product = Products.STARTER
 		if not product then
@@ -366,7 +398,12 @@ local function skinTarget(
 end
 
 -- The grant for one receipt, run inside the save write. Returns the toast line.
-local function grant(data: PlayerData.Data, product: Products.Product, allowCase: boolean): string
+local function grant(
+	data: PlayerData.Data,
+	product: Products.Product,
+	allowCase: boolean,
+	seasonOpen: boolean
+): string
 	local function addCoins(n: number)
 		data.coins = math.min(data.coins + n, Inventory.MAX_COINS)
 	end
@@ -418,6 +455,24 @@ local function grant(data: PlayerData.Data, product: Products.Product, allowCase
 				got > 0
 			then `{got} of {n} cases added (your Backpack is full); coins for the rest`
 			else `+{compensation(product)} coins (cases can't be sold here)`
+	elseif product.kind == "season" then
+		-- the premium track: tiers already reached become claimable (Shared/SeasonPass.canClaim)
+		if not seasonOpen or not SeasonRewards.setPremium(data) then
+			addCoins(compensation(product))
+			return `You already had the Premium Pass: +{compensation(product)} coins`
+		end
+		return `PREMIUM PASS unlocked: claim your rewards on the pass`
+	elseif product.kind == "seasonSkip" then
+		local gained = if seasonOpen then SeasonPass.skip(data.season, Season.SKIP_TIERS) else 0
+		local unused = Season.SKIP_TIERS - gained
+		if unused > 0 then
+			-- past the last tier (or the pass closed): that share of the price back as coins
+			addCoins(math.floor(compensation(product) * unused / Season.SKIP_TIERS))
+		end
+		if gained == 0 then
+			return `Your pass was already at the top: +{compensation(product)} coins`
+		end
+		return `+{gained} pass levels: you're on tier {data.season.tier}`
 	elseif product.kind == "bundle" then
 		local bundle = if product.bundle then ShopCatalog.bundle(product.bundle) else nil
 		local got = 0
@@ -482,6 +537,7 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 	local bundleDef = if product.kind == "bundle" and product.bundle
 		then ShopCatalog.bundle(product.bundle)
 		else nil
+	local seasonOpen = passOpen()
 	local purchaseId = string.sub(tostring(info.PurchaseId), 1, 62)
 	local txId = "r:" .. purchaseId
 	local promptAtReceipt = skinPromptOpen[player]
@@ -498,7 +554,7 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 				gotGun, gotLine = gun, line
 			end
 		end
-		text = grant(data, product, allowCase)
+		text = grant(data, product, allowCase, seasonOpen)
 		table.insert(data.buys.receipts, 1, purchaseId)
 		while #data.buys.receipts > PlayerData.RECEIPT_MEMORY do
 			table.remove(data.buys.receipts)

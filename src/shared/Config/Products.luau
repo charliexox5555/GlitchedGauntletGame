@@ -14,7 +14,10 @@
 --                  prices show Robux first, Tickets as the second option)
 --   kind "skin"    one skin from a fixed `skin` target or a saved purchase intent
 --                  (daily shop slot / bundle item sharing a price-based product)
-export type Kind = "coins" | "bundle" | "starter" | "skin" | "case"
+--   kind "season"      the season pass premium track + its title (Config/Season), once
+--                      per season (2026-11-27, vault/04 Tech/Battle Pass Build Plan.md)
+--   kind "seasonSkip"  Season.SKIP_TIERS more pass tiers, stopping at the last one
+export type Kind = "coins" | "bundle" | "starter" | "skin" | "case" | "season" | "seasonSkip"
 export type Product = {
 	id: number,
 	kind: Kind,
@@ -32,7 +35,23 @@ export type Product = {
 	skin: { gun: string, line: string }?,
 }
 
+local Season = require(script.Parent.Season)
+
 local Products = {}
+
+-- The season pass products (created 2026-11-27; prices from Config/Season).
+Products.SEASON = table.freeze({
+	id = 3736724862,
+	kind = "season",
+	robux = Season.PREMIUM_ROBUX,
+	name = "PREMIUM PASS",
+}) :: Product
+Products.SEASON_SKIP = table.freeze({
+	id = 3736724879,
+	kind = "seasonSkip",
+	robux = Season.SKIP_ROBUX,
+	name = `+{Season.SKIP_TIERS} LEVELS`,
+}) :: Product
 
 Products.RUINED_REAVER = table.freeze({
 	id = 3735030099,
@@ -190,6 +209,8 @@ Products.LIST = table.freeze({
 	table.freeze({ id = 3734910801, kind = "skin", robux = 349, name = "WEAPON SKIN" }),
 	table.freeze({ id = 3734910821, kind = "skin", robux = 449, name = "WEAPON SKIN" }),
 	table.freeze({ id = 3734910842, kind = "skin", robux = 649, name = "WEAPON SKIN" }),
+	Products.SEASON,
+	Products.SEASON_SKIP,
 }) :: { Product }
 
 Products.BY_ID = {} :: { [number]: Product }

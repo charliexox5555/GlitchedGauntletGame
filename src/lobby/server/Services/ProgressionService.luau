@@ -27,8 +27,6 @@ local PlayerDataService = require(script.Parent.PlayerDataService)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
 local TaskService = require(script.Parent.TaskService)
 local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
-local Season = require(ReplicatedStorage.Shared.Config.Season)
-local Release = require(ReplicatedStorage.Shared.Config.Release)
 local Telemetry = require(script.Parent.Parent.Telemetry)
 
 local ProgressionService = {}
@@ -55,11 +53,7 @@ end
 
 -- Does a match now move the season pass?
 local function seasonCounts(now: number): boolean
-	if not (Release.BATTLE_PASS_OPEN or game:GetService("RunService"):IsStudio()) then
-		return false
-	end
-	local ends = Season.endsAt()
-	return Season.STARTS_AT <= now and (ends == nil or now < ends)
+	return SeasonPass.open(now, game:GetService("RunService"):IsStudio())
 end
 
 -- Never yields the caller: the write runs on its own thread.

@@ -52,5 +52,15 @@
 
   Not tested: a real 1v1, a win (first-win bonus), a leaver mid-round, a tier-up from a real match (the maths is covered by the phase 1 checks).
 
+- **Phase 3 done (2026-11-27).** Built:
+  - Two dev products created through Open Cloud (icon `art-source/ui/lobby-icons/pass_v2.png`): **Season 1 Premium Pass** `3736724862` (689) and **Season 1: +5 Levels** `3736724879` (499). In `Config/Products` as `SEASON` / `SEASON_SKIP` (prices from `Config/Season`).
+  - `RobuxRequest` takes `("season")` and `("seasonSkip")`. It refuses when the pass is closed, premium is owned, or the pass is at tier 30.
+  - `RobuxService.grant`: premium runs `SeasonRewards.setPremium`; a repeat buy pays 6,890 coins. Skip runs `SeasonPass.skip`; tiers past 30 pay their share back as coins (999 each). A receipt that arrives while the pass is closed pays coins.
+  - `SeasonPass.open(now, studio)` is now the one "is the pass running" check (used by `ProgressionService` too).
+
+  Studio (Play, fake receipts through `RobuxTestReceipt`, results read from the DataStore): 11 checks passed. Premium and title granted. A late buyer can claim premium tier 3. A repeated receipt id pays once. A second premium buy gives coins. Skip 3→8, 27→30 with 1,996 coins back, at 30 gives 4,990 coins. Both prompts are refused from the client once premium is owned or at tier 30. The save was restored afterwards.
+
+  Not done here: the pass screen doesn't react to the purchase yet. The shop's generic "robux" toast shows the text; phase 4 wires the buttons and the screen.
+
 ## Rules for every phase
 `--!strict`. Every number lives in `SeasonCatalog`/Config. The server is the only source for progress, claims and grants. Every remote validates types, rejects non-finite numbers and is rate-limited. One save per match, and a txId on every grant so nothing pays twice.

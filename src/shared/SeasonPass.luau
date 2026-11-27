@@ -15,6 +15,7 @@
 --   winDay   UTC day of the last first-win bonus
 
 local Season = require(script.Parent.Config.Season)
+local Release = require(script.Parent.Config.Release)
 
 export type Track = "free" | "premium"
 export type State = {
@@ -38,6 +39,17 @@ export type Match = {
 }
 
 local SeasonPass = {}
+
+-- Is the pass running at `now` (os.time)? Off in live servers until Release.BATTLE_PASS_OPEN
+-- (always on in Studio), and only between the season's start and end. Match progress and
+-- pass purchases both check this.
+function SeasonPass.open(now: number, studio: boolean): boolean
+	if not (Release.BATTLE_PASS_OPEN or studio) then
+		return false
+	end
+	local ends = Season.endsAt()
+	return Season.STARTS_AT <= now and (ends == nil or now < ends)
+end
 
 function SeasonPass.new(): State
 	return {
