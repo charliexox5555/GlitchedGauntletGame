@@ -20,9 +20,38 @@ local Router = require(script.Parent.Parent.Util.Router)
 local MatchSettingsButton = {}
 local player = Players.LocalPlayer
 local GAP = 12
+local ROW_GAP = 8 -- px after the touch row's last button
+local RELAYOUT_EVERY = 0.5 -- s: the touch row moves with the device and the touch layout editor
 
 local function shownIn(zone: string): boolean
 	return zone == "Match" or zone == "Range"
+end
+
+-- The last visible button of the touch row under Roblox's buttons (scoreboard, inspect), if touch shows.
+local function touchRowEnd(playerGui: Instance): GuiObject?
+	local touch = playerGui:FindFirstChild("Touch")
+	local root = touch and touch:FindFirstChild("Root")
+	local topLeft = root and root:FindFirstChild("TopLeft")
+	-- (The row keeps its spot while the controls hide between rounds and the Touch screen is off, so Settings
+	-- doesn't jump back up and push the scorebug down.)
+	if not touch or not touch:IsA("ScreenGui") or not root or not topLeft then
+		return nil
+	end
+	local last: GuiObject? = nil
+	for _, name in { "ScoreboardButton", "InspectButton" } do
+		local b = topLeft:FindFirstChild(name)
+		if
+			b
+			and b:IsA("GuiObject")
+			and (b.Visible or name == "ScoreboardButton")
+			and b.AbsoluteSize.X > 0
+		then
+			if not last or b.AbsolutePosition.X > last.AbsolutePosition.X then
+				last = b
+			end
+		end
+	end
+	return last
 end
 
 -- Back to the lobby from the range (a menu open closes first).
@@ -59,8 +88,10 @@ function MatchSettingsButton.start()
 			)
 
 		local inset = GuiService.TopbarInset
-		local btnSize = if inset.Height > 0
-			then math.clamp(math.floor(inset.Height), 36, 44)
+		local row = if mobile then touchRowEnd(playerGui) else nil
+		local btnSize = if row
+			then math.max(math.floor(row.AbsoluteSize.Y), 36) -- the touch row's size
+			elseif inset.Height > 0 then math.clamp(math.floor(inset.Height), 36, 44)
 			else 44
 		local inRange = PlayZone.get(player) == "Range"
 		local count = 0
@@ -94,6 +125,17 @@ function MatchSettingsButton.start()
 				else Enum.HorizontalAlignment.Right
 		end
 
+		-- Touch: the bar joins the scoreboard / inspect row under Roblox's buttons (Controllers/TouchController),
+		-- which leaves the top row to Roblox's buttons, the scorebug and the weapon slots (owner 2026-11-27, phone:
+		-- "the settings button and also the top bar button overlapped with ... the scoreboard").
+		if row and screen:IsA("ScreenGui") then
+			local at = row.AbsolutePosition
+				+ Vector2.new(row.AbsoluteSize.X + ROW_GAP, row.AbsoluteSize.Y / 2)
+			local rel = at - screen.AbsolutePosition
+			bar.AnchorPoint = Vector2.new(0, 0.5)
+			bar.Position = UDim2.fromOffset(math.round(rel.X), math.round(rel.Y))
+			return
+		end
 		bar.AnchorPoint = Vector2.new(if mobile then 0 else 1, 0.5)
 		bar.Position = if mobile then UDim2.new(0, 12, 0.5, 0) else UDim2.new(1, -12, 0.5, 0)
 	end
@@ -143,6 +185,16 @@ function MatchSettingsButton.start()
 	end)
 	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layout)
 	InputMode.changed:Connect(layout)
+	-- the touch row moves with the device, the controls showing and the touch layout editor
+	task.spawn(function()
+		while true do
+			task.wait(RELAYOUT_EVERY)
+			local screen = playerGui:FindFirstChild("MatchSettingsTopbar")
+			if screen and screen:IsA("ScreenGui") and screen.Enabled then
+				layout()
+			end
+		end
+	end)
 	playerGui.ChildAdded:Connect(mount)
 	local current = playerGui:FindFirstChild("MatchSettingsTopbar")
 	if current then

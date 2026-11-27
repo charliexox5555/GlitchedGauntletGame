@@ -13,6 +13,7 @@
 -- bumps the team block, flashes it bright and pops the number, the last
 -- seconds pulse the timer.
 
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
@@ -44,6 +45,14 @@ local BOT_HEADSHOT = "rbxassetid://119185654291939" -- helmet stand-in for bots 
 local SHADOW_PAD = Vector2.new(56, 48) -- the soft shadow reaches this far past the bar
 local SCALE_STEP = 0.01 -- the fit scale only moves by more than this share (pixel rounding can't loop it)
 local VOTE_ORDER = 41 -- over the map vote screen (StarterGui.MapVote is 40)
+local BAR_HEIGHT = 80 -- design px of the bar
+local ROW_GAP = 8 -- px kept clear between the bar and anything beside it
+local ROW_KEEP = 0.8 -- the bar stays in the top row while it keeps this share of its size there,
+local ROW_MIN_PX = 30 -- and at least this many px tall; otherwise it drops under Roblox's buttons
+local DROP_GAP = 4 -- px between Roblox's top-bar row and a dropped bar
+local REFIT_EVERY = 0.5 -- s: the neighbours (Roblox's menu bar opening, touch buttons) are re-measured this often
+local LEVEL_TEXT = 14 -- design px of the LV chip under a headshot
+local MIN_TEXT = 12 -- drawn px: a smaller LV chip hides (phones: it drew at 5-6 px)
 
 local WHITE = Color3.new(1, 1, 1)
 local DANGER = Color3.fromHex("FF4D5E")
@@ -156,6 +165,85 @@ local function roster(team: number): { Fighter }
 	return list
 end
 
+-- Screen-pixel boxes { left, top, right, bottom } of what sits in the top rows beside the bar
+-- (owner 2026-11-27, phone: "the settings button and also the top bar button overlapped with ...
+-- the scoreboard"): Roblox's own buttons (left and right of GuiService.TopbarInset, live, so the
+-- old and the new top bar and an opened menu bar all count), our Settings / Leave bar, and on
+-- touch the weapon slots and the scoreboard / inspect buttons.
+type Box = { number }
+local function neighbours(playerGui: Instance, screenWidth: number): { Box }
+	local boxes: { Box } = {}
+	local inset = GuiService.TopbarInset
+	if inset.Height > 0 then
+		if inset.Min.X > 0 then
+			table.insert(boxes, { 0, inset.Min.Y, inset.Min.X, inset.Max.Y })
+		end
+		if inset.Max.X < screenWidth - 1 then
+			table.insert(boxes, { inset.Max.X, inset.Min.Y, screenWidth, inset.Max.Y })
+		end
+	end
+	-- AbsolutePosition is measured from below Roblox's bar (GetGuiInset); boxes are screen pixels.
+	local offset = GuiService:GetGuiInset()
+	local function add(o: Instance?)
+		if not o or not o:IsA("GuiObject") or not o.Visible then
+			return
+		end
+		local screen = o:FindFirstAncestorWhichIsA("ScreenGui")
+		if not screen or not screen.Enabled then
+			return
+		end
+		local p, s = o.AbsolutePosition + offset, o.AbsoluteSize
+		if s.X > 0 and s.Y > 0 then
+			table.insert(boxes, { p.X, p.Y, p.X + s.X, p.Y + s.Y })
+		end
+	end
+	local settings = playerGui:FindFirstChild("MatchSettingsTopbar")
+	local settingsBar = settings and settings:FindFirstChild("Bar")
+	if settingsBar then
+		for _, b in settingsBar:GetChildren() do
+			add(b)
+		end
+	end
+	local touch = playerGui:FindFirstChild("Touch")
+	local touchRoot = touch and touch:FindFirstChild("Root")
+	if touchRoot and touchRoot:IsA("GuiObject") and touchRoot.Visible then
+		local weapons = touchRoot:FindFirstChild("Weapons")
+		if weapons and weapons:IsA("GuiObject") and weapons.Visible then
+			for _, slot in weapons:GetChildren() do
+				add(slot)
+			end
+		end
+		local topLeft = touchRoot:FindFirstChild("TopLeft")
+		if topLeft and topLeft:IsA("GuiObject") and topLeft.Visible then
+			for _, b in topLeft:GetChildren() do
+				add(b)
+			end
+		end
+	end
+	return boxes
+end
+
+-- How far the bar may reach left and right of `cx` (screen px) in the band `top`..`bottom`.
+local function freeHalfWidth(
+	boxes: { Box },
+	cx: number,
+	top: number,
+	bottom: number,
+	screenWidth: number
+): number
+	local left, right = 0, screenWidth
+	for _, b in boxes do
+		if b[2] < bottom and b[4] > top then
+			if (b[1] + b[3]) / 2 < cx then
+				left = math.max(left, b[3] + ROW_GAP)
+			else
+				right = math.min(right, b[1] - ROW_GAP)
+			end
+		end
+	end
+	return math.max(math.min(cx - left, right - cx), 0)
+end
+
 -- The bar's screen. The map vote shows the bar before anyone spawns (and
 -- StarterGui only copies on a spawn), so take our own copy now and drop the
 -- one Roblox adds at the first spawn (like MapVoteController).
@@ -235,35 +323,79 @@ function TopBarController.start()
 	-- one UIScale fits it to the screen (vault/04 Tech/UI Architecture.md §5):
 	--   * desktop / console: the screen height / 1080 (and never wider than
 	--     the screen), with no floor: a floor is what pushed UI off phones;
-	--   * phones (touch): 11.5% of the height, capped so the bar clears
-	--     Roblox's buttons and Settings on the left and the weapon slots on
-	--     the right (vault/02 Art/UI Mobile Controls.md, mockup v2), and the
-	--     ROUND / tier line under the clock hides (it drew at 5-7 px).
+	--   * phones (touch): 11.5% of the height, and the ROUND / tier line under
+	--     the clock hides (it drew at 5-7 px);
+	--   * every device: the bar shrinks to clear what is measured beside it in
+	--     its row (neighbours: Roblox's buttons, Settings, the touch weapon
+	--     slots), centred on the screen. If that would shrink it below
+	--     ROW_KEEP of its size or ROW_MIN_PX, it drops under Roblox's buttons.
 	local infoLine = root:FindFirstChild("Info", true)
 	local clockPosition = if clock and clock:IsA("GuiObject") then clock.Position else nil
 	local clockAnchor = if clock and clock:IsA("GuiObject") then clock.AnchorPoint else nil
+	local rowHome = root.Position -- the Studio spot: the top row
+	local home = rowHome -- where the bar sits now (the drop-in tween ends here)
+	local dropping = false
 	local function refit()
 		local size = gui.AbsoluteSize
 		if size.X <= 0 or size.Y <= 0 then
 			return
 		end
 		local phone = UiLayout.family() == "Phone"
-		local width = bar.AbsoluteSize.X / math.max(fit.Scale, 0.01)
-		local scale = size.Y / DESIGN.Y
-		if phone then
-			local reserved = 0.46 * size.Y + 8
-			scale = math.min(0.115 * size.Y / 80, (size.X - 2 * reserved) / math.max(width, 1))
+		local width = math.max(bar.AbsoluteSize.X / math.max(fit.Scale, 0.01), 1)
+		local natural = if phone then 0.115 * size.Y / BAR_HEIGHT else size.Y / DESIGN.Y
+		natural = math.min(natural, size.X * 0.96 / width)
+
+		-- Screen pixels: the gui's top-left and the bar's centre line.
+		local origin = gui.AbsolutePosition + GuiService:GetGuiInset()
+		local screenWidth = GuiService:GetInsetArea(Enum.ScreenInsets.None).Width
+		local cx = origin.X + size.X / 2
+		local boxes = neighbours(gui.Parent or gui, screenWidth)
+		local function fitAt(top: number): number
+			local half = freeHalfWidth(boxes, cx, top, top + BAR_HEIGHT * natural, screenWidth)
+			return math.min(natural, 2 * half / width)
+		end
+		local rowTop = origin.Y + rowHome.Y.Scale * size.Y + rowHome.Y.Offset
+		local scale = fitAt(rowTop)
+		local newHome = rowHome
+		local inset = GuiService.TopbarInset
+		if
+			(scale < natural * ROW_KEEP or BAR_HEIGHT * scale < ROW_MIN_PX)
+			and inset.Height > 0
+			and inset.Max.Y + DROP_GAP > rowTop
+		then
+			local dropTop = inset.Max.Y + DROP_GAP
+			local dropped = fitAt(dropTop)
+			if dropped > scale then
+				scale = dropped
+				newHome = UDim2.new(rowHome.X.Scale, rowHome.X.Offset, 0, dropTop - origin.Y)
+			end
+		end
+		if newHome ~= home then
+			home = newHome
+			if not dropping then
+				root.Position = home
+			end
 		end
 		-- The bar's width is read back through this same scale, rounded to whole pixels, so every write
 		-- nudged the next read: on phones (where the scale depends on the width) it never settled, an
 		-- endless AbsoluteSize loop (live error log 2026-11-24/25: "exponential deferred event growth",
 		-- ~4,300 reports; lag and jumping UI on phones). A change under SCALE_STEP is that rounding: kept.
-		local target = math.min(scale, size.X * 0.96 / math.max(width, 1))
+		local target = math.max(scale, 0.05)
 		if math.abs(target - fit.Scale) > SCALE_STEP * fit.Scale then
 			fit.Scale = target
 		end
 		if infoLine and infoLine:IsA("GuiObject") then
-			infoLine.Visible = not phone
+			-- (tablets: 15 px design drew at 10.5 px on an iPad)
+			infoLine.Visible = not phone and infoLabel.TextSize * fit.Scale >= MIN_TEXT
+		end
+		local showLevel = LEVEL_TEXT * fit.Scale >= MIN_TEXT
+		for _, s in sides do
+			for _, holder in s.players:GetChildren() do
+				local tag = holder:FindFirstChild("LevelTag")
+				if tag and tag:IsA("GuiObject") then
+					tag.Visible = showLevel
+				end
+			end
 		end
 		if clock and clock:IsA("GuiObject") and clockPosition and clockAnchor then
 			clock.AnchorPoint = if phone then Vector2.new(clockAnchor.X, 0.5) else clockAnchor
@@ -310,7 +442,8 @@ function TopBarController.start()
 		skull.Parent = cell
 		-- Level on the tile's foot, device in its corner.
 		local z = cell.ZIndex + 5
-		local lv = PlayerTags.level(holder, f.key, 11, z)
+		local lv = PlayerTags.level(holder, f.key, LEVEL_TEXT, z)
+		lv.Visible = LEVEL_TEXT * fit.Scale >= MIN_TEXT
 		lv.AnchorPoint = Vector2.new(0.5, 0.5)
 		lv.Position = UDim2.new(0.5, 0, 1, -1)
 		local dev = PlayerTags.device(holder, f.key, 14, z)
@@ -479,21 +612,33 @@ function TopBarController.start()
 	end
 
 	-- Drop into place when a match starts showing the bar.
-	local home = root.Position
 	root:GetPropertyChangedSignal("Visible"):Connect(function()
 		if root.Visible then
-			root.Position = home - UDim2.fromOffset(0, 40)
-			tween(root, 0.42, { Position = home })
+			refit()
+			local target = home
+			dropping = true
+			root.Position = target - UDim2.fromOffset(0, 40)
+			tween(root, 0.42, { Position = target }).Completed:Once(function()
+				dropping = false
+				if home ~= target then -- the spot moved during the drop
+					root.Position = home
+				end
+			end)
 		end
 	end)
 
-	local acc = 0
+	local acc, sinceFit = 0, 0
 	RunService.Heartbeat:Connect(function(dt)
 		acc += dt
 		if acc < TICK then
 			return
 		end
+		sinceFit += acc
 		acc = 0
+		if sinceFit >= REFIT_EVERY then
+			sinceFit = 0
+			refit()
+		end
 		refresh()
 	end)
 	refresh()

@@ -68,6 +68,9 @@ local function mirrorX(o: GuiObject)
 	o.AnchorPoint = Vector2.new(1 - o.AnchorPoint.X, o.AnchorPoint.Y)
 end
 
+local placeRow: (root: Frame, topLeft: Frame) -> ()
+local rowHooked: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
 -- 1. The device layout (was TouchController.layout).
 function TouchLayout.base(root: Frame)
 	local scale = if UiLayout.family() == "Phone" then 1 else TouchLayout.TABLET
@@ -81,9 +84,26 @@ function TouchLayout.base(root: Frame)
 	if stick and stick:IsA("Frame") then
 		stick.Size = UDim2.fromScale(STICK_SIDE * scale, STICK_SIDE * scale)
 	end
-	local inset = GuiService.TopbarInset
 	local topLeft = root:FindFirstChild("TopLeft")
-	if inset.Height <= 0 or not topLeft or not topLeft:IsA("Frame") then
+	if not topLeft or not topLeft:IsA("Frame") then
+		return
+	end
+	-- The size set above only reaches AbsoluteSize later, and the row is placed in fractions of it: placed
+	-- now with the old size, a device change put the row ~27 px too high, under Roblox's buttons (2026-11-27,
+	-- iPhone 13 in the emulator). So the row is placed again whenever TopLeft's drawn size changes.
+	if not rowHooked[topLeft] then
+		rowHooked[topLeft] = true
+		topLeft:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			placeRow(root, topLeft)
+		end)
+	end
+	placeRow(root, topLeft)
+end
+
+-- The settings spot and the row under Roblox's top-bar buttons (scoreboard, inspect).
+function placeRow(root: Frame, topLeft: Frame)
+	local inset = GuiService.TopbarInset
+	if inset.Height <= 0 then
 		return
 	end
 	local box = topLeft.AbsoluteSize
@@ -95,7 +115,7 @@ function TouchLayout.base(root: Frame)
 	local guiTop = GuiService:GetGuiInset()
 	local function place(name: string, centre: Vector2)
 		local b = topLeft:FindFirstChild(name)
-		if b and b:IsA("GuiObject") then
+		if b and b:IsA("GuiObject") and b:GetAttribute("TLCustom") ~= true then -- a saved spot wins
 			local p = (centre - guiTop - topLeft.AbsolutePosition) / box
 			b.Position = UDim2.fromScale(p.X, p.Y)
 		end
@@ -235,6 +255,7 @@ function TouchLayout.apply(root: Frame, values: { [string]: any }?, editing: boo
 	-- Studio spots first (the top-left row keeps the spot base() gave it)
 	for _, o in objs do
 		restore(o, o.Parent and o.Parent.Name == "TopLeft")
+		o:SetAttribute("TLCustom", nil)
 	end
 	for _, name in MIRROR_GROUPS do
 		local g = root:FindFirstChild(name)
@@ -273,6 +294,7 @@ function TouchLayout.apply(root: Frame, values: { [string]: any }?, editing: boo
 		local o = objs[name]
 		if o and typeof(entry) == "table" and #entry >= 3 then
 			TouchLayout.place(root, o, entry, left)
+			o:SetAttribute("TLCustom", true)
 		end
 	end
 	-- shown / hidden and opacity per group
