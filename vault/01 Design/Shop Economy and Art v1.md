@@ -374,3 +374,29 @@ Corrected 2026-11-27: the first version left out `Config/Inventory.STARTING_COIN
 4. **Match coins against the same real opponent:** cap them per day like the streak (`STREAK.sameOpponentPerDay` = 3). Two friends could otherwise trade 1v1 wins (one quits, a bot backfills, the other wins). Check how `MatchService` scores that case.
 5. **When Smoke / Electric Shock are built:** leave `Season.POWER_UNLOCKS` out of `PowerCases.pool`, or a pack could roll a pass power and make that pass tier pointless.
 6. **Login is claimed by hand** (Shop DAILY tab). An onboarding callout or an auto-claim on join is worth it: it is the biggest gap between the "1 h/day" and "never claims" columns.
+
+## Gun grind (owner 2026-11-27)
+Owner: the first unlock is fine for onboarding, "however, I want most guns to be a grind ... it'll take a bit to get to the sniper ... the Prowler ... will be your first gun to get because it'll be an onboarding gun ... the rest of them ... not so expensive, but it's a grind to get there ... something you're looking forward to keeping unlocking."
+
+`Config/Loadout PRICES` (supersedes the gun row of "Every way to spend" above; the earning side is unchanged):
+
+| Gun | Was | Now |
+|---|---|---|
+| Prowler (onboarding gun) | 400 | **400** |
+| Sheriff, Shorty | 400 | **1,000** |
+| Hush | 500 | **1,500** |
+| Hornet, Pump | 600 | **2,000** |
+| Lancer | 900 | **2,500** |
+| Marksman | 1,000 | **3,000** |
+| Spirit, Scout | 1,200 | **3,500** |
+| Mauler | 1,500 | **4,500** |
+| Deadeye (sniper) | 1,800 | **6,000** |
+| Whole set | 10,500 | **30,900** |
+
+Estimated from the earn model above, not rerun. Assumes bots, 1 h a day, login claimed. That model's lifetime coins are about 1,900 at hour 1, 4,600 at hour 3, 12,000 at hour 10 and 22,500 at hour 23; after that about 600-700 an hour while the Task Path lasts (to about hour 46).
+- **Prowler:** after match 1, unchanged. It is the only gun the 500 starting coins can buy, so the UNLOCK callout always opens on it.
+- **Second gun (1,000):** in the first hour, around match 6-8 (Range tasks + Recruit).
+- **The Deadeye on its own (6,000):** about hour 5 for someone who saves for it. In practice it comes after a few other guns.
+- **Whole set (30,900):** about 30-35 h. With all 8 SURGE packs too (42,900): about 50 h.
+- **Robux:** the whole set is about the 1,999 R$ pack (32,000). Every gun can still be earned; guns are sidegrades ([Gun Balance](Gun%20Balance.md)), so a bought gun is choice, not power.
+- **Check at the first readout:** the second unlock's timing (it was the "something to look forward to" in hour 1), and whether players stall between 1,000 and 2,000.

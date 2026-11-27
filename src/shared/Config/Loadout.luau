@@ -27,21 +27,22 @@ return table.freeze({
 	-- Every save owns and equips these.
 	STARTER = table.freeze({ Primary = "Vandal", Secondary = "Classic" }),
 
-	-- Coins to unlock (economy pass 2026-11-27, vault/01 Design/Shop Economy and Art v1.md -> Economy pass):
-	-- three 400 picks for the first unlock (after match 2 + the Range tasks), the whole set 10,500 coins.
+	-- Coins to unlock (vault/01 Design/Shop Economy and Art v1.md -> Gun grind). Owner 2026-11-27: the Prowler is
+	-- the onboarding gun (cheap, the first unlock after match 1); the rest are a grind to look forward to, the
+	-- sniper last. The whole set is 30,900 coins.
 	PRICES = table.freeze({
 		Spectre = 400,
-		Sheriff = 400,
-		Shorty = 400,
-		Ghost = 500,
-		Stinger = 600,
-		Bucky = 600,
-		Bulldog = 900,
-		Guardian = 1000,
-		Marshal = 1200,
-		Phantom = 1200,
-		Odin = 1500,
-		Operator = 1800,
+		Sheriff = 1000,
+		Shorty = 1000,
+		Ghost = 1500,
+		Stinger = 2000,
+		Bucky = 2000,
+		Bulldog = 2500,
+		Guardian = 3000,
+		Marshal = 3500,
+		Phantom = 3500,
+		Odin = 4500,
+		Operator = 6000,
 	} :: { [string]: number }),
 
 	-- Rounds 1..N give only the secondary; later rounds give primary + secondary.
