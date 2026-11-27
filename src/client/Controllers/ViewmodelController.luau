@@ -2121,9 +2121,8 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 			end
 		end
 	end)
-	-- A gun with its own reload track (VM.TRACKS["Reload" .. id], e.g. the
-	-- Outlaw's break-action) uses it for both reloads; others share the one
-	-- for their clip.
+	-- A gun with its own reload track (VM.TRACKS["Reload" .. id], e.g. a
+	-- break-action) uses it for both reloads; others share the one for their clip.
 	local own = if config then VM.TRACKS["Reload" .. config.id] else nil
 	local tempestReload = if right.tempest then TempestIdle.track(right.tempest, "reload") else nil
 	local riftforgeReload = if right.riftforge
@@ -3072,8 +3071,8 @@ local function holdWith(
 		along = followArm(side, cam.CFrame, along.Unit)
 	end
 	-- Last eye guard, after the follow spring (which can carry an arm back
-	-- over the bend above). 2026-11-13, owner: "the Outlaw reload... the left
-	-- hand goes into the screen". Measured: loading each round the hand sat
+	-- over the bend above). 2026-11-13, owner (of the since-removed TwinShot):
+	-- "the ... reload... the left hand goes into the screen". Measured: loading each round the hand sat
 	-- 0.49 studs in front of the eye and its arm ran 40% back toward the
 	-- camera, so the eye was inside the block. When the block's line passes
 	-- within ARM_EYE_CLEARANCE, it turns down and out with nothing back

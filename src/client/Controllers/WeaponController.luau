@@ -1371,7 +1371,7 @@ local function update(dt: number)
 		and not dashBlocked()
 		-- Reloading drops the sights and keeps them down (owner, 2026-11-08);
 		-- a bolt or lever gun drops them while it cycles after a shot, and a
-		-- scoped gun with nothing left in it (the Outlaw after both barrels).
+		-- scoped gun with nothing left in it.
 		and not reloading
 		and not (s.config.fireMode == "Bolt" and now < s.lastFire + s.config.fireInterval)
 		and not (s.config.scope ~= nil and s.config.magSize > 0 and s.ammo <= 0)

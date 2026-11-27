@@ -28,7 +28,6 @@ local shots: { [string]: GunSounds.GunSound } = {
 	Guardian = cue("guardian_shot", 0.18),
 	Marshal = cue("marshal_shot", 0.19),
 	Operator = cue("operator_shot", 0.18),
-	Outlaw = cue("outlaw_shot", 0.19),
 	Sheriff = cue("sheriff_shot", 0.20),
 }
 
@@ -47,7 +46,6 @@ local handlingPitch: { [string]: number } = {
 	Guardian = 1.02,
 	Marshal = 0.96,
 	Operator = 0.88,
-	Outlaw = 0.92,
 	Sheriff = 1.04,
 	Knife = 1.08,
 }

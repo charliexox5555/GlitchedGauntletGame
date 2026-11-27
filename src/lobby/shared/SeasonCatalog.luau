@@ -98,7 +98,7 @@ SeasonCatalog.TIERS = {
 	{ free = nil, premium = skin("Marshal", ARCADE, "Rare") },
 	{ free = tickets(1), premium = coins(450) },
 	{ free = nil, premium = charm("THUNDER ORB", "Epic") },
-	{ free = nil, premium = skin("Outlaw", FROSTBITE, "Legendary") },
+	{ free = nil, premium = skin("Guardian", FROSTBITE, "Legendary") }, -- the Marksman (was the TwinShot, removed 2026-11-27)
 	{ free = charm("ICE CUBE", "Rare"), premium = case("Apex") }, -- 25
 	{ free = nil, premium = skin("Operator", ARCADE, "Rare") },
 	{ free = nil, premium = coins(500) },

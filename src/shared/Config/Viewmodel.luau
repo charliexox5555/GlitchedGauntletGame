@@ -1211,14 +1211,9 @@ return table.freeze({
 	} :: { [string]: number }),
 	-- Carried rounds (config `carry`): the fresh round shows, and the hand
 	-- takes it, this share of the way into its trip back from the
-	-- turnaround (0 = at the turnaround). 2026-11-13: the Outlaw's round turns
-	-- around ~1.3 studs up and back from the breech, toward the face, so the
-	-- hand that met it there came into the screen; it now picks the round up
-	-- three quarters of the way in, by the breech (0.55 still drew the arm
-	-- across to the crosshair for the second round).
-	CARRY_JOIN = table.freeze({
-		Outlaw = 0.75,
-	} :: { [string]: number }),
+	-- turnaround (0 = at the turnaround). By gun id; none since the TwinShot left (2026-11-27), whose
+	-- 0.75 picked its round up by the breech instead of in front of the face.
+	CARRY_JOIN = table.freeze({} :: { [string]: number }),
 	-- A part rolled the moment the inspect starts (GunAnimator.spin), on top of
 	-- the gun's own Inspect clip. 2026-11-14 (owner: "the inspect sound starts
 	-- with a roll of the [cylinder]... right away"): the Sheriff's inspect
@@ -3483,96 +3478,6 @@ return table.freeze({
 					0.95,
 					Vector3.new(0.008, -0.025, 0.018),
 					Vector3.new(-3.5, -1.5, 3),
-					Enum.EasingStyle.Quad,
-					INOUT
-				), -- home, past the hold
-				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
-			},
-		},
-		-- The Outlaw's own reload (break-action: both barrels drop, two rounds
-		-- go into the breech, it snaps shut). 2026-11-13 (owner: "the Outlaw
-		-- reload animation looks really weird. Like the left hand goes into
-		-- the screen"). Measured on the shared track: the breech sat 0.49
-		-- studs in front of the eye while the rounds went in, so the loading
-		-- hand's arm walled off half the screen and the eye was inside it at
-		-- 1.07-1.17 s. Here the gun is pushed out and down while it is open, so
-		-- the hand works at arm's length below the sights; it flicks up as the
-		-- action closes (marks.MagIn = the clip's Close) and lands past the
-		-- hold. Used for ReloadEmpty too (ViewmodelController.reload).
-		-- 2026-11-21 (round 3, owner's pick): the open-barrel keys rolled 24 deg
-		-- back toward level (Z -22 -> +2) and 0.06 lower, so the dropped barrels
-		-- hang at 63-70 deg on screen, steeper than the loading forearm (pinned
-		-- at <= 50 deg by ARM_MIN_DROP): it ran down beside them and into them
-		-- (0.10-0.20 deep). Measured clear on both reloads in every skin line;
-		-- the loading fist stays >= 0.14 of the screen from the centre (was
-		-- 0.03). Smooth (PCHIP) instead of an ease in and out at every key.
-		ReloadOutlaw = {
-			length = 1,
-			smooth = true,
-			pivot = "Center",
-			marks = { MagOut = 0.22, MagIn = 0.83 },
-			keys = {
-				key(0, ZERO, ZERO),
-				key(
-					0.05,
-					Vector3.new(0.01, -0.02, 0.01),
-					Vector3.new(-2, -2, 3),
-					Enum.EasingStyle.Sine,
-					OUT
-				), -- anticipation
-				key(
-					0.16,
-					Vector3.new(-0.06, -0.23, -0.48),
-					Vector3.new(-10, 12, 2),
-					Enum.EasingStyle.Quad,
-					OUT
-				), -- out and down, past the pose
-				key(
-					0.22,
-					Vector3.new(-0.055, -0.21, -0.46),
-					Vector3.new(-6, 11, 5),
-					Enum.EasingStyle.Sine,
-					INOUT
-				), -- barrels drop
-				key(
-					0.4,
-					Vector3.new(-0.06, -0.22, -0.47),
-					Vector3.new(-8, 13, 3),
-					Enum.EasingStyle.Sine,
-					INOUT
-				),
-				key(
-					0.55,
-					Vector3.new(-0.065, -0.225, -0.48),
-					Vector3.new(-7, 14, 1),
-					Enum.EasingStyle.Sine,
-					INOUT
-				), -- rounds in
-				key(
-					0.7,
-					Vector3.new(-0.06, -0.22, -0.47),
-					Vector3.new(-8, 12, 3),
-					Enum.EasingStyle.Sine,
-					INOUT
-				),
-				key(
-					0.79,
-					Vector3.new(-0.06, -0.24, -0.47),
-					Vector3.new(-10, 12, 2),
-					Enum.EasingStyle.Sine,
-					INOUT
-				), -- brace
-				key(
-					0.84,
-					Vector3.new(-0.04, -0.09, -0.38),
-					Vector3.new(8, 8, 2),
-					Enum.EasingStyle.Quad,
-					OUT
-				), -- snapped shut: the muzzle flicks up
-				key(
-					0.93,
-					Vector3.new(0.008, -0.02, 0.015),
-					Vector3.new(-3, -1, 2.5),
 					Enum.EasingStyle.Quad,
 					INOUT
 				), -- home, past the hold

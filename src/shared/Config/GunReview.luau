@@ -20,7 +20,6 @@ return table.freeze({
 		"Bucky",
 		"Judge",
 		"Marshal",
-		"Outlaw",
 		"Operator",
 		"Ares",
 		"Odin",

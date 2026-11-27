@@ -10,6 +10,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 export type Pick = { gun: string, line: string }
 export type Daily = { day: number, picks: { Pick }, bought: { number } }
@@ -43,7 +44,8 @@ function DailyShop.clean(raw: unknown): Daily
 				break
 			end
 			local gun, line = str((p :: any).gun, 24), str((p :: any).line, 32)
-			if not gun or not line then
+			-- A gun taken out of the game since the roll (the TwinShot, 2026-11-27): the day rolls again.
+			if not gun or not line or not Weapons.get(gun) then
 				return DailyShop.new()
 			end
 			table.insert(out.picks, { gun = gun, line = line })

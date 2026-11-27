@@ -19,7 +19,6 @@ return {
 	GGAsset_LobbyWeapons_14 = { ["Length"] = 4.3239999999999998, ["SourceAsset"] = 137898490233748, ["WeaponId"] = "Guardian" }, -- ReplicatedStorage.Weapons.Guardian
 	GGAsset_LobbyWeapons_15 = { ["Length"] = 4.3869999999999996, ["SourceAsset"] = 102492835968896, ["WeaponId"] = "Ares" }, -- ReplicatedStorage.Weapons.Ares
 	GGAsset_LobbyWeapons_16 = { ["Length"] = 4.5039999999999996, ["SourceAsset"] = 117114534273249, ["WeaponId"] = "Marshal" }, -- ReplicatedStorage.Weapons.Marshal
-	GGAsset_LobbyWeapons_17 = { ["Length"] = 4.6399999999999997, ["SourceAsset"] = 120718577249645, ["WeaponId"] = "Outlaw" }, -- ReplicatedStorage.Weapons.Outlaw
 	GGAsset_LobbyWeapons_18 = { ["Length"] = 4.6859999999999999, ["SourceAsset"] = 78460111361812, ["WeaponId"] = "Odin" }, -- ReplicatedStorage.Weapons.Odin
 	GGAsset_LobbyWeapons_19 = { ["Length"] = 4.9210000000000003, ["SourceAsset"] = 72538220204315, ["WeaponId"] = "Operator" }, -- ReplicatedStorage.Weapons.Operator
 	GGAsset_LobbyWeapons_20 = { ["SkinMeshPatch"] = true }, -- ReplicatedStorage.Weapons.Bulldog.Bolt

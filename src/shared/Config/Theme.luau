@@ -125,7 +125,6 @@ return table.freeze({
 		Marshal = "rbxassetid://89611157168298",
 		Odin = "rbxassetid://128757177107087",
 		Operator = "rbxassetid://92451135914779",
-		Outlaw = "rbxassetid://121058485145773",
 		Phantom = "rbxassetid://105129497036866",
 		Sheriff = "rbxassetid://122134937133172",
 		Shorty = "rbxassetid://89671651186868",

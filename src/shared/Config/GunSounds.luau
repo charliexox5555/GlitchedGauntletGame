@@ -136,7 +136,6 @@ local REPORT_LEVEL: { [string]: number } = {
 	Bulldog = 1.04,
 	Guardian = 0.54,
 	Marshal = 0.54,
-	Outlaw = 0.48,
 	Operator = 0.48,
 	Ares = 0.62,
 	Odin = 0.62,
@@ -309,20 +308,6 @@ local sets: { [string]: GunSoundSet } = {
 		inspect = S(takes(RF .. "safety_switch_", 1, 2), INSPECT),
 		dryFire = S(takes(RF .. "dry_fire_", 1, 4), FOLEY),
 	},
-	-- Double rifle: the pack's sniper shots; its break action opens and shuts on
-	-- the revolver's hinge sounds (no break-action recording in the pack).
-	Outlaw = {
-		fire = S(takes(SN .. "shot_", 1, 4), FIRE, SHOT_PITCH),
-		fireFar = S(takes(SN .. "shot_", 1, 4), FAR, SHOT_PITCH),
-		draw = S({ RF .. "grab_pickup_01" }, DRAW),
-		open = S(takes(R .. "cylinder_open_", 1, 3), FOLEY),
-		eject = S(takes(SN .. "load_bullet_", 1, 5), FOLEY),
-		shellIn = S(takes(RF .. "load_bullet_", 1, 8), FOLEY),
-		close = S(takes(R .. "cylinder_close_", 1, 4), FOLEY),
-		rack = S(takes(SN .. "cock_", 1, 4), FOLEY),
-		inspect = S(takes(RF .. "safety_switch_", 1, 2), INSPECT),
-		dryFire = S(takes(SN .. "dry_fire_", 1, 2), FOLEY),
-	},
 	-- Bolt sniper: the pack's sniper.
 	Operator = {
 		fire = S(takes(SN .. "shot_", 1, 4), FIRE, SHOT_PITCH),
@@ -398,10 +383,8 @@ local sets: { [string]: GunSoundSet } = {
 EQUIP_WHOOSH = S(takes("whoosh_swish_small_", 1, 4), 0.35)
 AIM_IN = S({ "foley_cloth_light_fast_movement_13", "foley_cloth_light_fast_movement_14" }, 0.3)
 AIM_OUT = S({ "foley_cloth_light_fast_movement_06", "foley_cloth_light_fast_movement_15" }, 0.22)
--- The scoped guns' scope ring (Marshal, Outlaw; the Operator's is set above).
-for _, gun in { "Marshal", "Outlaw" } do
-	(sets[gun] :: any).aimIn = S(takes(SN .. "scope_zoom_lens_", 1, 7), 0.5)
-end
+-- The Marshal's scope ring (the Operator's is set above).
+sets.Marshal.aimIn = S(takes(SN .. "scope_zoom_lens_", 1, 7), 0.5)
 for id, set in sets do
 	local s = set :: any
 	local level = REPORT_LEVEL[id]
