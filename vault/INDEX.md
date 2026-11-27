@@ -20,6 +20,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `04 Tech/Place Merge Plan.md` (24): the Lobby + match merge (2026-11-21): owner decisions, server roles, global queue, pad duels as in-server matches, range, Studio move, results
 - `04 Tech/Developer Handoff.md` (21): both places, player journey, edit map, Studio audit, troubleshooting and release handoff
 - `04 Tech/UI Architecture.md` (32): **UI structure plan** (2026-11-22): audit of where UI lives and what is old, RIVALS numbers, one `StarterPlayerScripts.UI` home + loader, layers and insets (phone full-screen rule), Scale/RelativeYY layout, TextScaled text floors, device families, build order, owner questions
+- `04 Tech/Code Audit 2026-11-27.md` (17): **launch code audit** of all 516 Luau files: what was fine (remotes, saves, receipts), 34 ranked fixes with commits (runner-copy seam: MatchHost teardown thread, Roller N-x speed, hook-list leak, StateValues watchers, client boot/cleanup), what's parked, findings routed to loading-perf / mobile-ui
 - `04 Tech/Measured Check Skills.md` (4): the 38 `rbx-*` measured checkers in `tools/checks/` (no longer skills), which to use per area, the security scan, what was left out
 
 ## Design (01 Design)
