@@ -1612,7 +1612,7 @@ local function runMatch(): boolean
 			Telemetry.mapFunnel(player, matchKey, 3, "Match completed", currentMapName, matchMode())
 		end
 	end
-	-- a new player's first match: everyone who finishes it gets the free Starter Case (ProgressionService)
+	-- a new player's first match: the results screen shows NEXT MATCH / LOBBY instead of a rematch
 	return MatchEndService.run(matchWinner, matchMode(), firstMatch)
 end
 

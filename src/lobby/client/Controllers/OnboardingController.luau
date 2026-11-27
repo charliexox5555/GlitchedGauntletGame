@@ -6,7 +6,8 @@
 --  * the "Join the queue to start playing!" bubble over PLAY while idle;
 --  * the HUD unlocks by matches played (Config/Onboarding UNLOCKS: all after match 2),
 --    each with one NEW callout until that menu is opened;
---  * the free case after match 1 opens by itself, then a parked NEXT MATCH queues match 2;
+--  * no free case after match 1 any more (owner 2026-11-27: too strong, RIVALS doesn't);
+--    an old save's unopened Starter Case just sits in the Backpack;
 --  * the favorite prompt back in the lobby (Shared/FavoritePrompt).
 -- It only reads the server-published state (Matches, Level, OnbSeen, ...) and asks:
 -- the server decides the queue (QueueService refuses Beginner at level 10+) and
@@ -21,10 +22,7 @@ local OnbConfig = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
-local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
-local BackpackController = require(script.Parent.BackpackController)
-local LobbyHud = require(script.Parent.LobbyHud)
 local LobbyHudView = require(script.Parent.Parent.Util.LobbyHudView)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -41,8 +39,6 @@ local favAskedFor: number? = nil -- the o.fav count already prompted this sessio
 local seenSent: { [number]: boolean } = {} -- NEW bits already reported this session
 local calloutFor: string? = nil
 local calloutTextShown: string? = nil
-local caseToastSent = false
-local equipToastSent = false
 
 local function num(name: string, default: number): number
 	local v = StateValues.get(player, name)
@@ -93,34 +89,12 @@ local function playNew(): boolean
 	return true
 end
 
-local function hasGiftCase(): boolean
-	return StateValues.get(player, "OnbCaseGift") == true
-		and StateValues.get(player, "OnbCaseOpened") ~= true
-		and (PlayerData.items(player)[OnbConfig.FIRST_MATCH_CASE] or 0) > 0
-end
-
-local function needsSkinEquip(matches: number): boolean
-	return StateValues.get(player, "OnbCaseGift") == true
-		and StateValues.get(player, "OnbCaseOpened") == true
-		and StateValues.get(player, "OnbSkinEquipped") ~= true
-		and matches < 2
-end
-
 local function openingOrRevealing(): boolean
 	return player:GetAttribute("CaseOpeningActive") == true
 		or player:GetAttribute("CaseRevealOpen") == true
 end
 
-local function unlockedSkinText(): string
-	local gun = player:GetAttribute("OnbNewSkinGun")
-	local line = player:GetAttribute("OnbNewSkinLine")
-	if typeof(gun) == "string" and typeof(line) == "string" and gun ~= "" and line ~= "" then
-		return `NEW {SkinCases.name(gun, line)}! OPEN WEAPONS TO EQUIP`
-	end
-	return "NEW SKIN UNLOCKED! OPEN WEAPONS TO EQUIP"
-end
-
--- HUD parts, the NEW/case callout, PLAY's shortcut and the bubble, from the current state.
+-- HUD parts, the NEW callout, PLAY's shortcut and the bubble, from the current state.
 local function apply()
 	if StateValues.get(player, "DataReady") ~= true then
 		return -- the save isn't here yet: leave the full HUD as built
@@ -130,32 +104,16 @@ local function apply()
 		LobbyHudView.setUnlocked(u.id, Onboarding.unlocked(u.id, matches))
 	end
 	local blocking = openingOrRevealing()
-	local gift = hasGiftCase()
-	local needsEquip = needsSkinEquip(matches)
-	local caseCount = PlayerData.items(player)[OnbConfig.FIRST_MATCH_CASE] or 0
-	LobbyHudView.setBadge("Backpack", if not blocking and gift then caseCount else 0)
-	LobbyHudView.setBadge("Locker", if not blocking and needsEquip then 1 else 0)
 
 	local dueId: string? = nil
 	local dueText: string? = nil
-	local focusBar: string? = nil
 	if not blocking then
-		if gift then
-			dueId = "Backpack"
-			dueText = OnbConfig.CASE_CALLOUT_TEXT
-			focusBar = "Backpack"
-		elseif needsEquip then
-			dueId = "Locker"
-			dueText = OnbConfig.EQUIP_CALLOUT_TEXT
-			focusBar = "Locker"
-		else
-			local seen = seenBits()
-			for _, u in OnbConfig.UNLOCKS do
-				if Onboarding.newPop(u.id, matches, seen) then
-					dueId = u.id
-					dueText = OnbConfig.NEW_TEXT
-					break
-				end
+		local seen = seenBits()
+		for _, u in OnbConfig.UNLOCKS do
+			if Onboarding.newPop(u.id, matches, seen) then
+				dueId = u.id
+				dueText = OnbConfig.NEW_TEXT
+				break
 			end
 		end
 	end
@@ -164,13 +122,13 @@ local function apply()
 		calloutTextShown = dueText
 		LobbyHudView.callout(dueId, dueText)
 	end
-	LobbyHudView.highlight(focusBar)
+	LobbyHudView.highlight(nil)
 	local shortcut = Onboarding.playShortcut(matches, level)
 	LobbyHudView.setPlay(
 		if shortcut then playNew else nil,
 		if shortcut then OnbConfig.PLAY_SUB_NEW else nil
 	)
-	local showBubble = not blocking and not gift and not needsEquip and Onboarding.bubble(matches)
+	local showBubble = not blocking and Onboarding.bubble(matches)
 	LobbyHudView.bubble(showBubble, OnbConfig.BUBBLE_TEXT)
 end
 
@@ -202,57 +160,6 @@ local function tryAutoQueue()
 	end)
 end
 
--- Show a single helpful toast when the free Match-1 case arrives or after the skin unlocks.
-local function tryCaseToast()
-	if not ready() or Router.current() ~= nil then
-		return
-	end
-	if not caseToastSent and hasGiftCase() then
-		caseToastSent = true
-		LobbyHud.toast(OnbConfig.CASE_TOAST_TEXT, "info")
-	elseif not equipToastSent and needsSkinEquip(num("Matches", 0)) then
-		equipToastSent = true
-		LobbyHud.toast(unlockedSkinText(), "info")
-	end
-end
-
--- After the free case's reveal: NEXT MATCH on match 1's end screen asked for match 2 (the server parked that
--- request as "OnbNextMatch" until the case was open), so queue it now.
-local function afterGift()
-	if
-		player:GetAttribute("OnbNextMatch") ~= nil
-		and QueueState.status() == "idle"
-		and QueueState.isLeader()
-	then
-		QueueState.join(OnbConfig.BEGINNER_MODE)
-	end
-end
-
--- Back in the lobby with the free case unopened: it opens by itself (no Backpack clicks; the skin goes straight
--- on), once per session, when nothing else is on screen and no search is running (vault/01 Design/First Ten
--- Minutes.md: 6 of 38 players left at the OPEN click).
-local giftOpenTried = false
-local function tryOpenGift()
-	if giftOpenTried or not ready() or Router.current() ~= nil or not hasGiftCase() then
-		return
-	end
-	giftOpenTried = true
-	task.delay(OnbConfig.CASE_AUTO_OPEN_DELAY, function()
-		if
-			ready()
-			and Router.current() == nil
-			and hasGiftCase()
-			and QueueState.status() == "idle"
-		then
-			if not BackpackController.openGift(OnbConfig.FIRST_MATCH_CASE, afterGift) then
-				Router.open("Backpack") -- the old way: the Backpack opens on the case
-			end
-		else
-			giftOpenTried = false -- try again on the next change
-		end
-	end)
-end
-
 -- Back in the lobby after match 2 (or match 3 if declined): ask to favorite.
 local function tryFavorite()
 	if not ready() then
@@ -277,8 +184,6 @@ end
 local function refresh()
 	apply()
 	tryAutoQueue()
-	tryCaseToast()
-	tryOpenGift()
 	tryFavorite()
 end
 
@@ -293,9 +198,6 @@ function OnboardingController.start()
 			"OnbSeen",
 			"OnbFav",
 			"OnbFavDone",
-			"OnbCaseGift",
-			"OnbCaseOpened",
-			"OnbSkinEquipped",
 		}
 	do
 		StateValues.changed(player, name):Connect(refresh)
@@ -314,8 +216,6 @@ function OnboardingController.start()
 			"DuelLoading",
 			"CaseOpeningActive",
 			"CaseRevealOpen",
-			"OnbNewSkinGun",
-			"OnbNewSkinLine",
 			PlayZone.ATTRIBUTE,
 		}
 	do
@@ -348,23 +248,17 @@ function OnboardingController.start()
 				apply()
 			end
 		end
-		tryCaseToast()
 		LobbyHudView.placeBubble()
 	end)
 	QueueState.onChanged(LobbyHudView.placeBubble)
 	StateValues.changed(player, "OnbResetSeq"):Connect(function()
 		autoQueued = false
-		giftOpenTried = false
 		favAskedFor = nil
 		table.clear(seenSent)
-		caseToastSent = false
-		equipToastSent = false
 		calloutFor = nil
 		calloutTextShown = nil
 		LobbyHudView.callout(nil, nil)
 		LobbyHudView.highlight(nil)
-		player:SetAttribute("OnbNewSkinGun", nil)
-		player:SetAttribute("OnbNewSkinLine", nil)
 		player:SetAttribute("CaseOpeningActive", nil)
 		player:SetAttribute("CaseRevealOpen", nil)
 		if Router.current() ~= nil then

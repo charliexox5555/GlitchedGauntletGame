@@ -187,8 +187,8 @@ local function onChoice(player: Player, choice: unknown)
 	publish()
 end
 
--- Runs the MatchEnd phase. Returns true for a rematch on this server. `gift`: a new player's first match, whose
--- finishers get the free Starter Case in the lobby (the results screen says so: Util/MatchEndScreen).
+-- Runs the MatchEnd phase. Returns true for a rematch on this server. `gift`: a new player's first match (the
+-- results screen shows NEXT MATCH / LOBBY, no rematch: Util/MatchEndScreen). The name is from the old free case.
 function MatchEndService.run(winner: number, matchMode: string?, gift: boolean?): boolean
 	table.clear(choices)
 	table.clear(voters)

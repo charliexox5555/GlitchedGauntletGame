@@ -43,7 +43,7 @@ return table.freeze({
 	-- HUD unlocks by matches played. Items not listed are always shown (Locker =
 	-- "Weapons", Settings, PLAY). Each unlock gets one NEW pop (bit in `seen`).
 	-- After match 2 (2026-11-26, vault/01 Design/First Ten Minutes.md: the lobby opens up once they've played
-	-- two; match 1's free case opens by itself, so the Backpack isn't needed before).
+	-- two, so the Backpack isn't needed before).
 	UNLOCKS = table.freeze({
 		{ id = "Backpack", at = 2, bit = 4 },
 		{ id = "Shop", at = 2, bit = 2 },
@@ -55,16 +55,10 @@ return table.freeze({
 	NEW_WINDOW = 3,
 	NEW_TEXT = "NEW",
 
-	-- Free case granted on finishing Match 1 (it opens by itself and equips before Match 2). The Starter Case:
-	-- gift only, a skin for a gun they hold in match 2 with better odds than the Standard Case (Config/Skins
-	-- CASES.Starter, owner 2026-11-26; was always Epic, any gun).
+	-- The old free case for finishing Match 1 (the Starter Case, Config/Skins CASES.Starter). No longer granted
+	-- (owner 2026-11-27: too strong, RIVALS doesn't); saves that still hold one keep it and open it from the
+	-- Backpack like any case. Only the admin "start full onboarding" reset still clears it.
 	FIRST_MATCH_CASE = "CaseStarter",
-	CASE_CALLOUT_TEXT = "OPEN FREE CASE!",
-	EQUIP_CALLOUT_TEXT = "EQUIP SKIN!",
-	CASE_TOAST_TEXT = "YOU EARNED A FREE CASE! OPEN YOUR BACKPACK",
-	-- Back in the lobby with the free case unopened: the Backpack opens on it by itself after this many seconds,
-	-- once per session (owner 2026-11-25: 12.5% left between the hub and opening the Backpack).
-	CASE_AUTO_OPEN_DELAY = 1.5,
 
 	-- The bouncing "Join the queue to start playing!" bubble over PLAY: shown while
 	-- idle in the lobby with fewer matches played than this (RIVALS: ≤ 3 duels).
@@ -74,8 +68,7 @@ return table.freeze({
 
 	-- Favorite prompts (AvatarEditorService:PromptSetFavorite): at most this many asks
 	-- per player ever; the first back in the lobby after match 2, the second back in
-	-- the lobby after match 3 if the first was declined (never mid-match, never during
-	-- the post-Match-1 free case onboarding).
+	-- the lobby after match 3 if the first was declined (never mid-match).
 	FAV_MAX_ASKS = 2,
 	FAV_LOBBY_AFTER = 2, -- matches played before the first lobby ask
 	FAV_LOBBY_SECOND_AFTER = 3, -- matches played before the second lobby ask

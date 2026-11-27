@@ -43,7 +43,7 @@ export type Data = {
 	allies: { RowData },
 	enemies: { RowData },
 	build: { { id: string, level: string } },
-	gift: boolean?, -- a new player's first match: the main button sends them to their free case (Leave)
+	gift: boolean?, -- a new player's first match: NEXT MATCH / LOBBY, no rematch
 }
 
 export type PlateData = { model: Model, name: string, ally: boolean, mvp: boolean }
@@ -95,7 +95,7 @@ type State = {
 	plateConn: RBXScriptConnection?,
 	cards: { Instance },
 	token: number,
-	gift: boolean, -- this screen's main button is OPEN FREE CASE (Data.gift)
+	gift: boolean, -- a new player's first match (Data.gift): NEXT MATCH / LOBBY
 	rematchRow: GuiObject?,
 }
 
@@ -425,8 +425,8 @@ function MatchEndScreen.show(d: Data, onChoice: (name: string) -> ())
 	end
 	s.onChoice = onChoice
 	-- A new player's first match (vault/01 Design/First Ten Minutes.md): no dead REMATCH; the gold button is
-	-- NEXT MATCH and the other LOBBY. Either way the free case opens by itself back in the lobby (Lobby
-	-- OnboardingController), and NEXT MATCH then starts match 2 (owner 2026-11-26: no auto-start).
+	-- NEXT MATCH (queues match 2 from the lobby) and the other LOBBY (owner 2026-11-26: no auto-start). No free
+	-- case any more (owner 2026-11-27).
 	s.gift = d.gift == true
 	if s.rematchRow then
 		s.rematchRow.Visible = not s.gift

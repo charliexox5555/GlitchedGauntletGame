@@ -58,7 +58,7 @@ type Results = {
 	score1: number,
 	score2: number,
 	rounds: { string },
-	gift: boolean?, -- a new player's first match: a free Starter Case waits in the lobby
+	gift: boolean?, -- a new player's first match: NEXT MATCH / LOBBY, no rematch
 }
 
 local summary: { Line } = {}

@@ -556,19 +556,6 @@ local function buildMutation(
 			return true
 		end,
 			string.format("Started Full Onboarding -> %s", targetName)
-	elseif action == "testFreeCase" then
-		return function(data: Data)
-			local fresh = PlayerData.clean(nil)
-			data.prog = fresh.prog
-			data.prog.matches = 1
-			data.onb = fresh.onb
-			data.onb.caseGift = true
-			table.clear(data.skins)
-			local caseId = OnboardingConfig.FIRST_MATCH_CASE
-			data.items[caseId] = math.max(data.items[caseId] or 0, 1)
-			return true
-		end,
-			string.format("Jumped to Post-Match-1 Free Case -> %s", targetName)
 	end
 	return nil, "Unknown action"
 end
@@ -724,7 +711,7 @@ local function onRequest(
 		reply(player, true, action, targetUserId, msg)
 		return
 	end
-	if action == "startOnboarding" or action == "testFreeCase" then
+	if action == "startOnboarding" then
 		if PlayZone.get(target) ~= "Lobby" then
 			reply(player, false, action, targetUserId, "Return to the Lobby first")
 			return
@@ -744,7 +731,7 @@ local function onRequest(
 
 	local ok, reason = PlayerDataService.transact(target, PlayerDataService.newTxId(), change, true)
 	if ok then
-		if action == "startOnboarding" or action == "testFreeCase" or action == "resetProfile" then
+		if action == "startOnboarding" or action == "resetProfile" then
 			LockerService.reset(target)
 			QueueService.resetOnboarding(target)
 			OnboardingService.reset(target)

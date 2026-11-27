@@ -78,7 +78,6 @@ function ProgressionService.report(
 		local txId = string.sub(`m:{matchKey}:{userId}`, 1, 64)
 		local gain: Progress.Gain? = nil
 		local paid = 0
-		local gainedCase = false
 		local taskPay: TaskPath.Payout? = nil
 		local seasonTiers = 0
 		local ok, why = false, nil :: string?
@@ -87,7 +86,6 @@ function ProgressionService.report(
 				task.wait(RETRY_AFTER[attempt])
 			end
 			ok, why = PlayerDataService.transactUserId(userId, txId, function(data: PlayerData.Data)
-				gainedCase = false
 				taskPay = nil
 				seasonTiers = 0
 				local now = os.time()
@@ -98,12 +96,8 @@ function ProgressionService.report(
 					TaskService.pay(data, pay)
 					taskPay = pay
 				end
-				if not result.left and data.prog.matches == 1 and not data.onb.caseGift then
-					data.onb.caseGift = true
-					local caseId = Onboarding.FIRST_MATCH_CASE
-					data.items[caseId] = (data.items[caseId] or 0) + 1
-					gainedCase = true
-				end
+				-- no free case for match 1 any more (owner 2026-11-27: too strong, RIVALS doesn't);
+				-- a save that still holds an unopened Starter Case keeps it
 				local today = Economy.day(now)
 				if seasonCounts(now) then
 					seasonTiers = SeasonPass.applyMatch(data.season, {
@@ -150,9 +144,6 @@ function ProgressionService.report(
 					Telemetry.onboarding(player, 12)
 				elseif matches == 2 then
 					Telemetry.onboarding(player, 19)
-				end
-				if gainedCase then
-					Telemetry.caseOnboarding(player, 1, "Free case granted")
 				end
 			end
 			progressEvent:FireClient(player, {

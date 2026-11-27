@@ -599,7 +599,7 @@ function AdminPanelController.start()
 			if
 				data.ok == true
 				and data.targetUserId == localPlayer.UserId
-				and (data.action == "startOnboarding" or data.action == "testFreeCase")
+				and data.action == "startOnboarding"
 			then
 				setOpen(false)
 			end
@@ -1717,24 +1717,11 @@ function AdminPanelController.start()
 		text = "START FULL ONBOARDING",
 		bg = C.mint,
 		fg = C.darkText,
-		size = UDim2.new(0.5, -4, 1, 0),
+		size = UDim2.new(1, 0, 1, 0),
 		textSize = 11,
 		font = FONT_HEAVY,
 		onClick = function()
 			send("startOnboarding")
-		end,
-	})
-	button({
-		parent = onbRow,
-		text = "JUMP TO FREE CASE",
-		bg = C.surface,
-		fg = C.gold,
-		border = C.gold,
-		size = UDim2.new(0.5, -4, 1, 0),
-		textSize = 11,
-		font = FONT_HEAVY,
-		onClick = function()
-			send("testFreeCase")
 		end,
 	})
 	if RunService:IsStudio() then
