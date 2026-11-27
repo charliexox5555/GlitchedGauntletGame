@@ -426,6 +426,7 @@ Fresh ephemeral save (`FreshOnboarding`), Rookie bots, the player idle, two runs
   - PLAY went straight into match 2 (`OnboardingMatch` 2). R1 showed the real draft: Frost / Updraft / Molly from the deck, "DRAFT · SIDEARMS ONLY", Classic.
   - Lobby after match 2: Shop, Backpack, Range and Party unlocked; the Recruit panel ("Visit the Range"); UNLOCK still on the Locker; the Locker opened on the Prowler again.
 - No script errors in either run.
+- Run 1 shared its Play session with code-audit's check (a lock-file collision at 01:55). It ran the same synced code. Run 2 was this session's alone.
 - **Not seen:**
   - The Range NEW badge taking over after the Locker is opened (the run ended inside the Locker).
   - The real reserved-server teleport: Studio can't teleport, so it hosts the match in-server.
