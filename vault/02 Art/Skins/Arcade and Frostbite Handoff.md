@@ -4,7 +4,7 @@
 
 ## Paste this into the new chat
 
-> Read `vault/02 Art/Skins/Arcade and Frostbite Handoff.md` and do it. We're making the Season 1 battle pass skin lines, starting with ONE skin: **Arcade on the Havoc (Vandal)**. Build it in Blender to our build rules with every check and a self-grade of 9+, show me the renders, and stop for my approval before anything else. Start by loading the skills and reading the notes the handoff lists. Ask me the questions in its "Ask the owner first" section. Tell me which Blender MCP instance and port you're using before you model anything.
+> Read `vault/02 Art/Skins/Arcade and Frostbite Handoff.md` and do it. We're making the Season 1 battle pass skin lines, starting with ONE skin: **Arcade on the Havoc (Vandal)**. Build it in Blender to our build rules with every check and a self-grade of 9+, show me the renders, and stop for my approval before anything else. Start by loading the skills and reading the notes the handoff lists. I've attached the concept image for the Arcade Havoc. Tell me which Blender MCP instance and port you're using before you model anything.
 
 ## The two lines (owner, 2026-11-26/27)
 - **Arcade (Rare: a shape change, not animated).**
@@ -20,12 +20,10 @@
 - **The Outlaw (TwinShot) was removed from the game** on 2026-11-27. Don't build it.
 - Neither line goes into cases.
 
-## Ask the owner first
-1. **Frostbite's gun count.**
-   - Option 1 (recommended): Frostbite only on its 3 guns (Phantom, Guardian, Vandal) plus the Knife, and the random roll for a Frostbite tier picks only among guns that have a Frostbite model. That's a one-line change in `SeasonRewards.rollGun`: also require `Shared/Locker.hasSkin(gun, line)`.
-   - Option 2: Frostbite on all 14 guns, which is 14 Legendary skins with animation and sounds.
-2. **Concept sheet first, or straight to Blender?** The usual path is a concept sheet from ChatGPT ([README](README.md), `_Template/`), then Blender. The theme is clear enough to block out in Blender and show renders instead. Ask which the owner wants for the Havoc.
-3. The **line names** "Arcade" and "Frostbite" are placeholders. Keep them as ids unless the owner renames them.
+## Owner answers (2026-11-27)
+- **Skins cover all guns from now on, at least for the battle pass.** Both lines go on **all 14 active guns**; Frostbite also gets the Knife. That's 14 Arcade skins and 15 Frostbite skins (14 Legendary guns with animation and sounds, plus the Knife). Build Arcade first.
+- **Concept image:** the owner makes it with ChatGPT from [Arcade/prompt.md](Arcade/prompt.md) and pastes it into the chat. Build the Havoc from that image. If the image changes the stock proportions, take dimensions from the stock asset and the look from the image.
+- The **line names** "Arcade" and "Frostbite" are placeholders. Keep them as ids unless the owner renames them.
 
 ## Read before modelling
 - **Skills:** `gauntlet-build-style` and `gauntlet-model-joins` (they're mandatory), and `blender-director` first for Blender work.
