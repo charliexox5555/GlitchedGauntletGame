@@ -210,6 +210,14 @@ local function verifyBody(player: Player, character: Model)
 			return
 		end
 		applyStandard(player, character)
+		-- Dressed already (MatchBody.dress runs once per model, marked BodyS15): the re-apply brings back the
+		-- player's own head, so the oversized-head swap and head hitbox run again.
+		character:SetAttribute("BodyS15", nil)
+		MatchBody.dress(character)
+		-- The body is already hittable (prepare ran first); a rebuilt root would leave the rewind on the old one.
+		if HitboxHistory.isTracked(character) then
+			HitboxHistory.track(character)
+		end
 		missing = MatchBody.missingParts(character)
 		if #missing == 0 then
 			HealthLog.stage("character", player, `body ok after retry {attempt}`)
@@ -387,14 +395,14 @@ local function onCharacter(character: Model)
 					return
 				end
 			end
-			if player then
-				verifyBody(player, character)
-				if not character.Parent then
-					return
-				end
-			end
 			MatchBody.dress(character)
 			CharacterService.prepare(character)
+			-- The body check runs beside the rest, after prepare: a missing part's re-apply waits up to ~4 s
+			-- (Config/Avatar BODY_RETRY), and the fighter used to be unhittable for all of it (code audit 2026-11-27).
+			-- A re-apply is safe here: the head hitbox, smoothing and collision group follow rebuilt parts.
+			if player then
+				task.spawn(verifyBody, player, character)
+			end
 			character:WaitForChild("Animate", 5)
 			CharacterService.useOurAnimations(character)
 		end
