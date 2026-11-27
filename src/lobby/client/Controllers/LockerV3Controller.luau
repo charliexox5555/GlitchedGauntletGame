@@ -468,8 +468,19 @@ local function styleRow(row: GuiButton, on: boolean)
 	end
 end
 
+local rebuildGunRows: () -> ()
+
 local function refreshGunRows()
 	local g = guns()
+	-- A row is cloned from the owned or the locked template. The rows are built when the Locker loads, which
+	-- can be before the save arrives (the starter pair only), so a gun owned since then rebuilds them; without
+	-- this an equipped gun showed LOCKED and its price.
+	for id, row in rows do
+		if row:GetAttribute("BuiltOwned") ~= (g.owned[id] == true) then
+			rebuildGunRows()
+			break
+		end
+	end
 	for id, row in rows do
 		local owned = g.owned[id] == true
 		local equipped = id == g.primary or id == g.secondary
@@ -1170,6 +1181,7 @@ local function buildGunRows()
 		row.LayoutOrder = order
 		row.Visible = true
 		row:SetAttribute("Gun", id)
+		row:SetAttribute("BuiltOwned", owned)
 		set(row, "Render", "Image", Theme.GUN[id] or "")
 		set(row, "Name", "Text", string.upper(gunName(id)))
 		if owned then
@@ -1209,8 +1221,8 @@ local function buildGunRows()
 	end
 end
 
--- Rows were built for the ownership at open time: an unlock swaps that gun's row for the owned look.
-local function rebuildGunRows()
+-- Rows keep the template they were built with: a change in ownership (an unlock, the save landing) rebuilds them.
+function rebuildGunRows()
 	for _, row in rows do
 		row:Destroy()
 	end
