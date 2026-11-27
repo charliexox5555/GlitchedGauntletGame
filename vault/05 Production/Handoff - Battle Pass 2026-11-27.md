@@ -40,6 +40,8 @@ For the owner (and any session they start) picking up the battle pass after the 
   - Code audit of 516 files: no exploit, dupe or data loss.
   - Movement feel: running jumps are real jumps now.
   - A new-player funnel `Onboarding_v3` tracks 27 steps from loading to match 3. Guide: [Onboarding Funnel v3](../04%20Tech/Onboarding%20Funnel%20v3.md).
+- **Gun levels: built (2026-11-27).** XP per gun from play, up to level 50. Small capped stat steps: handling, reload and stability −8% at most, accuracy −5%; damage and time to kill never change. Coin levels go up to 30 only. The Locker level card and the level-up moment on the end screen are built. Milestone rewards are empty for now (`Config/GunLevels.REWARDS`). See [Gun Levels](../01%20Design/Gun%20Levels.md).
+- **Match pay:** 3 coins per round won and 1 per elimination. Finishing pays only when you took part, and +100 for the first win of the day. A bot match pays about 25 on average, a real one about 42.
 - **Small adds:** a red dot on the Shop while today's login reward waits.
 
 ## 3. The battle pass: where it stands
@@ -69,6 +71,7 @@ Plan: [Battle Pass Build Plan](../04%20Tech/Battle%20Pass%20Build%20Plan.md) (9 
    - The pass = time and rounds, cosmetics and powers.
    - Gun levels = that gun's use, small stats and milestone rewards.
    - A pass reward could be a gun XP boost later. Not now.
+   - Gun level milestone rewards (`Config/GunLevels.REWARDS`, every 5 levels) are empty. They are the "rewards later" update: decide what they pay alongside the pass, so the two tracks don't hand out the same things.
 4. **Pass powers stay out of packs.** Done (commit 62aeeefa).
 5. **Electric Shock is slight pay-to-win on purpose** (owner, 2026-11-26). With coin levels now also buying small stats, watch what the community calls pay-to-win. Two strong levers at once is where that reputation starts.
 6. **Pace:** a tier per 30 min of live rounds or 25 rounds won, bots at half, 6 weeks. That was decided before matches went first-to-4 for onboarding; normal matches are unchanged, so the pace holds.
@@ -101,5 +104,27 @@ Ranked by what the funnels say, cheapest first:
 - [ ] **Try on a real controller:** A to jump, B to slide, plus the lobby pages (the test tools can't press gamepad buttons).
 - [ ] **Publish**, then read `Onboarding_v3`, `MatchLeft` and D1 over 2-3 days.
 
-## 7. Release check
-Filled in after gun levels lands and the final check runs (below).
+## 7. Release check (2026-11-27, Studio, after every session landed)
+- **Code:** `stylua --check`, `selene` with 0 warnings, and `rojo build` all pass on main at 1e60fe53.
+- **Fresh new player** (`FreshOnboarding`, idle player, Rookie bots, Telemetry log on):
+  - Loading screen done at +4.1 s. Match 1 queued and reached at once; the fight was live at +10.7 s.
+  - Four rounds, first to 4: an idle loss 0-4, so the bots fight.
+  - `Onboarding_v3` steps 1-13 and 20 printed in order.
+  - Back in the lobby: 506 coins (500 + 6; the onboarding exemption pays the finish to an idle new player). The **UNLOCK** badge was on the Locker.
+  - The Locker opened on the Prowler (400). The new prices showed (Hornet 2,000 … Deadeye 6,000). The confirm said "You'll have 106 coins left", and UNLOCK took the coins to 106.
+- **Bug found and fixed (1e60fe53):** TRY IN THE RANGE, then leaving the Range, brought the Locker's panels back over the lobby HUD with no room or camera.
+  - Cause: the Locker closes and the Range trip starts at once. The armed-zone hide grabbed the Locker screen mid-close and turned it back on in the lobby.
+  - Fix: a closed Locker keeps its screen off, the rule the other lobby pages already had.
+  - Re-tested: TRY → Range → leave → clean lobby.
+- **Shop login dot:** off when today is claimed. With the day faked unclaimed, the dot shows "1" on the Shop.
+- **Gun levels** (own session, [Gun Levels](../01%20Design/Gun%20Levels.md)), Studio-tested:
+  - XP from a bot match, the level-up moment, and the reload step measured in-game.
+  - A coin level spammed 10× pays once. An old save loads.
+- **Not checked here:**
+  - **Phone size (667x375) of the new Locker level card.** Studio's Device Emulator needs desktop access, which needs you.
+  - **A real controller.**
+  - **The real teleport to a reserved server.** Studio can't teleport; the first live players will show it in `Onboarding_v3` step 5.
+- **Minor, not ours as far as I can tell:**
+  - Every join logs "rbxassetid://203785492 … Asset type does not match" three times. It isn't in our code, workspace, ReplicatedStorage or UI. It's probably an avatar item.
+  - Also "Rubik.json failed to load: Temp read failed", a Studio font cache message.
+- **Your RIVALS reference file was open in Play mode** in Studio during this pass. Its scripts are untrusted; stop it.
