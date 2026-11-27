@@ -267,12 +267,9 @@ return table.freeze({
 		AURA_TEASE = 4.6, -- pack units: the tier glow behind the pack from the second-to-last shake
 		AURA_HOLD = 6, -- while it strains
 		AURA_BURST = 7.5, -- behind the card on the flip (+0.6 per tier step)
-		LIGHT_RANGE = 4, -- pack units: the light on the pack (tier-coloured from the strain)
+		LIGHT_RANGE = 2.6, -- pack units: the light on the pack (tier-coloured from the strain), kept off the opener
 		COIL = 0.16, -- it pulls back and down before the rip snaps
 		POP = 1.6, -- the card's overshoot as it grows on the flip (Back easing strength)
-		RING_SIZE = 9, -- pack units: the shockwave ring on the flip grows to this
-		HALO_SIZE = 3.6, -- pack units (+0.4 per tier step): the dashed halo spinning behind the card, Rare up
-		HALO_SPIN = 30, -- degrees per second
 		TWINKLES = 4, -- stars per second round the held card (+3 per tier step)
 		-- OPEN 3: the packs in a row across the opener's view, farther out, smaller cards; the best tier leads and
 		-- the others play their sounds quieter; tossed and collected one after another

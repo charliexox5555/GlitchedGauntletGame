@@ -18,8 +18,9 @@
 -- second-to-last) → strains for TIER_FX.hold with the riser → coils back, then the top strip (Top_Seal) tears off
 -- from its notch, hinging on its far end (the model's TopPivot attribute), sparks along the tear, and flies away →
 -- the power card slides up out of the pack with its back to the opener, the empty pack sinks and fades, the card
--- rises and flips to its face with an overshoot pop: the stinger, a shockwave ring, sparks, a shine across its face,
--- a spinning halo (higher tiers), a small name plate over it → twinkles while it holds → it arcs into the opener.
+-- rises and flips to its face with an overshoot pop in its tier glow: the stinger, sparks, a shine across its face,
+-- a small name plate over it → twinkles while it holds → it arcs into the opener. No rings or halos behind the card
+-- (owner 2026-11-27: "I dont really like the effects behind the card ... the circle thing we dont need that").
 -- The pack is ReplicatedStorage.Crates.PowerPack (tools/studio/BuildPack.luau): anchored parts placed every frame.
 -- Poses are in pack units (the template's studs); WORLD_SCALE turns them into world studs.
 
@@ -229,7 +230,7 @@ local function twinkles(parent: Instance, color: Color3, rate: number): Particle
 	return e
 end
 
--- a camera-facing image on `anchor` (the tier glow, the shockwave ring, the halo)
+-- a camera-facing image on `anchor` (the tier glow)
 local function billboard(anchor: BasePart, image: string, size: number): (BillboardGui, ImageLabel)
 	local g = Instance.new("BillboardGui")
 	g.LightInfluence = 0
@@ -418,17 +419,15 @@ function PackOpening.start(
 		box.Name = "Pack"
 		box.Parent = folder
 		local lightPart = part("PackLight", box)
-		lightPart.CFrame = stageCF * CFrame.new(0.4 * S, 0.9 * S, -1.6 * S)
+		lightPart.CFrame = stageCF * CFrame.new(0.4 * S, 0.9 * S, -0.9 * S)
 		local light = Instance.new("PointLight")
 		light.Range = P.LIGHT_RANGE * S
-		light.Brightness = 0.8
+		light.Brightness = 0.5
 		light.Color = WARM
 		light.Shadows = false
 		light.Parent = lightPart
 		local auraPart = part("PackAura", box)
 		local auraGui, aura = billboard(auraPart, Vfx.GLOW, 2)
-		local haloGui, halo = billboard(auraPart, Vfx.MOD_RING_DASHED, 4)
-		local ringGui, ring = billboard(auraPart, Vfx.MOD_RING, 1)
 		local tearPart = part("PackTear", box)
 		local burstPart = part("PackBurst", box)
 		local platePart = part("PackPlate", box)
@@ -467,7 +466,6 @@ function PackOpening.start(
 		local stripPose = CFrame.identity
 		local cardPose: CFrame? = nil
 		local tearAt = Vector3.zero
-		local haloSpin = 0
 
 		local base: { [BasePart]: CFrame } = {}
 		local strip: { BasePart } = {}
@@ -519,7 +517,6 @@ function PackOpening.start(
 		local function step()
 			auraPart.CFrame = stageCF * scaled(auraOffset)
 			tearPart.CFrame = stageCF * scaled(packPose * CFrame.new(tearAt))
-			halo.Rotation = haloSpin
 			local m = pack
 			if m then
 				local body = stageCF * scaled(packPose)
@@ -756,41 +753,9 @@ function PackOpening.start(
 						end
 						sparksOut:Emit(fx.sparks)
 						light.Color = color
-						light.Brightness = 1.4
+						light.Brightness = 0.9
 						auraOffset = CFrame.new(0, target.Y, 0.7)
 						setAura(color, (P.AURA_BURST + 0.6 * tier.order) * cardK, 0, 0.4)
-						-- the shockwave ring
-						ring.ImageColor3 = color
-						ring.ImageTransparency = 0
-						ringGui.Size = UDim2.fromScale(1.5 * S * cardK, 1.5 * S * cardK)
-						local ringInfo =
-							TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-						local ringSize = P.RING_SIZE * S * cardK
-						TweenService
-							:Create(
-								ringGui,
-								ringInfo,
-								{ Size = UDim2.fromScale(ringSize, ringSize) }
-							)
-							:Play()
-						TweenService:Create(ring, ringInfo, { ImageTransparency = 1 }):Play()
-						-- the spinning halo, from Rare up
-						if tier.order >= 2 then
-							halo.ImageColor3 = color
-							local haloSize = (P.HALO_SIZE + 0.4 * tier.order) * S * cardK
-							haloGui.Size = UDim2.fromScale(haloSize * 0.6, haloSize * 0.6)
-							local haloInfo = TweenInfo.new(
-								0.45,
-								Enum.EasingStyle.Quint,
-								Enum.EasingDirection.Out
-							)
-							TweenService:Create(
-								haloGui,
-								haloInfo,
-								{ Size = UDim2.fromScale(haloSize, haloSize) }
-							):Play()
-							TweenService:Create(halo, haloInfo, { ImageTransparency = 0.35 }):Play()
-						end
 						-- one shine across the card's face
 						local sw = sweep
 						if sw then
@@ -826,7 +791,7 @@ function PackOpening.start(
 				pack = nil
 			end
 
-			-- the hold: a slow sway in the glow, stars twinkling round it, the halo turning
+			-- the hold: a slow sway in the glow, stars twinkling round it
 			local rest = cardPose or CFrame.identity
 			local twinkle = twinkles(burstPart, color, P.TWINKLES + 3 * tier.order)
 			burstPart.Size = Vector3.new(2.2, 2.7, 0.3) * S * grow
@@ -834,7 +799,6 @@ function PackOpening.start(
 			if
 				not run(hold, function(a)
 					local t = a * hold
-					haloSpin = t * P.HALO_SPIN
 					cardPose = rest
 						* CFrame.new(0, math.sin(t * 1.6) * 0.035, 0)
 						* CFrame.Angles(math.sin(t * 1.2) * 0.03, math.sin(t * 0.9) * 0.12, 0)
@@ -849,20 +813,21 @@ function PackOpening.start(
 			local plateGui = platePart:FindFirstChild("PackPlate")
 			local group = plateGui and plateGui:FindFirstChild("Plate")
 			if group and group:IsA("CanvasGroup") then
-				TweenService
-					:Create(
-						group,
-						TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-						{
-							GroupTransparency = 1,
-						}
-					)
-					:Play()
+				TweenService:Create(
+					group,
+					TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+					{
+						GroupTransparency = 1,
+					}
+				):Play()
+			end
+			-- the plate goes with the card (it must not hang in the air while the card flies off)
+			if plateGui then
+				Debris:AddItem(plateGui, 0.2)
 			end
 			local outInfo =
 				TweenInfo.new(P.OUT_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 			TweenService:Create(aura, outInfo, { ImageTransparency = 1 }):Play()
-			TweenService:Create(halo, outInfo, { ImageTransparency = 1 }):Play()
 			sound(Cfg.SOUNDS.Fly, quiet)
 			local spin = math.rad(Cfg.FLY_SPIN)
 			local ok2 = run(P.OUT_TIME, function(a)
