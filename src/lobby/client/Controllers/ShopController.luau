@@ -22,6 +22,9 @@
 --   CONTENTS lists every outcome with its odds (adding up to 100%) and the
 --   note. Where PolicyService says paid random items are restricted (or the
 --   check fails) the case can't be bought; the server will enforce the same.
+--   The SURGE power pack's popup: BUY x1 / x3 with coins, then x1 / x3 with Robux
+--   (Config/Economy.POWER_PACK, Config/Products caseId "Power"); where paid random
+--   items are restricted, x1 / x3 with Tickets only.
 -- Every device; Shared/UiLayout sizes it (the Fit scales on Canvas, PopupCanvas, Top).
 
 local Players = game:GetService("Players")
@@ -96,6 +99,16 @@ local tabPlates: { [string]: GuiButton } = {}
 local dim: Frame
 local popCanvas: Frame
 local casePanel: Frame
+-- The SURGE power pack's popup bits, in ONE local: this module is at Luau's 200-local limit
+-- (another top-level local stops it loading: "Out of local registers").
+local PowerPack = {
+	isPack = require(ReplicatedStorage.Shared.PowerCases).isPowerCase,
+	coins3 = nil :: GuiButton?, -- BUY x3 for coins (Studio CasePanel.BuyCoins3)
+	buy = nil :: ((count: number, button: GuiObject?) -> ())?, -- set with the confirm popup
+	-- the case popup's row: widths / gaps by button count (three keep the Studio 230 / 20)
+	width = { [4] = 182 } :: { [number]: number },
+	gap = { [4] = 14 } :: { [number]: number },
+}
 -- Robux cases are paid random items: shown only once Roblox says they're allowed here
 -- (display only, fail closed; Services/RobuxService checks again)
 local casesRestricted = true
@@ -574,26 +587,68 @@ local function openCasePopup(case: ShopCatalog.Case)
 	local art = child(casePanel, "Art") :: ImageLabel
 	art.Image = case.art or ""
 	-- Robux first (one / three), Tickets second (owner 2026-11-22); where paid random items
-	-- aren't allowed only Tickets (Config/Products.CASES, Config/Economy.CASE_TICKETS)
+	-- aren't allowed only Tickets (Config/Products.CASES, Config/Economy.CASE_TICKETS).
+	-- The power pack: coins x1 / x3 first, then Robux x1 / x3 (owner 2026-11-27); a Robux
+	-- product with id 0 isn't created on Roblox yet, so its button stays hidden.
+	local power = PowerPack.isPack(case.id)
 	local byCount = Products.CASES[case.id] or {}
 	local one, three = byCount[1], byCount[3]
-	local robuxOk = not casesRestricted and one ~= nil
 	local r1, r3 =
 		child(casePanel, "BuyRobux") :: GuiObject, child(casePanel, "BuyRobux3") :: GuiObject
-	r1.Visible = robuxOk
-	r3.Visible = robuxOk and three ~= nil
+	local buy, buy3 = child(casePanel, "BuyCoins") :: GuiObject, PowerPack.coins3 :: GuiButton
+	r1.Visible = not casesRestricted and one ~= nil and one.id ~= 0
+	r3.Visible = not casesRestricted and three ~= nil and three.id ~= 0
+	buy3.Visible = power
 	if one then
 		setPlate(r1, commas(one.robux))
 	end
 	if three then
 		setPlate(r3, commas(three.robux))
 	end
-	local buy = child(casePanel, "BuyCoins") :: GuiObject
-	-- only X moves: the pop setup has re-anchored the button to its centre
-	buy.Position =
-		UDim2.new(0, if robuxOk then 660 else 410, buy.Position.Y.Scale, buy.Position.Y.Offset)
-	setPlate(buy, ticketWords(Economy.CASE_TICKETS[case.id] or 0))
-	priceIcon(buy, "tickets")
+	local row: { GuiObject } = {}
+	if power then
+		local pack = Economy.POWER_PACK
+		local kind: "coins" | "tickets" = if casesRestricted then "tickets" else "coins"
+		for i, b in { buy, buy3 } do
+			local n = if i == 1 then 1 else Inventory.BATCH_OPEN_COUNT
+			setPlate(
+				b,
+				if kind == "coins"
+					then commas(pack.coins * n)
+					else ticketWords(pack.restrictedTickets * n)
+			)
+			priceIcon(b, kind)
+			local kicker = b:FindFirstChild("Kicker")
+			if kicker and kicker:IsA("TextLabel") then
+				kicker.Text = `BUY x{n}`
+			end
+		end
+		row = { buy, buy3, r1, r3 }
+	else
+		setPlate(buy, ticketWords(Economy.CASE_TICKETS[case.id] or 0))
+		priceIcon(buy, "tickets")
+		local kicker = buy:FindFirstChild("Kicker")
+		if kicker and kicker:IsA("TextLabel") then
+			kicker.Text = "WITH TICKETS"
+		end
+		row = { r1, r3, buy }
+	end
+	-- the visible buttons in one centred row; only X and width change (the pop setup has
+	-- re-anchored each button to its centre)
+	local shown: { GuiObject } = {}
+	for _, b in row do
+		if b.Visible then
+			table.insert(shown, b)
+		end
+	end
+	local n = #shown
+	local w, gap = PowerPack.width[n] or 230, PowerPack.gap[n] or 20
+	local left = (casePanel.Size.X.Offset - (n * w + (n - 1) * gap)) / 2 + w / 2
+	for i, b in shown do
+		b.Size = UDim2.new(0, w, b.Size.Y.Scale, b.Size.Y.Offset)
+		b.Position =
+			UDim2.new(0, left + (i - 1) * (w + gap), b.Position.Y.Scale, b.Position.Y.Offset)
+	end
 	showPanel(casePanel)
 end
 
@@ -639,6 +694,11 @@ local function buyCase(how: string, button: GuiObject?)
 	end
 	if how == "BuyRobux" or how == "BuyRobux3" then
 		askRobux("case", case.id, if how == "BuyRobux3" then 3 else 1)
+		return
+	end
+	local buyPack = PowerPack.buy
+	if PowerPack.isPack(case.id) and buyPack then
+		buyPack(if how == "BuyCoins3" then Inventory.BATCH_OPEN_COUNT else 1, button)
 		return
 	end
 	if buying then
@@ -1497,12 +1557,59 @@ askRobux = function(what: string, a: any?, b: any?)
 	LobbyNet.event("RobuxRequest"):FireServer(what, a, b)
 end
 
+-- SURGE power packs for coins (Tickets where paid random items are restricted). The server
+-- checks everything again (Services/ShopService "buyPack") and refuses a currency it wouldn't
+-- charge; short of coins -> the COINS tab with the pack that covers it.
+PowerPack.buy = function(count: number, button: GuiObject?)
+	if buying then
+		return
+	end
+	if not PlayerData.ready(player) then
+		LobbyHud.toast("Your save is still loading", "info")
+		return
+	end
+	local pack = Economy.POWER_PACK
+	if casesRestricted then
+		if PlayerData.tickets(player) < pack.restrictedTickets * count then
+			denied(button, false, true)
+			LobbyHud.toast("Not enough Tickets: claim daily rewards to earn more", "error")
+			return
+		end
+	else
+		local short = pack.coins * count - PlayerData.coins(player)
+		if short > 0 then
+			denied(button, true)
+			LobbyHud.toast("Not enough coins", "error")
+			showPanel(nil)
+			goToPack(short)
+			return
+		end
+	end
+	lastBuyButton = button
+	buying = true
+	UiSfx.cue("Confirm")
+	LobbyNet.event("ShopRequest")
+		:FireServer("buyPack", count, if casesRestricted then "tickets" else "coins")
+	task.delay(8, function() -- no answer: let them try again
+		buying = false
+	end)
+end
+
 -- Case tiles on HOME: the Robux price first where cases can be sold for Robux, else Tickets.
 local caseCards: { { card: GuiButton, case: ShopCatalog.Case } } = {}
 local function drawCasePrices()
 	for _, cc in caseCards do
 		local one = (Products.CASES[cc.case.id] or {})[1]
-		if one and not casesRestricted then
+		if PowerPack.isPack(cc.case.id) then
+			-- the power pack leads with coins (Tickets where paid random items are restricted)
+			if casesRestricted then
+				plateAmount(cc.card, ticketWords(Economy.POWER_PACK.restrictedTickets))
+				priceIcon(cc.card, "tickets")
+			else
+				plateAmount(cc.card, commas(Economy.POWER_PACK.coins))
+				priceIcon(cc.card, "coins")
+			end
+		elseif one and one.id ~= 0 and not casesRestricted then
 			plateAmount(cc.card, commas(one.robux))
 			priceIcon(cc.card, "robux")
 		else
@@ -2189,6 +2296,17 @@ function ShopController.init()
 	dim = child(gui, "Dim")
 	popCanvas = child(gui, "PopupCanvas")
 	casePanel = child(popCanvas, "CasePanel")
+	-- BuyCoins3 is in the Studio template (2026-11-27); a copy of BuyCoins if the place lacks it
+	local coins3 = casePanel:FindFirstChild("BuyCoins3")
+	if coins3 and coins3:IsA("GuiButton") then
+		PowerPack.coins3 = coins3
+	else
+		local copy = (child(casePanel, "BuyCoins") :: GuiButton):Clone()
+		copy.Name = "BuyCoins3"
+		copy.Visible = false
+		copy.Parent = casePanel
+		PowerPack.coins3 = copy
+	end
 	confirmPanel = child(popCanvas, "ConfirmPanel")
 	rewardPanel = child(popCanvas, "RewardPanel")
 	oddsPanel = child(popCanvas, "OddsPanel")
@@ -2540,8 +2658,10 @@ function ShopController.init()
 			showPanel(oddsPanel)
 		end
 	end)
-	for _, n in { "BuyCoins", "BuyRobux", "BuyRobux3" } do
-		local b = child(casePanel, n) :: GuiButton
+	for _, n in { "BuyCoins", "BuyCoins3", "BuyRobux", "BuyRobux3" } do
+		local b = if n == "BuyCoins3"
+			then PowerPack.coins3 :: GuiButton
+			else child(casePanel, n) :: GuiButton
 		local sc = pop(b)
 		b.MouseEnter:Connect(function()
 			rest(sc, KM.hover)

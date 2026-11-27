@@ -8,7 +8,8 @@
 --     ("item", bundleId, i)  item i of a bundle on its own
 --     ("daily", slot)        a Robux-priced slot of the player's saved daily shop
 --     ("starter")            the Starter Bundle (once per player)
---     ("case", caseId, 1|3)  cases for Robux (only where paid random items are allowed)
+--     ("case", caseId, 1|3)  cases for Robux (only where paid random items are allowed);
+--                            "Power" = SURGE power packs, refused past the powers still unowned
 --     ("season")             the season pass premium track (refused once owned)
 --     ("seasonSkip")         +Season.SKIP_TIERS pass tiers (refused at the last tier)
 --   Both season products only while the pass is open (Shared/SeasonPass.open). Pass cases
@@ -25,11 +26,11 @@
 -- Cases inside a Robux purchase (coin packs 4-6, the Starter Bundle) are paid random
 -- items: granted only where PolicyService allows (checked at grant, fail closed), extra
 -- coins otherwise. Anything that can't be granted (a lost intent, a skin already owned)
--- pays its Robux price back as coins (Economy.ROBUX_TO_COINS each).
+-- pays its Robux price back as coins (Economy.ROBUX_TO_COINS each). A power pack that can't be
+-- given (every power owned or covered by held packs) pays its coin price (Economy.POWER_PACK.coins).
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
-local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
@@ -46,11 +47,13 @@ local Season = require(ReplicatedStorage.Shared.Config.Season)
 local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 local SeasonRewards = require(ReplicatedStorage.Lobby.SeasonRewards)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
+local PowerCases = require(ReplicatedStorage.Shared.PowerCases)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local ShopService = require(script.Parent.ShopService)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local Telemetry = require(script.Parent.Parent.Telemetry)
+local PaidRandom = require(script.Parent.Parent.PaidRandom)
 
 local RobuxService = {}
 
@@ -71,6 +74,8 @@ local REASON_TEXT: { [string]: string } = {
 	notSold = "That isn't sold for Robux",
 	promptOpen = "Finish the purchase that's open first",
 	notHere = "Cases can't be bought with Robux where you are: use Tickets",
+	ownAllPowers = "You already own every power (or hold packs for the rest)",
+	full = "Your Backpack can't hold more of those",
 	premium = "You already have the Premium Pass",
 	topTier = "Your pass is already at the last tier",
 	passClosed = "The battle pass isn't open right now",
@@ -102,11 +107,18 @@ end
 -- (answered, allowed): answered = false when the policy call failed (the request side
 -- treats that as not allowed; a receipt waits and Roblox sends it again).
 local function casesAllowed(player: Player): (boolean, boolean)
-	local ok, info = pcall(PolicyService.GetPolicyInfoForPlayerAsync, PolicyService, player)
-	if not ok or typeof(info) ~= "table" then
-		return false, false
+	return PaidRandom.check(player)
+end
+
+-- How many more power packs this player can hold and still get a new power from each.
+local function powerPackRoom(data: PlayerData.Data, product: Products.Product): number
+	local def = if product.case then Inventory.ITEMS[product.case] else nil
+	local caseId = product.caseId
+	if not def or not caseId then
+		return 0
 	end
-	return true, (info :: any).ArePaidRandomItemsRestricted == false
+	local held = data.items[def.id] or 0
+	return math.min(#PowerCases.unowned(caseId, data.mods) - held, def.maxStack - held)
 end
 
 local function prompt(player: Player, product: Products.Product)
@@ -343,6 +355,15 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 			reject("badArgs")
 			return
 		end
+		if product.id == 0 then -- not created on Roblox yet (Config/Products)
+			fail(player, "notSold")
+			return
+		end
+		local isPower = product.caseId ~= nil and PowerCases.isPowerCase(product.caseId)
+		if isPower and powerPackRoom(known, product) < (product.count or 1) then
+			fail(player, "ownAllPowers")
+			return
+		end
 		local _, allowed = casesAllowed(player)
 		if not allowed then
 			fail(player, "notHere")
@@ -446,6 +467,21 @@ local function grant(
 		end
 		addCoins(product.fallbackCoins or 0)
 		return `Starter Bundle: {(product.coins or 0) + (product.fallbackCoins or 0)} coins`
+	elseif product.kind == "case" and product.caseId and PowerCases.isPowerCase(product.caseId) then
+		-- power packs: never more than the powers they can still get; the rest at the coin price
+		local n = math.max(product.count or 1, 1)
+		local given = if allowCase then math.clamp(powerPackRoom(data, product), 0, n) else 0
+		local def = if product.case then Inventory.ITEMS[product.case] else nil
+		if def and given > 0 then
+			data.items[def.id] = (data.items[def.id] or 0) + given
+		end
+		local back = (n - given) * Economy.POWER_PACK.coins
+		addCoins(back)
+		return if given == n
+			then `{product.name} added to your Backpack`
+			elseif given > 0 then `{given} of {n} packs added (no more powers left): +{back} coins`
+			elseif allowCase then `You already own every power: +{back} coins`
+			else `+{back} coins (packs can't be sold here)`
 	elseif product.kind == "case" then
 		local n = math.max(product.count or 1, 1)
 		local got = addCases(product.case, n, compensation(product))
@@ -512,9 +548,13 @@ local function grant(
 	end
 end
 
-local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDecision
+-- `studioProduct`: only the Studio test hook passes it (a product not created on Roblox yet, id 0).
+local function processReceipt(
+	info: { [string]: any },
+	studioProduct: Products.Product?
+): Enum.ProductPurchaseDecision
 	local player = Players:GetPlayerByUserId(info.PlayerId)
-	local product = Products.BY_ID[info.ProductId]
+	local product = studioProduct or Products.BY_ID[info.ProductId]
 	if not player or not PlayerDataService.get(player) then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
@@ -608,7 +648,9 @@ function RobuxService.init() end
 function RobuxService.start()
 	shopEvent = LobbyNet.event("ShopEvent")
 	LobbyNet.event("RobuxRequest").OnServerEvent:Connect(onRequest)
-	MarketplaceService.ProcessReceipt = processReceipt
+	MarketplaceService.ProcessReceipt = function(info)
+		return processReceipt(info)
+	end
 	-- A successful prompt can finish before the receipt callback arrives.
 	MarketplaceService.PromptProductPurchaseFinished:Connect(
 		function(userId: number, productId: number, purchased: boolean)
@@ -625,17 +667,27 @@ function RobuxService.start()
 	end)
 	-- Studio only: a test hook that runs a fake receipt (Studio's purchase dialog can't
 	-- be clicked by tools). ServerStorage.RobuxTestReceipt:Invoke(userId, productId, purchaseId?).
+	-- productId may be "case:<caseId>:<count>" for a case product not created on Roblox yet (id 0).
 	if RunService:IsStudio() then
 		local hook = Instance.new("BindableFunction")
 		hook.Name = "RobuxTestReceipt"
 		local n = 0
-		hook.OnInvoke = function(userId: number, productId: number, purchaseId: string?)
+		hook.OnInvoke = function(userId: number, productId: number | string, purchaseId: string?)
 			n += 1
+			local override: Products.Product? = nil
+			if typeof(productId) == "string" then
+				local caseId, count = string.match(productId, "^case:(%w+):(%d)$")
+				local byCount = caseId and Products.CASES[caseId]
+				override = byCount and byCount[tonumber(count) or 0]
+				if not override then
+					return "unknown test product"
+				end
+			end
 			return processReceipt({
 				PlayerId = userId,
-				ProductId = productId,
+				ProductId = if override then override.id else productId,
 				PurchaseId = purchaseId or `studio-{os.time()}-{n}`,
-			}).Name
+			}, override).Name
 		end
 		hook.Parent = ServerStorage
 	end

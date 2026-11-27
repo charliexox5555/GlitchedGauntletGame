@@ -74,7 +74,8 @@ local ITEMS: { [string]: ItemDef } = {
 		icon = "rbxassetid://111410900647363",
 	},
 	-- the first power pack (vault/01 Design/Loadout and Power Deck.md -> Power cases): a power you don't own yet,
-	-- never a duplicate (Shared/PowerCases); Tickets only, no Robux product
+	-- never a duplicate (Shared/PowerCases); coins or Robux (Config/Economy.POWER_PACK), Tickets where paid random
+	-- items are restricted
 	CasePower = {
 		id = "CasePower",
 		kind = "Case",
