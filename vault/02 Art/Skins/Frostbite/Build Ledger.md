@@ -73,12 +73,13 @@
 
 ## Implemented Effects & Sounds (Vandal)
 
-### Visual Effects (`src/client/Util/FrostbiteEffects.luau` + `src/shared/Config/Frostbite.luau`)
-Client-only on camera viewmodel clone; Motor6D swaps (`FrostbiteMotion`) + `LocalHide` + `PointLight` + `ParticleEmitter` (`FrostbiteMotes`, `FrostbiteChips`), auto-cleaned on unequip:
-1. **Rest Cold Shimmer:** `2.6 s` sine breath across `SK_Root_FBCoreHeart`, seams (`FBCoreFissure`, `FBUpperSeam`, `FBForeSeam`, `FBMuzzleGlow`, `FBStockGlow`), and `SK_Mag_FBMagGlow`, plus `FrostbiteCoreLight` (`PointLight`) and gentle `FrostbiteMotes` (`Rate = 5`), both disabled when `adsAlpha >= 0.25`.
-2. **Inspect Ice Growth (`Vandal_Inspect`):** `SK_Root_FBGrowRear` (`0.14..0.36`), `FBGrowMid` (`0.34..0.56`), `FBGrowFront` (`0.52..0.74`) stagger upward along flank cleavage with `easeOutBack` + chip emission, holding bloom until `0.84..0.98` retract.
-3. **Kill Crack & Shed (`ViewmodelController.onKill`):** `0.06 s` ice-white flash -> `0.38 s` outward break/tumble + `14` `FrostbiteChips` burst + `LocalHide` fade (`FBShard1..4`) -> `0.90 s` refreeze back to rest.
-4. **Fire & Mag-Seat Pulses:** `0.10 s` cryo pulse on `Fire` and `0.24 s` pulse on `MagIn`.
+### Visual Effects (`src/client/Util/FrostbiteEffects.luau`, `FrostbiteFx.luau`, `MuzzleFx.luau`, `EffectsController.luau`, `Config/Frostbite.luau`)
+Upgraded to compare with top-tier Legendary skins (`Riftforge` / `TempestStrike` / `Slipframe`) across every first-person and world touchpoint (client-only, cleaned on unequip, ADS-clean):
+1. **Rest Cryo Reactor:** Dual paired volumetric flank `Beam` ribbons (`VFX.FROST_VAPOR` + `VFX.TEMPEST_GLOW_BAND`), 3 cryo fracture `STIM_BOLT` lightning arcs, cascading sub-zero vapor (`FROST_MIST_2x2` at core and fore-end), diamond snow glints (`MOD_SPARKLE`), dual `PointLight`s, and `2.6 s` breathing shimmer across `FBCoreHeart`, seams, and `FBMagGlow`. All lights, mist, sparkles, arcs, halo, and ribbons cleanly turn off/fade out in ADS (`adsAlpha >= 0.25`).
+2. **Draw & Reload:** `Draw` sweeps a 12-segment 3D Cryo Halo ring (`makeHalo`) stock -> muzzle with diamond sparkle bursts; `Reload` drains emissives cool dark and vents frost vapor (`FrostbiteMagMist`) from the magwell while the mag is out, then slams a 3D halo sweep + `FROST_BURST_2x2` pop down the barrel on `MagIn`.
+3. **Inspect Ice Growth (`Vandal_Inspect`):** 2× amplified crystal eruption (`FBGrowRear` -> `Mid` -> `Front`, `~0.062–0.072` unscaled studs along flank cleavage) with frosted `#ECFDFF` paint shift, trailing 3D cryo halo wave, rapid fracture arcs, `T_CHIP` shard puffs, and `FROST_BURST_2x2` settle pop.
+4. **Fire, Muzzle Flash, Tracers & Impacts:** Reuses Slipframe's icy `SlipframeFlashCore` + twin `SlipframeFlashEdge` muzzle flash (and suppressed icy puff) plus custom `FrostbiteMuzzleShards` (`VFX.FROST_SHARD`), launches a travelling `T_RING` cryo pulse down the barrel per shot with sequential seam light waves, fires icy cyan tracers (`#A6F2FF` + `TEMPEST_WATER_TRACER` wake), and spawns `FrostbiteFx.splash` on wall impacts (`FROST_BURST_2x2`, `T_RING`, flying `T_CHIP`/`FROST_SHARD` splinters, `FROST_MIST_2x2`, fading `FROST_GROUND` frost-feather decal, cold `PointLight`).
+5. **Kill Cryo Shatter:** `0.07 s` flash -> radial 3D halo shockwave, sympathetic crystal crest shudder, `22` `T_CHIP` bursts, `FBShard1..4` outward fracture (`0.26–0.28` unscaled studs) with tumble & `LocalHide` fade, AND `FrostbiteFx.killBurst` world cryo nova at the eliminated target (`FROST_BURST_2x2`, `T_RING` nova, `22` 3D shards/chips, mist cloud, sparkles, light) -> `0.90 s` refreeze sweep back to rest.
 
 ### Sounds (`tools/audio/design_frostbite.py` + `src/shared/Config/FrostbiteAudio.luau`)
 48 kHz PCM_16 WAVs (`art-source/audio/frostbite/`, licensed ProPack transients + crystalline FM/cold air synthesis), wired via `AudioController` (`frostbite` bank), `GunAudio`, `ViewmodelController`, and `WeaponController`:
@@ -94,9 +95,9 @@ Client-only on camera viewmodel clone; Motor6D swaps (`FrostbiteMotion`) + `Loca
 - **Lint & Build:** `stylua --check` clean on all Frostbite-touched Luau files; `selene src` passed (`0 errors, 0 warnings`); `rojo build default.project.json` clean.
 - **Studio Play Range (`Locker -> TRY IN THE RANGE`, `PlaceId 71551303511506`):**
   - `SkinStore.has("Frostbite", "Vandal") == true`, `[SkinStore] 240 skins in the manifest`, `Locker.valid("Vandal", "Frostbite") == true`, `Frostbite` absent from `SkinCases.all()`.
-  - Camera viewmodel loaded all `14` `_FB*` MeshParts, `7` `FrostbiteMotion` Motor6Ds, `4` `Sight` parts, `FrostbiteCoreLight`, `FrostbiteMotes`, and `FrostbiteChips`.
-  - ADS (`DevAim`) suppressed `FrostbiteCoreLight` and `FrostbiteMotes` cleanly (`Enabled = false`), restoring on hip (`Enabled = true`).
-  - Fire pulse raised core brightness (`0.29 -> 0.63`); Inspect moved `FBGrowRear/Mid/Front` along the 3 staggered stages (`Transform` peak `~0.027..0.033`, `dPos = +0.0256` studs on `Root.Y`).
-  - Live kill of a `RangeBot` (`HitConfirm` `killed = true`) triggered shard crack/shed (`pos = 0.0148 -> 0.0911 -> 0.1235`, `LTM = 0 -> 0.70 -> 1.00`) and refreeze (`pos = 0.0000`, `LTM = 0.00`).
-  - **0 console errors** from Frostbite code, geometry, or audio.
+  - Camera viewmodel loaded all `14` `_FB*` MeshParts, `7` `FrostbiteMotion` Motor6Ds, `4` `Sight` parts, `FrostbiteRibbon*` (`6` outer + `6` core Beams), `FrostbiteHaloBeam*`/`FrostbiteHaloCore*` (`12` segments), `FrostbiteArc*` (`3`), `FrostbiteCoreLight`, `FrostbiteForeLight`, `FrostbiteMistCore`, `FrostbiteMistFore`, `FrostbiteMagMist`, `FrostbiteSparkles`, `FrostbiteShards`, `FrostbiteBurst`, `FrostbiteMuzzlePop`, and `FrostbitePulseRing`.
+  - ADS (`DevAim`) suppressed lights, mist, sparkles, arcs, halo, and ribbons cleanly (`Enabled = false`), restoring on hip (`coreL=0.48`, `foreL=0.25`, `Enabled = true`) — verified visually in [Hip VFX](out/Vandal_v10_Range_Hip_VFX.jpg) and [ADS VFX](out/Vandal_v10_Range_ADS_VFX.jpg).
+  - Fire spawned Slipframe's `SlipframeFlashCore` + twin `SlipframeFlashEdge` + `FrostbiteMuzzleShards` and `Workspace.FrostbiteSplash` + `FrostbiteImpactMark`.
+  - Live kill of a `RangeBot` (`killed = true`, `0.61 s`) spawned `Workspace.FrostbiteKillBurst` and triggered `FBShard1..4` outward shatter (`pos = 0.0318 -> 0.1928`, `LTM = 0 -> 0.82 -> 1.00`, `haloOn = true`) and clean refreeze (`pos = 0.0000`, `LTM = 0.00`).
+  - **0 console errors** from Frostbite code, VFX, geometry, or audio.
 - **Owner Action:** Save the Studio place (`71551303511506`) to persist `ServerStorage.WeaponSkins.Frostbite.Vandal`.
