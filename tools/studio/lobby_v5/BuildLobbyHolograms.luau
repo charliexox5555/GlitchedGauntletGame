@@ -150,7 +150,7 @@ local STANDS: { Stand } = {
 		accent = "purple",
 		kind = "neon",
 		items = {
-			{ source = kit:WaitForChild("SeasonCrest"), scale = 0.24, cf = CFrame.new(0, 0, 0) },
+			{ source = kit:WaitForChild("SeasonCrest"), scale = 0.3, cf = CFrame.new(0, 0.4, 0) }, -- about 6.5 wide (owner 2026-11-28: was far too big)
 		},
 	},
 }
@@ -220,7 +220,7 @@ local function holoItem(item: Item, parent: Instance, s: Stand)
 		local shell = model:Clone()
 		neonLayer(model, ACCENT[s.accent], true)
 		neonLayer(shell, ACCENT[s.accent], false)
-		shell:ScaleTo(1.06)
+		shell:ScaleTo(item.scale * 1.06) -- ScaleTo is absolute: 1.06x the core, not 1.06
 		shell:PivotTo(item.cf)
 		shell.Name = "Shell"
 		shell.Parent = model

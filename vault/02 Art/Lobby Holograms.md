@@ -48,6 +48,8 @@ A popup (`ServerStorage.LobbyUI.FreeRewards`, built by `tools/studio/BuildFreeRe
 - `StarterBought` on → the stand swaps to the case and the prompt reads "Open Cases / Shop"; off → back.
 - Holograms move only near the camera; no errors in the output.
 
+- **Fix (owner 2026-11-28, "the battle pass icon is way too big"):** the builder scaled each emblem's glow shell to an absolute 1.06 instead of 1.06x the item, so the crest's shell was about 22 studs wide (and the bag's shell sat inside its core). Shell = item scale x 1.06 now; the crest is 0.3 (about 6.5 wide), raised 0.4. Patched in Studio and in the builder.
+
 ## Open
 - The RIVALS reference models the owner imported (`Workspace.SuperStarterBundle`, `Workspace.HologramFreeRewards`) are still in the place: **delete them before publishing** (third-party assets).
 - Shop confirm: the Starter Bundle's item line runs wider than the card (seen in the test; not from this work).
