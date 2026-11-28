@@ -100,6 +100,23 @@ local SLIDE_KINDS = { "", "Pistol", "Knife", "Unarmed" }
 local SPRINT_SET = { "Sprint", "SprintPistol", "SprintKnife", "SprintUnarmed" }
 -- The unarmed arm swings that follow the leg cycle's phase.
 local UNARMED_SWING = { "UnarmedWalk", "UnarmedRun" }
+-- The holds on the move (2026-11-28, tools/anim/tp_clips.py stride_hold): the
+-- level hip hold of each weapon kind with the chest, gun and head swinging in
+-- step with the legs. They take the level hold's share while you move, on
+-- the legs' stride clock. "" until uploaded: then the still hold stays on.
+local MOVE_OF: { [string]: string } = {
+	AimLevel = "AimMove",
+	PistolAimLevel = "PistolAimMove",
+	KnifeReady = "KnifeMove",
+}
+local MOVE_SET: { string } = {}
+for _, name in MOVE_OF do
+	local animId = (Animations.POSES :: any)[name]
+	if typeof(animId) == "string" and animId ~= "" then
+		SPECS[name] = { priority = Enum.AnimationPriority.Action, fade = FADE.move }
+		table.insert(MOVE_SET, name)
+	end
+end
 local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
 for _, name in GAIT_SET do
 	IDS[name] = (Animations.LOCOMOTION :: any)[name]
@@ -449,6 +466,8 @@ local wasAir: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local airSince: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 -- Whether each character was sliding last step (the slide's way in and out).
 local wasSlide: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+-- Whether each character was crouched last step (the stride clocks' hand-over).
+local wasCrouched: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
 -- Which way the body moves relative to where it faces, as the shares of the
 -- two DIR8 clips either side of it (`index` 1..8 into DIR8, weight of the
@@ -501,7 +520,22 @@ end
 type Clock = { phase: number, cycles: number, at: number }
 local clocks: { [Animator]: { [string]: Clock } } = setmetatable({}, { __mode = "k" }) :: any
 
-local function clockFor(animator: Animator, key: string, seedFrom: { string }): Clock
+-- The clips a fresh clock may take its phase from: the set's legs and every
+-- swing that follows them (2026-11-28: a clock seeded from the legs alone
+-- started at 0 when no leg clip was playing yet, and the arms snapped to it).
+local SEED: { [string]: { string } } =
+	{ gait = table.clone(GAIT_SET), crouch = table.clone(CROUCH_SET) }
+for _, list in { SPRINT_SET, MOVE_SET, UNARMED_SWING } do
+	for _, name in list do
+		table.insert(SEED.gait, name)
+	end
+end
+for _, name in MOVE_SET do
+	table.insert(SEED.crouch, name)
+end
+
+local function clockFor(animator: Animator, key: string): Clock
+	local seedFrom = SEED[key]
 	local byKey = clocks[animator]
 	if not byKey then
 		byKey = {}
@@ -571,7 +605,7 @@ end
 -- Keeps a set of looping leg clips on one cycle: the set's clock runs at
 -- `cycles` a second and every clip follows it.
 local function inStep(animator: Animator, key: string, set: { string }, cycles: number): Clock
-	local clock = clockFor(animator, key, set)
+	local clock = clockFor(animator, key)
 	advance(clock, cycles)
 	lockTo(animator, set, clock, Animations.RUN_RATE)
 	return clock
@@ -671,7 +705,10 @@ end
 -- Sets the stride clock so the right footfall (phase 0) comes `inSeconds`
 -- from now (SlideOut ends in that footfall), and every leg clip onto it.
 local function footfallIn(animator: Animator, inSeconds: number)
-	local clock = clockFor(animator, "gait", GAIT_SET)
+	local clock = clockFor(animator, "gait")
+	if clock.cycles <= 0 then
+		return -- (no stride yet: nothing to line up, and phase 0 would snap the arms)
+	end
 	clock.phase = (-inSeconds * clock.cycles) % 1
 	clock.at = os.clock()
 	for _, name in GAIT_SET do
@@ -730,6 +767,19 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	-- Crash Down's dive (simulation-written UpdraftSlam).
 	local diving = alive and StateValues.get(character, "UpdraftSlam") == "Down"
 	local crouch = if state == "Crouch" or (diving and not SLAM_POSE) then 1 else 0
+	local airborne = humanoid.FloorMaterial == Enum.Material.Air
+	-- The holds on the move take over from the still level hold by speed, on
+	-- your feet (walking, running or crouch-walking; not in the air or a slide).
+	local onFoot = alive
+		and not airborne
+		and (
+			state == "Walk"
+			or state == "Sprint"
+			or state == "Idle"
+			or state == "Crouch"
+			or state == nil
+		)
+	local strideShare = if onFoot then moving else 0
 
 	-- Aim: a blend space of three held poses (Action priority).
 	-- Hip hold and sights blend by the Aim input (smoothed like the pitch).
@@ -756,7 +806,14 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	for setName, names in HOLD_SETS do
 		local on = if (setName == "pistol") == pistol then 1 else 0
 		setWeight(animator, names[1], on * hip * math.max(holdPitch, 0))
-		setWeight(animator, names[2], on * hip * (1 - math.abs(holdPitch)))
+		local level = on * hip * (1 - math.abs(holdPitch))
+		local move = MOVE_OF[names[2]]
+		if move and SPECS[move] then
+			setWeight(animator, names[2], level * (1 - strideShare))
+			setWeight(animator, move, level * strideShare)
+		else
+			setWeight(animator, names[2], level)
+		end
 		setWeight(animator, names[3], on * hip * math.max(-holdPitch, 0))
 		setWeight(animator, names[4], on * sights * math.max(holdPitch, 0))
 		setWeight(animator, names[5], on * sights * (1 - math.abs(holdPitch)))
@@ -778,7 +835,19 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		end
 	end
 	if newMark(hitSeen, character, StateValues.get(player, "HitAt")) and alive then
-		playOnce(animator, "Flinch", 1, Animations.FLINCH_WEIGHT)
+		-- A stream of hits (an SMG, a burn) doesn't restart the flinch from its
+		-- start every hit (2026-11-28: measured restarting every 0.25 s at 0.8
+		-- weight, a stutter of the whole upper body); it plays on and only a hit
+		-- after FLINCH_RETRIGGER of the clip starts it again.
+		local byName = cache[animator]
+		local flinch = byName and byName.UseFlinch
+		local busy = flinch ~= nil
+			and flinch.IsPlaying
+			and flinch.Length > 0
+			and flinch.TimePosition < flinch.Length * Animations.FLINCH_RETRIGGER
+		if not busy then
+			playOnce(animator, "Flinch", 1, Animations.FLINCH_WEIGHT)
+		end
 	end
 	-- A weapon swap: the new gun comes up (not on the first look).
 	if typeof(weaponId) == "string" then
@@ -790,7 +859,13 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 	-- The knife: its ready hold while it's out, and each swing (also a quick
 	-- melee with a gun out).
-	setWeight(animator, "KnifeReady", if knife then 1 else 0)
+	local knifeOn = if knife then 1 else 0
+	if SPECS.KnifeMove then
+		setWeight(animator, "KnifeReady", knifeOn * (1 - strideShare))
+		setWeight(animator, "KnifeMove", knifeOn * strideShare)
+	else
+		setWeight(animator, "KnifeReady", knifeOn)
+	end
 	if newMark(swingSeen, character, StateValues.get(player, "SwingAt")) and alive then
 		local step = StateValues.get(player, "SwingStep")
 		playOnce(
@@ -903,7 +978,6 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		end
 	end
 
-	local airborne = humanoid.FloorMaterial == Enum.Material.Air
 	stepLegs(animator, root, state, speed, alive, airborne, unarmed)
 	if unarmed then
 		followStride(animator, UNARMED_SWING)
@@ -961,7 +1035,31 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	-- Crouch-walk stride speed follows the ground speed, all eight in step
 	-- (one length, so one cycle rate).
 	local crouchLength = Animations.CROUCH_WALK_LENGTH
-	inStep(animator, "crouch", CROUCH_SET, speed / (Animations.CROUCH_WALK_SPEED * crouchLength))
+	-- Crouching or standing up hands the stride's phase to the other set's clock,
+	-- so the holds on the move (which follow whichever legs walk) never jump.
+	local crouched = crouch > 0
+	local crouchedWas = wasCrouched[character]
+	if crouchedWas ~= nil and crouchedWas ~= crouched then
+		local from = if crouched then clockFor(animator, "gait") else clockFor(animator, "crouch")
+		local to = if crouched then clockFor(animator, "crouch") else clockFor(animator, "gait")
+		to.phase = from.phase
+		to.at = os.clock()
+	end
+	wasCrouched[character] = crouched
+	local crouchClock = inStep(
+		animator,
+		"crouch",
+		CROUCH_SET,
+		speed / (Animations.CROUCH_WALK_SPEED * crouchLength)
+	)
+	-- The holds on the move swing on the stride of whichever legs are walking.
+	if crouch > 0 then
+		if crouchClock.cycles > 0 then
+			lockTo(animator, MOVE_SET, crouchClock, nil)
+		end
+	else
+		followStride(animator, MOVE_SET)
+	end
 end
 
 local function step(dt: number)

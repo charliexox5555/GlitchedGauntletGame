@@ -20,16 +20,21 @@ return table.freeze({
 		-- Holding the gun, blended by aim pitch (Action priority). Solved on a
 		-- rig with both hands on the gun (tools/studio/MakeHoldAnimations,
 		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
-		AimUp = id(76675781741304), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 88731037976156) -- looking AIM_PITCH_UP degrees up
-		AimLevel = id(105637585256231), -- o2 2026-11-20: breathing hold (was 133205732621181)
-		AimDown = id(118568564589362), -- r2 2026-11-21: breathing hold, the head looks down with the aim (o2 118137664448884; was 86939677186257) -- looking AIM_PITCH_DOWN degrees down (v7 2026-11-15: the gun goes out as it drops, the right forearm was inside the chest; was 111694202793931)
+		AimUp = id(88917670861049), -- t1 2026-11-28 livelier pass (was 76675781741304); s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 88731037976156) -- looking AIM_PITCH_UP degrees up
+		AimLevel = id(101244063490407), -- t1 2026-11-28 livelier pass (was 105637585256231); o2 2026-11-20: breathing hold (was 133205732621181)
+		AimDown = id(73289322681926), -- t1 2026-11-28 livelier pass (was 118568564589362); r2 2026-11-21: breathing hold, the head looks down with the aim (o2 118137664448884; was 86939677186257) -- looking AIM_PITCH_DOWN degrees down (v7 2026-11-15: the gun goes out as it drops, the right forearm was inside the chest; was 111694202793931)
 		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
-		PistolAimUp = id(138228207228666), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 104552117240290)
-		PistolAimLevel = id(134408200055475), -- o2 2026-11-20: breathing hold (was 91403700231911)
-		PistolAimDown = id(88754165814506), -- r2 2026-11-21: breathing hold, head looks down (o2 111015808504046; was 70510113818516)
-		PistolAdsUp = id(72465943608438), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 123908701376846)
-		PistolAdsLevel = id(93700559415008), -- o2 2026-11-20: breathing hold (was 77191013164054)
-		PistolAdsDown = id(100517179779054), -- r2 2026-11-21: breathing hold, head looks down (o2 73233869134802; was 80580729310516)
+		PistolAimUp = id(109832822853570), -- t1 2026-11-28 livelier pass (was 138228207228666); s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 104552117240290)
+		PistolAimLevel = id(111471703068233), -- t1 2026-11-28 livelier pass (was 134408200055475); o2 2026-11-20: breathing hold (was 91403700231911)
+		PistolAimDown = id(76165283791894), -- t1 2026-11-28 livelier pass (was 88754165814506); r2 2026-11-21: breathing hold, head looks down (o2 111015808504046; was 70510113818516)
+		PistolAdsUp = id(123680785429363), -- t1 2026-11-28 livelier pass (was 72465943608438); s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 123908701376846)
+		PistolAdsLevel = id(118413058305626), -- t1 2026-11-28 livelier pass (was 93700559415008); o2 2026-11-20: breathing hold (was 77191013164054)
+		PistolAdsDown = id(79007424956396), -- t1 2026-11-28 livelier pass (was 100517179779054); r2 2026-11-21: breathing hold, head looks down (o2 73233869134802; was 80580729310516)
+		-- The holds on the move (t1 2026-11-28, tp_clips stride_hold): the level hip hold with the chest, gun and head
+		-- swinging in step with the legs; Simulation/Poses gives them the level hold's share while you move.
+		AimMove = id(91841115806734),
+		PistolAimMove = id(109774139005697),
+		KnifeMove = id(107253347777500),
 		-- Movement (Action2; Slide is Action3 so it wins over everything).
 		-- The run's upper body, in step with SprintRun (a loop the same length):
 		-- a low ready that swings with the stride; sidearms and the knife have their own.
@@ -44,19 +49,19 @@ return table.freeze({
 		UnarmedRun = id(133551232423687),
 		UnarmedCrouch = id(78467506175539), -- v2: arms loose and low (v1 107085367174883 read as a guard)
 		SlideUnarmed = id(134814931400718),
-		Crouch = id(79991946157030),
-		CrouchWalk = id(117039700985521), -- one stride, looped (pass 4 2026-11-13: foot-locked, 0.3 s)
+		Crouch = id(99770770213324), -- t1 2026-11-28 livelier pass (was 79991946157030)
+		CrouchWalk = id(120234404110157), -- t1 2026-11-28 livelier pass (was 117039700985521); one stride, looped (pass 4 2026-11-13: foot-locked, 0.3 s)
 		-- The other crouch-walk directions (same stride length), blended by
 		-- where you move like the run set (2026-11-04).
-		CrouchWalkB = id(82235519011694),
-		CrouchWalkL = id(135096973393141), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 78069980558194)
-		CrouchWalkR = id(72907308049134), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 84497263575143)
+		CrouchWalkB = id(107558426542905), -- t1 2026-11-28 livelier pass (was 82235519011694)
+		CrouchWalkL = id(130624088030119), -- t1 2026-11-28 livelier pass (was 135096973393141); r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 78069980558194)
+		CrouchWalkR = id(75749538598700), -- t1 2026-11-28 livelier pass (was 72907308049134); r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 84497263575143)
 		-- ...and the diagonals (2026-11-13: eight directions, Simulation/Poses
 		-- blends the two either side of the move).
-		CrouchWalkFR = id(137679623333500), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 140110042704887)
-		CrouchWalkBR = id(77348337720648), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 129306109767897)
-		CrouchWalkBL = id(131407720415435), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 95758423303446)
-		CrouchWalkFL = id(100723533854221), -- r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 91208655342459)
+		CrouchWalkFR = id(76105394470854), -- t1 2026-11-28 livelier pass (was 137679623333500); r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 140110042704887)
+		CrouchWalkBR = id(98112499729674), -- t1 2026-11-28 livelier pass (was 77348337720648); r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 129306109767897)
+		CrouchWalkBL = id(118404542205797), -- t1 2026-11-28 livelier pass (was 131407720415435); r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 95758423303446)
+		CrouchWalkFL = id(97358987051244), -- t1 2026-11-28 livelier pass (was 100723533854221); r3 2026-11-21: no knee in the floor (lanes ahead, knees out) (was 91208655342459)
 		Slide = id(103527653788997), -- the full-body ground slide hold, with a scrape chatter (tools/anim/tp_clips.py)
 		-- ...with a sidearm or the knife (2026-11-13: their own arms on the fist).
 		SlidePistol = id(123494865248021),
@@ -84,15 +89,15 @@ return table.freeze({
 		SprintRunUnarmed = id(138703269624358),
 		-- The walk set (made for WALK_CLIP_SPEED), cross-faded with the run
 		-- set by speed (WALK_RUN).
-		WalkF = id(107342133831860),
-		WalkB = id(86945287609346),
-		WalkL = id(75856907068096),
-		WalkR = id(107142626991120),
-		WalkFR = id(108041601441541),
-		WalkBR = id(91920468560649),
-		WalkBL = id(100608079004581),
-		WalkFL = id(93351123775758),
-		Land = id(97529375997799),
+		WalkF = id(109388123905950), -- t1 2026-11-28 livelier pass (was 107342133831860)
+		WalkB = id(120622386865437), -- t1 2026-11-28 livelier pass (was 86945287609346)
+		WalkL = id(131973548428864), -- t1 2026-11-28 livelier pass (was 75856907068096)
+		WalkR = id(105786023690774), -- t1 2026-11-28 livelier pass (was 107142626991120)
+		WalkFR = id(121622287057088), -- t1 2026-11-28 livelier pass (was 108041601441541)
+		WalkBR = id(79417743906284), -- t1 2026-11-28 livelier pass (was 91920468560649)
+		WalkBL = id(114450768692420), -- t1 2026-11-28 livelier pass (was 100608079004581)
+		WalkFL = id(71420939781325), -- t1 2026-11-28 livelier pass (was 93351123775758)
+		Land = id(90187185226461), -- t1 2026-11-28 livelier pass (was 97529375997799)
 		-- The slide's way in and out (one-shots; SlideOut ends in the run's right
 		-- footfall, which Simulation/Poses lines up with it).
 		SlideIn = id(101242607281195), -- o1 2026-11-20 overnight TP pass, splines (was 132143568389295)
@@ -110,9 +115,9 @@ return table.freeze({
 	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
 	-- hit (HitAt).
 	COMBAT = table.freeze({
-		AdsUp = id(125005732940313), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 87449585195829)
-		AdsLevel = id(86480588512249), -- o2 2026-11-20: breathing hold (was 95863412039587)
-		AdsDown = id(86597667703377), -- r2 2026-11-21: breathing hold, head looks down (o2 77870476375092; was 139601720262674)
+		AdsUp = id(85252471021854), -- t1 2026-11-28 livelier pass (was 125005732940313); s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 87449585195829)
+		AdsLevel = id(106861057125993), -- t1 2026-11-28 livelier pass (was 86480588512249); o2 2026-11-20: breathing hold (was 95863412039587)
+		AdsDown = id(75086082523942), -- t1 2026-11-28 livelier pass (was 86597667703377); r2 2026-11-21: breathing hold, head looks down (o2 77870476375092; was 139601720262674)
 		Reload = id(110565531734561), -- o1 2026-11-20 overnight TP pass, splines (was 102765870602957) -- v7 2026-11-15: a low-ready swap, the face stays clear (v6 112777133763655 stood the rifle up over the head)
 		PistolReload = id(99293327658491), -- o1 2026-11-20 overnight TP pass, splines (was 120367219025692) -- sidearms
 		Flinch = id(82256896150427), -- r2 2026-11-21: on splines, the hit lands as an impact (was 134800149922990)
@@ -123,7 +128,7 @@ return table.freeze({
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
 		Draw = id(137689336920879), -- o1 2026-11-20 overnight TP pass, splines (was 116807890408322)
-		KnifeReady = id(84124615647002), -- o2 2026-11-20: breathing hold (was 84503652869545; 2026-11-05: arms cleared of the torso)
+		KnifeReady = id(119423737473104), -- t1 2026-11-28 livelier pass (was 84124615647002); o2 2026-11-20: breathing hold (was 84503652869545; 2026-11-05: arms cleared of the torso)
 		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py; every
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
 		-- rig). The old single slash was 103765524428295, the old heavy
@@ -150,6 +155,9 @@ return table.freeze({
 		PistolAdsUp = id(118515018395854), -- s15 2026-11-21: waist-led look-up, tp_clips UP_BODY (was 117128552950066)
 		PistolAdsLevel = id(93859139822565),
 		PistolAdsDown = id(97409435633700), -- r2 (was 100422843394946)
+		-- The holds on the move kick with their still hold's recoil pose.
+		AimMove = id(76597005020546),
+		PistolAimMove = id(89288747742889),
 	}),
 	-- The left hand on each gun's LeftGrip (GripController IK, every visible
 	-- character). The target rides on the gun itself, so the hand follows the
@@ -304,14 +312,15 @@ return table.freeze({
 	RELOAD_LENGTH = 1, -- seconds the reload clip is made at
 	DRAW_LENGTH = 0.5, -- seconds the draw clip is made at
 	FLINCH_WEIGHT = 0.8, -- the flinch plays over the rest at this weight
+	FLINCH_RETRIGGER = 0.7, -- share of the flinch after which a new hit may restart it (Simulation/Poses)
 
 	-- Roblox's Animate plays these instead of its stock clips (CharacterService).
 	-- Its walk and run are an empty clip: the LOCOMOTION set carries the legs.
 	ANIMATE = table.freeze({
-		idle = id(114709237157503),
+		idle = id(140109770524654), -- t1 2026-11-28 livelier pass (was 114709237157503)
 		walk = id(86109711469782),
 		run = id(86109711469782),
-		jump = id(117724474892981),
+		jump = id(133442046555419), -- t1 2026-11-28 livelier pass (was 117724474892981)
 		fall = id(91199093837077),
 	} :: { [string]: string }),
 	RUN_SPEED = 16, -- studs/s the run clips are made for (rate = speed / this)
@@ -331,7 +340,7 @@ return table.freeze({
 	-- The stride clock every leg clip and arm swing follows (Simulation/Poses): a clip lighter than setBelowWeight
 	-- is set straight onto the clock's phase (unseen); one at weight is pulled in by `pull` (speed change per cycle
 	-- of drift) and snapped only past `snap` cycles; maxStep caps one step's time (a set that was off resumes).
-	STRIDE_CLOCK = table.freeze({ setBelowWeight = 0.1, pull = 3, snap = 0.3, maxStep = 0.1 }),
+	STRIDE_CLOCK = table.freeze({ setBelowWeight = 0.25, pull = 3, snap = 0.3, maxStep = 0.1 }),
 	RUN_FROM = 1, -- studs/s where the legs start to move...
 	RUN_FULL = 4, -- ...and where they fully do
 	-- The landing squash: full weight landing at or under fullBelow studs/s,
@@ -401,6 +410,7 @@ return table.freeze({
 		crouch = 0.2,
 		slide = 0.15,
 		run = 0.15, -- direction changes in the run set
+		move = 0.15, -- the still hold <-> the hold on the move (Poses MOVE_OF)
 	}),
 	-- Weights snap to steps of this size, so tiny pitch changes don't restart
 	-- a fade every simulation step (0.05 made the aim move in ~3.5 deg steps).

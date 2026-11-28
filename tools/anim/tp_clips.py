@@ -86,15 +86,20 @@ def held(name, priority, controls, parts=UPPER):
 
 
 BREATH_LENGTH = 2.4  # seconds per breath
-BREATH = (0.7, 0.25, 0.012)  # chest lean (deg), chest yaw sway (deg, twice per breath), gun rise (studs)
+# Chest lean (deg), chest yaw sway (deg, twice per breath), gun rise (studs).
+# (2026-11-28 pass, owner: "boring and blocky": was 0.7 / 0.25 / 0.012, too small
+# to see from another player's distance. LihFolk blind-panel idle: chest breath
+# reads at about 2-8 degrees on a block body.)
+BREATH = (1.6, 0.7, 0.03)
+BREATH_ADS = 0.55  # the sights breathe less (the aim stays readable)
 
 
-def breathing(name, priority, controls, parts=UPPER):
+def breathing(name, priority, controls, parts=UPPER, scale=1.0):
 	"""A hold that keeps living (owner, memory animation-oomph: holds keep
 	moving; 2026-11-20: every hold measured dead still): the chest breathes
 	and sways a touch, the gun rides up and down with it on the fists, the
 	head stays on the target. One breath per BREATH_LENGTH, keyed every 0.1 s."""
-	lean, sway, rise = BREATH
+	lean, sway, rise = (x * scale for x in BREATH)
 	chest = controls["chest"]
 	chest = chest if hasattr(chest, "shape") else euler(*chest)
 	gun = controls.get("gun")  # (the knife has none: its fist rides instead)
@@ -333,15 +338,74 @@ def knife(arm=None, chest=(-8, 16, 0), left=(-0.5, 0.5, -1.5), head=(0, 0, 0), h
 
 for _name, _pitch in (("Up", 45), ("Level", 0), ("Down", -30)):
 	breathing("Aim" + _name, "Action", long_hold(_pitch))
-	breathing("Ads" + _name, "Action", long_hold(_pitch, True))
+	breathing("Ads" + _name, "Action", long_hold(_pitch, True), scale=BREATH_ADS)
 	breathing("PistolAim" + _name, "Action", pistol_hold(_pitch))
-	breathing("PistolAds" + _name, "Action", pistol_hold(_pitch, True))
+	breathing("PistolAds" + _name, "Action", pistol_hold(_pitch, True), scale=BREATH_ADS)
 	# ...and each one's recoil pose (Action2: over the hold, by weight).
 	held("Kick" + _name, "Action2", long_hold(_pitch, kick=LONG_KICK))
 	held("AdsKick" + _name, "Action2", long_hold(_pitch, True, kick=LONG_KICK))
 	held("PistolKick" + _name, "Action2", pistol_hold(_pitch, kick=PISTOL_KICK))
 	held("PistolAdsKick" + _name, "Action2", pistol_hold(_pitch, True, kick=PISTOL_KICK))
 breathing("KnifeReady", "Action", knife())
+
+# Holds on the move (2026-11-28 pass; owner: the body looked "boring and
+# blocky"; the vault's open item "armed walk / run has no upper-body bob"). The
+# hold rode the pelvis rigidly: every hip twist and roll turned the chest, arms
+# and gun with it as one block. These play instead of the level hip hold while
+# you move (Simulation/Poses, by speed, on the legs' stride clock: one cycle =
+# two steps, the right foot lands at phase 0, the left at 0.5):
+#   * the chest turns and rolls back against the hips (shoulders stay square);
+#   * it dips a beat after each footfall and comes back up (follow-through);
+#   * the gun lags the chest by another beat and sways side to side (drag);
+#   * the head counters the chest so the eyes stay level on the target.
+# The walk's hips (gait_hips): lowest at duty / 2 after each footfall, yaw
+# twist * cos, roll roll * sin.
+MOVE_LENGTH = 0.36  # any length (the walk's): Poses runs it on the stride clock
+MOVE_LOW = 0.58 * 0.5  # the walk's lowest point after a footfall (duty / 2)
+# (chest dip deg, chest counter-yaw deg, chest counter-roll deg, gun bob studs,
+#  gun sway studs, gun yaw deg, gun roll deg)
+MOVE = (1.8, 3.2, 2.2, 0.045, 0.03, 1.6, 3.0)
+MOVE_LAG = (0.05, 0.12)  # the chest's and the gun's lag behind the hips (cycles)
+
+
+def stride_hold(name, controls):
+	dip, yaw, roll, bob, sway, gun_yaw, gun_roll = MOVE
+	chest = controls["chest"]
+	chest = chest if hasattr(chest, "shape") else euler(*chest)
+	head = controls.get("head", (0, 0, 0))
+	gun = controls.get("gun")
+	fist = controls.get("right_arm")
+
+	def at(t):
+		ph = (t / MOVE_LENGTH) % 1.0
+		c_lag, g_lag = MOVE_LAG
+		d = math.cos(2 * TAU * (ph - MOVE_LOW - c_lag))  # 1 at the chest's lowest
+		g = math.cos(2 * TAU * (ph - MOVE_LOW - g_lag))
+		twist = math.cos(TAU * ph)  # the hips' yaw (the right foot ahead at 0)
+		tilt = math.sin(TAU * ph)  # the hips' roll
+		ctrl = dict(controls)
+		ctrl["chest"] = euler(-dip * d, -yaw * twist, -roll * tilt) @ chest
+		ctrl["head"] = (head[0] + 0.8 * dip * d, head[1] + 0.8 * yaw * twist, head[2] + 0.6 * roll * tilt)
+		side = math.sin(TAU * (ph - g_lag))
+		if gun is not None:
+			x, y, z = gun["pos"]
+			p, yw, r = gun["rot"]
+			ctrl["gun"] = {
+				**gun,
+				"pos": (x + sway * side, y - bob * g, z),
+				"rot": (p - 1.2 * d, yw + gun_yaw * side, r + gun_roll * side),
+			}
+		elif fist is not None and "fist" in fist:
+			x, y, z = fist["fist"]
+			ctrl["right_arm"] = {**fist, "fist": (x + sway * side, y - 1.6 * bob * g, z)}
+		return solve(ctrl)
+
+	return add(Clip(name, "Action", at, UPPER, length=MOVE_LENGTH, loop=True, step=1 / 30))
+
+
+stride_hold("AimMove", long_hold(0))
+stride_hold("PistolAimMove", pistol_hold(0))
+stride_hold("KnifeMove", knife())
 
 # Idle --------------------------------------------------------------------------------
 
@@ -352,26 +416,47 @@ def idle(t):
 	return solve(idle_ctrl(t))
 
 
+# The idle's weight shift (2026-11-28 pass; owner: "boring and blocky"; LihFolk
+# "Locomotion Readability - Lessons from Blind Panels": a block idle reads at a
+# pelvis shift of about a quarter stud and several degrees of roll, with the
+# breath on the chest, not a sine bob). The weight sits on one foot, crosses
+# quickly to the other (tanh-shaped, so it lingers at each end) and the hips dip
+# as they pass the middle; the pelvis tilts down over the free leg and turns a
+# little after the shift (a beat late: overlap). The holds ride on the pelvis.
+IDLE_SHIFT = 0.07  # studs the hips travel toward the weighted foot (0.11 dug a shin corner 0.11 into the floor)
+IDLE_ROLL = 3.0  # degrees the pelvis tilts with the shift, down over the free leg
+IDLE_TURN = 3.0  # degrees the pelvis turns, a beat after the shift
+IDLE_DIP = 0.02  # studs the hips sink as the weight crosses
+IDLE_BREATH = 0.012  # studs of hip rise per breath (two a cycle)
+
+
+def idle_weight(t):
+	"""-1 (on the left foot) .. 1 (on the right), lingering at each end."""
+	s = math.sin(TAU * t / IDLE_LENGTH)
+	return math.tanh(1.8 * s) / math.tanh(1.8)
+
+
 def idle_ctrl(t):
-	b = math.sin(TAU * t / IDLE_LENGTH)
-	return (
-		standing(
-			{
-				# Breathing: the hips ease down and up, the chest rocks, a slow
-				# weight shift from foot to foot.
-				# (2026-11-13: the foot is rigid on the shin, so a bent knee tilts
-				# the sole. Each foot now sits a little ahead of its hip, under the
-				# knee, so the shin stands within 4 degrees of upright: a shin corner
-				# dug 0.16 studs into the floor with the right foot set back.)
-				"hips": {"pos": (0.025 * math.sin(TAU * t / IDLE_LENGTH + 1.2), -0.05 - 0.012 * b, 0), "rot": (0, -10, 0.6 * b)},
-				"left_foot": {"pos": (-0.5, 0, -0.33), "yaw": -4},
-				"right_foot": {"pos": (0.59, 0, -0.21), "yaw": -14},
-				"chest": (-2 + 1.4 * b, 0, 0),
-				"head": (0, 0, 0),
-				"right_arm": {"fk": ((2, 0, 5 + b), (10, 0, 0), (0, 0, 0))},
-				"left_arm": {"fk": ((2, 0, -5 - b), (10, 0, 0), (0, 0, 0))},
-			}
-		)
+	w = idle_weight(t)
+	ph = TAU * t / IDLE_LENGTH
+	breath = math.sin(2 * ph + 0.4)
+	return standing(
+		{
+			# (2026-11-13: the foot is rigid on the shin, so a bent knee tilts
+			# the sole. Each foot sits a little ahead of its hip, under the
+			# knee, so the shin stands within 4 degrees of upright.)
+			"hips": {
+				"pos": (IDLE_SHIFT * w, -0.06 - IDLE_DIP * (1 - w * w) + IDLE_BREATH * breath, 0),
+				"rot": (0.6 * breath, -10 + IDLE_TURN * math.sin(ph - 0.9), IDLE_ROLL * w),
+			},
+			"left_foot": {"pos": (-0.5, 0, -0.33), "yaw": -4},
+			"right_foot": {"pos": (0.59, 0, -0.21), "yaw": -14},
+			# (Unarmed only: a gun's hold owns the chest, head and arms.)
+			"chest": (-2 + 1.8 * breath, 0, -0.8 * IDLE_ROLL * w),
+			"head": (0, 0, -0.2 * IDLE_ROLL * w),
+			"right_arm": {"fk": ((2, 0, 5 + breath), (10, 0, 0), (0, 0, 0))},
+			"left_arm": {"fk": ((2, 0, -5 - breath), (10, 0, 0), (0, 0, 0))},
+		}
 	)
 
 
@@ -913,11 +998,13 @@ RUN_FAMILY = {
 	# hips up: knees bend 60 degrees on average, the forward run's 92.)
 	"s": {"length": 0.22, "duty": 0.46, "close": 0.12, "lift": 0.24, "bob": 0.05, "lean": -4, "base": 0.0, "width": 0.66, "lane": 0.4, "side_lean": 6},
 }
+# (2026-11-28 pass: more bounce and roll in the walk and the crouch walk, was bob 0.05 / 0.04 / 0.05,
+# roll 3, crouch bob 0.04, roll 2.5: the upper body barely moved; the feet stay pinned the same way.)
 WALK_FAMILY = {
 	"speed": WALK_SPEED,
-	"f": {"length": WALK_LENGTH, "duty": 0.58, "lift": 0.3, "bob": 0.05, "lean": -4, "base": -0.08, "twist": 5, "roll": 3},
-	"b": {"length": WALK_LENGTH, "duty": 0.6, "lift": 0.28, "bob": 0.04, "lean": 3, "base": -0.08, "twist": 3, "roll": 3},
-	"s": {"length": 0.3, "duty": 0.6, "close": 0.15, "lift": 0.3, "bob": 0.05, "lean": -4, "base": -0.06, "width": 0.62, "lane": 0.4, "side_lean": 3},
+	"f": {"length": WALK_LENGTH, "duty": 0.58, "lift": 0.34, "bob": 0.085, "lean": -4, "base": -0.08, "twist": 6, "roll": 4.5},
+	"b": {"length": WALK_LENGTH, "duty": 0.6, "lift": 0.3, "bob": 0.07, "lean": 3, "base": -0.08, "twist": 4, "roll": 4},
+	"s": {"length": 0.3, "duty": 0.6, "close": 0.15, "lift": 0.3, "bob": 0.07, "lean": -4, "base": -0.06, "width": 0.62, "lane": 0.4, "side_lean": 4},
 }
 SIDE_POLES = {"right": (0.3, 0, -1), "left": (-0.3, 0, -1)}
 DIRECTIONS = {"F": 0, "FR": 45, "R": 90, "BR": 135, "B": 180, "BL": -135, "L": -90, "FL": -45}
@@ -1132,11 +1219,43 @@ REACH = {
 	"left_foot": {"pos": (-0.62, 0.45, -0.32), "pole": (-0.2, 0.2, -1), "clamp": True},
 	"right_foot": {"pos": (0.64, 0.26, 0.22), "pole": (0.2, 0, -1), "clamp": True},
 }
+# (2026-11-28 pass: the jump starts on a squash, both feet still under the body
+# and the knees bent, and springs straight to the extended take-off in 3 frames:
+# the jump comes on the key press, so the push can't come before it; a squash at
+# lift-off reads as the spring. Then a faster knee drive and a tighter tuck that
+# overshoots the apex pose before opening up for the ground.)
+JUMP_PUSH = {
+	"hips": {"pos": (0, -0.34, 0.06), "rot": (-16, 0, 0)},
+	"left_foot": {"pos": (-0.56, 0, -0.22), "pole": (-0.15, 0, -1), "clamp": True},
+	"right_foot": {"pos": (0.58, 0, 0.18), "pole": (0.15, 0, -1), "clamp": True},
+}
+JUMP_STRETCH = {
+	# Fully extended, toes trailing: the snap of the push.
+	"hips": {"pos": (0, 0.0, 0), "rot": (-4, 0, 0)},
+	"left_foot": {"pos": (-0.56, 0.02, -0.12), "pole": (-0.15, 0, -1), "clamp": True},
+	"right_foot": {"pos": (0.58, 0.05, 0.36), "pole": (0.15, 0, -1), "clamp": True},
+}
+APEX_TIGHT = {
+	**APEX,
+	"hips": {"pos": (0, 0.07, 0), "rot": (-19, 0, 0)},
+	"left_foot": {"pos": (-0.56, 1.08, -0.42), "pole": (-0.15, 0.3, -1), "clamp": True},
+	"right_foot": {"pos": (0.6, 0.82, 0.08), "pole": (0.15, 0.2, -1), "clamp": True},
+}
 add(
 	Clip(
 		"Jump",
 		"Movement",
-		ctrl_sequence([(0.0, TAKE_OFF), (0.08, KNEE_DRIVE, ease_in_out), (0.18, APEX, ease_in_out), (JUMP_LENGTH, REACH, ease_in_out)], solver=solve_grounded),
+		ctrl_sequence(
+			[
+				(0.0, JUMP_PUSH),
+				(0.05, JUMP_STRETCH, ease_out),
+				(0.12, KNEE_DRIVE, ease_in_out),
+				(0.19, APEX_TIGHT, ease_out),
+				(0.24, APEX, ease_in_out),
+				(JUMP_LENGTH, REACH, ease_in_out),
+			],
+			solver=solve_grounded,
+		),
 		LOWER,
 		length=JUMP_LENGTH,
 		loop=False,
@@ -1172,7 +1291,8 @@ LAND_FEET = {
 LAND_TOUCH = {"hips": {"pos": (0, -0.04, 0), "rot": (-7, 0, 0)}, **LAND_FEET}
 LAND_DOWN = {"hips": {"pos": (0, -0.58, 0.1), "rot": (-18, 0, 0)}, **LAND_FEET}
 LAND_HOLD = {"hips": {"pos": (0, -0.52, 0.08), "rot": (-15, 0, 0)}, **LAND_FEET}
-LAND_UP = {"hips": {"pos": (0, -0.03, 0), "rot": (2, 0, 0)}, **LAND_FEET}
+# 2026-11-28: a clearer overshoot, up to straight legs past the idle's -0.06 (was -0.03 / 2 degrees)
+LAND_UP = {"hips": {"pos": (0, 0.0, 0), "rot": (4, 0, 0)}, **LAND_FEET}
 add(
 	Clip(
 		"Land",
@@ -1203,7 +1323,27 @@ CROUCH = {
 	"left_foot": {"pos": (-0.6, 0, -0.62), "yaw": 6, "pole": (-0.25, 0.4, -1), "clamp": True},
 	"right_foot": {"pos": (0.62, 0.05, 0.62), "yaw": -12, "pole": (0.35, -0.5, -1), "clamp": True},
 }
-held("Crouch", "Action2", CROUCH, LOWER)
+CROUCH_IDLE_LENGTH = 2.4  # one breath and one rock from foot to foot
+
+
+def crouch_idle(t):
+	"""The crouch, alive (2026-11-28; was one still pose): the hips breathe,
+	rock a little toward the front foot and back, and turn a touch late."""
+	ph = TAU * t / CROUCH_IDLE_LENGTH
+	rock, breath = math.sin(ph), math.sin(2 * ph + 0.5)
+	x, y, z = CROUCH["hips"]["pos"]
+	p, yaw, r = CROUCH["hips"]["rot"]
+	ctrl = dict(CROUCH)
+	# (Sat 0.05 higher than the old still pose: its right knee was at the
+	# floor, and any rock buried it up to 0.17; tp_check knee 0.001 now.)
+	ctrl["hips"] = {
+		"pos": (x + 0.05 * rock, y + 0.05 + 0.022 * breath, z),
+		"rot": (p - 1.0 * rock + 0.8 * breath, yaw + 2.2 * math.sin(ph - 0.8), r - 1.6 * rock),
+	}
+	return solve_grounded(ctrl)
+
+
+add(Clip("Crouch", "Action2", crouch_idle, LOWER, length=CROUCH_IDLE_LENGTH, loop=True, step=0.05))
 
 
 # The crouch walk (pass 4): the same foot-locked gait as the run set (feet
@@ -1223,10 +1363,10 @@ CROUCH_POLES = {"right": (0.3, 0.1, -1), "left": (-0.3, 0.1, -1)}
 CROUCH_SIDE_POLES = {"right": (0.6, 0.1, -1), "left": (-0.6, 0.1, -1)}
 CROUCH_FAMILY = {
 	"speed": CROUCH_SPEED,
-	"f": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "lift": 0.3, "bob": 0.04, "lean": -13, "base": -0.98, "twist": 3, "roll": 2.5},
-	"b": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "lift": 0.3, "bob": 0.04, "lean": -13, "base": -0.98, "twist": 3, "roll": 2.5},
+	"f": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "lift": 0.3, "bob": 0.065, "lean": -13, "base": -0.98, "twist": 4, "roll": 4},
+	"b": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "lift": 0.3, "bob": 0.065, "lean": -13, "base": -0.98, "twist": 4, "roll": 4},
 	# Crouched knees reach forward, so the side lanes are wider (shins 0.93 apart at worst).
-	"s": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "close": 0.3, "lift": 0.28, "bob": 0.04, "lean": -13, "base": -0.92, "width": 0.8, "lane": 0.55, "ahead": 0.4, "side_lean": 5},
+	"s": {"length": CROUCH_LENGTH, "duty": CROUCH_DUTY, "close": 0.3, "lift": 0.28, "bob": 0.06, "lean": -13, "base": -0.92, "width": 0.8, "lane": 0.55, "ahead": 0.4, "side_lean": 5},
 }
 dir_clips(
 	"CrouchWalk",

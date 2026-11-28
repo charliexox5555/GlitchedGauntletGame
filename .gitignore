@@ -118,3 +118,6 @@ tools/.cache/
 
 # UI device-check captures (show Roblox's own top bar and test UI; kept local)
 art-source/ui/device-check-*/
+
+# Third-person animation before/after review captures (tools/studio/TpShowcase.luau): local only
+art-source/animations/review/
