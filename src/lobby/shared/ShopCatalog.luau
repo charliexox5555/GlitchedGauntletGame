@@ -67,6 +67,16 @@ ShopCatalog.PACK_ART = table.freeze({
 	"rbxassetid://100700481422006", -- pack_5 chest
 	"rbxassetid://132442670633809", -- pack_6 vault crate
 }) :: { string }
+-- What each coin pack's buy confirmation shows (owner 2026-11-28: it showed a plain coin stack for every pack):
+-- the pack's own art, plus its case for packs 4-6 (art-source/ui/shop/confirm/pack_<n>_confirm.png).
+ShopCatalog.PACK_CONFIRM_ART = table.freeze({
+	"rbxassetid://101001114733250",
+	"rbxassetid://82252842148105",
+	"rbxassetid://131719020838123",
+	"rbxassetid://79888542347496", -- + Standard Case
+	"rbxassetid://115802748591912", -- + Elite Case
+	"rbxassetid://128939712679825", -- + Apex Case
+}) :: { string }
 -- The coin pack cards' backdrop (one image for all six; new/pack_backdrop.png); "" = flat colour.
 ShopCatalog.PACK_BACKDROP = "rbxassetid://111801042683623"
 

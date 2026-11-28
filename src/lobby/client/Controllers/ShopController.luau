@@ -2623,7 +2623,7 @@ function ShopController.init()
 					openConfirm({
 						title = "COINS",
 						name = pack.name .. (if pack.case then " + A CASE" else ""),
-						art = ShopCatalog.ART.coinStack,
+						art = ShopCatalog.PACK_CONFIRM_ART[i] or ShopCatalog.ART.coinStack,
 						price = pack.robux,
 						currency = "robux",
 						go = function()
