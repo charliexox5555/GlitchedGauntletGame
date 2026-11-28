@@ -99,23 +99,24 @@ end
 -- Every premium tier has a reward; the free track about every third tier.
 -- Coins raised 2026-11-27 (owner: guns now cost 400-6,000): premium 5,000, free 2,000.
 -- Skins go to a random gun the player owns (skin()); goodie bags: see the Contents note.
+-- Free track filled out 2026-11-28 (owner: "the free tier looks a little sad"): 21 rewards, a Frostbite skin at 30.
 SeasonCatalog.TIERS = {
 	{ free = coins(200), premium = skin(ARCADE, "Rare") }, -- 1
-	{ free = nil, premium = charm("Joystick", "JOYSTICK", "Rare") },
+	{ free = coins(100), premium = charm("Joystick", "JOYSTICK", "Rare") },
 	{ free = case("Standard"), premium = coins(500) },
 	{ free = nil, premium = tickets(1) },
-	{ free = nil, premium = skin(ARCADE, "Rare") }, -- 5
+	{ free = tickets(1), premium = skin(ARCADE, "Rare") }, -- 5
 	{ free = charm("ArcadeToken", "ARCADE TOKEN", "Common"), premium = case("Standard") },
 	{ free = nil, premium = coins(650) },
 	{ free = tickets(1), premium = charm("PixelHeart", "PIXEL HEART", "Rare") },
-	{ free = nil, premium = skin(ARCADE, "Rare") },
+	{ free = case("Standard"), premium = skin(ARCADE, "Rare") },
 	{ free = power("Smoke", "SMOKE"), premium = case("Elite") }, -- 10
 	{ free = nil, premium = coins(750) },
 	{ free = coins(300), premium = charm("GameCartridge", "GAME CARTRIDGE", "Epic") },
-	{ free = nil, premium = skin(ARCADE, "Rare") },
+	{ free = bag(), premium = skin(ARCADE, "Rare") },
 	{ free = nil, premium = bag() }, -- goodie bag (owner 2026-11-27, was 2 Tickets)
 	{ free = skin(ARCADE, "Rare"), premium = skin(FROSTBITE, "Legendary") }, -- 15
-	{ free = nil, premium = coins(900) },
+	{ free = coins(300), premium = coins(900) },
 	{ free = nil, premium = charm("SnowflakeShard", "SNOWFLAKE SHARD", "Rare") },
 	{ free = bag(), premium = skin(ARCADE, "Rare") }, -- goodie bag (was a Standard Case)
 	{ free = nil, premium = bag() }, -- goodie bag (was an Elite Case)
@@ -123,13 +124,13 @@ SeasonCatalog.TIERS = {
 	{ free = nil, premium = skin(ARCADE, "Rare") },
 	{ free = tickets(1), premium = coins(1000) },
 	{ free = nil, premium = charm("ThunderOrb", "THUNDER ORB", "Epic") },
-	{ free = nil, premium = skin(FROSTBITE, "Legendary") },
+	{ free = bag(), premium = case("Elite") }, -- its Frostbite skin moved to free 30 (owner 2026-11-28)
 	{ free = charm("IceCube", "ICE CUBE", "Rare"), premium = case("Apex") }, -- 25
-	{ free = nil, premium = skin(ARCADE, "Rare") },
-	{ free = nil, premium = coins(1200) },
+	{ free = coins(600), premium = skin(ARCADE, "Rare") },
+	{ free = tickets(2), premium = coins(1200) },
 	{ free = coins(500), premium = charm("HighScore", "HIGH SCORE", "Legendary") },
 	{ free = nil, premium = skin(FROSTBITE, "Legendary") },
-	{ free = coins(600), premium = gunSkin("Knife", FROSTBITE, "Legendary") }, -- 30
+	{ free = skin(FROSTBITE, "Legendary"), premium = gunSkin("Knife", FROSTBITE, "Legendary") }, -- 30
 } :: { Tier }
 
 -- Tier 30's premium track also gives the chase title (one claim pays both).

@@ -32,6 +32,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
 local Mods = require(ReplicatedStorage.Shared.Config.Mods)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
+local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local CharmThumbnail = require(script.Parent.Parent.Util.CharmThumbnail)
@@ -145,6 +146,9 @@ local function rewardDesc(r: SeasonCatalog.Reward): string
 			string.upper(if cfg then cfg.displayName else (r.gun or ""))
 		)
 	end
+	if r.kind == "Mod" then
+		return string.format("%s POWER  ·  JOINS YOUR DRAFT DECK", string.upper(r.rarity or ""))
+	end
 	return string.format("%s %s", string.upper(r.rarity or ""), string.upper(r.kind))
 end
 
@@ -174,7 +178,21 @@ local function reelPool(line: string): { string }
 			end
 		end
 	end
-	return if #mine > 0 then mine else others
+	if #mine > 0 then
+		return mine
+	elseif #others > 0 then
+		return others
+	end
+	-- every gun has it already (the reward pays coins then): still show the line, on every gun that wears it
+	local all = {}
+	for _, list in { Loadout.PRIMARIES, Loadout.SECONDARIES } do
+		for _, id in list do
+			if Locker.hasSkin(id, line) and SkinArt.portrait(id, line) then
+				table.insert(all, id)
+			end
+		end
+	end
+	return all
 end
 
 local function reelSlide(art: ImageLabel, image: string, time: number)
@@ -223,7 +241,8 @@ local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?, tier: number
 	elseif r.kind == "Ticket" then
 		art.Image = ShopCatalog.ART.ticket
 	elseif r.kind == "Mod" and r.mod and Mods.defs[r.mod] then
-		art.Image = Mods.defs[r.mod].icon or ""
+		-- its draft card (owner 2026-11-28: powers should look like the cards you draft)
+		art.Image = Theme.CARD_ART[r.mod] or Mods.defs[r.mod].icon or ""
 	elseif r.kind == "Case" then
 		local c = r.case and ShopCatalog.case(r.case)
 		art.Image = if c then c.art or "" else ""
@@ -400,7 +419,11 @@ end
 --------------------------------------------------------------------------------
 -- The picked reward, big
 
-local function showPicture(r: SeasonCatalog.Reward?, image: string?)
+local showSeq = 0 -- bumped on every showPicture: a late model or the next cycle step only lands on its own pick
+
+local function showPicture(r: SeasonCatalog.Reward?, image: string?, cycle: number?)
+	showSeq += 1
+	local seq = showSeq
 	local art = child(showBox, "Art") :: ImageLabel
 	local card = child(showBox, "Card") :: Frame
 	local model: Model? = nil
@@ -412,13 +435,55 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 			and typeof(p) == "table"
 		then SeasonPass.got(state, p.tier, p.track)
 		else nil
+	-- a skin turns in 3D (owner 2026-11-28: the Arcade tiles had no turning model); a random-gun one not claimed
+	-- yet cycles through the guns it can land on. A model still downloading shows its picture, then swaps in.
+	local skinGun: string? = nil
 	if r and r.kind == "Skin" and (r.gun or won) then
-		local gun = (r.gun or won) :: string
-		model = (if r.line then Locker.skinModel(gun, r.line) else nil) or Locker.gunModel(gun)
+		skinGun = (r.gun or won) :: string
 	elseif r and r.kind == "Skin" and r.line and not image then
-		-- not claimed yet: one of the guns it could be, as on the reel
 		local pool = reelPool(r.line)
-		image = if #pool > 0 then SkinArt.portrait(pool[1], r.line) else nil
+		if #pool == 0 then
+			for _, list in { Loadout.PRIMARIES, Loadout.SECONDARIES } do
+				for _, id in list do
+					if Locker.hasSkin(id, r.line) then
+						table.insert(pool, id)
+					end
+				end
+			end
+		end
+		if #pool > 0 then
+			local i = ((cycle or 0) % #pool) + 1
+			skinGun = pool[i]
+			if #pool > 1 then
+				task.delay(2.6, function()
+					if seq == showSeq and isOpen then
+						showPicture(r, nil, i)
+					end
+				end)
+			end
+		end
+	end
+	if skinGun and r and r.line then
+		local gun = skinGun
+		model = Locker.skinModel(gun, r.line)
+		if not model then
+			image = SkinArt.portrait(gun, r.line)
+			local line = r.line
+			task.spawn(function()
+				local landed = SkinStore.await(line, SkinStore.modelName(gun, line), 10)
+				if landed and seq == showSeq and isOpen then
+					showPicture(r, nil, cycle) -- the same gun again, now in 3D (the cycle carries on from it)
+				end
+			end)
+		end
+	elseif r and r.kind == "Mod" and r.mod then
+		-- a power: its finished 3D model turning, like a charm (owner 2026-11-28)
+		local abilities = ReplicatedStorage:FindFirstChild("Abilities")
+		local m = abilities and abilities:FindFirstChild(r.mod)
+		if m and m:IsA("Model") then
+			model = m
+			charmMode = true
+		end
 	elseif r and r.kind == "Charm" then
 		model = CharmsConfig.model(r.charm or r.name)
 		charmMode = model ~= nil
@@ -448,7 +513,7 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 		end
 	end
 	local sc = pop(showBox)
-	if sc then
+	if sc and cycle == nil then -- the pop is for a new pick, not each step of a skin's gun cycle
 		sc.Scale = 0.92
 		tween(sc, 0.28, { Scale = 1 })
 	end
@@ -736,6 +801,18 @@ local function open()
 		return
 	end
 	isOpen = true
+	-- start the pass's skin models downloading now (owner 2026-11-28: the Frostbite Knife took a moment): the
+	-- knife and the first guns each random-gun line can land on
+	local wanted: { { string } } = { { "Frostbite", SkinStore.modelName("Knife", "Frostbite") } }
+	for _, line in { "Arcade", "Frostbite" } do
+		for i, gun in reelPool(line) do
+			if i > 3 then
+				break
+			end
+			table.insert(wanted, { line, SkinStore.modelName(gun, line) })
+		end
+	end
+	SkinStore.want(wanted)
 	gui.Enabled = true
 	resetClose()
 	showOdds(false)

@@ -13,6 +13,23 @@ First full list of what's in the Season 1 pass, for the owner to go through item
 - **Arcade and Frostbite are being made** (owner, 2026-11-27): [Arcade and Frostbite Handoff](../02%20Art/Skins/Arcade%20and%20Frostbite%20Handoff.md).
 - **Charms go one per gun:** the player puts each charm on one gun, and it saves. Built by Antigravity: [Handoff - Charms](../05%20Production/Handoff%20-%20Charms%202026-11-27.md). A charm pack (like SURGE) comes later.
 
+## Free track filled out (owner 2026-11-28: "the free tier looks a little sad")
+- **21 free rewards** (was 13). Added:
+  - 2: 100 coins
+  - 5: 1 Ticket
+  - 9: Standard Case
+  - 13: Goodie Bag
+  - 16: 300 coins
+  - 24: Goodie Bag
+  - 26: 600 coins (moved from 30)
+  - 27: 2 Tickets
+- **Free tier 30 is a Frostbite skin** (random gun). Premium tier 24's Frostbite moved there; premium 24 is now an Elite Case.
+- **The free track now has:** 3 skins, 3 goodie bags, 2 cases, 5 Tickets, 2 charms, Smoke, and 2,400 coins.
+- **The pass screen** (same day):
+  - Random-gun skins turn in 3D, cycling the guns they can land on.
+  - Powers show their draft card on the tile and their 3D model in the detail.
+  - The skin models preload when the pass opens.
+
 ## Frame (kept from the placeholder)
 - 30 tiers. Free track for everyone, premium track **689 Robux**, **+5 levels 499 Robux**.
 - A late premium buyer gets every premium tier already reached. Unclaimed rewards are paid when the season ends.
