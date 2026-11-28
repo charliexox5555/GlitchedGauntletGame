@@ -25,9 +25,10 @@ return table.freeze({
 	-- On arrival, after the loading screen: queued for Beginner 2v2 straight away
 	-- while matches played is below this (the very first match).
 	AUTO_QUEUE_BELOW = 1,
-	-- PLAY goes straight into the Beginner queue (no menu) while matches played is below this (2 → 3,
-	-- 2026-11-26: the menu arrives with the rest of the lobby, after match 2).
-	PLAY_SHORTCUT_BELOW = 3,
+	-- PLAY goes straight into the Beginner queue (no menu) while matches played is below this: matches 1 and 2
+	-- only. Owner 2026-11-28: "the first 2 will be auto beginner 2v2s"; the 3rd match is the player's choice (the
+	-- mode menu, which unlocks after match 2). Was 3 (2026-11-26).
+	PLAY_SHORTCUT_BELOW = 2,
 	-- Seconds after the loading screen closes before the auto-queue fires (lets the
 	-- lobby HUD and phone frame settle first).
 	AUTO_QUEUE_DELAY = 1.2,

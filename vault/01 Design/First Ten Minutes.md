@@ -81,6 +81,7 @@ Today a new player reaches the fight like this: loading → auto-start → **rou
 ### ~9:00 Back in the lobby: the game opens up
 - **NEW: the unlocks move to after match 2** (`UNLOCKS at = 2`, today 1). One NEW pop at a time, gold on the next thing to do:
   - **PLAY**: still straight into Beginner 2v2 (`PLAY_SHORTCUT_BELOW 2 → 3`).
+  - **2026-11-28 (owner): back to 2.** Only matches 1 and 2 go straight into Beginner 2v2; for match 3, PLAY opens the mode menu, so the player picks.
   - **Locker**: their new skin is there.
   - **Shop**, **Party**.
   - **Range**: when it ships.
