@@ -15,6 +15,9 @@ local CameraDrop = require(ReplicatedStorage.Shared.CameraDrop)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local MovementSim = require(ReplicatedStorage.Shared.Simulation.Movement)
+local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
+local InputMode = require(ReplicatedStorage.Shared.InputMode)
+local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply)
 
 local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
@@ -39,6 +42,30 @@ local function character(): Model?
 	return player.Character
 end
 
+-- The lobby hub's stick push for the simulation (Simulation/Movement
+-- setLobbyPush): on a controller a light push walks slowly and the run needs
+-- Movement.TOUCH_RUN_PUSH. The hub walks on Roblox's engine controls (no
+-- PlayerModule to ask), so the push is read from the left stick itself,
+-- rescaled past the player's STICK DEADZONE setting. Keys, rebound keys
+-- (Shared/SettingsApply) and Roblox's touch thumbstick (which reports no push)
+-- are a full push.
+local function lobbyPush(): number
+	if not InputMode.gamepad() then
+		return 1
+	end
+	local zone = math.clamp((tonumber(SettingsApply.get("stickDeadzone")) or 0) / 100, 0, 0.9)
+	for _, input in UserInputService:GetGamepadState(Enum.UserInputType.Gamepad1) do
+		if input.KeyCode == Enum.KeyCode.Thumbstick1 then
+			local m = Vector2.new(input.Position.X, input.Position.Y).Magnitude
+			if m ~= m or m <= zone then
+				return 1 -- the stick isn't steering (a D-pad or keys might be)
+			end
+			return math.clamp((m - zone) / (1 - zone), 0, 1)
+		end
+	end
+	return 1
+end
+
 local function update(dt: number)
 	local c = character()
 	local humanoid = c and c:FindFirstChildOfClass("Humanoid")
@@ -46,6 +73,9 @@ local function update(dt: number)
 		return
 	end
 	local previous = state
+	if PlayZone.get(player) == "Lobby" then
+		MovementSim.setLobbyPush(lobbyPush())
+	end
 	-- Our own simulation's state when this client owns its movement (the
 	-- attribute also carries the server's echo of what we reported).
 	state = (
@@ -157,6 +187,13 @@ end
 
 function MovementController.start()
 	RunService:BindToRenderStep("GGMovementView", Enum.RenderPriority.Camera.Value - 1, update)
+	-- The lobby hub's glide (Simulation/Movement), every frame after Roblox's
+	-- controls (Input) and Shared/SettingsApply's rebinds (Input + 1).
+	RunService:BindToRenderStep(
+		"GGLobbyGlide",
+		Enum.RenderPriority.Input.Value + 2,
+		MovementSim.lobbyGlideStep
+	)
 	local function watchJumps(c: Model)
 		local humanoid = c:WaitForChild("Humanoid", 5)
 		if humanoid and humanoid:IsA("Humanoid") then

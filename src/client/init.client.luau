@@ -295,6 +295,7 @@ local function stop()
 		for _, name in
 			{
 				"GGMovementView",
+				"GGLobbyGlide",
 				"GGPosePitch",
 				"GGCamera",
 				"GGSlideTilt",

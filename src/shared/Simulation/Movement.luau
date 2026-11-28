@@ -45,6 +45,7 @@ local RunService = game:GetService("RunService")
 local Authority = require(script.Parent.Parent.Authority)
 local Health = require(script.Parent.Parent.Health)
 local MatchState = require(script.Parent.Parent.MatchState)
+local PlayZone = require(script.Parent.Parent.PlayZone)
 local Movement = require(script.Parent.Parent.Config.Movement)
 local AbilitiesSim = require(script.Parent.Abilities)
 local Fields = require(script.Parent.Fields)
@@ -61,6 +62,25 @@ local ownState: string? = nil
 local ownCharacter: Model? = nil
 -- How far the local player's touch stick is pushed (0-1; 1 off touch).
 local ownPush = 1
+-- Lobby hub glide (Movement.LOBBY_ACCEL / LOBBY_DECEL), the local player only.
+-- It runs every rendered frame (lobbyGlideStep, right after Roblox's controls
+-- set the move direction): a 60 Hz step alone let the Humanoid snap to the raw
+-- input on the frames between steps (measured: a stop from 22 in 20 ms, then a
+-- re-push). This step decides whether you glide and at what target speed.
+--   ownGlide        the ground velocity being glided at (studs/s, flat)
+--   ownGlideAsked   the direction the controls asked for this frame (raw)
+--   ownGlideAskedAt os.clock() of that reading (stale = no glide step bound)
+--   ownGlideActive  this step's state glides (ground, not a slide or dash)
+--   ownGlideTarget  this step's speed to glide toward
+-- The stick push there comes from Roblox's own controls (MovementController),
+-- kept apart from the match TouchController's.
+local ownGlide = Vector3.zero
+local ownGlideAsked = Vector3.zero
+local ownGlideAskedAt = -math.huge
+local ownGlideActive = false
+local ownGlideTarget = 0
+local ownLobbyPush = 1
+local GLIDE_STALE = 0.1 -- seconds before a raw reading counts as missing
 
 local function lerp(a: number, b: number, t: number): number
 	return a + (b - a) * t
@@ -150,7 +170,13 @@ local function stepCharacter(player: Player, character: Model)
 				or humanoidState == Enum.HumanoidStateType.Freefall
 			) and root.AssemblyLinearVelocity.Y > Movement.AIR_RISE
 		)
+	-- The lobby hub glides (Movement.LOBBY_ACCEL): only the local player, only there.
+	local glideOn = owned and player == Players.LocalPlayer and PlayZone.get(player) == "Lobby"
 	local moveDir = humanoid.MoveDirection
+	-- (The Humanoid carries the glide's direction by now: the input is the raw reading.)
+	if glideOn and os.clock() - ownGlideAskedAt < GLIDE_STALE then
+		moveDir = ownGlideAsked
+	end
 	local moving = moveDir.Magnitude > 0.1
 	local look = root.CFrame.LookVector * Vector3.new(1, 0, 1)
 	local forward = moving and look.Magnitude > 0.01 and moveDir.Unit:Dot(look.Unit) > 0.15
@@ -190,7 +216,10 @@ local function stepCharacter(player: Player, character: Model)
 	-- Running: no sprint key (Movement.RUN_DELAY). Moving forward for a moment
 	-- breaks into the run; a slide keeps the stretch going.
 	-- A touch stick pushed only a little walks (Movement.TOUCH_RUN_PUSH).
-	local push = if owned and ownCharacter == character then ownPush else 1
+	local push = if glideOn
+		then ownLobbyPush
+		elseif owned and ownCharacter == character then ownPush
+		else 1
 	local mayRun = forward
 		and not aimIn
 		and not crouchIn
@@ -318,6 +347,31 @@ local function stepCharacter(player: Player, character: Model)
 	if held then
 		walkSpeed = 0
 	end
+	-- Lobby glide: on the ground the velocity eases toward where you steer
+	-- (lobbyGlideStep) instead of the Humanoid's one-frame start, stop and
+	-- turn. A slide, a dash and the air stay as they are (jump pads set the air
+	-- velocity themselves); the glide picks up from the real velocity when you
+	-- land or stand up.
+	local glides = glideOn
+		and grounded
+		and not dashSpeed
+		and not held
+		and os.clock() - ownGlideAskedAt < GLIDE_STALE
+		and (state == "Idle" or state == "Walk" or state == "Sprint" or state == "Crouch")
+	if glideOn then
+		ownGlideActive = glides
+		ownGlideTarget = if moving then walkSpeed else 0
+		if glides then
+			walkSpeed = ownGlide.Magnitude
+		else
+			local flat = root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)
+			ownGlide = if flat.Magnitude > Movement.SPRINT_SPEED
+				then flat.Unit * Movement.SPRINT_SPEED
+				else flat
+		end
+	else
+		ownGlideActive = false
+	end
 	if math.abs(humanoid.WalkSpeed - walkSpeed) > 1e-3 then
 		humanoid.WalkSpeed = walkSpeed
 	end
@@ -427,6 +481,78 @@ end
 -- for every other input).
 function MovementSim.setOwnPush(push: number)
 	ownPush = if push == push then math.clamp(push, 0, 1) else 1
+end
+
+-- The lobby glide, once per rendered frame after Roblox's controls (and
+-- Shared/SettingsApply's rebinds) set the move direction (MovementController):
+-- reads that raw direction, eases the glide toward it and hands the Humanoid
+-- the glide's direction and speed for this frame's physics.
+function MovementSim.lobbyGlideStep(dt: number)
+	local character = Players.LocalPlayer and Players.LocalPlayer.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or dt ~= dt or dt <= 0 then
+		return
+	end
+	local raw = humanoid.MoveDirection * Vector3.new(1, 0, 1)
+	ownGlideAsked = raw
+	ownGlideAskedAt = os.clock()
+	if not ownGlideActive or ownCharacter ~= character then
+		return
+	end
+	-- (The first frame of a press, before the step has seen it: set off at a walk.)
+	local targetSpeed = if ownGlideTarget > 0
+		then ownGlideTarget
+		else Movement.WALK_SPEED * ownLobbyPush
+	local target = if raw.Magnitude > 0.1 then raw.Unit * targetSpeed else Vector3.zero
+	local frameDt = math.min(dt, 0.1)
+	local current = ownGlide.Magnitude
+	local want = target.Magnitude
+	local angle = if current > 1e-3 and want > 1e-3
+		then math.acos(math.clamp(ownGlide:Dot(target) / (current * want), -1, 1))
+		else 0
+	if
+		current > Movement.LOBBY_STOP
+		and want > 1e-3
+		and angle < math.rad(Movement.LOBBY_TURN_MAX)
+	then
+		-- A turn: the heading swings round at LOBBY_TURN_RATE while the speed
+		-- eases to the new target on its own (no slowdown through the bend).
+		local dir = ownGlide / current
+		local goal = target / want
+		if angle > 1e-4 then
+			local turn = math.min(angle, math.rad(Movement.LOBBY_TURN_RATE) * frameDt)
+			local bent = dir * math.sin(angle - turn) + goal * math.sin(turn)
+			if bent.Magnitude > 1e-4 then
+				dir = bent.Unit
+			end
+		end
+		local newSpeed = if want < current
+			then math.max(want, current - Movement.LOBBY_DECEL * frameDt)
+			else math.min(want, current + Movement.LOBBY_ACCEL * frameDt)
+		ownGlide = dir * newSpeed
+	else
+		-- A start, a stop or a reversal: straight there at the start / brake rate.
+		local braking = want < 1e-3 or ownGlide:Dot(target) < 0 or want < current - 1e-3
+		local reach = (if braking then Movement.LOBBY_DECEL else Movement.LOBBY_ACCEL) * frameDt
+		local delta = target - ownGlide
+		ownGlide = if delta.Magnitude <= reach then target else ownGlide + delta.Unit * reach
+	end
+	local speed = ownGlide.Magnitude
+	if speed > Movement.LOBBY_STOP then
+		humanoid:Move(ownGlide / speed, false)
+	else
+		ownGlide = Vector3.zero
+		speed = 0
+	end
+	if math.abs(humanoid.WalkSpeed - speed) > 1e-3 then
+		humanoid.WalkSpeed = speed
+	end
+end
+
+-- The local player's stick push in the lobby hub, 0-1 (MovementController,
+-- from Roblox's own thumbstick or a gamepad; 1 for keys).
+function MovementSim.setLobbyPush(push: number)
+	ownLobbyPush = if push == push then math.clamp(push, 0, 1) else 1
 end
 
 -- Call once on the server and once on each client host.

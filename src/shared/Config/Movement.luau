@@ -90,5 +90,25 @@ return table.freeze({
 	SPRINT_FOV_KICK = 4, -- extra degrees of FOV while sprinting
 	SLIDE_FOV_KICK = 8, -- ...and while sliding
 
+	-- Lobby hub only (PlayZone "Lobby"; the Range and matches keep the instant,
+	-- RIVALS-like ground control above). 2026-11-28, owner: "I just want the
+	-- movement in the lobby to feel nicer" (vault/01 Design/Movement Feel
+	-- 2026-11-27.md → Lobby movement). Roblox's Humanoid starts, stops and
+	-- turns in a single frame; in the hub the ground velocity glides toward
+	-- where you're steering instead (Simulation/Movement lobbyGlideStep, every
+	-- rendered frame): ACCEL studs/s² speeding up (measured 0 → 22 run in
+	-- 0.19 s), DECEL slowing down (measured 22 → 0 in 0.14 s, ~1.5 studs: a
+	-- short settle, no ice). Below STOP studs/s the glide ends. Speeds,
+	-- jump and the run itself are the match values (they fit the 176 × 230
+	-- hub: the rotunda is ~3 s across at a run).
+	LOBBY_ACCEL = 110,
+	LOBBY_DECEL = 140,
+	LOBBY_STOP = 0.5,
+	-- Turning while moving: the heading swings at LOBBY_TURN_RATE degrees/s
+	-- (90 degrees in 0.15 s) and keeps its speed; a change sharper than
+	-- LOBBY_TURN_MAX degrees brakes through a stop and sets off the other way.
+	LOBBY_TURN_RATE = 600,
+	LOBBY_TURN_MAX = 150,
+
 	-- Server sanity check on replicated movement (anti speed-hack telemetry).
 })

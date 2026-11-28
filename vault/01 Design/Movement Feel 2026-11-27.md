@@ -48,3 +48,30 @@ Checked and left alone (already at the bar, see [Gunplay](Gunplay.md) §5): hit 
 - Not seen by eye: another player's Ghost afterimages in a real 2-client test.
 
 Commits: 50be542f, 348f6604, aa04661f, 4faf03c4.
+
+## Lobby movement (2026-11-28)
+Owner: "I just want the movement in the lobby to feel nicer." The hub runs the same movement simulation as matches: walk 16, automatic run to 22, jump 4.4, fall gravity 1.6. Those speeds stay: the hub is about 176 × 230 and the rotunda is about 3 s across at a run. What felt wrong was the Roblox Humanoid itself and the stock camera. **Hub only (PlayZone "Lobby").** The Range and matches keep the instant, RIVALS-like ground control, so match movement is unchanged.
+
+| What felt wrong | Change |
+|---|---|
+| **Starts, stops and turns happen in one frame.** That is how the Humanoid works: it snaps to MoveDirection × WalkSpeed, so letting go of W stops you dead from 22 and a turn snaps. A first try that glided only in the 60 Hz simulation step was measured at ~170 fps: a stop from 22 in 20 ms, then a one-frame re-push. The Humanoid takes the raw input on the frames between steps. | **Lobby glide.** `Simulation/Movement lobbyGlideStep` is bound by MovementController as `GGLobbyGlide` and runs every rendered frame, just after Roblox's controls and the SettingsApply rebinds. On the ground the velocity eases toward where you steer: `LOBBY_ACCEL 110` studs/s² speeding up, `LOBBY_DECEL 140` slowing down, and the glide ends under `LOBBY_STOP 0.5`. The simulation step still decides the state and the target speed. |
+| A straight-line chase also cut speed through a turn (13 studs/s at 90°). | Turns swing the heading at `LOBBY_TURN_RATE 600` °/s and keep the speed. A change sharper than `LOBBY_TURN_MAX 150°` brakes through a stop and sets off the other way. |
+| **A light controller push ran at full speed.** The hub has no TouchController, so the push was always 1. | `MovementController` reads the left stick, rescaled past the player's STICK DEADZONE, into `MovementSim.setLobbyPush`. That push is kept apart from the match's, so it can't leak into a match. A light push walks slowly, and the run needs `TOUCH_RUN_PUSH 0.6`. **Phones:** the hub walks on Roblox's engine controls (there's no PlayerModule in PlayerScripts), and the engine thumbstick reports no push, so phones still walk and run at full speed. Fixing that would mean the match's own stick in the hub. |
+| **Steps pop the camera.** Roblox's camera tracks the root exactly, so the hub's 0.6-1 stud steps moved the view the full step in one frame. | **`LobbyCameraFollow`** (lobby client, height only, Camera + 2): on the ground it soaks up whatever the root climbs beyond a low-passed climb rate and eases it home (`Config/Camera LOBBY_CLIMB_RATE 1`, `LOBBY_SETTLE_RATE 12`, `LOBBY_AIR_RATE 25`, `LOBBY_MAX_LAG 1.5`). Jumps and landings follow at once: the Humanoid's Jumping / Freefall / Landed states count as air. A first version read only the floor, which lags takeoff by ~60 ms. It soaked up 1.3-1.7 studs of every jump and then jerked to catch up. |
+
+Left alone: speeds, jump height, fall gravity, the run's timing, the FOV (the player's setting, 80 by default, fine in third person), zoom (Classic, 0.5-128), slides, slide-jumps, the air and jump pads. The glide covers ground states only (Idle / Walk / Sprint / Crouch) and picks up from the real velocity on landing or out of a slide.
+
+### Before / after (lobby only; measured in Studio Play at ~170 fps unless marked)
+| Thing | Before | After |
+|---|---|---|
+| Start, 0 → run | Humanoid snaps to 16 at once, then the run ramps to 22 over 0.12 s | first frame 1.5-3.5 studs/s, smooth ramp, 22 at 0.19 s |
+| Stop from the run | instant (one frame) | 22 → 0 in 0.14-0.15 s, ~1.5 studs, no re-push |
+| 90° turn at a run | one frame | heading swings 0 → 90° in ~0.13 s. Speed dips to 16 for ~0.1 s: the automatic run drops while the body turns (`forward` check, same as before), then rebuilds to 22 |
+| Reversal (D → A) | one frame | brakes to 0 and sets off the other way, ~0.3 s in all |
+| Controller at half push | full speed | half speed, walks (run needs 0.6). Not measured: the MCP can't send a stick |
+| 0.6-stud step down at a run, camera | full step in one frame | camera eases down; peak lag 0.42 studs, home in ~0.15 s |
+| Jump, camera | follows exactly | follows within 0.09 studs. Landing within 0.1 |
+| Largest frame-to-frame camera height change over the run + jump + step test | 0.53 studs (first camera version) | 0.16 studs |
+| Simulated 1-stud step (camera) | — | 90% followed in 0.15 s, 0.05-stud overshoot. Climb 6 / settle 10 overshot 11%, a bob |
+
+Not tested: a real phone or controller, a 2-player lobby, the stairs at the far wings (the test path had the hub's 0.6 and 1-stud steps).
