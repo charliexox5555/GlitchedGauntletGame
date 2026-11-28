@@ -133,6 +133,7 @@ Locker.EMBLEMS = table.freeze({
 	Inkshift = "rbxassetid://92911837408821",
 	Slipframe = "rbxassetid://104958460854328",
 	Arcade = "rbxassetid://99590702779870", -- joystick and coin slot (tools/render/arcade_emblem.py)
+	Frostbite = "rbxassetid://80542340615450", -- faceted 6-point snowflake (tools/render/frostbite_emblem.py)
 	TempestStrike = "rbxassetid://95165319256972",
 	RuinBlighted = "rbxassetid://130399130528727",
 	Breakwater = "rbxassetid://84964799842794",

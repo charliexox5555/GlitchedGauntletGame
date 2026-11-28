@@ -268,6 +268,22 @@ local IDS: { [string]: string } = table.freeze({
 	["Spectre/Arcade"] = "rbxassetid://92548203573951",
 	["Stinger/Arcade"] = "rbxassetid://137625048303364",
 	["Vandal/Arcade"] = "rbxassetid://80715724673536",
+	-- Frostbite (Season 1 pass; Blender side renders 2026-11-27)
+	["Bucky/Frostbite"] = "rbxassetid://132771995946428",
+	["Bulldog/Frostbite"] = "rbxassetid://114649192368623",
+	["Classic/Frostbite"] = "rbxassetid://76961069175996",
+	["Ghost/Frostbite"] = "rbxassetid://110262014703043",
+	["Guardian/Frostbite"] = "rbxassetid://79681792967528",
+	["Knife/Frostbite"] = "rbxassetid://121514182568620",
+	["Marshal/Frostbite"] = "rbxassetid://120107730093252",
+	["Odin/Frostbite"] = "rbxassetid://84823960432810",
+	["Operator/Frostbite"] = "rbxassetid://110046127168690",
+	["Phantom/Frostbite"] = "rbxassetid://117280578070514",
+	["Sheriff/Frostbite"] = "rbxassetid://112549673002806",
+	["Shorty/Frostbite"] = "rbxassetid://126309960577801",
+	["Spectre/Frostbite"] = "rbxassetid://72558499253489",
+	["Stinger/Frostbite"] = "rbxassetid://131593366714260",
+	["Vandal/Frostbite"] = "rbxassetid://99356685685691",
 })
 
 -- The picture for `line` on `gunId`, or nil (then show the 3D view instead).

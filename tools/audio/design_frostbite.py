@@ -120,11 +120,127 @@ def cues():
         (0.010, frost_air(0.36, 3200.0, -11)),
     ])
 
+    # 5. Class-tailored gun shot crystalline layers
+    phantom_fire = place([
+        (0.000, foley("switch_button_push_on_off", 2, 1900, 9000, 1.40, 0.032, -6)),
+        (0.002, ice_ping(2620.0, 0.095, -5, mod_ratio=2.14, mod_index=1.3)),
+        (0.004, frost_air(0.115, 5200.0, -10)),
+    ])
+    ghost_fire = place([
+        (0.000, foley("switch_button_push_on_off", 1, 2200, 9500, 1.50, 0.028, -5)),
+        (0.002, ice_ping(2880.0, 0.080, -4, mod_ratio=2.09, mod_index=1.1)),
+        (0.004, frost_air(0.095, 5600.0, -12)),
+    ])
+    spectre_fire = place([
+        (0.000, foley("wood_block_sticks_hit_clap", 1, 2100, 9800, 1.55, 0.030, -5)),
+        (0.002, ice_ping(2520.0, 0.075, -5, mod_ratio=2.33, mod_index=1.4)),
+        (0.004, frost_air(0.090, 4900.0, -12)),
+    ])
+    stinger_fire = place([
+        (0.000, foley("switch_button_push_on_off", 3, 2400, 11000, 1.65, 0.026, -4)),
+        (0.001, ice_ping(3050.0, 0.070, -4, mod_ratio=2.48, mod_index=1.6)),
+        (0.003, frost_air(0.085, 5200.0, -13)),
+    ])
+    guardian_fire = place([
+        (0.000, foley("metal_sheet_impacts", 1, 1000, 9000, 1.25, 0.075, -2)),
+        (0.000, foley("wood_block_sticks_hit_clap", 3, 1800, 10000, 1.25, 0.045, -4)),
+        (0.003, ice_ping(1650.0, 0.135, -3, mod_ratio=2.39, mod_index=2.2)),
+        (0.006, frost_air(0.145, 3600.0, -11)),
+    ])
+    bulldog_fire = place([
+        (0.000, foley("metal_small_movement", 2, 1800, 9800, 1.40, 0.045, -3)),
+        (0.002, ice_ping(2340.0, 0.090, -5, mod_ratio=2.57, mod_index=1.8)),
+        (0.005, frost_air(0.105, 4400.0, -13)),
+    ])
+    odin_fire = place([
+        (0.000, foley("metal_sheet_impacts", 2, 850, 7800, 1.15, 0.075, -2)),
+        (0.002, foley("metal_small_movement", 5, 1100, 8200, 1.15, 0.060, -4)),
+        (0.004, ice_ping(1420.0, 0.115, -4, mod_ratio=2.61, mod_index=2.4)),
+        (0.008, frost_air(0.130, 3200.0, -12)),
+    ])
+    operator_fire = place([
+        (0.000, foley("metal_sheet_impacts", 2, 700, 9500, 0.95, 0.110, -1)),
+        (0.002, foley("wood_block_sticks_hit_clap", 3, 1400, 10500, 1.10, 0.065, -3)),
+        (0.005, ice_ping(980.0, 0.210, -3, mod_ratio=2.71, mod_index=2.6)),
+        (0.012, ice_ping(1960.0, 0.175, -5, mod_ratio=2.18, mod_index=1.9)),
+        (0.010, frost_air(0.240, 2800.0, -10)),
+    ])
+    marshal_fire = place([
+        (0.000, foley("metal_small_movement", 4, 1500, 10500, 1.30, 0.060, -2)),
+        (0.001, foley("wood_block_sticks_hit_clap", 2, 2000, 11000, 1.35, 0.045, -3)),
+        (0.003, ice_ping(1920.0, 0.155, -3, mod_ratio=2.44, mod_index=2.1)),
+        (0.008, frost_air(0.165, 3900.0, -11)),
+    ])
+    bucky_fire = place([
+        (0.000, foley("metal_sheet_impacts", 1, 1100, 10000, 1.25, 0.075, -2)),
+        (0.012, foley("wood_block_sticks_hit_clap", 1, 1900, 11000, 1.35, 0.050, -3)),
+        (0.004, ice_ping(1780.0, 0.145, -4, mod_ratio=2.81, mod_index=2.3)),
+        (0.016, ice_ping(2680.0, 0.130, -5, mod_ratio=2.37, mod_index=1.8)),
+        (0.008, frost_air(0.180, 3400.0, -10)),
+    ])
+    shorty_fire = place([
+        (0.000, foley("metal_small_movement", 5, 1300, 10200, 1.35, 0.060, -2)),
+        (0.008, foley("wood_block_sticks_hit_clap", 2, 2200, 11000, 1.45, 0.040, -3)),
+        (0.003, ice_ping(2040.0, 0.115, -4, mod_ratio=2.63, mod_index=2.1)),
+        (0.014, ice_ping(2920.0, 0.105, -6, mod_ratio=2.29, mod_index=1.6)),
+        (0.006, frost_air(0.135, 3800.0, -11)),
+    ])
+    classic_fire = place([
+        (0.000, foley("switch_button_push_on_off", 3, 1800, 9500, 1.35, 0.035, -4)),
+        (0.001, foley("metal_small_movement", 1, 1900, 9800, 1.40, 0.040, -5)),
+        (0.002, ice_ping(2460.0, 0.090, -5, mod_ratio=2.24, mod_index=1.6)),
+        (0.005, frost_air(0.100, 4500.0, -13)),
+    ])
+    sheriff_fire = place([
+        (0.000, foley("metal_sheet_impacts", 2, 1200, 10200, 1.20, 0.080, -1)),
+        (0.002, ice_ping(1740.0, 0.175, -3, mod_ratio=2.01, mod_index=1.9)),
+        (0.014, ice_ping(3480.0, 0.135, -7, mod_ratio=2.03, mod_index=1.1)),
+        (0.008, frost_air(0.180, 3500.0, -11)),
+    ])
+
+    # 6. Frostbite Knife cues
+    knife_draw = place([
+        (0.000, foley("metal_small_movement", 4, 1500, 9800, 1.15, 0.085, -3)),
+        (0.018, foley("whoosh_swish_small", 1, 1400, 9600, 1.20, 0.160, -4)),
+        (0.025, ice_ping(2200.0, 0.180, -5, mod_ratio=2.02, mod_index=1.2)),
+        (0.065, ice_ping(3300.0, 0.170, -6, mod_ratio=2.04, mod_index=1.0)),
+        (0.010, frost_air(0.240, 4000.0, -12)),
+    ])
+    knife_slash = place([
+        (0.000, foley("whoosh_swish_high_fast", 1, 1600, 11000, 1.25, 0.135, -2)),
+        (0.004, foley("metal_small_movement", 2, 2200, 10800, 1.45, 0.045, -5)),
+        (0.010, ice_ping(2960.0, 0.135, -4, mod_ratio=2.41, mod_index=1.8)),
+        (0.005, frost_air(0.155, 4400.0, -11)),
+    ])
+    knife_heavy = place([
+        (0.000, foley("whoosh_swish_high_fast", 2, 1200, 10800, 1.05, 0.190, -1)),
+        (0.008, foley("metal_sheet_impacts", 1, 1400, 10000, 1.25, 0.075, -3)),
+        (0.014, ice_ping(1480.0, 0.210, -3, mod_ratio=2.33, mod_index=2.1)),
+        (0.036, ice_ping(2220.0, 0.180, -5, mod_ratio=2.07, mod_index=1.5)),
+        (0.012, frost_air(0.230, 3400.0, -10)),
+    ])
+
     return {
         "vandal_fire": vandal_fire,
         "inspect_grow": inspect_grow,
         "inspect_settle": inspect_settle,
         "kill_shatter": kill_shatter,
+        "phantom_fire": phantom_fire,
+        "ghost_fire": ghost_fire,
+        "spectre_fire": spectre_fire,
+        "stinger_fire": stinger_fire,
+        "guardian_fire": guardian_fire,
+        "bulldog_fire": bulldog_fire,
+        "odin_fire": odin_fire,
+        "operator_fire": operator_fire,
+        "marshal_fire": marshal_fire,
+        "bucky_fire": bucky_fire,
+        "shorty_fire": shorty_fire,
+        "classic_fire": classic_fire,
+        "sheriff_fire": sheriff_fire,
+        "knife_draw": knife_draw,
+        "knife_slash": knife_slash,
+        "knife_heavy": knife_heavy,
     }
 
 

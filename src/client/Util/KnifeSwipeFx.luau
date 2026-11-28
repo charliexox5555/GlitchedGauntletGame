@@ -158,11 +158,13 @@ function KnifeSwipeFx.swipe(
 		then PB.SWIPE_CORE
 		elseif skinLine == SD.LINE then SD.SWIPE_CORE
 		elseif skinLine == RF.LINE then RF.PLASMA_EDGE
+		elseif skinLine == "Frostbite" then Color3.fromHex("ECFDFF")
 		else WHITE
 	local bodyColor = if skinLine == PB.LINE
 		then PB.SWIPE_BODY
 		elseif skinLine == SD.LINE then SD.SWIPE_BODY
 		elseif skinLine == RF.LINE then RF.PLASMA_DEEP
+		elseif skinLine == "Frostbite" then Color3.fromHex("2A88C8")
 		else STOCK_BODY
 	local beams = {}
 	-- 1: the glowing core (narrow); 2: a dark steel / line-tinted body around it

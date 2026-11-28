@@ -228,8 +228,14 @@ local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?, tier: number
 		local c = r.case and ShopCatalog.case(r.case)
 		art.Image = if c then c.art or "" else ""
 	elseif r.kind == "Skin" and r.gun then
-		art.Image = Theme.GUN[r.gun] or ""
-		art.ImageColor3 = if r.line then (Locker.COLORS[r.line] or WHITE) else WHITE
+		local portrait = if r.line then SkinArt.portrait(r.gun, r.line) else nil
+		if portrait and portrait ~= "" then
+			art.Image = portrait
+			art.ImageColor3 = WHITE
+		else
+			art.Image = Theme.GUN[r.gun] or ""
+			art.ImageColor3 = if r.line then (Locker.COLORS[r.line] or WHITE) else WHITE
+		end
 	elseif r.kind == "Skin" and r.line and tier and track then
 		-- a random-gun skin: the rolled gun once claimed, else a reel over the player's pool
 		local line = r.line

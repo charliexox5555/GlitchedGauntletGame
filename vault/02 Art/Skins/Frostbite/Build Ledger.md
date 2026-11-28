@@ -2,8 +2,8 @@
 
 2026-11-27. Season 1 battle pass Legendary chase line (premium tiers 15, 24, 29, plus the **Frostbite Knife** + `FROSTBITTEN` title at tier 30; covers all 14 active guns + Knife; excluded from cases).
 
-- **Blender instance used:** `127.0.0.1:9100`, PID `18288`, Blender `5.2.2` (owner's live Blender window, used with explicit owner permission after `v06` moved from the temporary `9881` window; `Vandal_Frostbite_v10.blend` left open).
-- **Pipeline scripts:** [tools/blender/frostbite/](../../../../tools/blender/frostbite/frost_lib.py) (`frost_lib.py`, `10_vandal.py`, `49_audit.py`, `20_review.py`, `21_review_vandal.py`, `53_export.py`, `30_sheet.py`, `sheet_vandal.json`).
+- **Blender instance used:** `127.0.0.1:9100` (PID `18288`, Blender `5.2.2`, owner's live Blender window, `Vandal_Frostbite_v10.blend` left open); temporary bridges `9881` & `9883` used for parallel builds/portraits and closed afterward.
+- **Pipeline scripts:** [tools/blender/frostbite/](../../../../tools/blender/frostbite/frost_lib.py) (`frost_lib.py`, `10_vandal.py`, `11_phantom.py`–`25_knife.py`, `49_audit.py`, `20_review.py`, `21_review_*.py`, `53_export.py`, `30_sheet.py`, `sheet_*.json`, `40_portraits.py`), [tools/render/frostbite_emblem.py](../../../../tools/render/frostbite_emblem.py), and [tools/audio/design_frostbite.py](../../../../tools/audio/design_frostbite.py).
 
 ## Palette (flat-shaded, zero Glass)
 
@@ -91,13 +91,48 @@ Upgraded to compare with top-tier Legendary skins (`Riftforge` / `TempestStrike`
 | `inspect_settle` | `125723564872150` | `0.28 s` | Inspect apex when all 3 crystal stages lock (`Foley`, vol `0.28`) |
 | `kill_shatter` | `134870399149985` | `0.37 s` | Client kill confirm (`Feedback`, vol `0.34`, pitch `0.97..1.03`) |
 
-## Verification Summary
-- **Lint & Build:** `stylua --check` clean on all Frostbite-touched Luau files; `selene src` passed (`0 errors, 0 warnings`); `rojo build default.project.json` clean.
-- **Studio Play Range (`Locker -> TRY IN THE RANGE`, `PlaceId 71551303511506`):**
-  - `SkinStore.has("Frostbite", "Vandal") == true`, `[SkinStore] 240 skins in the manifest`, `Locker.valid("Vandal", "Frostbite") == true`, `Frostbite` absent from `SkinCases.all()`.
-  - Camera viewmodel loaded all `14` `_FB*` MeshParts, `7` `FrostbiteMotion` Motor6Ds, `4` `Sight` parts, `FrostbiteRibbon*` (`6` outer + `6` core Beams), `FrostbiteHaloBeam*`/`FrostbiteHaloCore*` (`12` segments), `FrostbiteArc*` (`3`), `FrostbiteCoreLight`, `FrostbiteForeLight`, `FrostbiteMistCore`, `FrostbiteMistFore`, `FrostbiteMagMist`, `FrostbiteSparkles`, `FrostbiteShards`, `FrostbiteBurst`, `FrostbiteMuzzlePop`, and `FrostbitePulseRing`.
-  - ADS (`DevAim`) suppressed lights, mist, sparkles, arcs, halo, and ribbons cleanly (`Enabled = false`), restoring on hip (`coreL=0.48`, `foreL=0.25`, `Enabled = true`) — verified visually in [Hip VFX](out/Vandal_v10_Range_Hip_VFX.jpg) and [ADS VFX](out/Vandal_v10_Range_ADS_VFX.jpg).
-  - Fire spawned Slipframe's `SlipframeFlashCore` + twin `SlipframeFlashEdge` + `FrostbiteMuzzleShards` and `Workspace.FrostbiteSplash` + `FrostbiteImpactMark`.
-  - Live kill of a `RangeBot` (`killed = true`, `0.61 s`) spawned `Workspace.FrostbiteKillBurst` and triggered `FBShard1..4` outward shatter (`pos = 0.0318 -> 0.1928`, `LTM = 0 -> 0.82 -> 1.00`, `haloOn = true`) and clean refreeze (`pos = 0.0000`, `LTM = 0.00`).
-  - **0 console errors** from Frostbite code, VFX, geometry, or audio.
-- **Owner Action:** Save the Studio place (`71551303511506`) to persist `ServerStorage.WeaponSkins.Frostbite.Vandal`.
+---
+
+## Full Line Inventory (All 14 Active Guns + Tier 30 Knife — INSTALLED & VERIFIED)
+
+All 15 models passed contract equality (`locators/bones/actions`, plus `lenses` on `Operator`/`Marshal`), `<= 1.5x` triangle budget, `0` non-lens `Glass` parts, `0` animated part overlaps across all clips, `0` Studio 5-ray ADS hits, and clean backface-culled flat-FBX reimports (`ServerStorage.WeaponSkins.Frostbite.<Item>`, tagged `GauntletAuthoredData` + `GGAsset_LobbySkins_279..293`):
+
+| Item | Version | Tris / Stock (Ratio) | Open Cloud Model ID | AssetData Row | Portrait Image ID | Side Icon Image ID |
+|---|---|---|---|---|---|---|
+| `Vandal` | `v10x` | `7,518` / `5,171` (`1.45×`) | `83152238474766` | `GGAsset_LobbySkins_279` | `105378818541316` | `99356685685691` |
+| `Bucky` | `v02x` | `3,770` / `3,030` (`1.24×`) | `114676935223533` | `GGAsset_LobbySkins_280` | `116900213708648` | `132771995946428` |
+| `Bulldog` | `v03x` | `5,172` / `3,640` (`1.42×`) | `94192220887072` | `GGAsset_LobbySkins_281` | `87475781525763` | `114649192368623` |
+| `Classic` | `v02x` | `3,332` / `2,334` (`1.43×`) | `74912678424755` | `GGAsset_LobbySkins_282` | `89798767746151` | `76961069175996` |
+| `Ghost` | `v02x` | `3,618` / `2,964` (`1.22×`) | `70540582170670` | `GGAsset_LobbySkins_283` | `109030735865890` | `110262014703043` |
+| `Guardian` | `v02x` | `5,690` / `4,374` (`1.30×`) | `123132701986098` | `GGAsset_LobbySkins_284` | `82783225027271` | `79681792967528` |
+| `Knife` | `v02x` | `1,088` / `1,404` (`0.77×`) | `135803176205156` | `GGAsset_LobbySkins_285` | `87582292983474` | `121514182568620` |
+| `Marshal` | `v02x` | `5,977` / `4,407` (`1.36×`) | `89527238902700` | `GGAsset_LobbySkins_286` | `135417370995110` | `120107730093252` |
+| `Odin` | `v02x` | `6,152` / `4,528` (`1.36×`) | `83346335930988` | `GGAsset_LobbySkins_287` | `95199311972622` | `84823960432810` |
+| `Operator` | `v02x` | `6,474` / `4,950` (`1.31×`) | `132650812263876` | `GGAsset_LobbySkins_288` | `78698182476920` | `110046127168690` |
+| `Phantom` | `v04x` | `6,470` / `4,724` (`1.37×`) | `140452957222525` | `GGAsset_LobbySkins_289` | `123387913029275` | `117280578070514` |
+| `Sheriff` | `v02x` | `4,186` / `3,066` (`1.37×`) | `112367899700602` | `GGAsset_LobbySkins_290` | `99473999044496` | `112549673002806` |
+| `Shorty` | `v02x` | `3,334` / `2,734` (`1.22×`) | `120853207046013` | `GGAsset_LobbySkins_291` | `138141879896435` | `126309960577801` |
+| `Spectre` | `v02x` | `4,873` / `3,389` (`1.44×`) | `82793920076665` | `GGAsset_LobbySkins_292` | `84571646618951` | `72558499253489` |
+| `Stinger` | `v02x` | `4,028` / `3,134` (`1.29×`) | `136412465765800` | `GGAsset_LobbySkins_293` | `136762692058567` | `131593366714260` |
+
+- **Collection Emblem (`Locker.EMBLEMS.Frostbite`):** `rbxassetid://80542340615450` (Decal `104823838837973`, generated via `tools/render/frostbite_emblem.py`).
+- **Battle Pass Tier 30 Portrait (`BattlePassController.luau`):** Updated fixed-gun Battle Pass reward rendering to prefer `SkinArt.portrait(r.gun, r.line)` with `WHITE` tinting (falling back to silhouette only if missing), so Tier 30 **Frostbite Knife** renders its full-color portrait directly alongside Tier 15/24/29 random-gun Frostbite reels.
+
+### Full Line Audio Cues (`src/shared/Config/FrostbiteAudio.luau`)
+20 cues total (48 kHz PCM_16 WAVs generated via `tools/audio/design_frostbite.py`):
+- **Shared Inspect & Kill:** `inspect_grow` (`85469900133060`), `inspect_settle` (`125723564872150`), `kill_shatter` (`134870399149985`).
+- **Knife Handling:** `knife_draw` (`114498235438507`, `0.25 s`), `knife_slash` (`86794888288327`, `0.16 s`), `knife_heavy` (`86270873692721`, `0.242 s`).
+- **Per-Gun Fire Layers:** `Vandal` (`132065486262242`), `Phantom` (`129012931030871`), `Spectre` (`92162594659990`), `Guardian` (`112733224449782`), `Bulldog` (`99395370172603`), `Odin` (`139007484454034`), `Operator` (`79113774701130`), `Marshal` (`128380714358799`), `Bucky` (`108636919852465`), `Stinger` (`126131211057802`), `Classic` (`71753048785037`), `Sheriff` (`90169411370806`), `Shorty` (`112130139897964`), `Ghost` (`116831528681637`).
+
+### Knife VFX (`src/client/Util/FrostbiteKnife.luau` + `KnifeSwipeFx.luau` + `ViewmodelController.luau`)
+- Rest: twin razor-thin icy edge `Beam`s along cutting edge & fuller (`VFX.FROST_VAPOR`), crossguard `PointLight`, `FROST_MIST_2x2` vapor + `MOD_SPARKLE` glints, and `2.4 s` shimmer on `FBCoreHeart`/`FBKnifeGlow`/`FBKnifePommel`.
+- Draw & Inspect: 3D Cryo Halo ring (`makeHalo`) sweeping guard→tip on draw and inspect; staggered 3-stage `FBGrowRear`/`Mid`/`Front` blade crystal eruption (`0.12..0.72`), chip bursts, and `Grow`/`Settle` audio events.
+- Swings & Kill: dual cryo blade `Trail`s + icy `#ECFDFF`/`#2A88C8` `KnifeSwipeFx` streak + `FrostbiteSlash`/`FrostbiteHeavy` SFX; melee kills trigger `FrostbiteKnife.onKill` (`FBShard1..4` outward fracture + `LocalHide` fade + refreeze), `FrostbiteAudio.kill`, and `EffectsController.frostbiteKill`.
+
+## Verification Summary (Full Line)
+- **Lint & Build:** `stylua --check` clean on all 10 touched/created `.luau` files; `selene src` passed (`0 errors, 0 warnings, 0 parse errors`); `rojo build default.project.json` clean.
+- **Studio Play (`PlaceId 71551303511506`):**
+  - `[SkinStore] 254 skins in the manifest`: verified `SkinStore.has`, `Locker.valid`, `ItemPortraits.get`, `ItemIcons.get`, `Locker.EMBLEMS.Frostbite`, VFX config, and audio cues for all `15/15` items, and verified `Frostbite` absent from `SkinCases` (`Apex` & `Knife`).
+  - **Battle Pass (`BattlePassTest = true`):** visually verified Tier 15 & Tier 29 `FROSTBITE SKIN` reels and Tier 30 `FROSTBITE KNIFE` rendering `rbxassetid://87582292983474` with `ImageColor3 = (1, 1, 1)` (`WHITE`).
+  - **Range:** verified `Vandal`, `Phantom`, `Operator`, `Bucky`, `Shorty`, `Sheriff`, `Classic` (`7` `FrostbiteMotion` Motor6Ds, `12` flank ribbon Beams, `2` lights; ADS suppression confirmed on `Phantom`, `Operator`, `Sheriff`) and **Tier 30 Frostbite Knife** (`7` Motor6Ds, `2` edge Beams, `1` light, heavy `2` Trails, inspect crystal growth, and live `RangeBot` kill triggering `Workspace.FrostbiteKillBurst` + `FBShard1..4` shatter). **0 Frostbite console errors.**
+- **Owner Action:** **Save** the open Roblox Studio place (`71551303511506`) so all 15 `ServerStorage.WeaponSkins.Frostbite.*` models persist to Roblox.

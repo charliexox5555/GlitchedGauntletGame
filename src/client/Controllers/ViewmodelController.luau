@@ -64,6 +64,7 @@ local SlipframeArc = require(script.Parent.Parent.Util.SlipframeArc)
 local SlipframeEffects = require(script.Parent.Parent.Util.SlipframeEffects)
 local ArcadeEffects = require(script.Parent.Parent.Util.ArcadeEffects)
 local FrostbiteEffects = require(script.Parent.Parent.Util.FrostbiteEffects)
+local FrostbiteKnife = require(script.Parent.Parent.Util.FrostbiteKnife)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
@@ -163,6 +164,7 @@ type Gun = {
 	slipframe: SlipframeEffects.State?,
 	arcade: ArcadeEffects.State?,
 	frostbite: FrostbiteEffects.State?,
+	frostbiteKnife: FrostbiteKnife.State?,
 	moltframe: boolean?,
 	playback: boolean?,
 	sundial: boolean?,
@@ -1105,15 +1107,31 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				AudioController.warmCue(cue.id)
 			end
 		end
-	elseif skinLine == "Frostbite" and templateId ~= "Knife" then
-		gun.frostbite = FrostbiteEffects.new(m, scale, templateId)
-		if gun.frostbite and not subject then
-			for _, cue in { FrostbiteAudio.grow, FrostbiteAudio.settle, FrostbiteAudio.kill } do
-				AudioController.warmCue(cue.id)
+	elseif skinLine == "Frostbite" then
+		if templateId == "Knife" then
+			if not subject then
+				gun.frostbiteKnife = FrostbiteKnife.new(m, scale)
+				if gun.frostbiteKnife then
+					for _, cue in
+						{ FrostbiteAudio.grow, FrostbiteAudio.settle, FrostbiteAudio.kill }
+					do
+						AudioController.warmCue(cue.id)
+					end
+					for _, cue in FrostbiteAudio.handling do
+						AudioController.warmCue(cue.id)
+					end
+				end
 			end
-			local shotCue = FrostbiteAudio.shots[templateId]
-			if shotCue then
-				AudioController.warmCue(shotCue.id)
+		else
+			gun.frostbite = FrostbiteEffects.new(m, scale, templateId)
+			if gun.frostbite and not subject then
+				for _, cue in { FrostbiteAudio.grow, FrostbiteAudio.settle, FrostbiteAudio.kill } do
+					AudioController.warmCue(cue.id)
+				end
+				local shotCue = FrostbiteAudio.shots[templateId]
+				if shotCue then
+					AudioController.warmCue(shotCue.id)
+				end
 			end
 		end
 	elseif skinLine == "Moltframe" then
@@ -1388,6 +1406,9 @@ function ViewmodelController.unequip()
 		if gun.frostbite then
 			FrostbiteEffects.destroy(gun.frostbite)
 		end
+		if gun.frostbiteKnife then
+			FrostbiteKnife.destroy(gun.frostbiteKnife)
+		end
 		if gun.riftfang then
 			RiftfangKnife.destroy(gun.riftfang)
 		end
@@ -1423,13 +1444,23 @@ end
 
 function ViewmodelController.hasFrostbite(): boolean
 	local right = guns.Right
-	return subject == nil and right ~= nil and right.frostbite ~= nil
+	return subject == nil
+		and right ~= nil
+		and (right.frostbite ~= nil or right.frostbiteKnife ~= nil)
 end
 
 function ViewmodelController.onKill()
 	local right = guns.Right
-	if subject == nil and right and right.frostbite then
+	if subject ~= nil or not right then
+		return
+	end
+	if right.frostbite then
 		FrostbiteEffects.onKill(right.frostbite)
+		if not hidden then
+			AudioController.playSound(FrostbiteAudio.kill, "Feedback")
+		end
+	elseif right.frostbiteKnife then
+		FrostbiteKnife.onKill(right.frostbiteKnife)
 		if not hidden then
 			AudioController.playSound(FrostbiteAudio.kill, "Feedback")
 		end
@@ -1705,6 +1736,13 @@ local function bump(kind: string)
 					nil,
 					RiftforgeAudio.handlingPitch[config.id]
 				)
+			end
+		end
+	elseif right and right.frostbiteKnife then
+		if not subject and not hidden and config then
+			local cue = FrostbiteAudio.handling[kind]
+			if cue then
+				AudioController.playSound(cue, "Foley")
 			end
 		end
 	end
@@ -2006,6 +2044,8 @@ function ViewmodelController.equip(
 	elseif right.riftforge and not subject then
 		RiftforgeEffects.pulse(right.riftforge, "Draw")
 		queueBump("RiftforgeDraw", raise * RiftforgeAudio.drawAt)
+	elseif right.frostbiteKnife and not subject then
+		queueBump("FrostbiteDraw", raise * FrostbiteAudio.drawAt)
 	end
 	return {}
 end
@@ -2426,6 +2466,11 @@ function ViewmodelController.swing(attack: string?): number
 				if heavy then "SundialHeavy" else "SundialSlash",
 				math.max(hitDelay - 0.04, 0)
 			)
+		elseif right.frostbiteKnife then
+			queueBump(
+				if heavy then "FrostbiteHeavy" else "FrostbiteSlash",
+				math.max(hitDelay - 0.04, 0)
+			)
 		end
 	end
 	-- The free hand comes in for the thrust only (owner's knife clip, 2026-11-14).
@@ -2595,6 +2640,9 @@ function ViewmodelController.hitStop(seconds: number)
 	end
 	if right and right.riftfang then
 		RiftfangKnife.hit(right.riftfang)
+	end
+	if right and right.frostbiteKnife then
+		FrostbiteKnife.hit(right.frostbiteKnife)
 	end
 end
 
@@ -3492,6 +3540,35 @@ local function update(dt: number)
 						),
 					if sw then sw.track.hit else nil
 				)
+			end
+			if gun.frostbiteKnife then
+				local draw = playing.Equip
+				local inspect = playing.Inspect
+				local sw = playing.Swing
+				local cut = sw ~= nil and not sw.fading
+				local event, stage = FrostbiteKnife.step(
+					gun.frostbiteKnife,
+					dt,
+					visible,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					if sw and cut then sw.time / sw.length else nil,
+					if sw then sw.track.hit else nil,
+					cut and sw ~= nil and sw.track == VM.TRACKS.HeavyStab
+				)
+				if event and not subject and not hidden then
+					if event == "Grow" then
+						AudioController.playSound(
+							FrostbiteAudio.grow,
+							"Foley",
+							nil,
+							nil,
+							FrostbiteAudio.growPitch[stage or 1]
+						)
+					else
+						AudioController.playSound(FrostbiteAudio.settle, "Foley")
+					end
+				end
 			end
 			if gun.riftfang then
 				local draw = playing.Equip
