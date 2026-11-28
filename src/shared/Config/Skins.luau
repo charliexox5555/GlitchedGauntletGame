@@ -86,6 +86,7 @@ local LINES: { [string]: Line } = {
 	Slipframe = { tier = "Epic", kind = "animated", guns = { Knife = "Legendary" } },
 	-- legendary (cases + featured)
 	Riftforge = { tier = "Legendary", kind = "animated" }, -- floating reactor core, flaring prongs & suppressor vents, plasma VFX & heavy audio
+	Frostbite = { tier = "Legendary", kind = "animated", pass = true }, -- Season 1 pass: faceted glacial crystal, inspect growth, kill shatter & cold audio
 	-- bundles only
 	RuinBlighted = { tier = "Exclusive", kind = "animated" },
 	TempestStrike = { tier = "Exclusive", kind = "animated" }, -- Vandal, Stinger, Marshal, Bucky, Sheriff, Katana (owner 2026-11-22: final)

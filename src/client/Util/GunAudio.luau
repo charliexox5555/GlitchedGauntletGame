@@ -21,6 +21,7 @@ local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
 local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
+local FrostbiteAudio = require(ReplicatedStorage.Shared.Config.FrostbiteAudio)
 local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
 local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
 local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
@@ -66,6 +67,7 @@ export type ShotOptions = {
 	playback: boolean?, -- subtle cassette transport layer on the equipped player's camera gun
 	sundial: boolean?, -- subtle brass escapement layer on the equipped player's camera gun
 	riftforge: boolean?, -- heavy industrial plasma layer on the equipped player's camera gun
+	frostbite: boolean?, -- crystalline ice layer on the equipped player's camera gun
 }
 
 -- Plays one shot of `config`'s gun for `key` (one per shooter).
@@ -172,6 +174,8 @@ function GunAudio.shot(key: any, config: WeaponConfig, options: ShotOptions?)
 		AudioController.playSound(SundialAudio.shots[config.id], "Gun")
 	elseif o.riftforge and not o.at then
 		AudioController.playSound(RiftforgeAudio.shots[config.id], "Gun")
+	elseif o.frostbite and not o.at then
+		AudioController.playSound(FrostbiteAudio.shots[config.id], "Gun")
 	end
 	if set.tail and not last then
 		st.tail = AudioController.playSound(set.tail, group, o.at, nil, nil, range)

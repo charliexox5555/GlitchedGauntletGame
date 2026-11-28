@@ -894,6 +894,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		playback = ViewmodelController.hasPlayback(),
 		sundial = ViewmodelController.hasSundial(),
 		riftforge = ViewmodelController.hasRiftforge(),
+		frostbite = ViewmodelController.hasFrostbite(),
 	})
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
 	local mag = config.magSize
@@ -1744,8 +1745,13 @@ local function onHitConfirm(confirm: Types.HitConfirm, relayed: boolean?)
 	elseif relayed or now - lastPredictedHit > Audio.HIT_PREDICT_WINDOW then
 		playLocal(Sounds.HitBody, "Feedback", Audio.HIT_VOLUME * volume)
 	end
-	if confirm.killed and (not rule or rule.marker) then
-		HudController.killMarker()
+	if confirm.killed then
+		if not rule or rule.marker then
+			HudController.killMarker()
+		end
+		if not relayed then
+			ViewmodelController.onKill()
+		end
 	end
 end
 

@@ -21,6 +21,7 @@ local SharedSoundAssets = require(ReplicatedStorage.Shared.Config.SharedSoundAss
 local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
 local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
 local ArcadeAudio = require(ReplicatedStorage.Shared.Config.ArcadeAudio)
+local FrostbiteAudio = require(ReplicatedStorage.Shared.Config.FrostbiteAudio)
 local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
 local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
 local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
@@ -79,6 +80,7 @@ local BANKS: { [string]: SoundBank } = {
 	playback = { takes = {}, voices2d = {}, voices3d = {} },
 	sundial = { takes = {}, voices2d = {}, voices3d = {} },
 	riftforge = { takes = {}, voices2d = {}, voices3d = {} },
+	frostbite = { takes = {}, voices2d = {}, voices3d = {} },
 }
 
 local skinTakes: { [string]: { [string]: { Take } } } = {
@@ -91,6 +93,7 @@ local skinTakes: { [string]: { [string]: { Take } } } = {
 	playback = PlaybackAudio.takes,
 	sundial = SundialAudio.takes,
 	riftforge = RiftforgeAudio.takes,
+	frostbite = FrostbiteAudio.takes,
 }
 type Cue = { bank: SoundBank, name: string, takes: { Take } }
 local pendingCues: { Cue } = {}

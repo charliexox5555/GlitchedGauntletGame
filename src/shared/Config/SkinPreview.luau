@@ -35,6 +35,7 @@ local lines = {
 	shadowMistLine,
 	"TempestStrike",
 	"Arcade",
+	"Frostbite",
 }
 
 return table.freeze({

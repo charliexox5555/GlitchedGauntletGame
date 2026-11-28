@@ -44,6 +44,7 @@ local SkinPreview = require(ReplicatedStorage.Shared.SkinPreview)
 local MeleeSkins = require(ReplicatedStorage.Shared.Config.MeleeSkins)
 local SlipframeAudio = require(ReplicatedStorage.Shared.Config.SlipframeAudio)
 local ArcadeAudio = require(ReplicatedStorage.Shared.Config.ArcadeAudio)
+local FrostbiteAudio = require(ReplicatedStorage.Shared.Config.FrostbiteAudio)
 local MoltframeAudio = require(ReplicatedStorage.Shared.Config.MoltframeAudio)
 local PlaybackAudio = require(ReplicatedStorage.Shared.Config.PlaybackAudio)
 local SundialAudio = require(ReplicatedStorage.Shared.Config.SundialAudio)
@@ -62,6 +63,7 @@ local TempestKatana = require(script.Parent.Parent.Util.TempestKatana)
 local SlipframeArc = require(script.Parent.Parent.Util.SlipframeArc)
 local SlipframeEffects = require(script.Parent.Parent.Util.SlipframeEffects)
 local ArcadeEffects = require(script.Parent.Parent.Util.ArcadeEffects)
+local FrostbiteEffects = require(script.Parent.Parent.Util.FrostbiteEffects)
 local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
@@ -160,6 +162,7 @@ type Gun = {
 	tempest: TempestIdle.State?,
 	slipframe: SlipframeEffects.State?,
 	arcade: ArcadeEffects.State?,
+	frostbite: FrostbiteEffects.State?,
 	moltframe: boolean?,
 	playback: boolean?,
 	sundial: boolean?,
@@ -1102,6 +1105,17 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				AudioController.warmCue(cue.id)
 			end
 		end
+	elseif skinLine == "Frostbite" and templateId ~= "Knife" then
+		gun.frostbite = FrostbiteEffects.new(m, scale, templateId)
+		if gun.frostbite and not subject then
+			for _, cue in { FrostbiteAudio.grow, FrostbiteAudio.settle, FrostbiteAudio.kill } do
+				AudioController.warmCue(cue.id)
+			end
+			local shotCue = FrostbiteAudio.shots[templateId]
+			if shotCue then
+				AudioController.warmCue(shotCue.id)
+			end
+		end
 	elseif skinLine == "Moltframe" then
 		gun.moltframe = true
 	elseif skinLine == "Playback" then
@@ -1404,6 +1418,21 @@ function ViewmodelController.hasSlipframe(): boolean
 	return subject == nil and right ~= nil and right.slipframe ~= nil
 end
 
+function ViewmodelController.hasFrostbite(): boolean
+	local right = guns.Right
+	return subject == nil and right ~= nil and right.frostbite ~= nil
+end
+
+function ViewmodelController.onKill()
+	local right = guns.Right
+	if subject == nil and right and right.frostbite then
+		FrostbiteEffects.onKill(right.frostbite)
+		if not hidden then
+			AudioController.playSound(FrostbiteAudio.kill, "Feedback")
+		end
+	end
+end
+
 function ViewmodelController.hasMoltframe(): boolean
 	local right = guns.Right
 	return subject == nil and right ~= nil and right.moltframe == true
@@ -1596,6 +1625,9 @@ local function bump(kind: string)
 	end
 	if right and right.slipframe and kind == "MagIn" then
 		SlipframeEffects.pulse(right.slipframe, "Seat")
+	end
+	if right and right.frostbite and kind == "MagIn" then
+		FrostbiteEffects.pulse(right.frostbite, "Seat")
 	end
 	if right and right.slipframe and not subject and not hidden and config then
 		local cue = SlipframeAudio.handling[kind]
@@ -2036,6 +2068,9 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 	end
 	if gun.arcade then
 		ArcadeEffects.pulse(gun.arcade, "Fire")
+	end
+	if gun.frostbite then
+		FrostbiteEffects.pulse(gun.frostbite, "Fire")
 	end
 	if gun.slipframe then
 		SlipframeEffects.pulse(gun.slipframe, "Fire")
@@ -3359,6 +3394,29 @@ local function update(dt: number)
 						)
 					else
 						AudioController.playSound(ArcadeAudio.win, "Foley")
+					end
+				end
+			end
+			if gun.frostbite then
+				local inspect = playing.Inspect
+				local event, stage = FrostbiteEffects.step(
+					gun.frostbite,
+					dt,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					visible,
+					adsAlpha
+				)
+				if event and not subject and not hidden then
+					if event == "Grow" then
+						AudioController.playSound(
+							FrostbiteAudio.grow,
+							"Foley",
+							nil,
+							nil,
+							FrostbiteAudio.growPitch[stage or 1]
+						)
+					else
+						AudioController.playSound(FrostbiteAudio.settle, "Foley")
 					end
 				end
 			end
