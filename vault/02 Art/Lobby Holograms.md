@@ -1,5 +1,7 @@
 # Lobby Holograms
 
+**Owner approved the look (2026-11-28).**
+
 RIVALS-style hologram stands in the Lobby V5 hub: shop entry points players walk up to (owner 2026-11-28). Four stands, two either side of the Shooting Range gate:
 
 | Side | Stand | Colour | Shows | Prompt opens |
@@ -49,4 +51,3 @@ A popup (`ServerStorage.LobbyUI.FreeRewards`, built by `tools/studio/BuildFreeRe
 ## Open
 - The RIVALS reference models the owner imported (`Workspace.SuperStarterBundle`, `Workspace.HologramFreeRewards`) are still in the place: **delete them before publishing** (third-party assets).
 - Shop confirm: the Starter Bundle's item line runs wider than the card (seen in the test; not from this work).
-- Owner's look sign-off on the four stands.
