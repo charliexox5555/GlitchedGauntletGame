@@ -1,22 +1,22 @@
 # Smoke (battle pass power, free tier 10)
 
-Owner spec 2026-11-26 ([Battle Pass Season 1 Contents](../Battle%20Pass%20Season%201%20Contents.md) → Powers); built 2026-11-27. Numbers live in `src/shared/Config/Mods.luau` → `Smoke`.
+Owner spec 2026-11-26 ([Battle Pass Season 1 Contents](../Battle%20Pass%20Season%201%20Contents.md) → Powers); built 2026-11-27; made bigger and solid the same day (owner: "much larger ... Valorant style ... not see-through"). Numbers live in `src/shared/Config/Mods.luau` → `Smoke`.
 
 ## L1
 - **Held throw like the Molly:** LMB throws overhand (long), RMB lobs underhand (short). Same flight rules (walls bounce it; it stops on the first floor; drops after 1.3 s in the air).
-- Where it lands it **pops after 0.35 s** into a **smoke dome 12 studs across (radius 6)** that lasts **10 s**: it grows over 0.6 s and thins out over its last second.
-- **Blocks sight both ways:** you can't see through it or out of it. **Bullets still pass through** (no wall). It also stops **bot vision**, **aim assist** and **auto shoot** through it (`Mods/Blocks/Smoke.blocks`, read by bot `Perception` and `AimAssistController`).
+- Where it lands it **pops after 0.3 s** into a **big solid smoke dome, 22 studs across (radius 11)**, about a Valorant smoke at our scale, that stands **14 s**: it bursts out over 0.8 s and thins out over its last 1.5 s.
+- **Blocks sight both ways:** you can't see through it, into it or out of it (inside, your screen is solid smoke). **Bullets still pass through.** It also stops **bot vision**, **aim assist** and **auto shoot** through it (`Mods/Blocks/Smoke.blocks`, read by bot `Perception` and `AimAssistController`).
 - Lands in the air (still flying after 4 s): it fizzles, no smoke.
 - **1 charge per round**, no recharge. Role **Control**.
 
-## Upgrade paths
+## Upgrade paths (redone 2026-11-27)
 | Path | L2 | L3 |
 |---|---|---|
-| **A: Recharge** | comes back after 25 s | comes back after 15 s |
-| **B: Big Smoke** | radius 7.5, 12 s | radius 9, 15 s |
-| **G: Toxic** (`behaviour = "Toxic"`) | enemies inside are Hindered (refreshed every 0.5 s) | also 10 damage/s to enemies inside |
+| **A: Double Smoke** | 2 smokes a round | 3 smokes a round |
+| **B: Long Smoke** | stands 20 s | stands 26 s, 26 studs across |
+| **G: Toxic Cloud** ⚡ (glitched) | a sick green cloud with magenta glitch static: enemies inside are Hindered and take 10 damage/s | 18 damage/s, and **your team sees enemies inside** (you see in, they can't see out) |
 
 ## Look and sound
-- Blender canister (`ReplicatedStorage.Abilities.Smoke`, vent on top, a pin that flies off) and the smoke kit (`SmokeVFX`: faceted puffs and a dome shell), dressed by `client/Util/SmokeFx` with the existing smoke flipbook (`VfxTextures.SMOKE_2x2`).
-- Sounds (`Config/ModSounds.Smoke`): throw, lob, bounce, the hiss of the pop, a soft loop while it lasts.
+- Blender canister (`ReplicatedStorage.Abilities.Smoke`, vent on top, a pin that flies off) and the smoke kit (`SmokeVFX`: faceted puffs and a dome shell). `client/Util/SmokeFx` draws them **unlit** (lit faceted grey read as a rock pile), heaps puffs round the base and over a 1.2× tall dome, and rolls `SMOKE_2x2` wisps off the whole surface.
+- Sounds (`Config/ModSounds.Smoke`, unauditioned): throw, lob, bounce, the extinguisher gush of the pop, a low hiss while it stands.
 - **Icon / draft card art:** ChatGPT (owner). Prompts in [UI Art Brief (ChatGPT)](../../02%20Art/UI%20Art%20Brief%20%28ChatGPT%29.md).

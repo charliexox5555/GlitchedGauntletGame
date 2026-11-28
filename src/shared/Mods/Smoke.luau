@@ -5,8 +5,9 @@
 -- both ways for players, bots, aim assist and auto shoot. Bullets pass through. Still flying when its flight runs
 -- out: it fizzles. Clients replay the throw ("SmokeThrow") and dress the dome ("SmokePop", Util/SmokeFx).
 --
--- Upgrades: Recharge (A) and Big Smoke (B) are numbers only. Toxic (G, `behaviour = "Toxic"`): every `tick` the
--- enemies inside are Hindered for `hinder` s; G3 also burns them `dps` (none to the thrower's side).
+-- Upgrades: Double Smoke (A) and Long Smoke (B) are numbers only. Toxic Cloud (G, glitched, `behaviour = "Toxic"`):
+-- every `tick` the enemies inside are Hindered for `hinder` s and burned `dps` (none to the thrower's side); with
+-- `reveal` (G3) they also show to the thrower's team while inside.
 
 local Molly = require(script.Parent.Molly)
 local Projectile = require(script.Parent.Blocks.Projectile)
@@ -23,6 +24,7 @@ Smoke.options = Molly.options -- the same flight, its own numbers
 -- Toxic: one check of who stands in the smoke.
 local function poison(ctx: Types.ServerCtx, center: Vector3, radius: number)
 	local stats = ctx.stats
+	local seen: { Model } = {}
 	for _, model in Target.combatants() do
 		if not Target.alive(model) or model == ctx.character or Teams.isAlly(ctx.player, model) then
 			continue
@@ -34,7 +36,11 @@ local function poison(ctx: Types.ServerCtx, center: Vector3, radius: number)
 			if dps > 0 then
 				ctx.damage(model, dps * stats.tick, point)
 			end
+			table.insert(seen, model)
 		end
+	end
+	if stats.reveal == true and #seen > 0 then
+		ctx.reveal(seen, stats.tick + 0.15)
 	end
 end
 

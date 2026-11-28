@@ -174,3 +174,11 @@ Built 2026-11-17; full numbers in each note: [Roller](Roller.md), [Flash](Flash.
 | **Roller** (T) | More Bots: 2, then 4 a round | Faster: 125% for 7 s, then 150% for 10 s | Remote: press T again to blow it up; G3 + 7 s recharge, 125%, 7 s |
 | **Flash** (Q) | More Flashes: 2, then 3 a round | Recharge: 15 s, then 6 s | Exposure: reveals instead of blinding, 3 s + 15 s recharge; G3 5 s and through one wall |
 | **Shock Dart** (E) | Recharge: 15 s, then 6 s | More Darts: 2 (42 → 21), then 4 (36 → 18) | Static: Hinder 2 s instead of damage + 15 s recharge; G3 Hinder 3 s, 7 studs |
+
+## 13-14. Battle pass powers (Smoke, Electric Shock): 2026-11-27
+Full numbers in [Smoke](Smoke.md) and [Electric Shock](Electric%20Shock.md). Electric Shock is the Legendary premium power and is allowed to be stronger (owner).
+
+| Mod | A | B | G ⚡ |
+|---|---|---|---|
+| **Smoke** | Double Smoke: 2, then 3 a round | Long Smoke: 20 s, then 26 s and 26 studs | Toxic Cloud: enemies inside Hindered + 10 dmg/s (green with glitch static); G3 18 dmg/s and your team sees them inside |
+| **Electric Shock** | Recharge: 35 s, then 20 s | Chain Lightning: arcs to 1, then 2 more enemies (60 each) | Storm Call: a violet glitched storm adds 3 bolts over 3 s (35 each); G3 5 bolts, 45 each |

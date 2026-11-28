@@ -1,9 +1,14 @@
 --!strict
--- The Smoke power's look (Mods/Smoke; vault/01 Design/Abilities/Smoke.md): a canister pop, then a dome of faceted
--- smoke puffs that grows, drifts and thins out. Built from the Blender kit ReplicatedStorage.Abilities.SmokeVFX
--- (Dome shell + Puff1-3; tools/blender/build_mod_smokevfx.py) with the SMOKE_2x2 flipbook for the wisps. Inside a
--- dome your screen fogs over (SmokeVeil). Toxic smokes carry a sickly green tint. Purely visual: what blocks sight
--- for bots and aim assist is Mods/Blocks/Smoke on the same server parts.
+-- The Smoke power's look (Mods/Smoke; vault/01 Design/Abilities/Smoke.md). Owner 2026-11-27: "much larger ...
+-- Valorant style ... not see-through". A big, solid dome that pops out of the canister, swells to full size, rolls
+-- softly while it stands and thins out at the end:
+--   * the shell: the Blender kit's Dome (ReplicatedStorage.Abilities.SmokeVFX), opaque and unlit (Neon), so you
+--     never see through it and it never shades like rock;
+--   * puffs: the kit's faceted Puff1-3 heaped round the base and over the top, so the outline billows;
+--   * wisps: SMOKE_2x2 flipbook particles rolling off the whole surface (a sphere-surface emitter), softening it;
+--   * inside it your screen is solid smoke (SmokeVeil), thinning only at the very edge.
+-- Toxic Cloud (the glitched path): a sickly green smoke with magenta glitch static flickering over it.
+-- Purely visual: what blocks sight for bots and aim assist is Mods/Blocks/Smoke on the same server parts.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,13 +20,18 @@ local ModAudio = require(script.Parent.ModAudio)
 
 local SmokeFx = {}
 
--- Puffs render unlit (Neon, which ignores sunlight): lit faceted grey read as a rock pile in both Studio captures
--- (2026-11-27). Neon brighter than about #8C8C8C clips to white, so the greys stay under it.
-local GREY = Color3.fromHex("7C8088")
-local GREY_DARK = Color3.fromHex("6A6E76")
-local TOXIC = Color3.fromHex("7FA05A")
-local PUFFS = 22 -- overlapping puffs around a dome (the dome shell fills between them)
-local VEIL_ALPHA = 0.12 -- screen fog inside a smoke (0 = solid)
+-- Unlit greys: Neon brighter than about #8C8C8C clips to white, so these stay under it (lit faceted grey read as a
+-- rock pile in the first Studio captures, 2026-11-27).
+local SHELL = Color3.fromHex("767A82")
+local PUFF = Color3.fromHex("7E828A")
+local WISP = Color3.fromHex("C9CDD3")
+local VEIL = Color3.fromHex("8A8E95")
+local TOXIC_SHELL = Color3.fromHex("3B5230") -- unlit Neon reads much brighter: a dark sickly green lands mid
+local TOXIC_PUFF = Color3.fromHex("435C36")
+local TOXIC_WISP = Color3.fromHex("8FB866")
+local GLITCH = Color3.fromHex("FF3BD4")
+local PUFFS_PER_STUD = 2.6 -- puffs per stud of radius (28 at radius 11)
+local TALL = 1.2 -- the dome stands this much taller than its radius: a round smoke ball, not a flat mound
 
 type Puff = { part: BasePart, base: Vector3, home: Vector3, size: number, spin: Vector3, bob: number }
 type Cloud = {
@@ -31,12 +41,13 @@ type Cloud = {
 	duration: number,
 	grow: number,
 	fade: number,
-	color: Color3,
+	toxic: boolean,
 	dome: BasePart?,
 	domeBase: Vector3, -- the kit dome's size at radius 1 (a hemisphere: its box centre is half its height up)
 	puffs: { Puff },
-	wisps: ParticleEmitter?,
-	anchor: Part,
+	shell: Part, -- the invisible sphere the surface wisps come off
+	wisps: ParticleEmitter,
+	static: ParticleEmitter?,
 	hum: ModAudio.Hum?,
 }
 
@@ -71,8 +82,9 @@ local function copy(template: BasePart, color: Color3): BasePart
 	p.CanQuery = false
 	p.CanTouch = false
 	p.CastShadow = false
-	p.Material = Enum.Material.SmoothPlastic
+	p.Material = Enum.Material.Neon
 	p.Color = color
+	p.Transparency = 0
 	if p:IsA("MeshPart") then
 		p.TextureID = ""
 	end
@@ -98,12 +110,23 @@ local function veilFrame(): Frame?
 	f.Name = "Fog"
 	f.Size = UDim2.fromScale(1, 1)
 	f.BorderSizePixel = 0
-	f.BackgroundColor3 = GREY
+	f.BackgroundColor3 = VEIL
 	f.BackgroundTransparency = 1
 	f.Parent = screen
 	screen.Parent = gui
 	veil = f
 	return f
+end
+
+local function smokeEmitter(color: Color3): ParticleEmitter
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = Tex.SMOKE_2x2
+	e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+	e.FlipbookMode = Enum.ParticleFlipbookMode.Random
+	e.Color = ColorSequence.new(color)
+	e.LightInfluence = 0.3
+	e.Rate = 0
+	return e
 end
 
 -- A dome at `at` (the floor point): `start` server time, sizes in studs.
@@ -116,56 +139,85 @@ function SmokeFx.pop(
 	start: number,
 	toxic: boolean
 )
-	local color = if toxic then GREY:Lerp(TOXIC, 0.55) else GREY
-	local anchor = Instance.new("Part")
-	anchor.Name = "SmokeCore"
-	anchor.Anchored = true
-	anchor.CanCollide = false
-	anchor.CanQuery = false
-	anchor.CanTouch = false
-	anchor.Transparency = 1
-	anchor.Size = Vector3.one * 0.2
-	anchor.CFrame = CFrame.new(at + Vector3.new(0, 0.5, 0))
-	anchor.Parent = fxFolder()
+	local shellColor = if toxic then TOXIC_SHELL else SHELL
+	local puffColor = if toxic then TOXIC_PUFF else PUFF
+	local wispColor = if toxic then TOXIC_WISP else WISP
 
-	-- the canister's gush
-	local gush = Instance.new("ParticleEmitter")
-	gush.Texture = Tex.SMOKE_2x2
-	gush.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+	-- the sphere the wisps roll off (resized with the dome every frame)
+	local shell = Instance.new("Part")
+	shell.Name = "SmokeShell"
+	shell.Shape = Enum.PartType.Ball
+	shell.Anchored = true
+	shell.CanCollide = false
+	shell.CanQuery = false
+	shell.CanTouch = false
+	shell.CastShadow = false
+	shell.Transparency = 1
+	shell.Size = Vector3.one
+	shell.CFrame = CFrame.new(at)
+	shell.Parent = fxFolder()
+
+	-- the canister's gush: a ring of smoke blasting out along the floor
+	local gush = smokeEmitter(wispColor)
 	gush.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
-	gush.Color = ColorSequence.new(color)
-	gush.LightInfluence = 0.6
 	gush.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1.5),
-		NumberSequenceKeypoint.new(1, radius * 0.9),
+		NumberSequenceKeypoint.new(0, 2),
+		NumberSequenceKeypoint.new(1, radius * 0.7),
 	})
-	gush.Transparency =
-		NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
-	gush.Lifetime = NumberRange.new(0.6, 1)
-	gush.Speed = NumberRange.new(radius * 1.2, radius * 2)
-	gush.SpreadAngle = Vector2.new(180, 60)
+	gush.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.1),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	gush.Lifetime = NumberRange.new(0.7, 1.1)
+	gush.Speed = NumberRange.new(radius * 1.6, radius * 2.4)
+	gush.SpreadAngle = Vector2.new(180, 25)
+	gush.EmissionDirection = Enum.NormalId.Top
 	gush.Drag = 4
-	gush.Rate = 0
-	gush.Parent = anchor
-	gush:Emit(24)
+	gush.Parent = shell
+	gush:Emit(40)
 
-	-- slow wisps at the rim while it stands
-	local wisps = gush:Clone()
+	-- wisps rolling off the dome's surface for its whole life
+	local wisps = smokeEmitter(wispColor)
+	wisps.Shape = Enum.ParticleEmitterShape.Sphere
+	wisps.ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface
+	wisps.ShapeInOut = Enum.ParticleEmitterShapeInOut.Outward
 	wisps.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, radius * 0.5),
-		NumberSequenceKeypoint.new(1, radius * 0.9),
+		NumberSequenceKeypoint.new(0, radius * 0.35),
+		NumberSequenceKeypoint.new(1, radius * 0.55),
 	})
 	wisps.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.3, 0.35),
+		NumberSequenceKeypoint.new(0.25, 0.25),
 		NumberSequenceKeypoint.new(1, 1),
 	})
-	wisps.Lifetime = NumberRange.new(2.5, 3.5)
-	wisps.Speed = NumberRange.new(0.5, 1.5)
-	wisps.Drag = 0.5
-	wisps.FlipbookMode = Enum.ParticleFlipbookMode.Random
-	wisps.Rate = 14
-	wisps.Parent = anchor
+	wisps.Lifetime = NumberRange.new(2.2, 3.2)
+	wisps.Speed = NumberRange.new(0.6, 1.4)
+	wisps.Drag = 0.6
+	wisps.RotSpeed = NumberRange.new(-12, 12)
+	wisps.Rotation = NumberRange.new(0, 360)
+	wisps.Rate = radius * 4
+	wisps.Parent = shell
+
+	local static: ParticleEmitter? = nil
+	if toxic then
+		-- the glitch: magenta static flickering over the cloud
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = Tex.STIM_ARC_2x2
+		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+		e.FlipbookMode = Enum.ParticleFlipbookMode.Random
+		e.Shape = Enum.ParticleEmitterShape.Sphere
+		e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface
+		e.Color = ColorSequence.new(GLITCH)
+		e.LightEmission = 1
+		e.LightInfluence = 0
+		e.Size = NumberSequence.new(radius * 0.25)
+		e.Lifetime = NumberRange.new(0.05, 0.12)
+		e.Rotation = NumberRange.new(0, 360)
+		e.Speed = NumberRange.new(0)
+		e.Rate = 18
+		e.Parent = shell
+		static = e
+	end
 
 	local cloud: Cloud = {
 		at = at,
@@ -174,45 +226,43 @@ function SmokeFx.pop(
 		duration = duration,
 		grow = grow,
 		fade = fade,
-		color = color,
+		toxic = toxic,
 		dome = nil,
 		domeBase = Vector3.new(2, 1, 2),
 		puffs = {},
+		shell = shell,
 		wisps = wisps,
-		anchor = anchor,
-		hum = ModAudio.hum(ModSounds.Smoke.loop, anchor),
+		static = static,
+		hum = ModAudio.hum(ModSounds.Smoke.loop, shell),
 	}
 	local dome = kit("Dome")
 	if dome then
-		local d = copy(dome, color:Lerp(GREY_DARK, 0.35))
-		d.Material = Enum.Material.Neon -- flat, unlit (see GREY)
-		d.Transparency = 0.08
-		cloud.dome = d
+		cloud.dome = copy(dome, shellColor)
 		cloud.domeBase = dome.Size
 	end
 	local rng = Random.new(math.floor(at.X * 13 + at.Z * 7))
-	for i = 1, PUFFS do
+	local count = math.floor(radius * PUFFS_PER_STUD)
+	for i = 1, count do
 		local template = kit("Puff" .. tostring((i - 1) % 3 + 1))
 		if not template then
 			break
 		end
-		-- spread over the dome's surface, more at the bottom ring
-		local a = (i / PUFFS) * math.pi * 2 + rng:NextNumber(-0.25, 0.25)
-		local up = if i % 3 == 0 then rng:NextNumber(0.55, 0.85) else rng:NextNumber(0.05, 0.4)
+		-- a ring round the base (it billows out along the floor), the rest over the top
+		local a = (i / count) * math.pi * 2 * 1.618 + rng:NextNumber(-0.3, 0.3)
+		local low = i % 2 == 0
+		local up = if low then rng:NextNumber(0.02, 0.25) else rng:NextNumber(0.35, 0.95)
 		local flat = math.sqrt(1 - up * up)
 		local dir = Vector3.new(math.cos(a) * flat, up, math.sin(a) * flat)
-		local shade = color:Lerp(Color3.new(1, 1, 1), rng:NextNumber(0, 0.06))
-		local p = copy(template, shade)
-		p.Material = Enum.Material.Neon
+		local p = copy(template, puffColor:Lerp(Color3.new(1, 1, 1), rng:NextNumber(0, 0.05)))
 		table.insert(cloud.puffs, {
 			part = p,
 			base = template.Size,
-			home = dir * radius * 0.78,
-			size = radius * rng:NextNumber(0.6, 0.95),
+			home = dir * radius * (if low then 0.95 else 0.8),
+			size = radius * rng:NextNumber(0.45, 0.7),
 			spin = Vector3.new(
-				rng:NextNumber(-0.15, 0.15),
-				rng:NextNumber(-0.25, 0.25),
-				rng:NextNumber(-0.15, 0.15)
+				rng:NextNumber(-0.12, 0.12),
+				rng:NextNumber(-0.2, 0.2),
+				rng:NextNumber(-0.12, 0.12)
 			),
 			bob = rng:NextNumber(0, math.pi * 2),
 		})
@@ -233,7 +283,7 @@ local function remove(cloud: Cloud)
 	for _, puff in cloud.puffs do
 		puff.part:Destroy()
 	end
-	cloud.anchor:Destroy()
+	cloud.shell:Destroy()
 end
 
 function SmokeFx.step()
@@ -241,44 +291,51 @@ function SmokeFx.step()
 	local cam = Workspace.CurrentCamera
 	local eye = if cam then cam.CFrame.Position else Vector3.zero
 	local fog = 0 -- how deep the camera is in smoke (0..1)
+	local toxicFog = false
 	for i = #clouds, 1, -1 do
 		local c = clouds[i]
 		local age = now - c.start
-		if age > c.duration + 0.3 then
+		if age > c.duration + 0.5 then
 			remove(c)
 			table.remove(clouds, i)
 			continue
 		end
 		local size = if c.grow > 0 then math.clamp(age / c.grow, 0, 1) else 1
-		size = 1 - (1 - size) ^ 3 -- ease out
+		size = 1 - (1 - size) ^ 3 -- ease out: it bursts, then settles
 		local left = c.duration - age
 		local thin = if c.fade > 0 then math.clamp(1 - left / c.fade, 0, 1) else 0
-		local r = c.radius * size
+		local r = c.radius * size * (1 - 0.15 * thin)
 		if c.dome then
-			c.dome.Size = c.domeBase * math.max(r, 0.05)
-			c.dome.CFrame = CFrame.new(c.at + Vector3.new(0, c.domeBase.Y * r * 0.5, 0))
-			c.dome.Transparency = 0.08 + 0.92 * thin
+			c.dome.Size = c.domeBase * math.max(r, 0.05) * Vector3.new(1, TALL, 1)
+			c.dome.CFrame = CFrame.new(c.at + Vector3.new(0, c.domeBase.Y * r * TALL * 0.5, 0))
+				* CFrame.Angles(0, age * 0.05, 0)
+			c.dome.Transparency = thin
 		end
 		for _, puff in c.puffs do
-			local drift = Vector3.new(0, math.sin(age * 0.6 + puff.bob) * 0.25, 0)
-			local s = math.max(puff.size * size, 0.05)
+			local drift = Vector3.new(0, math.sin(age * 0.5 + puff.bob) * 0.35, 0)
+			local s = math.max(puff.size * size * (1 + 0.04 * math.sin(age * 0.8 + puff.bob)), 0.05)
 			puff.part.Size = puff.base * s
-			puff.part.CFrame = CFrame.new(c.at + puff.home * size + drift)
+			puff.part.CFrame = CFrame.new(c.at + puff.home * size * Vector3.new(1, TALL, 1) + drift)
 				* CFrame.Angles(puff.spin.X * age, puff.spin.Y * age + puff.bob, puff.spin.Z * age)
 			puff.part.Transparency = thin
 		end
-		if c.wisps then
-			c.wisps.Rate = if thin > 0 then 0 else 14
+		c.shell.Size = Vector3.one * math.max(r * 2, 0.1)
+		c.wisps.Rate = if thin > 0 then 0 else c.radius * 4
+		local static = c.static
+		if static then
+			static.Rate = if thin > 0 then 0 else 18
 		end
 		local d = (eye - c.at).Magnitude
 		if r > 0 and d < r then
-			fog = math.max(fog, math.clamp((r - d) / 1.5, 0, 1) * (1 - thin))
+			fog = math.max(fog, math.clamp((r - d) / 1.2, 0, 1) * (1 - thin))
+			toxicFog = toxicFog or c.toxic
 		end
 	end
 	if fog > 0 or veil then
 		local f = veilFrame()
 		if f then
-			f.BackgroundTransparency = 1 - fog * (1 - VEIL_ALPHA)
+			f.BackgroundTransparency = 1 - fog
+			f.BackgroundColor3 = if toxicFog then TOXIC_SHELL else VEIL
 		end
 	end
 end

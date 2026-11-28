@@ -335,19 +335,30 @@ return table.freeze({
 		loop = cue(9119525650, 0.45, 0.6, true, 30, nil, 8.4, 13.2),
 		fizzle = cue(9114428855, 0.5, 1.1, nil, 40, 1, 3.3), -- Molly_SizzleOut
 	}),
+	-- The legendary smite (owner 2026-11-27: "really cool sound effects"): layered ProSoundEffects recordings,
+	-- unauditioned. The strike is four layers at once: the crack, a heavy boom body, a deep rolling tail and an
+	-- electric sizzle.
 	ElectricShock = table.freeze({
 		equip = cue(9113808115, 0.5, 1.2, nil, nil, 0.3, 0.14), -- Stim_Deploy snap: the orb arming
 		throw = cue(9126013811, 0.5, 1.15, nil, 40, 0.4, 0.1),
 		throwLob = cue(9126283272, 0.35, 1.1, nil, 40, nil, 0.18),
 		flight = cue(9119993024, 0.7, 1.2, true, 40, nil, 1, 19.5), -- "Tesla Coil 2": it crackles in flight
 		bounce = cue(9118168962, 0.5, 1.2, nil, 40, 0.3, 0.14), -- ShockDart_Bounce
-		-- ElectricShock_Latch: 3D at the target + 2D for the target (the warning). A rising static lock-on
-		latch = cue(9119594571, 0.7, 1.35, nil, 60, 0.5, 0.6),
-		warning = cue(9117882920, 0.6, 1.6, nil, nil, 0.5, 0.25), -- ShockDart_Charge, high: you're marked
-		-- ElectricShock_Strike: 3D, ~90 studs. The crack, a thunder body and the zap
-		strike = cue(9126082854, 1, 1.25, nil, 90, 0.6),
-		thunder = cue(9126082854, 0.8, 0.7, nil, 90, 1.4),
-		zap = cue(9119594571, 0.8, 1, nil, 70, 0.6, 0.6),
+		-- the landed orb waiting, charged: "Tesla Coil 2" low
+		beacon = cue(9119993024, 0.6, 0.85, true, 35, nil, 1, 19.5),
+		-- ElectricShock_Latch: 3D. "Lightning Flashes Quick Electrical Bursts 38" (a searing lock-on)
+		latch = cue(9116278351, 0.9, 1.1, nil, 70, 0.9),
+		warning = cue(9117882920, 0.7, 1.6, nil, nil, 0.6, 0.25), -- 2D for the target: ShockDart_Charge, high
+		-- The smite, ~120 studs: the crack ("Synth Thunder Cracks Individual Explosion Booms 5") ...
+		strike = cue(9126082854, 1, 0.95, nil, 120, 1.2),
+		-- ... the boom body ("Mortar Explosion 3", pitched down) ...
+		boom = cue(9116973611, 1, 0.7, nil, 110, 1.4),
+		-- ... the rolling tail ("Artillery Distant 2": deep booms, "possible use: thunder") ...
+		rumble = cue(9113169432, 0.8, 0.9, nil, 140, 3.5),
+		-- ... and the sizzle ("Lightning Flashes Quick Electrical Bursts 11").
+		sizzle = cue(9116276051, 0.9, 1, nil, 80, 1.2),
+		zap = cue(9119594571, 0.8, 1.1, nil, 70, 0.6, 0.6), -- a chain arc ("Static Zap Blast 2")
+		stormBolt = cue(9126082854, 0.8, 1.2, nil, 90, 0.8), -- a Storm Call bolt: the crack, higher
 		fizzle = cue(9119595114, 0.5, 1.15, nil, 40, 0.6, 0.4), -- Stim_ZoneEnd
 	}),
 	Flash = table.freeze({

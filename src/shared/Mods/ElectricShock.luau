@@ -1,16 +1,17 @@
 --!strict
--- Electric Shock (Damage, Projectile; battle pass premium tier 20; vault/01 Design/Abilities/Electric Shock.md):
--- a held throw (LMB fast and flat, RMB a lob) of an orb that flies like a canister (Mods/Molly options, its own
--- numbers). While it flies, every `scan` s the server checks the orb's place on its path: the first enemy whose
--- body is within `lockRange` with a clear line latches it ("ShockLatch": the orb stops there and a warning ring
--- shows on them for `warning` s). Then lightning strikes them wherever they are ("ShockStrike"): `damage` and
--- `hinder` s of Hinder. Nobody in reach by the time it rests: it fizzles ("ShockFizzle"). Only enemies; the strike
--- needs the target alive and in the same match (Target.combatants).
+-- Electric Shock (Damage, Projectile; battle pass premium tier 20, the LEGENDARY power; vault/01 Design/Abilities/
+-- Electric Shock.md; owner 2026-11-27: "a big lightning strike down, like a smite ... an OP utility, but it's fine").
+-- A held throw (LMB fast and flat, RMB a lob) of an orb that flies like a canister (Mods/Molly options, its own
+-- numbers). Every `scan` s the server checks the orb's place on its path: the first enemy whose body is within
+-- `lockRange` with a clear line latches it. Landing without one, it sits charged for `beacon` s and latches the
+-- first enemy who comes within `beaconRange`. Latched ("ShockLatch"): a marked ring follows them for `warning` s,
+-- then a smite lands on them wherever they are ("ShockStrike"): `damage`, `hinder` s of Hinder, and
+-- `splashDamage` to every other enemy within `splashRadius`. Nobody: it fizzles ("ShockFizzle"). Only enemies.
 --
--- Upgrades: Recharge (A) numbers only. Chain (B, `behaviour = "Chain"`): after the strike it jumps to the nearest
--- other enemy within `chainRange` (clear line), `chains` times, `chainDamage` each. Overload (G, `behaviour =
--- "Overload"`): a wider `lockRange`; G3 also deals `splashDamage` to every other enemy within `splashRadius` of the
--- target.
+-- Upgrades: Recharge (A) numbers only. Chain Lightning (B, `behaviour = "Chain"`): the smite arcs to the nearest
+-- other enemy within `chainRange` (clear line), `chains` times, `chainDamage` each. Storm Call (G, glitched,
+-- `behaviour = "Storm"`): a storm cell stays over the smite and strikes `bolts` more times over `storm` s at random
+-- spots within `stormRadius` of it, `boltDamage` to enemies within `boltRadius` of each ("ShockStormBolt").
 
 local Molly = require(script.Parent.Molly)
 local Projectile = require(script.Parent.Blocks.Projectile)
@@ -23,8 +24,22 @@ local ElectricShock = {}
 ElectricShock.throw = Projectile.throw
 ElectricShock.options = Molly.options
 
+local rng = Random.new()
+
 local function enemy(ctx: Types.ServerCtx, model: Model): boolean
 	return model ~= ctx.character and Target.alive(model) and not Teams.isAlly(ctx.player, model)
+end
+
+-- the distance from `at` to a body: the nearer of the chest and the feet-to-chest line
+local function reach(model: Model, at: Vector3): (number, Vector3?)
+	local point = Target.aimPoint(model)
+	if not point then
+		return math.huge, nil
+	end
+	local root = model:FindFirstChild("HumanoidRootPart")
+	local body = if root and root:IsA("BasePart") then root.Position else point
+	local feet = body - Vector3.new(0, 2.5, 0)
+	return math.min((point - at).Magnitude, (body - at).Magnitude, (feet - at).Magnitude), point
 end
 
 -- The enemy the orb at `at` latches onto (nearest within `range` with a clear line), or nil.
@@ -40,14 +55,7 @@ local function latchTarget(
 		if not enemy(ctx, model) then
 			continue
 		end
-		local point = Target.aimPoint(model)
-		local root = model:FindFirstChild("HumanoidRootPart")
-		if not point then
-			continue
-		end
-		-- the nearer of the chest and the feet-to-chest line, like Shock Dart's blast
-		local body = if root and root:IsA("BasePart") then root.Position else point
-		local d = math.min((point - at).Magnitude, (body - at).Magnitude)
+		local d = reach(model, at)
 		if d <= range and d < bestD and Target.visible(at, model, params) then
 			best, bestD = model, d
 		end
@@ -65,6 +73,56 @@ local function hit(ctx: Types.ServerCtx, model: Model, amount: number): Vector3?
 	return point
 end
 
+-- Damage to every enemy (but `skip`) within `radius` of `at` with a clear line; their chest points.
+local function blast(
+	ctx: Types.ServerCtx,
+	at: Vector3,
+	radius: number,
+	amount: number,
+	skip: Model?
+): { Vector3 }
+	local out: { Vector3 } = {}
+	if radius <= 0 or amount <= 0 then
+		return out
+	end
+	local params = ctx.worldParams()
+	local eye = at + Vector3.new(0, 1, 0)
+	for _, model in Target.combatants() do
+		if model == skip or not enemy(ctx, model) then
+			continue
+		end
+		local d, point = reach(model, at)
+		if point and d <= radius and Target.visible(eye, model, params) then
+			ctx.damage(model, amount, point)
+			table.insert(out, point)
+		end
+	end
+	return out
+end
+
+-- Storm Call: more bolts around the smite (the floor point under it).
+local function storm(ctx: Types.ServerCtx, at: Vector3)
+	local stats = ctx.stats
+	local bolts = math.max(math.floor(stats.bolts or 0), 0)
+	if bolts == 0 then
+		return
+	end
+	local params = ctx.worldParams()
+	local floorHit = workspace:Raycast(at + Vector3.new(0, 2, 0), Vector3.new(0, -12, 0), params)
+	local floor = if floorHit then floorHit.Position else at - Vector3.new(0, 3, 0)
+	local step = stats.storm / bolts
+	for i = 1, bolts do
+		ctx.schedule(step * i, function()
+			local a = rng:NextNumber(0, math.pi * 2)
+			local r = rng:NextNumber(1.5, stats.stormRadius)
+			local spot = floor + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
+			local hits =
+				blast(ctx, spot + Vector3.new(0, 2.5, 0), stats.boltRadius, stats.boltDamage)
+			ctx.fx("ShockStormBolt", { at = spot, radius = stats.boltRadius, hits = hits })
+		end)
+	end
+end
+
 local function strike(ctx: Types.ServerCtx, target: Model)
 	local stats = ctx.stats
 	local params = ctx.worldParams()
@@ -75,7 +133,6 @@ local function strike(ctx: Types.ServerCtx, target: Model)
 	end
 	local struck: { Model } = { target }
 	local chain: { Vector3 } = {}
-	-- Chain: hop from the last one struck to the nearest enemy not struck yet
 	if stats.behaviour == "Chain" then
 		local from = at
 		for _ = 1, stats.chains or 0 do
@@ -85,8 +142,7 @@ local function strike(ctx: Types.ServerCtx, target: Model)
 				if not enemy(ctx, model) or table.find(struck, model) then
 					continue
 				end
-				local point = Target.aimPoint(model)
-				local d = if point then (point - from).Magnitude else math.huge
+				local d = reach(model, from)
 				if d <= stats.chainRange and d < nextD and Target.visible(from, model, params) then
 					nextModel, nextD = model, d
 				end
@@ -103,32 +159,18 @@ local function strike(ctx: Types.ServerCtx, target: Model)
 			from = point
 		end
 	end
-	-- Overload G3: a splash around the target
-	local splash: { Vector3 } = {}
-	local splashRadius = stats.splashRadius or 0
-	if stats.behaviour == "Overload" and splashRadius > 0 then
-		for _, model in Target.combatants() do
-			if not enemy(ctx, model) or model == target then
-				continue
-			end
-			local point = Target.aimPoint(model)
-			if
-				point
-				and (point - at).Magnitude <= splashRadius
-				and Target.visible(at, model, params)
-			then
-				ctx.damage(model, stats.splashDamage, point)
-				table.insert(splash, point)
-			end
-		end
-	end
+	local splash = blast(ctx, at, stats.splashRadius or 0, stats.splashDamage or 0, target)
 	ctx.fx("ShockStrike", {
 		target = target,
 		at = at,
 		chain = chain,
 		splash = splash,
-		splashRadius = if #splash > 0 or splashRadius > 0 then splashRadius else nil,
+		splashRadius = stats.splashRadius,
+		storm = stats.behaviour == "Storm",
 	})
+	if stats.behaviour == "Storm" then
+		storm(ctx, at)
+	end
 end
 
 local module: Types.ModModule = {}
@@ -147,6 +189,7 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 		ElectricShock.throw(ctx.head.Position, req.direction, req.mode, stats, params)
 	local path = Projectile.simulate(origin, velocity, ElectricShock.options(stats), params)
 	local landT = Projectile.endTime(path)
+	local last = path.segments[#path.segments]
 	local start = ctx.now
 	ctx.fx("ShockOrbThrow", {
 		path = Projectile.pack(path),
@@ -154,26 +197,51 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 		start = start,
 		lob = req.mode == "Alt",
 	})
-	-- the flight: one timer that walks the path at `scan` steps until something latches or it rests
+	-- One timer walks the flight at `scan` steps, then (landed) waits as a charged beacon.
 	ctx.schedule(0, function()
-		local t = 0
 		local step = math.max(stats.scan, 0.02)
+		local function latched(target: Model, at: Vector3): ()
+			ctx.fx(
+				"ShockLatch",
+				{ target = target, at = at, start = start, warning = stats.warning }
+			)
+			task.wait(stats.warning)
+			strike(ctx, target)
+		end
+		local t = 0
 		while t < landT do
 			task.wait(step)
 			t = math.min(t + step, landT)
 			local at = Projectile.positionAt(path, t)
 			local target = latchTarget(ctx, at, stats.lockRange, ctx.worldParams())
 			if target then
-				ctx.fx(
-					"ShockLatch",
-					{ target = target, at = at, start = start, warning = stats.warning }
-				)
-				task.wait(stats.warning)
-				strike(ctx, target)
+				latched(target, at)
 				return
 			end
 		end
-		ctx.fx("ShockFizzle", { at = Projectile.positionAt(path, landT), start = start })
+		local rest = Projectile.positionAt(path, landT)
+		if last.rest and (stats.beacon or 0) > 0 then
+			ctx.fx(
+				"ShockBeacon",
+				{ at = rest, start = start, life = stats.beacon, radius = stats.beaconRange }
+			)
+			local waited = 0
+			while waited < stats.beacon do
+				task.wait(step)
+				waited += step
+				local target = latchTarget(
+					ctx,
+					rest + Vector3.new(0, 0.5, 0),
+					stats.beaconRange,
+					ctx.worldParams()
+				)
+				if target then
+					latched(target, rest)
+					return
+				end
+			end
+		end
+		ctx.fx("ShockFizzle", { at = rest, start = start })
 	end)
 end
 

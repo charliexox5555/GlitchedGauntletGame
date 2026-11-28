@@ -559,14 +559,15 @@ local defs: { [string]: ModDef } = {
 	-- `edgeDamage` at `radius`; line of sight from the impact; none to you,
 	-- FRIENDLY_FIRE of it to your team.
 	-- Smoke (battle pass, free tier 10; vault/01 Design/Abilities/Smoke.md): a held throw like the Molly (same
-	-- flight). Where it rests it pops after `popDelay` into a dome of `radius` for `duration` s that blocks sight
-	-- both ways (players, bots, aim assist and auto shoot: Mods/Blocks/Smoke); bullets pass through.
+	-- flight). Where it rests it pops after `popDelay` into a big, solid dome of `radius` for `duration` s, like a
+	-- Valorant smoke (owner 2026-11-27: "much larger ... not see-through"), that blocks sight both ways (players,
+	-- bots, aim assist and auto shoot: Mods/Blocks/Smoke); bullets pass through.
 	Smoke = {
 		id = "Smoke",
 		name = "Smoke",
 		free = false,
 		role = "Control",
-		paths = { A = "Recharge", B = "Big Smoke", G = "Toxic" },
+		paths = { A = "Double Smoke", B = "Long Smoke", G = "Toxic Cloud" },
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
@@ -576,10 +577,10 @@ local defs: { [string]: ModDef } = {
 		quickCast = "Primary",
 		levels = {
 			L1 = {
-				note = "Smoke: a 12-stud dome that blocks sight for 10 s",
+				note = "Smoke: a 22-stud dome that blocks sight for 14 s",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
-				throwSpeed = 80, -- LMB, overhand (a little shorter than the Molly's 88)
+				throwSpeed = 84, -- LMB, overhand
 				lobSpeed = 24, -- RMB, underhand
 				throwLift = 0.12,
 				lobLift = 0.3,
@@ -590,51 +591,59 @@ local defs: { [string]: ModDef } = {
 				size = 0.3,
 				dropTime = 1.3,
 				maxFlight = 4, -- still flying then: no smoke
-				popDelay = 0.35, -- s from rest to the pop
-				radius = 6, -- the dome (12 studs across)
-				duration = 10, -- s it stands, growth and fade included
-				grow = 0.6, -- s to full size
-				fade = 1, -- s it thins out at the end (still blocks until the last 0.4 s)
-				tick = 0.5, -- Toxic: how often the smoke checks who's inside
+				popDelay = 0.3, -- s from rest to the pop
+				radius = 11, -- the dome: 22 studs across (about a Valorant smoke at our scale)
+				duration = 14, -- s it stands, growth and fade included
+				grow = 0.8, -- s to full size
+				fade = 1.5, -- s it thins out at the end (still blocks until the last 0.4 s)
+				tick = 0.5, -- Toxic Cloud: how often the smoke checks who's inside
 			},
-			A2 = { note = "Recharge: Smoke comes back 25 s after it's thrown", cooldown = 25 },
-			A3 = { note = "Recharge: Smoke comes back after just 15 s", cooldown = 15 },
+			A2 = {
+				note = "Double Smoke: 2 smokes per round",
+				card = "2 SMOKES A ROUND",
+				charges = 2,
+			},
+			A3 = { note = "Double Smoke: 3 smokes per round", card = "SMOKES 2 → 3", charges = 3 },
 			B2 = {
-				note = "Big Smoke: a 15-stud dome that lasts 12 s",
-				card = "RADIUS 6 → 7.5 STUDS · 10 → 12 S",
-				radius = 7.5,
-				duration = 12,
+				note = "Long Smoke: the dome stands for 20 s",
+				card = "DURATION 14 → 20 S",
+				duration = 20,
 			},
 			B3 = {
-				note = "Big Smoke: an 18-stud dome that lasts 15 s",
-				card = "RADIUS 7.5 → 9 STUDS · 12 → 15 S",
-				radius = 9,
-				duration = 15,
+				note = "Long Smoke: a 26-stud dome that stands for 26 s",
+				card = "DURATION 20 → 26 S · 22 → 26 STUDS",
+				duration = 26,
+				radius = 13,
 			},
-			-- Toxic (Mods/Smoke → Toxic): enemies inside are Hindered (refreshed every `tick`); G3 also burns them.
+			-- Toxic Cloud (glitched; Mods/Smoke → Toxic): a glitched green-magenta smoke. Enemies inside are Hindered
+			-- and burned every `tick`; G3 also shows them to your team while they're inside (you see in, they can't).
 			G2 = {
-				note = "Toxic: enemies inside your smoke are Hindered",
-				card = "ENEMIES INSIDE ARE HINDERED",
+				note = "Toxic Cloud: enemies inside are Hindered and take 10 damage/s",
+				card = "HINDERS + 10 DAMAGE/S INSIDE",
 				behaviour = "Toxic",
 				hinder = 1, -- s, refreshed every tick they stay in
-				dps = 0,
+				dps = 10,
+				reveal = false,
 			},
 			G3 = {
-				note = "Toxic: enemies inside are Hindered and take 10 damage/s",
-				card = "+10 DAMAGE/S INSIDE",
-				dps = 10,
+				note = "Toxic Cloud: 18 damage/s, and your team sees enemies inside the cloud",
+				card = "18 DAMAGE/S · YOUR TEAM SEES THEM",
+				dps = 18,
+				reveal = true,
 			},
 		},
 	},
-	-- Electric Shock (battle pass, premium tier 20; vault/01 Design/Abilities/Electric Shock.md): a thrown orb that
-	-- latches onto the first enemy it passes within `lockRange` (clear line), shows a `warning` ring on them, then
-	-- strikes them wherever they are for `damage` + `hinder` s of Hinder. Nobody in reach: it fizzles.
+	-- Electric Shock (battle pass, premium tier 20, LEGENDARY; vault/01 Design/Abilities/Electric Shock.md; owner
+	-- 2026-11-27: "a big lightning strike down, like a smite ... an OP utility, but it's fine"). A thrown orb that
+	-- latches onto the first enemy it passes within `lockRange`, or, once it lands, any enemy who comes within
+	-- `beaconRange` for `beacon` s. A `warning` s marked ring, then a smite on them wherever they are: `damage`,
+	-- `hinder` s of Hinder, and `splashDamage` to other enemies within `splashRadius`.
 	ElectricShock = {
 		id = "ElectricShock",
 		name = "Electric Shock",
 		free = false,
 		role = "Damage",
-		paths = { A = "Recharge", B = "Chain", G = "Overload" },
+		paths = { A = "Recharge", B = "Chain Lightning", G = "Storm Call" },
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
@@ -644,7 +653,7 @@ local defs: { [string]: ModDef } = {
 		quickCast = "Primary",
 		levels = {
 			L1 = {
-				note = "Electric Shock: latches onto an enemy within 4 studs, then strikes for 70 + Hinder",
+				note = "Electric Shock: latches onto an enemy and smites them for 90 + Hinder",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				throwSpeed = 96, -- LMB: fast and flat
@@ -658,46 +667,54 @@ local defs: { [string]: ModDef } = {
 				size = 0.3,
 				dropTime = 1.6,
 				maxFlight = 3,
-				lockRange = 4, -- studs from the orb to a body that latches it
-				scan = 0.05, -- s between latch checks in flight
-				warning = 0.5, -- s the warning ring shows before the strike
-				damage = 70,
-				hinder = 1.5, -- s of Hinder (Config/StatusEffects)
+				lockRange = 7, -- studs from the orb to a body that latches it in flight
+				beacon = 2, -- s it waits on the floor, charged, after it lands without a target
+				beaconRange = 9, -- studs around the landed orb that latch it
+				scan = 0.05, -- s between latch checks
+				warning = 0.6, -- s the marked ring shows before the smite
+				damage = 90,
+				hinder = 2, -- s of Hinder (Config/StatusEffects)
+				splashRadius = 6, -- other enemies this close to the target...
+				splashDamage = 40, -- ...take this
 			},
 			A2 = {
-				note = "Recharge: Electric Shock comes back 30 s after it's thrown",
-				cooldown = 30,
+				note = "Recharge: Electric Shock comes back 35 s after it's thrown",
+				cooldown = 35,
 			},
-			A3 = { note = "Recharge: Electric Shock comes back after 18 s", cooldown = 18 },
-			-- Chain (Mods/ElectricShock → chain): after the strike, it jumps to the nearest other enemy within
-			-- `chainRange` (clear line from the target), `chains` times, `chainDamage` each.
+			A3 = { note = "Recharge: Electric Shock comes back after 20 s", cooldown = 20 },
+			-- Chain Lightning (Mods/ElectricShock → chain): after the smite it arcs to the nearest other enemy within
+			-- `chainRange` (clear line), `chains` times, `chainDamage` each.
 			B2 = {
-				note = "Chain: the strike jumps to 1 more enemy within 12 studs for 35",
-				card = "+1 JUMP · 35 DAMAGE",
+				note = "Chain Lightning: the smite arcs to 1 more enemy within 16 studs for 60",
+				card = "+1 ARC · 60 DAMAGE",
 				behaviour = "Chain",
 				chains = 1,
-				chainRange = 12,
-				chainDamage = 35,
+				chainRange = 16,
+				chainDamage = 60,
 			},
 			B3 = {
-				note = "Chain: the strike jumps to 2 more enemies",
-				card = "JUMPS 1 → 2",
+				note = "Chain Lightning: the smite arcs to 2 more enemies",
+				card = "ARCS 1 → 2",
 				chains = 2,
 			},
-			-- Overload: a wider latch; G3 adds a splash around the target.
+			-- Storm Call (glitched): a glitched violet storm cell stays over the smite and strikes `bolts` more times
+			-- over `storm` s, each at a random spot within `stormRadius`, `boltDamage` to enemies within `boltRadius`.
 			G2 = {
-				note = "Overload: latches from 6 studs away",
-				card = "LATCH RANGE 4 → 6 STUDS",
-				behaviour = "Overload",
-				lockRange = 6,
-				splashRadius = 0,
-				splashDamage = 0,
+				note = "Storm Call: a glitched storm strikes 3 more times around the target over 3 s (35 each)",
+				card = "+3 STORM BOLTS · 35 EACH",
+				behaviour = "Storm",
+				bolts = 3,
+				storm = 3,
+				stormRadius = 8,
+				boltRadius = 4,
+				boltDamage = 35,
 			},
 			G3 = {
-				note = "Overload: the strike also hits everyone within 5 studs of the target for 35",
-				card = "+35 SPLASH IN 5 STUDS",
-				splashRadius = 5,
-				splashDamage = 35,
+				note = "Storm Call: 5 storm bolts over 4 s, 45 each",
+				card = "BOLTS 3 → 5 · 45 EACH",
+				bolts = 5,
+				storm = 4,
+				boltDamage = 45,
 			},
 		},
 	},

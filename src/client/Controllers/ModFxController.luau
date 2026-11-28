@@ -979,6 +979,7 @@ end
 local function onShockLatch(data: { [string]: any })
 	local target, at = data.target, data.at
 	cutFlight("ElectricShock", data.start)
+	ShockStrikeFx.endBeacon(data.start)
 	if typeof(at) ~= "Vector3" or typeof(target) ~= "Instance" or not target:IsA("Model") then
 		return
 	end
@@ -1002,9 +1003,16 @@ local function onShockStrike(data: { [string]: any })
 		end
 		return out
 	end
-	local splashRadius = if typeof(data.splashRadius) == "number" then data.splashRadius else nil
-	ShockStrikeFx.strike(at, teamColor(data), points(data.chain), points(data.splash), splashRadius)
-	blastShake(at, 8, 0.6, 4)
+	local target = data.target
+	ShockStrikeFx.strike(
+		at,
+		teamColor(data),
+		points(data.chain),
+		points(data.splash),
+		if typeof(target) == "Instance" and target:IsA("Model") then target else nil,
+		data.storm == true
+	)
+	blastShake(at, 12, 1.3, 6) -- a smite: a big shake for anyone near
 end
 
 local function onFlashPop(data: { [string]: any })
@@ -1096,8 +1104,23 @@ local function onFx(kind: unknown, data: unknown)
 		onShockLatch(d)
 	elseif kind == "ShockStrike" then
 		onShockStrike(d)
+	elseif kind == "ShockBeacon" then
+		if
+			typeof(d.at) == "Vector3"
+			and typeof(d.start) == "number"
+			and typeof(d.life) == "number"
+			and typeof(d.radius) == "number"
+		then
+			ShockStrikeFx.beacon(d.start, d.at, d.life, d.radius, teamColor(d))
+		end
+	elseif kind == "ShockStormBolt" then
+		if typeof(d.at) == "Vector3" then
+			ShockStrikeFx.stormBolt(d.at, if typeof(d.radius) == "number" then d.radius else 4)
+			blastShake(d.at, 6, 0.6, 4)
+		end
 	elseif kind == "ShockFizzle" then
 		cutFlight("ElectricShock", d.start)
+		ShockStrikeFx.endBeacon(d.start)
 		if typeof(d.at) == "Vector3" then
 			ShockStrikeFx.fizzle(d.at, teamColor(d))
 		end
