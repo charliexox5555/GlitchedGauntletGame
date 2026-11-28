@@ -10,7 +10,7 @@ Release.RANGE_OPEN = true
 
 -- The Battle Pass (Shop's Season Pass card, the world sign, the Router menu). Not in the first update:
 -- the Backpack replaced it (vault/01 Design/Inventory and Crates.md).
-Release.BATTLE_PASS_OPEN = false
+Release.BATTLE_PASS_OPEN = true -- owner 2026-11-28: Season 1 opens with release #1
 
 -- The Shop's full layout (Home charms + emotes, the Thanksgiving "LIMITED TIME" bundle). false = the
 -- launch layout: Home = CASES + SPECIAL OFFERS only, Bundles = Ruin-Blighted, Tempest-Strike + the

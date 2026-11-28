@@ -12,6 +12,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local LoginRewards = require(ReplicatedStorage.Shared.LoginRewards)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
+local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Kit = require(script.Parent.Parent.Util.Kit)
 local LobbyHudView = require(script.Parent.Parent.Util.LobbyHudView)
@@ -38,6 +41,26 @@ end
 -- login state or match count changes and once a minute for the UTC day rollover.
 local DAILY_CHECK_SECONDS = 60
 
+-- Season pass rewards reached and not claimed yet (release 1 friction pass, 2026-11-28: the pass's only way
+-- in is the Shop's card, and a tier gained in a match was never mentioned). They add to the Shop's dot, and
+-- one toast per lobby visit says they're waiting.
+local function passWaiting(): number
+	if not SeasonCatalog.screenOn() then
+		return 0
+	end
+	local s = PlayerData.season(player)
+	local n = 0
+	for tier = 1, s.tier do
+		for _, track: SeasonPass.Track in { "free", "premium" } :: { SeasonPass.Track } do
+			if #SeasonCatalog.rewards(tier, track) > 0 and SeasonPass.canClaim(s, tier, track) then
+				n += 1
+			end
+		end
+	end
+	return n
+end
+local passToastShown = false
+
 local function drawDailyDot()
 	local matches = StateValues.get(player, "Matches")
 	local shopOpen = typeof(matches) == "number" and Onboarding.unlocked("Shop", matches)
@@ -46,10 +69,17 @@ local function drawDailyDot()
 		step = StateValues.get(player, "LoginStep"),
 	})
 	local today = Economy.day(math.floor(workspace:GetServerTimeNow()))
-	local waiting = shopOpen
-		and StateValues.get(player, "DataReady") == true
-		and LoginRewards.nextStep(login, today) ~= nil
-	LobbyHudView.setBadge("Shop", if waiting then 1 else 0)
+	local ready = shopOpen and StateValues.get(player, "DataReady") == true
+	local waiting = ready and LoginRewards.nextStep(login, today) ~= nil
+	local pass = if ready then passWaiting() else 0
+	LobbyHudView.setBadge("Shop", (if waiting then 1 else 0) + pass)
+	if pass > 0 and not passToastShown then
+		passToastShown = true
+		LobbyHudView.toast(
+			`{pass} SEASON PASS REWARD{if pass == 1 then "" else "S"} WAITING: OPEN THE SHOP TO CLAIM`,
+			"info"
+		)
+	end
 end
 
 function LobbyHud.init()
@@ -109,6 +139,14 @@ function LobbyHud.start()
 	for _, name in { "DataReady", "Matches", "LoginLast", "LoginStep" } do
 		StateValues.changed(player, name):Connect(drawDailyDot)
 	end
+	-- the pass state (claims, purchases, match progress) is the "Season" StringValue
+	task.spawn(function()
+		local v = player:WaitForChild(PlayerData.SEASON, 60)
+		if v and v:IsA("StringValue") then
+			v.Changed:Connect(drawDailyDot)
+			drawDailyDot()
+		end
+	end)
 	task.spawn(function()
 		while true do
 			drawDailyDot()

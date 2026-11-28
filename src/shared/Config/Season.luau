@@ -12,7 +12,7 @@ Season.NAME = "SEASON 1"
 Season.TIERS = 30
 Season.LENGTH_DAYS = 42 -- 6 weeks
 -- os.time() (UTC) the season opens. 0 = not scheduled yet: it never ends (set at launch).
-Season.STARTS_AT = 0
+Season.STARTS_AT = 1795824000 -- 2026-11-28 00:00 UTC (owner: open at launch); ends 2027-01-09
 
 -- One tier every TIER_SECONDS in live rounds OR every TIER_ROUNDS rounds won, whichever
 -- fills first. The meter that fills keeps its overflow; the other starts again at 0.

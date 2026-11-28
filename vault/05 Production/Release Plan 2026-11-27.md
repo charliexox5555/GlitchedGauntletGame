@@ -114,7 +114,9 @@ The owner wants this update to be the polished first release. Checked against th
 - **Removed:** the RIVALS name tag reference (`Workspace.NametagGui`, it would have shipped), `PlateMigrationBackup` and `WeaponSyncBackup`.
 
 **Before publishing, in order:**
-1. **[O] Pass at launch:** open Season 1 on day one (set `Season.STARTS_AT` and `Release.BATTLE_PASS_OPEN = true`), or a soft launch with it closed (the earlier plan).
+1. ~~Pass at launch~~ **Done (owner 2026-11-28: open at launch).** `BATTLE_PASS_OPEN = true`, `Season.STARTS_AT` = 2026-11-28 00:00 UTC, and the season ends 2027-01-09. (The soft launch already happened.)
+   - **Friction fixes:** the Shop's red dot now counts pass rewards waiting, and one toast per lobby visit says they're waiting. Before, a tier gained in a match was never mentioned, and the pass's only way in is the Shop's card.
+   - **Moderation:** samples from every new line came back Approved (Frostbite, Arcade, charms, the goodie bag, the power and UI sounds).
 2. **[O] ChatGPT images:** the one-chat handoff in [Release 1 ChatGPT Prompts](../02%20Art/Release%201%20ChatGPT%20Prompts.md#the-one-chat-handoff-owner-2026-11-28-give-me-just-the-chat): Starter Bundle shop art, 2 Season 1 thumbnails, the Starter Bundle icon. **[C]** then uploads them, swaps the Shop art and updates the Starter Bundle's product description and icon.
 3. **[O] Charm swing tuning:** uncommitted changes in `CharmRig`, `GunAnimator`, `ViewmodelRig` and `tools/studio/FixCharmPoints` (the charms work). Rojo already syncs them into Studio, so they ship. Keep (commit) or drop them.
 4. **[O] Your checks:**
