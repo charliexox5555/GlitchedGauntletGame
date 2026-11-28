@@ -184,7 +184,7 @@ def measure():
         if seats(shells[a], shells[b]):
             contacts[a].add(b)
             contacts[b].add(a)
-    anchor = min((label for label in shells if label.startswith((f"{GUN}_Receiver:", f"{GUN}_Frame:", "FB_ReceiverMantle:"))),
+    anchor = min((label for label in shells if label.startswith((f"{GUN}_Receiver:", f"{GUN}_Frame:", "FB_ReceiverMantle:", "Knife_Hilt:", "FB_GripBody:"))),
                  key=lambda label: shells[label][2][0][2])
     reached = {anchor}
     todo = [anchor]

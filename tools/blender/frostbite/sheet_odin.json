@@ -1,0 +1,10 @@
+[
+  ["finish_core_left.png", "Receiver cryo-core bay, heart and upper wing armor"],
+  ["finish_handguard_left.png", "Handguard glacial shroud, chasm and crystals"],
+  ["finish_box_left.png", "Ammo box armor cowl, ice cluster and flange (bone AmmoBox)"],
+  ["finish_butt.png", "Swept glacial wing butt and frame armor"],
+  ["finish_brake.png", "Heavy ported cryo brake and glow ring"],
+  ["finish_charm_zone.png", "Owner's CharmLoop kept clear of nearby armor"],
+  ["culled_trigger_join.png", "Trigger guard seated 0.023 (culled)"],
+  ["culled_front_sight_join.png", "Front sight seated in barrel block (culled)"]
+]
