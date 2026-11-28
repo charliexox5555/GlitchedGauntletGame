@@ -2,7 +2,7 @@
 
 **Owner (2026-11-28):** "Let's improve the lighting in the hub; there are some parts like in the middle where it is way too bright on the player and such, so just an overhaul to improve it please."
 
-**Status:** applied in Studio (Edit) and checked in Play solo. **Waiting on the owner's OK; the owner must save the place.** Not published.
+**Status:** **approved 2026-11-28** (owner delegated approval to the main session overnight). Players no longer blow out on the Duels deck or in the Locker, rooms keep their colour, holograms still pop, and the Duels back wall is fine. Applied in Studio (Edit) and checked in Play solo. **The owner must save the place.** Not published.
 
 Builder: `tools/studio/lobby_v5/HubLightingPass.luau` (Edit mode, re-runnable). Captures: `Lobby V5/2026-11-28/` (sheet `00 Lighting before-after sheet.jpg`).
 
