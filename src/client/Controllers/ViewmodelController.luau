@@ -1385,6 +1385,9 @@ function ViewmodelController.unequip()
 		if gun.riftforge then
 			RiftforgeEffects.destroy(gun.riftforge)
 		end
+		if gun.frostbite then
+			FrostbiteEffects.destroy(gun.frostbite)
+		end
 		if gun.riftfang then
 			RiftfangKnife.destroy(gun.riftfang)
 		end
@@ -3399,10 +3402,14 @@ local function update(dt: number)
 			end
 			if gun.frostbite then
 				local inspect = playing.Inspect
+				local draw = playing.Equip
+				local reload = playing.Reload
 				local event, stage = FrostbiteEffects.step(
 					gun.frostbite,
 					dt,
 					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if reload and not reload.fading then reload.time / reload.length else nil,
 					visible,
 					adsAlpha
 				)
@@ -3765,11 +3772,20 @@ local function update(dt: number)
 	if a then
 		ViewmodelArms.apply(a)
 	end
-	-- Step charms after BulkMoveTo so CharmPoint.WorldCFrame is from this exact frame.
+	-- Step charms from the solved rig CFrame (no Attachment cache lag).
 	for _, side in SIDES do
 		local gun = guns[side]
 		if gun and gun.charm then
-			CharmRig.step(gun.charm, dt, gun.charm.point.WorldCFrame, hidden, adsAlpha)
+			local cp = gun.charm.point
+			local cpParent = cp.Parent
+			local rig = gun.rig
+			local anchorCf = if rig
+					and cpParent
+					and cpParent:IsA("BasePart")
+					and rig.world[cpParent]
+				then rig.world[cpParent] * cp.CFrame
+				else cp.WorldCFrame
+			CharmRig.step(gun.charm, dt, anchorCf, hidden, adsAlpha)
 		end
 	end
 end

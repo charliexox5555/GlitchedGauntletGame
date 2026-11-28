@@ -21,7 +21,7 @@ local SettingsApply = require(ReplicatedStorage.Shared.SettingsApply) -- Optimiz
 local Kit = require(script.Parent.ShotFxKit)
 
 type WeaponConfig = Types.WeaponConfig
-type FlashStyle = "Slipframe" | "Moltframe" | "Playback" | "Sundial" | "Riftforge"
+type FlashStyle = "Slipframe" | "Moltframe" | "Playback" | "Sundial" | "Riftforge" | "Frostbite"
 
 local MuzzleFx = {}
 
@@ -323,7 +323,10 @@ local function buildRig(
 	end
 	local suppressed = config.suppressed == true
 	local puff = suppressed or config.muzzleDevice == true
-	local profile = if firstPerson and style == "Slipframe" then Slipframe[config.id] else nil
+	local frostbite = firstPerson and style == "Frostbite"
+	local profile = if firstPerson and (style == "Slipframe" or frostbite)
+		then (Slipframe[config.id] or { flashScale = 1.05, flashSpread = 1.05 })
+		else nil
 	local moltframe = firstPerson and style == "Moltframe"
 	local playback = firstPerson and style == "Playback"
 	local sundial = firstPerson and style == "Sundial"
@@ -563,6 +566,16 @@ local function buildRig(
 		em.SpreadAngle = Vector2.new(9, 9)
 		em.Lifetime = NumberRange.new(0.04, 0.1)
 		em.Drag = 5
+		embers = em
+	elseif frostbite and not puff then
+		local em = Kit.sparkEmitter(holder, 0.068 * s)
+		em.Name = "FrostbiteMuzzleShards"
+		em.Texture = VFX.FROST_SHARD
+		em.Color = ColorSequence.new(Color3.fromHex("ECFDFF"), Color3.fromHex("3FB8F0"))
+		em.Speed = NumberRange.new(24 * s, 48 * s)
+		em.SpreadAngle = Vector2.new(12, 12)
+		em.Lifetime = NumberRange.new(0.05, 0.11)
+		em.Drag = 6
 		embers = em
 	elseif violetFlash then
 		local em = Kit.sparkEmitter(holder, 0.068 * s)

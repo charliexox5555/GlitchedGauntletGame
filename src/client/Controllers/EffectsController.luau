@@ -40,10 +40,12 @@ local ShadowMist = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_M
 local Tempest = require(ReplicatedStorage.Shared.Config.SkinPreview).TEMPEST
 local Riftforge = require(ReplicatedStorage.Shared.Config.SkinPreview).RIFTFORGE
 local RuinBlightedPresentation = require(ReplicatedStorage.Shared.Config.RuinBlightedPresentation)
+local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
 local AudioController = require(script.Parent.AudioController)
+local FrostbiteFx = require(script.Parent.Parent.Util.FrostbiteFx)
 local GunAudio = require(script.Parent.Parent.Util.GunAudio)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local GlassFx = require(script.Parent.Parent.Util.GlassFx)
@@ -121,21 +123,28 @@ local function riftforgeShot(): boolean
 	return cameraSkinLine() == Riftforge.LINE
 end
 
+local function frostbiteShot(): boolean
+	return cameraSkinLine() == "Frostbite"
+end
+
 -- `own`: our own shot (a little fainter: it runs straight away from the eye;
 -- fainter still from a suppressed gun, which shows enemies no tracer at all).
 function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
 	local line = if own == true then cameraSkinLine() else nil
 	local tempest = line == Tempest.LINE
 	local riftforge = line == Riftforge.LINE
+	local frostbite = line == "Frostbite"
 	local tint = if own
 		then (if tempest
 			then Tempest.SHOT_TINT
 			elseif riftforge then Riftforge.SHOT_TINT
+			elseif frostbite then Color3.fromRGB(166, 242, 255)
 			else shadowShot(config))
 		else nil
 	local wake = if tempest
 		then Tempest.TRACER_WAKE
 		elseif riftforge then Riftforge.TRACER_WAKE
+		elseif frostbite then VFX.TEMPEST_WATER_TRACER
 		else nil
 	TracerFx.tracer(from, to, config, own, tint, wake)
 end
@@ -196,14 +205,26 @@ end
 function EffectsController.ownImpact(position: Vector3, normal: Vector3, hit: Instance?)
 	local tempest = tempestShot()
 	local riftforge = riftforgeShot()
-	ImpactFx.impact(position, normal, hit, nil, nil, false, false, tempest or riftforge)
-	if (tempest or riftforge) and hit and hit:IsA("BasePart") then
+	local frostbite = frostbiteShot()
+	ImpactFx.impact(
+		position,
+		normal,
+		hit,
+		nil,
+		nil,
+		false,
+		false,
+		tempest or riftforge or frostbite
+	)
+	if (tempest or riftforge or frostbite) and hit and hit:IsA("BasePart") then
 		local model = hit:FindFirstAncestorOfClass("Model")
 		if not (model and model:FindFirstChildOfClass("Humanoid")) then
 			if tempest then
 				TempestFx.splash(position, normal)
-			else
+			elseif riftforge then
 				RiftforgeFx.splash(position, normal)
+			else
+				FrostbiteFx.splash(position, normal)
 			end
 		end
 	end
@@ -219,6 +240,7 @@ function EffectsController.localWallImpact(
 )
 	local tempest = tempestShot()
 	local riftforge = riftforgeShot()
+	local frostbite = frostbiteShot()
 	ImpactFx.impact(
 		position,
 		normal,
@@ -227,7 +249,7 @@ function EffectsController.localWallImpact(
 		size,
 		false,
 		shadowShot(config) ~= nil,
-		tempest or riftforge
+		tempest or riftforge or frostbite
 	)
 	if tempest then
 		TempestFx.splash(position, normal)
@@ -241,7 +263,13 @@ function EffectsController.localWallImpact(
 		if set then
 			AudioController.playSound(set.impact, "Foley", position)
 		end
+	elseif frostbite then
+		FrostbiteFx.splash(position, normal)
 	end
+end
+
+function EffectsController.frostbiteKill(position: Vector3)
+	FrostbiteFx.killBurst(position)
 end
 
 -- Our own shot -------------------------------------------------------------------
@@ -288,6 +316,8 @@ function EffectsController.localShot(config: WeaponConfig, side: string?, muzzle
 			TempestFx.flash(muzzle, scale)
 		elseif line == "Slipframe" then
 			MuzzleFx.flash(muzzle, config, true, nil, nil, "Slipframe")
+		elseif line == "Frostbite" then
+			MuzzleFx.flash(muzzle, config, true, nil, nil, "Frostbite")
 		elseif line == "Moltframe" then
 			MuzzleFx.flash(muzzle, config, true, nil, nil, "Moltframe")
 		elseif line == "Playback" then

@@ -1751,6 +1751,9 @@ local function onHitConfirm(confirm: Types.HitConfirm, relayed: boolean?)
 		end
 		if not relayed then
 			ViewmodelController.onKill()
+			if ViewmodelController.hasFrostbite() and at and worldFx then
+				EffectsController.frostbiteKill(at)
+			end
 		end
 	end
 end
