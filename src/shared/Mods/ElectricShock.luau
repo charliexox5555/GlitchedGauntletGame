@@ -13,6 +13,7 @@
 -- `behaviour = "Storm"`): a storm cell stays over the smite and strikes `bolts` more times over `storm` s at random
 -- spots within `stormRadius` of it, `boltDamage` to enemies within `boltRadius` of each ("ShockStormBolt").
 
+local MatchState = require(script.Parent.Parent.MatchState)
 local Molly = require(script.Parent.Molly)
 local Projectile = require(script.Parent.Blocks.Projectile)
 local Target = require(script.Parent.Blocks.Target)
@@ -208,15 +209,38 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 		start = start,
 		lob = req.mode == "Alt",
 	})
+	-- The caster's life and the round at the throw (security review 2026-11-28): the orb's timer runs
+	-- outside ModEntities' cancellable timers, so it checks for itself that its owner is still on the
+	-- same life and the round hasn't moved on, and fizzles out otherwise.
+	local caster = ctx.character
+	local phase = MatchState.get("Phase", caster)
+	local function stillLive(): boolean
+		local owner = ctx.player
+		if typeof(owner) == "Instance" and owner:IsA("Player") then
+			if owner.Parent == nil or owner.Character ~= caster then
+				return false
+			end
+		end
+		local hum = caster.Parent and caster:FindFirstChildOfClass("Humanoid")
+		return hum ~= nil and hum.Health > 0 and MatchState.get("Phase", caster) == phase
+	end
 	-- One timer walks the flight at `scan` steps, then (landed) waits as a charged beacon.
 	ctx.schedule(0, function()
 		local step = math.max(stats.scan, 0.02)
 		local function latched(target: Model, at: Vector3): ()
+			if not stillLive() then
+				ctx.fx("ShockFizzle", { at = at, start = start })
+				return
+			end
 			ctx.fx(
 				"ShockLatch",
 				{ target = target, at = at, start = start, warning = stats.warning }
 			)
 			task.wait(stats.warning)
+			if not stillLive() then
+				ctx.fx("ShockFizzle", { at = at, start = start })
+				return
+			end
 			strike(ctx, target)
 		end
 		local t = 0

@@ -10,6 +10,7 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
 local Season = require(ReplicatedStorage.Shared.Config.Season)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
+local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -99,12 +100,12 @@ function SeasonRewards.grant(data: PlayerData.Data, r: SeasonCatalog.Reward): bo
 	elseif r.kind == "Title" then
 		PlayerData.grantTitle(data, r.title or r.name)
 	elseif r.kind == "Mod" then
-		-- a pass power: owned and in the draft (Shared/ModLoadout.eligible)
+		-- a pass power: owned, and in the deck when there's room (Shared/ModLoadout.grant keeps
+		-- DECK_SIZE; a power already owned is left as the player set it)
 		if not r.mod then
 			return false
 		end
-		data.mods.owned[r.mod] = true
-		data.mods.equipped[r.mod] = true
+		ModLoadout.grant(data.mods, r.mod)
 	else
 		return false
 	end

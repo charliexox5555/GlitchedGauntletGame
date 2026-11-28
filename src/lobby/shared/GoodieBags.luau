@@ -99,7 +99,11 @@ function GoodieBags.open(data: PlayerData.Data, caseId: string, rng: Random): Wo
 		if not def then
 			return payCoins(Config.SKIN_FALLBACK_COINS)
 		end
-		data.items[def.id] = math.min((data.items[def.id] or 0) + 1, def.maxStack)
+		local have = data.items[def.id] or 0
+		if have >= def.maxStack then
+			return payCoins(Config.SKIN_FALLBACK_COINS) -- a full stack: coins, never nothing
+		end
+		data.items[def.id] = have + 1
 		return { prize = prize.id, kind = "Item", amount = 1, item = def.id, name = def.name }
 	end
 	-- Skin: a random gun the player owns without the line, else one they'll unlock later
