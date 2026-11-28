@@ -2873,6 +2873,12 @@
   "type": "Model",
   "uploaded": "2026-11-12 22:46:12"
  },
+ "art-source/crates/GoodieBag/GoodieBag_v03.fbx": {
+  "assetId": 100430777047300,
+  "name": "GG Goodie Bag S1 v03",
+  "type": "Model",
+  "uploaded": "2026-11-27 19:47:50"
+ },
  "art-source/lobby/Exports/CharmBox.fbx": {
   "assetId": 72211581809363,
   "name": "GG Charm Blind Box",
@@ -8606,6 +8612,12 @@
   "name": "GG UI shapes Slant",
   "type": "Decal",
   "uploaded": "2026-11-03 23:21:30"
+ },
+ "art-source/ui/shop/bags/bag_season1.png": {
+  "assetId": 130134893356594,
+  "name": "GG Goodie Bag S1 Card",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:47:53"
  },
  "art-source/ui/shop/boxes/box_overdrive.png": {
   "assetId": 99965508707703,

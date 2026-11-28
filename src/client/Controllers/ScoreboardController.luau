@@ -126,13 +126,15 @@ local function row(s: State, order: number, line: Line, ally: boolean)
 	local who = if line.userId then Players:GetPlayerByUserId(line.userId) else nil
 	if who or not line.userId then
 		name.LayoutOrder = 1
+		-- the equipped title in gold right after the name (Handoff - Battle Pass Build, B); bots have none
+		PlayerTags.title(nameLine, who, 11, name.ZIndex).LayoutOrder = 2
 		local lv = PlayerTags.level(nameLine, who or bot, 12, name.ZIndex, line.botLevel)
-		lv.LayoutOrder = 2
+		lv.LayoutOrder = 3
 		local dev = PlayerTags.device(nameLine, who or bot, 16, name.ZIndex)
-		dev.LayoutOrder = 3
+		dev.LayoutOrder = 4
 		dev.ImageColor3 = Color3.fromHex("AAAAAD")
-		shard.LayoutOrder = 4
-		dead.LayoutOrder = 5
+		shard.LayoutOrder = 5
+		dead.LayoutOrder = 6
 	end
 	for i, v in { line.eliminations, line.deaths, line.assists, line.dealt } do
 		local stat = body:FindFirstChild("Stat" .. i)

@@ -12,6 +12,7 @@ export type Tier = {
 	roles: { [Role]: Look },
 	template: string?, -- the model in ReplicatedStorage.Crates (default TEMPLATE, the big crate)
 	scale: number?, -- the in-world opening's scale (default Config/CaseOpening.SCALE)
+	bag: boolean?, -- a goodie bag (Util/BagOpening: it drops, wobbles, the tie pops and one prize rises out)
 	pack: boolean?, -- a card pack (Util/PackOpening: it floats in front of your camera and rips open), not a crate
 	blindBox: boolean?, -- a collector charm blind box (Util/BlindBoxOpening: hops, flips lid open, swings 3D charm)
 }
@@ -150,6 +151,22 @@ local TIERS: { [number]: Tier } = {
 			Light = look("3FE0F2", Enum.Material.Neon),
 			Gem = look("3FE0F2", Enum.Material.Neon),
 			Interior = look("06070A"),
+		},
+	},
+	-- the Season 1 goodie bag (owner 2026-11-27; tools/blender/crates/build_goodie_bag.py): Arcade purple with a gold tie
+	[10] = {
+		name = "Goodie Bag",
+		template = "GoodieBag",
+		bag = true,
+		scale = 2.0,
+		accent = Color3.fromHex("D6339C"),
+		roles = {
+			Body = look("2C1650"),
+			Frame = look("47297C"),
+			Hardware = look("FFC83D"),
+			Light = look("3FE0F2", Enum.Material.Neon),
+			Gem = look("F03CA8", Enum.Material.Neon),
+			Interior = look("140A24"),
 		},
 	},
 }

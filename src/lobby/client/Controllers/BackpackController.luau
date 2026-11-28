@@ -34,6 +34,7 @@ local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
 local CaseOpening = require(script.Parent.Parent.Util.CaseOpening)
+local PrizeArt = require(script.Parent.Parent.Util.PrizeArt)
 local ShopRewardFx = require(script.Parent.Parent.Util.ShopRewardFx)
 local LobbyHud = require(script.Parent.LobbyHud)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -250,15 +251,17 @@ function BackpackController.init()
 		tierId: string?,
 		name: string,
 		power: string?,
-		charm: string?
+		charm: string?,
+		loot: string? -- a goodie bag prize's picture (coins, Tickets, a Backpack item)
 	)
 		local tier = Skins.TIERS[(tierId or "Common") :: any] or Skins.TIERS.Common
 		local art = child(reveal, "Art") :: ImageLabel
 		local emblem = child(reveal, "Emblem") :: ImageLabel
 		CharmThumbnail.clear(art)
 		-- the square portrait, like the case card; a power shows its card art, a charm mounts 3D
-		local pic = if charm
-			then nil
+		local pic = if loot
+			then loot
+			elseif charm then nil
 			elseif power then Theme.CARD_ART[power]
 			else SkinArt.portrait(gun, line)
 		art.Image = pic or ""
@@ -451,7 +454,7 @@ function BackpackController.init()
 		end
 		local anySkin = false
 		for _, r in revealed do
-			anySkin = anySkin or (r.power == nil and r.charm == nil)
+			anySkin = anySkin or (r.power == nil and r.charm == nil and not PrizeArt.isLoot(r))
 		end
 		equipAll.Visible = many and anySkin
 		equipButton.Size, equipAll.Size, doneButton.Size = buttonSize, buttonSize, buttonSize
@@ -499,6 +502,10 @@ function BackpackController.init()
 				PowerCardFace.thumb(art, nil)
 				CharmThumbnail.mount(art, r.charm)
 				art.ImageTransparency = 0
+			elseif PrizeArt.isLoot(r) then
+				art.Image = PrizeArt.image(r) or ""
+				PowerCardFace.thumb(art, nil)
+				art.ImageTransparency = if current then 0 else 0.25
 			else
 				art.Image = SkinArt.portrait(r.gun, r.line) or ""
 				PowerCardFace.thumb(art, r.power)
@@ -533,10 +540,22 @@ function BackpackController.init()
 			drawHaul()
 			return
 		end
-		fillReveal(result.gun, result.line, result.tier, result.name, result.power, result.charm)
+		local loot = PrizeArt.isLoot(result)
+		fillReveal(
+			result.gun,
+			result.line,
+			result.tier,
+			result.name,
+			result.power,
+			result.charm,
+			if loot then PrizeArt.image(result) else nil
+		)
 		local tier = Skins.TIERS[(result.tier or "Common") :: any] or Skins.TIERS.Common
-		local word = if result.charm
-			then (if (result.copies or 1) > 1 then `CHARM  ·  ×{result.copies}` else "NEW CHARM")
+		local word = if loot
+			then PrizeArt.kicker(result)
+			elseif result.charm then (if (result.copies or 1) > 1
+				then `CHARM  ·  ×{result.copies}`
+				else "NEW CHARM")
 			elseif result.power then "NEW POWER"
 			else "NEW SKIN"
 		local kicker = reveal:FindFirstChild("Kicker")
@@ -546,7 +565,10 @@ function BackpackController.init()
 		-- a power/charm opens the Locker page for equipping
 		local equipLabel = equipButton:FindFirstChild("Label")
 		if equipLabel and equipLabel:IsA("TextLabel") then
-			equipLabel.Text = if result.power or result.charm then "SEE IN LOCKER" else "EQUIP"
+			equipLabel.Text = if loot
+				then "COLLECT"
+				elseif result.power or result.charm then "SEE IN LOCKER"
+				else "EQUIP"
 		end
 		local edge = reveal:FindFirstChild("RevealEdge")
 		if not (edge and edge:IsA("UIStroke")) then
@@ -613,6 +635,10 @@ function BackpackController.init()
 	LobbyKit.button(equipButton, function()
 		UiSfx.cue("Confirm")
 		local result = revealed[revealIndex]
+		if result and PrizeArt.isLoot(result) then
+			nextResult() -- coins and Tickets are already in the wallet, an item in the Backpack
+			return
+		end
 		if result and result.power then
 			Router.open("Locker", "powers")
 			return
@@ -645,7 +671,7 @@ function BackpackController.init()
 		local byGun: { [string]: LobbyNet.CaseReward } = {}
 		local guns = 0
 		for _, r in revealed do
-			if r.power or r.charm then
+			if r.power or r.charm or PrizeArt.isLoot(r) then
 				continue -- powers & charms aren't batch-equipped here
 			end
 			if not byGun[r.gun] then

@@ -40,6 +40,7 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
 ---
 
 ## A. Name tags above heads in the lobby
+**Done 2026-11-27** (`Controllers/NameTagController`, template `UI.Templates.Lobby.NameTag`): Studio-tested with a title, streak and level, hidden in matches, back after a match respawn. Not yet checked with 2+ real players (Local Server) or by the owner.
 **Goal (owner 2026-11-27):** RIVALS-style tags above every player in the lobby showing **level**, **equipped title**, and **win streak** when they have one.
 - **Data, all already published on every player:**
   - `StateValues` `Level`, `WinStreak` and `Title` (the title text; `""` = none).
@@ -60,6 +61,7 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
   - The owner OKs a screenshot.
 
 ## B. Titles on the match scoreboard and end screen
+**Done 2026-11-27** (`Util/PlayerTags.title`, `ScoreboardController`, `Util/MatchEndScreen` rows + cards): checked in a quick 1v1 bot match (scoreboard "CHARLIE SEASON 1 LV 2", end board row; the bot shows none). Phone size not checked.
 **Goal:** the equipped title shows next to names in matches.
 - **Data:**
   - Match servers run `PlayerDataService` too, so `StateValues` `Title` is on every player in a match; use `PlayerData.title(player)`.
@@ -93,6 +95,7 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
 - **Done when:** a player who hasn't claimed them never sees them in a draft; both pass the three passes in a bot match; and the owner OKs the feel.
 
 ## E. Goodie bags
+**Done 2026-11-27** with the owner's new contents (coins most, Tickets, then a Strike Box, a SURGE pack, a Standard Case, rarest an Arcade skin): `Config/GoodieBags`, `Lobby/GoodieBags`, item `CaseGoodieBag`, crate look `[10]`, `Util/BagOpening`, `Util/PrizeArt`, odds in `Util/OddsList`. Opened x1 and x3 in Studio, double-open safe (same `openCase` write).
 **Owner answers (2026-11-27):**
 - **Odds, most common first:** coins, then a **charm pack** (less rare), then a **case** (rare), then a random-gun **Arcade skin** (rarest). Working odds, tune in config: coins 60% (300-800), charm pack 25%, Standard Case 10%, Arcade skin 5%.
 - **Count and placement as proposed:** 3 bags, replacing premium 2 Tickets (tier 14), free Standard Case (tier 18) and premium Elite Case (tier 19).

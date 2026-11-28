@@ -1,0 +1,72 @@
+{
+  "version": "v03",
+  "parts": {
+    "Sack_Body": {
+      "tris": 296,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Sack_Frame": {
+      "tris": 92,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Sack_Light": {
+      "tris": 184,
+      "non_manifold": 0,
+      "islands": 2,
+      "smooth": 0
+    },
+    "Sack_Interior": {
+      "tris": 36,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Top_Frame": {
+      "tris": 460,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Top_Interior": {
+      "tris": 60,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Top_Hardware": {
+      "tris": 1256,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Top_Gem": {
+      "tris": 116,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    }
+  },
+  "tris": 2500,
+  "scale": 1.0526315789473684,
+  "pivots_blender": {
+    "Sack": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Top": [
+      0.0,
+      0.0,
+      1.221052646636963
+    ]
+  },
+  "coplanar_pairs": 0,
+  "coplanar_sample": [],
+  "subdiv_modifiers": 0,
+  "height": 1.5986,
+  "min_z": 0.0
+}

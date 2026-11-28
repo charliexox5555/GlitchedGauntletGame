@@ -58,6 +58,10 @@ export type CaseReward = {
 	power: string?,
 	charm: string?,
 	copies: number?,
+	-- a goodie bag's prize (Lobby/GoodieBags): coins or Tickets paid, or the Backpack item it added
+	coins: number?,
+	tickets: number?,
+	item: string?,
 }
 
 export type ShopEventPayload = {

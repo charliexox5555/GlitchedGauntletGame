@@ -43,7 +43,7 @@ Everything between today and a public Draft Duels launch, in order. It builds on
    - a knife with its own animation.
 
    The biggest item left. Budget it like the Slipframe Epic pass ×2.
-3. **Pass leftovers from the build handoff:**
+3. **Pass leftovers from the build handoff** (name tags, match titles and goodie bags done 2026-11-27):
    - name tags (A);
    - match scoreboard and end-screen titles (B);
    - goodie bags (E: 3 bags, odds 60 / 25 / 10 / 5, odds shown);
@@ -56,7 +56,7 @@ Everything between today and a public Draft Duels launch, in order. It builds on
    - a one-time shine on claimable tiles;
    - the reel on the detail view;
    - art for TITLE rewards (a title plate) and for unbuilt powers;
-   - **fix the Shop's pass card, which is cut off past the right edge** of the Home tab at 1920 px (found 2026-11-27).
+   - ~~fix the Shop's pass card, cut off past the right edge~~: done 2026-11-27 (Shop Home layout v3: cases 2 x 2 + the pass card).
 5. **Charm follow-ups [C]:** check the Charms handoff's empty Results section against what is installed, and fill it in.
 6. **The other Rare lines [C, optional for launch]:** rebuild Kilnlock and Stacklight to the Arcade standard (Blender already exists, needs the rebuild and gates). Not needed for launch. Good case content for week 2.
 

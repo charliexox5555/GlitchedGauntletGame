@@ -88,6 +88,10 @@ end
 local function power(mod: string, name: string): Reward
 	return { kind = "Mod", name = name, mod = mod, rarity = "Epic" }
 end
+-- a goodie bag (Config/GoodieBags): kept in the Backpack, opened for one prize
+local function bag(): Reward
+	return { kind = "Case", name = "GOODIE BAG", case = "GoodieBag", amount = 1, rarity = "Epic" }
+end
 local function title(text: string): Reward
 	return { kind = "Title", name = text, title = text, rarity = "Legendary" }
 end
@@ -109,12 +113,12 @@ SeasonCatalog.TIERS = {
 	{ free = nil, premium = coins(750) },
 	{ free = coins(300), premium = charm("GameCartridge", "GAME CARTRIDGE", "Epic") },
 	{ free = nil, premium = skin(ARCADE, "Rare") },
-	{ free = nil, premium = tickets(2) },
+	{ free = nil, premium = bag() }, -- goodie bag (owner 2026-11-27, was 2 Tickets)
 	{ free = skin(ARCADE, "Rare"), premium = skin(FROSTBITE, "Legendary") }, -- 15
 	{ free = nil, premium = coins(900) },
 	{ free = nil, premium = charm("SnowflakeShard", "SNOWFLAKE SHARD", "Rare") },
-	{ free = case("Standard"), premium = skin(ARCADE, "Rare") },
-	{ free = nil, premium = case("Elite") },
+	{ free = bag(), premium = skin(ARCADE, "Rare") }, -- goodie bag (was a Standard Case)
+	{ free = nil, premium = bag() }, -- goodie bag (was an Elite Case)
 	{ free = coins(400), premium = power("ElectricShock", "ELECTRIC SHOCK") }, -- 20
 	{ free = nil, premium = skin(ARCADE, "Rare") },
 	{ free = tickets(1), premium = coins(1000) },

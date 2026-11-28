@@ -51,6 +51,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Launch Hardening 2026-11-27.md`: last pass before the battle pass (loading, bots, onboarding redo, phone/controller UI, economy, full code audit); workstreams and done criteria
 - `05 Production/Handoff - Charms 2026-11-27.md`: charm decisions (one charm per gun, all 14 guns + skins), checked facts (CharmPoint on every gun), open questions; paste-in prompt `04 Tech/Prompts/2026-11-27 Charms (Antigravity).md` (model in Blender, attach, swing, VFX, Locker equip, pass, tests)
 - `02 Art/Skins/Arcade and Frostbite Handoff.md`: Season 1 pass skin lines for a new Opus chat: Arcade Havoc first for approval, then the rest; owner questions (Frostbite gun count, concept sheet or straight to Blender)
+- `02 Art/Goodie Bag.md` (3): Season 1 goodie bag model: versions v01-v03, grade 9/10, parts and role names, asset ids, opening and odds
 - `02 Art/Skins/Arcade/Build Ledger.md` (8): Arcade line build ledger: palette, scripts, Havoc v01-v07 checks, Studio install, first-person effects and tests
 - `02 Art/Skins/Arcade/Gun Brief.md` (6): per-gun brief for the other 13 Arcade guns (order, method, line language, flat_group names, gates, self-grade), Blender only
 - `05 Production/Handoff - Battle Pass Build 2026-11-27.md`: briefs for the rest of the pass build, for another AI (name tags, match titles, charms, powers, goodie bags, phone/CLAIM ALL/Shop card, art, season end + launch), shared rules, owner questions

@@ -21,6 +21,8 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local PowerCases = require(ReplicatedStorage.Shared.PowerCases)
 local CharmCases = require(ReplicatedStorage.Shared.CharmCases)
+local GoodieBags = require(ReplicatedStorage.Lobby.GoodieBags)
+local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -692,6 +694,68 @@ local function renderCharms(list: ScrollingFrame, caseId: string, charms: Player
 	end
 end
 
+-- a goodie bag (Config/GoodieBags): one row per prize with its chance; amounts where it pays coins or Tickets
+local function renderBag(list: ScrollingFrame, caseId: string)
+	for _, c in list:GetChildren() do
+		if c:IsA("Frame") then
+			c:Destroy()
+		end
+	end
+	local bag = GoodieBags.bag(caseId)
+	if not bag then
+		return
+	end
+	local template = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("ShopOddsRow") :: Frame
+	local odds = GoodieBags.odds(caseId)
+	local head = template:Clone()
+	head.Name = "Section_Bag"
+	head.LayoutOrder = 0
+	head.BackgroundTransparency = 1;
+	(child(head, "Cell") :: Frame).Visible = false
+	local hn = child(head, "Name") :: TextLabel
+	hn.Text = "ONE PRIZE PER BAG"
+	hn.TextColor3 = WHITE
+	hn.TextSize = 26
+	shiftX(hn, -66)
+	local hs = child(head, "Sub") :: TextLabel
+	hs.Text = "ITEMS GO TO YOUR BACKPACK"
+	shiftX(hs, -66);
+	(child(head, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(100)
+	head.Parent = list
+	for i, p in bag.prizes do
+		local r = template:Clone()
+		r.Name = "Prize_" .. p.id
+		r.LayoutOrder = i
+		local itemDef = p.item and Inventory.ITEMS[p.item]
+		local image = if p.kind == "Coins"
+			then ShopCatalog.ART.coinStack
+			elseif p.kind == "Ticket" then ShopCatalog.ART.ticket
+			elseif itemDef then itemDef.icon
+			elseif p.kind == "Skin" then Locker.EMBLEMS[p.line or ""]
+			else nil
+		picture(r, image, p.line or p.name);
+		-- a quiet tile behind loot, the line's colour behind the skin
+		(child(r, "Cell") :: Frame).BackgroundColor3 = if p.kind == "Skin"
+			then Locker.COLORS[p.line or ""] or Color3.fromHex("2A2A30")
+			else Color3.fromHex("2A2A30")
+		local rare = (odds[p.id] or 0) < 0.1
+		local color = if p.kind == "Skin"
+			then Locker.COLORS[p.line or ""] or WHITE
+			elseif rare then Color3.fromHex("FFC83D")
+			else WHITE
+		local name = child(r, "Name") :: TextLabel
+		name.Text = p.name
+		name.TextColor3 = color
+		local sub = child(r, "Sub") :: TextLabel
+		sub.Text = if p.kind == "Coins" or p.kind == "Ticket"
+			then string.format("%d TO %d", p.min or 1, p.max or p.min or 1)
+			elseif p.kind == "Skin" then "FOR A RANDOM GUN"
+			else "TO OPEN IN YOUR BACKPACK";
+		(child(r, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds((odds[p.id] or 0) * 100)
+		r.Parent = list
+	end
+end
+
 function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextLabel)
 	local cleanup = subscriptions[list]
 	if cleanup then
@@ -704,6 +768,12 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 		if not PlayerData.ready(player) then
 			note.Text = "Loading your case odds…"
 			render(list, {}, expanded)
+			return
+		end
+		if GoodieBags.isBag(case.id) then
+			note.Text =
+				"One prize per bag. A skin goes to a random gun you own without it, else one you can unlock."
+			renderBag(list, case.id)
 			return
 		end
 		if PowerCases.isPowerCase(case.id) then

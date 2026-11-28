@@ -32,6 +32,7 @@ export type RowData = {
 	stats: { number }, -- eliminations, deaths, assists, damage
 	mine: boolean,
 	mvp: boolean,
+	title: string?, -- the player's equipped title (gold, after the name); bots have none
 }
 
 export type Round = { won: boolean, draw: boolean, tier: string }
@@ -58,6 +59,7 @@ export type CardData = {
 	ally: boolean,
 	lead: boolean,
 	mvp: boolean,
+	title: string?, -- the equipped title, after the name on the card
 	eliminations: number,
 	deaths: number,
 	assists: number,
@@ -103,6 +105,11 @@ type State = {
 local state: State? = nil
 
 local tween = UiMotion.tween
+
+-- text safe inside RichText
+local function escapeRich(text: string): string
+	return (string.gsub(string.gsub(string.gsub(text, "&", "&amp;"), "<", "&lt;"), ">", "&gt;"))
+end
 
 local function child<T>(parent: Instance, name: string): T
 	return UiWait.child(parent, name) :: T -- a timeout and a clear error, not a hang (code audit 2026-11-27)
@@ -225,6 +232,17 @@ local function row(s: State, order: number, r: RowData): Frame
 	shard.Visible = r.mvp
 	local mvp = child(line, "Mvp") :: TextLabel
 	mvp.Visible = r.mvp
+	-- the equipped title in gold right after the name (Handoff - Battle Pass Build, B): the MVP word's style
+	if r.title then
+		local title = mvp:Clone()
+		title.Name = "Title"
+		title.Text = r.title
+		title.Visible = true
+		title.LayoutOrder = 2
+		shard.LayoutOrder = 3
+		mvp.LayoutOrder = 4
+		title.Parent = line
+	end
 	for i, v in r.stats do
 		local stat = body:FindFirstChild("Stat" .. i)
 		if stat and stat:IsA("TextLabel") then
@@ -728,6 +746,16 @@ function MatchEndScreen.cards(list: { CardData })
 		cap.ImageColor3 = color
 		local nameLabel = child(team, "Name") :: TextLabel
 		nameLabel.Text = string.upper(d.name)
+		if d.title then
+			-- the title after the name, smaller, in the card's ink
+			nameLabel.RichText = true
+			nameLabel.Text = string.format(
+				'%s  <font size="%d" transparency="0.3">%s</font>',
+				escapeRich(string.upper(d.name)),
+				math.max(10, nameLabel.TextSize - 6),
+				escapeRich(d.title)
+			)
+		end
 		local portrait = child(team, "Portrait") :: ImageLabel
 		portrait.Image = d.portrait
 		local stats = child(body, "Stats") :: Frame

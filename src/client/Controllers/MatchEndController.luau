@@ -12,6 +12,7 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
@@ -32,6 +33,12 @@ local WeaponController = require(script.Parent.WeaponController)
 local MatchEndScreen = require(script.Parent.Parent.Util.MatchEndScreen)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 local WinCutscene = require(script.Parent.Parent.Util.WinCutscene)
+
+-- a player's equipped title (Shared/PlayerData.title); bots and players who left have none
+local function titleOf(userId: number?): string?
+	local who = if userId then Players:GetPlayerByUserId(userId) else nil
+	return if who then PlayerData.title(who) else nil
+end
 
 local MatchEndController = {}
 
@@ -183,6 +190,7 @@ local function screenData(results: Results): MatchEndScreen.Data
 			stats = { line.eliminations, line.deaths, line.assists, line.dealt },
 			mine = line.id == me,
 			mvp = line.mvp == true,
+			title = titleOf(line.userId),
 		}
 		table.insert(if ally then allies else enemies, row)
 	end
@@ -250,6 +258,7 @@ local function cardOf(
 		ally = ally,
 		lead = lead,
 		mvp = line ~= nil and line.mvp == true,
+		title = if owner then PlayerData.title(owner) else nil,
 		eliminations = if line then line.eliminations else 0,
 		deaths = if line then line.deaths else 0,
 		assists = if line then line.assists else 0,

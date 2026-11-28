@@ -41,6 +41,7 @@ local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local PowerCases = require(ReplicatedStorage.Shared.PowerCases)
 local CharmCases = require(ReplicatedStorage.Shared.CharmCases)
+local GoodieBags = require(ReplicatedStorage.Lobby.GoodieBags)
 local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local Mods = require(ReplicatedStorage.Shared.Mods)
@@ -324,7 +325,7 @@ function ShopService.showOpening(
 		end
 	end
 	for _, reward in rewards do
-		if not reward.power and not reward.charm then -- a power/charm uses client templates directly
+		if reward.gun ~= "" and not reward.power and not reward.charm then -- a power/charm/bag prize needs no skin model
 			SkinStoreService.sendTo(viewers, reward.gun, reward.line)
 		end
 	end
@@ -386,6 +387,22 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 		local rng = Random.new(seed)
 		local before = data.tickets
 		for _ = 1, count do
+			if GoodieBags.isBag(caseId) then
+				-- a goodie bag: one prize (coins, Tickets, a Backpack item or a random-gun skin), paid here
+				local won = GoodieBags.open(data, caseId, rng)
+				if won then
+					table.insert(rewards, {
+						gun = won.gun or "",
+						line = won.line or "",
+						tier = if won.kind == "Skin" then "Rare" else won.prize,
+						name = won.name,
+						coins = if won.kind == "Coins" then won.amount else nil,
+						tickets = if won.kind == "Ticket" then won.amount else nil,
+						item = won.item,
+					})
+				end
+				continue
+			end
 			if PowerCases.isPowerCase(caseId) then
 				-- a power case: a power they don't own yet, never a duplicate (vault: Power cases)
 				local id = PowerCases.roll(caseId, data.mods, rng)
@@ -463,6 +480,8 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 			Telemetry.event(player, "Power granted", 1, r.power)
 		elseif r.charm then
 			Telemetry.event(player, "Charm granted", 1, r.charm)
+		elseif GoodieBags.isBag(caseId) then
+			Telemetry.event(player, "Goodie bag prize", 1, r.tier)
 		end
 	end
 	if firstOnbOpen then

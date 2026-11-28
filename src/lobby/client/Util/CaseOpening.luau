@@ -32,6 +32,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local Vfx = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ItemStage = require(script.Parent.ItemStage)
+local BagOpening = require(script.Parent.BagOpening)
 local PackOpening = require(script.Parent.PackOpening)
 local BlindBoxOpening = require(script.Parent.BlindBoxOpening)
 local PowerCardFace = require(script.Parent.PowerCardFace)
@@ -1216,6 +1217,9 @@ function CaseOpening.start(
 	local tierDef = Crates.TIERS[crateTier]
 	if tierDef and tierDef.blindBox then
 		return BlindBoxOpening.start(owner, crateTier, isLocal, count) :: any
+	end
+	if tierDef and tierDef.bag then
+		return BagOpening.start(owner, crateTier, isLocal, count) :: any
 	end
 	if tierDef and tierDef.pack then
 		-- a card pack (the SURGE power pack): it floats at the opener and rips open (Util/PackOpening)

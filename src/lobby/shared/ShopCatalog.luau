@@ -143,6 +143,13 @@ ShopCatalog.CASES = {
 		art = "rbxassetid://73906343187873", -- art-source/ui/shop/boxes/box_overdrive.png
 		color = Color3.fromHex("3FE0F2"),
 	},
+	-- battle pass only (Config/GoodieBags): listed so the Backpack can show, open and list its odds; no Shop card
+	{
+		id = "GoodieBag",
+		name = "GOODIE BAG",
+		art = "rbxassetid://111816355783533", -- art-source/ui/shop/bags/bag_season1.png
+		color = Color3.fromHex("D6339C"),
+	},
 } :: { Case }
 
 -- The launch bundles (owner 2026-11-20): two featured skin-line bundles and a

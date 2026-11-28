@@ -63,6 +63,7 @@ local ShopRewardFx = require(script.Parent.Parent.Util.ShopRewardFx)
 local ShopFx = require(ReplicatedStorage.Shared.Config.ShopFx)
 local rewardConfig = ShopFx.reward
 local OfferCarousel = require(script.Parent.Parent.Util.OfferCarousel)
+local ShopPassCard = require(script.Parent.Parent.Util.ShopPassCard)
 local LobbyHud = require(script.Parent.LobbyHud)
 local BackpackController = require(script.Parent.BackpackController)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
@@ -180,6 +181,10 @@ end
 local function soon(what: string)
 	LobbyHud.toast(what .. " opens with the shop economy", "info")
 end
+
+-- Roblox's built-in Robux glyph (private-use U+E002, drawn by every font): the icon sits inside the price text
+-- itself (owner 2026-11-27: "an icon for it ... not an image, but part of the text")
+local ROBUX = utf8.char(0xE002)
 
 local function commas(n: number): string
 	local s = tostring(math.floor(n))
@@ -604,11 +609,18 @@ local function openCasePopup(case: ShopCatalog.Case)
 	r1.Visible = not coinPack and not casesRestricted and one ~= nil
 	r3.Visible = not coinPack and not casesRestricted and three ~= nil
 	buy3.Visible = coinPack
+	-- the Robux mark lives in the price text (ROBUX), so the plates' separate image hides
+	for _, b in { r1, r3 } do
+		local mark = b:FindFirstChild("Robux", true)
+		if mark and mark:IsA("GuiObject") then
+			mark.Visible = false
+		end
+	end
 	if one then
-		setPlate(r1, commas(one.robux))
+		setPlate(r1, ROBUX .. " " .. commas(one.robux))
 	end
 	if three then
-		setPlate(r3, commas(three.robux))
+		setPlate(r3, ROBUX .. " " .. commas(three.robux))
 	end
 	local row: { GuiObject } = {}
 	if coinPack then
@@ -1629,8 +1641,13 @@ local function drawCasePrices()
 			plateAmount(cc.card, commas(Economy.CHARM_BOX.coins))
 			priceIcon(cc.card, "coins")
 		elseif one and not casesRestricted then
-			plateAmount(cc.card, commas(one.robux))
+			plateAmount(cc.card, ROBUX .. " " .. commas(one.robux))
 			priceIcon(cc.card, "robux")
+			-- the glyph in the text is the icon (no separate image on a case card)
+			local coin = cc.card:FindFirstChild("Coin", true)
+			if coin and coin:IsA("GuiObject") then
+				coin.Visible = false
+			end
 		else
 			plateAmount(cc.card, ticketWords(Economy.CASE_TICKETS[cc.case.id] or 0))
 			priceIcon(cc.card, "tickets")
@@ -2480,14 +2497,23 @@ function ShopController.init()
 				end)
 			end
 		end
+		-- the battle pass card sits next to the cases (owner 2026-11-27); before the season opens it says so
 		local passHolder = scroll:FindFirstChild("SeasonPass", true)
-		if passHolder and passHolder:IsA("GuiObject") and not SeasonCatalog.screenOn() then
-			passHolder.Visible = false -- no Battle Pass card this update (shared/Config/Release)
-		end
 		local passCardB = passHolder and passHolder:FindFirstChild("Card")
 		if passCardB and passCardB:IsA("GuiButton") then
+			ShopPassCard.bind(passCardB) -- tier, bar and the next rewards (Util/ShopPassCard)
+			if not SeasonCatalog.screenOn() then
+				local viewLabel = passCardB:FindFirstChild("Label", true)
+				if viewLabel and viewLabel:IsA("TextLabel") then
+					viewLabel.Text = "SOON"
+				end
+			end
 			passCardB.Activated:Connect(function()
-				Router.open("BattlePass")
+				if SeasonCatalog.screenOn() then
+					Router.open("BattlePass")
+				else
+					LobbyHud.toast("The battle pass opens with Season 1", "info")
+				end
 			end)
 		end
 		local offer = pages.Home:FindFirstChild("Offer", true)
@@ -2604,13 +2630,14 @@ function ShopController.init()
 			soonOn(n, "Buying cosmetics")
 		end
 		local passCard = scroll:FindFirstChild("SeasonPass", true)
-		if passCard and passCard:IsA("GuiObject") and not SeasonCatalog.screenOn() then
-			passCard.Visible = false -- no Battle Pass card this update (shared/Config/Release)
-		end
 		local view = passCard and passCard:FindFirstChild("View", true)
 		if view and view:IsA("GuiButton") then
 			view.Activated:Connect(function()
-				Router.open("BattlePass")
+				if SeasonCatalog.screenOn() then
+					Router.open("BattlePass")
+				else
+					LobbyHud.toast("The battle pass opens with Season 1", "info")
+				end
 			end)
 		end
 		hookLogin()

@@ -131,6 +131,8 @@ end
 local function rewardDesc(r: SeasonCatalog.Reward): string
 	if r.kind == "Coins" then
 		return "COINS FOR THE SHOP"
+	elseif r.kind == "Case" and r.case == "GoodieBag" then
+		return "ONE PRIZE: COINS, TICKETS, A BOX, A PACK, A CASE OR A SKIN"
 	elseif r.kind == "Case" then
 		return "x1 CASE  ·  SEE ITS CONTENTS FOR THE ODDS"
 	elseif r.kind == "Skin" and not r.gun then

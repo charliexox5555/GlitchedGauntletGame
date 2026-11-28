@@ -7,9 +7,11 @@
 --
 --   PlayerTags.level(parent, fighter?, size, z?, savedLevel?) -> Frame "LevelTag"
 --   PlayerTags.device(parent, fighter?, size, z?)  -> ImageLabel "DeviceTag"
+--   PlayerTags.title(parent, player?, size, z?)    -> TextLabel "TitleTag" (gold; hidden with no title, bots)
 -- `z` sets the ZIndex (screens with Global ZIndex need it).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Config = require(ReplicatedStorage.Shared.Config.PlayerTags)
@@ -20,6 +22,8 @@ local RUBIK = "rbxassetid://12187365977"
 local HEAVY = Font.new(RUBIK, Enum.FontWeight.Heavy)
 local PLATE = Color3.fromHex("141418")
 local WHITE = Color3.new(1, 1, 1)
+local GOLD = Color3.fromHex("FFC83D") -- titles (Style Bible: gold = the flex; LobbyHudView TITLE_GOLD)
+local TITLE_CHARS = 16 -- longer titles end in "..." so a row never grows
 
 local function follow(obj: Instance, player: Instance, attribute: string, apply: () -> ())
 	apply()
@@ -77,6 +81,39 @@ function PlayerTags.level(
 	end
 	chip.Parent = parent
 	return chip
+end
+
+-- The equipped title (Shared/PlayerData.title) as a small gold word after the name, following the
+-- "Title" StateValue live. A bot, a player who left, or no title: hidden.
+function PlayerTags.title(parent: Instance, who: Player?, size: number, z: number?): TextLabel
+	local text = Instance.new("TextLabel")
+	text.Name = "TitleTag"
+	text.BackgroundTransparency = 1
+	text.AutomaticSize = Enum.AutomaticSize.X
+	text.Size = UDim2.fromOffset(0, size + 4)
+	text.FontFace = HEAVY
+	text.TextSize = size
+	text.TextColor3 = GOLD
+	text.Visible = false
+	if z then
+		text.ZIndex = z
+	end
+	if who then
+		follow(text, who, "Title", function()
+			local title = PlayerData.title(who)
+			if title and utf8.len(title) and (utf8.len(title) :: number) > TITLE_CHARS then
+				title = string.sub(
+					title,
+					1,
+					(utf8.offset(title, TITLE_CHARS) or (TITLE_CHARS + 1)) - 1
+				) .. "..."
+			end
+			text.Text = title or ""
+			text.Visible = title ~= nil
+		end)
+	end
+	text.Parent = parent
+	return text
 end
 
 -- Matches the existing player headshot format. A bot's portrait account

@@ -309,3 +309,9 @@ Everything sits in `Shop.Canvas.Scroll` (UIListLayout, 1340 wide; pages 1280 wid
 ## Weapon showcase (2026-11-23)
 
 The existing bundle-detail ViewportFrame uses brighter front lighting. Tempest-Strike gets cool fill and cyan water ribbons. Ruin-Blighted gets a warm key and mint shards. The shared `WeaponShowcase` module builds these accents from lightweight geometry to fit ViewportFrame rendering. It pulses the skin's existing emissive details and leaves only a steady accent with reduced motion. The active preview swaps in the skin when `SkinStore` delivers it. Card and item strip art still use the existing renders. Owner playtest pending. [ViewportFrame rendering](https://create.roblox.com/docs/reference/engine/classes/ViewportFrame)
+
+## Home layout v3 (2026-11-27, owner: "like it was before")
+- **Top row:** CASES (Standard, Elite, Apex, Knife) as the 2 x 2 again (the launch `LaunchSize` attributes on `Top`, `Cases`, the grid and `Offer` are cleared) and **BATTLE PASS** to the right (824 x 432). The pass card is always there: `Util/ShopPassCard` fills `Sub` (season and tier, or COMING SOON before the season), a gold `Progress.Fill` bar to the next tier, and `Rewards.Tile1-4` (the next four rewards with art; premium tiers gold, free grey). Tapping it before the season toasts "opens with Season 1".
+- **Bottom row:** BUNDLES (the existing bundle carousel `Offer`, 616 x 260) and **FOR COINS** (`Mid.CoinShop`, 640 x 260): the SURGE power pack, Strike Box and Overdrive Box cards moved in from the old POWERS and CHARM BOXES rows (those rows are gone). `Mid.Cosmetics` stays FullOnly.
+- **Robux prices:** case cards and the case popup buttons show the Robux glyph inside the price text (`utf8.char(0xE002)`, `ShopController` ROBUX), not a separate image. Bundles keep their image icon.
+- Backup of the Shop before this: `ServerStorage.UiBackups.Shop_2026-11-27`. Checked in Studio play at 2178 x 1002. Not checked: phone, gamepad focus.

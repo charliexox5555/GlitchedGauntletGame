@@ -102,6 +102,16 @@ local ITEMS: { [string]: ItemDef } = {
 		maxStack = 999,
 		icon = "rbxassetid://73906343187873", -- art-source/ui/shop/boxes/box_overdrive.png
 	},
+	-- a battle pass goodie bag (Config/GoodieBags, owner 2026-11-27): one prize, mostly coins; pass only (not sold)
+	CaseGoodieBag = {
+		id = "CaseGoodieBag",
+		kind = "Case",
+		name = "GOODIE BAG",
+		tier = 10, -- Config/Crates [10]: the goodie bag (Util/BagOpening)
+		case = "GoodieBag",
+		maxStack = 99,
+		icon = "rbxassetid://111816355783533", -- art-source/ui/shop/bags/bag_season1.png (decal 130134893356594)
+	},
 }
 
 -- the item each Shop case puts in the inventory
