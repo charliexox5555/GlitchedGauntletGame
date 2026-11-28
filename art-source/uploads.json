@@ -2873,6 +2873,12 @@
   "type": "Model",
   "uploaded": "2026-11-12 22:46:12"
  },
+ "art-source/lobby/Exports/CharmBox.fbx": {
+  "assetId": 72211581809363,
+  "name": "GG Charm Blind Box",
+  "type": "Model",
+  "uploaded": "2026-11-27 17:12:17"
+ },
  "art-source/lobby/V5_LoadoutTerminal.fbx": {
   "assetId": 103199802564419,
   "name": "GG Range Loadout Terminal v3",
@@ -8235,6 +8241,18 @@
   "type": "Decal",
   "uploaded": "2026-11-03 23:21:30"
  },
+ "art-source/ui/shop/boxes/box_overdrive.png": {
+  "assetId": 99965508707703,
+  "name": "GG Overdrive Charm Box Icon",
+  "type": "Decal",
+  "uploaded": "2026-11-27 17:12:23"
+ },
+ "art-source/ui/shop/boxes/box_strike.png": {
+  "assetId": 135015888155666,
+  "name": "GG Strike Charm Box Icon",
+  "type": "Decal",
+  "uploaded": "2026-11-27 17:12:20"
+ },
  "art-source/ui/shop/crates/crate_apex_card.png": {
   "assetId": 118004991757248,
   "name": "GG UI Shop crate card apex",
@@ -9034,11 +9052,95 @@
   "type": "Model",
   "uploaded": "2026-11-12 01:46:57"
  },
+ "art-source/weapons/Skins/Arcade/Bucky/v02x/Bucky_Arcade_RobloxFlat.fbx": {
+  "assetId": 131828992394762,
+  "name": "GG Arcade Bucky v02x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:47:33"
+ },
+ "art-source/weapons/Skins/Arcade/Bulldog/v03x/Bulldog_Arcade_RobloxFlat.fbx": {
+  "assetId": 125698388063660,
+  "name": "GG Arcade Bulldog v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:46:33"
+ },
+ "art-source/weapons/Skins/Arcade/Classic/v03x/Classic_Arcade_RobloxFlat.fbx": {
+  "assetId": 80931021686474,
+  "name": "GG Arcade Classic v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:47:55"
+ },
+ "art-source/weapons/Skins/Arcade/Ghost/v03x/Ghost_Arcade_RobloxFlat.fbx": {
+  "assetId": 129632228652851,
+  "name": "GG Arcade Ghost v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:48:39"
+ },
+ "art-source/weapons/Skins/Arcade/Guardian/v03x/Guardian_Arcade_RobloxFlat.fbx": {
+  "assetId": 118478035525752,
+  "name": "GG Arcade Guardian v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:46:22"
+ },
+ "art-source/weapons/Skins/Arcade/Marshal/v04x/Marshal_Arcade_RobloxFlat.fbx": {
+  "assetId": 130992152671215,
+  "name": "GG Arcade Marshal v04x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:47:17"
+ },
+ "art-source/weapons/Skins/Arcade/Odin/v03x/Odin_Arcade_RobloxFlat.fbx": {
+  "assetId": 86448263980386,
+  "name": "GG Arcade Odin v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:46:50"
+ },
+ "art-source/weapons/Skins/Arcade/Operator/v03x/Operator_Arcade_RobloxFlat.fbx": {
+  "assetId": 128517010185291,
+  "name": "GG Arcade Operator v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:47:01"
+ },
+ "art-source/weapons/Skins/Arcade/Phantom/v05x/Phantom_Arcade_RobloxFlat.fbx": {
+  "assetId": 140711719229902,
+  "name": "GG Arcade Phantom v05x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:45:55"
+ },
+ "art-source/weapons/Skins/Arcade/Sheriff/v03x/Sheriff_Arcade_RobloxFlat.fbx": {
+  "assetId": 78921864577029,
+  "name": "GG Arcade Sheriff v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:48:11"
+ },
+ "art-source/weapons/Skins/Arcade/Shorty/v03x/Shorty_Arcade_RobloxFlat.fbx": {
+  "assetId": 83929323541644,
+  "name": "GG Arcade Shorty v03x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:48:28"
+ },
+ "art-source/weapons/Skins/Arcade/Spectre/v07x/Spectre_Arcade_RobloxFlat.fbx": {
+  "assetId": 117022017898506,
+  "name": "GG Arcade Spectre v07x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:46:06"
+ },
+ "art-source/weapons/Skins/Arcade/Stinger/v04x/Stinger_Arcade_RobloxFlat.fbx": {
+  "assetId": 93826700988080,
+  "name": "GG Arcade Stinger v04x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:47:44"
+ },
  "art-source/weapons/Skins/Arcade/Vandal/v07x/Vandal_Arcade_RobloxFlat.fbx": {
   "assetId": 122087200971885,
   "name": "GG Arcade Vandal v07x",
   "type": "Model",
   "uploaded": "2026-11-27 15:22:06"
+ },
+ "art-source/weapons/Skins/Arcade/Vandal/v08x/Vandal_Arcade_RobloxFlat.fbx": {
+  "assetId": 76510125410456,
+  "name": "GG Arcade Vandal v08x",
+  "type": "Model",
+  "uploaded": "2026-11-27 18:45:44"
  },
  "art-source/weapons/Skins/Giltfold/Classic/v02/Classic_Giltfold_RobloxFlat.fbx": {
   "assetId": 90119117859435,

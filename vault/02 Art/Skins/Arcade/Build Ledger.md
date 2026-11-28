@@ -182,7 +182,30 @@ Four guns were built in parallel in separate Blender instances (MCP 9876 and soc
 | Shorty | v03 | 3,802 (2,734) | [sheet](out/Shorty_v03_review.png), [ledger](ledger/Shorty.md) | **moved charm ring kept**; twin-bore muzzle block |
 | Ghost (Hush) | v03 | 3,830 (2,964) | [sheet](out/Ghost_v03_review.png), [ledger](ledger/Ghost.md) | pixel ghost swapped for the line's star and trail |
 
-**When Studio is free:**
+**Installed (2026-11-27, place 71551303511506):**
+- **Assets and rows:** all 14 are in `ServerStorage.WeaponSkins.Arcade`, tagged with LobbySkins AssetData rows 265 (Vandal, now v08x) and 266–278.
+- **Asset ids** (group models):
+
+| Gun | Asset | Gun | Asset |
+|---|---|---|---|
+| Vandal | 76510125410456 | Phantom | 140711719229902 |
+| Spectre | 117022017898506 | Guardian | 118478035525752 |
+| Bulldog | 125698388063660 | Odin | 86448263980386 |
+| Operator | 128517010185291 | Marshal | 130992152671215 |
+| Bucky | 131828992394762 | Stinger | 93826700988080 |
+| Classic | 80931021686474 | Sheriff | 78921864577029 |
+| Shorty | 83929323541644 | Ghost | 129632228652851 |
+
+- **Kept stock parts:** the Odin, Classic and Shorty keep the owner's moved `CharmLoop` parts. The scoped guns keep their `ScopeLens`. The Bulldog keeps its Studio-only `GG_Bulldog_FrontSightSeat`.
+- **Effects:** `Config/Arcade` has a profile for every gun (each gun's screen pixel size).
+- **Tests** (Studio Play):
+  - `SkinStore.has` holds on all 14.
+  - The Locker lists Arcade on all 14.
+  - No Arcade pair is in the case pools.
+  - In the Range, both the Hornet and the Classic load all 12 AR parts and 5 motors, and the buttons cycle on shots; the Classic inspect was checked on screen.
+  - No console errors.
+
+**Install steps (for reference):**
 1. **Upload and install.** Upload each `vNNx/<Gun>_Arcade_RobloxFlat.fbx`. Run `make_flat_install_jobs.py --version vNNx` per gun (versions differ, so one job file per version) and run `InstallFlatSkin`.
 2. **Move and tag.** Move each model to `ServerStorage.WeaponSkins.Arcade`, add a `LobbySkins` AssetData row, and tag it.
 3. **Effects.** Add a `Config/Arcade` profile per gun. The flat_group names are the same, so the profile entry is copied from the Vandal (check `pixel` and `bone`).

@@ -25,8 +25,11 @@ export type Profile = {
 	finaleTo: number,
 }
 
-local profiles: { [string]: Profile } = {
-	Vandal = {
+-- Every Arcade gun uses the same flat_group part names on its fixed Root bone
+-- (vault/02 Art/Skins/Arcade/Gun Brief.md); only the screen's pixel size and the shot's
+-- travel differ, from each gun's build script (PX in tools/blender/arcade/<NN>_<gun>.py).
+local function profile(pixel: number, shotTravel: number): Profile
+	return {
 		bone = "Root",
 		buttons = { "SK_Root_ARButton1", "SK_Root_ARButton2", "SK_Root_ARButton3" },
 		ship = "SK_Root_ARScreenShip",
@@ -34,8 +37,8 @@ local profiles: { [string]: Profile } = {
 		stars = "SK_Root_ARScreenStars",
 		blip = "SK_Root_ARScreenBlip",
 		deckLight = "SK_Root_ARDeckLight",
-		pixel = 0.0085,
-		shotTravel = 4,
+		pixel = pixel,
+		shotTravel = shotTravel,
 		pressDepth = 0.006,
 		fireTime = 0.12,
 		seatTime = 0.3,
@@ -46,7 +49,24 @@ local profiles: { [string]: Profile } = {
 		chaseSteps = 9,
 		finaleFrom = 0.62,
 		finaleTo = 0.78,
-	},
+	}
+end
+
+local profiles: { [string]: Profile } = {
+	Vandal = profile(0.0085, 4),
+	Phantom = profile(0.0085, 4),
+	Spectre = profile(0.0085, 4),
+	Guardian = profile(0.0085, 4),
+	Bulldog = profile(0.0085, 4),
+	Odin = profile(0.0085, 4),
+	Operator = profile(0.0115, 4),
+	Marshal = profile(0.0075, 3),
+	Bucky = profile(0.011, 3),
+	Stinger = profile(0.0085, 4),
+	Classic = profile(0.0055, 3),
+	Sheriff = profile(0.0085, 3),
+	Shorty = profile(0.0072, 3),
+	Ghost = profile(0.00484, 3),
 }
 
 return table.freeze(profiles)
