@@ -194,6 +194,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
 - `05 Production/Store Description.md` (4): Roblox store description draft for Draft Duels (built features only), what was left out and why, pre-launch additions
 - `05 Production/Release Plan 2026-11-22.md` (20): release roadmap, 2026-11-23 implementation and Studio checks, and published pilot checklist
+- `05 Production/Release Plan 2026-11-27.md` (8): full pre-release plan: Season 1 content (Smoke, Electric Shock, Frostbite, pass leftovers), launch blockers, devices, store page, soft launch, live ops, new adds
 - `05 Production/Cleanup 2026-11-25.md` (4): skills/memory/context cleanup: what was cut or moved and why (usage counts), what waits on the owner
 - [2026-11-22 Antigravity Audit](05%20Production/Audits/2026-11-22%20Antigravity%20Audit.md) (40): setup status, full 97-skill map, ranked game-quality findings (Studio RIVALS/legacy bloat, monetization compliance, DataStore/race bugs, design drift), ranked usage-waste findings, next 5 actions and open owner questions
 - [Release Roadmap](05%20Production/Release%20Roadmap.md) (26): full pre-release checklist, build dependencies, test matrix and ranked deadline cuts
