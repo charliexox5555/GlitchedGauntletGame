@@ -45,7 +45,10 @@ Builder: `tools/studio/lobby_v5/HubLightingPass.luau` (Edit mode, re-runnable). 
 - **Matches** (`Config/MatchLighting`) set every Lighting property this pass touched and suspend the lobby bloom.
 - **The Range** (`Config/RangeLighting`) also sets every one of those properties. Only the gentler bloom carries into it.
 - **Play check:** the client read exposure −0.30 and bloom 0.35/2.2 in the lobby. The owner's avatar (white outfit) kept its detail in the hub middle and on the Duels deck (`06`, `07`).
-- **Not walked:** the Range round trip in Play (the reasoning above covers it).
+- **Round trips walked in Play solo (2026-11-28, 03:40):**
+  - **Range:** the profile applied (exposure −0.20, HubGrade off). On exit the lobby came back at exposure −0.30, bloom 0.35/2.2, HubGrade on, ColorShift_Top ffe4c6.
+  - **Pad duel** (`PadDuelSolo`, Bay_05_1v1): the map lighting applied (exposure 0.10, Brightness 3, lobby bloom and grade suspended). After the duel ended, the lobby came back at exposure −0.30, bloom 0.35/2.2/20, EnvironmentSpecularScale 0.15, and HubGrade, Sky and Atmosphere back in place.
+  - No fix needed.
 
 ## Result
 - No pale avatar blows out in the hub middle, Duels deck, Shop, Locker or at the Range gate.
