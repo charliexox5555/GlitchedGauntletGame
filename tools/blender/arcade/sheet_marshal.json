@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Cabinet deck: band, joystick, buttons, screen"],
+  ["finish_joystick.png", "Raked deck rear: band, line, pixel trail, joystick"],
+  ["finish_coin_door.png", "Coin door (right), clear of the loading gate"],
+  ["finish_forend_front.png", "Fore-end field, raked front into the band"],
+  ["finish_butt.png", "Cabinet butt: marquee and side art"],
+  ["finish_muzzle.png", "Stepped muzzle sleeve and light ring"],
+  ["culled_deck.png", "Deck rakes into the receiver; nothing in ADS (culled)"],
+  ["culled_muzzle_sight_join.png", "Sleeve collar over the sight ramp (culled)"]
+]
