@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Cabinet deck on the frame's left face"],
+  ["finish_joystick.png", "Deck joystick and three buttons"],
+  ["finish_coin_door.png", "Coin door (right frame recess)"],
+  ["finish_forend_left.png", "Forend art and lit edge trim (Barrels bone)"],
+  ["finish_muzzle.png", "Binocular muzzle block and light ring"],
+  ["finish_muzzle_front.png", "Muzzle bores"],
+  ["culled_muzzle_rear.png", "Muzzle block over barrels, rib and bead (culled)"],
+  ["culled_trigger_left.png", "Trigger guard to frame, no gap (culled)"]
+]
