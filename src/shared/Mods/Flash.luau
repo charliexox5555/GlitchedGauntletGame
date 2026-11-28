@@ -20,6 +20,7 @@
 
 local Projectile = require(script.Parent.Blocks.Projectile)
 local Target = require(script.Parent.Blocks.Target)
+local SmokeBlock = require(script.Parent.Blocks.Smoke)
 local Teams = require(script.Parent.Teams)
 local Types = require(script.Parent.Types)
 
@@ -128,7 +129,8 @@ local function pop(ctx: Types.ServerCtx, at: Vector3)
 		if not head or (head - at).Magnitude > stats.range then
 			continue
 		end
-		if not Flash.reaches(at, head, params, stats.walls or 0) then
+		-- a smoke dome between the pop and their eyes shields them (an inside pop still blinds those inside)
+		if not Flash.reaches(at, head, params, stats.walls or 0) or SmokeBlock.blocks(at, head) then
 			continue
 		end
 		local seconds, strength = Flash.blindFor(stats, head, ctx.lookOf(model), at)

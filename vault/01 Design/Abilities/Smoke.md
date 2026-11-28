@@ -6,6 +6,7 @@ Owner spec 2026-11-26 ([Battle Pass Season 1 Contents](../Battle%20Pass%20Season
 - **Held throw like the Molly:** LMB throws overhand (long), RMB lobs underhand (short). Same flight rules (walls bounce it; it stops on the first floor; drops after 1.3 s in the air).
 - Where it lands it **pops after 0.3 s** into a **big solid smoke dome, 22 studs across (radius 11)**, about a Valorant smoke at our scale, that stands **14 s**: it bursts out over 0.8 s and thins out over its last 1.5 s.
 - **Blocks sight both ways:** you can't see through it, into it or out of it (inside, your screen is solid smoke). **Bullets still pass through.** It also stops **bot vision**, **aim assist** and **auto shoot** through it (`Mods/Blocks/Smoke.blocks`, read by bot `Perception` and `AimAssistController`).
+- **Detection (owner 2026-11-27):** smoke hides anything inside it from an "eye" outside it: Recon dart pulses, the Roller's chase, a Flash pop, the Electric Shock orb's latch, bots and aim assist (`Target.sees` / `Blocks/Smoke.blocks`). An eye **inside** the dome (a dart shot into it, a Roller rolling in, you standing in it) still detects what's inside that same dome. Physical effects (fire, frost, blasts) and bullets go through as before.
 - Lands in the air (still flying after 4 s): it fizzles, no smoke.
 - **1 charge per round**, no recharge. Role **Control**.
 

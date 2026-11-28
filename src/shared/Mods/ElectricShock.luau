@@ -56,7 +56,8 @@ local function latchTarget(
 			continue
 		end
 		local d = reach(model, at)
-		if d <= range and d < bestD and Target.visible(at, model, params) then
+		-- the orb can't find someone through smoke unless it's in that smoke too (Blocks/Smoke)
+		if d <= range and d < bestD and Target.sees(at, model, params) then
 			best, bestD = model, d
 		end
 	end

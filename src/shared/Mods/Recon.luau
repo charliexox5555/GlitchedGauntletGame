@@ -73,7 +73,7 @@ local function pulse(ctx: Types.ServerCtx, dart: BasePart)
 	local params = ctx.worldParams()
 	local seen: { Model } = {}
 	for _, model in Reveal.enemiesNear(ctx.player, at, stats.radius) do
-		if Target.visible(at, model, params) then
+		if Target.sees(at, model, params) then -- not through smoke unless the dart is in it (Blocks/Smoke)
 			table.insert(seen, model)
 		end
 	end

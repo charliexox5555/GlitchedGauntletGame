@@ -73,7 +73,10 @@ function Smoke.centerOf(part: BasePart): Vector3
 	return part.Position
 end
 
--- Does any smoke stand between `from` and `to`? A line that starts or ends inside a dome counts.
+-- Does any smoke stand between `from` and `to`? A dome blocks a line that crosses it, unless BOTH ends are inside
+-- that same dome (owner 2026-11-27: an eye inside the smoke - a Recon dart shot into it, a Roller rolling in, you
+-- standing in it - sees what's inside it; from outside it sees nothing in it). One end inside and one outside:
+-- blocked both ways.
 function Smoke.blocks(from: Vector3, to: Vector3, now: number?): boolean
 	local folder = Smoke.folder()
 	if not folder then
@@ -91,6 +94,9 @@ function Smoke.blocks(from: Vector3, to: Vector3, now: number?): boolean
 			continue
 		end
 		local c = part.Position
+		if (from - c).Magnitude <= r and (to - c).Magnitude <= r then
+			continue -- both inside this dome: it doesn't hide them from each other
+		end
 		local u = if len2 > 1e-6 then math.clamp((c - from):Dot(seg) / len2, 0, 1) else 0
 		local closest = from + seg * u
 		if (closest - c).Magnitude <= r then

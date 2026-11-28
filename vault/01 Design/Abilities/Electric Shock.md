@@ -10,6 +10,7 @@ Shock Dart is a bow bolt that explodes **where it lands**. Electric Shock **lock
 - **It hunts:** in flight it latches onto the first enemy it passes within **7 studs** of (with a clear line). If it lands without one, it sits **charged for 2 s** and latches the first enemy who comes within **9 studs**.
 - **Marked:** for **0.6 s** a ring follows the target's feet and a beam of light comes down on them from the sky (they hear it).
 - **The smite:** lightning cracks down on them wherever they moved: **90 damage**, **2 s Hinder**, and **40** to every other enemy within **6 studs**. A white flash for anyone close, a big shake, shockwave rings, a scorch mark.
+- **Works on the Range bots** (fixed 2026-11-27: they weren't in the power target list, and world rays hit their own bodies; `Blocks/Target` now includes `RangeBot`s and counts reaching the body as seen). It can't latch onto someone through smoke unless the orb is in that smoke.
 - Nobody comes near: it fizzles. Only enemies; never you or your team. **1 charge per round**, no recharge. Role **Damage**.
 
 ## Upgrade paths (redone 2026-11-27)

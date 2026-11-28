@@ -169,7 +169,7 @@ local function seek(bot: Bot): Model?
 		if along == Vector3.zero or math.acos(math.clamp(along:Dot(bot.dir), -1, 1)) > half then
 			continue
 		end
-		if Target.visible(eye, model, params) then
+		if Target.sees(eye, model, params) then -- it can't find you through smoke unless it's in it
 			best, bestDist = model, dist
 		end
 	end

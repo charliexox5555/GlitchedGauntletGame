@@ -7,10 +7,12 @@
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 
 local Health = require(script.Parent.Parent.Parent.Health)
 local Teams = require(script.Parent.Parent.Teams)
+local Smoke = require(script.Parent.Smoke)
 
 local Target = {}
 
@@ -19,7 +21,11 @@ function Target.alive(model: Model?): boolean
 	return Health.isAlive(h)
 end
 
--- Every combatant model: player characters, then dummies.
+-- The Range's moving training bots (Lobby RangeBots BOT_TAG): they live in the Range map, not workspace.Dummies.
+local RANGE_BOT_TAG = "RangeBot"
+
+-- Every combatant model: player characters, then dummies, then the Range's bots (owner 2026-11-27: powers must
+-- work on the Range bots too; Electric Shock never latched onto them).
 function Target.combatants(): { Model }
 	local out: { Model } = {}
 	for _, p in Players:GetPlayers() do
@@ -32,6 +38,17 @@ function Target.combatants(): { Model }
 	if dummies then
 		for _, m in dummies:GetChildren() do
 			if m:IsA("Model") and m:FindFirstChildOfClass("Humanoid") then
+				table.insert(out, m)
+			end
+		end
+	end
+	for _, m in CollectionService:GetTagged(RANGE_BOT_TAG) do
+		if
+			m:IsA("Model")
+			and m:IsDescendantOf(workspace)
+			and m:FindFirstChildOfClass("Humanoid")
+		then
+			if not table.find(out, m) then
 				table.insert(out, m)
 			end
 		end
@@ -57,12 +74,25 @@ function Target.visible(from: Vector3, model: Model, params: RaycastParams): boo
 		local part = model:FindFirstChild(name)
 		if part and part:IsA("BasePart") then
 			local to = part.Position
-			if not workspace:Raycast(from, to - from, params) then
+			local hit = workspace:Raycast(from, to - from, params)
+			-- reaching the body itself counts (the Range's bots stand in the map, so world rays can hit them)
+			if not hit or hit.Instance:IsDescendantOf(model) then
 				return true
 			end
 		end
 	end
 	return false
+end
+
+-- Can a power's "eye" at `from` (a Recon dart, a Roller, a Flash, the Electric Shock orb) detect `model`? A clear
+-- line through the world AND no Smoke dome in the way (Blocks/Smoke: an eye inside a dome sees inside it). Use for
+-- detection, not for physical effects: fire, frost and blasts still reach through smoke.
+function Target.sees(from: Vector3, model: Model, params: RaycastParams): boolean
+	local point = Target.aimPoint(model)
+	if point and Smoke.blocks(from, point) then
+		return false
+	end
+	return Target.visible(from, model, params)
 end
 
 -- Where `model` looks: a player's server copy of the camera when there is
