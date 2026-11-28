@@ -123,7 +123,11 @@ PlayerData.RECEIPT_MEMORY = 100
 -- Owner 2026-11-22: "reset all player data" = new store names (V1 -> V2). The V1 stores are left as
 -- they were, so switching these names back restores every old save.
 PlayerData.STORE = if RunService:IsStudio() then "PlayerDataV2_Studio" else "PlayerDataV2"
-PlayerData.VERSION = 1
+-- Bump VERSION whenever ANY table's shape changes, nested ones too (data-safety review 2026-11-28):
+-- a server on an older build then refuses to write the save (`newer`), instead of rebuilding the
+-- nested tables it knows and dropping what the newer build added. 2 = release 1 (season pass, charms,
+-- titles, guns, gun levels). On publish, also shut down the old servers.
+PlayerData.VERSION = 2
 PlayerData.REPLICA = "Inventory"
 PlayerData.SKINS = "Skins"
 PlayerData.MODS = "LockerMods"
@@ -223,6 +227,11 @@ function PlayerData.cleanCharms(raw: unknown): CharmSave
 				end
 			elseif typeof(k) == "string" and typeof(v) == "number" then
 				local id = if CharmsConfig.exists(k) then k else CHARM_NAME_TO_ID[string.upper(k)]
+				-- a charm this build doesn't know (added by a newer build, or retired): kept as it is,
+				-- never shown or equipped, so an older server's write can't delete it
+				if not id and #k <= MAX_NAME and string.match(k, "^[%w_]+$") then
+					id = k
+				end
 				local n = count(v, MAX_CHARM_COPIES)
 				if id and n and n > 0 then
 					out.owned[id] = math.clamp(n, 1, MAX_CHARM_COPIES)
@@ -512,7 +521,12 @@ function PlayerData.valid(data: Data): boolean
 	end
 	local charmUsed: { [string]: number } = {}
 	for cid, n in data.charms.owned do
-		if not CharmsConfig.exists(cid) or not whole(n, MAX_CHARM_COPIES) or n < 1 then
+		if
+			typeof(cid) ~= "string"
+			or #cid > MAX_NAME
+			or not whole(n, MAX_CHARM_COPIES)
+			or n < 1
+		then
 			return false
 		end
 	end

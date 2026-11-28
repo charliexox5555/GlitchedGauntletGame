@@ -137,5 +137,5 @@ return table.freeze({
 
 	-- How many purchase ids a save remembers, so a retried write never
 	-- charges or grants twice.
-	TX_MEMORY = 25,
+	TX_MEMORY = 60, -- 25 until 2026-11-28 (data review: a retried match report must still find its txId after a busy minute)
 })

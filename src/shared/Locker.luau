@@ -17,7 +17,8 @@ local Weapons = require(script.Parent.Config.Weapons)
 
 local Locker = {}
 
-Locker.STORE = "LockerV2" -- V1 until the owner's data reset (2026-11-22); V1 is kept
+-- V1 until the owner's data reset (2026-11-22); V1 is kept. Studio tests use their own store (2026-11-28).
+Locker.STORE = if game:GetService("RunService"):IsStudio() then "LockerV2_Studio" else "LockerV2"
 Locker.VERSION = 1
 Locker.REPLICA = "LockerSkins"
 local cache: { [StringValue]: { encoded: string, skins: { [string]: string } } } = setmetatable(
