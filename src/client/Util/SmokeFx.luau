@@ -267,7 +267,10 @@ function SmokeFx.pop(
 		shell = shell,
 		wisps = wisps,
 		static = static,
-		hum = ModAudio.hum(ModSounds.Smoke.loop, shell),
+		hum = ModAudio.hum(
+			if toxic then ModSounds.Smoke.toxicLoop else ModSounds.Smoke.loop,
+			shell
+		),
 		faded = false,
 	}
 	local dome = kit("Dome")
@@ -304,7 +307,7 @@ function SmokeFx.pop(
 			delay = (if low then 0.12 else 0) + rng:NextNumber(0, 0.28),
 		})
 	end
-	ModAudio.play(ModSounds.Smoke.pop, at)
+	ModAudio.play(if toxic then ModSounds.Smoke.toxicPop else ModSounds.Smoke.pop, at)
 	table.insert(clouds, cloud)
 end
 

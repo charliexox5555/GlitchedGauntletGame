@@ -992,6 +992,9 @@ local function startHold(slot: number, view: SlotView)
 		ModAudio.play(ModAudio.SOUNDS.Smoke.equip)
 	elseif def.id == "ElectricShock" then
 		ModAudio.play(ModAudio.SOUNDS.ElectricShock.equip)
+	elseif def.activation ~= "HeldSteer" then
+		-- the rest come up with the shared raise (ModRaise, release 1 audio pass)
+		ModAudio.play(ModAudio.SOUNDS.Raise)
 	end
 	if def.id == "Molly" or def.id == "Frost" or def.id == "Smoke" then
 		-- Canister out, then the free hand pulls the pin (Molly's sound only).

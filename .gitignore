@@ -106,6 +106,8 @@ art-source/audio/slipframe/
 art-source/audio/arcade/
 # Smoke / Electric Shock power cues: built from ProPack + Sonniss GDC 2016 (licensed, no redistribution); ids in art-source/audio/powers/ids.json is not committed either, see the vault note
 art-source/audio/powers/
+# Release 1 audio pass cues (design_release_cues.py; same licences, ids in vault/02 Art/Mod Audio.md)
+art-source/audio/release1/
 art-source/audio/tempest/line_v1/
 # Riftforge bundle and knife sounds: built from ProPack + Sonniss GDC 2016 (licensed, no redistribution); asset ids are in art-source/uploads.json
 art-source/audio/riftforge/bundle_v1/

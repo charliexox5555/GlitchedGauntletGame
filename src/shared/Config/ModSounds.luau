@@ -48,10 +48,12 @@ end
 
 return table.freeze({
 	-- Shared (you)
-	Ready = cue(9126076030, 0.35, 1.1), -- stand-in for ModReady
-	Denied = cue(17208353912, 0.4), -- stand-in for ModDenied
-	Cancel = cue(15675032796, 0.35), -- stand-in for ModCancel
-	-- ModRaise has no library stand-in: silent until the synth set lands.
+	-- Designed 2026-11-28 (tools/audio/design_release_cues.py, vault/02 Art/Mod Audio.md → Release 1 pass):
+	-- soft and round, no rings. Old stand-ins: Ready 9126076030, Denied 17208353912, Cancel 15675032796.
+	Ready = cue(129994068488401, 0.4), -- a soft rising two-note
+	Denied = cue(120646160363461, 0.45), -- a low double "nuh-uh"
+	Cancel = cue(120929449235109, 0.4), -- a short falling swish
+	Raise = cue(106132358009216, 0.35), -- a light gear grab: a held power without its own equip cue comes up
 
 	-- Dash hooks (vault/01 Design/Abilities/Dash.md → Sound). Placeholders
 	-- (ProSoundEffects, unauditioned), listed in the Dash note; one id each.
@@ -321,7 +323,6 @@ return table.freeze({
 		static = cue(9119595114, 0.6, 1.05, nil, 50, 0.6, 0.4),
 	}),
 	-- Battle pass powers (vault/01 Design/Abilities/Smoke.md, Electric Shock.md → Look and sound), 2026-11-27.
-	-- Placeholders reusing the licensed ids above (unauditioned), chosen to read as smoke / lightning.
 	Smoke = table.freeze({
 		-- Designed cues (tools/audio/design_powers.py; owner 2026-11-27 "the sounds need to be different"):
 		-- licensed ProPack + Sonniss GDC 2016 layers with synthesis. vault/02 Art/Power Sounds - Smoke and Electric Shock.md
@@ -335,6 +336,10 @@ return table.freeze({
 		loop = cue(99862269286591, 0.3, 1, true, 35), -- a soft rolling hiss while it stands (seamless 4 s)
 		fade = cue(71521032542266, 0.45, 1, nil, 40), -- it thins out
 		fizzle = cue(71521032542266, 0.35, 1.2, nil, 30),
+		-- Toxic Cloud (G path), 2026-11-28 (design_release_cues.py): the smoke burst with an acid sizzle and
+		-- bubbles, and a lower bubbling loop
+		toxicPop = cue(80304132909015, 0.9, 1, nil, 70),
+		toxicLoop = cue(112955330789702, 0.32, 1, true, 35),
 	}),
 	-- The legendary smite. Designed cues (same tool and note): shock_strike is the whole smite in one file (a close
 	-- thunder crack, a sub boom, sizzle and a long rolling tail); shock_charge (0.9 s) is started 0.3 s in at the

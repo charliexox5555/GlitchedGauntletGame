@@ -171,3 +171,17 @@ Open Cloud allows **10 audio uploads a month** (no ID verification), so:
 | Spare | 9 left this month | Kept for gun-atlas fixes and Glitch-path sounds. |
 
 The atlas grows from ~gunshots + feedback to that plus ~11 s (roughly +1 MB FLAC); one upload covers every synth Mod cue. If the user rejects a synth cue, its library alternative costs nothing extra.
+
+## Release 1 pass (2026-11-28)
+Built by `tools/audio/design_release_cues.py` (ProPack and Sonniss GDC 2016 layers plus synthesis, like the Smoke and Electric Shock cues). Uploaded to group 11116787 and wired. **Not auditioned by the owner yet.** Audition reel: `art-source/audio/release1/_Reel.wav` (+ `_Reel.txt`, git-ignored).
+
+| Cue | Use | Asset id |
+|---|---|---|
+| ui_ready | `ModSounds.Ready`: a power is ready (a soft rising two-note) | 129994068488401 |
+| ui_denied | `ModSounds.Denied`: can't use it (a low double "nuh-uh") | 120646160363461 |
+| ui_cancel | `ModSounds.Cancel` (a short falling swish) | 120929449235109 |
+| ui_raise | `ModSounds.Raise`: a held power without its own equip cue comes up (`ModController.startHold`) | 106132358009216 |
+| toxic_pop | `Smoke.toxicPop`: the Toxic Cloud's burst (acid sizzle and bubbles) | 80304132909015 |
+| toxic_loop | `Smoke.toxicLoop`: the Toxic Cloud while it stands (bubbling, seamless 4 s) | 112955330789702 |
+
+**Still library placeholders (unauditioned):** every cue for Dash, Updraft, Molly, Firewall, Frost, Recon, Heal Orb, Stim, Recall, Shock Dart, Flash and Roller. To redo them the Smoke way, give each power its own designed set, about one session for every two powers, and have the owner listen to the reel first.
