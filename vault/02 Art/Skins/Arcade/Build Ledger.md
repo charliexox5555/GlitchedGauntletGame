@@ -205,6 +205,13 @@ Four guns were built in parallel in separate Blender instances (MCP 9876 and soc
   - In the Range, both the Hornet and the Classic load all 12 AR parts and 5 motors, and the buttons cycle on shots; the Classic inspect was checked on screen.
   - No console errors.
 
+**Art (2026-11-27):** all of it rendered in Blender (memory: UI item art is renders, not ViewportFrames).
+- **Portraits:** 14 Locker portraits `art-source/ui/item-portraits/<Gun>_Arcade_HD.png`. Same framing as the other HD portraits: left side, muzzle up-left at 35°, 1024².
+- **Side icons:** 14 side icons `art-source/ui/item-icons/<Gun>_Arcade.png` (right side, muzzle right, 1024×301).
+- **How they're made:** `tools/blender/arcade/40_portraits.py` (with `SIDE = True` for the icons), then `tools/render/fit_portraits.py Arcade`. They're uploaded as decals, resolved to image ids in Studio, and added to `ItemPortraits` and `ItemIcons` under `"<Gun>/Arcade"`.
+- **Emblem:** `art-source/ui/collection-emblems/emblem_arcade.png` (`tools/render/arcade_emblem.py`): a faceted joystick with a coin slot cut through its base, image `99590702779870` in `Locker.EMBLEMS`.
+- **Checked:** in the Locker strip, the ARCADE tile shows its own art.
+
 **Install steps (for reference):**
 1. **Upload and install.** Upload each `vNNx/<Gun>_Arcade_RobloxFlat.fbx`. Run `make_flat_install_jobs.py --version vNNx` per gun (versions differ, so one job file per version) and run `InstallFlatSkin`.
 2. **Move and tag.** Move each model to `ServerStorage.WeaponSkins.Arcade`, add a `LobbySkins` AssetData row, and tag it.

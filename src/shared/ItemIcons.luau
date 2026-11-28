@@ -253,6 +253,21 @@ local IDS: { [string]: string } = table.freeze({
 	["Vandal/Poolside"] = "rbxassetid://96919686716632",
 	["Vandal/Rootglass"] = "rbxassetid://80835166444028",
 	["Vandal/Slipframe"] = "rbxassetid://127387324312570",
+	-- Arcade (Season 1 pass; Blender side renders 2026-11-27)
+	["Bucky/Arcade"] = "rbxassetid://108067676351368",
+	["Bulldog/Arcade"] = "rbxassetid://73172288943702",
+	["Classic/Arcade"] = "rbxassetid://101568133402705",
+	["Ghost/Arcade"] = "rbxassetid://125186798416307",
+	["Guardian/Arcade"] = "rbxassetid://79081667161679",
+	["Marshal/Arcade"] = "rbxassetid://130622140945200",
+	["Odin/Arcade"] = "rbxassetid://103066205038177",
+	["Operator/Arcade"] = "rbxassetid://97547053151014",
+	["Phantom/Arcade"] = "rbxassetid://81751015118318",
+	["Sheriff/Arcade"] = "rbxassetid://126925266449193",
+	["Shorty/Arcade"] = "rbxassetid://113505557077226",
+	["Spectre/Arcade"] = "rbxassetid://92548203573951",
+	["Stinger/Arcade"] = "rbxassetid://137625048303364",
+	["Vandal/Arcade"] = "rbxassetid://80715724673536",
 })
 
 -- The picture for `line` on `gunId`, or nil (then show the 3D view instead).

@@ -4457,6 +4457,12 @@
   "type": "Decal",
   "uploaded": "2026-11-04 00:35:19"
  },
+ "art-source/ui/collection-emblems/emblem_arcade.png": {
+  "assetId": 125858413196661,
+  "name": "GG Emblem Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:45"
+ },
  "art-source/ui/collection-emblems/emblem_breakwater.png": {
   "assetId": 84964799842794,
   "name": "GG emblem breakwater",
@@ -4847,6 +4853,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:51:47"
  },
+ "art-source/ui/item-icons/Bucky_Arcade.png": {
+  "assetId": 136283512727208,
+  "name": "GG Icon Bucky Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:45"
+ },
  "art-source/ui/item-icons/Bucky_Breakwater.png": {
   "assetId": 138371692862396,
   "name": "GG Bucky Breakwater Locker HD",
@@ -4919,6 +4931,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:50:18"
  },
+ "art-source/ui/item-icons/Bulldog_Arcade.png": {
+  "assetId": 102933926637496,
+  "name": "GG Icon Bulldog Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:32"
+ },
  "art-source/ui/item-icons/Bulldog_Faultline.png": {
   "assetId": 80769554592786,
   "name": "GG Bulldog Faultline Locker HD",
@@ -4990,6 +5008,12 @@
   "name": "GG Bulldog Stock Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:50:21"
+ },
+ "art-source/ui/item-icons/Classic_Arcade.png": {
+  "assetId": 85316399691693,
+  "name": "GG Icon Classic Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:52"
  },
  "art-source/ui/item-icons/Classic_Faultline.png": {
   "assetId": 136471482951171,
@@ -5074,6 +5098,12 @@
   "name": "GG Classic Stock Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:52:21"
+ },
+ "art-source/ui/item-icons/Ghost_Arcade.png": {
+  "assetId": 96291748147037,
+  "name": "GG Icon Ghost Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:01:02"
  },
  "art-source/ui/item-icons/Ghost_Faultline.png": {
   "assetId": 86156335272356,
@@ -5163,6 +5193,12 @@
   "name": "GG Ghost Sundial Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:50:30"
+ },
+ "art-source/ui/item-icons/Guardian_Arcade.png": {
+  "assetId": 135746725582055,
+  "name": "GG Icon Guardian Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:28"
  },
  "art-source/ui/item-icons/Guardian_Faultline.png": {
   "assetId": 80766756710321,
@@ -5428,6 +5464,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:50:40"
  },
+ "art-source/ui/item-icons/Marshal_Arcade.png": {
+  "assetId": 80371230037529,
+  "name": "GG Icon Marshal Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:42"
+ },
  "art-source/ui/item-icons/Marshal_Faultline.png": {
   "assetId": 110943923556497,
   "name": "GG Marshal Faultline Locker HD",
@@ -5512,6 +5554,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:50:42"
  },
+ "art-source/ui/item-icons/Odin_Arcade.png": {
+  "assetId": 79161369557692,
+  "name": "GG Icon Odin Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:35"
+ },
  "art-source/ui/item-icons/Odin_Breakwater.png": {
   "assetId": 122085202843865,
   "name": "GG Odin Breakwater Locker HD",
@@ -5589,6 +5637,12 @@
   "name": "GG Odin Stock Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:50:47"
+ },
+ "art-source/ui/item-icons/Operator_Arcade.png": {
+  "assetId": 79259547187279,
+  "name": "GG Icon Operator Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:39"
  },
  "art-source/ui/item-icons/Operator_Faultline.png": {
   "assetId": 130240283645794,
@@ -5746,6 +5800,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:51:17"
  },
+ "art-source/ui/item-icons/Phantom_Arcade.png": {
+  "assetId": 104268924284947,
+  "name": "GG Icon Phantom Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:21"
+ },
  "art-source/ui/item-icons/Phantom_Faultline.png": {
   "assetId": 115722939913647,
   "name": "GG Phantom Faultline Locker HD",
@@ -5835,6 +5895,12 @@
   "name": "GG Phantom Stock Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:51:23"
+ },
+ "art-source/ui/item-icons/Sheriff_Arcade.png": {
+  "assetId": 91572262322520,
+  "name": "GG Icon Sheriff Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:56"
  },
  "art-source/ui/item-icons/Sheriff_Faultline.png": {
   "assetId": 89923546293036,
@@ -5932,6 +5998,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:51:26"
  },
+ "art-source/ui/item-icons/Shorty_Arcade.png": {
+  "assetId": 94466167270854,
+  "name": "GG Icon Shorty Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:59"
+ },
  "art-source/ui/item-icons/Shorty_Breakwater.png": {
   "assetId": 73196901172265,
   "name": "GG Shorty Breakwater Locker HD",
@@ -6015,6 +6087,12 @@
   "name": "GG Shorty Stock Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:51:35"
+ },
+ "art-source/ui/item-icons/Spectre_Arcade.png": {
+  "assetId": 96813685933093,
+  "name": "GG Icon Spectre Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:24"
  },
  "art-source/ui/item-icons/Spectre_Breakwater.png": {
   "assetId": 92260988497632,
@@ -6106,6 +6184,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:51:37"
  },
+ "art-source/ui/item-icons/Stinger_Arcade.png": {
+  "assetId": 135342953958343,
+  "name": "GG Icon Stinger Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:49"
+ },
  "art-source/ui/item-icons/Stinger_Faultline.png": {
   "assetId": 75936453130554,
   "name": "GG Stinger Faultline Locker HD",
@@ -6195,6 +6279,12 @@
   "name": "GG Stinger TempestStrike Locker HD",
   "type": "Image",
   "uploaded": "2026-11-22 22:51:42"
+ },
+ "art-source/ui/item-icons/Vandal_Arcade.png": {
+  "assetId": 110017314438529,
+  "name": "GG Icon Vandal Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:00:14"
  },
  "art-source/ui/item-icons/Vandal_Breakwater.png": {
   "assetId": 133402696524610,
@@ -6388,6 +6478,12 @@
   "type": "Decal",
   "uploaded": "2026-11-20 21:11:17"
  },
+ "art-source/ui/item-portraits/Bucky_Arcade_HD.png": {
+  "assetId": 91291276068429,
+  "name": "GG Portrait Bucky Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:14"
+ },
  "art-source/ui/item-portraits/Bucky_Breakwater.png": {
   "assetId": 107774604904775,
   "name": "GG Shop HD Bucky Breakwater",
@@ -6454,6 +6550,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:08:50"
  },
+ "art-source/ui/item-portraits/Bulldog_Arcade_HD.png": {
+  "assetId": 134544363419651,
+  "name": "GG Portrait Bulldog Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:00"
+ },
  "art-source/ui/item-portraits/Bulldog_Faultline.png": {
   "assetId": 85044979926976,
   "name": "GG Shop HD Bulldog Faultline",
@@ -6519,6 +6621,12 @@
   "name": "GG Shop HD Bulldog Rootglass",
   "type": "Image",
   "uploaded": "2026-11-22 22:08:57"
+ },
+ "art-source/ui/item-portraits/Classic_Arcade_HD.png": {
+  "assetId": 135715441345329,
+  "name": "GG Portrait Classic Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:24"
  },
  "art-source/ui/item-portraits/Classic_Faultline.png": {
   "assetId": 73811710602107,
@@ -6604,6 +6712,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:08:59"
  },
+ "art-source/ui/item-portraits/Ghost_Arcade_HD.png": {
+  "assetId": 131687444388505,
+  "name": "GG Portrait Ghost Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:41"
+ },
  "art-source/ui/item-portraits/Ghost_Faultline.png": {
   "assetId": 73552530442276,
   "name": "GG Shop HD Ghost Faultline",
@@ -6687,6 +6801,12 @@
   "name": "GG Shop HD Ghost Sundial",
   "type": "Image",
   "uploaded": "2026-11-22 22:09:03"
+ },
+ "art-source/ui/item-portraits/Guardian_Arcade_HD.png": {
+  "assetId": 108074921858047,
+  "name": "GG Portrait Guardian Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:57:57"
  },
  "art-source/ui/item-portraits/Guardian_Faultline.png": {
   "assetId": 76114065111338,
@@ -6952,6 +7072,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:13"
  },
+ "art-source/ui/item-portraits/Marshal_Arcade_HD.png": {
+  "assetId": 120788221880376,
+  "name": "GG Portrait Marshal Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:11"
+ },
  "art-source/ui/item-portraits/Marshal_Faultline.png": {
   "assetId": 83933035801301,
   "name": "GG Shop HD Marshal Faultline",
@@ -7030,6 +7156,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:18"
  },
+ "art-source/ui/item-portraits/Odin_Arcade_HD.png": {
+  "assetId": 77994260318425,
+  "name": "GG Portrait Odin Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:04"
+ },
  "art-source/ui/item-portraits/Odin_Breakwater.png": {
   "assetId": 96022428520513,
   "name": "GG Shop HD Odin Breakwater",
@@ -7101,6 +7233,12 @@
   "name": "GG Shop HD Odin Rootglass",
   "type": "Image",
   "uploaded": "2026-11-22 22:09:21"
+ },
+ "art-source/ui/item-portraits/Operator_Arcade_HD.png": {
+  "assetId": 94869928577380,
+  "name": "GG Portrait Operator Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:07"
  },
  "art-source/ui/item-portraits/Operator_Faultline.png": {
   "assetId": 131639389360386,
@@ -7252,6 +7390,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:28"
  },
+ "art-source/ui/item-portraits/Phantom_Arcade_HD.png": {
+  "assetId": 74509722898668,
+  "name": "GG Portrait Phantom Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:57:50"
+ },
  "art-source/ui/item-portraits/Phantom_Faultline.png": {
   "assetId": 124646722638136,
   "name": "GG Shop HD Phantom Faultline",
@@ -7335,6 +7479,12 @@
   "name": "GG Shop HD Phantom Rootglass",
   "type": "Image",
   "uploaded": "2026-11-22 22:09:31"
+ },
+ "art-source/ui/item-portraits/Sheriff_Arcade_HD.png": {
+  "assetId": 77161716117033,
+  "name": "GG Portrait Sheriff Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:31"
  },
  "art-source/ui/item-portraits/Sheriff_Faultline.png": {
   "assetId": 122117793312134,
@@ -7426,6 +7576,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:35"
  },
+ "art-source/ui/item-portraits/Shorty_Arcade_HD.png": {
+  "assetId": 100631350959490,
+  "name": "GG Portrait Shorty Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:38"
+ },
  "art-source/ui/item-portraits/Shorty_Breakwater.png": {
   "assetId": 79124229069971,
   "name": "GG Shop HD Shorty Breakwater",
@@ -7503,6 +7659,12 @@
   "name": "GG Shop HD Shorty Sealwork",
   "type": "Image",
   "uploaded": "2026-11-22 22:10:51"
+ },
+ "art-source/ui/item-portraits/Spectre_Arcade_HD.png": {
+  "assetId": 70693791377116,
+  "name": "GG Portrait Spectre Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:57:53"
  },
  "art-source/ui/item-portraits/Spectre_Breakwater.png": {
   "assetId": 98487648701076,
@@ -7594,6 +7756,12 @@
   "type": "Image",
   "uploaded": "2026-11-22 22:09:42"
  },
+ "art-source/ui/item-portraits/Stinger_Arcade_HD.png": {
+  "assetId": 131567354361150,
+  "name": "GG Portrait Stinger Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:58:17"
+ },
  "art-source/ui/item-portraits/Stinger_Faultline.png": {
   "assetId": 98511938930732,
   "name": "GG Stinger Faultline Shop HD",
@@ -7677,6 +7845,12 @@
   "name": "GG Shop HD Stinger TempestStrike",
   "type": "Image",
   "uploaded": "2026-11-22 22:10:12"
+ },
+ "art-source/ui/item-portraits/Vandal_Arcade_HD.png": {
+  "assetId": 98702493673414,
+  "name": "GG Portrait Vandal Arcade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 18:57:46"
  },
  "art-source/ui/item-portraits/Vandal_Breakwater.png": {
   "assetId": 125353826950407,
