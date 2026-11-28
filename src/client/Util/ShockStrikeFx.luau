@@ -15,6 +15,7 @@
 -- Plus Chain Lightning hops, the glitched Storm Call's violet bolts, the charged beacon and the fizzle. Client-only
 -- and short-lived; meshes from ReplicatedStorage.Abilities (ShockVFX Ring, SmokeVFX Puff1-3).
 
+local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -342,6 +343,10 @@ local function floorParams(): RaycastParams
 	local dummies = Workspace:FindFirstChild("Dummies")
 	if dummies then
 		table.insert(skip, dummies)
+	end
+	-- the Range's training bots stand in the map: without this the ray landed on their heads (owner 2026-11-27)
+	for _, bot in CollectionService:GetTagged("RangeBot") do
+		table.insert(skip, bot)
 	end
 	params.FilterDescendantsInstances = skip
 	return params
