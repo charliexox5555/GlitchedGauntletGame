@@ -41,6 +41,22 @@ The owner wants this update to be the polished first release. Checked against th
 - The Hindered and Stimmed HUD readouts are temporary.
 - `Upgrade Paths.md` says Shock Dart G3 is 7 studs; the code is 11.
 
+**Progress (2026-11-28):**
+- **Owner decisions:**
+  - No odds needed on coin packs or the Starter Bundle: the cases inside show their own.
+  - **Starter Bundle v2:** the Lancer, the Payload Lancer, a Standard Case, a Strike Box and 1,500 coins. Coins replace anything already owned, and replace the case and box where paid random items aren't allowed. Built; the Studio test and new Shop art (prompt in [Release 1 ChatGPT Prompts](../02%20Art/Release%201%20ChatGPT%20Prompts.md)) are still to do. The Roblox product description is updated with the new art (Open Cloud needs an icon in the same call).
+- **Security review:** no critical or high findings. Fixed: an Electric Shock orb outliving its thrower or the round; pass powers ignoring the deck size; a goodie-bag item prize on a full stack. **Owner call:** the owner admin panel works on live servers (allowlist only).
+- **Data safety review:** no duplication or load-overwrite paths. Fixed:
+  - `PlayerData.VERSION` 2: older servers can't strip new nested fields. **On publish: shut down all servers.**
+  - Unknown charm ids are kept.
+  - txId memory raised to 60.
+  - The Studio Locker store is split from live.
+
+  Left for Season 2: keep the old season as `seasonPrev` and pay it on the next load, instead of wiping it when `Season.ID` changes.
+- **Error logging:** Roblox's Creator Dashboard Error Report already collects server and client errors, and `HealthLog` covers the loading stages, so nothing new was built.
+- **Audio:** the power UI cues (ready, denied, cancel, a new raise) and the Toxic Cloud's own pop and loop are designed, uploaded and wired ([Mod Audio](../02%20Art/Mod%20Audio.md#release-1-pass-2026-11-28)), waiting for the owner's audition. The older powers' library sounds are still placeholders.
+- **Own sessions:** third-person animations (fun locomotion, the restarting upper body) and RIVALS-style name tags.
+
 **Must do before publishing:**
 1. **Finish Frostbite** (its sessions).
 2. **Compliance [C]:**
