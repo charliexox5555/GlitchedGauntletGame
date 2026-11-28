@@ -8422,6 +8422,18 @@
   "type": "Decal",
   "uploaded": "2026-11-20 19:43:14"
  },
+ "art-source/ui/locker-lock/LockerLock.fbx": {
+  "assetId": 117306657900034,
+  "name": "GG Locker Lock Chains v2",
+  "type": "Model",
+  "uploaded": "2026-11-28 03:46:58"
+ },
+ "art-source/ui/locker-lock/padlock_icon.png": {
+  "assetId": 140513655036396,
+  "name": "GG Locker Padlock Icon",
+  "type": "Decal",
+  "uploaded": "2026-11-28 03:43:38"
+ },
  "art-source/ui/locker-v3/icons/arrow.png": {
   "assetId": 136962732865712,
   "name": "GG Locker icon arrow",

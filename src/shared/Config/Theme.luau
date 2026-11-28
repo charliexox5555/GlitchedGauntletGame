@@ -87,6 +87,8 @@ return table.freeze({
 	ICON = table.freeze({
 		Reroll = "rbxassetid://76943756189839",
 		Lock = "rbxassetid://125270489944006",
+		-- the Locker's padlock (a render of its 3D lock: tools/blender/render_locker_lock_icon.py), white to tint
+		Padlock = "rbxassetid://100375076852187", -- (image of decal 140513655036396)
 		Shield = "rbxassetid://140209747168333",
 		Skull = "rbxassetid://113224984089670",
 		Glitch = "rbxassetid://130733349548186",

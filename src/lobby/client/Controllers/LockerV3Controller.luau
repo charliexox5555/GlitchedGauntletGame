@@ -171,6 +171,13 @@ local Ui = {
 	shrink = function(_root: Instance) end,
 	sizeClose = function(_d: number) end,
 	fit = function() end,
+	stripOff = function() end,
+	bullets = function(_id: string): string
+		return ""
+	end,
+	lockTemplate = function(): Model?
+		return nil
+	end,
 	fitRight = function() end,
 }
 
@@ -303,6 +310,26 @@ end
 
 -- stage ---------------------------------------------------------------------------------------------------------
 
+-- The locked gun's chains (owner 2026-11-28, after RIVALS' locked weapon screen; our faceted gold build,
+-- tools/blender/build_locker_lock.py -> ReplicatedStorage.LockerV3Stage.LockChains): an X of four strands and a
+-- big padlock floating just in front of the gun. An unlock breaks it: the strands fly out, the padlock drops.
+-- `swapAt` times the drop-in every gun (and its lock) makes when it comes on the stage.
+type LockBreak = {
+	model: Model,
+	base: CFrame,
+	parts: { { part: BasePart, rel: CFrame } },
+	start: number,
+}
+local Lock = {
+	model = nil :: Model?,
+	breaking = nil :: LockBreak?,
+	swapAt = 0,
+	PADLOCK = 1.15, -- studs across the padlock; the chains are long enough to run off the screen (owner 2026-11-28)
+	FRONT = 1.5, -- studs in front of the gun, toward the camera
+	SWAP = 0.42, -- s: a gun's drop-in
+	BREAK = 0.8, -- s: the unlock's break
+}
+
 local function showGun(id: string, line: string, isLocked: boolean, charmOverride: string?)
 	local folder = stageFolder
 	CharmRig.destroy(stageCharm)
@@ -329,9 +356,6 @@ local function showGun(id: string, line: string, isLocked: boolean, charmOverrid
 			d.CanQuery = false
 			d.CanTouch = false
 			d.CastShadow = false
-			if isLocked then
-				d.LocalTransparencyModifier = 0.5
-			end
 		elseif d:IsA("Script") or d:IsA("LocalScript") or d:IsA("Sound") then
 			d:Destroy()
 		end
@@ -359,6 +383,114 @@ local function showGun(id: string, line: string, isLocked: boolean, charmOverrid
 		end
 	end
 	yaw = targetYaw - math.rad(50) -- a little swing in on every swap
+	Lock.swapAt = os.clock()
+	Lock.show(isLocked and id ~= "Knife")
+end
+
+function Ui.lockTemplate(): Model?
+	local stage = ReplicatedStorage:FindFirstChild("LockerV3Stage")
+	local m = stage and stage:FindFirstChild("LockChains")
+	return if m and m:IsA("Model") then m else nil
+end
+
+function Lock.show(on: boolean)
+	local old = Lock.model
+	if old and (not on or old.Parent ~= stageFolder) then
+		old:Destroy()
+		Lock.model = nil
+	end
+	local folder = stageFolder
+	local tpl = Ui.lockTemplate()
+	if not on or Lock.model or not folder or not tpl then
+		return
+	end
+	local m = tpl:Clone()
+	for _, d in m:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanCollide = false
+			d.CanQuery = false
+			d.CanTouch = false
+			d.CastShadow = false
+		end
+	end
+	-- sized by its padlock (measured along the pivot by tools/studio/InstallLockerLock.luau)
+	local width = m:GetAttribute("PadlockWidth")
+	if typeof(width) ~= "number" or width <= 0 then
+		width = m:GetExtentsSize().X * 0.12 -- (no attribute: about its share of the whole X)
+	end
+	m:ScaleTo(m:GetScale() * Lock.PADLOCK / math.max(width :: number, 0.05))
+	m.Parent = folder
+	Lock.model = m
+end
+
+-- facing the camera, in front of the gun, with a slow float of its own
+function Lock.pivot(t: number): CFrame
+	local pos = STAGE + (CAMERA.Position - STAGE).Unit * Lock.FRONT
+	return CFrame.lookAt(pos, CAMERA.Position)
+		* CFrame.new(0, math.sin(t * 1.1) * 0.05, 0)
+		* CFrame.Angles(0, 0, math.sin(t * 0.6) * 0.025)
+end
+
+-- the unlock: the chains break away (each strand out along its own diagonal and down), the shackle pops, the
+-- padlock drops, everything fades; the gun stays
+function Lock.breakIt()
+	local m = Lock.model
+	if not m then
+		return
+	end
+	Lock.model = nil
+	local base = m:GetPivot()
+	local parts = {}
+	for _, d in m:GetDescendants() do
+		if d:IsA("BasePart") then
+			table.insert(parts, { part = d, rel = base:ToObjectSpace(d.CFrame) })
+		end
+	end
+	Lock.breaking = { model = m, base = base, parts = parts, start = os.clock() }
+end
+
+local LOCK_FLING: { [string]: Vector3 } = {
+	ChainTL = Vector3.new(-1, 0.55, -0.4),
+	ChainTR = Vector3.new(1, 0.55, -0.4),
+	ChainBL = Vector3.new(-1, -0.55, -0.4),
+	ChainBR = Vector3.new(1, -0.55, -0.4),
+}
+
+function Lock.step(t: number)
+	local b = Lock.breaking
+	if b then
+		local k = math.clamp((t - b.start) / Lock.BREAK, 0, 1)
+		if k >= 1 or not b.model.Parent then
+			b.model:Destroy()
+			Lock.breaking = nil
+		else
+			local out = 1 - (1 - k) ^ 3
+			for _, e in b.parts do
+				local fling = LOCK_FLING[e.part.Name]
+				local offset = if fling
+					then fling * (out * 3.6) + Vector3.new(0, -k * k * 2.2, 0)
+					elseif e.part.Name == "Shackle" then Vector3.new(
+						0,
+						math.min(k * 5, 1) * 0.35 - k * k * 2.4,
+						0
+					)
+					else Vector3.new(0, -k * k * 2.4, -k * 0.4)
+				local spin = CFrame.Angles(0, 0, (if fling then fling.X else 0) * out * 0.6)
+				e.part.CFrame = b.base * CFrame.new(offset) * e.rel * spin
+				e.part.LocalTransparencyModifier = k * k
+			end
+		end
+	end
+	local m = Lock.model
+	if m then
+		-- the lock drops in with its gun
+		local k = math.clamp((t - Lock.swapAt) / Lock.SWAP, 0, 1)
+		local e = 1 - (1 - k) ^ 5
+		m:PivotTo(
+			Lock.pivot(t) * CFrame.new(0, (1 - e) * 0.9, 0) * CFrame.Angles(0, 0, (1 - e) * 0.25)
+		)
+	end
 end
 
 local function cardPivot(): CFrame
@@ -405,12 +537,18 @@ local function onRender(dt: number)
 				* CFrame.Angles(0, math.sin(t * 0.7) * 0.03, 0)
 			local turn = CFrame.fromAxisAngle(Vector3.yAxis, yaw)
 				* CFrame.fromAxisAngle(Vector3.zAxis, pitch)
-			current:PivotTo(CFrame.new(STAGE) * bob * turn * GUN_REST * centerOffset:Inverse())
+			-- a fresh gun rises into place (Quint out, no overshoot)
+			local k = math.clamp((t - Lock.swapAt) / Lock.SWAP, 0, 1)
+			local rise = CFrame.new(0, -((1 - k) ^ 5) * 0.35, 0)
+			current:PivotTo(
+				CFrame.new(STAGE) * rise * bob * turn * GUN_REST * centerOffset:Inverse()
+			)
 			if stageCharm then
 				CharmRig.step(stageCharm, dt, stageCharm.point.WorldCFrame, false, 0)
 			end
 		end
 	end
+	Lock.step(os.clock())
 end
 
 -- guns ------------------------------------------------------------------------------------------------------------
@@ -594,6 +732,7 @@ end
 
 local refreshSkins: () -> ()
 local refreshCharms: () -> ()
+local refreshStrip: () -> () -- rebuilds the open strip only if what you own changed, else restyles it
 
 -- The Level card (an owned gun): level, the bar, the next stat step, the next milestone and LEVEL UP for coins.
 -- "LV 25: 250 COINS · STRIKE BOX" (the next gun milestone, Config/GunLevels.REWARDS via Shared/LevelRewards)
@@ -697,7 +836,7 @@ local function refreshGunPanel()
 			gunName(id),
 			if role then role[1] else "",
 			if owned then CYAN else LOCKED_ROLE,
-			if role then role[2] else ""
+			if owned then (if role then role[2] else "") else Ui.bullets(id)
 		)
 	end
 	local equipHolder = find(ownedPanel, "Equip") :: Frame
@@ -707,8 +846,11 @@ local function refreshGunPanel()
 	if mode == "knife" then
 		overviewCard.Visible = false
 	end
-	-- one Overview card, under whichever gun panel shows
+	-- one Overview card, under whichever gun panel shows (a locked gun shows no stats: owner 2026-11-28)
 	overviewCard.Parent = if owned then ownedPanel else lockedPanel
+	if not owned then
+		overviewCard.Visible = false
+	end
 	if not owned then
 		local price = GunLoadout.price(id) or 0
 		local buy = find(lockedPanel, "Unlock.Buy.Button")
@@ -730,13 +872,9 @@ local function refreshGunPanel()
 		previewCharm = if owned and mode ~= "knife" then (equippedCharm(id) or "") else ""
 	end
 	Ui.previewGun = id
-	showGun(id, previewLine, not owned and stripMode == "none", previewCharm)
+	showGun(id, previewLine, not owned, previewCharm)
 	Ui.preview()
-	if stripMode == "skins" then
-		refreshSkins()
-	elseif stripMode == "charms" then
-		refreshCharms()
-	end
+	refreshStrip()
 	task.defer(Ui.shrink, right)
 end
 
@@ -785,60 +923,238 @@ local function skinGun(): string
 	return if mode == "knife" then "Knife" else selectedGun
 end
 
-refreshSkins = function()
+-- The strip's tiles (owner 2026-11-28, after RIVALS' skin row, in our look): each tile washed in its rarity
+-- colour, a big padlock over anything you don't own, the name under the art, a green check on the equipped one,
+-- BACK and a search box above the row. Tiles are built when the strip opens or the save changes; a click only
+-- restyles them, so hover and press stay smooth (they were rebuilt on every click).
+type StripTile = {
+	button: GuiButton,
+	key: string,
+	name: string,
+	owned: boolean,
+	color: Color3,
+	pop: UIScale,
+	isOn: () -> boolean,
+	onText: () -> string?,
+}
+local Strip = {
+	tiles = {} :: { StripTile },
+	query = "",
+	bar = nil :: Frame?,
+	search = nil :: TextBox?,
+	GREEN = Color3.fromHex("2FD37A"),
+	STOCK = Color3.fromHex("5A5F6A"),
+	built = "", -- Strip.signature() of the tiles on show
+}
+
+-- the green check (a drawn tick, like CloseButton's drawn X: two rounded bars on a circle)
+function Strip.check(parent: GuiObject): Frame
+	local c = Instance.new("Frame")
+	c.Name = "Check"
+	c.Size = UDim2.fromOffset(26, 26)
+	c.Position = UDim2.fromOffset(10, 8)
+	c.BackgroundColor3 = Strip.GREEN
+	c.BorderSizePixel = 0
+	c.ZIndex = 6
+	local round = Instance.new("UICorner")
+	round.CornerRadius = UDim.new(0.5, 0)
+	round.Parent = c
+	for _, spec in { { 7, 15, 9, 45 }, { 15, 12, 15, -45 } } do
+		local bar = Instance.new("Frame")
+		bar.AnchorPoint = Vector2.new(0.5, 0.5)
+		bar.Position = UDim2.fromOffset(spec[1] + 1, spec[2])
+		bar.Size = UDim2.fromOffset(spec[3], 4)
+		bar.Rotation = spec[4]
+		bar.BackgroundColor3 = WHITE
+		bar.BorderSizePixel = 0
+		bar.ZIndex = 7
+		local bc = Instance.new("UICorner")
+		bc.CornerRadius = UDim.new(0.5, 0)
+		bc.Parent = bar
+		bar.Parent = c
+	end
+	c.Parent = parent
+	return c
+end
+
+-- One tile from the template. `selected` is read through Strip.selected() at restyle time.
+function Strip.tile(
+	order: number,
+	key: string,
+	name: string,
+	owned: boolean,
+	color: Color3,
+	tierText: string?,
+	art: (ImageLabel) -> (),
+	isOn: () -> boolean,
+	onText: () -> string?,
+	onClick: () -> ()
+)
+	local tpl = find(skinStrip, "Template") :: GuiButton
+	local t = tpl:Clone()
+	t.Name = key
+	t.LayoutOrder = order
+	t.Visible = true
+	t.AutoButtonColor = false
+	set(t, "Name", "Text", string.upper(name))
+	set(t, "Name", "TextTransparency", if owned then 0 else 0.2)
+	local artLabel = find(t, "Art") :: ImageLabel
+	art(artLabel)
+	artLabel.ImageTransparency = if owned then 0 else 0.5
+	local tier = t:FindFirstChild("Tier")
+	if tier and tier:IsA("TextLabel") then
+		tier.Visible = tierText ~= nil
+		tier.Text = tierText or ""
+		tier.TextColor3 = WHITE
+		tier.TextTransparency = 0.15
+	end
+	-- the padlock: big, over the art's middle
+	local lock = t:FindFirstChild("Lock")
+	if lock and lock:IsA("GuiObject") then
+		lock.Visible = not owned
+		lock.AnchorPoint = Vector2.new(0.5, 0.5)
+		lock.Position =
+			UDim2.new(0.5, 0, 0, artLabel.Position.Y.Offset + artLabel.Size.Y.Offset / 2)
+		lock.Size = UDim2.fromOffset(40, 40)
+		lock.ZIndex = 6
+		if lock:IsA("ImageLabel") then
+			lock.Image = Theme.ICON.Padlock
+			lock.ScaleType = Enum.ScaleType.Fit
+			lock.ImageColor3 = WHITE
+		end
+	end
+	Strip.check(t).Visible = false
+	local pop = Instance.new("UIScale")
+	pop.Name = "Pop"
+	pop.Parent = t
+	UiMotion.button(t, pop, function()
+		onClick()
+		Strip.restyle()
+	end, { card = true })
+	t.Parent = skinStrip
+	table.insert(skinTiles, t)
+	table.insert(Strip.tiles, {
+		button = t,
+		key = key,
+		name = name,
+		owned = owned,
+		color = color,
+		pop = pop,
+		isOn = isOn,
+		onText = onText,
+	})
+end
+
+-- the key of the tile the stage shows now
+function Strip.selected(): string
+	return if stripMode == "charms"
+		then (if previewCharm == "" then "NoneCharm" else previewCharm)
+		else previewLine
+end
+
+function Strip.restyle()
+	local sel = Strip.selected()
+	local q = string.lower(Strip.query)
+	for _, e in Strip.tiles do
+		local on = e.key == sel
+		local bg = e.button:FindFirstChild("Bg")
+		if bg and bg:IsA("ImageLabel") then
+			-- the rarity wash: deep in the dark, bright on the selected tile
+			bg.ImageColor3 = PANEL:Lerp(e.color, if on then 0.85 else 0.45)
+			bg.ImageTransparency = if on then 0 else 0.12
+		end
+		local check = e.button:FindFirstChild("Check")
+		if check and check:IsA("GuiObject") then
+			check.Visible = e.owned and e.isOn()
+		end
+		local onLabel = e.button:FindFirstChild("On")
+		if onLabel and onLabel:IsA("TextLabel") then
+			local text = e.onText()
+			onLabel.Visible = text ~= nil
+			onLabel.Text = text or ""
+			onLabel.TextColor3 = WHITE
+			onLabel.Position = UDim2.fromOffset(42, 12)
+		end
+		e.button.Visible = q == "" or string.find(string.lower(e.name), q, 1, true) ~= nil
+	end
+end
+
+-- what the open strip shows that a save change can alter: the gun, and what you own of it
+function Strip.signature(): string
+	local gunId = skinGun()
+	local parts = { stripMode, gunId }
+	if stripMode == "skins" then
+		local skins = PlayerData.skins(player)
+		for _, line in Locker.linesFor(gunId) do
+			table.insert(parts, if PlayerData.owns(skins, gunId, line) then "1" else "0")
+		end
+	elseif stripMode == "charms" then
+		local data = PlayerData.charms(player)
+		for _, def in CharmsConfig.all() do
+			table.insert(parts, tostring(PlayerData.charmCopies(data, def.id)))
+		end
+	end
+	return table.concat(parts, ",")
+end
+
+refreshStrip = function()
+	if stripMode == "none" then
+		return
+	elseif mode == "guns" and not guns().owned[selectedGun] then
+		Ui.stripOff() -- picked a locked gun with the strip open: it shows its chains instead
+	elseif Strip.signature() == Strip.built then
+		Strip.restyle()
+	elseif stripMode == "skins" then
+		refreshSkins()
+	else
+		refreshCharms()
+	end
+end
+
+function Strip.clear()
 	for _, t in skinTiles do
 		t:Destroy()
 	end
 	table.clear(skinTiles)
+	table.clear(Strip.tiles)
+end
+
+refreshSkins = function()
+	Strip.clear()
 	local gunId = skinGun()
 	local gunOwned = mode == "knife" or guns().owned[gunId] == true
-	local on = equippedLine(gunId)
-	local tpl = find(skinStrip, "Template") :: GuiButton
 	for i, e in skinLines(gunId) do
 		local line = e.line
-		local t = tpl:Clone()
-		t.Name = line
-		t.LayoutOrder = i
-		t.Visible = true
-		set(t, "Name", "Text", string.upper(if line == "Stock" then "Default" else line))
-		set(t, "Name", "TextTransparency", if e.owned then 0 else 0.35)
-		set(t, "Art", "Image", SkinArt.side(gunId, line) or Theme.GUN[gunId] or "")
-		set(t, "Art", "ImageTransparency", if e.owned then 0 else 0.45)
-		local onTag = find(t, "On") :: TextLabel
-		onTag.Visible = (e.owned and gunOwned and line == on) or not e.owned
-		onTag.Text = if e.owned then "EQUIPPED" else "NOT OWNED"
-		onTag.TextColor3 = if e.owned then CYAN else LOCKED_ROLE
 		local tier = if line == "Stock" then nil else SkinCases.tierOf(gunId, line)
 		local tierDef = tier and SkinsConfig.TIERS[tier]
-		local tierLabel = t:FindFirstChild("Tier")
-		if tierLabel and tierLabel:IsA("TextLabel") then
-			tierLabel.Visible = tierDef ~= nil
-			tierLabel.Text = if tierDef then tierDef.name else ""
-			tierLabel.TextColor3 = if tierDef then tierDef.color else WHITE
-		end
-		local lock = t:FindFirstChild("Lock")
-		if lock and lock:IsA("GuiObject") then
-			lock.Visible = not e.owned
-		end
-		local bg = t:FindFirstChild("Bg")
-		if bg and bg:IsA("ImageLabel") then
-			bg.ImageColor3 = if line == previewLine then WHITE else PANEL
-			bg.ImageTransparency = if line == previewLine then 0.8 else 0.25
-		end
-		t.Activated:Connect(function()
-			previewLine = line
-			showGun(gunId, line, false, previewCharm) -- (a locked gun shows solid while you browse its skins)
-			-- owned skin on an owned gun: equip it. Anything else is a preview: Ui.preview() says so.
-			if e.owned and gunOwned and line ~= equippedLine(gunId) then
-				LobbyNet.event("LockerRequest"):FireServer("equip", gunId, line)
+		Strip.tile(
+			i,
+			line,
+			if line == "Stock" then "Default" else line,
+			e.owned,
+			if tierDef then tierDef.color else Strip.STOCK,
+			if tierDef then string.upper(tierDef.name) else nil,
+			function(art: ImageLabel)
+				art.Image = SkinArt.side(gunId, line) or Theme.GUN[gunId] or ""
+			end,
+			function(): boolean
+				return gunOwned and equippedLine(gunId) == line
+			end,
+			function(): string?
+				return nil
+			end,
+			function()
+				previewLine = line
+				showGun(gunId, line, false, previewCharm)
+				if e.owned and gunOwned and line ~= equippedLine(gunId) then
+					LobbyNet.event("LockerRequest"):FireServer("equip", gunId, line)
+				end
+				Ui.preview()
 			end
-			refreshSkins()
-			Ui.preview()
-		end)
-		hoverTint(t)
-		t.Parent = skinStrip
-		table.insert(skinTiles, t)
+		)
 	end
+	Strip.built = Strip.signature()
+	Strip.restyle()
 	task.defer(Ui.shrink, skinStrip)
 end
 
@@ -850,52 +1166,25 @@ local RARITY_ORDER: { [string]: number } = {
 }
 
 refreshCharms = function()
-	for _, t in skinTiles do
-		t:Destroy()
-	end
-	table.clear(skinTiles)
+	Strip.clear()
 	local gunId = skinGun()
 	local gunOwned = guns().owned[gunId] == true and gunId ~= "Knife"
 	local charmData = PlayerData.charms(player)
-	local currentOn = equippedCharm(gunId)
-	local tpl = find(skinStrip, "Template") :: GuiButton
-
-	local noneTile = tpl:Clone()
-	noneTile.Name = "NoneCharm"
-	noneTile.LayoutOrder = 0
-	noneTile.Visible = true
-	set(noneTile, "Name", "Text", "NONE")
-	set(noneTile, "Name", "TextTransparency", 0)
-	local noneArt = find(noneTile, "Art") :: ImageLabel
-	CharmThumbnail.clear(noneArt)
-	noneArt.Image = ""
-	set(noneTile, "On", "Visible", gunOwned and currentOn == nil)
-	set(noneTile, "On", "Text", "EQUIPPED")
-	local noneTier = noneTile:FindFirstChild("Tier")
-	if noneTier and noneTier:IsA("TextLabel") then
-		noneTier.Visible = false
-	end
-	local noneLock = noneTile:FindFirstChild("Lock")
-	if noneLock and noneLock:IsA("GuiObject") then
-		noneLock.Visible = false
-	end
-	local noneBg = noneTile:FindFirstChild("Bg")
-	if noneBg and noneBg:IsA("ImageLabel") then
-		noneBg.ImageColor3 = if previewCharm == "" then WHITE else PANEL
-		noneBg.ImageTransparency = if previewCharm == "" then 0.8 else 0.25
-	end
-	noneTile.Activated:Connect(function()
+	Strip.tile(0, "NoneCharm", "None", true, Strip.STOCK, nil, function(art: ImageLabel)
+		CharmThumbnail.clear(art)
+		art.Image = ""
+	end, function(): boolean
+		return gunOwned and equippedCharm(gunId) == nil
+	end, function(): string?
+		return nil
+	end, function()
 		previewCharm = ""
 		showGun(gunId, previewLine, false, "")
-		if gunOwned and currentOn ~= nil then
+		if gunOwned and equippedCharm(gunId) ~= nil then
 			LobbyNet.event("LockerRequest"):FireServer("charm", gunId, "")
 		end
-		refreshCharms()
 		Ui.preview()
 	end)
-	hoverTint(noneTile)
-	noneTile.Parent = skinStrip
-	table.insert(skinTiles, noneTile)
 
 	type CharmEntry = {
 		def: CharmsConfig.CharmDef,
@@ -928,63 +1217,75 @@ refreshCharms = function()
 		local def = e.def
 		local cid = def.id
 		local isOwned = e.copies > 0
-		local usedGuns = PlayerData.charmGuns(charmData, cid)
-		local t = tpl:Clone()
-		t.Name = "Charm_" .. cid
-		t.LayoutOrder = i
-		t.Visible = true
-		set(t, "Name", "Text", if e.copies > 1 then `{def.name} x{e.copies}` else def.name)
-		set(t, "Name", "TextTransparency", if isOwned then 0 else 0.35)
-		local art = find(t, "Art") :: ImageLabel
-		art.Image = ""
-		CharmThumbnail.mount(art, cid, not isOwned)
-
-		local onLabel = t:FindFirstChild("On")
-		if onLabel and onLabel:IsA("TextLabel") then
-			onLabel.TextColor3 = if isOwned then CYAN else LOCKED_ROLE
-			if not isOwned then
-				onLabel.Visible = true
-				onLabel.Text = "NOT OWNED"
-			elseif gunOwned and cid == currentOn then
-				onLabel.Visible = true
-				onLabel.Text = "EQUIPPED"
-			elseif #usedGuns >= e.copies and #usedGuns > 0 then
-				onLabel.Visible = true
-				onLabel.Text = "ON " .. string.upper(gunName(usedGuns[1]))
-			else
-				onLabel.Visible = false
+		Strip.tile(
+			i,
+			cid,
+			if e.copies > 1 then `{def.name} x{e.copies}` else def.name,
+			isOwned,
+			ShopCatalog.RARITY_COLOR[def.rarity] or Strip.STOCK,
+			string.upper(def.rarity),
+			function(art: ImageLabel)
+				art.Image = ""
+				CharmThumbnail.mount(art, cid, not isOwned)
+			end,
+			function(): boolean
+				return gunOwned and equippedCharm(gunId) == cid
+			end,
+			function(): string?
+				-- a charm whose every copy hangs on other guns says where
+				local usedGuns = PlayerData.charmGuns(PlayerData.charms(player), cid)
+				if
+					isOwned
+					and equippedCharm(gunId) ~= cid
+					and #usedGuns >= e.copies
+					and #usedGuns > 0
+				then
+					return "ON " .. string.upper(gunName(usedGuns[1]))
+				end
+				return nil
+			end,
+			function()
+				previewCharm = cid
+				showGun(gunId, previewLine, false, cid)
+				if isOwned and gunOwned and cid ~= equippedCharm(gunId) then
+					LobbyNet.event("LockerRequest"):FireServer("charm", gunId, cid)
+				end
+				Ui.preview()
 			end
-		end
-
-		local tierLabel = t:FindFirstChild("Tier")
-		if tierLabel and tierLabel:IsA("TextLabel") then
-			tierLabel.Visible = true
-			tierLabel.Text = string.upper(def.rarity)
-			tierLabel.TextColor3 = ShopCatalog.RARITY_COLOR[def.rarity] or WHITE
-		end
-		local lock = t:FindFirstChild("Lock")
-		if lock and lock:IsA("GuiObject") then
-			lock.Visible = not isOwned
-		end
-		local bg = t:FindFirstChild("Bg")
-		if bg and bg:IsA("ImageLabel") then
-			bg.ImageColor3 = if cid == previewCharm then WHITE else PANEL
-			bg.ImageTransparency = if cid == previewCharm then 0.8 else 0.25
-		end
-		t.Activated:Connect(function()
-			previewCharm = cid
-			showGun(gunId, previewLine, false, cid)
-			if isOwned and gunOwned and cid ~= currentOn then
-				LobbyNet.event("LockerRequest"):FireServer("charm", gunId, cid)
-			end
-			refreshCharms()
-			Ui.preview()
-		end)
-		hoverTint(t)
-		t.Parent = skinStrip
-		table.insert(skinTiles, t)
+		)
 	end
+	Strip.built = Strip.signature()
+	Strip.restyle()
 	task.defer(Ui.shrink, skinStrip)
+end
+
+-- A locked gun's few short lines (owner 2026-11-28: "I don't really want to see the stats and other things, maybe
+-- just a little description like Rivals has"): its slot and class, how it fires, its line from Config/Loadout.
+function Ui.bullets(id: string): string
+	local cfg = Weapons.get(id) :: any
+	local role = LoadoutConfig.ROLES[id]
+	local lines: { string } = {}
+	local slot = GunLoadout.slotOf(id)
+	if cfg then
+		table.insert(lines, `{slot or "Standard"} {string.lower(cfg.class or "weapon")}`)
+		local pellets = cfg.pellets or 1
+		local fire = if cfg.burst
+			then `{cfg.burst.count}-round bursts`
+			elseif cfg.fireMode == "Auto" then "Full auto"
+			elseif cfg.fireMode == "Pump" then "Pump action"
+			else "One shot per click"
+		if pellets > 1 then
+			fire ..= `, {pellets} pellets a shot`
+		end
+		table.insert(lines, fire)
+	end
+	if role then
+		table.insert(lines, role[2])
+	end
+	for i, l in lines do
+		lines[i] = "•  " .. l
+	end
+	return table.concat(lines, "\n")
 end
 
 -- Where a skin comes from, in the words the Shop and the pass use.
@@ -1001,8 +1302,8 @@ function Ui.skinSource(gunId: string, line: string): string
 end
 
 -- What's on the stage that you can't use yet, said plainly (owner 2026-11-28: "It should be more clear when you
--- have a skin that you actually don't have unlocked"): a line over the strip while it's open, EQUIP turns into
--- PREVIEW ONLY, and a locked gun keeps its lock unless its skins are being browsed.
+-- have a skin that you actually don't have unlocked"): a line over the strip while it's open and EQUIP turns into
+-- PREVIEW ONLY. A locked gun wears the chains (Ui.lock) and opens no strip (owner 2026-11-28, second pass).
 function Ui.preview()
 	local note = Ui.note
 	if mode == "powers" then
@@ -1032,8 +1333,6 @@ function Ui.preview()
 				elseif def and def.source == "BattlePass" then "THE " .. source
 				else "A " .. source
 			text = `{red}  ·  CHARM  ·  GET IT FROM {where}`
-		elseif not gunOwned then
-			text = `PREVIEW  ·  UNLOCK THE {string.upper(gunName(gunId))} TO USE IT`
 		end
 	end
 	Ui.previewText = text
@@ -1043,9 +1342,15 @@ function Ui.preview()
 	end
 	local t = toast
 	if t then
-		t.Position = UDim2.new(0.5, 0, 0, if text ~= "" then -142 else -104)
+		t.Position = UDim2.new(
+			0.5,
+			0,
+			0,
+			if stripMode == "none" then -104 elseif text ~= "" then -190 else -154
+		)
 	end
-	lockPlate.Visible = mode == "guns" and not gunOwned and stripMode == "none"
+	-- the 2D lock is only the fallback for a place without the 3D chains (ReplicatedStorage.LockerV3Stage.LockChains)
+	lockPlate.Visible = mode == "guns" and not gunOwned and Ui.lockTemplate() == nil
 	local equipButton = find(ownedPanel, "Equip.Button")
 	if text ~= "" then
 		paint(equipButton, DARK, "PREVIEW ONLY", false)
@@ -1054,35 +1359,65 @@ function Ui.preview()
 	else
 		paint(equipButton, GOLD, "EQUIP", true)
 	end
+	-- SKIN / CHARM only on a gun you own (the knife is everyone's)
+	local owns = mode == "knife" or gunOwned
+	set(bottom, "GunBar.Skin", "Visible", owns)
+	set(bottom, "GunBar.Charm", "Visible", owns and mode == "guns")
+	-- the round buttons that show stay centred (each slot is 110 wide in the 760 bar)
+	local shown = 1 + (if owns then 1 else 0) + (if owns and mode == "guns" then 1 else 0)
+	set(bottom, "GunBar", "Position", UDim2.fromOffset((760 - shown * 110) / 2, 40))
 end
 
 local function setStripMode(nextMode: "none" | "skins" | "charms")
 	local was = stripMode
+	if nextMode ~= "none" and mode == "guns" and not guns().owned[selectedGun] then
+		nextMode = "none" -- a locked gun shows its chains, not its skins (owner 2026-11-28)
+	end
 	stripMode = nextMode
 	local open = nextMode ~= "none"
 	skinStrip.Visible = open
+	if Strip.bar then
+		(Strip.bar :: Frame).Visible = open
+	end
 	set(bottom, "Hint", "Visible", not open)
 	-- the knife has no gun list; on a narrow screen the open strip takes the list's place (fit() sets Ui.wide)
 	set(left, "Guns", "Visible", mode == "guns" and not (open and Ui.wide))
 	if open then
 		overviewCard.Visible = false -- (the strip sits where a long right column would end)
-		if was == "none" and mode == "guns" and not guns().owned[selectedGun] then
-			showGun(selectedGun, previewLine, false, previewCharm) -- a locked gun shows solid while browsed
-		end
 	elseif was ~= "none" and (mode == "knife" or GunLoadout.slotOf(selectedGun)) then
 		refreshGunPanel() -- a preview ends with its strip: the gun goes back to what you own
 	end
-	if open and was == "none" then
+	if open and was ~= nextMode then
 		skinStrip.CanvasPosition = Vector2.zero -- every strip starts at its left end
+		Strip.query = ""
+		local box = Strip.search
+		if box then
+			box.Text = ""
+			box.PlaceholderText = if nextMode == "charms" then "Search charms" else "Search skins"
+		end
 	end
 	if nextMode == "skins" then
 		refreshSkins()
-		UiMotion.slideIn(skinStrip, 0, 40, 0, 0.26)
 	elseif nextMode == "charms" then
 		refreshCharms()
+	end
+	if open and was ~= nextMode then
 		UiMotion.slideIn(skinStrip, 0, 40, 0, 0.26)
+		if Strip.bar then
+			UiMotion.slideIn(Strip.bar, 0, 30, 0.03, 0.26)
+		end
+		-- the tiles come in a beat apart, popping from their centres (Quint, no overshoot)
+		for i, e in Strip.tiles do
+			if i <= 9 then
+				UiMotion.popIn(e.pop, (i - 1) * 0.025, 0.85)
+			end
+		end
 	end
 	Ui.preview()
+end
+
+Ui.stripOff = function()
+	setStripMode("none")
 end
 
 -- powers -----------------------------------------------------------------------------------------------------------
@@ -1291,6 +1626,7 @@ local function setMode(newMode: Mode)
 			current:Destroy()
 			current = nil
 		end
+		Lock.show(false)
 		ownedPanel.Visible = false
 		lockedPanel.Visible = false
 		lockPlate.Visible = false
@@ -1451,8 +1787,20 @@ local function fit()
 	skinStrip.Position = UDim2.new(0.5, math.floor(stripX), 0, 30)
 	local note = Ui.note
 	if note then
-		note.Position = UDim2.new(0.5, math.floor(stripX), 0, -104)
+		note.Position = UDim2.new(0.5, math.floor(stripX), 0, -154)
 		note.Size = UDim2.fromOffset(math.max(math.floor(stripW), 400), note.Size.Y.Offset)
+	end
+	local bar = Strip.bar
+	if bar then
+		place(bar, UDim2.new(0.5, math.floor(stripX), 0, -106))
+		bar.Size = UDim2.fromOffset(math.floor(stripW), bar.Size.Y.Offset)
+		local field = bar:FindFirstChild("Search")
+		if field and field:IsA("GuiObject") then
+			field.Size = UDim2.fromOffset(
+				math.clamp(math.floor(stripW) - 140, 120, 360),
+				field.Size.Y.Offset
+			)
+		end
 	end
 	if wide ~= Ui.wide then
 		Ui.wide = wide
@@ -1667,6 +2015,7 @@ local function conceal()
 		stageFolder = nil
 	end
 	current, card, sweep = nil, nil, nil
+	Lock.model, Lock.breaking = nil, nil -- (gone with the stage folder)
 	dragging = false
 	gui.Enabled = false
 	if confirmFrame then
@@ -1723,6 +2072,13 @@ local function close()
 		conceal()
 		return
 	end
+	-- the columns leave toward their edges as the wipe comes down (Quad in, UI Theme v4 exit)
+	for _, spec in { { left, -120, 0 }, { right, 120, 0 }, { top, 0, -80 }, { bottom, 0, 120 } } do
+		local obj = spec[1] :: GuiObject
+		UiMotion.out(obj, {
+			Position = UiMotion.home(obj) + UDim2.fromOffset(spec[2] :: number, spec[3] :: number),
+		})
+	end
 	runWipe(2, -1, WIPE_OUT, function()
 		if passToken == my and not isOpen then
 			conceal()
@@ -1765,6 +2121,58 @@ local function buildGunRows()
 		priceText.Parent = box
 		box.Parent = lockedTpl
 	end
+	-- A locked row reads locked at a glance (owner 2026-11-28, after RIVALS' list): the name greyed between two
+	-- padlocks, in one row sized to the name.
+	local lockArt, nameText = lockedTpl:FindFirstChild("Lock"), lockedTpl:FindFirstChild("Name")
+	if lockArt and lockArt:IsA("ImageLabel") and nameText and nameText:IsA("TextLabel") then
+		local nameRow = Instance.new("Frame")
+		nameRow.Name = "NameRow"
+		nameRow.BackgroundTransparency = 1
+		nameRow.Position = UDim2.fromOffset(lockArt.Position.X.Offset, nameText.Position.Y.Offset)
+		nameRow.Size = UDim2.fromOffset(0, nameText.Size.Y.Offset)
+		nameRow.AutomaticSize = Enum.AutomaticSize.X
+		local rowLayout = Instance.new("UIListLayout")
+		rowLayout.FillDirection = Enum.FillDirection.Horizontal
+		rowLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		rowLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		rowLayout.Padding = UDim.new(0, 7)
+		rowLayout.Parent = nameRow
+		local grey = Color3.fromHex("9AA1AD")
+		-- the gun art steps aside a little for the first padlock
+		local render = lockedTpl:FindFirstChild("Render")
+		if render and render:IsA("GuiObject") then
+			render.Size = UDim2.fromOffset(
+				110,
+				render.Size.Y.Offset * 110 / math.max(render.Size.X.Offset, 1)
+			)
+		end
+		nameRow.Position = UDim2.fromOffset(136, nameText.Position.Y.Offset)
+		lockArt.Image = Theme.ICON.Padlock
+		lockArt.ScaleType = Enum.ScaleType.Fit
+		lockArt.Size = UDim2.fromOffset(19, 19)
+		lockArt.ImageColor3 = grey
+		lockArt.LayoutOrder = 1
+		lockArt.Parent = nameRow
+		nameText.LayoutOrder = 2
+		nameText.TextColor3 = grey
+		nameText.TextSize = math.min(nameText.TextSize, 21)
+		nameText.Size = UDim2.fromOffset(0, nameText.Size.Y.Offset)
+		nameText.AutomaticSize = Enum.AutomaticSize.X
+		nameText.Parent = nameRow
+		local lockRight = lockArt:Clone()
+		lockRight.Name = "LockRight"
+		lockRight.LayoutOrder = 3
+		lockRight.Parent = nameRow
+		nameRow.Parent = lockedTpl
+		-- the LOCKED line under it starts where the name now starts
+		local sub = lockedTpl:FindFirstChild("Sub")
+		if sub and sub:IsA("GuiObject") then
+			sub.Position = UDim2.fromOffset(
+				lockArt.Size.X.Offset + 7 + nameRow.Position.X.Offset,
+				sub.Position.Y.Offset
+			)
+		end
+	end
 	local headP = list:FindFirstChild("HeadPRIMARY") :: GuiObject?
 	local headS = list:FindFirstChild("HeadSECONDARY") :: GuiObject?
 	local order = 0
@@ -1779,7 +2187,10 @@ local function buildGunRows()
 		row:SetAttribute("Gun", id)
 		row:SetAttribute("BuiltOwned", owned)
 		set(row, "Render", "Image", Theme.GUN[id] or "")
-		set(row, "Name", "Text", string.upper(gunName(id)))
+		local rowName = row:FindFirstChild("Name", true) -- (a locked row's sits in its NameRow)
+		if rowName and rowName:IsA("TextLabel") then
+			rowName.Text = string.upper(gunName(id))
+		end
 		if owned then
 			local lv = row:FindFirstChild("Level")
 			if lv and lv:IsA("GuiObject") then
@@ -1791,12 +2202,16 @@ local function buildGunRows()
 				price.Text = commas(GunLoadout.price(id) or 0)
 			end
 		end
-		row.Activated:Connect(function()
+		-- a row dips under the press and grows a touch on hover, from its centre (rows sit in a layout)
+		local rowPop = Instance.new("UIScale")
+		rowPop.Name = "Pop"
+		rowPop.Parent = row
+		UiMotion.button(row, rowPop, function()
 			if mode == "knife" then
 				setMode("guns")
 			end
 			selectGun(id)
-		end)
+		end, { hover = 1.015 })
 		hoverTint(row)
 		row.Parent = list
 		rows[id] = row
@@ -2010,6 +2425,9 @@ local function onGunReply(
 	if ok == true then
 		if action == "unlock" then
 			UiSfx.cue("Purchase")
+			if id == selectedGun then
+				Lock.breakIt() -- the chains break off the gun you just bought
+			end
 			rebuildGunRows()
 			say(`{string.upper(gunName(if typeof(id) == "string" then id else ""))} UNLOCKED`)
 		elseif action == "level" and typeof(id) == "string" then
@@ -2103,6 +2521,67 @@ function LockerV3Controller.start()
 		note.Parent = bottom
 		Ui.note = note
 	end
+	-- BACK and a search box over the open strip (owner 2026-11-28, after RIVALS' skin row): a dark chunky BACK
+	-- (the tabs' plate) and a field on the tiles' plate. fit() sizes the bar to the strip.
+	local stripBar = Instance.new("Frame")
+	stripBar.Name = "StripBar"
+	stripBar.BackgroundTransparency = 1
+	stripBar.AnchorPoint = Vector2.new(0.5, 1)
+	stripBar.Size = UDim2.fromOffset(1060, 44)
+	stripBar.Position = UDim2.new(0.5, 0, 0, -106)
+	stripBar.Visible = false
+	local back = (find(top, "Tabs.TabGUNS") :: GuiButton):Clone()
+	back.Name = "Back"
+	back:SetAttribute("Tab", nil)
+	back:SetAttribute("Juiced", nil)
+	local oldPop = back:FindFirstChild("Pop")
+	if oldPop then
+		oldPop:Destroy()
+	end
+	back.AnchorPoint = Vector2.zero
+	back.Position = UDim2.fromOffset(0, 0)
+	back.Size = UDim2.fromOffset(128, 44)
+	paint(back, DARK, "BACK", false)
+	local backLabel = back:FindFirstChild("Label")
+	if backLabel and backLabel:IsA("TextLabel") then
+		backLabel.TextSize = 20
+	end
+	back.Parent = stripBar
+	juice(back)
+	back.Activated:Connect(function()
+		UiSfx.play("Back")
+		setStripMode("none")
+	end)
+	local field = (find(skinStrip, "Template.Bg") :: ImageLabel):Clone()
+	field.Name = "Search"
+	field.Position = UDim2.fromOffset(140, 0)
+	field.Size = UDim2.fromOffset(340, 44)
+	field.ImageColor3 = PANEL
+	field.ImageTransparency = 0.15
+	local box = Instance.new("TextBox")
+	box.Name = "Box"
+	box.BackgroundTransparency = 1
+	box.Position = UDim2.fromOffset(18, 0)
+	box.Size = UDim2.new(1, -30, 1, 0)
+	box.ClearTextOnFocus = false
+	box.Text = ""
+	box.PlaceholderText = "Search skins"
+	box.PlaceholderColor3 = Color3.fromHex("A9B2BF")
+	box.TextColor3 = Color3.fromHex("F4F6F9")
+	box.TextXAlignment = Enum.TextXAlignment.Left
+	box.TextSize = 18
+	if backLabel and backLabel:IsA("TextLabel") then
+		box.FontFace = backLabel.FontFace
+	end
+	box.Parent = field
+	field.Parent = stripBar
+	box:GetPropertyChangedSignal("Text"):Connect(function()
+		Strip.query = box.Text
+		Strip.restyle()
+	end)
+	stripBar.Parent = bottom
+	Strip.bar = stripBar
+	Strip.search = box
 	-- One click out, always in the same place (owner 2026-11-28: "Should be an easy one click out of the locker
 	-- somewhere"): the lobby's round close button right of the coins. Back / B still step out of the strip first.
 	local topRight = find(gui, "TopRight") :: Frame
@@ -2156,6 +2635,23 @@ function LockerV3Controller.start()
 	set(bottom, "GunBar", "Position", CHARM_GUNBAR_POS)
 	set(ownedPanel, "Actions.OverviewRow.Sub", "Text", "Damage, fire rate, handling")
 	set(lockedPanel, "Actions.OverviewRow.Sub", "Text", "Damage, fire rate, handling")
+	-- A locked gun (owner 2026-11-28, after RIVALS' locked weapon page): its name, a few short lines and UNLOCK.
+	-- No stats, no free trial row.
+	set(lockedPanel, "Actions", "Visible", false)
+	set(lockedPanel, "Unlock.Try", "Visible", false)
+	local unlockCard = find(lockedPanel, "Unlock") :: Frame
+	unlockCard.Size = UDim2.fromOffset(unlockCard.Size.X.Offset, 88)
+	local lockedDetails = find(lockedPanel, "Details") :: Frame
+	local lockedBlurb = label(lockedDetails, "Blurb")
+	lockedBlurb.TextWrapped = true
+	lockedBlurb.TextYAlignment = Enum.TextYAlignment.Top
+	lockedBlurb.LineHeight = 1.15
+	lockedBlurb.AutomaticSize = Enum.AutomaticSize.Y
+	lockedBlurb.Size = UDim2.fromOffset(lockedBlurb.Size.X.Offset, 20)
+	lockedDetails.AutomaticSize = Enum.AutomaticSize.Y
+	local blurbPad = Instance.new("UIPadding") -- (on the text, so the card's plate still reaches its foot)
+	blurbPad.PaddingBottom = UDim.new(0, 18)
+	blurbPad.Parent = lockedBlurb
 	local actions = find(ownedPanel, "Actions") :: Frame
 	actions.Size = UDim2.fromOffset(actions.Size.X.Offset, 88)
 	set(actions, "OverviewRow", "Position", UDim2.fromOffset(0, 8))
@@ -2411,11 +2907,7 @@ function LockerV3Controller.start()
 					)
 				end
 			end
-			if stripMode == "skins" then
-				refreshSkins()
-			elseif stripMode == "charms" then
-				refreshCharms()
-			end
+			refreshStrip()
 		end
 	end
 	task.spawn(function()
@@ -2456,8 +2948,8 @@ function LockerV3Controller.start()
 		end
 	end)
 	Locker.observe(player, function()
-		if isOpen and stripMode == "skins" then
-			refreshSkins()
+		if isOpen then
+			refreshStrip() -- an equip: the check moves, the tiles stay
 		end
 	end)
 	SkinStore.arrived:Connect(function(line: string, name: string)
@@ -2467,7 +2959,12 @@ function LockerV3Controller.start()
 			and line == previewLine
 			and name == SkinStore.modelName(selectedGun, line)
 		then
-			showGun(selectedGun, line, false, previewCharm)
+			showGun(
+				selectedGun,
+				line,
+				mode == "guns" and not guns().owned[selectedGun],
+				previewCharm
+			)
 		end
 	end)
 	-- turning: grab the stage (anywhere off the panels) and drag
