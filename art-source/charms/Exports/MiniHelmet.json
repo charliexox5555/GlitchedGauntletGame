@@ -1,0 +1,140 @@
+{
+ "id": "MiniHelmet",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.096,
+   -0.102,
+   -0.337
+  ],
+  "max": [
+   0.08869,
+   0.08869,
+   0.00693
+  ],
+  "bodyCenter": [
+   -0.00365,
+   -0.00665,
+   -0.21238
+  ]
+ },
+ "tris": 620,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Helm_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     235,
+     184,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Helm_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     63,
+     224,
+     242
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.07598,
+    -0.259
+   ],
+   "size": [
+    0.15244,
+    0.04796,
+    0.062
+   ],
+   "tris": 28
+  },
+  {
+   "name": "Body_Helm_Slate",
+   "role": "body",
+   "material": "Helm_Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     70,
+     80,
+     102
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.00365,
+    -0.00665,
+    -0.2465
+   ],
+   "size": [
+    0.18469,
+    0.19069,
+    0.181
+   ],
+   "tris": 330
+  },
+  {
+   "name": "Body_Helm_Gold",
+   "role": "body",
+   "material": "Helm_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     235,
+     184,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.01529,
+    -0.12777
+   ],
+   "size": [
+    0.04839,
+    0.06586,
+    0.08001
+   ],
+   "tris": 118
+  }
+ ]
+}

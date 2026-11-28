@@ -1,0 +1,140 @@
+{
+ "id": "MicroBlade",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.038,
+   -0.02332,
+   -0.398
+  ],
+  "max": [
+   0.038,
+   0.02332,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.24288
+  ]
+ },
+ "tris": 364,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Blade_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     238,
+     186,
+     58
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Blade_Steel",
+   "role": "body",
+   "material": "Blade_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     203,
+     213,
+     230
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.317
+   ],
+   "size": [
+    0.044,
+    0.02,
+    0.162
+   ],
+   "tris": 38
+  },
+  {
+   "name": "Body_Blade_Grip",
+   "role": "body",
+   "material": "Blade_Grip",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     46,
+     53,
+     69
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.183
+   ],
+   "size": [
+    0.036,
+    0.026,
+    0.062
+   ],
+   "tris": 16
+  },
+  {
+   "name": "Body_Blade_Gold",
+   "role": "body",
+   "material": "Blade_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     238,
+     186,
+     58
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.16188
+   ],
+   "size": [
+    0.076,
+    0.04,
+    0.14824
+   ],
+   "tris": 166
+  }
+ ]
+}

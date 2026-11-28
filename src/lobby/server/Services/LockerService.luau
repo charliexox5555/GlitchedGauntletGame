@@ -35,6 +35,7 @@ local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Validate = require(ReplicatedStorage.Shared.Util.Validate)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
 local GunLevelsConfig = require(ReplicatedStorage.Shared.Config.GunLevels)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local Telemetry = require(script.Parent.Parent.Telemetry)
@@ -236,6 +237,61 @@ end
 local function onRequest(player: Player, action: unknown, gunId: unknown, line: unknown)
 	if not limiter:allow(player, "LockerRequest") then
 		reject("rate")
+		return
+	end
+	if action == "charm" then
+		-- ("charm", gunId, charmId or "") equips or takes off an owned charm
+		if
+			typeof(gunId) ~= "string"
+			or typeof(line) ~= "string"
+			or #gunId > 24
+			or #line > 32
+			or PlayZone.get(player) ~= "Lobby"
+		then
+			reject("badArgs")
+			return
+		end
+		local targetCharm: string? = if line == "" then nil else line
+		if targetCharm and not CharmsConfig.exists(targetCharm) then
+			reject("badPair")
+			return
+		end
+		local known = PlayerDataService.get(player)
+		if not known or gunId == "Knife" or not known.guns.owned[gunId] then
+			reject("notOwned")
+			return
+		end
+		if targetCharm and PlayerData.charmCopies(known.charms, targetCharm) <= 0 then
+			reject("notOwned")
+			return
+		end
+		if PlayerData.equippedCharm(known.charms, gunId) == targetCharm then
+			return
+		end
+		local movedFrom: string? = nil
+		local saved = PlayerDataService.transact(
+			player,
+			PlayerDataService.newTxId(),
+			function(latest)
+				if not latest.guns.owned[gunId] then
+					return false, "notOwned"
+				end
+				if targetCharm and PlayerData.charmCopies(latest.charms, targetCharm) <= 0 then
+					return false, "notOwned"
+				end
+				local ok, fromGun = PlayerData.setCharm(latest, gunId, targetCharm)
+				if not ok then
+					return false, "badPair"
+				end
+				movedFrom = fromGun
+				return true
+			end,
+			true
+		)
+		if saved and player.Parent == Players then
+			LobbyNet.event("LockerRequest")
+				:FireClient(player, "charm", gunId, line, true, movedFrom)
+		end
 		return
 	end
 	if action == "title" then

@@ -25,6 +25,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 export type Reward = ShopCatalog.Item & {
 	case: string?,
 	mod: string?,
+	charm: string?,
 	title: string?,
 	randomGun: boolean?,
 }
@@ -81,8 +82,8 @@ local function gunSkin(gun: string, line: string, rarity: ShopCatalog.Rarity): R
 		rarity = rarity,
 	}
 end
-local function charm(name: string, rarity: ShopCatalog.Rarity): Reward
-	return { kind = "Charm", name = name, rarity = rarity }
+local function charm(id: string, name: string, rarity: ShopCatalog.Rarity): Reward
+	return { kind = "Charm", name = name, charm = id, rarity = rarity }
 end
 local function power(mod: string, name: string): Reward
 	return { kind = "Mod", name = name, mod = mod, rarity = "Epic" }
@@ -96,33 +97,33 @@ end
 -- Skins go to a random gun the player owns (skin()); goodie bags: see the Contents note.
 SeasonCatalog.TIERS = {
 	{ free = coins(200), premium = skin(ARCADE, "Rare") }, -- 1
-	{ free = nil, premium = charm("JOYSTICK", "Rare") },
+	{ free = nil, premium = charm("Joystick", "JOYSTICK", "Rare") },
 	{ free = case("Standard"), premium = coins(500) },
 	{ free = nil, premium = tickets(1) },
 	{ free = nil, premium = skin(ARCADE, "Rare") }, -- 5
-	{ free = charm("ARCADE TOKEN", "Common"), premium = case("Standard") },
+	{ free = charm("ArcadeToken", "ARCADE TOKEN", "Common"), premium = case("Standard") },
 	{ free = nil, premium = coins(650) },
-	{ free = tickets(1), premium = charm("PIXEL HEART", "Rare") },
+	{ free = tickets(1), premium = charm("PixelHeart", "PIXEL HEART", "Rare") },
 	{ free = nil, premium = skin(ARCADE, "Rare") },
 	{ free = power("Smoke", "SMOKE"), premium = case("Elite") }, -- 10
 	{ free = nil, premium = coins(750) },
-	{ free = coins(300), premium = charm("GAME CARTRIDGE", "Epic") },
+	{ free = coins(300), premium = charm("GameCartridge", "GAME CARTRIDGE", "Epic") },
 	{ free = nil, premium = skin(ARCADE, "Rare") },
 	{ free = nil, premium = tickets(2) },
 	{ free = skin(ARCADE, "Rare"), premium = skin(FROSTBITE, "Legendary") }, -- 15
 	{ free = nil, premium = coins(900) },
-	{ free = nil, premium = charm("SNOWFLAKE SHARD", "Rare") },
+	{ free = nil, premium = charm("SnowflakeShard", "SNOWFLAKE SHARD", "Rare") },
 	{ free = case("Standard"), premium = skin(ARCADE, "Rare") },
 	{ free = nil, premium = case("Elite") },
 	{ free = coins(400), premium = power("ElectricShock", "ELECTRIC SHOCK") }, -- 20
 	{ free = nil, premium = skin(ARCADE, "Rare") },
 	{ free = tickets(1), premium = coins(1000) },
-	{ free = nil, premium = charm("THUNDER ORB", "Epic") },
+	{ free = nil, premium = charm("ThunderOrb", "THUNDER ORB", "Epic") },
 	{ free = nil, premium = skin(FROSTBITE, "Legendary") },
-	{ free = charm("ICE CUBE", "Rare"), premium = case("Apex") }, -- 25
+	{ free = charm("IceCube", "ICE CUBE", "Rare"), premium = case("Apex") }, -- 25
 	{ free = nil, premium = skin(ARCADE, "Rare") },
 	{ free = nil, premium = coins(1200) },
-	{ free = coins(500), premium = charm("HIGH SCORE", "Legendary") },
+	{ free = coins(500), premium = charm("HighScore", "HIGH SCORE", "Legendary") },
 	{ free = nil, premium = skin(FROSTBITE, "Legendary") },
 	{ free = coins(600), premium = gunSkin("Knife", FROSTBITE, "Legendary") }, -- 30
 } :: { Tier }

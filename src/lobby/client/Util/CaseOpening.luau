@@ -33,14 +33,22 @@ local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local Vfx = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ItemStage = require(script.Parent.ItemStage)
 local PackOpening = require(script.Parent.PackOpening)
+local BlindBoxOpening = require(script.Parent.BlindBoxOpening)
 local PowerCardFace = require(script.Parent.PowerCardFace)
 -- the name plate over a rising power card is smaller than a skin's (owner 2026-11-26: "a bit too large")
 local POWER_CARD_SCALE = 0.7
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
--- A skin, or a power from a power case (power = Config/Mods id, gun and line ""; Shared/PowerCases): its
--- 3D card rises instead of a gun (Util/PowerCardFace).
-export type Result = { gun: string, line: string, tier: string, name: string, power: string? }
+-- A skin, a power from a power case, or a charm from a blind box.
+export type Result = {
+	gun: string,
+	line: string,
+	tier: string,
+	name: string,
+	power: string?,
+	charm: string?,
+	copies: number?,
+}
 
 local CaseOpening = {}
 
@@ -1206,6 +1214,9 @@ function CaseOpening.start(
 	count: number
 ): Handle?
 	local tierDef = Crates.TIERS[crateTier]
+	if tierDef and tierDef.blindBox then
+		return BlindBoxOpening.start(owner, crateTier, isLocal, count) :: any
+	end
 	if tierDef and tierDef.pack then
 		-- a card pack (the SURGE power pack): it floats at the opener and rips open (Util/PackOpening)
 		return PackOpening.start(owner, crateTier, isLocal, count) :: any
@@ -1337,11 +1348,10 @@ function CaseOpening.start(
 			end
 			for i = 1, shown do
 				local reward = results[i]
-				local model = if reward.power
-					then nil
-					else Locker.skinModel(reward.gun, reward.line)
+				local skipModel = reward.power ~= nil or reward.charm ~= nil
+				local model = if skipModel then nil else Locker.skinModel(reward.gun, reward.line)
 				if
-					not reward.power
+					not skipModel
 					and (not model or not model:FindFirstChildWhichIsA("BasePart", true))
 				then
 					return false

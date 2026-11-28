@@ -1,0 +1,141 @@
+{
+ "id": "SnowflakeShard",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.10566,
+   -0.026,
+   -0.367
+  ],
+  "max": [
+   0.10566,
+   0.026,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.22738
+  ]
+ },
+ "tris": 544,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Snow_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     181,
+     244,
+     255
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.245
+   ],
+   "size": [
+    0.068,
+    0.052,
+    0.068
+   ],
+   "tris": 24
+  },
+  {
+   "name": "Body_Snow_Ice",
+   "role": "body",
+   "material": "Snow_Ice",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     154,
+     235,
+     255
+    ],
+    "transparency": 0.15
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.256
+   ],
+   "size": [
+    0.21131,
+    0.04,
+    0.222
+   ],
+   "tris": 262
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.11638
+   ],
+   "size": [
+    0.0394,
+    0.03,
+    0.05724
+   ],
+   "tris": 114
+  }
+ ]
+}

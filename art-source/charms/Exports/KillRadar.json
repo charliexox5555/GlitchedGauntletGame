@@ -1,0 +1,169 @@
+{
+ "id": "KillRadar",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.114,
+   -0.038,
+   -0.35593
+  ],
+  "max": [
+   0.114,
+   0.035,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   -0.0015,
+   -0.22185
+  ]
+ },
+ "tris": 592,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Radar_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     242,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Screen",
+   "role": "screen",
+   "material": "Radar_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     60,
+     69,
+     88
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.025,
+    -0.258
+   ],
+   "size": [
+    0.13673,
+    0.01,
+    0.13673
+   ],
+   "tris": 28
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Radar_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     60,
+     255,
+     158
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.026,
+    -0.033,
+    -0.192
+   ],
+   "size": [
+    0.084,
+    0.01,
+    0.044
+   ],
+   "tris": 24
+  },
+  {
+   "name": "Body_Radar_Body",
+   "role": "body",
+   "material": "Radar_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     60,
+     69,
+     88
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.258
+   ],
+   "size": [
+    0.19586,
+    0.07,
+    0.19586
+   ],
+   "tris": 274
+  },
+  {
+   "name": "Body_Radar_Gold",
+   "role": "body",
+   "material": "Radar_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     242,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.18888
+   ],
+   "size": [
+    0.228,
+    0.04,
+    0.20224
+   ],
+   "tris": 122
+  }
+ ]
+}

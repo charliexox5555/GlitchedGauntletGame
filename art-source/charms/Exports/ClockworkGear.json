@@ -1,0 +1,140 @@
+{
+ "id": "ClockworkGear",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.09978,
+   -0.02332,
+   -0.34478
+  ],
+  "max": [
+   0.09978,
+   0.02332,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.21627
+  ]
+ },
+ "tris": 582,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Wheel",
+   "role": "wheel",
+   "material": "Gear_Brass",
+   "look": {
+    "material": "Metal",
+    "color": [
+     235,
+     184,
+     66
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    -0.245
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.245
+   ],
+   "size": [
+    0.14711,
+    0.04,
+    0.14711
+   ],
+   "tris": 174
+  },
+  {
+   "name": "Body_Gear_Slate",
+   "role": "body",
+   "material": "Gear_Slate",
+   "look": {
+    "material": "Metal",
+    "color": [
+     54,
+     62,
+     80
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.245
+   ],
+   "size": [
+    0.19956,
+    0.044,
+    0.19956
+   ],
+   "tris": 156
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.11638
+   ],
+   "size": [
+    0.044,
+    0.032,
+    0.05724
+   ],
+   "tris": 108
+  }
+ ]
+}

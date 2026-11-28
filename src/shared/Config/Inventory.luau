@@ -84,6 +84,24 @@ local ITEMS: { [string]: ItemDef } = {
 		maxStack = 999,
 		icon = "rbxassetid://88263832595455", -- art-source/ui/pack/pack_power.png
 	},
+	CaseStrikeBox = {
+		id = "CaseStrikeBox",
+		kind = "Case",
+		name = "STRIKE BOX",
+		tier = 8,
+		case = "StrikeBox",
+		maxStack = 999,
+		icon = "rbxassetid://78675473607803", -- art-source/ui/shop/boxes/box_strike.png
+	},
+	CaseOverdriveBox = {
+		id = "CaseOverdriveBox",
+		kind = "Case",
+		name = "OVERDRIVE BOX",
+		tier = 9,
+		case = "OverdriveBox",
+		maxStack = 999,
+		icon = "rbxassetid://73906343187873", -- art-source/ui/shop/boxes/box_overdrive.png
+	},
 }
 
 -- the item each Shop case puts in the inventory

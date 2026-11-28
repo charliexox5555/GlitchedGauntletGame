@@ -1,0 +1,140 @@
+{
+ "id": "DogTags",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.07006,
+   -0.02332,
+   -0.34664
+  ],
+  "max": [
+   0.07006,
+   0.02332,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.2172
+  ]
+ },
+ "tris": 622,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Tag_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     180,
+     190,
+     206
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Tag_Steel",
+   "role": "body",
+   "material": "Tag_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     180,
+     190,
+     206
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.2172
+   ],
+   "size": [
+    0.14012,
+    0.044,
+    0.25887
+   ],
+   "tris": 383
+  },
+  {
+   "name": "Body_Tag_Dark",
+   "role": "body",
+   "material": "Tag_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     50,
+     58,
+     74
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.00435,
+    0.012,
+    -0.27147
+   ],
+   "size": [
+    0.08437,
+    0.02,
+    0.09457
+   ],
+   "tris": 48
+  },
+  {
+   "name": "Body_Tag_Gold",
+   "role": "body",
+   "material": "Tag_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     235,
+     184,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.00405,
+    -0.012,
+    -0.26154
+   ],
+   "size": [
+    0.0835,
+    0.02,
+    0.09399
+   ],
+   "tris": 47
+  }
+ ]
+}

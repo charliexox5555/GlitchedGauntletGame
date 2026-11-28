@@ -40,6 +40,8 @@ local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local PowerCases = require(ReplicatedStorage.Shared.PowerCases)
+local CharmCases = require(ReplicatedStorage.Shared.CharmCases)
+local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Locker = require(ReplicatedStorage.Shared.Locker)
@@ -77,6 +79,7 @@ local REASON_TEXT: { [string]: string } = {
 	noCase = "You don't have that case",
 	ownAll = "You own every skin that case has for your guns",
 	ownAllPowers = "You already own every power (or hold packs for the rest)",
+	ownAllCharms = "You already own max copies of every charm in that box",
 }
 
 local function reject(reason: string)
@@ -95,7 +98,79 @@ local function unownedIn(caseId: string, data: PlayerData.Data): number
 	if PowerCases.isPowerCase(caseId) then
 		return #PowerCases.unowned(caseId, data.mods)
 	end
+	if CharmCases.isCharmCase(caseId) then
+		return CharmCases.remainingSlots(caseId, data.charms)
+	end
 	return SkinCases.unowned(caseId, data.skins, data.guns)
+end
+
+-- Charm blind boxes (StrikeBox / OverdriveBox): coins only, BUY x1 or x3.
+local function buyCharmBox(player: Player, caseId: string, count: number)
+	if not CharmCases.isCharmCase(caseId) then
+		reject("badCase")
+		return
+	end
+	local itemId = Inventory.BY_CASE[caseId]
+	local def = if itemId then Inventory.ITEMS[itemId] else nil
+	if not def or def.retired then
+		reject("badCase")
+		return
+	end
+	local known = PlayerDataService.get(player)
+	if not known then
+		send(player, { kind = "failed", text = REASON_TEXT.saving })
+		return
+	end
+	local held = known.items[def.id] or 0
+	local room = unownedIn(caseId, known) - held
+	if room < count then
+		send(player, {
+			kind = "failed",
+			text = if room <= 0
+				then REASON_TEXT.ownAllCharms
+				else `Only {room} more box{if room == 1 then "" else "es"}: that's every slot left`,
+		})
+		return
+	end
+	if held + count > def.maxStack then
+		send(player, { kind = "failed", text = REASON_TEXT.full })
+		return
+	end
+	local price = Economy.CHARM_BOX.coins * count
+	if known.coins < price then
+		send(player, { kind = "failed", text = REASON_TEXT.coins })
+		return
+	end
+	if not limiter:allow(player, "ShopWrite") then
+		send(player, { kind = "failed", text = REASON_TEXT.slow })
+		return
+	end
+	local ok, why = PlayerDataService.transact(player, PlayerDataService.newTxId(), function(data)
+		if data.coins < price then
+			return false, "coins"
+		end
+		local have = data.items[def.id] or 0
+		if have + count > def.maxStack then
+			return false, "full"
+		end
+		if unownedIn(caseId, data) - have < count then
+			return false, "ownAllCharms"
+		end
+		data.coins -= price
+		data.items[def.id] = have + count
+		return true
+	end)
+	if ok then
+		Telemetry.event(player, "Charm box coin purchase", count, caseId)
+		send(player, {
+			kind = "bought",
+			item = def.id,
+			count = count,
+			text = if count == 1 then def.name else `{count} {def.name}ES`,
+		})
+	else
+		send(player, { kind = "failed", text = REASON_TEXT[why or ""] or "Purchase failed" })
+	end
 end
 
 -- The SURGE power pack (vault/01 Design/Loadout and Power Deck.md -> Launch plan, owner 2026-11-27): coins
@@ -249,7 +324,7 @@ function ShopService.showOpening(
 		end
 	end
 	for _, reward in rewards do
-		if not reward.power then -- a power is a card, no model to deliver
+		if not reward.power and not reward.charm then -- a power/charm uses client templates directly
 			SkinStoreService.sendTo(viewers, reward.gun, reward.line)
 		end
 	end
@@ -332,6 +407,33 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 				end
 				continue
 			end
+			if CharmCases.isCharmCase(caseId) then
+				local cid = CharmCases.roll(caseId, data.charms, rng)
+				local cdef = if cid then CharmsConfig.get(cid) else nil
+				if cid and cdef then
+					local granted = PlayerData.grantCharm(data, cid)
+					if granted then
+						table.insert(rewards, {
+							gun = "",
+							line = "",
+							charm = cid,
+							copies = PlayerData.charmCopies(data.charms, cid),
+							tier = cdef.rarity,
+							name = cdef.name,
+						})
+					else
+						local coinsBefore = data.coins
+						data.coins =
+							math.min(data.coins + Economy.CHARM_BOX.coins, Inventory.MAX_COINS)
+						coinsBack += data.coins - coinsBefore
+					end
+				else
+					local coinsBefore = data.coins
+					data.coins = math.min(data.coins + Economy.CHARM_BOX.coins, Inventory.MAX_COINS)
+					coinsBack += data.coins - coinsBefore
+				end
+				continue
+			end
 			local pair = SkinCases.roll(caseId, data.skins, data.guns, rng)
 			if pair then
 				PlayerData.grantSkin(data, pair.gun, pair.line)
@@ -359,6 +461,8 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 	for _, r in rewards do
 		if r.power then
 			Telemetry.event(player, "Power granted", 1, r.power)
+		elseif r.charm then
+			Telemetry.event(player, "Charm granted", 1, r.charm)
 		end
 	end
 	if firstOnbOpen then
@@ -372,6 +476,16 @@ local function openCase(player: Player, itemId: string, count: number, requestId
 			openRequest = requestId,
 			count = 0,
 			text = `You own every power already: {coinsBack} coins back`,
+		})
+		return
+	end
+	if not first and CharmCases.isCharmCase(caseId) then
+		send(player, {
+			kind = "refunded",
+			item = itemId,
+			openRequest = requestId,
+			count = 0,
+			text = `You own max copies of every charm in that box: {coinsBack} coins back`,
 		})
 		return
 	end
@@ -659,6 +773,16 @@ local function onRequest(
 			return
 		end
 		buyPowerPack(player, arg :: number)
+	elseif action == "buyCharmBox" then
+		if typeof(arg) ~= "string" or #arg > 24 then
+			reject("badArgs")
+			return
+		end
+		if count ~= 1 and count ~= Inventory.BATCH_OPEN_COUNT then
+			reject("badCount")
+			return
+		end
+		buyCharmBox(player, arg :: string, count :: number)
 	elseif action == "openCase" then
 		if typeof(arg) ~= "string" or #arg > 32 then
 			reject("badArgs")

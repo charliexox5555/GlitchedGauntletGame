@@ -12,6 +12,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Animations = require(Shared.Config.Animations)
 local Weapons = require(Shared.Config.Weapons)
 local SkinPreview = require(Shared.SkinPreview)
+local PlayerData = require(Shared.PlayerData)
 
 local WorldModel = {}
 
@@ -119,11 +120,19 @@ function WorldModel.attach(character: Model, id: string?): Model?
 		elseif config and config.class == "Sidearm" then Animations.GUN_WORLD_GRIP_SIDEARM
 		else nil
 	local model = holdModel(character, rightId, "RightHand", "WorldWeapon", gripC0)
+	local charmId: string? = if owner and id ~= "Knife"
+		then PlayerData.equippedCharm(PlayerData.charms(owner), id)
+		else nil
 	if model then
 		StateValues.set(model, "WeaponId", id)
+		StateValues.set(model, "CharmId", charmId)
 	end
 	if config and config.models and config.models.left then
-		holdModel(character, config.models.left, "LeftHand", "WorldWeaponLeft")
+		local leftModel = holdModel(character, config.models.left, "LeftHand", "WorldWeaponLeft")
+		if leftModel then
+			StateValues.set(leftModel, "WeaponId", id)
+			StateValues.set(leftModel, "CharmId", charmId)
+		end
 	end
 	StateValues.set(holder, "WeaponId", id)
 	return model

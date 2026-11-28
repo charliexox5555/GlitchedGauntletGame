@@ -1,0 +1,140 @@
+{
+ "id": "GameCartridge",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.101,
+   -0.038,
+   -0.367
+  ],
+  "max": [
+   0.095,
+   0.032,
+   0.00693
+  ],
+  "bodyCenter": [
+   -0.003,
+   -0.003,
+   -0.22738
+  ]
+ },
+ "tris": 596,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Cart_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Cart_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     63,
+     224,
+     242
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.004,
+    -0.0315,
+    -0.2195
+   ],
+   "size": [
+    0.104,
+    0.013,
+    0.139
+   ],
+   "tris": 24
+  },
+  {
+   "name": "Body_Cart_Body",
+   "role": "body",
+   "material": "Cart_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     70,
+     80,
+     102
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.003,
+    -0.0005,
+    -0.2435
+   ],
+   "size": [
+    0.196,
+    0.065,
+    0.223
+   ],
+   "tris": 238
+  },
+  {
+   "name": "Body_Cart_Gold",
+   "role": "body",
+   "material": "Cart_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.22738
+   ],
+   "size": [
+    0.122,
+    0.044,
+    0.27924
+   ],
+   "tris": 190
+  }
+ ]
+}

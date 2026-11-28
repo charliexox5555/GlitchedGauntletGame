@@ -1,0 +1,169 @@
+{
+ "id": "HighScore",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.108,
+   -0.043,
+   -0.375
+  ],
+  "max": [
+   0.108,
+   0.034,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   -0.0045,
+   -0.23138
+  ]
+ },
+ "tris": 596,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Console_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Screen",
+   "role": "screen",
+   "material": "Console_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     62,
+     71,
+     89
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.027,
+    -0.206
+   ],
+   "size": [
+    0.148,
+    0.01,
+    0.1
+   ],
+   "tris": 12
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Console_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     60,
+     255,
+     158
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.031,
+    -0.0345,
+    -0.2525
+   ],
+   "size": [
+    0.098,
+    0.013,
+    0.209
+   ],
+   "tris": 24
+  },
+  {
+   "name": "Body_Console_Body",
+   "role": "body",
+   "material": "Console_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     62,
+     71,
+     89
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.003,
+    -0.2535
+   ],
+   "size": [
+    0.204,
+    0.074,
+    0.243
+   ],
+   "tris": 221
+  },
+  {
+   "name": "Body_Console_Gold",
+   "role": "body",
+   "material": "Console_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.0065,
+    -0.21338
+   ],
+   "size": [
+    0.216,
+    0.073,
+    0.25124
+   ],
+   "tris": 195
+  }
+ ]
+}

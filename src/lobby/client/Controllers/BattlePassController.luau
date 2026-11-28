@@ -33,6 +33,8 @@ local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
+local CharmThumbnail = require(script.Parent.Parent.Util.CharmThumbnail)
+local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
 local Pivot = require(script.Parent.Parent.Util.Pivot)
 local Plates = require(script.Parent.Parent.Util.Plates)
@@ -212,6 +214,7 @@ local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?, tier: number
 	local name = child(cell, "Name") :: TextLabel
 	art.Image = ""
 	art.ImageColor3 = WHITE
+	CharmThumbnail.clear(art)
 	swatch.Visible = false
 	if not r then
 		name.Text = ""
@@ -248,6 +251,14 @@ local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?, tier: number
 		swatch.Visible = true
 		swatch.BackgroundColor3 = if r.line then (Locker.COLORS[r.line] or WHITE) else WHITE;
 		(child(swatch, "Kind") :: TextLabel).Text = "SKIN"
+	elseif r.kind == "Charm" then
+		local cid = r.charm or r.name
+		if not CharmThumbnail.mount(art, cid, false) then
+			local def = CharmsConfig.get(cid)
+			swatch.Visible = true
+			swatch.BackgroundColor3 = (if def then def.accent else nil) or KIND_COLOR.Charm or WHITE;
+			(child(swatch, "Kind") :: TextLabel).Text = "CHARM"
+		end
 	else
 		swatch.Visible = true
 		swatch.BackgroundColor3 = KIND_COLOR[r.kind]
@@ -368,6 +379,7 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 	local art = child(showBox, "Art") :: ImageLabel
 	local card = child(showBox, "Card") :: Frame
 	local model: Model? = nil
+	local charmMode = false
 	local p = pick
 	local won = if r
 			and r.kind == "Skin"
@@ -382,12 +394,19 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 		-- not claimed yet: one of the guns it could be, as on the reel
 		local pool = reelPool(r.line)
 		image = if #pool > 0 then SkinArt.portrait(pool[1], r.line) else nil
+	elseif r and r.kind == "Charm" then
+		model = CharmsConfig.model(r.charm or r.name)
+		charmMode = model ~= nil
 	end
 	art.Image = ""
 	card.Visible = false
 	if model and r then
-		local cfg = r.gun and Weapons.get(r.gun)
-		stage:show(model, cfg ~= nil and cfg.class == "Melee")
+		if charmMode then
+			stage:show(model, "charm")
+		else
+			local cfg = r.gun and Weapons.get(r.gun)
+			stage:show(model, cfg ~= nil and cfg.class == "Melee")
+		end
 	else
 		stage:show(nil)
 		if image then

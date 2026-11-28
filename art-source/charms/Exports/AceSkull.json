@@ -1,0 +1,140 @@
+{
+ "id": "AceSkull",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.088,
+   -0.098,
+   -0.342
+  ],
+  "max": [
+   0.088,
+   0.084,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   -0.007,
+   -0.21488
+  ]
+ },
+ "tris": 610,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Skull_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     62,
+     71,
+     91
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Skull_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     255,
+     62,
+     82
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.085,
+    -0.231
+   ],
+   "size": [
+    0.098,
+    0.026,
+    0.02
+   ],
+   "tris": 24
+  },
+  {
+   "name": "Body_Skull_Bone",
+   "role": "body",
+   "material": "Skull_Bone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     220,
+     228,
+     240
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.0065,
+    -0.247
+   ],
+   "size": [
+    0.176,
+    0.181,
+    0.19
+   ],
+   "tris": 240
+  },
+  {
+   "name": "Body_Skull_Dark",
+   "role": "body",
+   "material": "Skull_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     62,
+     71,
+     91
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.03934,
+    -0.20488
+   ],
+   "size": [
+    0.108,
+    0.11131,
+    0.23424
+   ],
+   "tris": 202
+  }
+ ]
+}

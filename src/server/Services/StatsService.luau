@@ -284,6 +284,12 @@ local function onHit(
 			Net.event("CombatReport"):FireClient(owner, math.round(dealtTo), math.round(takenFrom))
 		end
 		a.eliminations += 1
+		if a.userId then
+			local killerPlayer = Players:GetPlayerByUserId(a.userId)
+			if killerPlayer then
+				StateValues.set(killerPlayer, "MatchKills", a.eliminations)
+			end
+		end
 		local rk = roundKills[a.id]
 		if not rk then
 			rk = { name = a.name, team = a.team, kills = 0, userId = a.userId }
@@ -330,6 +336,9 @@ function StatsService.reset()
 	table.clear(roundKills)
 	roundDamageTaken[1] = 0
 	roundDamageTaken[2] = 0
+	for _, p in Players:GetPlayers() do
+		StateValues.set(p, "MatchKills", 0)
+	end
 end
 
 -- A new round: everyone's life (and combat report) starts over.

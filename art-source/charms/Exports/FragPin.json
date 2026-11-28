@@ -1,0 +1,140 @@
+{
+ "id": "FragPin",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.05081,
+   -0.024,
+   -0.375
+  ],
+  "max": [
+   0.05081,
+   0.024,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.23138
+  ]
+ },
+ "tris": 584,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Pin_Steel",
+   "role": "body",
+   "material": "Pin_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     78,
+     88,
+     107
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.006,
+    0.0,
+    -0.2865
+   ],
+   "size": [
+    0.056,
+    0.036,
+    0.177
+   ],
+   "tris": 92
+  },
+  {
+   "name": "Body_Pin_Brass",
+   "role": "body",
+   "material": "Pin_Brass",
+   "look": {
+    "material": "Metal",
+    "color": [
+     240,
+     188,
+     58
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.19782
+   ],
+   "size": [
+    0.10163,
+    0.048,
+    0.10927
+   ],
+   "tris": 186
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.12388
+   ],
+   "size": [
+    0.042,
+    0.032,
+    0.07224
+   ],
+   "tris": 162
+  }
+ ]
+}

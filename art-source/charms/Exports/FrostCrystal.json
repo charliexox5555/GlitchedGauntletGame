@@ -1,0 +1,141 @@
+{
+ "id": "FrostCrystal",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.05149,
+   -0.051,
+   -0.392
+  ],
+  "max": [
+   0.05369,
+   0.051,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0011,
+   0.0,
+   -0.23988
+  ]
+ },
+ "tris": 512,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body",
+   "role": "body",
+   "material": "Frost_Ice",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     136,
+     230,
+     255
+    ],
+    "transparency": 0.28
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.00047,
+    0.0,
+    -0.274
+   ],
+   "size": [
+    0.10204,
+    0.06235,
+    0.236
+   ],
+   "tris": 140
+  },
+  {
+   "name": "Clasp",
+   "role": "clasp",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.00606,
+    0.0,
+    -0.14601
+   ],
+   "size": [
+    0.09526,
+    0.10199,
+    0.1165
+   ],
+   "tris": 204
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Frost_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     181,
+     245,
+     255
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.255
+   ],
+   "size": [
+    0.044,
+    0.044,
+    0.104
+   ],
+   "tris": 24
+  }
+ ]
+}

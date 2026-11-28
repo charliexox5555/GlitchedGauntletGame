@@ -1,0 +1,140 @@
+{
+ "id": "BatteryCell",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.064,
+   -0.066,
+   -0.376
+  ],
+  "max": [
+   0.064,
+   0.05543,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   -0.00529,
+   -0.23188
+  ]
+ },
+ "tris": 494,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Cell_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Cell_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     63,
+     224,
+     242
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.2575
+   ],
+   "size": [
+    0.09,
+    0.07794,
+    0.149
+   ],
+   "tris": 60
+  },
+  {
+   "name": "Body_Cell_Dark",
+   "role": "body",
+   "material": "Cell_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     54,
+     63,
+     82
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.259
+   ],
+   "size": [
+    0.128,
+    0.11085,
+    0.234
+   ],
+   "tris": 136
+  },
+  {
+   "name": "Body_Cell_Steel",
+   "role": "body",
+   "material": "Cell_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.01217,
+    -0.21388
+   ],
+   "size": [
+    0.12432,
+    0.10766,
+    0.25224
+   ],
+   "tris": 154
+  }
+ ]
+}

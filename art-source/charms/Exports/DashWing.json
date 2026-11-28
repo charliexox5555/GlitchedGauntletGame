@@ -1,0 +1,140 @@
+{
+ "id": "DashWing",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.092,
+   -0.02332,
+   -0.355
+  ],
+  "max": [
+   0.105,
+   0.02332,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0065,
+   0.0,
+   -0.22138
+  ]
+ },
+ "tris": 372,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Wing_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Wing_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     63,
+     224,
+     242
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0185,
+    0.0,
+    -0.2585
+   ],
+   "size": [
+    0.173,
+    0.022,
+    0.167
+   ],
+   "tris": 36
+  },
+  {
+   "name": "Body_Wing_Dark",
+   "role": "body",
+   "material": "Wing_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     46,
+     53,
+     69
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.04024,
+    0.0,
+    -0.25027
+   ],
+   "size": [
+    0.10352,
+    0.036,
+    0.20946
+   ],
+   "tris": 40
+  },
+  {
+   "name": "Body_Wing_Steel",
+   "role": "body",
+   "material": "Wing_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.12288
+   ],
+   "size": [
+    0.052,
+    0.042,
+    0.07024
+   ],
+   "tris": 152
+  }
+ ]
+}

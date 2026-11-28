@@ -1,0 +1,140 @@
+{
+ "id": "Keycard",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.078,
+   -0.02332,
+   -0.341
+  ],
+  "max": [
+   0.078,
+   0.02332,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.21438
+  ]
+ },
+ "tris": 492,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Card_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     242,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Card_Slate",
+   "role": "body",
+   "material": "Card_Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     74,
+     85,
+     107
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.2395
+   ],
+   "size": [
+    0.156,
+    0.032,
+    0.203
+   ],
+   "tris": 110
+  },
+  {
+   "name": "Body_Card_Gold",
+   "role": "body",
+   "material": "Card_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     242,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.0165,
+    0.0,
+    -0.18188
+   ],
+   "size": [
+    0.083,
+    0.042,
+    0.18824
+   ],
+   "tris": 195
+  },
+  {
+   "name": "Body_Card_Dark",
+   "role": "body",
+   "material": "Card_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     35,
+     40,
+     52
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.003,
+    0.0,
+    -0.2465
+   ],
+   "size": [
+    0.134,
+    0.038,
+    0.145
+   ],
+   "tris": 43
+  }
+ ]
+}

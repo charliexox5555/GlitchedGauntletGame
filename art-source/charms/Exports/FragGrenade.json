@@ -1,0 +1,140 @@
+{
+ "id": "FragGrenade",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.07853,
+   -0.07853,
+   -0.342
+  ],
+  "max": [
+   0.095,
+   0.07853,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.00824,
+   0.0,
+   -0.21488
+  ]
+ },
+ "tris": 568,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     141,
+     151,
+     168
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Grenade_Olive",
+   "role": "body",
+   "material": "Grenade_Olive",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     78,
+     104,
+     86
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.266
+   ],
+   "size": [
+    0.15706,
+    0.15706,
+    0.152
+   ],
+   "tris": 178
+  },
+  {
+   "name": "Body_Grenade_Brass",
+   "role": "body",
+   "material": "Grenade_Brass",
+   "look": {
+    "material": "Metal",
+    "color": [
+     238,
+     186,
+     58
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.176
+   ],
+   "size": [
+    0.07021,
+    0.07021,
+    0.028
+   ],
+   "tris": 38
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     141,
+     151,
+     168
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.03597,
+    0.0,
+    -0.19988
+   ],
+   "size": [
+    0.11807,
+    0.0364,
+    0.22424
+   ],
+   "tris": 208
+  }
+ ]
+}

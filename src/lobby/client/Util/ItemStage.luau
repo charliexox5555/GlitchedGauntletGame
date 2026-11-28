@@ -44,6 +44,7 @@ type Self = {
 	dragShown: CFrame,
 	swap: CFrameValue,
 	wobble: number,
+	upright: boolean,
 	dragging: boolean,
 	lastPos: Vector3?,
 	dragTween: Tween?,
@@ -123,6 +124,7 @@ function ItemStage.new(parent: GuiObject, opts: Options?): Stage
 		dragShown = CFrame.new(),
 		swap = Instance.new("CFrameValue"),
 		wobble = 1,
+		upright = false,
 		dragging = false,
 		lastPos = nil,
 		dragTween = nil,
@@ -143,13 +145,17 @@ function ItemStage.pose(self: Stage): CFrame
 			math.sin(t * 0.61 + 2.1) * WOBBLE_ROLL
 		)
 	wobble = CFrame.new():Lerp(wobble, self.wobble)
-	local screen = self.dragShown * wobble * self.swap.Value * CFrame.Angles(0, 0, POSE_TILT)
-	return camRot * screen * camRot:Inverse() * CFrame.Angles(0, POSE_YAW, 0)
+	local basePose = if self.upright
+		then CFrame.Angles(0, math.pi + math.rad(22), 0)
+		else CFrame.Angles(0, 0, POSE_TILT)
+	local yawRot = if self.upright then CFrame.new() else CFrame.Angles(0, POSE_YAW, 0)
+	local screen = self.dragShown * wobble * self.swap.Value * basePose
+	return camRot * screen * camRot:Inverse() * yawRot
 end
 
 -- Shows `source` (or clears the stage with nil), fitted to the box; `small`
--- shrinks it (melee). The new item swings in.
-function ItemStage.show(self: Stage, source: Model?, small: boolean?, skinLine: string?)
+-- shrinks it (melee), or `"charm"` keeps it upright at 3/4 front view.
+function ItemStage.show(self: Stage, source: Model?, small: (boolean | "charm")?, skinLine: string?)
 	if self.effect then
 		self.effect.destroy()
 		self.effect = nil
@@ -159,14 +165,55 @@ function ItemStage.show(self: Stage, source: Model?, small: boolean?, skinLine: 
 		self.model = nil
 	end
 	if not source then
+		self.upright = false
 		return
 	end
-	local m = ItemStage.presentable(source)
+	local isCharm = small == "charm"
+	self.upright = isCharm
+	local m: Model
+	if isCharm then
+		m = source:Clone()
+		m.PrimaryPart = nil
+		m.WorldPivot = CFrame.new()
+		for _, d in m:GetDescendants() do
+			if d:IsA("BasePart") then
+				d.Anchored = true
+				d.CanCollide = false
+				d.CanQuery = false
+				d.CanTouch = false
+			elseif d:IsA("Script") or d:IsA("LocalScript") then
+				d:Destroy()
+			end
+		end
+		m:PivotTo(CFrame.new())
+		local box = m:GetBoundingBox()
+		m.WorldPivot = CFrame.new(box.Position)
+		m:PivotTo(CFrame.new())
+	else
+		m = ItemStage.presentable(source)
+	end
 	local _, size = m:GetBoundingBox()
-	local k = if small then 0.8 else 1
-	local scale =
-		math.min(self.length * k / math.max(size.Z, 0.3), self.height * k / math.max(size.Y, 0.3))
-	m:ScaleTo(math.clamp(scale, 0.3, 4))
+	local scale = if isCharm
+		then math.clamp(
+			math.min(
+				self.length * 0.55 / math.max(size.X, 0.15),
+				self.height * 0.72 / math.max(size.Y, 0.15)
+			),
+			0.5,
+			16
+		)
+		else (function()
+			local k = if small == true then 0.8 else 1
+			return math.clamp(
+				math.min(
+					self.length * k / math.max(size.Z, 0.3),
+					self.height * k / math.max(size.Y, 0.3)
+				),
+				0.3,
+				4
+			)
+		end)()
+	m:ScaleTo(scale)
 	local box = m:GetBoundingBox()
 	m.WorldPivot = CFrame.new(box.Position) -- ScaleTo keeps the old origin
 	if self.showcase then

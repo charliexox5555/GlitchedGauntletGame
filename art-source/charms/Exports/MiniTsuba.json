@@ -1,0 +1,140 @@
+{
+ "id": "MiniTsuba",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.06837,
+   -0.06837,
+   -0.376
+  ],
+  "max": [
+   0.06837,
+   0.06837,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.23188
+  ]
+ },
+ "tris": 404,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Hilt_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     166,
+     176,
+     194
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Hilt_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     72,
+     216,
+     255
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.206
+   ],
+   "size": [
+    0.024,
+    0.04,
+    0.08
+   ],
+   "tris": 36
+  },
+  {
+   "name": "Body_Hilt_Dark",
+   "role": "body",
+   "material": "Hilt_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     44,
+     51,
+     68
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.207
+   ],
+   "size": [
+    0.042,
+    0.032,
+    0.098
+   ],
+   "tris": 18
+  },
+  {
+   "name": "Body_Hilt_Steel",
+   "role": "body",
+   "material": "Hilt_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     166,
+     176,
+     194
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.23188
+   ],
+   "size": [
+    0.13673,
+    0.13673,
+    0.28824
+   ],
+   "tris": 206
+  }
+ ]
+}

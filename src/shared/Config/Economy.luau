@@ -37,6 +37,11 @@ Economy.CASE_TICKETS =
 -- owned pays `coins` back.
 Economy.POWER_PACK = table.freeze({ coins = 1500 })
 
+-- Charm blind boxes (StrikeBox / OverdriveBox): COINS ONLY (`BUY x1` or `BUY x3`).
+-- Prioritizes unowned charms until all 12 in that box are owned, then allows up to
+-- 1 copy per active gun before converting overflow to coins.
+Economy.CHARM_BOX = table.freeze({ coins = 850 })
+
 -- Match pay in coins (ProgressionService, in the same write as the XP). Leaving pays
 -- nothing; matches with no real player on the other side pay `botScale` of it. At most
 -- `dailyCap` coins a UTC day from matches.

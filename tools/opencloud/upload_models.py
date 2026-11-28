@@ -63,16 +63,20 @@ def multipart(fields, file_field, file_path, content_type):
 
 
 def request(method, url, body=None, content_type=None):
-	req = urllib.request.Request(url, data=body, method=method)
-	req.add_header("x-api-key", api_key())
-	if content_type:
-		req.add_header("Content-Type", content_type)
-	try:
-		with urllib.request.urlopen(req, timeout=120) as resp:
-			return json.loads(resp.read() or b"{}")
-	except urllib.error.HTTPError as e:
-		detail = e.read().decode(errors="replace")[:500]
-		raise RuntimeError(f"{method} {url} -> HTTP {e.code}: {detail}") from None
+	for retry in range(7):
+		req = urllib.request.Request(url, data=body, method=method)
+		req.add_header("x-api-key", api_key())
+		if content_type:
+			req.add_header("Content-Type", content_type)
+		try:
+			with urllib.request.urlopen(req, timeout=120) as resp:
+				return json.loads(resp.read() or b"{}")
+		except urllib.error.HTTPError as e:
+			detail = e.read().decode(errors="replace")[:500]
+			if e.code == 429 and retry < 6:
+				time.sleep(5 * (retry + 1))
+				continue
+			raise RuntimeError(f"{method} {url} -> HTTP {e.code}: {detail}") from None
 
 
 def poll(operation_path):
@@ -104,6 +108,7 @@ def upload(gid, creator, record, kind="weapon"):
 				"ability": f"GG_Mod_{gid}",
 				"lobby": f"GG_Lobby_{gid}",
 				"map": f"GG_Map_{gid}",
+				"charm": f"GG_Charm_{gid}",
 			}[kind],
 			"description": f"GlitchedGauntletGame {kind} mesh: {gid}",
 			"creationContext": {"creator": creator},
@@ -122,6 +127,7 @@ def main():
 	ap.add_argument("--abilities", action="store_true", help="upload the Mod props (art-source/abilities/Exports)")
 	ap.add_argument("--lobby", action="store_true", help="upload the Lobby kit groups (art-source/lobby/Exports)")
 	ap.add_argument("--maps", type=str, help="upload a match map's kit groups (art-source/maps/<Map>/Exports)")
+	ap.add_argument("--charms", action="store_true", help="upload the charm meshes (art-source/charms/Exports)")
 	ap.add_argument("ids", nargs="*")
 	args = ap.parse_args()
 	global EXPORTS, RECORD
@@ -137,6 +143,10 @@ def main():
 	if args.maps:
 		kind = "map"
 		EXPORTS = os.path.join(ROOT, "art-source", "maps", args.maps, "Exports")
+		RECORD = os.path.join(EXPORTS, "assets.json")
+	if args.charms:
+		kind = "charm"
+		EXPORTS = os.path.join(ROOT, "art-source", "charms", "Exports")
 		RECORD = os.path.join(EXPORTS, "assets.json")
 	creator = {"groupId": args.group} if args.group else {"userId": args.user}
 	if not (args.group or args.user):

@@ -1,0 +1,140 @@
+{
+ "id": "HazardSign",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.114,
+   -0.026,
+   -0.336
+  ],
+  "max": [
+   0.114,
+   0.026,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.21188
+  ]
+ },
+ "tris": 408,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Hazard_Yellow",
+   "role": "body",
+   "material": "Hazard_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     245,
+     196,
+     40
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.238
+   ],
+   "size": [
+    0.228,
+    0.052,
+    0.196
+   ],
+   "tris": 114
+  },
+  {
+   "name": "Body_Hazard_Dark",
+   "role": "body",
+   "material": "Hazard_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     40,
+     46,
+     59
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.242
+   ],
+   "size": [
+    0.148,
+    0.044,
+    0.14
+   ],
+   "tris": 44
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.11719
+   ],
+   "size": [
+    0.03954,
+    0.028,
+    0.05885
+   ],
+   "tris": 106
+  }
+ ]
+}

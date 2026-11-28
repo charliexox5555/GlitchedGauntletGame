@@ -1,0 +1,140 @@
+{
+ "id": "MoltenCore",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.10499,
+   -0.112,
+   -0.388
+  ],
+  "max": [
+   0.10499,
+   0.06986,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   -0.02107,
+   -0.23788
+  ]
+ },
+ "tris": 556,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Forge_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     182
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Magma_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     255,
+     100,
+     36
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.252
+   ],
+   "size": [
+    0.112,
+    0.112,
+    0.144
+   ],
+   "tris": 24
+  },
+  {
+   "name": "Body_Forge_Dark",
+   "role": "body",
+   "material": "Forge_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     46,
+     52,
+     66
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.0208,
+    -0.2535
+   ],
+   "size": [
+    0.19213,
+    0.16639,
+    0.197
+   ],
+   "tris": 156
+  },
+  {
+   "name": "Body_Forge_Steel",
+   "role": "body",
+   "material": "Forge_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     182
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    -0.02107,
+    -0.23788
+   ],
+   "size": [
+    0.20999,
+    0.18186,
+    0.30024
+   ],
+   "tris": 232
+  }
+ ]
+}

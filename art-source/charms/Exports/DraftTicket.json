@@ -1,0 +1,140 @@
+{
+ "id": "DraftTicket",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.105,
+   -0.026,
+   -0.31
+  ],
+  "max": [
+   0.105,
+   0.026,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.19888
+  ]
+ },
+ "tris": 462,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Ticket_Gold",
+   "role": "body",
+   "material": "Ticket_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     242,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.2275
+   ],
+   "size": [
+    0.21,
+    0.052,
+    0.165
+   ],
+   "tris": 163
+  },
+  {
+   "name": "Body_Ticket_Dark",
+   "role": "body",
+   "material": "Ticket_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     46,
+     53,
+     69
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.2275
+   ],
+   "size": [
+    0.16,
+    0.044,
+    0.133
+   ],
+   "tris": 49
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.1164
+   ],
+   "size": [
+    0.04077,
+    0.03007,
+    0.05727
+   ],
+   "tris": 106
+  }
+ ]
+}

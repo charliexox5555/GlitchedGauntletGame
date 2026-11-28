@@ -59,7 +59,8 @@ local function loadLocker(player: Player)
 		return
 	end
 	local equipped = if okLocker then Locker.clean(locker) else {}
-	local skins = if okOwned then PlayerData.clean(saved, true).skins else {}
+	local cleanSave = if okOwned then PlayerData.clean(saved, true) else nil
+	local skins = if cleanSave then cleanSave.skins else {}
 	local out: { [string]: string } = {}
 	for gunId, line in equipped do
 		if PlayerData.owns(skins, gunId, line) then
@@ -67,6 +68,10 @@ local function loadLocker(player: Player)
 		end
 	end
 	Locker.publish(player, out)
+	if not player:FindFirstChild(PlayerData.CHARMS) then
+		local charms = if cleanSave then cleanSave.charms else { owned = {}, guns = {} }
+		Locker.publish(player, charms :: any, PlayerData.CHARMS)
+	end
 end
 
 function SkinPreviewService.start()

@@ -1,0 +1,169 @@
+{
+ "id": "ReactorCore",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.12,
+   -0.04431,
+   -0.35732
+  ],
+  "max": [
+   0.12,
+   0.04431,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   -0.0,
+   -0.22254
+  ]
+ },
+ "tris": 568,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Core_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Ring",
+   "role": "ring",
+   "material": "Core_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    -0.252
+   ],
+   "center": [
+    0.0,
+    -0.0,
+    -0.252
+   ],
+   "size": [
+    0.14783,
+    0.08862,
+    0.14212
+   ],
+   "tris": 128
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Core_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     63,
+     224,
+     242
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.252
+   ],
+   "size": [
+    0.084,
+    0.084,
+    0.096
+   ],
+   "tris": 24
+  },
+  {
+   "name": "Body_Core_Dark",
+   "role": "body",
+   "material": "Core_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     46,
+     53,
+     70
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.252
+   ],
+   "size": [
+    0.21064,
+    0.044,
+    0.21064
+   ],
+   "tris": 150
+  },
+  {
+   "name": "Body_Core_Gold",
+   "role": "body",
+   "material": "Core_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     190,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.17688
+   ],
+   "size": [
+    0.24,
+    0.03498,
+    0.17824
+   ],
+   "tris": 122
+  }
+ ]
+}

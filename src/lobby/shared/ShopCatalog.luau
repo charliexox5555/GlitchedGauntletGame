@@ -131,6 +131,18 @@ ShopCatalog.CASES = {
 		art = "rbxassetid://88263832595455", -- art-source/ui/pack/pack_power.png (a card pack, owner 2026-11-26)
 		color = Color3.fromHex("C9961F"),
 	},
+	{
+		id = "StrikeBox", -- charm blind box (Shared/CharmCases): coins only (Config/Economy.CHARM_BOX)
+		name = "STRIKE BOX",
+		art = "rbxassetid://78675473607803", -- art-source/ui/shop/boxes/box_strike.png
+		color = Color3.fromHex("F5C238"),
+	},
+	{
+		id = "OverdriveBox", -- charm blind box (Shared/CharmCases): coins only (Config/Economy.CHARM_BOX)
+		name = "OVERDRIVE BOX",
+		art = "rbxassetid://73906343187873", -- art-source/ui/shop/boxes/box_overdrive.png
+		color = Color3.fromHex("3FE0F2"),
+	},
 } :: { Case }
 
 -- The launch bundles (owner 2026-11-20): two featured skin-line bundles and a

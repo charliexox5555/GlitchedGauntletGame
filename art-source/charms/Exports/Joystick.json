@@ -1,0 +1,198 @@
+{
+ "id": "Joystick",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.104,
+   -0.13454,
+   -0.29063
+  ],
+  "max": [
+   0.104,
+   0.0716,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   -0.03147,
+   -0.18753
+  ]
+ },
+ "tris": 544,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     162,
+     172,
+     192
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Stick_Base",
+   "role": "body",
+   "material": "Stick_Base",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     58,
+     66,
+     84
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.00017,
+    -0.21783
+   ],
+   "size": [
+    0.208,
+    0.14285,
+    0.14561
+   ],
+   "tris": 102
+  },
+  {
+   "name": "Body_Stick_Red",
+   "role": "body",
+   "material": "Stick_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     240,
+     56,
+     75
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.051,
+    -0.02659,
+    -0.19235
+   ],
+   "size": [
+    0.05257,
+    0.04669,
+    0.0479
+   ],
+   "tris": 34
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     162,
+     172,
+     192
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.01014,
+    -0.01015,
+    -0.15581
+   ],
+   "size": [
+    0.14296,
+    0.07143,
+    0.1361
+   ],
+   "tris": 176
+  },
+  {
+   "name": "Stick_Chain_Metal",
+   "role": "stick",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     162,
+     172,
+     192
+    ]
+   },
+   "origin": [
+    -0.036,
+    -0.01875,
+    -0.19711
+   ],
+   "center": [
+    -0.036,
+    -0.04185,
+    -0.17476
+   ],
+   "size": [
+    0.02258,
+    0.06278,
+    0.06148
+   ],
+   "tris": 18
+  },
+  {
+   "name": "Stick_Stick_Red",
+   "role": "stick",
+   "material": "Stick_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     240,
+     56,
+     75
+    ]
+   },
+   "origin": [
+    -0.036,
+    -0.01875,
+    -0.19711
+   ],
+   "center": [
+    -0.036,
+    -0.09428,
+    -0.12417
+   ],
+   "size": [
+    0.07628,
+    0.08051,
+    0.07949
+   ],
+   "tris": 70
+  }
+ ]
+}

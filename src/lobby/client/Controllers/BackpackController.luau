@@ -24,6 +24,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local CharmThumbnail = require(script.Parent.Parent.Util.CharmThumbnail)
 local PowerCardFace = require(script.Parent.Parent.Util.PowerCardFace)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local Skins = require(ReplicatedStorage.Shared.Config.Skins)
@@ -248,19 +249,29 @@ function BackpackController.init()
 		line: string,
 		tierId: string?,
 		name: string,
-		power: string?
+		power: string?,
+		charm: string?
 	)
 		local tier = Skins.TIERS[(tierId or "Common") :: any] or Skins.TIERS.Common
 		local art = child(reveal, "Art") :: ImageLabel
 		local emblem = child(reveal, "Emblem") :: ImageLabel
-		-- the square portrait, like the case card; a power shows its card art, cropped
-		local pic = if power then Theme.CARD_ART[power] else SkinArt.portrait(gun, line)
+		CharmThumbnail.clear(art)
+		-- the square portrait, like the case card; a power shows its card art, a charm mounts 3D
+		local pic = if charm
+			then nil
+			elseif power then Theme.CARD_ART[power]
+			else SkinArt.portrait(gun, line)
 		art.Image = pic or ""
-		PowerCardFace.thumb(art, power)
-		art.Visible = pic ~= nil
-		emblem.Image = Locker.EMBLEMS[line] or ""
+		PowerCardFace.thumb(art, if charm then nil else power)
+		if charm then
+			art.Visible = true
+			CharmThumbnail.mount(art, charm)
+		else
+			art.Visible = pic ~= nil
+		end
+		emblem.Image = if charm then "" else (Locker.EMBLEMS[line] or "")
 		emblem.ImageColor3 = Locker.COLORS[line] or tier.color
-		emblem.Visible = pic == nil
+		emblem.Visible = (not charm) and (pic == nil)
 		-- no picture and no emblem yet: the line's initial in its colour
 		local letter = reveal:FindFirstChild("Letter")
 		if not letter then
@@ -279,10 +290,10 @@ function BackpackController.init()
 		if letter and letter:IsA("TextLabel") then
 			letter.Text = string.sub(string.upper(line), 1, 1)
 			letter.TextColor3 = Locker.COLORS[line] or tier.color
-			letter.Visible = pic == nil and Locker.EMBLEMS[line] == nil
+			letter.Visible = (not charm) and (pic == nil) and (Locker.EMBLEMS[line] == nil)
 		end
-		-- a power: its role colour and role word instead of a skin tier
-		local color = tier.color -- a power is ranked in the same tiers (Config/PowerCases)
+		-- a power/charm: its role word instead of a skin tier
+		local color = tier.color -- tiered consistently across skins, powers & charms
 		local title = child(reveal, "Name") :: TextLabel
 		title.Text = name
 		title.TextColor3 = color
@@ -293,8 +304,9 @@ function BackpackController.init()
 				cap.ImageColor3 = color
 			end
 		end
-		(child(plate, "Label") :: TextLabel).Text = if power
-			then tier.name .. " POWER"
+		(child(plate, "Label") :: TextLabel).Text = if charm
+			then tier.name .. " CHARM"
+			elseif power then tier.name .. " POWER"
 			else tier.name
 	end
 
@@ -439,7 +451,7 @@ function BackpackController.init()
 		end
 		local anySkin = false
 		for _, r in revealed do
-			anySkin = anySkin or r.power == nil
+			anySkin = anySkin or (r.power == nil and r.charm == nil)
 		end
 		equipAll.Visible = many and anySkin
 		equipButton.Size, equipAll.Size, doneButton.Size = buttonSize, buttonSize, buttonSize
@@ -481,10 +493,21 @@ function BackpackController.init()
 				then DARK_PLATE:Lerp(tier.color, 0.45)
 				else DARK_PLATE
 			local art = child(cell, "Art") :: ImageLabel
-			art.Image = SkinArt.portrait(r.gun, r.line) or ""
-			PowerCardFace.thumb(art, r.power)
-			art.ImageTransparency = if current then 0 else 0.25
-			local word = if isOn(r) then "EQUIPPED" else ""
+			CharmThumbnail.clear(art)
+			if r.charm then
+				art.Image = ""
+				PowerCardFace.thumb(art, nil)
+				CharmThumbnail.mount(art, r.charm)
+				art.ImageTransparency = 0
+			else
+				art.Image = SkinArt.portrait(r.gun, r.line) or ""
+				PowerCardFace.thumb(art, r.power)
+				art.ImageTransparency = if current then 0 else 0.25
+			end
+			local word = if r.charm
+				then (if (r.copies or 1) > 1 then "×" .. tostring(r.copies) else "NEW")
+				elseif isOn(r) then "EQUIPPED"
+				else ""
 			for _, name in { "Count", "CountShadow" } do
 				local label = child(cell, name) :: TextLabel
 				label.Text = word
@@ -510,17 +533,20 @@ function BackpackController.init()
 			drawHaul()
 			return
 		end
-		fillReveal(result.gun, result.line, result.tier, result.name, result.power)
+		fillReveal(result.gun, result.line, result.tier, result.name, result.power, result.charm)
 		local tier = Skins.TIERS[(result.tier or "Common") :: any] or Skins.TIERS.Common
-		local word = if result.power then "NEW POWER" else "NEW SKIN"
+		local word = if result.charm
+			then (if (result.copies or 1) > 1 then `CHARM  ·  ×{result.copies}` else "NEW CHARM")
+			elseif result.power then "NEW POWER"
+			else "NEW SKIN"
 		local kicker = reveal:FindFirstChild("Kicker")
 		if kicker and kicker:IsA("TextLabel") then
 			kicker.Text = if #revealed > 1 then `{word}  ·  {revealIndex} OF {#revealed}` else word
 		end
-		-- a power is already in your collection (and your deck when it has room): the button goes to it
+		-- a power/charm opens the Locker page for equipping
 		local equipLabel = equipButton:FindFirstChild("Label")
 		if equipLabel and equipLabel:IsA("TextLabel") then
-			equipLabel.Text = if result.power then "SEE IN LOCKER" else "EQUIP"
+			equipLabel.Text = if result.power or result.charm then "SEE IN LOCKER" else "EQUIP"
 		end
 		local edge = reveal:FindFirstChild("RevealEdge")
 		if not (edge and edge:IsA("UIStroke")) then
@@ -591,6 +617,10 @@ function BackpackController.init()
 			Router.open("Locker", "powers")
 			return
 		end
+		if result and result.charm then
+			Router.open("Locker")
+			return
+		end
 		if result then
 			LobbyNet.event("LockerRequest"):FireServer("equip", result.gun, result.line)
 			task.spawn(function()
@@ -615,8 +645,8 @@ function BackpackController.init()
 		local byGun: { [string]: LobbyNet.CaseReward } = {}
 		local guns = 0
 		for _, r in revealed do
-			if r.power then
-				continue -- powers have nothing to equip
+			if r.power or r.charm then
+				continue -- powers & charms aren't batch-equipped here
 			end
 			if not byGun[r.gun] then
 				guns += 1

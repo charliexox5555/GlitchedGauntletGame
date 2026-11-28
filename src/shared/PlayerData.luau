@@ -64,11 +64,18 @@ local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
 local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
+local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
+local LoadoutConfig = require(ReplicatedStorage.Shared.Config.Loadout)
 
 export type Items = { [string]: number }
 export type Skins = { [string]: { string } }
--- Owned cosmetics with one equipped (charms, titles): names, at most MAX_OWNED.
+-- Owned cosmetics with one equipped (titles): names, at most MAX_OWNED.
 export type Owned = { owned: { string }, on: string? }
+-- Weapon charms: copy counts per charmId (capped at active gun count) + equipped charmId per gun.
+export type CharmSave = {
+	owned: { [string]: number },
+	guns: { [string]: string },
+}
 export type Data = {
 	v: number,
 	coins: number,
@@ -87,7 +94,7 @@ export type Data = {
 	onb: Onboarding.Onb,
 	tasks: TaskPath.State,
 	season: SeasonPass.State,
-	charms: Owned,
+	charms: CharmSave,
 	titles: Owned,
 }
 -- `intent`: the skin a shared skin product pays for (Services/RobuxService)
@@ -125,9 +132,24 @@ PlayerData.DAILY = "DailyShop"
 PlayerData.TASKS = "Tasks"
 PlayerData.SEASON = "Season" -- the season pass state (Shared/SeasonPass), JSON
 PlayerData.TITLES = "Titles" -- owned titles + the one on (JSON); the one on is also the "Title" state value
+PlayerData.CHARMS = "LockerCharms" -- owned charm copies + equipped per gun (JSON)
 local MAX_LINES_PER_GUN = 64
 local MAX_OWNED = 64
 local MAX_NAME = 40
+local MAX_CHARM_COPIES = math.max(1, #LoadoutConfig.PRIMARIES + #LoadoutConfig.SECONDARIES)
+
+local CHARM_GUNS: { [string]: boolean } = {}
+for _, list in { LoadoutConfig.PRIMARIES, LoadoutConfig.SECONDARIES } do
+	for _, gid in list do
+		CHARM_GUNS[gid] = true
+	end
+end
+
+local CHARM_NAME_TO_ID: { [string]: string } = {}
+for id, def in CharmsConfig.DEFS do
+	CHARM_NAME_TO_ID[string.upper(id)] = id
+	CHARM_NAME_TO_ID[string.upper(def.name)] = id
+end
 
 function PlayerData.key(userId: number): string
 	return "u_" .. tostring(userId)
@@ -177,13 +199,118 @@ function PlayerData.cleanOwned(raw: unknown): Owned
 	return out
 end
 
--- Adds a charm or title (inside a PlayerDataService change). False if already owned or full.
+-- Adds a title (inside a PlayerDataService change). False if already owned or full.
 function PlayerData.grantOwned(o: Owned, name: string): boolean
 	if #name == 0 or #name > MAX_NAME or table.find(o.owned, name) or #o.owned >= MAX_OWNED then
 		return false
 	end
 	table.insert(o.owned, name)
 	return true
+end
+
+function PlayerData.cleanCharms(raw: unknown): CharmSave
+	local out: CharmSave = { owned = {}, guns = {} }
+	if typeof(raw) ~= "table" then
+		return out
+	end
+	local t = raw :: { [string]: unknown }
+	if typeof(t.owned) == "table" then
+		for k, v in t.owned :: { [unknown]: unknown } do
+			if typeof(k) == "number" and typeof(v) == "string" then
+				local id = CHARM_NAME_TO_ID[string.upper(v)]
+				if id then
+					out.owned[id] = math.max(out.owned[id] or 0, 1)
+				end
+			elseif typeof(k) == "string" and typeof(v) == "number" then
+				local id = if CharmsConfig.exists(k) then k else CHARM_NAME_TO_ID[string.upper(k)]
+				local n = count(v, MAX_CHARM_COPIES)
+				if id and n and n > 0 then
+					out.owned[id] = math.clamp(n, 1, MAX_CHARM_COPIES)
+				end
+			end
+		end
+	end
+	local used: { [string]: number } = {}
+	if typeof(t.guns) == "table" then
+		for gunId, charmId in t.guns :: { [unknown]: unknown } do
+			if
+				typeof(gunId) == "string"
+				and typeof(charmId) == "string"
+				and CHARM_GUNS[gunId]
+				and CharmsConfig.exists(charmId)
+			then
+				local cap = out.owned[charmId] or 0
+				local cur = used[charmId] or 0
+				if cur < cap then
+					out.guns[gunId] = charmId
+					used[charmId] = cur + 1
+				end
+			end
+		end
+	end
+	return out
+end
+
+function PlayerData.charmCopies(charms: CharmSave, charmId: string): number
+	local n = charms.owned[charmId]
+	return if typeof(n) == "number" and n > 0 then math.floor(n) else 0
+end
+
+function PlayerData.equippedCharm(charms: CharmSave, gunId: string): string?
+	local id = charms.guns[gunId]
+	return if typeof(id) == "string" and id ~= "" then id else nil
+end
+
+function PlayerData.charmGuns(charms: CharmSave, charmId: string): { string }
+	local list: { string } = {}
+	for gunId, eq in charms.guns do
+		if eq == charmId then
+			table.insert(list, gunId)
+		end
+	end
+	table.sort(list)
+	return list
+end
+
+-- Grants one copy of `charmId` (up to active gun count). Returns (granted, duplicateCoins).
+function PlayerData.grantCharm(data: Data, charmId: string): (boolean, number)
+	local def = CharmsConfig.get(charmId)
+	if not def then
+		return false, 0
+	end
+	local cur = data.charms.owned[charmId] or 0
+	if cur >= MAX_CHARM_COPIES then
+		local coins = CharmsConfig.DUPLICATE_COINS[def.rarity] or 0
+		return false, coins
+	end
+	data.charms.owned[charmId] = cur + 1
+	return true, 0
+end
+
+-- Equips or unequips (`nil`) an owned charm onto `gunId`. Moves off another gun if all copies are allocated.
+function PlayerData.setCharm(data: Data, gunId: string, charmId: string?): (boolean, string?)
+	if not CHARM_GUNS[gunId] then
+		return false, nil
+	end
+	if charmId == nil or charmId == "" then
+		data.charms.guns[gunId] = nil
+		return true, nil
+	end
+	local copies = PlayerData.charmCopies(data.charms, charmId)
+	if copies <= 0 or not CharmsConfig.exists(charmId) then
+		return false, nil
+	end
+	if data.charms.guns[gunId] == charmId then
+		return true, nil
+	end
+	local used = PlayerData.charmGuns(data.charms, charmId)
+	local movedFrom: string? = nil
+	if #used >= copies then
+		movedFrom = used[1]
+		data.charms.guns[used[1]] = nil
+	end
+	data.charms.guns[gunId] = charmId
+	return true, movedFrom
 end
 
 -- Gives a title (the pass, the Task Path's Champion). A new title goes on by itself only
@@ -277,7 +404,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		onb = Onboarding.new(),
 		tasks = TaskPath.new(),
 		season = SeasonPass.new(),
-		charms = { owned = {} },
+		charms = { owned = {}, guns = {} },
 		titles = { owned = {} },
 	}
 	if typeof(raw) ~= "table" then
@@ -291,7 +418,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 	data.onb = Onboarding.clean((raw :: any).onb)
 	data.tasks = TaskPath.clean((raw :: any).tasks)
 	data.season = SeasonPass.clean((raw :: any).season)
-	data.charms = PlayerData.cleanOwned((raw :: any).charms)
+	data.charms = PlayerData.cleanCharms((raw :: any).charms)
 	data.titles = PlayerData.cleanOwned((raw :: any).titles)
 	-- Champion was only kept in the Task Path before titles existed (2026-11-27): move it in
 	if data.tasks.title then
@@ -379,10 +506,24 @@ function PlayerData.valid(data: Data): boolean
 		or not TaskPath.valid(data.tasks)
 		or not SeasonPass.valid(data.season)
 		or not GunLevels.valid(data.gunxp)
-		or #data.charms.owned > MAX_OWNED
 		or #data.titles.owned > MAX_OWNED
 	then
 		return false
+	end
+	local charmUsed: { [string]: number } = {}
+	for cid, n in data.charms.owned do
+		if not CharmsConfig.exists(cid) or not whole(n, MAX_CHARM_COPIES) or n < 1 then
+			return false
+		end
+	end
+	for gunId, cid in data.charms.guns do
+		if not CHARM_GUNS[gunId] or not CharmsConfig.exists(cid) then
+			return false
+		end
+		charmUsed[cid] = (charmUsed[cid] or 0) + 1
+		if charmUsed[cid] > (data.charms.owned[cid] or 0) then
+			return false
+		end
 	end
 	if not whole(data.earn.day, 1e7) or not whole(data.earn.coins, Inventory.MAX_COINS) then
 		return false
@@ -489,6 +630,7 @@ function PlayerData.publish(player: Player, data: Data?)
 	setJson(player, PlayerData.TASKS, if data then data.tasks else TaskPath.new())
 	setJson(player, PlayerData.SEASON, if data then data.season else SeasonPass.new())
 	setJson(player, PlayerData.TITLES, if data then data.titles else { owned = {} })
+	setJson(player, PlayerData.CHARMS, if data then data.charms else { owned = {}, guns = {} })
 	StateValues.set(player, "Title", if data then data.titles.on or "" else "")
 	-- Inventory last: clients listen to it, and the skins must already be there
 	setJson(player, PlayerData.REPLICA, shown)
@@ -567,6 +709,26 @@ function PlayerData.titles(player: Player): Owned
 	end
 	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
 	return if ok then PlayerData.cleanOwned(decoded) else { owned = {} }
+end
+
+local charmCache: { [StringValue]: { encoded: string, data: CharmSave } } = setmetatable(
+	{},
+	{ __mode = "k" }
+) :: any
+
+function PlayerData.charms(player: Player): CharmSave
+	local value = player:FindFirstChild(PlayerData.CHARMS)
+	if not (value and value:IsA("StringValue")) or value.Value == "" then
+		return { owned = {}, guns = {} }
+	end
+	local hit = charmCache[value]
+	if hit and hit.encoded == value.Value then
+		return hit.data
+	end
+	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, value.Value)
+	local cleaned = if ok then PlayerData.cleanCharms(decoded) else { owned = {}, guns = {} }
+	charmCache[value] = { encoded = value.Value, data = cleaned }
+	return cleaned
 end
 
 -- Any player's equipped title as shown (upper case), or nil. Every client can read it.

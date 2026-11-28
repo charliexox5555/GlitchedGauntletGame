@@ -14,6 +14,7 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
 local SeasonCatalog = require(script.Parent.SeasonCatalog)
 
 export type Claimed = { tier: number, track: SeasonPass.Track, rewards: { SeasonCatalog.Reward } }
@@ -87,7 +88,14 @@ function SeasonRewards.grant(data: PlayerData.Data, r: SeasonCatalog.Reward): bo
 		end
 		PlayerData.grantSkin(data, r.gun, r.line)
 	elseif r.kind == "Charm" then
-		PlayerData.grantOwned(data.charms, r.name)
+		local cid = r.charm or r.name
+		if not CharmsConfig.exists(cid) then
+			return false
+		end
+		local granted, fallbackCoins = PlayerData.grantCharm(data, cid)
+		if not granted and fallbackCoins > 0 then
+			data.coins = math.min(data.coins + fallbackCoins, Inventory.MAX_COINS)
+		end
 	elseif r.kind == "Title" then
 		PlayerData.grantTitle(data, r.title or r.name)
 	elseif r.kind == "Mod" then

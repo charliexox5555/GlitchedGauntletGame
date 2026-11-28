@@ -41,11 +41,14 @@ local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
+local CharmRig = require(ReplicatedStorage.Shared.CharmRig)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local SkinCases = require(ReplicatedStorage.Shared.SkinCases)
 local SkinsConfig = require(ReplicatedStorage.Shared.Config.Skins)
 local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
+local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
@@ -54,6 +57,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local RangeTransition = require(script.Parent.Parent.Util.RangeTransition)
 local PowerCardFace = require(script.Parent.Parent.Util.PowerCardFace)
+local CharmThumbnail = require(script.Parent.Parent.Util.CharmThumbnail)
 local Router = require(script.Parent.Parent.Util.Router)
 local ArmedHideController = require(script.Parent.ArmedHideController)
 
@@ -115,12 +119,15 @@ local mode: Mode = "guns"
 local selectedGun = LoadoutConfig.STARTER.Primary
 local selectedPower = ""
 local previewLine = "Stock"
-local stripOpen = false
+local previewCharm: string = ""
+local stripMode: "none" | "skins" | "charms" = "none"
 local rows: { [string]: GuiButton } = {}
 local tiles: { [string]: GuiButton } = {}
 local skinTiles: { GuiButton } = {}
 local current: Model? = nil
+local stageCharm: CharmRig.State? = nil
 local centerOffset = CFrame.new()
+local CHARM_GUNBAR_POS = UDim2.new(0, 215, 0, 40)
 local stageFolder: Folder? = nil
 local yaw, pitch, targetYaw, targetPitch = 0, 0, 0, 0
 local dragging = false
@@ -182,6 +189,9 @@ local function gunName(id: string): string
 end
 local function equippedLine(gunId: string): string
 	return Locker.equipped(player)[gunId] or "Stock"
+end
+local function equippedCharm(gunId: string): string?
+	return PlayerData.equippedCharm(PlayerData.charms(player), gunId)
 end
 
 -- A short message over the bottom bar (refusals: not enough coins, busy, ...).
@@ -267,8 +277,10 @@ end
 
 -- stage ---------------------------------------------------------------------------------------------------------
 
-local function showGun(id: string, line: string, isLocked: boolean)
+local function showGun(id: string, line: string, isLocked: boolean, charmOverride: string?)
 	local folder = stageFolder
+	CharmRig.destroy(stageCharm)
+	stageCharm = nil
 	if current then
 		current:Destroy()
 		current = nil
@@ -308,6 +320,18 @@ local function showGun(id: string, line: string, isLocked: boolean)
 	centerOffset = CFrame.new(box.Position)
 	m.Parent = folder
 	current = m
+	if id ~= "Knife" then
+		local cid: string? = if charmOverride ~= nil
+			then (if charmOverride == "" then nil else charmOverride)
+			elseif not isLocked then equippedCharm(id)
+			else nil
+		if cid then
+			stageCharm = CharmRig.attach(m, cid, m:GetScale(), { mode = "anchored", gunId = id })
+			if stageCharm then
+				CharmRig.onFire(stageCharm, 0.6)
+			end
+		end
+	end
 	yaw = targetYaw - math.rad(50) -- a little swing in on every swap
 end
 
@@ -356,6 +380,9 @@ local function onRender(dt: number)
 			local turn = CFrame.fromAxisAngle(Vector3.yAxis, yaw)
 				* CFrame.fromAxisAngle(Vector3.zAxis, pitch)
 			current:PivotTo(CFrame.new(STAGE) * bob * turn * GUN_REST * centerOffset:Inverse())
+			if stageCharm then
+				CharmRig.step(stageCharm, dt, stageCharm.point.WorldCFrame, false, 0)
+			end
 		end
 	end
 end
@@ -540,6 +567,7 @@ local function refreshGunRows()
 end
 
 local refreshSkins: () -> ()
+local refreshCharms: () -> ()
 
 -- The Level card (an owned gun): level, the bar, the next stat step, the next milestone and LEVEL UP for coins.
 local function refreshLevelCard(id: string)
@@ -673,9 +701,12 @@ local function refreshGunPanel()
 	fillOverview(id)
 	refreshLevelCard(id)
 	previewLine = if owned then equippedLine(id) else "Stock"
-	showGun(id, previewLine, not owned)
-	if stripOpen then
+	previewCharm = if owned and mode ~= "knife" then (equippedCharm(id) or "") else ""
+	showGun(id, previewLine, not owned, previewCharm)
+	if stripMode == "skins" then
 		refreshSkins()
+	elseif stripMode == "charms" then
+		refreshCharms()
 	end
 end
 
@@ -763,7 +794,7 @@ refreshSkins = function()
 		end
 		t.Activated:Connect(function()
 			previewLine = line
-			showGun(gunId, line, not gunOwned)
+			showGun(gunId, line, not gunOwned, previewCharm)
 			if e.owned and gunOwned and line ~= equippedLine(gunId) then
 				LobbyNet.event("LockerRequest"):FireServer("equip", gunId, line)
 			elseif not e.owned then
@@ -782,12 +813,157 @@ refreshSkins = function()
 	end
 end
 
-local function setStrip(open: boolean)
-	stripOpen = open
+local RARITY_ORDER: { [string]: number } = {
+	Common = 1,
+	Rare = 2,
+	Epic = 3,
+	Legendary = 4,
+}
+
+refreshCharms = function()
+	for _, t in skinTiles do
+		t:Destroy()
+	end
+	table.clear(skinTiles)
+	local gunId = skinGun()
+	local gunOwned = guns().owned[gunId] == true and gunId ~= "Knife"
+	local charmData = PlayerData.charms(player)
+	local currentOn = equippedCharm(gunId)
+	local tpl = find(skinStrip, "Template") :: GuiButton
+
+	local noneTile = tpl:Clone()
+	noneTile.Name = "NoneCharm"
+	noneTile.LayoutOrder = 0
+	noneTile.Visible = true
+	set(noneTile, "Name", "Text", "NONE")
+	set(noneTile, "Name", "TextTransparency", 0)
+	local noneArt = find(noneTile, "Art") :: ImageLabel
+	CharmThumbnail.clear(noneArt)
+	noneArt.Image = ""
+	set(noneTile, "On", "Visible", gunOwned and currentOn == nil)
+	set(noneTile, "On", "Text", "EQUIPPED")
+	local noneTier = noneTile:FindFirstChild("Tier")
+	if noneTier and noneTier:IsA("TextLabel") then
+		noneTier.Visible = false
+	end
+	local noneLock = noneTile:FindFirstChild("Lock")
+	if noneLock and noneLock:IsA("GuiObject") then
+		noneLock.Visible = false
+	end
+	local noneBg = noneTile:FindFirstChild("Bg")
+	if noneBg and noneBg:IsA("ImageLabel") then
+		noneBg.ImageColor3 = if previewCharm == "" then WHITE else PANEL
+		noneBg.ImageTransparency = if previewCharm == "" then 0.8 else 0.25
+	end
+	noneTile.Activated:Connect(function()
+		previewCharm = ""
+		showGun(gunId, previewLine, not gunOwned, "")
+		if gunOwned and currentOn ~= nil then
+			LobbyNet.event("LockerRequest"):FireServer("charm", gunId, "")
+		end
+		refreshCharms()
+	end)
+	hoverTint(noneTile)
+	noneTile.Parent = skinStrip
+	table.insert(skinTiles, noneTile)
+
+	type CharmEntry = {
+		def: CharmsConfig.CharmDef,
+		copies: number,
+		orderIdx: number,
+	}
+	local list: { CharmEntry } = {}
+	for idx, def in CharmsConfig.all() do
+		table.insert(list, {
+			def = def,
+			copies = PlayerData.charmCopies(charmData, def.id),
+			orderIdx = idx,
+		})
+	end
+	table.sort(list, function(a, b)
+		local aOwned = a.copies > 0
+		local bOwned = b.copies > 0
+		if aOwned ~= bOwned then
+			return aOwned
+		end
+		local ra = RARITY_ORDER[a.def.rarity] or 9
+		local rb = RARITY_ORDER[b.def.rarity] or 9
+		if ra ~= rb then
+			return ra < rb
+		end
+		return a.orderIdx < b.orderIdx
+	end)
+
+	for i, e in list do
+		local def = e.def
+		local cid = def.id
+		local isOwned = e.copies > 0
+		local usedGuns = PlayerData.charmGuns(charmData, cid)
+		local t = tpl:Clone()
+		t.Name = "Charm_" .. cid
+		t.LayoutOrder = i
+		t.Visible = true
+		set(t, "Name", "Text", if e.copies > 1 then `{def.name} x{e.copies}` else def.name)
+		set(t, "Name", "TextTransparency", if isOwned then 0 else 0.35)
+		local art = find(t, "Art") :: ImageLabel
+		art.Image = ""
+		CharmThumbnail.mount(art, cid, not isOwned)
+
+		local onLabel = t:FindFirstChild("On")
+		if onLabel and onLabel:IsA("TextLabel") then
+			if isOwned and gunOwned and cid == currentOn then
+				onLabel.Visible = true
+				onLabel.Text = "EQUIPPED"
+			elseif isOwned and #usedGuns >= e.copies and #usedGuns > 0 then
+				onLabel.Visible = true
+				onLabel.Text = "ON " .. string.upper(gunName(usedGuns[1]))
+			else
+				onLabel.Visible = false
+			end
+		end
+
+		local tierLabel = t:FindFirstChild("Tier")
+		if tierLabel and tierLabel:IsA("TextLabel") then
+			tierLabel.Visible = true
+			tierLabel.Text = string.upper(def.rarity)
+			tierLabel.TextColor3 = ShopCatalog.RARITY_COLOR[def.rarity] or WHITE
+		end
+		local lock = t:FindFirstChild("Lock")
+		if lock and lock:IsA("GuiObject") then
+			lock.Visible = not isOwned
+		end
+		local bg = t:FindFirstChild("Bg")
+		if bg and bg:IsA("ImageLabel") then
+			bg.ImageColor3 = if cid == previewCharm then WHITE else PANEL
+			bg.ImageTransparency = if cid == previewCharm then 0.8 else 0.25
+		end
+		t.Activated:Connect(function()
+			previewCharm = cid
+			showGun(gunId, previewLine, not gunOwned, cid)
+			if isOwned and gunOwned and cid ~= currentOn then
+				LobbyNet.event("LockerRequest"):FireServer("charm", gunId, cid)
+			elseif not isOwned then
+				local where = CharmsConfig.SOURCE_LABEL[def.source] or "CHALLENGES"
+				say(`{string.upper(def.rarity)} CHARM · FROM {where}`)
+			end
+			refreshCharms()
+		end)
+		hoverTint(t)
+		t.Parent = skinStrip
+		table.insert(skinTiles, t)
+	end
+end
+
+local function setStripMode(nextMode: "none" | "skins" | "charms")
+	stripMode = nextMode
+	local open = nextMode ~= "none"
 	skinStrip.Visible = open
 	set(bottom, "Hint", "Visible", not open)
-	if open then
+	if nextMode == "skins" then
 		refreshSkins()
+		UiMotion.slideIn(skinStrip, 0, 40, 0, 0.26)
+	elseif nextMode == "charms" then
+		refreshCharms()
 		UiMotion.slideIn(skinStrip, 0, 40, 0, 0.26)
 	end
 end
@@ -951,8 +1127,20 @@ local function setMode(newMode: Mode)
 	set(left, "Powers", "Visible", not gunsMode)
 	set(bottom, "GunBar", "Visible", gunsMode)
 	set(bottom, "PowerBar", "Visible", not gunsMode)
+	if gunsMode then
+		local showCharmBtn = newMode == "guns"
+		set(bottom, "GunBar.Charm", "Visible", showCharmBtn)
+		set(
+			bottom,
+			"GunBar",
+			"Position",
+			if showCharmBtn
+				then CHARM_GUNBAR_POS
+				else (find(bottom, "PowerBar") :: GuiObject).Position
+		)
+	end
 	targetYaw, targetPitch = 0, 0
-	setStrip(false)
+	setStripMode("none")
 	-- the new tab's list and cards come in from their sides
 	UiMotion.slideIn(find(left, if gunsMode then "Guns" else "Powers") :: GuiObject, -40, 0, 0, 0.3)
 	UiMotion.slideIn(find(right, "Stack") :: GuiObject, 40, 0, 0.03, 0.3)
@@ -965,6 +1153,8 @@ local function setMode(newMode: Mode)
 		refreshGunRows()
 		refreshGunPanel()
 	else
+		CharmRig.destroy(stageCharm)
+		stageCharm = nil
 		if current then
 			current:Destroy()
 			current = nil
@@ -1599,10 +1789,10 @@ function LockerV3Controller.start()
 	end
 	set(powerPanel, "Level", "Visible", false)
 	set(powerPanel, "Actions", "Visible", false)
-	set(bottom, "GunBar.Charm", "Visible", false)
+	set(bottom, "GunBar.Charm", "Visible", true)
 	set(bottom, "GunBar.KillFx", "Visible", false)
-	-- two round buttons left (Back, Skin): centre them like the powers bar
-	set(bottom, "GunBar", "Position", (find(bottom, "PowerBar") :: GuiObject).Position)
+	-- three round buttons on Guns (Back, Skin, Charm) centred in Bottom
+	set(bottom, "GunBar", "Position", CHARM_GUNBAR_POS)
 	set(ownedPanel, "Actions.OverviewRow.Sub", "Text", "Damage, fire rate, handling")
 	set(lockedPanel, "Actions.OverviewRow.Sub", "Text", "Damage, fire rate, handling")
 	local actions = find(ownedPanel, "Actions") :: Frame
@@ -1627,8 +1817,8 @@ function LockerV3Controller.start()
 			if cf and cf.Visible then
 				hideConfirm()
 				return true
-			elseif stripOpen then
-				setStrip(false)
+			elseif stripMode ~= "none" then
+				setStripMode("none")
 				return true
 			end
 			return false
@@ -1675,6 +1865,7 @@ function LockerV3Controller.start()
 			"Right.Stack.Power.DeckButton.Button",
 			"Bottom.GunBar.Back.Button",
 			"Bottom.GunBar.Skin.Button",
+			"Bottom.GunBar.Charm.Button",
 			"Bottom.PowerBar.Back.Button",
 			"Bottom.PowerBar.Flip.Button",
 		}
@@ -1809,8 +2000,8 @@ function LockerV3Controller.start()
 	-- the bottom bar
 	for _, path in { "GunBar.Back.Button", "PowerBar.Back.Button" } do
 		onPress(bottom, path, function()
-			if stripOpen then
-				setStrip(false)
+			if stripMode ~= "none" then
+				setStripMode("none")
 			else
 				Router.close()
 			end
@@ -1819,14 +2010,20 @@ function LockerV3Controller.start()
 	onPress(bottom, "GunBar.Skin.Button", function()
 		local g2 = guns()
 		if mode == "knife" or g2.owned[selectedGun] then
-			setStrip(not stripOpen)
+			setStripMode(if stripMode == "skins" then "none" else "skins")
+		end
+	end)
+	onPress(bottom, "GunBar.Charm.Button", function()
+		local g2 = guns()
+		if mode == "guns" and g2.owned[selectedGun] then
+			setStripMode(if stripMode == "charms" then "none" else "charms")
 		end
 	end)
 	onPress(bottom, "PowerBar.Flip.Button", function()
 		targetYaw += math.pi
 	end)
 
-	-- live data: the save's guns / deck / skins / coins
+	-- live data: the save's guns / deck / skins / charms / coins
 	local function onData()
 		if not isOpen then
 			return
@@ -1837,19 +2034,49 @@ function LockerV3Controller.start()
 			refreshPowerPanel()
 		else
 			refreshGunRows()
-			if stripOpen then
+			if mode == "guns" then
+				local eq = equippedCharm(selectedGun)
+				if (eq or "") ~= previewCharm and stripMode ~= "charms" then
+					previewCharm = eq or ""
+					showGun(selectedGun, previewLine, not guns().owned[selectedGun], previewCharm)
+				end
+			end
+			if stripMode == "skins" then
 				refreshSkins()
+			elseif stripMode == "charms" then
+				refreshCharms()
 			end
 		end
 	end
 	task.spawn(function()
-		for _, name in { PlayerData.GUNS, PlayerData.MODS, PlayerData.SKINS, GunLevels.REPLICA } do
+		for _, name in
+			{
+				PlayerData.GUNS,
+				PlayerData.MODS,
+				PlayerData.SKINS,
+				PlayerData.CHARMS,
+				GunLevels.REPLICA,
+			}
+		do
 			local v = player:WaitForChild(name, 60)
 			if v and v:IsA("StringValue") then
 				v.Changed:Connect(onData)
 			end
 		end
 	end)
+	LobbyNet.event("LockerRequest").OnClientEvent
+		:Connect(
+			function(act: unknown, gunId: unknown, _cid: unknown, ok: unknown, movedFrom: unknown)
+				if not isOpen or act ~= "charm" or ok ~= true then
+					return
+				end
+				if typeof(movedFrom) == "string" and movedFrom ~= "" then
+					say(`MOVED CHARM FROM {string.upper(gunName(movedFrom))}`)
+				elseif typeof(gunId) == "string" and gunId == selectedGun then
+					UiSfx.claim()
+				end
+			end
+		)
 	StateValues.changed(player, "Coins"):Connect(function()
 		if isOpen then
 			refreshCoins()
@@ -1859,7 +2086,7 @@ function LockerV3Controller.start()
 		end
 	end)
 	Locker.observe(player, function()
-		if isOpen and stripOpen then
+		if isOpen and stripMode == "skins" then
 			refreshSkins()
 		end
 	end)
@@ -1870,7 +2097,7 @@ function LockerV3Controller.start()
 			and line == previewLine
 			and name == SkinStore.modelName(selectedGun, line)
 		then
-			showGun(selectedGun, line, false)
+			showGun(selectedGun, line, false, previewCharm)
 		end
 	end)
 	-- turning: grab the stage (anywhere off the panels) and drag

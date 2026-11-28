@@ -1,0 +1,140 @@
+{
+ "id": "BrassBullet",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.03788,
+   -0.03788,
+   -0.394
+  ],
+  "max": [
+   0.03788,
+   0.03788,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.24088
+  ]
+ },
+ "tris": 440,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Bullet_Brass",
+   "role": "body",
+   "material": "Bullet_Brass",
+   "look": {
+    "material": "Metal",
+    "color": [
+     235,
+     184,
+     68
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.226
+   ],
+   "size": [
+    0.07576,
+    0.07576,
+    0.168
+   ],
+   "tris": 112
+  },
+  {
+   "name": "Body_Bullet_Copper",
+   "role": "body",
+   "material": "Bullet_Copper",
+   "look": {
+    "material": "Metal",
+    "color": [
+     212,
+     110,
+     58
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.352
+   ],
+   "size": [
+    0.05174,
+    0.05174,
+    0.084
+   ],
+   "tris": 54
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.11488
+   ],
+   "size": [
+    0.05543,
+    0.05543,
+    0.05424
+   ],
+   "tris": 130
+  }
+ ]
+}

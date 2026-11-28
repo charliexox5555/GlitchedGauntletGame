@@ -1,0 +1,64 @@
+{
+  "parts": {
+    "Body_Box": {
+      "tris": 120,
+      "non_manifold": 0,
+      "smooth_faces": 0,
+      "subdiv": 0
+    },
+    "Body_Trim": {
+      "tris": 1288,
+      "non_manifold": 0,
+      "smooth_faces": 0,
+      "subdiv": 0
+    },
+    "Body_Glow": {
+      "tris": 340,
+      "non_manifold": 0,
+      "smooth_faces": 0,
+      "subdiv": 0
+    },
+    "Body_Label": {
+      "tris": 92,
+      "non_manifold": 0,
+      "smooth_faces": 0,
+      "subdiv": 0
+    },
+    "Body_Interior": {
+      "tris": 152,
+      "non_manifold": 0,
+      "smooth_faces": 0,
+      "subdiv": 0
+    },
+    "Lid_Box": {
+      "tris": 200,
+      "non_manifold": 0,
+      "smooth_faces": 0,
+      "subdiv": 0
+    },
+    "Lid_Trim": {
+      "tris": 552,
+      "non_manifold": 0,
+      "smooth_faces": 0,
+      "subdiv": 0
+    }
+  },
+  "pivots_blender": {
+    "Body": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Lid": [
+      0.0,
+      0.5899999737739563,
+      0.3449999988079071
+    ]
+  },
+  "lid_pivot_roblox": [
+    0.0,
+    0.345,
+    0.59
+  ],
+  "tris": 2744
+}

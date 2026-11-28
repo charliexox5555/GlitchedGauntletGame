@@ -66,6 +66,9 @@ local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
 local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
 local LocalHide = require(script.Parent.Parent.Util.LocalHide)
+local CharmRig = require(ReplicatedStorage.Shared.CharmRig)
+local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
+local Net = require(ReplicatedStorage.Shared.Net)
 local PopCircuitBat = require(script.Parent.Parent.Util.PopCircuitBat)
 local RuinedReaver = require(script.Parent.Parent.Util.RuinedReaver)
 local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
@@ -166,6 +169,9 @@ type Gun = {
 	katana: TempestKatana.State?, -- the Tempest-Strike Katana (knife slot)
 	shadowActions: ShadowMistActions.State?,
 	cosmeticInspect: CosmeticInspect.State?,
+	charm: CharmRig.State?,
+	charmId: string?,
+	weaponScale: number,
 }
 
 type Prop = { motor: Motor6D, parts: { BasePart }, limit: number, hiddenNow: boolean }
@@ -1062,6 +1068,9 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		bounce = Spring.new(VM.HANDLE_STIFFNESS, VM.HANDLE_DAMPING),
 		lastShot = 0,
 		sprayShots = 0,
+		charm = nil,
+		charmId = nil,
+		weaponScale = scale,
 	}
 	if isBat then
 		gun.batMotion = PopCircuitBat.play("Idle")
@@ -1297,7 +1306,7 @@ end
 local function silenceGunFx()
 	for _, gun in guns do
 		for _, d in gun.model:GetDescendants() do
-			if isGunFx(d) and (d :: any).Enabled then
+			if isGunFx(d) and (d :: any).Enabled and not d:FindFirstAncestor("EquippedCharm") then
 				(d :: any).Enabled = false
 				if d:IsA("ParticleEmitter") then
 					d:Clear() -- motes already out would hang in the scope for their lifetime
@@ -1365,6 +1374,8 @@ function ViewmodelController.unequip()
 		if gun.riftfang then
 			RiftfangKnife.destroy(gun.riftfang)
 		end
+		CharmRig.destroy(gun.charm)
+		gun.charm = nil
 		gun.model:Destroy()
 	end
 	guns = {}
@@ -1788,6 +1799,34 @@ export type EquipOptions = {
 	instant: boolean?,
 }
 
+local function resolveCharmId(owner: Player?, weaponId: string): string?
+	if studio then
+		local testId = Workspace:GetAttribute("TestCharmId")
+		if typeof(testId) == "string" and testId ~= "" then
+			return if weaponId ~= "Knife" then testId else nil
+		end
+	end
+	if not owner or weaponId == "Knife" then
+		return nil
+	end
+	return PlayerData.equippedCharm(PlayerData.charms(owner), weaponId)
+end
+
+local function attachCharmToGun(gun: Gun, weapon: WeaponConfig)
+	CharmRig.destroy(gun.charm)
+	local owner: Player? = if subject then subjectOwner else player
+	local cid = resolveCharmId(owner, weapon.id)
+	gun.charmId = cid
+	local k = if owner then StateValues.get(owner, "MatchKills") else 0
+	local killsNum = if typeof(k) == "number" then k else 0
+	gun.charm = CharmRig.attach(gun.model, cid, gun.weaponScale, {
+		mode = "anchored",
+		kills = killsNum,
+		viewYawBias = math.rad(24),
+		gunId = weapon.id,
+	})
+end
+
 -- Equips `weapon`: every equip plays the gun's "Draw" clip (raise and rack
 -- the action), when it has one; otherwise a quick raise.
 -- `duration`: the client's ready time. Returns the clip's foley cues.
@@ -1814,6 +1853,7 @@ function ViewmodelController.equip(
 	for _, gun in guns do
 		gun.model.Parent = cam
 		finishGun(gun, weapon)
+		attachCharmToGun(gun, weapon)
 		if VM.GUN_OUTLINE.enabled then
 			local h = Instance.new("Highlight")
 			h.Name = "GunOutline"
@@ -1982,6 +2022,9 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 	gun.animator:play("Fire")
 	if gun.shadowActions then
 		ShadowMistActions.fire(gun.shadowActions)
+	end
+	if gun.charm then
+		CharmRig.onFire(gun.charm, kickScale)
 	end
 	if gun.tempest then
 		TempestIdle.fire(gun.tempest)
@@ -3664,6 +3707,13 @@ local function update(dt: number)
 	if a then
 		ViewmodelArms.apply(a)
 	end
+	-- Step charms after BulkMoveTo so CharmPoint.WorldCFrame is from this exact frame.
+	for _, side in SIDES do
+		local gun = guns[side]
+		if gun and gun.charm then
+			CharmRig.step(gun.charm, dt, gun.charm.point.WorldCFrame, hidden, adsAlpha)
+		end
+	end
 end
 
 -- A fresh rig: no gun, no item, no arms, motion from rest (a life ends, or
@@ -3731,6 +3781,31 @@ function ViewmodelController.setSubject(body: Model?, owner: Player?)
 	end
 end
 
+local function refreshCharms()
+	local weapon = config
+	if not weapon then
+		return
+	end
+	local owner: Player? = if subject then subjectOwner else player
+	local targetId = resolveCharmId(owner, weapon.id)
+	for _, gun in guns do
+		if gun.charmId ~= targetId then
+			attachCharmToGun(gun, weapon)
+		end
+	end
+end
+
+function ViewmodelController.testCharmKill(headshot: boolean?)
+	if not studio then
+		return
+	end
+	for _, gun in guns do
+		if gun.charm then
+			CharmRig.onKill(gun.charm, nil, headshot == true)
+		end
+	end
+end
+
 function ViewmodelController.start()
 	RunService:BindToRenderStep("GGViewmodel", Enum.RenderPriority.Camera.Value + 2, update)
 	if SkinPreview.allowed() then
@@ -3738,6 +3813,60 @@ function ViewmodelController.start()
 			onSkinPick(player)
 		end)
 	end
+	local function watchCharmsOn(owner: Player)
+		local conn: RBXScriptConnection? = nil
+		local function bind(v: Instance)
+			if v.Name == PlayerData.CHARMS and v:IsA("StringValue") then
+				if conn then
+					conn:Disconnect()
+				end
+				conn = v:GetPropertyChangedSignal("Value"):Connect(refreshCharms)
+			end
+		end
+		local cur = owner:FindFirstChild(PlayerData.CHARMS)
+		if cur then
+			bind(cur)
+		end
+		owner.ChildAdded:Connect(function(v)
+			if v.Name == PlayerData.CHARMS and v:IsA("StringValue") then
+				bind(v)
+				refreshCharms()
+			end
+		end)
+	end
+	watchCharmsOn(player)
+	if studio then
+		Workspace:GetAttributeChangedSignal("TestCharmId"):Connect(refreshCharms)
+	end
+	Net.event("Killed").OnClientEvent
+		:Connect(function(killer: unknown, _victim: unknown, _source: unknown, headshot: unknown)
+			local owner: Player? = if subject then subjectOwner else player
+			local kp = if typeof(killer) == "Instance"
+				then (if killer:IsA("Player")
+					then killer
+					elseif killer:IsA("Model") then Players:GetPlayerFromCharacter(killer)
+					else nil)
+				else nil
+			if
+				(typeof(killer) == "Instance" and killer == subjectBody())
+				or (owner ~= nil and kp == owner)
+			then
+				for _, gun in guns do
+					if gun.charm then
+						CharmRig.onKill(gun.charm, nil, headshot == true)
+					end
+				end
+			end
+		end)
+	StateValues.changed(player, "MatchKills"):Connect(function(v)
+		if not subject and typeof(v) == "number" then
+			for _, gun in guns do
+				if gun.charm then
+					CharmRig.setKills(gun.charm, v)
+				end
+			end
+		end
+	end)
 	player.CharacterRemoving:Connect(function()
 		if not subject then
 			resetView()

@@ -1,0 +1,140 @@
+{
+ "id": "ThunderOrb",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.09263,
+   -0.09263,
+   -0.39
+  ],
+  "max": [
+   0.09263,
+   0.09263,
+   0.00693
+  ],
+  "bodyCenter": [
+   -0.0,
+   -0.0,
+   -0.23888
+  ]
+ },
+ "tris": 626,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Cage_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     170,
+     180,
+     200
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Orb_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     107,
+     94,
+     255
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.255
+   ],
+   "size": [
+    0.12164,
+    0.11569,
+    0.136
+   ],
+   "tris": 20
+  },
+  {
+   "name": "Body_Cage_Dark",
+   "role": "body",
+   "material": "Cage_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     58,
+     66,
+     86
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.0,
+    -0.0,
+    -0.255
+   ],
+   "size": [
+    0.17253,
+    0.17253,
+    0.2
+   ],
+   "tris": 208
+  },
+  {
+   "name": "Body_Cage_Steel",
+   "role": "body",
+   "material": "Cage_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     170,
+     180,
+     200
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.0,
+    -0.0,
+    -0.23888
+   ],
+   "size": [
+    0.18526,
+    0.18526,
+    0.30224
+   ],
+   "tris": 254
+  }
+ ]
+}

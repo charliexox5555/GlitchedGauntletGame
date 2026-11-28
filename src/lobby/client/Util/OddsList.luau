@@ -20,8 +20,11 @@ local Skins = require(ReplicatedStorage.Shared.Config.Skins)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local PowerCases = require(ReplicatedStorage.Shared.PowerCases)
+local CharmCases = require(ReplicatedStorage.Shared.CharmCases)
+local CharmsConfig = require(ReplicatedStorage.Shared.Config.Charms)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local CharmThumbnail = require(script.Parent.CharmThumbnail)
 local PowerCardFace = require(script.Parent.PowerCardFace)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
@@ -102,7 +105,8 @@ type Show = (
 	color: Color3,
 	title: string,
 	line1: string,
-	line2: string
+	line2: string,
+	charmId: string?
 ) -> ()
 
 -- a short card about one skin or line (RIVALS: "Given to a random weapon!"), in our
@@ -204,10 +208,19 @@ local function infoCard(panel: GuiObject, font: Font): Show
 		color: Color3,
 		t: string,
 		a: string,
-		b: string
+		b: string,
+		charmId: string?
 	)
 		tile.BackgroundColor3 = color
-		pic.Image = image or ""
+		CharmThumbnail.clear(tile)
+		if charmId then
+			pic.Image = ""
+			pic.Visible = false
+			CharmThumbnail.mount(tile, charmId)
+		else
+			pic.Visible = true
+			pic.Image = image or ""
+		end
 		title.Text = t
 		title.TextColor3 = color
 		l1.Text = a
@@ -561,6 +574,124 @@ local function renderPowers(list: ScrollingFrame, caseId: string, mods: any)
 	end
 end
 
+local function renderCharms(list: ScrollingFrame, caseId: string, charms: PlayerData.CharmSave)
+	for _, c in list:GetChildren() do
+		if c:IsA("Frame") then
+			c:Destroy()
+		end
+	end
+	local template = UiRoot.templates():WaitForChild("Lobby"):WaitForChild("ShopOddsRow") :: Frame
+	local font = (child(template, "Name") :: TextLabel).FontFace
+	local parent = list.Parent
+	local showInfo = infoCard(if parent and parent:IsA("GuiObject") then parent else list, font)
+	local charmOdds, tierOdds, unownedPhase = CharmCases.odds(caseId, charms)
+	local pool = CharmCases.pool(caseId)
+	local cap = CharmCases.maxCopies()
+	local left = CharmCases.remainingSlots(caseId, charms)
+	local order = 0
+	local function row(): Frame
+		order += 1
+		local r = template:Clone()
+		r.LayoutOrder = order
+		return r
+	end
+
+	local head = row()
+	head.Name = "Section_Charms"
+	head.BackgroundTransparency = 1;
+	(child(head, "Cell") :: Frame).Visible = false
+	local hn = child(head, "Name") :: TextLabel
+	hn.Text = "CHARMS"
+	hn.TextColor3 = WHITE
+	hn.TextSize = 26
+	shiftX(hn, -66)
+	local hs = child(head, "Sub") :: TextLabel
+	hs.Text = if left == 0
+		then "MAX COPIES OWNED"
+		elseif unownedPhase then "UNOWNED CHARMS ROLL FIRST  ·  MAX "
+			.. tostring(cap)
+			.. " COPIES EACH"
+		else "ALL 12 UNLOCKED  ·  EXTRA COPIES STACK UP TO " .. tostring(cap)
+	shiftX(hs, -66);
+	(child(head, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(if left > 0 then 100 else 0)
+	head.Parent = list
+
+	for _, tierId in CharmCases.TIER_ORDER do
+		local inTier: { string } = {}
+		for _, id in pool do
+			local cdef = CharmsConfig.get(id)
+			if cdef and cdef.rarity == tierId then
+				table.insert(inTier, id)
+			end
+		end
+		if #inTier == 0 then
+			continue
+		end
+		local tierDef = (Skins.TIERS :: any)[tierId]
+		local eligible = 0
+		for _, id in inTier do
+			if (charmOdds[id] or 0) > 0 then
+				eligible += 1
+			end
+		end
+		local th = row()
+		th.Name = "Tier_" .. tierId
+		th.BackgroundTransparency = 1;
+		(child(th, "Cell") :: Frame).Visible = false
+		local tn = child(th, "Name") :: TextLabel
+		tn.Text = tierDef.name
+		tn.TextColor3 = tierDef.color
+		tn.TextSize = 22
+		shiftX(tn, -66)
+		local ts = child(th, "Sub") :: TextLabel
+		ts.Text = if eligible == 0
+			then (if unownedPhase then "ALL OWNED" else "MAX COPIES")
+			else string.format(
+				"%d %s IN TIER",
+				#inTier,
+				if #inTier == 1 then "CHARM" else "CHARMS"
+			)
+		shiftX(ts, -66)
+		local tp = child(th, "Pct") :: TextLabel
+		tp.Text = ShopCatalog.formatOdds((tierOdds[tierId] or 0) * 100)
+		tp.TextColor3 = tierDef.color
+		th.Parent = list
+
+		for _, id in inTier do
+			local cdef = CharmsConfig.get(id)
+			if not cdef then
+				continue
+			end
+			local copies = PlayerData.charmCopies(charms, id)
+			local r = row()
+			r.Name = "Charm_" .. id
+			local cell = child(r, "Cell") :: Frame
+			cell.BackgroundColor3 = tierDef.color
+			cell.ClipsDescendants = true
+			local hit = picture(r, nil, id)
+			for _, oldChild in cell:GetChildren() do
+				if oldChild.Name == "Letter" then
+					oldChild:Destroy()
+				end
+			end
+			CharmThumbnail.mount(cell, id)
+			local name = child(r, "Name") :: TextLabel
+			name.Text = cdef.name
+			name.TextColor3 = tierDef.color
+			local sub = child(r, "Sub") :: TextLabel
+			sub.Text = if copies >= cap
+				then string.format("MAX (%d / %d)", copies, cap)
+				elseif copies > 0 then string.format("OWNED ×%d", copies)
+				else string.format("%s CHARM", tierDef.name);
+			(child(r, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds((charmOdds[id] or 0) * 100)
+			hit.Activated:Connect(function()
+				showInfo(cell, nil, tierDef.color, cdef.name, sub.Text, cdef.description, id)
+			end)
+			r.Parent = list
+		end
+	end
+end
+
 function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextLabel)
 	local cleanup = subscriptions[list]
 	if cleanup then
@@ -584,6 +715,25 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 				else "You own every power in this case."
 			local position = list.CanvasPosition
 			renderPowers(list, case.id, mods)
+			list.CanvasPosition = position
+			return
+		end
+		if CharmCases.isCharmCase(case.id) then
+			local charms = PlayerData.charms(player)
+			local left = CharmCases.remainingSlots(case.id, charms)
+			local _, unownedPhase = CharmCases.eligible(case.id, charms)
+			note.Text = if left <= 0
+				then "You own max copies of every charm in this box."
+				elseif
+					unownedPhase
+				then "Unowned charms always roll first until you unlock all 12 in this box. Once all 12 are owned, extra copies stack up to "
+					.. tostring(CharmCases.maxCopies())
+					.. " per charm."
+				else "All 12 charms in this box unlocked! Pulls now stack extra copies (up to "
+					.. tostring(CharmCases.maxCopies())
+					.. " each) so you can equip them on multiple guns."
+			local position = list.CanvasPosition
+			renderCharms(list, case.id, charms)
 			list.CanvasPosition = position
 			return
 		end
@@ -615,6 +765,7 @@ function OddsList.fill(list: ScrollingFrame, case: ShopCatalog.Case, note: TextL
 	-- (LockerGuns: a gun unlock adds its skins to the odds)
 	local replicaNames = if PowerCases.isPowerCase(case.id)
 		then { PlayerData.MODS }
+		elseif CharmCases.isCharmCase(case.id) then { PlayerData.CHARMS }
 		else { PlayerData.SKINS, PlayerData.GUNS }
 	local function watch(replica: Instance?)
 		if replica and table.find(replicaNames, replica.Name) and replica:IsA("StringValue") then

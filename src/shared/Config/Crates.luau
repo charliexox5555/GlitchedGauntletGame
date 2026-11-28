@@ -13,6 +13,7 @@ export type Tier = {
 	template: string?, -- the model in ReplicatedStorage.Crates (default TEMPLATE, the big crate)
 	scale: number?, -- the in-world opening's scale (default Config/CaseOpening.SCALE)
 	pack: boolean?, -- a card pack (Util/PackOpening: it floats in front of your camera and rips open), not a crate
+	blindBox: boolean?, -- a collector charm blind box (Util/BlindBoxOpening: hops, flips lid open, swings 3D charm)
 }
 
 local function look(hex: string, material: Enum.Material?): Look
@@ -119,6 +120,36 @@ local TIERS: { [number]: Tier } = {
 			Light = look("E8AE34", Enum.Material.Neon),
 			Gem = look("E8AE34", Enum.Material.Neon),
 			Interior = look("141518"),
+		},
+	},
+	[8] = {
+		name = "Strike Box",
+		template = "CharmBox",
+		blindBox = true,
+		scale = 1.25,
+		accent = Color3.fromHex("F5C238"),
+		roles = {
+			Body = look("25282E"),
+			Frame = look("111216", Enum.Material.Metal),
+			Hardware = look("111216", Enum.Material.Metal),
+			Light = look("F5C238", Enum.Material.Neon),
+			Gem = look("F5C238", Enum.Material.Neon),
+			Interior = look("08090C"),
+		},
+	},
+	[9] = {
+		name = "Overdrive Box",
+		template = "CharmBox",
+		blindBox = true,
+		scale = 1.25,
+		accent = Color3.fromHex("3FE0F2"),
+		roles = {
+			Body = look("181C25"),
+			Frame = look("0C0E14", Enum.Material.Metal),
+			Hardware = look("0C0E14", Enum.Material.Metal),
+			Light = look("3FE0F2", Enum.Material.Neon),
+			Gem = look("3FE0F2", Enum.Material.Neon),
+			Interior = look("06070A"),
 		},
 	},
 }

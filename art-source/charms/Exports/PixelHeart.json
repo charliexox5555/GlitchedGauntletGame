@@ -1,0 +1,140 @@
+{
+ "id": "PixelHeart",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.1125,
+   -0.035,
+   -0.345
+  ],
+  "max": [
+   0.1125,
+   0.035,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.21638
+  ]
+ },
+ "tris": 514,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Edge",
+   "role": "body",
+   "material": "Heart_Edge",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     255,
+     160,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    -0.0025,
+    0.0,
+    -0.2325
+   ],
+   "size": [
+    0.17,
+    0.07,
+    0.145
+   ],
+   "tris": 128
+  },
+  {
+   "name": "Body_Heart_Red",
+   "role": "body",
+   "material": "Heart_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": [
+     232,
+     38,
+     68
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.245
+   ],
+   "size": [
+    0.225,
+    0.056,
+    0.2
+   ],
+   "tris": 142
+  },
+  {
+   "name": "Body_Chain_Metal",
+   "role": "body",
+   "material": "Chain_Metal",
+   "look": {
+    "material": "Metal",
+    "color": [
+     154,
+     164,
+     180
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.14138
+   ],
+   "size": [
+    0.04027,
+    0.0332,
+    0.10724
+   ],
+   "tris": 100
+  }
+ ]
+}

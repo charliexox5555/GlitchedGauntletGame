@@ -1,0 +1,140 @@
+{
+ "id": "CompassRose",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.116,
+   -0.024,
+   -0.368
+  ],
+  "max": [
+   0.116,
+   0.024,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.22788
+  ]
+ },
+ "tris": 590,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Comp_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     184,
+     194,
+     214
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Body_Comp_Steel",
+   "role": "body",
+   "material": "Comp_Steel",
+   "look": {
+    "material": "Metal",
+    "color": [
+     184,
+     194,
+     214
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.18017
+   ],
+   "size": [
+    0.232,
+    0.03172,
+    0.1848
+   ],
+   "tris": 238
+  },
+  {
+   "name": "Body_Comp_Gold",
+   "role": "body",
+   "material": "Comp_Gold",
+   "look": {
+    "material": "Metal",
+    "color": [
+     245,
+     194,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.264
+   ],
+   "size": [
+    0.048,
+    0.048,
+    0.208
+   ],
+   "tris": 80
+  },
+  {
+   "name": "Body_Comp_Dark",
+   "role": "body",
+   "material": "Comp_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     59,
+     68,
+     88
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.252
+   ],
+   "size": [
+    0.12934,
+    0.022,
+    0.12934
+   ],
+   "tris": 128
+  }
+ ]
+}

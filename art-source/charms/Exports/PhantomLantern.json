@@ -1,0 +1,140 @@
+{
+ "id": "PhantomLantern",
+ "axes": "Blender (+X right, +Y back, +Z up); Roblox (x,y,z) = (-bx, bz, by)",
+ "bounds": {
+  "min": [
+   -0.06505,
+   -0.06505,
+   -0.386
+  ],
+  "max": [
+   0.06505,
+   0.06505,
+   0.00693
+  ],
+  "bodyCenter": [
+   0.0,
+   0.0,
+   -0.23688
+  ]
+ },
+ "tris": 412,
+ "parts": [
+  {
+   "name": "Chain",
+   "role": "chain",
+   "material": "Lantern_Trim",
+   "look": {
+    "material": "Metal",
+    "color": [
+     134,
+     146,
+     166
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.05295
+   ],
+   "size": [
+    0.041,
+    0.04664,
+    0.11976
+   ],
+   "tris": 144
+  },
+  {
+   "name": "Neon",
+   "role": "neon",
+   "material": "Mist_Neon",
+   "look": {
+    "material": "Neon",
+    "color": [
+     93,
+     228,
+     204
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.258
+   ],
+   "size": [
+    0.09,
+    0.09,
+    0.128
+   ],
+   "tris": 16
+  },
+  {
+   "name": "Body_Lantern_Dark",
+   "role": "body",
+   "material": "Lantern_Dark",
+   "look": {
+    "material": "Metal",
+    "color": [
+     37,
+     43,
+     56
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.257
+   ],
+   "size": [
+    0.11832,
+    0.11832,
+    0.258
+   ],
+   "tris": 34
+  },
+  {
+   "name": "Body_Lantern_Trim",
+   "role": "body",
+   "material": "Lantern_Trim",
+   "look": {
+    "material": "Metal",
+    "color": [
+     134,
+     146,
+     166
+    ]
+   },
+   "origin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "center": [
+    0.0,
+    0.0,
+    -0.21288
+   ],
+   "size": [
+    0.13011,
+    0.13011,
+    0.25024
+   ],
+   "tris": 218
+  }
+ ]
+}
