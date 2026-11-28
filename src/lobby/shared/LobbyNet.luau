@@ -94,7 +94,19 @@ export type ProgressEventPayload = {
 export type SeasonEventPayload = {
 	kind: "claimed" | "failed",
 	-- "claimed": every reward paid, in order (names as SeasonCatalog shows them)
-	rewards: { { kind: string, name: string, amount: number? } }?,
+	-- (a skin also carries its gun and line, and every reward its tier and track: the pass
+	-- lands a random-gun tile's reel on the rolled gun)
+	rewards: {
+		{
+			kind: string,
+			name: string,
+			amount: number?,
+			gun: string?,
+			line: string?,
+			tier: number?,
+			track: string?,
+		}
+	}?,
 	text: string?, -- "failed": why
 }
 export type TaskEventPayload = {

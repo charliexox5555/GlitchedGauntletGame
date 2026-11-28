@@ -139,7 +139,15 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 	for _, c in paid do
 		Telemetry.event(player, "Season reward claimed", c.tier, c.track)
 		for _, r in c.rewards do
-			table.insert(rewards, { kind = r.kind, name = r.name, amount = r.amount })
+			table.insert(rewards, {
+				kind = r.kind,
+				name = r.name,
+				amount = r.amount,
+				gun = r.gun,
+				line = r.line,
+				tier = c.tier,
+				track = c.track,
+			})
 		end
 	end
 	if player.Parent then

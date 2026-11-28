@@ -114,6 +114,9 @@ function SeasonRewards.claim(data: PlayerData.Data, tier: number, track: SeasonP
 	local rewards: { SeasonCatalog.Reward } = {}
 	for _, item in listed do
 		local r = SeasonRewards.resolve(data, item)
+		if item.randomGun and r.kind == "Skin" and r.gun then
+			SeasonPass.recordGot(s, tier, track, r.gun) -- the pass tile keeps showing this gun
+		end
 		if not SeasonRewards.grant(data, r) then
 			warn(`[SeasonRewards] tier {tier} {track}: can't pay {r.kind} {r.name}`)
 		end

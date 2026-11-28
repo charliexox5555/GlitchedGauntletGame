@@ -13,6 +13,8 @@
 --   free     claimed free-track tiers (sorted)
 --   prem     claimed premium-track tiers (sorted)
 --   winDay   UTC day of the last first-win bonus
+--   got      random-gun skin rewards: "f12" / "p5" (track + tier) -> the gun it rolled
+--            (2026-11-27; older saves have none, so a claimed tile shows its line card)
 
 local Season = require(script.Parent.Config.Season)
 local Release = require(script.Parent.Config.Release)
@@ -27,6 +29,7 @@ export type State = {
 	free: { number },
 	prem: { number },
 	winDay: number,
+	got: { [string]: string },
 }
 
 -- One finished (or left) match as the match server counted it.
@@ -61,6 +64,7 @@ function SeasonPass.new(): State
 		free = {},
 		prem = {},
 		winDay = 0,
+		got = {},
 	}
 end
 
@@ -106,6 +110,22 @@ function SeasonPass.clean(raw: unknown): State
 	s.free = tierList(t.free, s.tier)
 	s.prem = tierList(t.prem, s.tier)
 	s.winDay = whole(t.winDay, 0, 1e7) or 0
+	if typeof(t.got) == "table" then
+		for k, v in t.got :: { [unknown]: unknown } do
+			local track = if typeof(k) == "string" then string.sub(k, 1, 1) else nil
+			local tier = if typeof(k) == "string" then tonumber(string.sub(k, 2)) else nil
+			if
+				(track == "f" or track == "p")
+				and tier
+				and typeof(v) == "string"
+				and #v <= 24
+				and string.match(v, "^%a+$")
+				and table.find(if track == "f" then s.free else s.prem, tier)
+			then
+				s.got[k :: string] = v
+			end
+		end
+	end
 	return s
 end
 
@@ -133,6 +153,7 @@ function SeasonPass.valid(s: State): boolean
 		and validList(s.free, s.tier)
 		and validList(s.prem, s.tier)
 		and (s.tier < Season.TIERS or (s.secs == 0 and s.rounds == 0))
+		and typeof(s.got) == "table"
 end
 
 -- Moves the meters, going up a tier each time one fills: the meter that filled keeps its
@@ -207,6 +228,19 @@ function SeasonPass.markClaimed(s: State, tier: number, track: Track)
 		table.insert(list, tier)
 		table.sort(list)
 	end
+end
+
+local function gotKey(tier: number, track: Track): string
+	return (if track == "free" then "f" else "p") .. tostring(tier)
+end
+
+-- The gun a claimed random-gun skin reward rolled (nil before the claim, or for old saves).
+function SeasonPass.got(s: State, tier: number, track: Track): string?
+	return s.got[gotKey(tier, track)]
+end
+
+function SeasonPass.recordGot(s: State, tier: number, track: Track, gun: string)
+	s.got[gotKey(tier, track)] = gun
 end
 
 -- The progress shown on the pass: what's left on each meter.

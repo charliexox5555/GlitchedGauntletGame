@@ -29,6 +29,8 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
+local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
@@ -147,14 +149,65 @@ local function rewardDesc(r: SeasonCatalog.Reward): string
 	return string.format("%s %s", string.upper(r.rarity or ""), string.upper(r.kind))
 end
 
+--------------------------------------------------------------------------------
+-- Random-gun skin rewards (owner 2026-11-27: "spinning reel"): before the claim the tile
+-- cycles the portraits of the guns this player could get (the same pool as
+-- Lobby/SeasonRewards.rollGun: owned guns without the line first, else locked ones);
+-- claiming spins it down onto the rolled gun, which the tile keeps (SeasonPass.got).
+
+local REEL_STEP = 1.2 -- seconds per portrait while idle
+type Reel = { art: ImageLabel, line: string, pool: { string }, i: number }
+local reels: { [GuiObject]: Reel } = {}
+local spinning: { [string]: boolean } = {} -- "<tier><track>" while a claim lands
+
+local function reelPool(line: string): { string }
+	local skins = PlayerData.skins(player)
+	local guns = PlayerData.guns(player)
+	local mine, others = {}, {}
+	for _, list in { Loadout.PRIMARIES, Loadout.SECONDARIES } do
+		for _, id in list do
+			if
+				not PlayerData.owns(skins, id, line)
+				and Locker.hasSkin(id, line)
+				and SkinArt.portrait(id, line)
+			then
+				table.insert(if guns.owned[id] then mine else others, id)
+			end
+		end
+	end
+	return if #mine > 0 then mine else others
+end
+
+local function reelSlide(art: ImageLabel, image: string, time: number)
+	art.Image = image
+	local home = UDim2.fromScale(0.5, 0.5)
+	if art.AnchorPoint ~= Vector2.new(0.5, 0.5) then
+		return
+	end
+	art.Position = home + UDim2.fromScale(0, 0.18)
+	art.ImageTransparency = 0.5
+	tween(art, time, { Position = home, ImageTransparency = 0 })
+end
+
+-- Every idle reel moves on one portrait (the pass ticks this while it's open).
+local function stepReels()
+	for cell, reel in reels do
+		if cell.Parent and cell.Visible and #reel.pool > 1 then
+			reel.i = reel.i % #reel.pool + 1
+			reelSlide(reel.art, SkinArt.portrait(reel.pool[reel.i], reel.line) or "", 0.22)
+		end
+	end
+end
+
 local function claimable(tier: number, track: Track): boolean
 	return reward(tier, track) ~= nil and SeasonPass.canClaim(state, tier, track)
 end
 
 -- A cell's picture: coins → the coin stack, a case → its art, a skin → the
 -- gun's icon in the line's colour; charms / emotes / Mods → a coloured swatch.
-local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?)
+local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?, tier: number?, track: Track?)
 	local art = child(cell, "Art") :: ImageLabel
+	reels[cell] = nil
 	local swatch = child(cell, "Swatch") :: Frame
 	local name = child(cell, "Name") :: TextLabel
 	art.Image = ""
@@ -173,8 +226,25 @@ local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?)
 	elseif r.kind == "Skin" and r.gun then
 		art.Image = Theme.GUN[r.gun] or ""
 		art.ImageColor3 = if r.line then (Locker.COLORS[r.line] or WHITE) else WHITE
+	elseif r.kind == "Skin" and r.line and tier and track then
+		-- a random-gun skin: the rolled gun once claimed, else a reel over the player's pool
+		local line = r.line
+		local won = SeasonPass.got(state, tier, track)
+		local pool = if won then { won } else reelPool(line)
+		if spinning[tostring(tier) .. track] then
+			return -- the landing spin owns this tile's picture
+		elseif #pool > 0 then
+			local first = tier % #pool + 1 -- tiles start on different guns
+			art.Image = SkinArt.portrait(pool[first], line) or ""
+			if not won then
+				reels[cell] = { art = art, line = line, pool = pool, i = first }
+			end
+		else
+			swatch.Visible = true
+			swatch.BackgroundColor3 = Locker.COLORS[line] or WHITE;
+			(child(swatch, "Kind") :: TextLabel).Text = "SKIN"
+		end
 	elseif r.kind == "Skin" then
-		-- a random-gun skin: the line's colour as a card until its art exists (phase 8)
 		swatch.Visible = true
 		swatch.BackgroundColor3 = if r.line then (Locker.COLORS[r.line] or WHITE) else WHITE;
 		(child(swatch, "Kind") :: TextLabel).Text = "SKIN"
@@ -226,7 +296,7 @@ local function renderPage()
 			cell.Visible = exists
 			if exists then
 				local r = reward(tier, track)
-				paintCell(cell, r)
+				paintCell(cell, r, tier, track)
 				local taken = SeasonPass.claimed(state, tier, track);
 				(child(cell, "Dim") :: GuiObject).Visible = taken;
 				(child(cell, "Check") :: GuiObject).Visible = taken;
@@ -298,8 +368,20 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 	local art = child(showBox, "Art") :: ImageLabel
 	local card = child(showBox, "Card") :: Frame
 	local model: Model? = nil
-	if r and r.kind == "Skin" and r.gun then
-		model = (if r.line then Locker.skinModel(r.gun, r.line) else nil) or Locker.gunModel(r.gun)
+	local p = pick
+	local won = if r
+			and r.kind == "Skin"
+			and not r.gun
+			and typeof(p) == "table"
+		then SeasonPass.got(state, p.tier, p.track)
+		else nil
+	if r and r.kind == "Skin" and (r.gun or won) then
+		local gun = (r.gun or won) :: string
+		model = (if r.line then Locker.skinModel(gun, r.line) else nil) or Locker.gunModel(gun)
+	elseif r and r.kind == "Skin" and r.line and not image then
+		-- not claimed yet: one of the guns it could be, as on the reel
+		local pool = reelPool(r.line)
+		image = if #pool > 0 then SkinArt.portrait(pool[1], r.line) else nil
 	end
 	art.Image = ""
 	card.Visible = false
@@ -412,6 +494,52 @@ local function onSeasonEvent(payload: unknown)
 	claiming = false
 	if e.kind == "claimed" and e.rewards then
 		for _, r in e.rewards do
+			local tier, track, gun, line = r.tier, r.track, r.gun, r.line
+			if
+				isOpen
+				and r.kind == "Skin"
+				and gun
+				and line
+				and tier
+				and (track == "free" or track == "premium")
+			then
+				local col = tier - (page - 1) * SeasonCatalog.PER_PAGE
+				local row =
+					tracks:FindFirstChild((if track == "free" then "Free" else "Premium") .. col)
+				local art = row and row:FindFirstChild("Art")
+				if art and art:IsA("ImageLabel") then
+					-- the landing: fast through the pool, slowing, then the rolled gun
+					local key = tostring(tier) .. track
+					spinning[key] = true
+					reels[row :: GuiObject] = nil
+					local pool = reelPool(line)
+					if #pool == 0 then
+						pool = { gun }
+					end
+					task.spawn(function()
+						local gap = 0.05
+						for i = 1, 12 do
+							reelSlide(
+								art,
+								SkinArt.portrait(pool[(i - 1) % #pool + 1], line) or "",
+								gap * 0.8
+							)
+							task.wait(gap)
+							gap *= 1.22
+						end
+						reelSlide(art, SkinArt.portrait(gun, line) or "", 0.3)
+						local sc = pop(row :: Instance)
+						if sc then
+							sc.Scale = 1.12
+							tween(sc, 0.3, { Scale = 1 })
+						end
+						spinning[key] = nil
+						if isOpen then
+							renderPage()
+						end
+					end)
+				end
+			end
 			LobbyHud.toast(
 				"You've earned "
 					.. (
@@ -680,6 +808,15 @@ function BattlePassController.init()
 	seasonRequest = LobbyNet.event("SeasonRequest")
 	robuxRequest = LobbyNet.event("RobuxRequest")
 	LobbyNet.event("SeasonEvent").OnClientEvent:Connect(onSeasonEvent)
+	-- random-gun skin tiles turn over while the pass is open
+	task.spawn(function()
+		while true do
+			task.wait(REEL_STEP)
+			if isOpen then
+				stepReels()
+			end
+		end
+	end)
 	-- the state value appears with the save and is rewritten on every change
 	local function watch(v: Instance)
 		if v.Name == PlayerData.SEASON and v:IsA("StringValue") then
