@@ -1,12 +1,15 @@
-"""Frostbite Havoc (Vandal) v03: Slipframe-inspired dark cold-forged chassis with swept
-faceted glacial crystal slabs, exposed cryo-heart core bay, dorsal crystal crest ridges
-(no thin needles), skeleton crystal stock, fang muzzle crown, cryo-sheathed magazine,
-clean ADS silhouette, and zero coplanar faces.
+"""Frostbite Havoc (Vandal) v08: Legendary-caliber sculpted cryo-armor remodel.
 
-Run in the live Blender MCP session with the stock
-art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend open:
-    VERSION = "v03"; exec(open("tools/blender/frostbite/10_vandal.py").read())
-Left (+y) is the player-facing side. Stock sights, rig, locators and CharmLoop are kept.
+- Sweeping Moltframe/Giltfold-inspired multi-layered Armor + FrostSteel wing plates
+  hugging the receiver, split-jaw fore-end, curved magazine, and swept wing stock.
+- Chiseled asymmetric non-pencil glacier shard formations (glacier_cluster).
+- Bespoke curved-arc Frostbite magazine with integrated curved CryoGlow channel and
+  swept crystalline floorplate (zero floating pipes, zero boxy slabs).
+- Stock rig, locators, CharmLoop, FireSelector/ChargingHandle/Bolt clearance, and
+  clear *Sight* ADS window preserved.
+
+Run in live Blender (port 9100) with Vandal_RemasterV2_v05.blend open:
+    VERSION = "v08"; exec(open(".../tools/blender/frostbite/10_vandal.py").read())
 """
 
 from pathlib import Path
@@ -14,7 +17,7 @@ from pathlib import Path
 import bpy
 
 GUN = "Vandal"
-VERSION = globals().get("VERSION", "v06")
+VERSION = globals().get("VERSION", "v10")
 exec((Path(bpy.data.filepath).parents[4] / "tools/blender/frostbite/frost_lib.py").read_text(encoding="utf-8"))
 
 replace("Handguard", "Stock", "Barrel", "Neon")
@@ -24,10 +27,8 @@ for name in ("Receiver", "Rail", "CharmLoop", "ChargingHandle", "Bolt",
              "FireSelector", "Trigger", "Grip", "RearSight", "FrontSight"):
     dress(name)
 
-# Keep only receiver & front-sight pins so no stock pin floats inside the skeleton stock or shroud.
 dress("Pins", keep=lambda island: (0.0 < limits(island, 0)[0] and limits(island, 0)[1] < 1.06) or limits(island, 0)[0] > 1.88)
 dress("Mag", slots={"Dark": GRIP, "Body": ARMOR, "Panel": OBSIDIAN, "Accent": FROSTSTEEL})
-# Barrel without stock muzzle brake (x < 2.38).
 dress("Barrel", copy_name="FB_BarrelTube", keep=lambda island: limits(island, 0)[0] < 2.38)
 
 GUARD = lambda lo, hi: lo.x > 0.11 and hi.x > 0.4
@@ -47,264 +48,375 @@ gap_moves = {
                              lambda lo, hi: lo.z > 0.45 and hi.z < 0.5 and hi.y < 0.03),
 }
 
-# ---------------------------------------------------------------- swept cryo receiver mantle
-# Clears Vandal_Receiver completely (top z_max=0.428 at 0.15..0.85, 0.400 at 1.00) with zero clipping,
-# leaving Vandal_Rail teeth (z=0.435..0.476) crisp and proud, and flowing directly into FB_ForeShroud.
-mantle = folded("FB_ReceiverMantle", (
-    (-0.180, 0.352, 0.418, 0.088, 0.402, 0.366, 0.056),
-    (-0.045, 0.350, 0.434, 0.100, 0.416, 0.368, 0.058),
-    (0.795, 0.350, 0.434, 0.100, 0.416, 0.368, 0.058),
-    (0.905, 0.292, 0.428, 0.100, 0.408, 0.318, 0.057),
-    (1.035, 0.232, 0.420, 0.098, 0.398, 0.264, 0.055),
-    (1.135, 0.214, 0.416, 0.096, 0.392, 0.246, 0.054),
-), [ARMOR, ARMOR, ARMOR, FROSTSTEEL, ARMOR], bevel=0.0025)
+# ---------------------------------------------------------------- continuous upper cryo-carapace
+carapace = folded("FB_UpperCarapace", (
+    (-0.185, 0.352, 0.418, 0.088, 0.402, 0.366, 0.056),
+    (-0.040, 0.350, 0.434, 0.102, 0.416, 0.368, 0.058),
+    (0.795,  0.348, 0.434, 0.102, 0.416, 0.366, 0.058),
+    (0.920,  0.282, 0.428, 0.100, 0.408, 0.310, 0.056),
+    (1.045,  0.215, 0.422, 0.102, 0.398, 0.252, 0.055),
+    (1.260,  0.155, 0.420, 0.114, 0.394, 0.210, 0.062),
+    (1.560,  0.168, 0.414, 0.106, 0.390, 0.224, 0.058),
+    (1.945,  0.244, 0.368, 0.052, 0.352, 0.264, 0.032),
+), [ARMOR, ARMOR, ARMOR, FROSTSTEEL, ARMOR, ARMOR, FROSTSTEEL], bevel=0.002)
 
+FORE_CHASM = [
+    (1.045, 0.236), (1.175, 0.210), (1.555, 0.228), (1.715, 0.308),
+    (1.615, 0.378), (1.225, 0.378), (1.065, 0.328),
+]
+MANTLE_VENT = [(0.165, 0.382), (0.215, 0.408), (0.755, 0.406), (0.715, 0.380)]
 for sign, label in ((1, "Left"), (-1, "Right")):
-    recess(mantle, f"FB_MantleRecess_{label}",
-           [(0.175, 0.382), (0.212, 0.408), (0.748, 0.408), (0.714, 0.382)],
-           0.080 * sign, 0.13 * sign, role=OBSIDIAN)
-    side(f"FB_MantlePlate_{label}",
-         [(0.190, 0.386), (0.218, 0.404), (0.734, 0.404), (0.708, 0.386)],
-         0.074 * sign, 0.091 * sign, FROSTSTEEL, bevel=0.0012)
-    seam = side(f"FB_UpperSeam_{label}",
-                [(0.230, 0.390), (0.242, 0.396), (0.692, 0.396), (0.680, 0.390)],
-                0.085 * sign, 0.095 * sign, CRYO_GLOW)
-    seam["flat_group"] = "FBUpperSeam"
+    recess(carapace, f"FB_ForeChasm_{label}", FORE_CHASM, 0.082 * sign, 0.15 * sign, role=OBSIDIAN)
+    recess(carapace, f"FB_MantleVent_{label}", MANTLE_VENT, 0.078 * sign, 0.14 * sign, role=OBSIDIAN)
 
-# Sleek angled side wing cheek bridging receiver to fore-end cleanly below mantle shoulder (no coplanar overlap)
-for sign, label in ((1, "Left"), (-1, "Right")):
-    side(f"FB_BridgeCheek_{label}",
-         [(0.835, 0.308), (1.035, 0.238), (1.125, 0.238), (1.125, 0.376), (0.935, 0.386), (0.835, 0.344)],
-         0.084 * sign, 0.107 * sign, FROSTSTEEL, bevel=0.002)
+# Nose collar bridging smoothly around barrel & gas tube at x=1.88..1.99
+loft("FB_ForeNoseCollar", [
+    [(1.885, y, z) for y, z in ((-0.032, 0.368), (0.032, 0.368), (0.052, 0.344), (0.052, 0.258),
+                                (0.036, 0.236), (-0.036, 0.236), (-0.052, 0.258), (-0.052, 0.344))],
+    [(1.985, y, z) for y, z in ((-0.026, 0.358), (0.026, 0.358), (0.044, 0.336), (0.044, 0.264),
+                                (0.028, 0.244), (-0.028, 0.244), (-0.044, 0.264), (-0.044, 0.336))],
+], FROSTSTEEL, bevel=0.002)
 
-# ---------------------------------------------------------------- lower receiver cryo-core chamber
-# Below ChargingHandle/Bolt track (z <= 0.268) and clear of CharmPoint (x=0.93).
-CHAMBER_OUTLINE = [(0.140, 0.178), (0.742, 0.178), (0.778, 0.214), (0.752, 0.266), (0.165, 0.266), (0.130, 0.232)]
+# ---------------------------------------------------------------- sculpted swept armor wing plates (NO floating pipes!)
+# Multi-layered bevelled plates that completely reshape the receiver, bridge, and split-jaw fore-end,
+# while staying clear of FireSelector (x=0.01..0.11, z=0.18..0.31), ChargingHandle, Bolt, and CharmPoint (x=0.93).
 for sign, label in ((1, "Left"), (-1, "Right")):
-    housing = side(f"FB_CoreHousing_{label}", CHAMBER_OUTLINE, 0.078 * sign, 0.106 * sign, ARMOR, bevel=0.002)
-    recess(housing, f"FB_CorePocket_{label}",
-           [(0.180, 0.190), (0.698, 0.190), (0.732, 0.224), (0.708, 0.254), (0.195, 0.254), (0.170, 0.226)],
-           0.088 * sign, 0.14 * sign, role=OBSIDIAN)
-    fissure = side(f"FB_CoreFissure_{label}",
-                   [(0.215, 0.217), (0.675, 0.217), (0.692, 0.223), (0.675, 0.229), (0.215, 0.229), (0.198, 0.223)],
-                   0.081 * sign, 0.090 * sign, CRYO_GLOW)
-    fissure["flat_group"] = "FBCoreFissure"
-    # Containment jaw brackets gripping front & rear ends of the cryo bay
-    side(f"FB_CoreJawFront_{label}",
-         [(0.640, 0.176), (0.748, 0.176), (0.772, 0.216), (0.748, 0.268), (0.680, 0.268), (0.708, 0.224)],
-         0.092 * sign, 0.114 * sign, FROSTSTEEL, bevel=0.0015)
-    side(f"FB_CoreJawRear_{label}",
-         [(0.136, 0.176), (0.215, 0.176), (0.190, 0.225), (0.225, 0.268), (0.160, 0.268), (0.128, 0.232)],
-         0.092 * sign, 0.114 * sign, FROSTSTEEL, bevel=0.0015)
-
-# Sculpted swept glacier crystal slabs framing the exposed glowing cryo-heart (distinct y planes = 0 coplanar!)
-for sign, label in ((1, "Left"), (-1, "Right")):
-    crystal_blade(
-        f"FB_CoreGlacierRear_{label}",
-        [(0.225, 0.208), (0.345, 0.196), (0.435, 0.220), (0.405, 0.246), (0.275, 0.242)],
-        0.087 * sign, 0.106 * sign, 0.120 * sign,
+    # Receiver rear-to-mid lower armored wing (sweeps cleanly in front of FireSelector x>=0.135)
+    armor_plate(
+        f"FB_RecArmorRear_{label}",
+        [(0.125, 0.172), (0.345, 0.165), (0.445, 0.186), (0.285, 0.205),
+         (0.195, 0.262), (0.122, 0.262), (0.108, 0.215)],
+        0.078 * sign, 0.106 * sign, 0.114 * sign, FROSTSTEEL, rim_role=ARMOR, inset=0.009,
     )
-    crystal_blade(
-        f"FB_CoreGlacierFront_{label}",
-        [(0.475, 0.212), (0.665, 0.198), (0.705, 0.228), (0.645, 0.252), (0.495, 0.244)],
-        0.089 * sign, 0.108 * sign, 0.123 * sign,
-        roles=(ICE_MID, ICE_MID, ICE_BRIGHT),
+    # Swept forward receiver-to-fore-end bridge armor wing (convex, x>=0.798 clears ChargingHandle in all clips!)
+    armor_plate(
+        f"FB_BridgeWing_{label}",
+        [(0.798, 0.246), (0.955, 0.254), (1.205, 0.338), (1.375, 0.378),
+         (1.215, 0.398), (0.965, 0.392), (0.808, 0.318)],
+        0.080 * sign, 0.108 * sign, 0.116 * sign, ARMOR, rim_role=FROSTSTEEL, inset=0.008,
+    )
+    # Upper-receiver sculpted brow shoulder plate (frames mantle vent cleanly)
+    armor_plate(
+        f"FB_UpperBrowPlate_{label}",
+        [(0.060, 0.352), (0.450, 0.350), (0.820, 0.350), (0.905, 0.382),
+         (0.765, 0.415), (0.215, 0.416), (-0.065, 0.398)],
+        0.080 * sign, 0.103 * sign, 0.109 * sign, FROSTSTEEL, rim_role=ARMOR, inset=0.008,
+    )
+    # Fore-end forward split-jaw fang cowl (sweeps cleanly over front of fore-end chasm)
+    armor_plate(
+        f"FB_ForeJawFront_{label}",
+        [(1.545, 0.215), (1.765, 0.236), (1.895, 0.275), (1.845, 0.352),
+         (1.665, 0.392), (1.515, 0.386), (1.665, 0.312)],
+        0.076 * sign, 0.108 * sign, 0.116 * sign, FROSTSTEEL, rim_role=ARMOR, inset=0.009,
+    )
+    # Fore-end sculpted lower chin cowl
+    armor_plate(
+        f"FB_ForeChinPlate_{label}",
+        [(1.035, 0.195), (1.265, 0.155), (1.535, 0.162), (1.665, 0.205),
+         (1.515, 0.236), (1.165, 0.228), (1.035, 0.242)],
+        0.076 * sign, 0.106 * sign, 0.114 * sign, ARMOR, rim_role=FROSTSTEEL, inset=0.009,
+    )
+    # Lower receiver magwell cheek skirt
+    armor_plate(
+        f"FB_LowerSkirt_{label}",
+        [(0.435, 0.142), (0.765, 0.152), (0.815, 0.195), (0.745, 0.244), (0.455, 0.232)],
+        0.076 * sign, 0.098 * sign, 0.104 * sign, ARMOR, rim_role=FROSTSTEEL, inset=0.007,
     )
 
-# Exposed faceted diamond cryo-heart nestled cleanly between Rear and Front glacier slabs (+Y player side)
-crystal_blade(
+# ---------------------------------------------------------------- cryo-core reactor bay & chiseled crystal formations
+CORE_BAY = [(0.155, 0.180), (0.745, 0.180), (0.778, 0.216), (0.742, 0.264), (0.175, 0.264), (0.145, 0.230)]
+for sign, label in ((1, "Left"), (-1, "Right")):
+    bay = side(f"FB_CoreBay_{label}", CORE_BAY, 0.076 * sign, 0.100 * sign, ARMOR)
+    recess(bay, f"FB_CoreChasm_{label}",
+           [(0.192, 0.192), (0.700, 0.192), (0.732, 0.222), (0.702, 0.252), (0.205, 0.252), (0.182, 0.224)],
+           0.084 * sign, 0.14 * sign, role=OBSIDIAN)
+    swept_rib(f"FB_CoreFissure_{label}", [
+        (0.210, 0.087 * sign, 0.222, 0.005, 0.006),
+        (0.375, 0.088 * sign, 0.216, 0.006, 0.007),
+        (0.535, 0.088 * sign, 0.228, 0.006, 0.007),
+        (0.690, 0.087 * sign, 0.222, 0.005, 0.006),
+    ], CRYO_GLOW, flat_group="FBCoreFissure")
+
+    swept_rib(f"FB_UpperSeam_{label}", [
+        (0.215, 0.087 * sign, 0.390, 0.005, 0.005),
+        (0.455, 0.088 * sign, 0.396, 0.005, 0.006),
+        (0.695, 0.087 * sign, 0.391, 0.005, 0.005),
+    ], CRYO_GLOW, flat_group="FBUpperSeam")
+
+    swept_rib(f"FB_ForeSeam_{label}", [
+        (1.105, 0.088 * sign, 0.268, 0.005, 0.007),
+        (1.315, 0.090 * sign, 0.286, 0.006, 0.008),
+        (1.525, 0.090 * sign, 0.312, 0.006, 0.007),
+        (1.655, 0.088 * sign, 0.326, 0.005, 0.006),
+    ], CRYO_GLOW, flat_group="FBForeSeam")
+
+# Asymmetric chiseled diamond cryo-heart inside the player-facing (+Y) reactor bay
+glacier_shard(
     "FB_CoreHeart_Left",
-    [(0.412, 0.223), (0.455, 0.209), (0.498, 0.223), (0.455, 0.237)],
-    0.086, 0.116, 0.132,
+    [(0.422, 0.224), (0.460, 0.206), (0.498, 0.222), (0.465, 0.240)],
+    0.089, 0.117, 0.130,
     roles=(GLOW_WHITE, GLOW_WHITE, GLOW_WHITE),
+    ridge_bias=(-0.006, 0.002),
     flat_group="FBCoreHeart",
 )
 
-# ---------------------------------------------------------------- swept glacial fore-end shroud
-# Continuous Slipframe-inspired angular shroud (x=1.00..1.90) with sleek taper for clean ADS.
-fore = folded("FB_ForeShroud", (
-    (1.000, 0.192, 0.410, 0.094, 0.386, 0.228, 0.058),
-    (1.095, 0.165, 0.418, 0.110, 0.394, 0.220, 0.064),
-    (1.500, 0.160, 0.418, 0.110, 0.394, 0.218, 0.064),
-    (1.665, 0.184, 0.412, 0.096, 0.386, 0.232, 0.056),
-    (1.815, 0.218, 0.390, 0.070, 0.370, 0.250, 0.042),
-    (1.905, 0.240, 0.368, 0.052, 0.354, 0.264, 0.034),
-), [ARMOR, ARMOR, ARMOR, FROSTSTEEL, ARMOR], bevel=0.003)
-
-# Forward nose collar embracing barrel + gas tube cleanly (x=1.84..1.97)
-loft("FB_ForeNoseCollar", [
-    [(1.835, y, z) for y, z in ((-0.036, 0.372), (0.036, 0.372), (0.056, 0.348), (0.056, 0.256),
-                                (0.038, 0.232), (-0.038, 0.232), (-0.056, 0.256), (-0.056, 0.348))],
-    [(1.970, y, z) for y, z in ((-0.028, 0.362), (0.028, 0.362), (0.046, 0.338), (0.046, 0.262),
-                                (0.030, 0.242), (-0.030, 0.242), (-0.046, 0.262), (-0.046, 0.338))],
-], FROSTSTEEL, bevel=0.002)
-
-FORE_TRENCH = [(1.125, 0.242), (1.168, 0.228), (1.640, 0.240), (1.710, 0.322), (1.615, 0.378), (1.155, 0.378)]
+# Chiseled, asymmetric overlapping glacier shard formations (NO pencils!)
 for sign, label in ((1, "Left"), (-1, "Right")):
-    recess(fore, f"FB_ForeTrench_{label}", FORE_TRENCH, 0.086 * sign, 0.145 * sign, role=OBSIDIAN)
-    fseam = side(f"FB_ForeSeam_{label}",
-                 [(1.175, 0.288), (1.215, 0.278), (1.610, 0.288), (1.635, 0.302), (1.595, 0.310), (1.190, 0.304)],
-                 0.081 * sign, 0.091 * sign, CRYO_GLOW)
-    fseam["flat_group"] = "FBForeSeam"
-    # Angled FrostSteel armor cheek framing the front edge of the glacial bay
-    side(f"FB_ForeArmorCheek_{label}",
-         [(1.595, 0.224), (1.755, 0.244), (1.815, 0.318), (1.705, 0.386), (1.575, 0.386), (1.665, 0.318)],
-         0.083 * sign, 0.112 * sign, FROSTSTEEL, bevel=0.002)
-    # Tucked faceted glacier crystal slabs inside the fore-end bay (y <= 0.120 so ADS silhouette stays razor-clean!)
-    crystal_blade(
-        f"FB_ForeGlacierUpper_{label}",
-        [(1.165, 0.306), (1.335, 0.294), (1.655, 0.314), (1.585, 0.364), (1.235, 0.362)],
-        0.087 * sign, 0.106 * sign, 0.120 * sign,
-    )
-    crystal_blade(
-        f"FB_ForeGlacierLower_{label}",
-        [(1.185, 0.248), (1.420, 0.238), (1.635, 0.260), (1.555, 0.296), (1.230, 0.292)],
-        0.088 * sign, 0.105 * sign, 0.118 * sign,
-        roles=(ICE_DEEP, ICE_MID, ICE_BRIGHT),
-    )
+    glacier_cluster(f"FB_CoreCrystals_{label}", [
+        {"points_xz": [(0.210, 0.218), (0.310, 0.194), (0.415, 0.204), (0.375, 0.248), (0.255, 0.244)],
+         "base_y": 0.085 * sign, "shoulder_y": 0.106 * sign, "crest_y": 0.121 * sign,
+         "ridge_bias": (-0.016, 0.006)},
+        {"points_xz": [(0.505, 0.212), (0.615, 0.196), (0.710, 0.220), (0.645, 0.252), (0.525, 0.244)],
+         "base_y": 0.086 * sign, "shoulder_y": 0.108 * sign, "crest_y": 0.123 * sign,
+         "roles": (ICE_MID, ICE_MID, ICE_BRIGHT), "ridge_bias": (-0.015, 0.005)},
+    ])
 
-# Sculpted faceted lower glacial keel blade ahead of LeftGrip (x=1.32)
-crystal_blade(
-    "FB_ForeKeel_R",
-    [(1.475, 0.155), (1.635, 0.138), (1.775, 0.212), (1.645, 0.232), (1.495, 0.210)],
-    0.026, -0.026, -0.036,
-)
-crystal_blade(
-    "FB_ForeKeel_L",
-    [(1.475, 0.155), (1.635, 0.138), (1.775, 0.212), (1.645, 0.232), (1.495, 0.210)],
-    -0.026, 0.026, 0.036,
-)
+    glacier_cluster(f"FB_ForeCrystals_{label}", [
+        {"points_xz": [(1.075, 0.285), (1.215, 0.258), (1.395, 0.292), (1.335, 0.358), (1.135, 0.342)],
+         "base_y": 0.085 * sign, "shoulder_y": 0.110 * sign, "crest_y": 0.126 * sign,
+         "ridge_bias": (-0.025, 0.010)},
+        {"points_xz": [(1.305, 0.274), (1.465, 0.245), (1.645, 0.285), (1.585, 0.356), (1.375, 0.338)],
+         "base_y": 0.086 * sign, "shoulder_y": 0.112 * sign, "crest_y": 0.128 * sign,
+         "roles": (ICE_MID, ICE_MID, ICE_BRIGHT), "ridge_bias": (-0.022, 0.008)},
+        {"points_xz": [(1.145, 0.228), (1.315, 0.220), (1.515, 0.242), (1.445, 0.286), (1.195, 0.268)],
+         "base_y": 0.085 * sign, "shoulder_y": 0.105 * sign, "crest_y": 0.118 * sign,
+         "ridge_bias": (-0.018, 0.004)},
+    ])
 
-# ---------------------------------------------------------------- swept glacial skeleton stock
+# Sculpted chiseled glacier fore-keel forward of LeftGrip (x=1.32)
+glacier_cluster("FB_ForeKeel", [
+    {"points_xz": [(1.415, 0.152), (1.575, 0.122), (1.755, 0.195), (1.665, 0.228), (1.485, 0.205)],
+     "base_y": 0.026, "shoulder_y": -0.024, "crest_y": -0.036, "ridge_bias": (-0.018, -0.010)},
+    {"points_xz": [(1.415, 0.152), (1.575, 0.122), (1.755, 0.195), (1.665, 0.228), (1.485, 0.205)],
+     "base_y": -0.026, "shoulder_y": 0.024, "crest_y": 0.036, "ridge_bias": (-0.018, -0.010)},
+])
+
+# ---------------------------------------------------------------- dramatic swept glacial-wing skeleton stock
+# Transforms the rear outline completely: sleek arched wing boom, raked forward-swept butt,
+# sculpted FrostSteel cheek plates, and bold jagged crystal chasm bridging the cutout!
 stock_frame = side("FB_StockFrame", [
-    (-1.140, 0.408), (-0.490, 0.402), (-0.105, 0.362), (-0.105, 0.222),
-    (-0.420, 0.215), (-0.610, 0.188), (-0.980, -0.092), (-1.140, -0.156),
-], -0.064, 0.064, ARMOR, bevel=0.007)
+    (-1.265, 0.424), (-0.820, 0.398), (-0.435, 0.412), (-0.105, 0.368),
+    (-0.105, 0.220), (-0.435, 0.212), (-0.645, 0.175), (-1.015, -0.105), (-1.155, -0.175),
+], -0.062, 0.062, ARMOR, bevel=0.006)
 STOCK_WINDOW = [
-    (-1.035, 0.052), (-0.665, 0.292), (-0.330, 0.325),
-    (-0.425, 0.258), (-0.655, 0.220), (-1.035, -0.062),
+    (-1.055, 0.045), (-0.695, 0.295), (-0.310, 0.326),
+    (-0.425, 0.254), (-0.665, 0.212), (-1.055, -0.075),
 ]
 recess(stock_frame, "FB_StockWindow", STOCK_WINDOW, -0.12, 0.12, role=OBSIDIAN)
 
-side("FB_StockTopRib", [(-1.130, 0.378), (-0.485, 0.372), (-0.135, 0.338), (-0.135, 0.372),
-                        (-0.490, 0.410), (-1.130, 0.414)], -0.068, 0.068, FROSTSTEEL, bevel=0.003)
+# Swept FrostSteel wing cheek armor flanking the upper stock boom (tucks cleanly into butt at x=-1.115)
+for sign, label in ((1, "Left"), (-1, "Right")):
+    armor_plate(
+        f"FB_StockWingCheek_{label}",
+        [(-1.115, 0.345), (-0.795, 0.335), (-0.445, 0.352), (-0.125, 0.325),
+         (-0.125, 0.376), (-0.435, 0.416), (-0.820, 0.402), (-1.115, 0.418)],
+        0.045 * sign, 0.070 * sign, 0.076 * sign, FROSTSTEEL, rim_role=ARMOR, inset=0.008,
+    )
+side("FB_StockCollar", [(-0.225, 0.384), (-0.115, 0.374), (-0.115, 0.214), (-0.225, 0.210)],
+     -0.074, 0.074, FROSTSTEEL, bevel=0.003)
 
-STOCK_CRYSTAL_PTS = [(-1.125, 0.035), (-0.700, 0.312), (-0.525, 0.316), (-0.625, 0.198), (-1.125, -0.135)]
-crystal_blade("FB_StockCrystal", STOCK_CRYSTAL_PTS, -0.044, 0.044, 0.058)
-crystal_blade("FB_StockCrystal_R", STOCK_CRYSTAL_PTS, 0.044, -0.044, -0.058)
-stock_glow = side("FB_StockGlow", [
-    (-0.960, -0.015), (-0.660, 0.256), (-0.625, 0.248), (-0.925, -0.025),
-], -0.050, 0.050, CRYO_GLOW)
-stock_glow["flat_group"] = "FBStockGlow"
+# Multi-shard sculpted glacial crystal bridge across the stock chasm (buried >= 0.04 into butt & struts!)
+STOCK_SHARD_A = [(-1.145, 0.015), (-0.715, 0.314), (-0.515, 0.318), (-0.635, 0.195), (-1.145, -0.145)]
+STOCK_SHARD_B = [(-1.115, -0.045), (-0.865, 0.175), (-0.755, 0.165), (-0.985, -0.125)]
+for sign, label in ((1, "L"), (-1, "R")):
+    glacier_cluster(f"FB_StockCrystals_{label}", [
+        {"points_xz": STOCK_SHARD_A, "base_y": -0.042 * sign, "shoulder_y": 0.044 * sign, "crest_y": 0.058 * sign,
+         "ridge_bias": (0.015, 0.010)},
+        {"points_xz": STOCK_SHARD_B, "base_y": -0.044 * sign, "shoulder_y": 0.048 * sign, "crest_y": 0.064 * sign,
+         "roles": (ICE_MID, ICE_MID, ICE_BRIGHT), "ridge_bias": (0.010, 0.006)},
+    ])
+swept_rib("FB_StockGlow", [
+    (-1.020, 0.0, -0.035, 0.048, 0.010),
+    (-0.805, 0.0,  0.135, 0.048, 0.010),
+    (-0.615, 0.0,  0.258, 0.048, 0.010),
+], CRYO_GLOW, flat_group="FBStockGlow")
 
-side("FB_StockCollar", [(-0.220, 0.382), (-0.115, 0.372), (-0.115, 0.214), (-0.220, 0.212)],
-     -0.072, 0.072, FROSTSTEEL, bevel=0.003)
-
+# Raked forward-swept ergonomic butt pad (replaces boxy vertical pad!)
 side("FB_StockButt", [
-    (-1.258, 0.355), (-1.224, 0.415), (-1.105, 0.420), (-1.085, 0.362),
-    (-1.085, -0.148), (-1.158, -0.184), (-1.254, -0.146),
-], -0.078, 0.078, GRIP, bevel=0.009)
+    (-1.315, 0.382), (-1.275, 0.436), (-1.145, 0.432), (-1.095, 0.365),
+    (-1.095, -0.152), (-1.165, -0.198), (-1.245, -0.165), (-1.265, 0.165),
+], -0.076, 0.076, GRIP, bevel=0.008)
 side("FB_StockHeelCap", [
-    (-1.264, -0.080), (-1.170, -0.186), (-1.115, -0.186), (-1.115, -0.115), (-1.258, -0.010),
-], -0.081, 0.081, FROSTSTEEL, bevel=0.004)
+    (-1.265, -0.090), (-1.175, -0.202), (-1.110, -0.198), (-1.110, -0.115), (-1.255, 0.005),
+], -0.080, 0.080, FROSTSTEEL, bevel=0.003)
 
-# ---------------------------------------------------------------- glacial fang muzzle crown
+# ---------------------------------------------------------------- sculpted split-fin cryo muzzle crown
 muzzle = folded("FB_MuzzleCrown", (
-    (2.338, 0.244, 0.326, 0.038, 0.312, 0.256, 0.026),
-    (2.382, 0.220, 0.352, 0.058, 0.336, 0.234, 0.044),
-    (2.475, 0.222, 0.350, 0.062, 0.334, 0.236, 0.048),
-    (2.605, 0.224, 0.348, 0.062, 0.332, 0.238, 0.048),
-    (2.675, 0.238, 0.338, 0.048, 0.326, 0.250, 0.036),
-    (2.675, 0.264, 0.306, 0.026, 0.300, 0.272, 0.018),
-    (2.378, 0.262, 0.306, 0.025, 0.300, 0.270, 0.018),
-    (2.338, 0.264, 0.306, 0.024, 0.300, 0.272, 0.017),
+    (2.310, 0.244, 0.326, 0.038, 0.312, 0.256, 0.026),
+    (2.368, 0.214, 0.356, 0.062, 0.340, 0.230, 0.044),
+    (2.478, 0.216, 0.354, 0.066, 0.338, 0.232, 0.048),
+    (2.625, 0.220, 0.350, 0.064, 0.334, 0.236, 0.048),
+    (2.705, 0.238, 0.336, 0.048, 0.324, 0.250, 0.034),
+    (2.705, 0.264, 0.306, 0.026, 0.300, 0.272, 0.018),
+    (2.375, 0.262, 0.306, 0.025, 0.300, 0.270, 0.018),
+    (2.310, 0.264, 0.306, 0.024, 0.300, 0.272, 0.017),
 ), [FROSTSTEEL, ARMOR, ARMOR, ARMOR, FROSTSTEEL, OBSIDIAN, OBSIDIAN, OBSIDIAN], loop=True)
 for sign, label in ((1, "Left"), (-1, "Right")):
     recess(muzzle, f"FB_MuzzleVent_{label}",
-           [(2.435, 0.260), (2.482, 0.314), (2.592, 0.314), (2.552, 0.260)],
-           0.030 * sign, 0.09 * sign, role=OBSIDIAN)
-m_glow = prism_along("FB_MuzzleGlow", (2.460, 0, 0.285), (1, 0, 0), [(0, 0.044), (0.095, 0.044)], CRYO_GLOW)
+           [(2.425, 0.256), (2.482, 0.320), (2.605, 0.320), (2.555, 0.256)],
+           0.028 * sign, 0.098 * sign, role=OBSIDIAN)
+    armor_plate(
+        f"FB_MuzzleFin_{label}",
+        [(2.335, 0.238), (2.495, 0.224), (2.635, 0.242), (2.555, 0.270), (2.375, 0.268)],
+        0.046 * sign, 0.072 * sign, 0.078 * sign, FROSTSTEEL, rim_role=ARMOR, inset=0.006,
+    )
+m_glow = prism_along("FB_MuzzleGlow", (2.455, 0, 0.285), (1, 0, 0), [(0, 0.046), (0.105, 0.046)], CRYO_GLOW)
 m_glow["flat_group"] = "FBMuzzleGlow"
-crystal_blade("FB_MuzzleIce_L", [(2.345, 0.212), (2.485, 0.192), (2.605, 0.228), (2.495, 0.252)], -0.024, 0.024, 0.038)
-crystal_blade("FB_MuzzleIce_R", [(2.345, 0.212), (2.485, 0.192), (2.605, 0.228), (2.495, 0.252)], 0.024, -0.024, -0.038)
+glacier_cluster("FB_MuzzleIce", [
+    {"points_xz": [(2.325, 0.214), (2.455, 0.184), (2.605, 0.224), (2.495, 0.250)],
+     "base_y": 0.024, "shoulder_y": -0.022, "crest_y": -0.036, "ridge_bias": (-0.015, -0.008)},
+    {"points_xz": [(2.325, 0.214), (2.455, 0.184), (2.605, 0.224), (2.495, 0.250)],
+     "base_y": -0.024, "shoulder_y": 0.022, "crest_y": 0.036, "ridge_bias": (-0.015, -0.008)},
+])
 
-# ---------------------------------------------------------------- cryo-sheathed magazine & grip pommel
-mag_shroud = side("FB_MagShroud", [
-    (0.618, -0.378), (0.818, -0.418), (0.875, -0.315), (0.725, -0.060),
-    (0.605, -0.060), (0.578, -0.255),
-], -0.068, 0.068, ARMOR, bone="Mag", bevel=0.003)
+# ---------------------------------------------------------------- bespoke curved-arc Frostbite magazine (bone Mag)
+# Hugs the banana arc of Vandal_Mag cleanly (NO floating pipes, contoured curved cowl + glacier fissure!).
+MAG_ARC = [
+    (0.514, 0.752, 0.063,  0.020),
+    (0.534, 0.778, 0.065, -0.050),
+    (0.562, 0.815, 0.067, -0.130),
+    (0.598, 0.865, 0.069, -0.220),
+    (0.642, 0.928, 0.071, -0.315),
+    (0.692, 0.996, 0.073, -0.395),
+]
+mag_sections = []
+for rx, fx, hy, z in MAG_ARC:
+    mag_sections.append([
+        (rx + 0.014, -hy * 0.68, z), (fx - 0.018, -hy * 0.68, z),
+        (fx, -hy * 0.30, z), (fx, hy * 0.30, z),
+        (fx - 0.018, hy * 0.68, z), (rx + 0.014, hy * 0.68, z),
+        (rx - 0.006, hy * 0.30, z), (rx - 0.006, -hy * 0.30, z),
+    ])
+mag_sleeve = loft("FB_MagSleeve", mag_sections, ARMOR, bone="Mag", bevel=0.002)
+
+swept_rib("FB_MagSpineFront", [
+    (0.750, 0.0,  0.015, 0.044, 0.015),
+    (0.782, 0.0, -0.065, 0.046, 0.016),
+    (0.824, 0.0, -0.155, 0.048, 0.017),
+    (0.880, 0.0, -0.250, 0.050, 0.017),
+    (0.946, 0.0, -0.340, 0.054, 0.018),
+    (1.008, 0.0, -0.402, 0.058, 0.018),
+], FROSTSTEEL, bone="Mag")
+
+swept_rib("FB_MagSpineRear", [
+    (0.512, 0.0,  0.015, 0.042, 0.014),
+    (0.535, 0.0, -0.065, 0.044, 0.015),
+    (0.566, 0.0, -0.155, 0.046, 0.015),
+    (0.606, 0.0, -0.250, 0.048, 0.016),
+    (0.654, 0.0, -0.340, 0.052, 0.017),
+    (0.702, 0.0, -0.402, 0.056, 0.017),
+], FROSTSTEEL, bone="Mag")
+
+MAG_SLOT = [(0.595, -0.045), (0.685, -0.035), (0.865, -0.345), (0.745, -0.355)]
 for sign, label in ((1, "Left"), (-1, "Right")):
-    recess(mag_shroud, f"FB_MagSlot_{label}",
-           [(0.660, -0.275), (0.708, -0.275), (0.698, -0.095), (0.650, -0.095)],
-           0.056 * sign, 0.09 * sign, role=OBSIDIAN, bone="Mag")
-    mg = side(f"FB_MagGlow_{label}", [(0.672, -0.262), (0.696, -0.262), (0.686, -0.108), (0.662, -0.108)],
-              0.052 * sign, 0.063 * sign, CRYO_GLOW, bone="Mag")
-    mg["flat_group"] = "FBMagGlow"
-side("FB_MagRib", [
-    (0.655, -0.392), (0.785, -0.418), (0.848, -0.345), (0.798, -0.285), (0.648, -0.325),
-], -0.073, 0.073, FROSTSTEEL, bone="Mag", bevel=0.002)
-MAG_ICE_PTS = [(0.605, -0.368), (0.675, -0.448), (0.805, -0.410), (0.745, -0.342)]
-crystal_blade("FB_MagCrystal_L", MAG_ICE_PTS, -0.034, 0.034, 0.048, bone="Mag")
-crystal_blade("FB_MagCrystal_R", MAG_ICE_PTS, 0.034, -0.034, -0.048, bone="Mag")
+    recess(mag_sleeve, f"FB_MagChasm_{label}", MAG_SLOT, 0.050 * sign, 0.095 * sign, role=OBSIDIAN, bone="Mag")
+    # Curved CryoGlow ammo fissure following the banana curve
+    swept_rib(f"FB_MagGlow_{label}", [
+        (0.642, 0.053 * sign, -0.058, 0.006, 0.007),
+        (0.684, 0.056 * sign, -0.150, 0.006, 0.008),
+        (0.738, 0.059 * sign, -0.245, 0.006, 0.008),
+        (0.805, 0.061 * sign, -0.335, 0.006, 0.007),
+    ], CRYO_GLOW, bone="Mag", flat_group="FBMagGlow")
+    # Sculpted curved FrostSteel armor cowl wrapping the lower half of the magazine flank cleanly
+    armor_plate(
+        f"FB_MagCowl_{label}",
+        [(0.645, -0.225), (0.795, -0.185), (0.915, -0.255), (0.985, -0.395),
+         (0.715, -0.398), (0.665, -0.315)],
+        0.056 * sign, 0.075 * sign, 0.080 * sign, FROSTSTEEL, rim_role=ARMOR, inset=0.008, bone="Mag",
+    )
+    # Contoured chiseled crystal ridge seated cleanly inside the upper curved mag channel
+    glacier_shard(
+        f"FB_MagIce_{label}",
+        [(0.605, -0.055), (0.675, -0.048), (0.795, -0.265), (0.735, -0.295), (0.635, -0.165)],
+        0.052 * sign, 0.068 * sign, 0.078 * sign,
+        ridge_bias=(-0.010, 0.025), bone="Mag",
+    )
 
-side("FB_GripPommel", [(-0.185, -0.315), (-0.015, -0.315), (0.010, -0.235), (-0.175, -0.235)],
-     -0.066, 0.066, FROSTSTEEL, bevel=0.004)
-crystal_blade("FB_GripIce_L", [(-0.195, -0.320), (-0.135, -0.362), (-0.035, -0.315), (-0.145, -0.275)],
-              -0.028, 0.028, 0.040)
-crystal_blade("FB_GripIce_R", [(-0.195, -0.320), (-0.135, -0.362), (-0.035, -0.315), (-0.145, -0.275)],
-              0.028, -0.028, -0.040)
+# Contoured swept cryo-forged floorplate matching the magazine curve + subtle heel crystal edge
+swept_rib("FB_MagFloorplate", [
+    (0.678, 0.0, -0.388, 0.074, 0.018),
+    (0.845, 0.0, -0.415, 0.076, 0.020),
+    (1.018, 0.0, -0.410, 0.072, 0.016),
+], ARMOR, bone="Mag")
+glacier_cluster("FB_MagHeelCrystal", [
+    {"points_xz": [(0.705, -0.392), (0.835, -0.418), (0.945, -0.416), (0.815, -0.456)],
+     "base_y": 0.032, "shoulder_y": -0.030, "crest_y": -0.044, "ridge_bias": (-0.015, -0.008)},
+    {"points_xz": [(0.705, -0.392), (0.835, -0.418), (0.945, -0.416), (0.815, -0.456)],
+     "base_y": -0.032, "shoulder_y": 0.030, "crest_y": 0.044, "ridge_bias": (-0.015, -0.008)},
+], bone="Mag")
 
-# ---------------------------------------------------------------- animated effect flat_groups (Root)
-# 3 staggered inspect-growth faceted crystal crest ridges (broad sculpted slabs, NO thin needles!).
-# Each flat_group exports as one MeshPart and therefore uses a single uniform material role.
-def crest_fin(name, pts, near_y, far_y, ridge_y, *, flat_group=None):
-    return crystal_blade(name, pts, near_y, far_y, ridge_y, roles=(ICE_MID, ICE_MID, ICE_MID), flat_group=flat_group)
+# ---------------------------------------------------------------- contoured grip spine & pommel (Root)
+swept_rib("FB_GripSpine", [
+    (-0.118, 0.0,  0.055, 0.042, 0.015),
+    (-0.105, 0.0, -0.015, 0.044, 0.015),
+    (-0.132, 0.0, -0.145, 0.044, 0.015),
+    (-0.165, 0.0, -0.255, 0.048, 0.017),
+    (-0.188, 0.0, -0.305, 0.058, 0.018),
+], FROSTSTEEL)
+swept_rib("FB_GripPommel", [
+    (-0.195, 0.0, -0.306, 0.068, 0.016),
+    (-0.085, 0.0, -0.310, 0.068, 0.016),
+    (0.012,  0.0, -0.294, 0.064, 0.014),
+], ARMOR)
 
-# Combine left+right crest fins per inspect stage by matching flat_group name (export merges same bone+mat+flat_group)
-crest_fin("FB_GrowRear_L", [(0.165, 0.373), (0.365, 0.363), (0.585, 0.379), (0.515, 0.405), (0.245, 0.403)],
-          0.082, 0.103, 0.115, flat_group="FBGrowRear")
-crest_fin("FB_GrowRear_R", [(0.165, 0.373), (0.365, 0.363), (0.585, 0.379), (0.515, 0.405), (0.245, 0.403)],
-          -0.082, -0.103, -0.115, flat_group="FBGrowRear")
+# ---------------------------------------------------------------- animated effect flat_groups (Root, single-mat)
+# 3 staggered jagged glacier crest crowns seated cleanly along upper shoulders (no pencils, 1 mat/group).
+glacier_cluster("FB_GrowRear", [
+    {"points_xz": [(0.175, 0.378), (0.355, 0.365), (0.565, 0.382), (0.485, 0.412), (0.245, 0.408)],
+     "base_y": 0.082, "shoulder_y": 0.106, "crest_y": 0.118,
+     "roles": (ICE_MID, ICE_MID, ICE_MID), "ridge_bias": (-0.025, 0.006)},
+    {"points_xz": [(0.175, 0.378), (0.355, 0.365), (0.565, 0.382), (0.485, 0.412), (0.245, 0.408)],
+     "base_y": -0.082, "shoulder_y": -0.106, "crest_y": -0.118,
+     "roles": (ICE_MID, ICE_MID, ICE_MID), "ridge_bias": (-0.025, 0.006)},
+], flat_group="FBGrowRear")
 
-crest_fin("FB_GrowMid_L", [(0.745, 0.354), (0.935, 0.336), (1.135, 0.354), (1.065, 0.386), (0.815, 0.384)],
-          0.074, 0.098, 0.112, flat_group="FBGrowMid")
-crest_fin("FB_GrowMid_R", [(0.745, 0.354), (0.935, 0.336), (1.135, 0.354), (1.065, 0.386), (0.815, 0.384)],
-          -0.074, -0.098, -0.112, flat_group="FBGrowMid")
+glacier_cluster("FB_GrowMid", [
+    {"points_xz": [(0.745, 0.350), (0.935, 0.332), (1.135, 0.354), (1.055, 0.392), (0.815, 0.386)],
+     "base_y": 0.084, "shoulder_y": 0.110, "crest_y": 0.124,
+     "roles": (ICE_MID, ICE_MID, ICE_MID), "ridge_bias": (-0.022, 0.008)},
+    {"points_xz": [(0.745, 0.350), (0.935, 0.332), (1.135, 0.354), (1.055, 0.392), (0.815, 0.386)],
+     "base_y": -0.084, "shoulder_y": -0.110, "crest_y": -0.124,
+     "roles": (ICE_MID, ICE_MID, ICE_MID), "ridge_bias": (-0.022, 0.008)},
+], flat_group="FBGrowMid")
 
-crest_fin("FB_GrowFront_L", [(1.285, 0.358), (1.485, 0.348), (1.695, 0.360), (1.625, 0.386), (1.355, 0.384)],
-          0.072, 0.095, 0.109, flat_group="FBGrowFront")
-crest_fin("FB_GrowFront_R", [(1.285, 0.358), (1.485, 0.348), (1.695, 0.360), (1.625, 0.386), (1.355, 0.384)],
-          -0.072, -0.095, -0.109, flat_group="FBGrowFront")
+glacier_cluster("FB_GrowFront", [
+    {"points_xz": [(1.275, 0.356), (1.465, 0.342), (1.675, 0.358), (1.595, 0.390), (1.345, 0.386)],
+     "base_y": 0.084, "shoulder_y": 0.108, "crest_y": 0.120,
+     "roles": (ICE_MID, ICE_MID, ICE_MID), "ridge_bias": (-0.020, 0.006)},
+    {"points_xz": [(1.275, 0.356), (1.465, 0.342), (1.675, 0.358), (1.595, 0.390), (1.345, 0.386)],
+     "base_y": -0.084, "shoulder_y": -0.108, "crest_y": -0.120,
+     "roles": (ICE_MID, ICE_MID, ICE_MID), "ridge_bias": (-0.020, 0.006)},
+], flat_group="FBGrowFront")
 
-# 4 outer breakaway kill-shatter glacier crust blades seated cleanly over the crystal beds (>= 0.006 proud, <= 0.129y).
-crystal_blade(
+# 4 outer breakaway kill-shatter glacier crust blades (single-mat ICE_BRIGHT, proud over crystal bays).
+glacier_shard(
     "FB_Shard1",
-    [(0.245, 0.214), (0.395, 0.200), (0.595, 0.216), (0.550, 0.242), (0.315, 0.238)],
-    0.094, 0.114, 0.128,
-    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT),
+    [(0.245, 0.214), (0.375, 0.198), (0.575, 0.216), (0.525, 0.244), (0.295, 0.240)],
+    0.092, 0.116, 0.130,
+    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT), ridge_bias=(-0.015, 0.004),
     flat_group="FBShard1",
 )
-crystal_blade(
+glacier_shard(
     "FB_Shard2",
-    [(1.215, 0.308), (1.375, 0.296), (1.585, 0.320), (1.515, 0.350), (1.270, 0.346)],
-    0.093, 0.113, 0.126,
-    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT),
+    [(1.215, 0.295), (1.385, 0.278), (1.595, 0.308), (1.525, 0.348), (1.275, 0.338)],
+    0.094, 0.118, 0.132,
+    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT), ridge_bias=(-0.018, 0.006),
     flat_group="FBShard2",
 )
-crystal_blade(
+glacier_shard(
     "FB_Shard3",
-    [(0.245, 0.214), (0.395, 0.200), (0.595, 0.216), (0.550, 0.242), (0.315, 0.238)],
-    -0.094, -0.114, -0.128,
-    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT),
+    [(0.245, 0.214), (0.375, 0.198), (0.575, 0.216), (0.525, 0.244), (0.295, 0.240)],
+    -0.092, -0.116, -0.130,
+    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT), ridge_bias=(-0.015, 0.004),
     flat_group="FBShard3",
 )
-crystal_blade(
+glacier_shard(
     "FB_Shard4",
-    [(1.215, 0.308), (1.375, 0.296), (1.585, 0.320), (1.515, 0.350), (1.270, 0.346)],
-    -0.093, -0.113, -0.126,
-    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT),
+    [(1.215, 0.295), (1.385, 0.278), (1.595, 0.308), (1.525, 0.348), (1.275, 0.338)],
+    -0.094, -0.118, -0.132,
+    roles=(ICE_BRIGHT, ICE_BRIGHT, ICE_BRIGHT), ridge_bias=(-0.018, 0.006),
     flat_group="FBShard4",
 )
 
-result = finish_master(fore)
+result = finish_master(carapace)
 result["gap_moves"] = gap_moves

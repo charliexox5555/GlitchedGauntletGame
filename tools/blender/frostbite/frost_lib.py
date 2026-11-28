@@ -34,15 +34,15 @@ cutters.hide_render = True
 (OBSIDIAN, ARMOR, FROSTSTEEL, GRIP, ICE_DEEP, ICE_MID, ICE_BRIGHT, CRYO_GLOW, GLOW_WHITE) = range(9)
 # (role, hex, roughness, metallic, emission)
 PALETTE = (
-    ("Obsidian", "121720", 0.50, 0.30, 0.0),    # deep dark forged core, recesses, rail, sights
-    ("Armor", "1E2634", 0.42, 0.58, 0.0),       # sculpted dark cold-slate metal chassis (Roblox Metal)
-    ("FrostSteel", "586F8C", 0.32, 0.72, 0.0),  # crisp icy titanium ribs, clamps, collar (Metal)
-    ("Grip", "171C26", 0.76, 0.00, 0.0),        # dark matte polymer grip & butt pad
-    ("IceDeep", "1D588A", 0.24, 0.08, 0.0),     # deep glacial sapphire crystal root/core
-    ("IceMid", "52B6E8", 0.20, 0.04, 0.0),      # primary vivid faceted glacier crystal
-    ("IceBright", "BBEBFF", 0.16, 0.00, 0.0),   # frost-white crystal crown facets & sharp ridges
-    ("CryoGlow", "9EEFFF", 0.25, 0.00, 1.25),   # restrained cold blue-white Neon seams (small)
-    ("GlowWhite", "E4FAFF", 0.25, 0.00, 1.45),  # tiny ice-white core heart filament (Neon, minimal)
+    ("Obsidian", "0F1520", 0.52, 0.28, 0.0),    # deep abyssal cold core, recesses, rail, sights
+    ("Armor", "1C2536", 0.40, 0.60, 0.0),       # sculpted dark cryo-forged carapace (Metal)
+    ("FrostSteel", "7A95B5", 0.28, 0.78, 0.0),  # bright brushed frost-silver exoskeleton swoop ribs (Metal)
+    ("Grip", "171C26", 0.76, 0.00, 0.0),        # matte polymer grip & butt pad
+    ("IceDeep", "16538A", 0.24, 0.08, 0.0),     # deep sapphire glacial fissure root (SmoothPlastic, 0.05 refl)
+    ("IceMid", "3FB8F0", 0.18, 0.04, 0.0),      # vivid glacier-blue crystal facets (SmoothPlastic, 0.05 refl)
+    ("IceBright", "D2F3FF", 0.15, 0.00, 0.0),   # razor-frosted snow-ice ridge highlights (SmoothPlastic, 0.12 refl)
+    ("CryoGlow", "A6F2FF", 0.24, 0.00, 1.30),   # restrained cold blue-white inner fissure energy (Neon)
+    ("GlowWhite", "ECFDFF", 0.24, 0.00, 1.50),  # pinpoint icy-white cryo-core heart (Neon)
 )
 
 
@@ -118,7 +118,7 @@ def _object(name, bm, bone, cutter=False):
     return obj
 
 
-def loft(name, sections, roles, *, bone="Root", bevel=0, loop=False, cutter=False):
+def loft(name, sections, roles, *, bone="Root", bevel=0, loop=False, cutter=False, flat_group=None):
     """Close authored sections into a volume, or join a loop of sections (a ring with a bore)."""
     bm = bmesh.new()
     rings = [[bm.verts.new(point) for point in section] for section in sections]
@@ -137,6 +137,8 @@ def loft(name, sections, roles, *, bone="Root", bevel=0, loop=False, cutter=Fals
     obj = _object(name, bm, bone, cutter)
     if bevel:
         chamfer(obj, bevel)
+    if flat_group:
+        obj["flat_group"] = flat_group
     return obj
 
 
@@ -167,13 +169,141 @@ def recess(obj, name, outline, near, far, *, role=OBSIDIAN, bone="Root"):
     return tool
 
 
+def swept_rib(name, path_pts, role, *, bone="Root", bevel=0, flat_group=None):
+    """Loft a flowing 6-sided chamfered armor ribbon along 3D stations [(x, y, z, hw, ht), ...]."""
+    sections = []
+    pts = [Vector(p[:3]) for p in path_pts]
+    n = len(pts)
+    for idx, st in enumerate(path_pts):
+        pos = Vector(st[:3])
+        hw, ht = st[3], st[4]
+        tang = (pts[min(n - 1, idx + 1)] - pts[max(0, idx - 1)]).normalized()
+        lat = Vector((0, 1, 0))
+        if abs(tang.dot(lat)) > 0.9:
+            lat = Vector((0, 0, 1))
+        normal = tang.cross(lat).normalized()
+        side_v = normal.cross(tang).normalized()
+        ring = [
+            tuple(pos - side_v * hw - normal * (ht * 0.52)),
+            tuple(pos - side_v * (hw * 0.62) - normal * ht),
+            tuple(pos + side_v * (hw * 0.62) - normal * ht),
+            tuple(pos + side_v * hw - normal * (ht * 0.52)),
+            tuple(pos + side_v * hw + normal * (ht * 0.52)),
+            tuple(pos + side_v * (hw * 0.62) + normal * ht),
+            tuple(pos - side_v * (hw * 0.62) + normal * ht),
+            tuple(pos - side_v * hw + normal * (ht * 0.52)),
+        ]
+        sections.append(ring)
+    return loft(name, sections, role, bone=bone, bevel=bevel, flat_group=flat_group)
+
+
+def armor_plate(name, points_xz, inner_y, outer_y, bevel_y, role, *, rim_role=None,
+                inset=0.008, bone="Root", flat_group=None):
+    """Closed sculpted chamfered armor plate along any sweeping (x, z) contour (0 modifier tris)."""
+    bm = bmesh.new()
+    n = len(points_xz)
+    cx = sum(p[0] for p in points_xz) / n
+    cz = sum(p[1] for p in points_xz) / n
+    inner_pts = []
+    for x, z in points_xz:
+        dx, dz = x - cx, z - cz
+        d = math.hypot(dx, dz)
+        scale = max(0.25, (d - inset) / d) if d > 1e-5 else 0.5
+        inner_pts.append((cx + dx * scale, cz + dz * scale))
+
+    ring_back = [bm.verts.new((x, inner_y, z)) for x, z in points_xz]
+    ring_edge = [bm.verts.new((x, outer_y, z)) for x, z in points_xz]
+    ring_face = [bm.verts.new((x, bevel_y, z)) for x, z in inner_pts]
+    c_back = bm.verts.new((cx, inner_y, cz))
+    c_face = bm.verts.new((cx, bevel_y, cz))
+
+    rim = role if rim_role is None else rim_role
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((c_back, ring_back[j], ring_back[i])).material_index = role
+        bm.faces.new((ring_back[i], ring_back[j], ring_edge[j], ring_edge[i])).material_index = rim
+        bm.faces.new((ring_edge[i], ring_edge[j], ring_face[j], ring_face[i])).material_index = rim
+        bm.faces.new((ring_face[i], ring_face[j], c_face)).material_index = role
+
+    obj = _object(name, bm, bone)
+    if flat_group:
+        obj["flat_group"] = flat_group
+    return obj
+
+
+def glacier_shard(name, points_xz, base_y, shoulder_y, crest_y, *,
+                  roles=(ICE_DEEP, ICE_MID, ICE_BRIGHT), ridge_bias=(0.0, 0.0),
+                  ridge_scale=0.38, bone="Root", flat_group=None):
+    """Sculpted chiseled non-pencil glacier shard from an asymmetric jagged (x, z) contour."""
+    bm = bmesh.new()
+    n = len(points_xz)
+    cx = sum(p[0] for p in points_xz) / n
+    cz = sum(p[1] for p in points_xz) / n
+    ax = cx + ridge_bias[0]
+    az = cz + ridge_bias[1]
+    crest_pts = [(ax + (x - ax) * ridge_scale, az + (z - az) * ridge_scale) for x, z in points_xz]
+
+    ring_base = [bm.verts.new((x, base_y, z)) for x, z in points_xz]
+    ring_sh = [bm.verts.new((x, shoulder_y, z)) for x, z in points_xz]
+    ring_cr = [bm.verts.new((x, crest_y, z)) for x, z in crest_pts]
+    c_base = bm.verts.new((cx, base_y, cz))
+    sign = 1.0 if crest_y >= base_y else -1.0
+    c_apex = bm.verts.new((ax, crest_y + 0.005 * sign, az))
+
+    role_deep, role_mid, role_bright = roles
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((c_base, ring_base[j], ring_base[i])).material_index = role_deep
+        bm.faces.new((ring_base[i], ring_base[j], ring_sh[j], ring_sh[i])).material_index = role_deep
+        bm.faces.new((ring_sh[i], ring_sh[j], ring_cr[j], ring_cr[i])).material_index = role_mid
+        bm.faces.new((ring_cr[i], ring_cr[j], c_apex)).material_index = role_bright
+
+    obj = _object(name, bm, bone)
+    if flat_group:
+        obj["flat_group"] = flat_group
+    return obj
+
+
+def glacier_cluster(name, specs, *, bone="Root", flat_group=None):
+    """Combine multiple chiseled glacier_shard polygons into one watertight mesh."""
+    bm = bmesh.new()
+    for sp in specs:
+        pts = sp["points_xz"]
+        n = len(pts)
+        cx = sum(p[0] for p in pts) / n
+        cz = sum(p[1] for p in pts) / n
+        rb = sp.get("ridge_bias", (0.0, 0.0))
+        rs = sp.get("ridge_scale", 0.38)
+        ax, az = cx + rb[0], cz + rb[1]
+        crest_pts = [(ax + (x - ax) * rs, az + (z - az) * rs) for x, z in pts]
+        base_y, sh_y, cr_y = sp["base_y"], sp["shoulder_y"], sp["crest_y"]
+        roles = sp.get("roles", (ICE_DEEP, ICE_MID, ICE_BRIGHT))
+        r_base = [bm.verts.new((x, base_y, z)) for x, z in pts]
+        r_sh = [bm.verts.new((x, sh_y, z)) for x, z in pts]
+        r_cr = [bm.verts.new((x, cr_y, z)) for x, z in crest_pts]
+        c_base = bm.verts.new((cx, base_y, cz))
+        sign = 1.0 if cr_y >= base_y else -1.0
+        c_apex = bm.verts.new((ax, cr_y + 0.004 * sign, az))
+        rd, rm, rbr = roles
+        for i in range(n):
+            j = (i + 1) % n
+            bm.faces.new((c_base, r_base[j], r_base[i])).material_index = rd
+            bm.faces.new((r_base[i], r_base[j], r_sh[j], r_sh[i])).material_index = rd
+            bm.faces.new((r_sh[i], r_sh[j], r_cr[j], r_cr[i])).material_index = rm
+            bm.faces.new((r_cr[i], r_cr[j], c_apex)).material_index = rbr
+    obj = _object(name, bm, bone)
+    if flat_group:
+        obj["flat_group"] = flat_group
+    return obj
+
+
 def polygon(center_u, center_v, radius, sides, phase=None):
     phase = math.pi / sides if phase is None else phase
     return [(center_u + radius * math.cos(phase + 2 * math.pi * i / sides),
              center_v + radius * math.sin(phase + 2 * math.pi * i / sides)) for i in range(sides)]
 
 
-def prism_along(name, origin, axis, profile, roles, *, sides=8, bone="Root", bevel=0):
+def prism_along(name, origin, axis, profile, roles, *, sides=8, bone="Root", bevel=0, flat_group=None):
     """Loft polygon profiles along an axis. profile = [(t, radius), ...], flat facets."""
     origin = Vector(origin)
     axis = Vector(axis).normalized()
@@ -184,7 +314,7 @@ def prism_along(name, origin, axis, profile, roles, *, sides=8, bone="Root", bev
     for t, radius in profile:
         center = origin + axis * t
         sections.append([tuple(center + u * a + v * b) for a, b in polygon(0, 0, radius, sides)])
-    return loft(name, sections, roles, bone=bone, bevel=bevel)
+    return loft(name, sections, roles, bone=bone, bevel=bevel, flat_group=flat_group)
 
 
 def _frame(axis):
@@ -195,10 +325,12 @@ def _frame(axis):
     return u, v
 
 
-def _add_crystal_island(bm, base, tip, r_base, r_mid, *, sides=6, mid_t=0.45, crown_t=0.80,
-                        r_crown=None, roles=(ICE_DEEP, ICE_MID, ICE_BRIGHT), twist=0.0,
-                        flat_scale=(1.0, 0.66), chisel_lean=None):
-    """Build one watertight, faceted glacial crystal spire with 3-tier shading."""
+def _add_organic_crystal(bm, base, tip, r_base, r_mid, *, sides=5,
+                         asym=(1.08, 0.76, 1.22, 0.68, 0.94),
+                         mid_t=0.46, crown_t=0.80, r_crown=None,
+                         roles=(ICE_DEEP, ICE_MID, ICE_BRIGHT), twist=0.0,
+                         flat_scale=(1.0, 0.62), chisel_lean=None):
+    """Build one asymmetric, irregularly faceted glacial crystal spire (flat-shaded, watertight)."""
     base_v = Vector(base)
     tip_v = Vector(tip)
     span = tip_v - base_v
@@ -206,16 +338,22 @@ def _add_crystal_island(bm, base, tip, r_base, r_mid, *, sides=6, mid_t=0.45, cr
     assert length > 1e-4
     axis = span / length
     u, v = _frame(axis)
-    r_crown = (r_mid * 0.62) if r_crown is None else r_crown
-    lean_vec = Vector(chisel_lean) if chisel_lean is not None else (u * (r_mid * 0.28))
+    r_crown = (r_mid * 0.58) if r_crown is None else r_crown
+    lean_vec = Vector(chisel_lean) if chisel_lean is not None else (u * (r_mid * 0.34) + v * (r_mid * 0.14))
 
-    def make_ring(center, radius, phase):
-        pts = polygon(0, 0, radius, sides, phase=phase)
-        return [bm.verts.new(center + u * (a * flat_scale[0]) + v * (b * flat_scale[1])) for a, b in pts]
+    def make_ring(center, radius, phase, taper_asym=1.0):
+        out = []
+        for i in range(sides):
+            ang = phase + 2 * math.pi * i / sides
+            scale_i = 1.0 + (asym[i % len(asym)] - 1.0) * taper_asym
+            a = radius * scale_i * math.cos(ang) * flat_scale[0]
+            b = radius * scale_i * math.sin(ang) * flat_scale[1]
+            out.append(bm.verts.new(center + u * a + v * b))
+        return out
 
-    r0 = make_ring(base_v, r_base, twist)
-    r1 = make_ring(base_v + span * mid_t, r_mid, twist + 0.12)
-    r2 = make_ring(base_v + span * crown_t + lean_vec * 0.35, r_crown, twist + 0.18)
+    r0 = make_ring(base_v, r_base, twist, 0.7)
+    r1 = make_ring(base_v + span * mid_t + lean_vec * 0.12, r_mid, twist + 0.14, 1.0)
+    r2 = make_ring(base_v + span * crown_t + lean_vec * 0.48, r_crown, twist + 0.24, 1.15)
     apex = bm.verts.new(tip_v + lean_vec)
 
     role_deep, role_mid, role_bright = roles
@@ -229,18 +367,20 @@ def _add_crystal_island(bm, base, tip, r_base, r_mid, *, sides=6, mid_t=0.45, cr
         bm.faces.new((r2[i], r2[j], apex)).material_index = role_bright
 
 
-def crystal_spike(name, base, tip, r_base, r_mid, *, bone="Root", **kwargs):
-    """Single closed faceted glacial crystal spire."""
+def organic_crystal(name, base, tip, r_base, r_mid, *, bone="Root", flat_group=None, **kwargs):
     bm = bmesh.new()
-    _add_crystal_island(bm, base, tip, r_base, r_mid, **kwargs)
-    return _object(name, bm, bone)
+    _add_organic_crystal(bm, base, tip, r_base, r_mid, **kwargs)
+    obj = _object(name, bm, bone)
+    if flat_group:
+        obj["flat_group"] = flat_group
+    return obj
 
 
-def crystal_cluster(name, specs, *, bone="Root", flat_group=None):
-    """Multiple non-overlapping faceted spires combined into one mesh object."""
+def organic_cluster(name, specs, *, bone="Root", flat_group=None):
+    """Multiple asymmetric glacial crystal spires combined into one mesh object."""
     bm = bmesh.new()
     for spec in specs:
-        _add_crystal_island(bm, **spec)
+        _add_organic_crystal(bm, **spec)
     obj = _object(name, bm, bone)
     if flat_group:
         obj["flat_group"] = flat_group
@@ -249,8 +389,7 @@ def crystal_cluster(name, specs, *, bone="Root", flat_group=None):
 
 def crystal_blade(name, points_xz, near_y, far_y, ridge_y, *, roles=(ICE_DEEP, ICE_MID, ICE_BRIGHT),
                   bone="Root", flat_group=None):
-    """Closed faceted crystal wedge/slab with chamfered ridge spine along (x, z) contour.
-    points_xz: convex CCW loop in (x, z); builds a roofed ridge between near_y and far_y."""
+    """Closed faceted crystal wedge/slab with chamfered ridge spine along (x, z) contour."""
     bm = bmesh.new()
     n = len(points_xz)
     cx = sum(p[0] for p in points_xz) / n

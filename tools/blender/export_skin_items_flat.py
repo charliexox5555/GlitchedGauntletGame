@@ -24,7 +24,7 @@ SKINS = os.path.join(ROOT, "art-source", "weapons", "Skins")
 exec(open(os.path.join(ROOT, "tools", "blender", "export_roblox_flat.py")).read())
 
 KNIVES = ("Fan", "Blade", "Dagger")
-VANDAL_VER = {"Moltframe": "v05", "Arcade": "v08x"}
+VANDAL_VER = {"Moltframe": "v05", "Arcade": "v08x", "Frostbite": "v10x"}
 STOCK_MAT = re.compile(r"^(Body|Panel|Dark|Metal|Grip|Accent|Neon|Brass|Glass|Lens|Scope ?Lens)(\.\d+)?$")
 NOT_SKIN = ("FP_Cams", "RV2_", "MFR_", "MS_Lights", "Review", "ADSRange")
 
