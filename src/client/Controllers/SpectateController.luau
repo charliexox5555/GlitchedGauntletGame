@@ -721,14 +721,16 @@ local function takeOut(holder: Instance, slot: number)
 	if sounds and sounds.equip then
 		ModAudio.play(sounds.equip)
 	end
-	if def.id == "Molly" or def.id == "Frost" then
+	if def.id == "Molly" or def.id == "Frost" or def.id == "Smoke" then
 		-- Canister out, then the free hand pulls the pin.
 		local token = itemToken
 		task.delay(ModsConfig.MOLLY_PIN_AT, function()
 			if token == itemToken and usedAt < os.clock() - ModsConfig.MOLLY_PIN_AT then
-				ViewmodelController.gesture(def.id .. "PinPull")
+				ViewmodelController.gesture(
+					if def.id == "Smoke" then "FrostPinPull" else def.id .. "PinPull"
+				)
 				ViewmodelController.hideItemPart("Pin", ModsConfig.MOLLY_PIN_GONE)
-				if def.id == "Molly" and sounds and sounds.pinPull then
+				if (def.id == "Molly" or def.id == "Smoke") and sounds and sounds.pinPull then
 					ModAudio.play(sounds.pinPull)
 				end
 			end

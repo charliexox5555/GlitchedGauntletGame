@@ -17,6 +17,7 @@ local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 local BotTypes = require(script.Parent.Types)
 local Nav = require(script.Parent.Nav)
 local ModWalls = require(script.Parent.Parent.Services.ModWalls)
+local SmokeBlock = require(ReplicatedStorage.Shared.Mods.Blocks.Smoke)
 
 type Bot = BotTypes.Bot
 type Memory = BotTypes.Memory
@@ -53,6 +54,7 @@ local function lineOfSight(
 	local result = BallisticGlass.raycast(eye, to * 1.02, params)
 	return (result == nil or result.Instance:IsDescendantOf(enemy))
 		and not ModWalls.blocksSight(eye, part.Position, now)
+		and not SmokeBlock.blocks(eye, part.Position) -- a Smoke dome (Mods/Blocks/Smoke)
 end
 
 function Perception.isBlinded(bot: Bot): boolean

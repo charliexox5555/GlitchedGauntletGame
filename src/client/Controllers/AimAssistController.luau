@@ -37,6 +37,7 @@ local SettingsApply = require(Shared.SettingsApply)
 local StateValues = require(Shared.StateValues)
 local StatusEffects = require(Shared.Config.StatusEffects)
 local Teams = require(Shared.Mods.Teams)
+local SmokeBlock = require(Shared.Mods.Blocks.Smoke)
 
 local CameraController = require(script.Parent.CameraController)
 local WeaponController = require(script.Parent.WeaponController)
@@ -170,6 +171,10 @@ local function aimPoint(body: Model, origin: Vector3, look: Vector3): (Vector3?,
 end
 
 local function visible(origin: Vector3, dir: Vector3, dist: number, body: Model): boolean
+	-- no assist or auto shoot through a Smoke dome (Mods/Blocks/Smoke)
+	if SmokeBlock.blocks(origin, origin + dir * dist) then
+		return false
+	end
 	local hit = sightRay(origin, dir * dist)
 	if not hit then
 		return true

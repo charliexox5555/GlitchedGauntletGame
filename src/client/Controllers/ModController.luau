@@ -35,6 +35,8 @@ local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
 local Flash = require(Shared.Mods.Flash)
 local Frost = require(Shared.Mods.Frost)
+local SmokeMod = require(Shared.Mods.Smoke)
+local ElectricShockMod = require(Shared.Mods.ElectricShock)
 local HealOrb = require(Shared.Mods.HealOrb)
 local Molly = require(Shared.Mods.Molly)
 local Recall = require(Shared.Mods.Recall)
@@ -121,6 +123,8 @@ local stepRecallHold: (now: number) -> ()
 local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
 	Molly = Molly.options,
 	Frost = Frost.options,
+	Smoke = SmokeMod.options,
+	ElectricShock = ElectricShockMod.options,
 	Flash = function(stats: ModTypes.Stats): Projectile.Options
 		return Flash.options(stats, false)
 	end,
@@ -984,8 +988,12 @@ local function startHold(slot: number, view: SlotView)
 		ModAudio.play(ModAudio.SOUNDS.Roller.equip)
 	elseif def.id == "Frost" then
 		ModAudio.play(ModAudio.SOUNDS.Frost.equip)
+	elseif def.id == "Smoke" then
+		ModAudio.play(ModAudio.SOUNDS.Smoke.equip)
+	elseif def.id == "ElectricShock" then
+		ModAudio.play(ModAudio.SOUNDS.ElectricShock.equip)
 	end
-	if def.id == "Molly" or def.id == "Frost" then
+	if def.id == "Molly" or def.id == "Frost" or def.id == "Smoke" then
 		-- Canister out, then the free hand pulls the pin (Molly's sound only).
 		if def.id == "Molly" then
 			ModAudio.play(ModAudio.SOUNDS.Molly.equip)
@@ -994,10 +1002,15 @@ local function startHold(slot: number, view: SlotView)
 		task.delay(Config.MOLLY_PIN_AT, function()
 			-- Not once the throw has started (a quick-cast or a queued click).
 			if token == itemToken and (phase == "Equipping" or phase == "Held") then
-				ViewmodelController.gesture(def.id .. "PinPull")
+				-- Smoke's canister is Frost-sized: Frost's pull (Config/Viewmodel FrostPinPull)
+				ViewmodelController.gesture(
+					if def.id == "Smoke" then "FrostPinPull" else def.id .. "PinPull"
+				)
 				ViewmodelController.hideItemPart("Pin", Config.MOLLY_PIN_GONE)
 				if def.id == "Molly" then
 					ModAudio.play(ModAudio.SOUNDS.Molly.pinPull)
+				elseif def.id == "Smoke" then
+					ModAudio.play(ModAudio.SOUNDS.Smoke.pinPull)
 				end
 			end
 		end)

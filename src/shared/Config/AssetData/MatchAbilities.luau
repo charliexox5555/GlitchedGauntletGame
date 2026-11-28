@@ -27,4 +27,8 @@ return {
 	GGAsset_MatchAbilities_22 = { ["Energy"] = true }, -- ReplicatedStorage.Abilities.Firewall.Frame_Energy
 	GGAsset_MatchAbilities_23 = { ["Energy"] = true, ["OwnColour"] = true }, -- ReplicatedStorage.Abilities.ShockDart.Charge_Energy
 	GGAsset_MatchAbilities_24 = { ["OwnColour"] = true }, -- ReplicatedStorage.Abilities.ShockDart.Dart_Tip0_Energy
+	GGAsset_MatchAbilities_25 = { ["AbilityId"] = "Smoke", ["HoldOffset"] = Vector3.new(0, 0.3199999928474426, -0.11999999731779099), ["Kind"] = "thrown", ["SourceAsset"] = 136650199866066, ["Tris"] = 890 }, -- ReplicatedStorage.Abilities.Smoke
+	GGAsset_MatchAbilities_26 = { ["AbilityId"] = "ElectricShock", ["HoldOffset"] = Vector3.new(0, 0.2800000011920929, -0.11999999731779099), ["Kind"] = "thrown", ["SourceAsset"] = 125616995746265, ["Tris"] = 696 }, -- ReplicatedStorage.Abilities.ElectricShock
+	GGAsset_MatchAbilities_27 = { ["AbilityId"] = "SmokeVFX", ["Kind"] = "vfx", ["SourceAsset"] = 74689281543379, ["Tris"] = 204 }, -- ReplicatedStorage.Abilities.SmokeVFX
+	GGAsset_MatchAbilities_28 = { ["AbilityId"] = "ShockVFX", ["Kind"] = "vfx", ["SourceAsset"] = 101353952165026, ["Tris"] = 496 }, -- ReplicatedStorage.Abilities.ShockVFX
 }

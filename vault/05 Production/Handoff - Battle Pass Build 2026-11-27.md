@@ -82,6 +82,7 @@ Briefs for whichever AI builds the rest of Season 1's pass. Each section stands 
 - A **charm pack** (like the SURGE pack, not a case) comes after.
 
 ## D. Powers: Smoke and Electric Shock (build plan phase 7)
+**Done 2026-11-27:** both built, Blender models installed, Range-tested (sight blocking, latch and strike). Left: the ChatGPT icons and card art (owner), the owner's sound audition.
 **Goal:** the two pass powers, locked to the pass.
 - **Facts:**
   - `Config/Season.POWER_UNLOCKS`: Smoke = free tier 10, ElectricShock = premium tier 20.

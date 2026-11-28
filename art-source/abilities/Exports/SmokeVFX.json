@@ -1,0 +1,104 @@
+{
+ "mod": "SmokeVFX",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "vfx",
+  "ability_name": "SmokeVFX"
+ },
+ "parts": [
+  {
+   "name": "Puff1",
+   "material": "RW_FxSmoke",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949C"
+   },
+   "energy": false,
+   "tris": 40,
+   "center": [
+    0.01043,
+    0.01612,
+    0.02154
+   ],
+   "size": [
+    1.00095,
+    0.87597,
+    0.76844
+   ]
+  },
+  {
+   "name": "Puff2",
+   "material": "RW_FxSmoke",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949C"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.02039,
+    0.00254,
+    0.01363
+   ],
+   "size": [
+    1.13164,
+    0.76822,
+    0.79646
+   ]
+  },
+  {
+   "name": "Puff3",
+   "material": "RW_FxSmoke",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949C"
+   },
+   "energy": false,
+   "tris": 36,
+   "center": [
+    0.00698,
+    0.00405,
+    0.00949
+   ],
+   "size": [
+    0.96992,
+    0.96566,
+    0.58421
+   ]
+  },
+  {
+   "name": "Dome",
+   "material": "RW_FxSmoke",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949C"
+   },
+   "energy": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    1.93185,
+    1.93185,
+    1.0
+   ]
+  }
+ ],
+ "locators": [],
+ "tris": 204,
+ "bounds": {
+  "min": [
+   -0.96593,
+   -0.96593,
+   -0.3846
+  ],
+  "max": [
+   0.96593,
+   0.96593,
+   1.0
+  ]
+ }
+}

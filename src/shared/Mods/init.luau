@@ -27,6 +27,8 @@ local modules: { [string]: Types.ModModule } = {
 	ShockDart = require(script.ShockDart).module,
 	Flash = require(script.Flash).module,
 	Roller = require(script.Roller).module,
+	Smoke = require(script.Smoke).module, -- battle pass (free tier 10)
+	ElectricShock = require(script.ElectricShock).module, -- battle pass (premium tier 20)
 }
 
 local cache: { [string]: Types.Stats } = {}

@@ -40,11 +40,18 @@ EXTRA = {
 	# Flash: thrown (pivot = centre), held like the Frost canister; Lens_Fire keeps its gold, Band_Energy is the team light.
 	"Roller": {"kind": "placed"},
 	"Flash": {"kind": "thrown", "holdOffset": [0, 0.3, -0.12]},
+	# Battle pass powers (2026-11-27, tools/blender/build_mod_smoke.py / build_mod_electricshock.py; vault/02 Art/Mod Props -
+	# Smoke and Electric Shock.md). Smoke: held like the Frost canister (Pin flies off, Vent = where the smoke pours out).
+	# ElectricShock: the caged orb, Core_Energy is the team light, Zap = the core centre (the strike's arcs start there).
+	"Smoke": {"kind": "thrown", "holdOffset": [0, 0.32, -0.12]},
+	"ElectricShock": {"kind": "thrown", "holdOffset": [0, 0.28, -0.12]},
 }
 # Parts that are seen from both sides.
 DOUBLE_SIDED = {"Panel_Energy", "Shockwave_Energy", "Dome_Energy", "Sphere_Energy", "ScanRing_Energy"}
 # GlitchVFX (tools/blender/build_mod_glitchvfx.py): the shells and the open scan band.
 DOUBLE_SIDED |= {"HexShell_Energy", "HexEdge_Energy", "ShellCrack_Energy", "ScanWave_Energy"}
+# SmokeVFX (2026-11-27): the open smoke dome shell is seen from inside too.
+DOUBLE_SIDED |= {"Dome"}
 # ReworkVFX (2026-11-16, art-source/abilities/Rework/v03/ReworkVFX/vfx_kit.py): the flat single-sheet pieces.
 DOUBLE_SIDED |= {
 	"FX_Ring", "FX_FloorStar", "Heal_Leaf", "Heal_Crown", "Stim_Chevron", "Tele_Fold", "Tele_Ring", "Scan_Shell", "Shield_Plate",

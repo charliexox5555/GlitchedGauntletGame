@@ -53,6 +53,8 @@ local RecallFx = require(script.Parent.Parent.Util.RecallFx)
 local ReworkVfx = require(script.Parent.Parent.Util.ReworkVfx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
+local SmokeFx = require(script.Parent.Parent.Util.SmokeFx)
+local ShockStrikeFx = require(script.Parent.Parent.Util.ShockStrikeFx)
 local WallFx = require(script.Parent.Parent.Util.WallFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local UpgradeFx = require(script.Parent.Parent.Util.UpgradeFx)
@@ -170,6 +172,20 @@ local TRAILS: { [string]: TrailSpec } = {
 		color = Color3.fromHex("CFEBFF"),
 		size = 0.45,
 		rate = 80,
+	},
+	Smoke = {
+		name = "SmokeWisp",
+		texture = Tex.FROST_VAPOR,
+		color = Color3.fromHex("9EA2AA"),
+		size = 0.45,
+		rate = 24,
+	},
+	ElectricShock = {
+		name = "ShockOrbGlow",
+		texture = Tex.RECON_GLOW,
+		color = Color3.fromHex("CFEBFF"),
+		size = 0.4,
+		rate = 60,
 	},
 	Frost = {
 		name = "FrostVapor",
@@ -929,6 +945,68 @@ local function onShockBurst(data: { [string]: any })
 	blastShake(at, radius, 0.4, 3)
 end
 
+-- Battle pass powers --------------------------------------------------------------------
+
+-- Ends the flying orb of the throw that started at `start` now (it latched or died).
+local function cutFlight(id: string, start: unknown)
+	if typeof(start) ~= "number" then
+		return
+	end
+	local serverNow = Workspace:GetServerTimeNow()
+	for _, f in flights do
+		if f.start == start and string.sub(f.key, 1, #id) == id then
+			f.fuse = math.min(f.fuse, serverNow - f.start)
+		end
+	end
+end
+
+local function onSmokePop(data: { [string]: any })
+	local at, radius, duration, start = data.at, data.radius, data.duration, data.start
+	if
+		typeof(at) ~= "Vector3"
+		or typeof(radius) ~= "number"
+		or typeof(duration) ~= "number"
+		or typeof(start) ~= "number"
+	then
+		return
+	end
+	local grow = if typeof(data.grow) == "number" then data.grow else 0.6
+	local fade = if typeof(data.fade) == "number" then data.fade else 1
+	SmokeFx.pop(at, radius, duration, grow, fade, start, data.toxic == true)
+	blastShake(at, radius, 0.25, 3)
+end
+
+local function onShockLatch(data: { [string]: any })
+	local target, at = data.target, data.at
+	cutFlight("ElectricShock", data.start)
+	if typeof(at) ~= "Vector3" or typeof(target) ~= "Instance" or not target:IsA("Model") then
+		return
+	end
+	local warning = if typeof(data.warning) == "number" then data.warning else 0.5
+	ShockStrikeFx.latch(target, at, warning, teamColor(data))
+end
+
+local function onShockStrike(data: { [string]: any })
+	local at = data.at
+	if typeof(at) ~= "Vector3" then
+		return
+	end
+	local function points(list: unknown): { Vector3 }
+		local out = {}
+		if typeof(list) == "table" then
+			for _, p in list :: { any } do
+				if typeof(p) == "Vector3" and #out < 6 then
+					table.insert(out, p)
+				end
+			end
+		end
+		return out
+	end
+	local splashRadius = if typeof(data.splashRadius) == "number" then data.splashRadius else nil
+	ShockStrikeFx.strike(at, teamColor(data), points(data.chain), points(data.splash), splashRadius)
+	blastShake(at, 8, 0.6, 4)
+end
+
 local function onFlashPop(data: { [string]: any })
 	local at = data.at
 	if typeof(at) ~= "Vector3" then
@@ -1004,6 +1082,25 @@ local function onFx(kind: unknown, data: unknown)
 		onCanisterThrow("Flash", S.Flash, d)
 	elseif kind == "FlashPop" then
 		onFlashPop(d)
+	elseif kind == "SmokeThrow" then
+		onCanisterThrow("Smoke", S.Smoke, d)
+	elseif kind == "SmokePop" then
+		onSmokePop(d)
+	elseif kind == "SmokeFizzle" then
+		if typeof(d.at) == "Vector3" then
+			SmokeFx.fizzle(d.at)
+		end
+	elseif kind == "ShockOrbThrow" then
+		onCanisterThrow("ElectricShock", S.ElectricShock, d)
+	elseif kind == "ShockLatch" then
+		onShockLatch(d)
+	elseif kind == "ShockStrike" then
+		onShockStrike(d)
+	elseif kind == "ShockFizzle" then
+		cutFlight("ElectricShock", d.start)
+		if typeof(d.at) == "Vector3" then
+			ShockStrikeFx.fizzle(d.at, teamColor(d))
+		end
 	elseif kind == "RollerBoom" then
 		onRollerBoom(d)
 	elseif kind == "RollerFizzle" then
@@ -1117,6 +1214,7 @@ local function update(dt: number)
 	FlashFx.step()
 	RollerFx.step(dt)
 	MollyFx.step()
+	SmokeFx.step()
 	HealFx.step()
 	StimFx.step()
 	RecallFx.step()

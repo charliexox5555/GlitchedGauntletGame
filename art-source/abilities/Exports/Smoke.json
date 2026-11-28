@@ -1,0 +1,343 @@
+{
+ "mod": "Smoke",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "thrown",
+  "ability_name": "Smoke"
+ },
+ "parts": [
+  {
+   "name": "Foot",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    -0.27
+   ],
+   "size": [
+    0.27716,
+    0.27716,
+    0.06
+   ]
+  },
+  {
+   "name": "Body",
+   "material": "RW_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383D48"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    -0.018
+   ],
+   "size": [
+    0.26977,
+    0.26977,
+    0.464
+   ]
+  },
+  {
+   "name": "Label",
+   "material": "RW_Pale",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C4C9CF"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    -0.0015
+   ],
+   "size": [
+    0.28825,
+    0.28825,
+    0.127
+   ]
+  },
+  {
+   "name": "Grip0",
+   "material": "RW_Grip",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272D"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    -0.186
+   ],
+   "size": [
+    0.29195,
+    0.29195,
+    0.038
+   ]
+  },
+  {
+   "name": "Grip1",
+   "material": "RW_Grip",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272D"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    -0.121
+   ],
+   "size": [
+    0.29195,
+    0.29195,
+    0.038
+   ]
+  },
+  {
+   "name": "Band_Energy",
+   "material": "RW_Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    0.115
+   ],
+   "size": [
+    0.2864,
+    0.2864,
+    0.034
+   ]
+  },
+  {
+   "name": "VentPlate",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.219
+   ],
+   "size": [
+    0.20325,
+    0.20325,
+    0.038
+   ]
+  },
+  {
+   "name": "Cap",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 206,
+   "center": [
+    0.0,
+    0.0,
+    0.2485
+   ],
+   "size": [
+    0.23651,
+    0.23651,
+    0.031
+   ]
+  },
+  {
+   "name": "Fuse",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    0.274
+   ],
+   "size": [
+    0.09239,
+    0.09239,
+    0.032
+   ]
+  },
+  {
+   "name": "Striker",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.294
+   ],
+   "size": [
+    0.06282,
+    0.06282,
+    0.016
+   ]
+  },
+  {
+   "name": "Lever",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 48,
+   "center": [
+    0.0885,
+    0.0,
+    0.0825
+   ],
+   "size": [
+    0.121,
+    0.048,
+    0.409
+   ]
+  },
+  {
+   "name": "PinLug",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.056,
+    0.278
+   ],
+   "size": [
+    0.03,
+    0.034,
+    0.026
+   ]
+  },
+  {
+   "name": "Pin",
+   "material": "RW_Accent",
+   "look": {
+    "material": "Metal",
+    "color": "AEB4BC"
+   },
+   "energy": false,
+   "tris": 100,
+   "center": [
+    0.0,
+    0.09978,
+    0.3
+   ],
+   "size": [
+    0.00953,
+    0.10956,
+    0.05913
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Vent",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.2639999985694885
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 890,
+ "bounds": {
+  "min": [
+   -0.14597,
+   -0.14597,
+   -0.3
+  ],
+  "max": [
+   0.149,
+   0.15456,
+   0.32956
+  ]
+ }
+}

@@ -21,7 +21,7 @@ Everything between today and a public Draft Duels launch, in order. It builds on
 - `Season.STARTS_AT = 0`: no season dates set yet.
 
 ## Phase 1: finish Season 1 content (the battle pass has to be complete before it opens)
-1. **The two pass powers [C+O].** Smoke (free tier 10) and Electric Shock (premium tier 20) aren't in `Config/Mods`. Each power needs:
+1. **The two pass powers [C+O]** (built 2026-11-27; left: ChatGPT icons and card art, the owner's sound audition). Smoke (free tier 10) and Electric Shock (premium tier 20) aren't in `Config/Mods`. Each power needs:
    - design numbers in `01 Design/Abilities/`;
    - server logic in the Mods system, with the validation rules;
    - the effect, built mesh-first (`lihfolk-vfx`);

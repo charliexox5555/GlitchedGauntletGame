@@ -1316,6 +1316,24 @@ return table.freeze({
 			lift = Vector3.new(0, 0.09, 0),
 			seat = 0.22, -- at scale 1.5 (rays: median gap ~0.02)
 		},
+		-- Battle pass powers (2026-11-27): the Smoke canister is Frost-sized, the Electric Shock orb a little
+		-- smaller; both sit on the fist end like the canisters.
+		Smoke = {
+			scale = 1.5,
+			offset = Vector3.new(0.56, -0.82, -2.05),
+			rotation = Vector3.new(-8, -20, 16),
+			arm = Vector3.new(0.5, -0.85, 0.25),
+			lift = Vector3.new(0, 0.09, 0),
+			seat = 0.22,
+		},
+		ElectricShock = {
+			scale = 1.5,
+			offset = Vector3.new(0.56, -0.78, -2.05),
+			rotation = Vector3.new(-6, -20, 12),
+			arm = Vector3.new(0.5, -0.85, 0.25),
+			lift = Vector3.new(0, 0.07, 0),
+			seat = 0.18,
+		},
 		-- The anchor read tiny on the fist (2026-11-16): scale 1.3, default offset.
 		-- Round 3: stood on the fist end like the canisters (it was 40° off the
 		-- forearm and half behind its end).

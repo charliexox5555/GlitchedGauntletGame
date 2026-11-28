@@ -32,6 +32,8 @@ IDS = [
 	"ShockDart",
 	"Flash",
 	"Roller",
+	"Smoke",  # battle pass powers (2026-11-27); skipped until their art is in
+	"ElectricShock",
 ]
 # Card art v2 (2026-11-17, cleaner stylised set): read from cards_v2/ when it has the file,
 # else the v1 painterly card in cards/.

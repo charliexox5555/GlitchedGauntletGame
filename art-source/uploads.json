@@ -23,6 +23,30 @@
   "type": "Model",
   "uploaded": "2026-11-06 05:24:33"
  },
+ "art-source/abilities/Exports/ElectricShock.fbx": {
+  "assetId": 125616995746265,
+  "name": "DD_Ability_ElectricShock",
+  "type": "Model",
+  "uploaded": "2026-11-27 20:16:15"
+ },
+ "art-source/abilities/Exports/ShockVFX.fbx": {
+  "assetId": 101353952165026,
+  "name": "DD_Ability_ShockVFX",
+  "type": "Model",
+  "uploaded": "2026-11-27 20:16:36"
+ },
+ "art-source/abilities/Exports/Smoke.fbx": {
+  "assetId": 136650199866066,
+  "name": "DD_Ability_Smoke",
+  "type": "Model",
+  "uploaded": "2026-11-27 20:16:04"
+ },
+ "art-source/abilities/Exports/SmokeVFX.fbx": {
+  "assetId": 74689281543379,
+  "name": "DD_Ability_SmokeVFX",
+  "type": "Model",
+  "uploaded": "2026-11-27 20:16:21"
+ },
  "art-source/abilities/Icons/Blink.png": {
   "assetId": 94881457772704,
   "name": "GG Mod Icon Blink",
@@ -4654,6 +4678,18 @@
   "name": "GG UI chatgpt icons Updraft",
   "type": "Decal",
   "uploaded": "2026-11-04 00:35:19"
+ },
+ "art-source/ui/chatgpt/stand_in/ElectricShock.png": {
+  "assetId": 103727066576624,
+  "name": "ModIcon_StandIn_ElectricShock",
+  "type": "Decal",
+  "uploaded": "2026-11-27 20:21:45"
+ },
+ "art-source/ui/chatgpt/stand_in/Smoke.png": {
+  "assetId": 124642178205318,
+  "name": "ModIcon_StandIn_Smoke",
+  "type": "Decal",
+  "uploaded": "2026-11-27 20:21:42"
  },
  "art-source/ui/collection-emblems/emblem_arcade.png": {
   "assetId": 125858413196661,

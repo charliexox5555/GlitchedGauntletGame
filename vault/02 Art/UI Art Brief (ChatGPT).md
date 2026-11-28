@@ -121,3 +121,21 @@ ChatGPT (with access to the repo) made all 12 cards at 1024 x 768 and the 3 icon
 - All 15 load in Studio at draft-card size.
 
 The v1 ids are in git history (Theme.luau before this change).
+
+## Battle pass powers: Smoke and Electric Shock (2026-11-27)
+Two new cards and two new icons, matching the v2 set. Until they're in, the game shows the glyphs ("SM", "ES") and no card art.
+
+**Attach:** `art-source/ui/chatgpt/card_backdrop.png`, one finished v2 card as the style master (`art-source/ui/chatgpt/cards_v2/Molly.png`), and the model references `art-source/abilities/Icons/ref_Smoke.png` and `ref_ElectricShock.png` (our Blender models). Then paste:
+
+> Two more ability cards and two icons for the same set you made before (attached: the backdrop, the Molly card as the style master, and our two new models). Same backdrop exactly as it is, same camera, scale, clean cel-shaded style, 2-3 flat tones per surface, thin rim light, one soft glow on the energy only, angular faceted shapes (not Roblox-blocky). One hero subject in the pool of light, the bottom 35% dark and empty. No text, UI, people, hands or weapons. 1024 x 768 PNG. Everything original: nothing from Valorant, RIVALS, Overwatch or any other game.
+>
+> 1. **Smoke:** our smoke canister (the squat faceted charcoal canister in the reference, a light band, vents in its cap) on the floor, pouring out a big dome of soft grey smoke made of chunky faceted puffs, so it reads as a wall you can't see through. Mostly cool grey #8C9098 with a faint white rim light; no fire, no colour except a little cool blue on the canister's band.
+> 2. **ElectricShock:** our orb (the faceted metal cage around a glowing crystal core, three short prongs) hanging in mid-air, latched with a crackling electric tether to a glowing target ring on the floor, and a jagged lightning bolt cracking straight down from the top of the panel onto the ring. Electric white-blue #CFEBFF with a deeper blue #4AA8FF.
+>
+> Make Smoke first and show me; then ElectricShock to match it.
+>
+> **Part 2: two icons**, matching my existing ability icons: 512 x 512 PNG, transparent background, one flat solid white glyph, no colour, no outline, no text, thick shapes with a few sharp angles, readable at 40 px, about 12% padding.
+> - **Smoke:** a short canister with a faceted cloud billowing out of its top.
+> - **ElectricShock:** a small caged orb with a lightning bolt striking down beside it.
+
+**When they come back:** save as `art-source/ui/chatgpt/cards_v2/Smoke.png`, `ElectricShock.png` and `icons/Smoke.png`, `icons/ElectricShock.png`; run `python tools/ui_chatgpt.py`; upload with `tools/opencloud/upload_asset.py --type Decal`; put the image ids in `Config/Theme CARD_ART` and `Config/Mods` `icon` (Claude can do these steps).

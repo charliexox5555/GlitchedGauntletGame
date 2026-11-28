@@ -249,3 +249,6 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [2026-11-21 Slipframe Guardian](05%20Production/Playtests/2026-11-21%20Slipframe%20Guardian.md): Match Studio hold, ADS, inspect reveal, firing, reload seat and interruption checks
 - `05 Production/Performance and Loading Audit 2026-11-26.md` (4): phone lag root cause (TopBar Fit fight with UiLayout), fixes, ranked loading and per-frame backlog
 - `05 Production/Fantasy and Retention Plan 2026-11-25.md` (12): live funnel break points (R1 fight, match 1 end, match 2, ad click→play), why the fantasy doesn't land, name options, ranked fixes and targets, sources
+- `01 Design/Abilities/Smoke.md` (2): battle pass power (free tier 10): smoke dome that blocks sight; numbers, paths, look and sound
+- `01 Design/Abilities/Electric Shock.md` (2): battle pass power (premium tier 20): lock-on orb, warning ring, lightning strike; numbers, paths, look and sound
+- `02 Art/Mod Props - Smoke and Electric Shock.md` (3): Blender models for the two pass powers: parts, attachments, asset ids, grades

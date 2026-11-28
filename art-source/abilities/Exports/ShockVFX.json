@@ -1,0 +1,64 @@
+{
+ "mod": "ShockVFX",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "vfx",
+  "ability_name": "ShockVFX"
+ },
+ "parts": [
+  {
+   "name": "Ring",
+   "material": "RW_FxShock",
+   "look": {
+    "material": "Neon",
+    "color": "CFEBFF"
+   },
+   "energy": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.97538,
+    1.97538,
+    0.04
+   ]
+  },
+  {
+   "name": "Bolt",
+   "material": "RW_FxShock",
+   "look": {
+    "material": "Neon",
+    "color": "CFEBFF"
+   },
+   "energy": false,
+   "tris": 256,
+   "center": [
+    0.04657,
+    0.00204,
+    0.5
+   ],
+   "size": [
+    0.27185,
+    0.11278,
+    1.0
+   ]
+  }
+ ],
+ "locators": [],
+ "tris": 496,
+ "bounds": {
+  "min": [
+   -0.98769,
+   -0.98769,
+   -0.02
+  ],
+  "max": [
+   0.98769,
+   0.98769,
+   1.0
+  ]
+ }
+}

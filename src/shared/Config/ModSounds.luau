@@ -320,6 +320,36 @@ return table.freeze({
 		-- ShockDart_Static (G): "Static Zap Mix Reverberant Bursts 3"
 		static = cue(9119595114, 0.6, 1.05, nil, 50, 0.6, 0.4),
 	}),
+	-- Battle pass powers (vault/01 Design/Abilities/Smoke.md, Electric Shock.md → Look and sound), 2026-11-27.
+	-- Placeholders reusing the licensed ids above (unauditioned), chosen to read as smoke / lightning.
+	Smoke = table.freeze({
+		equip = cue(9113074345, 0.35, 0.95, nil, nil, 0.9, 0.15), -- Frost_Equip, lower: the valve
+		pinPull = cue(9114659833, 0.6, 0.95), -- Molly_PinPull
+		throw = cue(9126013811, 0.5, 0.88, nil, 40, 0.4, 0.1), -- Molly overhand
+		throwLob = cue(9126283272, 0.35, 0.85, nil, 40, nil, 0.18),
+		flight = cue(9119525650, 0.9, 0.8, true, 30, nil, 8.4, 13.2), -- the aerosol hiss, lower and softer
+		bounce = cue(9113704875, 0.6, 0.95, nil, 40, 0.5, 0.08), -- Frost_Bounce, heavier
+		-- Smoke_Pop: 3D, ~60 studs. "Fire Extinguisher 2" (the gush) pitched down
+		pop = cue(9114437277, 1, 0.75, nil, 60),
+		-- Smoke_Loop: 3D, ~30 studs while it stands. The aerosol hiss, low and quiet
+		loop = cue(9119525650, 0.45, 0.6, true, 30, nil, 8.4, 13.2),
+		fizzle = cue(9114428855, 0.5, 1.1, nil, 40, 1, 3.3), -- Molly_SizzleOut
+	}),
+	ElectricShock = table.freeze({
+		equip = cue(9113808115, 0.5, 1.2, nil, nil, 0.3, 0.14), -- Stim_Deploy snap: the orb arming
+		throw = cue(9126013811, 0.5, 1.15, nil, 40, 0.4, 0.1),
+		throwLob = cue(9126283272, 0.35, 1.1, nil, 40, nil, 0.18),
+		flight = cue(9119993024, 0.7, 1.2, true, 40, nil, 1, 19.5), -- "Tesla Coil 2": it crackles in flight
+		bounce = cue(9118168962, 0.5, 1.2, nil, 40, 0.3, 0.14), -- ShockDart_Bounce
+		-- ElectricShock_Latch: 3D at the target + 2D for the target (the warning). A rising static lock-on
+		latch = cue(9119594571, 0.7, 1.35, nil, 60, 0.5, 0.6),
+		warning = cue(9117882920, 0.6, 1.6, nil, nil, 0.5, 0.25), -- ShockDart_Charge, high: you're marked
+		-- ElectricShock_Strike: 3D, ~90 studs. The crack, a thunder body and the zap
+		strike = cue(9126082854, 1, 1.25, nil, 90, 0.6),
+		thunder = cue(9126082854, 0.8, 0.7, nil, 90, 1.4),
+		zap = cue(9119594571, 0.8, 1, nil, 70, 0.6, 0.6),
+		fizzle = cue(9119595114, 0.5, 1.15, nil, 40, 0.6, 0.4), -- Stim_ZoneEnd
+	}),
 	Flash = table.freeze({
 		-- Flash_Equip: you, the pin pulled as it comes up. "Grenade Pull Pin 2"
 		equip = cue(9114659833, 0.6, 1.15, nil, nil, 0.5),

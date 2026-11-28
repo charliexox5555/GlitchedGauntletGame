@@ -22,6 +22,8 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 10 | [Roller](Roller.md) (T) | new, free pack | ✅ locked 2026-11-17: [spec](../../04%20Tech/Prompts/2026-11-17%20New%20Abilities%20(Free%20Pack).md) | ✅ 2026-11-17 |
 | 11 | [Flash](Flash.md) (Q) | new, free pack | ✅ locked 2026-11-17 (same spec) | ✅ 2026-11-17 |
 | 12 | [Shock Dart](Shock%20Dart.md) (E) | new, free pack | ✅ locked 2026-11-17 (same spec) | ✅ 2026-11-17 |
+| 13 | [Smoke](Smoke.md) | new, battle pass free tier 10 | ✅ owner 2026-11-26 | ✅ 2026-11-27 (ChatGPT icon/card art to come) |
+| 14 | [Electric Shock](Electric%20Shock.md) | new, battle pass premium tier 20 | ✅ owner 2026-11-26 (lock-on) | ✅ 2026-11-27 (ChatGPT icon/card art to come) |
 
 L2/L3 upgrade paths and fixed keys per ability: in review in [Upgrade Paths](Upgrade%20Paths.md) (started 2026-11-03).
 

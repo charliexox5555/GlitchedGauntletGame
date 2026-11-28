@@ -36,6 +36,8 @@ local THROWS: { [string]: any } = {
 	Molly = require(Shared.Mods.Molly),
 	Frost = require(Shared.Mods.Frost),
 	Flash = require(Shared.Mods.Flash),
+	Smoke = require(Shared.Mods.Smoke),
+	ElectricShock = require(Shared.Mods.ElectricShock),
 }
 local Target = require(Shared.Mods.Blocks.Target)
 
@@ -65,6 +67,8 @@ local SERVER_MODS: { [string]: boolean } = {
 	ShockDart = true,
 	Flash = true,
 	Roller = true,
+	Smoke = true,
+	ElectricShock = true,
 }
 local USE_KINDS: { [string]: string } = {
 	HeldThrow = "Throw",
@@ -702,6 +706,22 @@ function BotMods.think(bot: Bot, world: any, now: number)
 			end
 		elseif id == "ShockDart" and seen and distance > 13 and distance < 55 then
 			option = { score = 0.73, point = seen }
+		elseif
+			id == "Smoke"
+			and seen
+			and (incoming or share < 0.5)
+			and distance > 6
+			and distance < 45
+		then
+			-- cut their line: a dome a little toward them (a lob when they're close)
+			option = {
+				score = if incoming then 0.8 else 0.72,
+				point = root.Position:Lerp(seen, if distance < 16 then 0.5 else 0.35),
+				mode = if distance < 16 then "Alt" else nil,
+			}
+		elseif id == "ElectricShock" and seen and distance > 8 and distance < 45 then
+			-- straight at them: the orb only has to pass within its latch range
+			option = { score = if engaged then 0.8 else 0.74, point = seen }
 		elseif id == "Flash" and point and distance > 12 and distance < 34 then
 			option = { score = if seen then 0.62 else 0.88, point = point }
 		elseif id == "Roller" and point and distance > 10 and distance < 38 then

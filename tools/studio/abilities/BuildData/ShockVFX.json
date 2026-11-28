@@ -1,0 +1,1 @@
+{"mod":"ShockVFX","kind":"vfx","assetId":101353952165026,"tris":496,"parts":[{"name":"Ring","look":{"material":"Neon","color":"CFEBFF"},"energy":false,"tris":240,"center":[0.0,0.0,0.0],"size":[1.97538,1.97538,0.04]},{"name":"Bolt","look":{"material":"Neon","color":"CFEBFF"},"energy":false,"tris":256,"center":[0.04657,0.00204,0.5],"size":[0.27185,0.11278,1.0]}],"locators":[]}

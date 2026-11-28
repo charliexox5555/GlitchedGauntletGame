@@ -558,6 +558,149 @@ local defs: { [string]: ModDef } = {
 	-- (Mods/ShockDart). Damage falls from `damage` at the centre to
 	-- `edgeDamage` at `radius`; line of sight from the impact; none to you,
 	-- FRIENDLY_FIRE of it to your team.
+	-- Smoke (battle pass, free tier 10; vault/01 Design/Abilities/Smoke.md): a held throw like the Molly (same
+	-- flight). Where it rests it pops after `popDelay` into a dome of `radius` for `duration` s that blocks sight
+	-- both ways (players, bots, aim assist and auto shoot: Mods/Blocks/Smoke); bullets pass through.
+	Smoke = {
+		id = "Smoke",
+		name = "Smoke",
+		free = false,
+		role = "Control",
+		paths = { A = "Recharge", B = "Big Smoke", G = "Toxic" },
+		block = "Projectile",
+		activation = "HeldThrow",
+		authority = "Server",
+		icon = "rbxassetid://120858417740479", -- stand-in: the Blender model's white silhouette (art-source/ui/chatgpt/stand_in/Smoke.png) until the ChatGPT icon
+		glyph = "SM",
+		hint = { primary = "Throw", alt = "Lob" },
+		quickCast = "Primary",
+		levels = {
+			L1 = {
+				note = "Smoke: a 12-stud dome that blocks sight for 10 s",
+				cooldown = 0, -- 1 per round, no recharge
+				charges = 1,
+				throwSpeed = 80, -- LMB, overhand (a little shorter than the Molly's 88)
+				lobSpeed = 24, -- RMB, underhand
+				throwLift = 0.12,
+				lobLift = 0.3,
+				gravity = 100,
+				bounces = 4,
+				restitution = 0.45,
+				friction = 0.7,
+				size = 0.3,
+				dropTime = 1.3,
+				maxFlight = 4, -- still flying then: no smoke
+				popDelay = 0.35, -- s from rest to the pop
+				radius = 6, -- the dome (12 studs across)
+				duration = 10, -- s it stands, growth and fade included
+				grow = 0.6, -- s to full size
+				fade = 1, -- s it thins out at the end (still blocks until the last 0.4 s)
+				tick = 0.5, -- Toxic: how often the smoke checks who's inside
+			},
+			A2 = { note = "Recharge: Smoke comes back 25 s after it's thrown", cooldown = 25 },
+			A3 = { note = "Recharge: Smoke comes back after just 15 s", cooldown = 15 },
+			B2 = {
+				note = "Big Smoke: a 15-stud dome that lasts 12 s",
+				card = "RADIUS 6 → 7.5 STUDS · 10 → 12 S",
+				radius = 7.5,
+				duration = 12,
+			},
+			B3 = {
+				note = "Big Smoke: an 18-stud dome that lasts 15 s",
+				card = "RADIUS 7.5 → 9 STUDS · 12 → 15 S",
+				radius = 9,
+				duration = 15,
+			},
+			-- Toxic (Mods/Smoke → Toxic): enemies inside are Hindered (refreshed every `tick`); G3 also burns them.
+			G2 = {
+				note = "Toxic: enemies inside your smoke are Hindered",
+				card = "ENEMIES INSIDE ARE HINDERED",
+				behaviour = "Toxic",
+				hinder = 1, -- s, refreshed every tick they stay in
+				dps = 0,
+			},
+			G3 = {
+				note = "Toxic: enemies inside are Hindered and take 10 damage/s",
+				card = "+10 DAMAGE/S INSIDE",
+				dps = 10,
+			},
+		},
+	},
+	-- Electric Shock (battle pass, premium tier 20; vault/01 Design/Abilities/Electric Shock.md): a thrown orb that
+	-- latches onto the first enemy it passes within `lockRange` (clear line), shows a `warning` ring on them, then
+	-- strikes them wherever they are for `damage` + `hinder` s of Hinder. Nobody in reach: it fizzles.
+	ElectricShock = {
+		id = "ElectricShock",
+		name = "Electric Shock",
+		free = false,
+		role = "Damage",
+		paths = { A = "Recharge", B = "Chain", G = "Overload" },
+		block = "Projectile",
+		activation = "HeldThrow",
+		authority = "Server",
+		icon = "rbxassetid://116369759560167", -- stand-in silhouette (art-source/ui/chatgpt/stand_in/ElectricShock.png) until the ChatGPT icon
+		glyph = "ES",
+		hint = { primary = "Throw", alt = "Lob" },
+		quickCast = "Primary",
+		levels = {
+			L1 = {
+				note = "Electric Shock: latches onto an enemy within 4 studs, then strikes for 70 + Hinder",
+				cooldown = 0, -- 1 per round, no recharge
+				charges = 1,
+				throwSpeed = 96, -- LMB: fast and flat
+				lobSpeed = 26, -- RMB: a short lob
+				throwLift = 0.05,
+				lobLift = 0.3,
+				gravity = 60, -- floatier than a canister: it hunts for a target
+				bounces = 3,
+				restitution = 0.5,
+				friction = 0.75,
+				size = 0.3,
+				dropTime = 1.6,
+				maxFlight = 3,
+				lockRange = 4, -- studs from the orb to a body that latches it
+				scan = 0.05, -- s between latch checks in flight
+				warning = 0.5, -- s the warning ring shows before the strike
+				damage = 70,
+				hinder = 1.5, -- s of Hinder (Config/StatusEffects)
+			},
+			A2 = {
+				note = "Recharge: Electric Shock comes back 30 s after it's thrown",
+				cooldown = 30,
+			},
+			A3 = { note = "Recharge: Electric Shock comes back after 18 s", cooldown = 18 },
+			-- Chain (Mods/ElectricShock → chain): after the strike, it jumps to the nearest other enemy within
+			-- `chainRange` (clear line from the target), `chains` times, `chainDamage` each.
+			B2 = {
+				note = "Chain: the strike jumps to 1 more enemy within 12 studs for 35",
+				card = "+1 JUMP · 35 DAMAGE",
+				behaviour = "Chain",
+				chains = 1,
+				chainRange = 12,
+				chainDamage = 35,
+			},
+			B3 = {
+				note = "Chain: the strike jumps to 2 more enemies",
+				card = "JUMPS 1 → 2",
+				chains = 2,
+			},
+			-- Overload: a wider latch; G3 adds a splash around the target.
+			G2 = {
+				note = "Overload: latches from 6 studs away",
+				card = "LATCH RANGE 4 → 6 STUDS",
+				behaviour = "Overload",
+				lockRange = 6,
+				splashRadius = 0,
+				splashDamage = 0,
+			},
+			G3 = {
+				note = "Overload: the strike also hits everyone within 5 studs of the target for 35",
+				card = "+35 SPLASH IN 5 STUDS",
+				splashRadius = 5,
+				splashDamage = 35,
+			},
+		},
+	},
 	ShockDart = {
 		id = "ShockDart",
 		name = "Shock Dart",
@@ -803,6 +946,8 @@ local ORDER = {
 	"ShockDart",
 	"Flash",
 	"Roller",
+	"Smoke", -- battle pass (Config/Season.POWER_UNLOCKS)
+	"ElectricShock",
 }
 
 -- One wind stroke on the screen (WIND_FEEL).
