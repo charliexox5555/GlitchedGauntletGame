@@ -95,6 +95,8 @@ gui:SetAttribute("RefDistance", 14) -- studs where the tag is drawn at 1:1
 gui:SetAttribute("MinScale", 0.55)
 gui:SetAttribute("MaxScale", 1.6)
 gui:SetAttribute("Falloff", 0.7) -- < 1: shrinks slower than the world, so far tags stay readable
+gui:SetAttribute("PhoneBoost", 1.5) -- phones/tablets: size x screen height / 1080 x this (max 1)
+gui:SetAttribute("TabletBoost", 1.2)
 gui:SetAttribute("HeadGap", 0.5) -- the controller pins the tag this far over the top of the Head
 gui:SetAttribute("DetailScale", 0.8) -- the @username hides below this size
 

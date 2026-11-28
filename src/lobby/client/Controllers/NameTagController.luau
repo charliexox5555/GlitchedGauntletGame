@@ -19,6 +19,7 @@ local Workspace = game:GetService("Workspace")
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 
 local NameTagController = {}
@@ -47,6 +48,11 @@ local folder: Folder? = nil
 -- MinScale..MaxScale (Falloff < 1 shrinks slower than the world, so far tags stay readable); the @username
 -- shows only at DetailScale or bigger
 local refDistance, minScale, maxScale, falloff, detailScale = 14, 0.55, 1.6, 0.7, 0.8
+-- The tag is pixel UI drawn for a 1080p screen, so on a small screen it covered far more of the view (owner
+-- 2026-11-28: "way too big on mobile"). On a Phone or Tablet (Shared/UiLayout) it is also multiplied by
+-- screen height / 1080 x the PhoneBoost / TabletBoost attribute (a little bigger than the plain ratio, so the
+-- small lines still read), never above 1. Desktop and console stay as designed.
+local boosts: { [string]: number } = { Phone = 1.5, Tablet = 1.2 }
 local headGap = 0.5 -- HeadGap attribute: studs between the top of the head and the tag's bottom edge
 local rootOffset = Vector3.new(0, 2.9, 0) -- the template's StudsOffsetWorldSpace: used only with no Head
 
@@ -223,6 +229,10 @@ local function step()
 		return
 	end
 	local camPos = camera.CFrame.Position
+	local boost = boosts[UiLayout.family()]
+	local screen = if boost
+		then math.min(1, camera.ViewportSize.Y / UiLayout.DESIGN_HEIGHT * boost)
+		else 1
 	local meInLobby = PlayZone.get(player) == "Lobby"
 	for p, tag in tags do
 		local root = tag.root
@@ -244,7 +254,7 @@ local function step()
 		end
 		if show then
 			local size = math.clamp((refDistance / math.max(dist, 1)) ^ falloff, minScale, maxScale)
-			tag.scale.Scale = size
+			tag.scale.Scale = size * screen
 			if tag.username then
 				tag.username.Visible = size >= detailScale
 			end
@@ -276,6 +286,8 @@ function NameTagController.start()
 	refDistance, minScale, maxScale =
 		attr("RefDistance", refDistance), attr("MinScale", minScale), attr("MaxScale", maxScale)
 	falloff, detailScale = attr("Falloff", falloff), attr("DetailScale", detailScale)
+	boosts.Phone, boosts.Tablet =
+		attr("PhoneBoost", boosts.Phone), attr("TabletBoost", boosts.Tablet)
 	headGap = attr("HeadGap", headGap)
 	rootOffset = found.StudsOffsetWorldSpace
 
