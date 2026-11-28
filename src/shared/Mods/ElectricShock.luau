@@ -118,7 +118,12 @@ local function storm(ctx: Types.ServerCtx, at: Vector3)
 			local spot = floor + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
 			local hits =
 				blast(ctx, spot + Vector3.new(0, 2.5, 0), stats.boltRadius, stats.boltDamage)
-			ctx.fx("ShockStormBolt", { at = spot, radius = stats.boltRadius, hits = hits })
+			ctx.fx("ShockStormBolt", {
+				at = spot,
+				radius = stats.boltRadius,
+				hits = hits,
+				damage = stats.boltDamage,
+			})
 		end)
 	end
 end
@@ -160,6 +165,7 @@ local function strike(ctx: Types.ServerCtx, target: Model)
 		end
 	end
 	local splash = blast(ctx, at, stats.splashRadius or 0, stats.splashDamage or 0, target)
+	-- the numbers ride along so the caster's HUD shows hit markers and damage numbers (owner 2026-11-27)
 	ctx.fx("ShockStrike", {
 		target = target,
 		at = at,
@@ -167,6 +173,10 @@ local function strike(ctx: Types.ServerCtx, target: Model)
 		splash = splash,
 		splashRadius = stats.splashRadius,
 		storm = stats.behaviour == "Storm",
+		damage = stats.damage,
+		killed = not Target.alive(target),
+		chainDamage = stats.chainDamage,
+		splashDamage = stats.splashDamage,
 	})
 	if stats.behaviour == "Storm" then
 		storm(ctx, at)

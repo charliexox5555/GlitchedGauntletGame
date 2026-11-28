@@ -19,7 +19,11 @@ Shock Dart is a bow bolt that explodes **where it lands**. Electric Shock **lock
 | **B: Chain Lightning** | the smite arcs to 1 more enemy within 16 studs for 60 | arcs to 2 more |
 | **G: Storm Call** ⚡ (glitched) | a glitched violet storm stays over the smite: 3 more bolts around the target over 3 s, 35 each within 4 studs | 5 bolts over 4 s, 45 each |
 
-## Look and sound
-- Blender orb (`ReplicatedStorage.Abilities.ElectricShock`: a faceted cage round a glowing core, three prongs) and `ShockVFX` (the ring, a jagged bolt). `client/Util/ShockStrikeFx`: latch zap, marked ring, sky beam, the smite (a 90-stud bolt flickering through three shapes, two forks, crackling beams, flash, two shockwaves, sparks, dust, arcs on the target, scorch), chain arcs, Storm Call's violet bolts with magenta static, and the charged beacon.
-- Sounds (`Config/ModSounds.ElectricShock`, ProSoundEffects, unauditioned): the smite is four layers at once: a thunder crack, a heavy boom, a rolling rumble and an electric sizzle. Plus the arming snap, the tesla-coil crackle in flight and on the beacon, the lock-on sear, the target's warning whine and the fizzle.
-- **Icon / draft card art:** ChatGPT (owner).
+## Look and sound (legendary pass, 2026-11-27)
+Owner: "it doesn't look legendary ... high level, high animation". `client/Util/ShockStrikeFx` plays it in three acts:
+1. **Latch:** the orb zaps onto the target; a **storm gathers** 28 studs over them (dark faceted cloud puffs swirling in, lit by lightning flickering inside); a beam of light comes down and a marked ring follows their feet; the world **dims and cools** for anyone within 90 studs; the target hears a warning.
+2. **The smite:** **procedural forked lightning** (midpoint-displaced jagged bolts of glowing faceted segments, white-hot core in a coloured glow, 4 branches, re-forking three times in its first frames) plus a second bolt; a blinding **grade pop** and white flash, a light pillar, two shockwaves, glowing **ground cracks**, rock **debris**, sparks, dust and a scorch.
+3. **Electrocution** (1.4 s): the target flickers white and blue, arcs jump between their limbs, sparks pour off them; their own screen flickers.
+- **Your HUD:** a red hit marker and the damage number (90), kill marker on a kill; chain, splash and Storm Call hits show their numbers too.
+- **Sounds:** designed cues (`tools/audio/design_powers.py`, [Power Sounds](../../02%20Art/Power%20Sounds%20-%20Smoke%20and%20Electric%20Shock.md)): the smite is one 3.6 s file (close thunder crack, sub boom, sizzle, rolling tail); a 0.9 s storm charge ends on the crack.
+- **Icon / card art:** ChatGPT (in).

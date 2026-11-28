@@ -323,43 +323,36 @@ return table.freeze({
 	-- Battle pass powers (vault/01 Design/Abilities/Smoke.md, Electric Shock.md → Look and sound), 2026-11-27.
 	-- Placeholders reusing the licensed ids above (unauditioned), chosen to read as smoke / lightning.
 	Smoke = table.freeze({
-		equip = cue(9113074345, 0.35, 0.95, nil, nil, 0.9, 0.15), -- Frost_Equip, lower: the valve
-		pinPull = cue(9114659833, 0.6, 0.95), -- Molly_PinPull
-		throw = cue(9126013811, 0.5, 0.88, nil, 40, 0.4, 0.1), -- Molly overhand
-		throwLob = cue(9126283272, 0.35, 0.85, nil, 40, nil, 0.18),
-		flight = cue(9119525650, 0.9, 0.8, true, 30, nil, 8.4, 13.2), -- the aerosol hiss, lower and softer
-		bounce = cue(9113704875, 0.6, 0.95, nil, 40, 0.5, 0.08), -- Frost_Bounce, heavier
-		-- Smoke_Pop: 3D, ~60 studs. "Fire Extinguisher 2" (the gush) pitched down
-		pop = cue(9114437277, 1, 0.75, nil, 60),
-		-- Smoke_Loop: 3D, ~30 studs while it stands. The aerosol hiss, low and quiet
-		loop = cue(9119525650, 0.45, 0.6, true, 30, nil, 8.4, 13.2),
-		fizzle = cue(9114428855, 0.5, 1.1, nil, 40, 1, 3.3), -- Molly_SizzleOut
+		-- Designed cues (tools/audio/design_powers.py; owner 2026-11-27 "the sounds need to be different"):
+		-- licensed ProPack + Sonniss GDC 2016 layers with synthesis. vault/02 Art/Power Sounds - Smoke and Electric Shock.md
+		equip = cue(101935654980168, 0.4),
+		pinPull = cue(79594259801062, 0.5),
+		throw = cue(106804208488163, 0.5, 1, nil, 40),
+		throwLob = cue(106804208488163, 0.4, 0.9, nil, 40),
+		flight = cue(99862269286591, 0.2, 1.25, true, 25), -- the cloud's own hiss, quiet and higher, on the canister
+		bounce = cue(110046631197699, 0.55, 1, nil, 40),
+		pop = cue(104298404322375, 0.9, 1, nil, 70), -- the burst: a pressurised pfsshh, a low whump, an airy bloom
+		loop = cue(99862269286591, 0.3, 1, true, 35), -- a soft rolling hiss while it stands (seamless 4 s)
+		fade = cue(71521032542266, 0.45, 1, nil, 40), -- it thins out
+		fizzle = cue(71521032542266, 0.35, 1.2, nil, 30),
 	}),
-	-- The legendary smite (owner 2026-11-27: "really cool sound effects"): layered ProSoundEffects recordings,
-	-- unauditioned. The strike is four layers at once: the crack, a heavy boom body, a deep rolling tail and an
-	-- electric sizzle.
+	-- The legendary smite. Designed cues (same tool and note): shock_strike is the whole smite in one file (a close
+	-- thunder crack, a sub boom, sizzle and a long rolling tail); shock_charge (0.9 s) is started 0.3 s in at the
+	-- latch so it ends on the strike's crack (the warning is 0.6 s).
 	ElectricShock = table.freeze({
-		equip = cue(9113808115, 0.5, 1.2, nil, nil, 0.3, 0.14), -- Stim_Deploy snap: the orb arming
-		throw = cue(9126013811, 0.5, 1.15, nil, 40, 0.4, 0.1),
-		throwLob = cue(9126283272, 0.35, 1.1, nil, 40, nil, 0.18),
-		flight = cue(9119993024, 0.7, 1.2, true, 40, nil, 1, 19.5), -- "Tesla Coil 2": it crackles in flight
+		equip = cue(97739926489588, 0.5),
+		throw = cue(75507586897589, 0.55, 1, nil, 45),
+		throwLob = cue(75507586897589, 0.45, 0.9, nil, 45),
+		flight = cue(130377876115693, 0.45, 1, true, 40), -- the buzzing orb (seamless 2 s)
 		bounce = cue(9118168962, 0.5, 1.2, nil, 40, 0.3, 0.14), -- ShockDart_Bounce
-		-- the landed orb waiting, charged: "Tesla Coil 2" low
-		beacon = cue(9119993024, 0.6, 0.85, true, 35, nil, 1, 19.5),
-		-- ElectricShock_Latch: 3D. "Lightning Flashes Quick Electrical Bursts 38" (a searing lock-on)
-		latch = cue(9116278351, 0.9, 1.1, nil, 70, 0.9),
-		warning = cue(9117882920, 0.7, 1.6, nil, nil, 0.6, 0.25), -- 2D for the target: ShockDart_Charge, high
-		-- The smite, ~120 studs: the crack ("Synth Thunder Cracks Individual Explosion Booms 5") ...
-		strike = cue(9126082854, 1, 0.95, nil, 120, 1.2),
-		-- ... the boom body ("Mortar Explosion 3", pitched down) ...
-		boom = cue(9116973611, 1, 0.7, nil, 110, 1.4),
-		-- ... the rolling tail ("Artillery Distant 2": deep booms, "possible use: thunder") ...
-		rumble = cue(9113169432, 0.8, 0.9, nil, 140, 3.5),
-		-- ... and the sizzle ("Lightning Flashes Quick Electrical Bursts 11").
-		sizzle = cue(9116276051, 0.9, 1, nil, 80, 1.2),
-		zap = cue(9119594571, 0.8, 1.1, nil, 70, 0.6, 0.6), -- a chain arc ("Static Zap Blast 2")
-		stormBolt = cue(9126082854, 0.8, 1.2, nil, 90, 0.8), -- a Storm Call bolt: the crack, higher
-		fizzle = cue(9119595114, 0.5, 1.15, nil, 40, 0.6, 0.4), -- Stim_ZoneEnd
+		beacon = cue(98083541993391, 0.45, 1, true, 35), -- the landed orb, charged (seamless 2 s)
+		latch = cue(90182350448197, 0.8, 1, nil, 70),
+		warning = cue(104640240744110, 0.7), -- 2D for the marked player
+		charge = cue(123995347013332, 0.75, 1, nil, 100, nil, 0.3), -- the storm gathering; ends on the crack
+		strike = cue(104561703314523, 1, 1, nil, 140), -- THE SMITE
+		zap = cue(114941522983814, 0.75, 1, nil, 70), -- a Chain Lightning arc
+		stormBolt = cue(83468006084538, 0.8, 1, nil, 100), -- a glitched Storm Call bolt
+		fizzle = cue(99436252023193, 0.5, 1, nil, 40),
 	}),
 	Flash = table.freeze({
 		-- Flash_Equip: you, the pin pulled as it comes up. "Grenade Pull Pin 2"

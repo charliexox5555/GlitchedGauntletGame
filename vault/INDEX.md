@@ -99,7 +99,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [Draft Duels Launch Art](02%20Art/Draft%20Duels%20Launch%20Art.md) (37) covers the 11 references, 12 paired thumbnail concepts, five launch picks, icon tests and editable scenes.
 - `02 Art/Art Direction.md` (17): style rules, palette, model standard, Blender → Open Cloud → WeaponBuilder import pipeline
 - `02 Art/UI Design.md` (13): UI look, tokens, type, Figma screens (v1 approved)
-- `02 Art/UI Art Brief (ChatGPT).md` (14): UI art made with ChatGPT images
+- `02 Art/UI Art Brief (ChatGPT).md` (17.11 KB): UI art made with ChatGPT images, including the Smoke and Electric Shock battle pass art and asset IDs
 - `02 Art/Win Cutscene.md` (29): **end-of-match winner cutscene** (2026-11-20, 1-5 winners by performance, clip checker/fixer): song accents measured, sound-accent cues (F4 CUTSCENE), shot list A-E on the hits, low hero final pose, how it's built (Config/WinCutscene, Util/WinCutscene, tools/anim/win_clips.py), per-map `WinnerStage` spot, 2-5 player slots, captures, Studio preview, what to test
 - `02 Art/Style Bible.md` (9): **the whole look and feel on one page** (pillars, models, guns, feedback/VFX, sound, UI); start here for anything players see or hear
 - [Draft Duels Logo](02%20Art/Draft%20Duels%20Logo.md): title lettering, Lobby Gold and Arcade Mint palettes, layered artwork, UI sprites and title motion
@@ -252,3 +252,4 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Abilities/Smoke.md` (2): battle pass power (free tier 10): smoke dome that blocks sight; numbers, paths, look and sound
 - `01 Design/Abilities/Electric Shock.md` (2): battle pass power (premium tier 20): lock-on orb, warning ring, lightning strike; numbers, paths, look and sound
 - `02 Art/Mod Props - Smoke and Electric Shock.md` (3): Blender models for the two pass powers: parts, attachments, asset ids, grades
+- `02 Art/Power Sounds - Smoke and Electric Shock.md` (3): designed sound cues for the two pass powers: layers, lengths, asset ids

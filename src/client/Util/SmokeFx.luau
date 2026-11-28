@@ -33,7 +33,15 @@ local GLITCH = Color3.fromHex("FF3BD4")
 local PUFFS_PER_STUD = 2.6 -- puffs per stud of radius (28 at radius 11)
 local TALL = 1.2 -- the dome stands this much taller than its radius: a round smoke ball, not a flat mound
 
-type Puff = { part: BasePart, base: Vector3, home: Vector3, size: number, spin: Vector3, bob: number }
+type Puff = {
+	part: BasePart,
+	base: Vector3,
+	home: Vector3,
+	size: number,
+	spin: Vector3,
+	bob: number,
+	delay: number, -- s after the pop this puff bursts out of the canister (the opening rolls out, not all at once)
+}
 type Cloud = {
 	at: Vector3,
 	radius: number,
@@ -49,9 +57,16 @@ type Cloud = {
 	wisps: ParticleEmitter,
 	static: ParticleEmitter?,
 	hum: ModAudio.Hum?,
+	faded: boolean, -- the thinning-out sound has played
 }
 
 local clouds: { Cloud } = {}
+
+local function backOut(x: number): number
+	local c1 = 1.4
+	local c3 = c1 + 1
+	return 1 + c3 * (x - 1) ^ 3 + c1 * (x - 1) ^ 2
+end
 local folder: Folder? = nil
 local veil: Frame? = nil
 
@@ -176,6 +191,25 @@ function SmokeFx.pop(
 	gush.Parent = shell
 	gush:Emit(40)
 
+	-- the opening jet: a column of smoke shooting straight up out of the canister before it spreads
+	local jet = smokeEmitter(wispColor)
+	jet.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+	jet.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1.2),
+		NumberSequenceKeypoint.new(1, radius * 0.5),
+	})
+	jet.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	jet.Lifetime = NumberRange.new(0.5, 0.8)
+	jet.Speed = NumberRange.new(radius * 2.2, radius * 3)
+	jet.SpreadAngle = Vector2.new(14, 14)
+	jet.EmissionDirection = Enum.NormalId.Top
+	jet.Drag = 3
+	jet.Parent = shell
+	jet:Emit(16)
+
 	-- wisps rolling off the dome's surface for its whole life
 	local wisps = smokeEmitter(wispColor)
 	wisps.Shape = Enum.ParticleEmitterShape.Sphere
@@ -234,6 +268,7 @@ function SmokeFx.pop(
 		wisps = wisps,
 		static = static,
 		hum = ModAudio.hum(ModSounds.Smoke.loop, shell),
+		faded = false,
 	}
 	local dome = kit("Dome")
 	if dome then
@@ -265,6 +300,8 @@ function SmokeFx.pop(
 				rng:NextNumber(-0.12, 0.12)
 			),
 			bob = rng:NextNumber(0, math.pi * 2),
+			-- the top and the near ring come first, the far base last
+			delay = (if low then 0.12 else 0) + rng:NextNumber(0, 0.28),
 		})
 	end
 	ModAudio.play(ModSounds.Smoke.pop, at)
@@ -300,11 +337,18 @@ function SmokeFx.step()
 			table.remove(clouds, i)
 			continue
 		end
-		local size = if c.grow > 0 then math.clamp(age / c.grow, 0, 1) else 1
+		-- the shell swells in just behind the first puffs
+		local size = if c.grow > 0 then math.clamp((age - 0.12) / c.grow, 0, 1) else 1
 		size = 1 - (1 - size) ^ 3 -- ease out: it bursts, then settles
 		local left = c.duration - age
 		local thin = if c.fade > 0 then math.clamp(1 - left / c.fade, 0, 1) else 0
 		local r = c.radius * size * (1 - 0.15 * thin)
+		if thin > 0 and not c.faded then
+			c.faded = true
+			ModAudio.stopHum(c.hum)
+			c.hum = nil
+			ModAudio.play(ModSounds.Smoke.fade, c.at)
+		end
 		if c.dome then
 			c.dome.Size = c.domeBase * math.max(r, 0.05) * Vector3.new(1, TALL, 1)
 			c.dome.CFrame = CFrame.new(c.at + Vector3.new(0, c.domeBase.Y * r * TALL * 0.5, 0))
@@ -312,10 +356,15 @@ function SmokeFx.step()
 			c.dome.Transparency = thin
 		end
 		for _, puff in c.puffs do
+			-- each puff bursts out of the canister on its own beat and overshoots a touch (Back), then settles
+			local pk = math.clamp((age - puff.delay) / 0.55, 0, 1)
+			local out = backOut(pk)
 			local drift = Vector3.new(0, math.sin(age * 0.5 + puff.bob) * 0.35, 0)
-			local s = math.max(puff.size * size * (1 + 0.04 * math.sin(age * 0.8 + puff.bob)), 0.05)
+			local s = math.max(puff.size * out * (1 + 0.04 * math.sin(age * 0.8 + puff.bob)), 0.02)
 			puff.part.Size = puff.base * s
-			puff.part.CFrame = CFrame.new(c.at + puff.home * size * Vector3.new(1, TALL, 1) + drift)
+			local from = c.at + Vector3.new(0, 0.6, 0)
+			local home = c.at + puff.home * Vector3.new(1, TALL, 1) * math.min(out, 1.05) + drift
+			puff.part.CFrame = CFrame.new(from:Lerp(home, math.clamp(out, 0, 1.05)))
 				* CFrame.Angles(puff.spin.X * age, puff.spin.Y * age + puff.bob, puff.spin.Z * age)
 			puff.part.Transparency = thin
 		end

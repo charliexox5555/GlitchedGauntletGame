@@ -1037,6 +1037,114 @@
   "type": "Audio",
   "uploaded": "2026-11-22 19:09:38"
  },
+ "art-source/audio/powers/shock_beacon.wav": {
+  "assetId": 98083541993391,
+  "name": "PowerSfx_shock_beacon",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:35"
+ },
+ "art-source/audio/powers/shock_chain.wav": {
+  "assetId": 114941522983814,
+  "name": "PowerSfx_shock_chain",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:49"
+ },
+ "art-source/audio/powers/shock_charge.wav": {
+  "assetId": 123995347013332,
+  "name": "PowerSfx_shock_charge",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:43"
+ },
+ "art-source/audio/powers/shock_equip.wav": {
+  "assetId": 97739926489588,
+  "name": "PowerSfx_shock_equip",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:27"
+ },
+ "art-source/audio/powers/shock_fizzle.wav": {
+  "assetId": 99436252023193,
+  "name": "PowerSfx_shock_fizzle",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:55"
+ },
+ "art-source/audio/powers/shock_flight.wav": {
+  "assetId": 130377876115693,
+  "name": "PowerSfx_shock_flight",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:32"
+ },
+ "art-source/audio/powers/shock_latch.wav": {
+  "assetId": 90182350448197,
+  "name": "PowerSfx_shock_latch",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:38"
+ },
+ "art-source/audio/powers/shock_storm_bolt.wav": {
+  "assetId": 83468006084538,
+  "name": "PowerSfx_shock_storm_bolt",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:52"
+ },
+ "art-source/audio/powers/shock_strike.wav": {
+  "assetId": 104561703314523,
+  "name": "PowerSfx_shock_strike",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:46"
+ },
+ "art-source/audio/powers/shock_throw.wav": {
+  "assetId": 75507586897589,
+  "name": "PowerSfx_shock_throw",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:29"
+ },
+ "art-source/audio/powers/shock_warning.wav": {
+  "assetId": 104640240744110,
+  "name": "PowerSfx_shock_warning",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:41"
+ },
+ "art-source/audio/powers/smoke_bounce.wav": {
+  "assetId": 110046631197699,
+  "name": "PowerSfx_smoke_bounce",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:15"
+ },
+ "art-source/audio/powers/smoke_equip.wav": {
+  "assetId": 101935654980168,
+  "name": "PowerSfx_smoke_equip",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:07"
+ },
+ "art-source/audio/powers/smoke_fade.wav": {
+  "assetId": 71521032542266,
+  "name": "PowerSfx_smoke_fade",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:24"
+ },
+ "art-source/audio/powers/smoke_loop.wav": {
+  "assetId": 99862269286591,
+  "name": "PowerSfx_smoke_loop",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:21"
+ },
+ "art-source/audio/powers/smoke_pin.wav": {
+  "assetId": 79594259801062,
+  "name": "PowerSfx_smoke_pin",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:10"
+ },
+ "art-source/audio/powers/smoke_pop.wav": {
+  "assetId": 104298404322375,
+  "name": "PowerSfx_smoke_pop",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:18"
+ },
+ "art-source/audio/powers/smoke_throw.wav": {
+  "assetId": 106804208488163,
+  "name": "PowerSfx_smoke_throw",
+  "type": "Audio",
+  "uploaded": "2026-11-27 20:50:12"
+ },
  "art-source/audio/riftforge/bundle_v1/RFO_cycle_01.wav": {
   "assetId": 108236908299258,
   "name": "RFO_cycle_01",
@@ -4541,6 +4649,12 @@
   "type": "Decal",
   "uploaded": "2026-11-16 17:28:59"
  },
+ "art-source/ui/chatgpt/out/cards/ElectricShock.png": {
+  "assetId": 73378586356313,
+  "name": "ModCard_v2_ElectricShock",
+  "type": "Decal",
+  "uploaded": "2026-11-27 20:47:28"
+ },
  "art-source/ui/chatgpt/out/cards/Firewall.png": {
   "assetId": 129552967752567,
   "name": "ModCard_v2_Firewall",
@@ -4595,6 +4709,12 @@
   "type": "Decal",
   "uploaded": "2026-11-16 17:29:55"
  },
+ "art-source/ui/chatgpt/out/cards/Smoke.png": {
+  "assetId": 131403163399801,
+  "name": "ModCard_v2_Smoke",
+  "type": "Decal",
+  "uploaded": "2026-11-27 20:47:22"
+ },
  "art-source/ui/chatgpt/out/cards/Stim.png": {
   "assetId": 131559448586115,
   "name": "ModCard_v2_Stim",
@@ -4612,6 +4732,12 @@
   "name": "GG UI chatgpt icons Dash",
   "type": "Decal",
   "uploaded": "2026-11-04 00:34:55"
+ },
+ "art-source/ui/chatgpt/out/icons/ElectricShock.png": {
+  "assetId": 133975856532482,
+  "name": "ModIcon_ElectricShock",
+  "type": "Decal",
+  "uploaded": "2026-11-27 20:47:31"
  },
  "art-source/ui/chatgpt/out/icons/Firewall.png": {
   "assetId": 117593260088843,
@@ -4666,6 +4792,12 @@
   "name": "ModIcon_ShockDart",
   "type": "Decal",
   "uploaded": "2026-11-16 17:30:10"
+ },
+ "art-source/ui/chatgpt/out/icons/Smoke.png": {
+  "assetId": 109555789802494,
+  "name": "ModIcon_Smoke",
+  "type": "Decal",
+  "uploaded": "2026-11-27 20:47:25"
  },
  "art-source/ui/chatgpt/out/icons/Stim.png": {
   "assetId": 94330961139710,

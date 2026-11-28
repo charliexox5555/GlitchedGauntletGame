@@ -18,5 +18,6 @@ Owner spec 2026-11-26 ([Battle Pass Season 1 Contents](../Battle%20Pass%20Season
 
 ## Look and sound
 - Blender canister (`ReplicatedStorage.Abilities.Smoke`, vent on top, a pin that flies off) and the smoke kit (`SmokeVFX`: faceted puffs and a dome shell). `client/Util/SmokeFx` draws them **unlit** (lit faceted grey read as a rock pile), heaps puffs round the base and over a 1.2× tall dome, and rolls `SMOKE_2x2` wisps off the whole surface.
-- Sounds (`Config/ModSounds.Smoke`, unauditioned): throw, lob, bounce, the extinguisher gush of the pop, a low hiss while it stands.
-- **Icon / draft card art:** ChatGPT (owner). Prompts in [UI Art Brief (ChatGPT)](../../02%20Art/UI%20Art%20Brief%20%28ChatGPT%29.md).
+- **Opening (2026-11-27):** a jet of smoke shoots up out of the canister, then the puffs burst out one after another with a small overshoot and the shell swells in behind them.
+- Sounds: designed cues (`tools/audio/design_powers.py`, [Power Sounds](../../02%20Art/Power%20Sounds%20-%20Smoke%20and%20Electric%20Shock.md)): a pressurised pfsshh burst with a low whump, a soft rolling hiss while it stands, an exhale as it thins.
+- **Icon / draft card art:** ChatGPT (in; [UI Art Brief (ChatGPT)](../../02%20Art/UI%20Art%20Brief%20%28ChatGPT%29.md)).

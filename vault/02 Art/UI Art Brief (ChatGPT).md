@@ -139,3 +139,16 @@ Two new cards and two new icons, matching the v2 set. Until they're in, the game
 > - **ElectricShock:** a small caged orb with a lightning bolt striking down beside it.
 
 **When they come back:** save as `art-source/ui/chatgpt/cards_v2/Smoke.png`, `ElectricShock.png` and `icons/Smoke.png`, `icons/ElectricShock.png`; run `python tools/ui_chatgpt.py`; upload with `tools/opencloud/upload_asset.py --type Decal`; put the image ids in `Config/Theme CARD_ART` and `Config/Mods` `icon` (Claude can do these steps).
+
+### Result (2026-11-27)
+
+Generated the card subjects with built-in ImageGen using Molly for the cel-shaded style and the Blender renders for the prop shapes. Prompted for transparent foregrounds with two or three tones per facet, a compact cool-grey smoke dome behind the canister, and a caged electric orb tethered to a floor ring with a separate vertical strike. Composited both subjects onto the original stage. The bottom 35% matches the backdrop pixel for pixel. Drew the two white glyphs with angular silhouettes and checked them at 40 px.
+
+The masters are in `art-source/ui/chatgpt/cards_v2/` (1024 × 768) and `art-source/ui/chatgpt/icons/` (512 × 512 RGBA). Processed with `tools/ui_chatgpt.py` and uploaded to group `11116787`. Studio resolved the decals to these image IDs.
+
+| Power | Icon image | Card image |
+| --- | --- | --- |
+| Smoke | `87413779436618` | `78382067563573` |
+| Electric Shock | `117234325736326` | `106021352683291` |
+
+Wired through `Config/Mods` and `Config/Theme`. All four images preloaded successfully from those configs in the Draft Duels Studio Play Solo client.

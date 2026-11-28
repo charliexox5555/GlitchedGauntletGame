@@ -61,6 +61,7 @@ local UpgradeFx = require(script.Parent.Parent.Util.UpgradeFx)
 local ModVfx = require(script.Parent.Parent.Util.ModVfx)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local CameraController = require(script.Parent.CameraController)
+local HudController = require(script.Parent.HudController)
 
 local ModFxController = {}
 
@@ -1013,6 +1014,30 @@ local function onShockStrike(data: { [string]: any })
 		data.storm == true
 	)
 	blastShake(at, 12, 1.3, 6) -- a smite: a big shake for anyone near
+	-- your own smite: hit markers and damage numbers like a gun hit (owner 2026-11-27)
+	if data.caster == player then
+		local hitTarget = if typeof(target) == "Instance" then target else nil
+		local damage = if typeof(data.damage) == "number" then data.damage else 0
+		local killed = data.killed == true
+		HudController.hitMarker(true) -- the red, emphasised marker
+		if killed then
+			HudController.killMarker()
+		end
+		if damage > 0 then
+			HudController.damageNumber(damage, true, at, killed, hitTarget)
+		end
+		local chainDamage = if typeof(data.chainDamage) == "number" then data.chainDamage else 0
+		for i, p in points(data.chain) do
+			task.delay(0.1 * i, function()
+				HudController.hitMarker(false)
+				HudController.damageNumber(chainDamage, false, p, false, nil)
+			end)
+		end
+		local splashDamage = if typeof(data.splashDamage) == "number" then data.splashDamage else 0
+		for _, p in points(data.splash) do
+			HudController.damageNumber(splashDamage, false, p, false, nil)
+		end
+	end
 end
 
 local function onFlashPop(data: { [string]: any })
@@ -1117,6 +1142,15 @@ local function onFx(kind: unknown, data: unknown)
 		if typeof(d.at) == "Vector3" then
 			ShockStrikeFx.stormBolt(d.at, if typeof(d.radius) == "number" then d.radius else 4)
 			blastShake(d.at, 6, 0.6, 4)
+			local hits = d.hits
+			if d.caster == player and typeof(hits) == "table" and typeof(d.damage) == "number" then
+				for _, p in hits :: { any } do
+					if typeof(p) == "Vector3" then
+						HudController.hitMarker(false)
+						HudController.damageNumber(d.damage, false, p, false, nil)
+					end
+				end
+			end
 		end
 	elseif kind == "ShockFizzle" then
 		cutFlight("ElectricShock", d.start)

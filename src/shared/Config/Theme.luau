@@ -109,6 +109,8 @@ return table.freeze({
 		ShockDart = "rbxassetid://113581888121712",
 		Flash = "rbxassetid://106074677525394",
 		Roller = "rbxassetid://117734954987735",
+		Smoke = "rbxassetid://78382067563573",
+		ElectricShock = "rbxassetid://106021352683291",
 	} :: { [string]: string }),
 
 	-- Side renders of each gun, muzzle to the right (Config/Weapons ids).

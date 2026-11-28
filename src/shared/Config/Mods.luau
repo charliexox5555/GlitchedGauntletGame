@@ -571,7 +571,7 @@ local defs: { [string]: ModDef } = {
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
-		icon = "rbxassetid://120858417740479", -- stand-in: the Blender model's white silhouette (art-source/ui/chatgpt/stand_in/Smoke.png) until the ChatGPT icon
+		icon = "rbxassetid://87413779436618", -- ChatGPT icon (art-source/ui/chatgpt/icons/Smoke.png; UI Art Brief (ChatGPT) → Result 2026-11-27)
 		glyph = "SM",
 		hint = { primary = "Throw", alt = "Lob" },
 		quickCast = "Primary",
@@ -647,7 +647,7 @@ local defs: { [string]: ModDef } = {
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
-		icon = "rbxassetid://116369759560167", -- stand-in silhouette (art-source/ui/chatgpt/stand_in/ElectricShock.png) until the ChatGPT icon
+		icon = "rbxassetid://117234325736326", -- ChatGPT icon (art-source/ui/chatgpt/icons/ElectricShock.png)
 		glyph = "ES",
 		hint = { primary = "Throw", alt = "Lob" },
 		quickCast = "Primary",
