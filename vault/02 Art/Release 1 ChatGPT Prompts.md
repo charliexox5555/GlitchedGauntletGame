@@ -5,7 +5,39 @@ Prompts for the art release #1 still needs. The thumbnail history and ad results
 - **What loses:** ability and draft-card thumbnails (0.6–1.4%) and added explosions or muzzle blasts (a 3.4% image fell to 0.9%).
 - So the new ones build on the winner and change one thing: the Season 1 skins.
 
-One chat per prompt. Attach the files listed, in order, then paste.
+## The one-chat handoff (owner, 2026-11-28: "give me just the chat")
+Open one new ChatGPT chat. **Attach these 7 files** (in this order), then paste the message below. ChatGPT makes the images one at a time; say "next" after each one you're happy with.
+1. `art-source/ui/shop/new/starter_contents.png`
+2. `art-source/ui/item-portraits/Bulldog_Payload.png`
+3. `art-source/ui/shop/crates/crate_standard_card.png`
+4. `art-source/ui/shop/boxes/box_strike.png`
+5. `art-source/marketing/draft-duels/thumbnail-v10/exports/03_v10_gold_barrel_closeup_clean.png`
+6. `art-source/ui/item-portraits/Vandal_Arcade_HD.png`
+7. `art-source/ui/item-portraits/Vandal_Frostbite_HD.png`
+
+```
+I'm making launch art for my own Roblox shooter, Draft Duels. I've attached 7 images. Make 4 images for me, ONE AT A TIME, and wait for me to say "next" before starting the next one. Rules for all of them: every gun, case and box must match its attached image exactly (they are real in-game models: same shape, colours and details, never redesigned). Stylised, clean, crisp, high contrast, one clear focal point. No real brand logos, no extra effects, no explosions, no particles unless I ask.
+
+IMAGE 1 - Starter Bundle shop art. Match image 1 exactly for canvas (1600x1000, transparent background), framing, camera angle, lighting and style. Replace its contents with: the gun in image 2 (the "Payload Lancer") large and angled across the middle as the hero; behind it, slightly smaller and overlapping a little, the case in image 3 and the box in image 4, upright; a small stack of the same gold coins as image 1 at the front corner. Soft studio light, a gentle gold rim light. No text.
+
+IMAGE 2 - Season 1 thumbnail (1920x1080). Image 5 is my best-performing thumbnail. Remake it changing ONLY the gun: the fighter now holds the gun in image 6 (the "Arcade Havoc": purple arcade-cabinet rifle, neon edges, pixel screen, arcade buttons). Keep the same gold block fighter, pose, camera, forced-perspective barrel close-up, red laser, crimson glare, sunlit arena and uncluttered look. The gun's neon can glow softly. Add only "SEASON 1" small in the top-left corner, heavy white sans-serif with a slight dark shadow.
+
+IMAGE 3 - the same as IMAGE 2 but with the gun in image 7 (the "Frostbite Havoc": faceted ice crystal over dark metal, cold blue-white glow). Swap the crimson glare for an icy blue-white glare; everything else identical to IMAGE 2.
+
+IMAGE 4 - Starter Bundle icon, 512x512 square: the gun from image 2 large and centred on a dark violet-navy background with a soft gold rim light, the case and box small behind it. No text.
+```
+
+**Where each goes:**
+1. Shop art: Claude uploads it and swaps `ShopCatalog.ART.starterContents`.
+2. Thumbnail #1 for the Creator Dashboard and ads.
+3. Thumbnail #2, to test against #2.
+4. The Starter Bundle product icon. Claude uploads it with the new product description (Open Cloud needs the icon in the same call).
+
+Put the finished files in `art-source/marketing/release1/` (or tell Claude where they are).
+
+---
+
+The single prompts below are the same jobs one at a time, kept for reference. For those: one chat per prompt, attach the files listed, in order, then paste.
 
 ---
 

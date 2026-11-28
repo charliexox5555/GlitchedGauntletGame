@@ -98,6 +98,36 @@ The owner wants this update to be the polished first release. Checked against th
 - pass analytics (view → buy);
 - set `Season.STARTS_AT` and `BATTLE_PASS_OPEN`.
 
+## Final check before release #1 (2026-11-28)
+**Verified in Studio:**
+- **Battle pass end to end:** a fresh pass with premium at tier 30, then CLAIM ALL, paid 44 rewards on both tracks.
+  - Coins: +7,000 from the tracks, plus 500 for each Arcade tier this test save already owned.
+  - 3 goodie bags, 2 Standard Cases, 1 Elite Case, 1 Apex Case, 3 Tickets.
+  - Smoke and Electric Shock.
+  - The 8 pass charms.
+  - 4 Frostbite skins, the Frostbite Knife included, plus the FROSTBITTEN title equipped.
+  - Arcade and Frostbite have models and portraits on all 14 guns (the Knife too). Arcade rolls only pick owned guns. No pass reward is missing art. All 32 charms are in `ReplicatedStorage.Charms`.
+  - The pass screen has its phone layout (Phone* attributes).
+- **Starter Bundle v2** granted correctly and only once. The Shop-load bug is fixed.
+- **Join:** a cold join has data at +0.1 s and the loading screen done at +5.4 s.
+- **Lint and build:** stylua, selene (0 warnings) and rojo build pass.
+- **Removed:** the RIVALS name tag reference (`Workspace.NametagGui`, it would have shipped), `PlateMigrationBackup` and `WeaponSyncBackup`.
+
+**Before publishing, in order:**
+1. **[O] Pass at launch:** open Season 1 on day one (set `Season.STARTS_AT` and `Release.BATTLE_PASS_OPEN = true`), or a soft launch with it closed (the earlier plan).
+2. **[O] ChatGPT images:** the one-chat handoff in [Release 1 ChatGPT Prompts](../02%20Art/Release%201%20ChatGPT%20Prompts.md#the-one-chat-handoff-owner-2026-11-28-give-me-just-the-chat): Starter Bundle shop art, 2 Season 1 thumbnails, the Starter Bundle icon. **[C]** then uploads them, swaps the Shop art and updates the Starter Bundle's product description and icon.
+3. **[O] Charm swing tuning:** uncommitted changes in `CharmRig`, `GunAnimator`, `ViewmodelRig` and `tools/studio/FixCharmPoints` (the charms work). Rojo already syncs them into Studio, so they ship. Keep (commit) or drop them.
+4. **[O] Your checks:**
+   - a 2-player Local Server (name tags, titles);
+   - a real phone and a controller through a match and the new screens;
+   - the audio reel `art-source/audio/release1/_Reel.wav`;
+   - the unexplained `Workspace.Arrows` part (an invisible Beam part at z −1634).
+5. **[O] Save the place** (many Studio edits: CLAIM ALL, the profile TITLE plate, name tags, the cleanups).
+6. **[O] Push `main`** (180+ commits).
+7. **[O] Publish, then shut down all servers** (Creator Dashboard → Servers): `PlayerData.VERSION` is 2, so old servers can't write new saves.
+8. **[O] Store page:** the description (in the prompts note), the new thumbnails, and the maturity questionnaire.
+9. **After:** watch the Creator Dashboard Error Report, `Onboarding_v3`, D1 and playtime for 2-3 days. Run Play Ads with the new thumbnails against the 4.5% winner.
+
 ## Phase 1: finish Season 1 content (the battle pass has to be complete before it opens)
 1. **The two pass powers [C+O]** (built 2026-11-27, icons and card art in; left: the owner's sound audition). Smoke (free tier 10) and Electric Shock (premium tier 20). Each power needs:
    - design numbers in `01 Design/Abilities/`;
