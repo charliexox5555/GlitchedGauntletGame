@@ -169,3 +169,22 @@ ChatGPT made the set from the prompt above (sources and a contact sheet in `art-
 | Inkshift | mecha visor with an ink stroke | 92911837408821 |
 
 Checked in Studio play: every emblem loads, tinted in its line colour, on the gun cards (14 px), the header (30), the SKIN tile (64) and the skin tiles (32). On the previewed tile it turns ink.
+
+## Release #1 fixes (2026-11-28, owner's phone + PC test)
+
+The Locker v3 (`LockerV3Controller`), six notes from the owner's release test. Studio-tested on desktop and with the `ForceLayout = "phone"` switch; real phone sizes still need the owner's Device Emulator check.
+
+| Owner's note | Fix |
+|---|---|
+| "Side bar of guns should not show up when you have knife selected" | KNIFE hides the LOADOUT / PRIMARY / SECONDARY column and opens its skin strip at once (skins are all the knife has). |
+| "Should be an easy one click out of the locker somewhere" | The lobby's round close button (`Util/CloseButton`, drawn X) right of the coins, always there; one click closes. At least 46 px on a phone. Back / gamepad B still step out of the strip first, then close. |
+| "Should be able to see skins and charms for weapons you don't have unlocked" | SKIN and CHARM open on every gun. A locked gun shows solid while you browse (the lock plate comes back when the strip closes). Nothing equips on a locked gun; UNLOCK / TRY stay the way to use them. |
+| "More clear when you have a skin that you actually don't have unlocked" | Unowned tiles carry a grey **NOT OWNED** tag; while one is previewed a line over the strip reads **NOT OWNED** (red) · tier · "GET IT FROM SKIN CASES / THE SHOP / THE BATTLE PASS" (charms: the pass or a Strike / Overdrive box), and EQUIP turns into a dark **PREVIEW ONLY**. A locked gun's preview reads "PREVIEW · UNLOCK THE PUMP TO USE IT". Closing the strip puts the gun back in what you own. |
+| Phone: coin overlaps price, Back / Skin / Charm under the iPhone home bar, text off its box, the knife card over the gun list | Touch screens get a boost (`Lobby/Config.LOCKER_TOUCH`: phone 1.3, tablet 1.1) and `homeGap` 18 px above the bottom safe area. The gun list gets shorter instead of the column smaller, and stops above the round buttons where they share its width. The right column shrinks only to stay between the coins and the buttons. The skin strip now fills the space between the columns, or (narrower than 640 design px: every phone and tablet) takes the gun list's place while open. The coin and price share one right-aligned box sized to the drawn number. Any label whose text doesn't fit steps its size down (to 60%). |
+| "When I left the locker in the range on PC there was still a blur" | Range → LOADOUT → LOCKER → close: the Router reopens LOADOUT (with its blur) at once, the Locker's close then re-enabled that screen and called `ArmedHideController.refresh()`, which hid it while armed. The blur stayed with no menu on screen, and LOADOUT stayed hidden until the player left the Range. Opening the Locker from the bar skipped this, so it "did not happen every time". The Locker now calls the refresh only when the zone changed while it was open (the pad-duel case it was added for). Checked: LOADOUT comes back over the blur and closing it clears the blur. |
+
+Layout math for the brief's sizes (same code as `fit()`): 667x375 scale 0.45, list 456 design px, strip replaces the list (430 px wide); 844x390 (notch) 0.47; 932x430 0.52; iPad 1024x768 0.78. None of them overlap. Body text on a 375-tall phone is still small (13 design px ≈ 6 px): if the owner wants it bigger, raise `phoneBoost`; the lists and the right column already make room.
+
+Captures: [locked gun skin](Locker/2026-11-28/01%20locked%20gun%20skin%20preview.jpg) · [charm not owned](Locker/2026-11-28/02%20charm%20not%20owned%20preview%20only.jpg) · [knife](Locker/2026-11-28/03%20knife%20tab.jpg) · [Range: LOADOUT back after the Locker](Locker/2026-11-28/04%20range%20loadout%20back%20after%20locker.jpg) · [phone switch](Locker/2026-11-28/05%20phone%20layout%20switch.jpg).
+
+Not done: the close button is made in code (`CloseButton.make`), not in the Studio template yet.

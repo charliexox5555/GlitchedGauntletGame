@@ -52,10 +52,12 @@ local SkinStore = require(ReplicatedStorage.Shared.SkinStore)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local UiLayout = require(ReplicatedStorage.Shared.UiLayout)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
+local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local RangeTransition = require(script.Parent.Parent.Util.RangeTransition)
 local PowerCardFace = require(script.Parent.Parent.Util.PowerCardFace)
 local CharmThumbnail = require(script.Parent.Parent.Util.CharmThumbnail)
@@ -148,6 +150,29 @@ local modBusy = false
 local toast: TextLabel? = nil
 -- the confirm window's purpose ("unlock" a gun or buy a "level") and the level price it showed
 local Confirm = { kind = "unlock", price = 0 }
+-- Release-test fixes (2026-11-28, vault/02 Art/UI Locker.md → "Release #1 fixes"), kept in one table for Luau's
+-- 200-local limit: `wide` = the skin strip takes the gun list's place (a narrow screen), `note` = the line over
+-- the strip naming what's only a preview, `openZone` = the PlayZone the Locker opened in, `resetClose` = the
+-- close button's hover reset, and the functions defined further down.
+local Ui = {
+	wide = false,
+	note = nil :: TextLabel?,
+	openZone = nil :: string?,
+	previewGun = "",
+	previewText = "",
+	sideScale = 1,
+	rightRoom = 0,
+	rightTop = 0,
+	resetClose = function() end,
+	preview = function() end,
+	skinSource = function(_gunId: string, _line: string): string
+		return ""
+	end,
+	shrink = function(_root: Instance) end,
+	sizeClose = function(_d: number) end,
+	fit = function() end,
+	fitRight = function() end,
+}
 
 local function find(parent: Instance, path: string): Instance
 	local node: Instance = parent
@@ -657,7 +682,6 @@ local function refreshGunPanel()
 	ownedPanel.Visible = owned
 	lockedPanel.Visible = not owned
 	powerPanel.Visible = false
-	lockPlate.Visible = not owned
 	local role = LoadoutConfig.ROLES[id]
 	if mode == "knife" then
 		setDetails(
@@ -678,12 +702,6 @@ local function refreshGunPanel()
 	end
 	local equipHolder = find(ownedPanel, "Equip") :: Frame
 	equipHolder.Visible = mode ~= "knife"
-	local equipButton = find(equipHolder, "Button")
-	if id == g.primary or id == g.secondary then
-		paint(equipButton, DARK, "EQUIPPED", false)
-	else
-		paint(equipButton, GOLD, "EQUIP", true)
-	end
 	local actionsCard = find(ownedPanel, "Actions") :: Frame
 	actionsCard.Visible = mode ~= "knife"
 	if mode == "knife" then
@@ -706,14 +724,20 @@ local function refreshGunPanel()
 	end
 	fillOverview(id)
 	refreshLevelCard(id)
-	previewLine = if owned then equippedLine(id) else "Stock"
-	previewCharm = if owned and mode ~= "knife" then (equippedCharm(id) or "") else ""
-	showGun(id, previewLine, not owned, previewCharm)
+	-- a skin or charm being previewed in the open strip stays on the gun (a coin or save change refreshes this panel)
+	if not (stripMode ~= "none" and Ui.previewGun == id) then
+		previewLine = if owned then equippedLine(id) else "Stock"
+		previewCharm = if owned and mode ~= "knife" then (equippedCharm(id) or "") else ""
+	end
+	Ui.previewGun = id
+	showGun(id, previewLine, not owned and stripMode == "none", previewCharm)
+	Ui.preview()
 	if stripMode == "skins" then
 		refreshSkins()
 	elseif stripMode == "charms" then
 		refreshCharms()
 	end
+	task.defer(Ui.shrink, right)
 end
 
 local function selectGun(id: string)
@@ -780,7 +804,10 @@ refreshSkins = function()
 		set(t, "Name", "TextTransparency", if e.owned then 0 else 0.35)
 		set(t, "Art", "Image", SkinArt.side(gunId, line) or Theme.GUN[gunId] or "")
 		set(t, "Art", "ImageTransparency", if e.owned then 0 else 0.45)
-		set(t, "On", "Visible", e.owned and gunOwned and line == on)
+		local onTag = find(t, "On") :: TextLabel
+		onTag.Visible = (e.owned and gunOwned and line == on) or not e.owned
+		onTag.Text = if e.owned then "EQUIPPED" else "NOT OWNED"
+		onTag.TextColor3 = if e.owned then CYAN else LOCKED_ROLE
 		local tier = if line == "Stock" then nil else SkinCases.tierOf(gunId, line)
 		local tierDef = tier and SkinsConfig.TIERS[tier]
 		local tierLabel = t:FindFirstChild("Tier")
@@ -800,23 +827,19 @@ refreshSkins = function()
 		end
 		t.Activated:Connect(function()
 			previewLine = line
-			showGun(gunId, line, not gunOwned, previewCharm)
+			showGun(gunId, line, false, previewCharm) -- (a locked gun shows solid while you browse its skins)
+			-- owned skin on an owned gun: equip it. Anything else is a preview: Ui.preview() says so.
 			if e.owned and gunOwned and line ~= equippedLine(gunId) then
 				LobbyNet.event("LockerRequest"):FireServer("equip", gunId, line)
-			elseif not e.owned then
-				local lineDef = SkinsConfig.LINES[line]
-				local where = if lineDef and lineDef.pass
-					then "the battle pass"
-					elseif tierDef and not tierDef.inCases then "bundles"
-					else "skin cases"
-				say(`{if tierDef then tierDef.name else "SKIN"} · from {where}`)
 			end
 			refreshSkins()
+			Ui.preview()
 		end)
 		hoverTint(t)
 		t.Parent = skinStrip
 		table.insert(skinTiles, t)
 	end
+	task.defer(Ui.shrink, skinStrip)
 end
 
 local RARITY_ORDER: { [string]: number } = {
@@ -863,11 +886,12 @@ refreshCharms = function()
 	end
 	noneTile.Activated:Connect(function()
 		previewCharm = ""
-		showGun(gunId, previewLine, not gunOwned, "")
+		showGun(gunId, previewLine, false, "")
 		if gunOwned and currentOn ~= nil then
 			LobbyNet.event("LockerRequest"):FireServer("charm", gunId, "")
 		end
 		refreshCharms()
+		Ui.preview()
 	end)
 	hoverTint(noneTile)
 	noneTile.Parent = skinStrip
@@ -917,10 +941,14 @@ refreshCharms = function()
 
 		local onLabel = t:FindFirstChild("On")
 		if onLabel and onLabel:IsA("TextLabel") then
-			if isOwned and gunOwned and cid == currentOn then
+			onLabel.TextColor3 = if isOwned then CYAN else LOCKED_ROLE
+			if not isOwned then
+				onLabel.Visible = true
+				onLabel.Text = "NOT OWNED"
+			elseif gunOwned and cid == currentOn then
 				onLabel.Visible = true
 				onLabel.Text = "EQUIPPED"
-			elseif isOwned and #usedGuns >= e.copies and #usedGuns > 0 then
+			elseif #usedGuns >= e.copies and #usedGuns > 0 then
 				onLabel.Visible = true
 				onLabel.Text = "ON " .. string.upper(gunName(usedGuns[1]))
 			else
@@ -945,26 +973,108 @@ refreshCharms = function()
 		end
 		t.Activated:Connect(function()
 			previewCharm = cid
-			showGun(gunId, previewLine, not gunOwned, cid)
+			showGun(gunId, previewLine, false, cid)
 			if isOwned and gunOwned and cid ~= currentOn then
 				LobbyNet.event("LockerRequest"):FireServer("charm", gunId, cid)
-			elseif not isOwned then
-				local where = CharmsConfig.SOURCE_LABEL[def.source] or "CHALLENGES"
-				say(`{string.upper(def.rarity)} CHARM · FROM {where}`)
 			end
 			refreshCharms()
+			Ui.preview()
 		end)
 		hoverTint(t)
 		t.Parent = skinStrip
 		table.insert(skinTiles, t)
 	end
+	task.defer(Ui.shrink, skinStrip)
+end
+
+-- Where a skin comes from, in the words the Shop and the pass use.
+function Ui.skinSource(gunId: string, line: string): string
+	local lineDef = SkinsConfig.LINES[line]
+	local tier = SkinCases.tierOf(gunId, line)
+	local tierDef = tier and SkinsConfig.TIERS[tier]
+	local where = if lineDef and lineDef.pass
+		then "THE BATTLE PASS"
+		elseif tierDef and not tierDef.inCases then "THE SHOP"
+		else "SKIN CASES"
+	local what = if tierDef then string.upper(tierDef.name) .. " SKIN" else "SKIN"
+	return `{what}  ·  GET IT FROM {where}`
+end
+
+-- What's on the stage that you can't use yet, said plainly (owner 2026-11-28: "It should be more clear when you
+-- have a skin that you actually don't have unlocked"): a line over the strip while it's open, EQUIP turns into
+-- PREVIEW ONLY, and a locked gun keeps its lock unless its skins are being browsed.
+function Ui.preview()
+	local note = Ui.note
+	if mode == "powers" then
+		lockPlate.Visible = false
+		if note then
+			note.Visible = false
+		end
+		return
+	end
+	local g = guns()
+	local gunId = skinGun()
+	local gunOwned = mode == "knife" or g.owned[gunId] == true
+	local red = `<font color="#FF5A4E">NOT OWNED</font>`
+	local text = ""
+	if stripMode ~= "none" then
+		if not PlayerData.owns(PlayerData.skins(player), gunId, previewLine) then
+			text = `{red}  ·  {Ui.skinSource(gunId, previewLine)}`
+		elseif
+			mode == "guns"
+			and previewCharm ~= ""
+			and PlayerData.charmCopies(PlayerData.charms(player), previewCharm) <= 0
+		then
+			local def = CharmsConfig.get(previewCharm)
+			local source = def and CharmsConfig.SOURCE_LABEL[def.source]
+			local where = if not source
+				then "THE SHOP"
+				elseif def and def.source == "BattlePass" then "THE " .. source
+				else "A " .. source
+			text = `{red}  ·  CHARM  ·  GET IT FROM {where}`
+		elseif not gunOwned then
+			text = `PREVIEW  ·  UNLOCK THE {string.upper(gunName(gunId))} TO USE IT`
+		end
+	end
+	Ui.previewText = text
+	if note then
+		note.Text = text
+		note.Visible = text ~= ""
+	end
+	local t = toast
+	if t then
+		t.Position = UDim2.new(0.5, 0, 0, if text ~= "" then -142 else -104)
+	end
+	lockPlate.Visible = mode == "guns" and not gunOwned and stripMode == "none"
+	local equipButton = find(ownedPanel, "Equip.Button")
+	if text ~= "" then
+		paint(equipButton, DARK, "PREVIEW ONLY", false)
+	elseif gunId == g.primary or gunId == g.secondary then
+		paint(equipButton, DARK, "EQUIPPED", false)
+	else
+		paint(equipButton, GOLD, "EQUIP", true)
+	end
 end
 
 local function setStripMode(nextMode: "none" | "skins" | "charms")
+	local was = stripMode
 	stripMode = nextMode
 	local open = nextMode ~= "none"
 	skinStrip.Visible = open
 	set(bottom, "Hint", "Visible", not open)
+	-- the knife has no gun list; on a narrow screen the open strip takes the list's place (fit() sets Ui.wide)
+	set(left, "Guns", "Visible", mode == "guns" and not (open and Ui.wide))
+	if open then
+		overviewCard.Visible = false -- (the strip sits where a long right column would end)
+		if was == "none" and mode == "guns" and not guns().owned[selectedGun] then
+			showGun(selectedGun, previewLine, false, previewCharm) -- a locked gun shows solid while browsed
+		end
+	elseif was ~= "none" and (mode == "knife" or GunLoadout.slotOf(selectedGun)) then
+		refreshGunPanel() -- a preview ends with its strip: the gun goes back to what you own
+	end
+	if open and was == "none" then
+		skinStrip.CanvasPosition = Vector2.zero -- every strip starts at its left end
+	end
 	if nextMode == "skins" then
 		refreshSkins()
 		UiMotion.slideIn(skinStrip, 0, 40, 0, 0.26)
@@ -972,6 +1082,7 @@ local function setStripMode(nextMode: "none" | "skins" | "charms")
 		refreshCharms()
 		UiMotion.slideIn(skinStrip, 0, 40, 0, 0.26)
 	end
+	Ui.preview()
 end
 
 -- powers -----------------------------------------------------------------------------------------------------------
@@ -1129,7 +1240,8 @@ local function setMode(newMode: Mode)
 		end
 	end
 	local gunsMode = newMode ~= "powers"
-	set(left, "Guns", "Visible", gunsMode)
+	-- the gun list only on GUNS (owner 2026-11-28: "Side bar of guns should not show up when you have knife selected")
+	set(left, "Guns", "Visible", newMode == "guns")
 	set(left, "Powers", "Visible", not gunsMode)
 	set(bottom, "GunBar", "Visible", gunsMode)
 	set(bottom, "PowerBar", "Visible", not gunsMode)
@@ -1148,7 +1260,15 @@ local function setMode(newMode: Mode)
 	targetYaw, targetPitch = 0, 0
 	setStripMode("none")
 	-- the new tab's list and cards come in from their sides
-	UiMotion.slideIn(find(left, if gunsMode then "Guns" else "Powers") :: GuiObject, -40, 0, 0, 0.3)
+	if newMode ~= "knife" then
+		UiMotion.slideIn(
+			find(left, if gunsMode then "Guns" else "Powers") :: GuiObject,
+			-40,
+			0,
+			0,
+			0.3
+		)
+	end
 	UiMotion.slideIn(find(right, "Stack") :: GuiObject, 40, 0, 0.03, 0.3)
 	if gunsMode then
 		if newMode == "knife" then
@@ -1158,6 +1278,12 @@ local function setMode(newMode: Mode)
 		end
 		refreshGunRows()
 		refreshGunPanel()
+		if newMode == "knife" then
+			setStripMode("skins") -- skins are all the knife has: its strip opens with the tab
+		end
+		if isOpen then
+			Ui.fit() -- the strip's room depends on the gun list showing
+		end
 	else
 		CharmRig.destroy(stageCharm)
 		stageCharm = nil
@@ -1208,20 +1334,37 @@ end
 
 -- Phones (vault/02 Art/UI Device Check 2026-11-27.md): the screen is edge to edge (ScreenInsets None, so the stage
 -- and shades cover the notch), but the panels keep to the device safe area, and the left column starts under
--- Roblox's top-bar buttons (on a 401 px tall phone its loadout card sat under them). Desktop is unchanged.
-local LIST_TOP, LIST_BOTTOM = 96, 1056 -- design px: the left column's content (Loadout / Deck to the list's foot)
+-- Roblox's top-bar buttons (on a 401 px tall phone its loadout card sat under them).
+-- Release test 2026-11-28 (owner on phones: text overlap, Back / Skin / Charm under the iPhone's home bar, the skin
+-- strip over the gun list): on touch screens the panels are boosted (Config.LOCKER_TOUCH), the bottom bar keeps
+-- `homeGap` above the home indicator, the lists get shorter instead of the column smaller, the right column shrinks
+-- only if its cards would reach the coins or the round buttons, and the strip fills the space between the columns
+-- (or takes the gun list's place when that's too narrow). Desktop keeps its layout; only the strip now stops at the
+-- columns.
+local LIST_TOP = 96 -- design px: the left column's top (Loadout / Deck)
 local EDGE_GAP = 6 -- px between Roblox's buttons and our panels
 local function place(obj: GuiObject, pos: UDim2)
 	StateValues.set(obj, "Home", pos) -- UiMotion.slideIn eases to the home
 	obj.Position = pos
 end
+-- design px inside Left / Bottom (the Studio template): the lists' tops, the shortest list, the column's width,
+-- and the round buttons' top above Bottom's foot
+local COLUMN = { gunsList = 276, powersList = 394, minList = 150, width = 480, gunBar = 136 }
 local function fit()
 	local size = gui.AbsoluteSize
 	local s = size.Y / 1080
+	local touchCfg = LobbyConfig.LOCKER_TOUCH
+	local family = UiLayout.family()
+	local touch = family == "Phone" or family == "Tablet"
+	local boost = if family == "Phone"
+		then touchCfg.phoneBoost
+		elseif family == "Tablet" then touchCfg.tabletBoost
+		else 1
+	local sb = s * boost
 	for _, c in gui:GetChildren() do
 		local u = c:FindFirstChild("Fit")
 		if u and u:IsA("UIScale") then
-			u.Scale = s
+			u.Scale = sb
 		end
 	end
 	-- the safe area and Roblox's buttons, in this screen's pixels
@@ -1229,32 +1372,92 @@ local function fit()
 	local safe = GuiService:GetInsetArea(Enum.ScreenInsets.DeviceSafeInsets)
 	local padL, padR = math.max(safe.Min.X - full.Min.X, 0), math.max(full.Max.X - safe.Max.X, 0)
 	local padT, padB = math.max(safe.Min.Y - full.Min.Y, 0), math.max(full.Max.Y - safe.Max.Y, 0)
+	if touch then
+		padB += touchCfg.homeGap -- the home indicator / gesture bar (not every phone reports it as unsafe)
+	end
 	local inset = GuiService.TopbarInset
 	local guiTop = full.Min.Y + GuiService:GetGuiInset().Y -- TopbarInset is screen pixels
 	local barBottom = if inset.Height > 0 then inset.Max.Y - guiTop else padT
 	local barRight = if inset.Height > 0 then inset.Min.X - full.Min.X else 0
-	local usable = math.max(size.Y - padT - padB, 1)
 
-	-- left column: under Roblox's buttons, shrunk just enough to keep its foot on screen
+	-- the bottom bar's round buttons, in screen px
+	local barTop = size.Y - padB - COLUMN.gunBar * sb
+	local gunBar = find(bottom, "GunBar") :: GuiObject
+	local barLeft = size.X / 2 + (gunBar.Position.X.Offset - 380) * sb
+
+	-- left column: under Roblox's buttons; its lists get shorter before it gets smaller, and it stops above the
+	-- round buttons where they share its width (a narrow phone)
 	local listTop = math.max(barBottom + EDGE_GAP, padT)
-	local fitL = math.min(s, (size.Y - padB - EDGE_GAP - listTop) / (LIST_BOTTOM - LIST_TOP))
+	local function columnFit(foot: number): number
+		return math.min(sb, (foot - listTop) / (COLUMN.powersList - LIST_TOP + COLUMN.minList))
+	end
+	local foot = size.Y - padB - EDGE_GAP
+	local fitL = columnFit(foot)
+	if padL + COLUMN.width * fitL + EDGE_GAP > barLeft then
+		foot = barTop - EDGE_GAP
+		fitL = columnFit(foot)
+	end
 	local leftFit = left:FindFirstChild("Fit")
 	if leftFit and leftFit:IsA("UIScale") then
 		leftFit.Scale = fitL
 	end
-	place(left, UDim2.fromOffset(padL, math.max(padT, listTop - LIST_TOP * fitL)))
-	-- right column and coins: inside the safe area
-	local sideFit = usable / 1080
-	local rightFit = right:FindFirstChild("Fit")
-	if rightFit and rightFit:IsA("UIScale") then
-		rightFit.Scale = math.min(s, sideFit)
+	local room = (foot - listTop) / fitL + LIST_TOP -- the column's foot in its own design px
+	for _, spec in
+		{
+			{ path = "Guns.List", top = COLUMN.gunsList },
+			{ path = "Powers.List", top = COLUMN.powersList },
+		}
+	do
+		local list = find(left, spec.path) :: GuiObject
+		local base = list:GetAttribute("BaseHeight")
+		if typeof(base) ~= "number" then
+			base = list.Size.Y.Offset
+			list:SetAttribute("BaseHeight", base)
+		end
+		local h = math.clamp(room - spec.top, COLUMN.minList, base :: number)
+		list.Size = UDim2.new(list.Size.X, UDim.new(0, math.floor(h)))
 	end
+	place(left, UDim2.fromOffset(padL, math.max(padT, listTop - LIST_TOP * fitL)))
+	-- right column (its cards sit at the foot of a 1080 frame) and coins: inside the safe area, the cards above
+	-- the round buttons where those reach under them (a narrow phone) and below the coins; Ui.fitRight
+	Ui.sideScale = sb
+	local gunBarRight = size.X / 2 + (gunBar.Position.X.Offset + gunBar.Size.X.Offset - 380) * sb
+	local rightLeft = size.X - padR - 472 * sb
+	Ui.rightRoom = (if gunBarRight + EDGE_GAP > rightLeft then barTop else size.Y - padB)
+		- EDGE_GAP
+		- padT
+	Ui.rightTop = 110 * sb -- the coins' row
 	place(right, UDim2.new(1, -padR, 0, padT))
+	Ui.fitRight()
+	Ui.sizeClose(math.max(58, 46 / sb))
 	local topRight = gui:FindFirstChild("TopRight")
 	if topRight and topRight:IsA("GuiObject") then
 		place(topRight, UDim2.new(1, -padR, 0, padT))
 	end
 	place(bottom, UDim2.new(0.5, 0, 1, -padB))
+	-- the skin strip: between the columns, or (too narrow) from the left edge in the gun list's place
+	local leftEdge = padL + COLUMN.width * fitL + 12
+	local rightEdge = size.X - padR - 472 * (find(right, "Fit") :: UIScale).Scale - 12
+	local wide = (rightEdge - leftEdge) / sb < touchCfg.stripMin
+	if mode ~= "guns" then
+		leftEdge = size.X - rightEdge -- no gun list (KNIFE): centred on the screen
+	elseif wide then
+		leftEdge = padL + 12
+	end
+	local stripW = math.min(1060, (rightEdge - leftEdge) / sb)
+	local stripX = ((leftEdge + rightEdge) / 2 - size.X / 2) / sb
+	skinStrip.Size =
+		UDim2.new(0, math.floor(stripW), skinStrip.Size.Y.Scale, skinStrip.Size.Y.Offset)
+	skinStrip.Position = UDim2.new(0.5, math.floor(stripX), 0, 30)
+	local note = Ui.note
+	if note then
+		note.Position = UDim2.new(0.5, math.floor(stripX), 0, -104)
+		note.Size = UDim2.fromOffset(math.max(math.floor(stripW), 400), note.Size.Y.Offset)
+	end
+	if wide ~= Ui.wide then
+		Ui.wide = wide
+		set(left, "Guns", "Visible", mode == "guns" and not (stripMode ~= "none" and wide))
+	end
 	-- the title + tabs: centred, slid right if their left end reaches Roblox's buttons
 	local topX = 0
 	local title = top:FindFirstChild("Title")
@@ -1276,7 +1479,61 @@ local function fit()
 	local box = confirmFrame and confirmFrame:FindFirstChild("Box")
 	local u = box and box:FindFirstChild("Fit")
 	if u and u:IsA("UIScale") then
-		u.Scale = s
+		u.Scale = sb
+	end
+	task.defer(Ui.shrink, gui)
+end
+Ui.fit = fit
+
+-- The right column at its side scale, unless its cards (an open Overview) would run into the strip: then just
+-- small enough to stop above it. Runs again when the cards change height.
+function Ui.fitRight()
+	local rightFit = right:FindFirstChild("Fit")
+	local layout = find(right, "Stack"):FindFirstChildOfClass("UIListLayout")
+	if not (rightFit and rightFit:IsA("UIScale") and layout) then
+		return
+	end
+	local want = Ui.sideScale
+	local designH = layout.AbsoluteContentSize.Y / math.max(rightFit.Scale, 0.01)
+	if designH > 1 and Ui.rightRoom > Ui.rightTop then
+		want = math.min(want, (Ui.rightRoom - Ui.rightTop) / designH)
+	end
+	if math.abs(rightFit.Scale - want) > 0.002 then
+		rightFit.Scale = want
+	end
+	-- the frame ends where the cards may: their foot lands on the room's foot (never lower than the template's)
+	local h = math.min(1080, Ui.rightRoom / rightFit.Scale + 28)
+	if math.abs(right.Size.Y.Offset - h) > 0.5 then
+		right.Size = UDim2.new(right.Size.X, UDim.new(0, h))
+	end
+end
+
+-- Text that runs past its box steps down until it fits (phones draw small text wider than its design size:
+-- release test 2026-11-28, "Text goes off the screen on some phones like their container").
+function Ui.shrink(root: Instance)
+	if not isOpen then
+		return
+	end
+	for _, d in root:GetDescendants() do
+		if
+			(d:IsA("TextLabel") or d:IsA("TextButton"))
+			and d.Text ~= ""
+			and not d.TextScaled
+			and not d.TextWrapped
+			and d.AutomaticSize == Enum.AutomaticSize.None
+		then
+			local base = d:GetAttribute("BaseTextSize")
+			if typeof(base) ~= "number" then
+				base = d.TextSize
+				d:SetAttribute("BaseTextSize", base)
+			end
+			local size = base :: number
+			d.TextSize = size
+			while not d.TextFits and size > (base :: number) * 0.6 do
+				size -= 1
+				d.TextSize = size
+			end
+		end
 	end
 end
 
@@ -1352,9 +1609,20 @@ local function reveal(arg: any?)
 	dof = d
 	RunService:BindToRenderStep("LockerV3", Enum.RenderPriority.Last.Value, onRender)
 	gui.Enabled = true
+	Ui.openZone = PlayZone.get(player)
+	Ui.resetClose()
 	fit()
 	hideOthers()
 	table.insert(openConnections, gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit))
+	local stackLayout = find(right, "Stack"):FindFirstChildOfClass("UIListLayout")
+	if stackLayout then
+		table.insert(
+			openConnections,
+			stackLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				task.defer(Ui.fitRight) -- an Overview opened or closed
+			end)
+		)
+	end
 	table.insert(
 		openConnections,
 		RunService.Heartbeat:Connect(function()
@@ -1383,8 +1651,13 @@ local function conceal()
 		end
 	end
 	table.clear(hiddenGuis)
-	-- closed by a pad duel or the range starting: the lobby screens go to ArmedHide, not back on screen
-	ArmedHideController.refresh()
+	-- closed by a pad duel or the range starting: the lobby screens go to ArmedHide, not back on screen. Only
+	-- when the zone changed while it was open: closed in the Range, the LOADOUT menu it came from reopens at once
+	-- (LoadoutController), and a refresh here hid that screen under the Router's blur (owner 2026-11-28: "When I
+	-- left the locker in the range on PC there was still a blur on my screen").
+	if PlayZone.get(player) ~= Ui.openZone then
+		ArmedHideController.refresh()
+	end
 	if dof then
 		dof:Destroy()
 		dof = nil
@@ -1464,6 +1737,34 @@ local function buildGunRows()
 	local ownedTpl = find(list, "RowOwned") :: GuiButton
 	local lockedTpl = find(list, "RowLocked") :: GuiButton
 	ownedTpl.Visible, lockedTpl.Visible = false, false
+	-- The coin and its price share one right-aligned box sized to the drawn number (phones drew "3,500" wider than
+	-- its 72 px box, into the coin: release test 2026-11-28).
+	local coinArt, priceText = lockedTpl:FindFirstChild("Coin"), lockedTpl:FindFirstChild("Price")
+	if coinArt and coinArt:IsA("GuiObject") and priceText and priceText:IsA("TextLabel") then
+		local box = Instance.new("Frame")
+		box.Name = "PriceBox"
+		box.BackgroundTransparency = 1
+		box.AnchorPoint = Vector2.new(1, 0.5)
+		box.Position = UDim2.fromOffset(
+			priceText.Position.X.Offset + priceText.Size.X.Offset,
+			priceText.Position.Y.Offset + priceText.Size.Y.Offset / 2
+		)
+		box.Size = UDim2.fromOffset(0, coinArt.Size.Y.Offset)
+		box.AutomaticSize = Enum.AutomaticSize.X
+		local row = Instance.new("UIListLayout")
+		row.FillDirection = Enum.FillDirection.Horizontal
+		row.VerticalAlignment = Enum.VerticalAlignment.Center
+		row.SortOrder = Enum.SortOrder.LayoutOrder
+		row.Padding = UDim.new(0, 6)
+		row.Parent = box
+		coinArt.LayoutOrder = 1
+		coinArt.Parent = box
+		priceText.LayoutOrder = 2
+		priceText.Size = UDim2.fromOffset(0, priceText.Size.Y.Offset)
+		priceText.AutomaticSize = Enum.AutomaticSize.X
+		priceText.Parent = box
+		box.Parent = lockedTpl
+	end
 	local headP = list:FindFirstChild("HeadPRIMARY") :: GuiObject?
 	local headS = list:FindFirstChild("HeadSECONDARY") :: GuiObject?
 	local order = 0
@@ -1485,7 +1786,7 @@ local function buildGunRows()
 				lv.Visible = false -- weapon levels: build order step 3
 			end
 		else
-			local price = row:FindFirstChild("Price")
+			local price = row:FindFirstChild("Price", true)
 			if price and price:IsA("TextLabel") then
 				price.Text = commas(GunLoadout.price(id) or 0)
 			end
@@ -1792,7 +2093,47 @@ function LockerV3Controller.start()
 	toast = if t and t:IsA("TextLabel") then t else nil
 	if toast then
 		toast.Visible = false
+		-- the preview line over the strip (Ui.preview): the toast's look, steady, with a red NOT OWNED
+		local note = toast:Clone()
+		note.Name = "PreviewNote"
+		note.RichText = true
+		note.TextSize = 20
+		note.TextTransparency = 0 -- (the template rests faded out)
+		note:SetAttribute("At", nil)
+		note.Parent = bottom
+		Ui.note = note
 	end
+	-- One click out, always in the same place (owner 2026-11-28: "Should be an easy one click out of the locker
+	-- somewhere"): the lobby's round close button right of the coins. Back / B still step out of the strip first.
+	local topRight = find(gui, "TopRight") :: Frame
+	topRight.Size = UDim2.fromOffset(372, topRight.Size.Y.Offset)
+	local coinsPlate = find(topRight, "Coins") :: GuiObject
+	local closeButton = CloseButton.make(topRight, Vector2.zero, 58)
+	-- `d` design px across, right of the coins (fit() makes it at least 46 screen px on a phone)
+	function Ui.sizeClose(d: number)
+		local coinsRight = coinsPlate.Position.X.Offset + coinsPlate.Size.X.Offset
+		topRight.Size =
+			UDim2.fromOffset(math.ceil(coinsRight + 14 + d + 22), topRight.Size.Y.Offset)
+		closeButton.Size = UDim2.fromOffset(d, d)
+		closeButton.Position = UDim2.fromOffset(
+			coinsRight + 14 + d / 2,
+			coinsPlate.Position.Y.Offset + coinsPlate.Size.Y.Offset / 2
+		)
+		local glyph = closeButton:FindFirstChild("Glyph")
+		if glyph and glyph:IsA("GuiObject") then
+			glyph.Size = UDim2.fromOffset(d * 0.42, d * 0.42)
+			for _, bar in glyph:GetChildren() do
+				if bar:IsA("GuiObject") then
+					bar.Size = UDim2.fromOffset(d * 0.42, math.max(4, math.floor(d * 0.07 + 0.5)))
+				end
+			end
+		end
+	end
+	Ui.sizeClose(58)
+	Ui.resetClose = CloseButton.hook(closeButton, function()
+		UiSfx.play("Back")
+		Router.close()
+	end)
 	skinStrip.Position = UDim2.new(0.5, 0, 0, 30) -- above the round buttons, over the drag hint (hidden while open)
 
 	-- not built yet (build order step 3): levels, contracts, statistics, power previews; charms and kill FX
@@ -1912,6 +2253,10 @@ function LockerV3Controller.start()
 	-- EQUIP / UNLOCK / TRY
 	onPress(ownedPanel, "Equip.Button", function()
 		local g2 = guns()
+		if Ui.previewText ~= "" then
+			say("Previewing something you don't own yet")
+			return
+		end
 		if
 			mode == "guns"
 			and g2.owned[selectedGun]
@@ -2027,15 +2372,15 @@ function LockerV3Controller.start()
 			end
 		end)
 	end
+	-- every gun's skins and charms can be browsed, locked or not (owner 2026-11-28: "Should be able to see skins and
+	-- charms for weapons you don't have unlocked, just to see it"); only an owned gun equips them
 	onPress(bottom, "GunBar.Skin.Button", function()
-		local g2 = guns()
-		if mode == "knife" or g2.owned[selectedGun] then
+		if mode ~= "powers" then
 			setStripMode(if stripMode == "skins" then "none" else "skins")
 		end
 	end)
 	onPress(bottom, "GunBar.Charm.Button", function()
-		local g2 = guns()
-		if mode == "guns" and g2.owned[selectedGun] then
+		if mode == "guns" then
 			setStripMode(if stripMode == "charms" then "none" else "charms")
 		end
 	end)
@@ -2058,7 +2403,12 @@ function LockerV3Controller.start()
 				local eq = equippedCharm(selectedGun)
 				if (eq or "") ~= previewCharm and stripMode ~= "charms" then
 					previewCharm = eq or ""
-					showGun(selectedGun, previewLine, not guns().owned[selectedGun], previewCharm)
+					showGun(
+						selectedGun,
+						previewLine,
+						not guns().owned[selectedGun] and stripMode == "none",
+						previewCharm
+					)
 				end
 			end
 			if stripMode == "skins" then

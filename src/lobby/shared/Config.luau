@@ -104,6 +104,11 @@ return table.freeze({
 	-- The Locker v3 (vault/01 Design/Loadout and Power Deck.md, step 2): Controllers/LockerV3Controller owns the
 	-- Locker menu; false gives it back to Locker v4 (Controllers/LockerController, skins only, no gun loadout).
 	LOCKER_V3 = true,
+	-- The Locker v3 on touch screens (release test 2026-11-28: text overlap, the bottom bar under the iPhone's
+	-- home bar). `phoneBoost` / `tabletBoost` multiply the panels' screen-height scale (Shared/UiLayout families);
+	-- `homeGap` px keeps the bottom bar above the home indicator on any touch screen, on top of the safe area;
+	-- `stripMin` design px: a skin strip narrower than this between the columns takes the gun list's place.
+	LOCKER_TOUCH = { phoneBoost = 1.3, tabletBoost = 1.1, homeGap = 18, stripMin = 640 },
 	-- Remote token buckets { perSecond, burst } (Shared/Util/RateLimit).
 	-- Remote token buckets about 2x the fastest honest use; rejects are dropped
 	-- and counted, never kicked (LihFolk: Rate Limiting and Abuse Prevention).
