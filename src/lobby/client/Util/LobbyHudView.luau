@@ -1342,9 +1342,10 @@ local calloutText: string? = nil
 local CALLOUT_GAP = 14 -- px between the tag's pointer and the party circle
 local CALLOUT_MIN_W, CALLOUT_PER_CHAR = 56, 13 -- tag width: base + per letter
 
--- from the item's top middle to the badge's bottom middle; the tag is centred on the icon and kept short so it
--- clears PLAY (owner 2026-11-28: the UNLOCK tag sat off-centre and jammed under PLAY; was 24, 38 at full height)
-local BADGE_DX, BADGE_DY = 0, 46
+-- from the item's top middle to the badge's bottom middle: the tag sits on top of the icon, centred, its pointer
+-- touching the icon's top (owner 2026-11-28: "on top of the locker, not inside of it; it's okay if it overlaps"
+-- PLAY). Was 24, 38, then 0, 46 (inside the icon).
+local BADGE_DX, BADGE_DY = 0, 8
 local BADGE_H = 30
 
 placeCallout = function(s: State, animate: boolean)
