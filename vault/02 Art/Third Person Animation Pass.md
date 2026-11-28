@@ -49,3 +49,10 @@ Owner: the third-person animations (what other players see) "look boring and blo
 - Two real players (a Local Server with 2 clients). The bot (server-posed) and the watcher agree, and players run the same Poses code on their own client.
 - The move layers' counter-twist is tuned for forward walking; in strafes and backpedals (whose hips don't twist) it reads as a shoulder swing.
 - `art-source/uploads.json` holds the 36 new upload records but is not committed: another session has uncommitted entries in it.
+
+## 6. Lobby (nothing in hand), 2026-11-28 later
+Owner: the pass above looks good, but the lobby walk "looks blocky", "goes in and out of walking" and "glitches when you start and while walking". Measured on my own character in a Studio lobby test:
+- **Glitch on the first steps:** a pose track that is still downloading reports `IsPlaying` false, and `trackFor` played it again every frame. Each run clip restarted about 10 times in its first 0.2 s. Fixed: a track's first Play stands (`REPLAY_WAIT` 1 s), and clients preload every pose and leg clip at start (`PoseSim.initialize`).
+- **In and out of walking:** the walk set fades in under the run below 15 studs/s (`WALK_RUN` 12.5-15). Bumps and seams dipped the measured speed to 13 for a frame or two, so the walk set and the unarmed walk arms kept fading in and out mid-run. Fixed: the blends use an eased speed (`SPEED_SMOOTHING` 10/s).
+- **Blocky arms:** `UnarmedWalk`, `UnarmedRun` and `SprintUnarmed` v3 (`_swing_clip`). The forward arm pumps 8-16° in toward the centre line, the elbow folds 0.05 cycles after the shoulder, the chest dips 1.5-3° a beat after each footfall and counter-rolls 2-3°, the head rides level, and there is more twist and lean in the run and sprint. `tp_check`: no arm inside the chest. `tp_measure`: seams pass, worst 343 studs/s².
+- **After (logs):** in four short runs, each clip started once per run, with 0 back-jumps and at most 12 tracks. **Not seen yet:** Studio's 3D view rendered white for this test (Play and Edit; only the UI drew), so there is no capture of the lobby run yet.

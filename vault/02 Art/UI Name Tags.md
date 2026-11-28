@@ -1,6 +1,6 @@
 # UI Name Tags (lobby)
 
-Name tags over every player in the lobby. v2 rebuilt 2026-11-28 after the owner said v1 (gold title, gold level chip, name, orange streak chip on plates, 2026-11-27) "looks so bad". Goal: the RIVALS feel, our own art. **Status: built and Studio-tested (solo), waiting on the owner's OK.**
+Name tags over every player in the lobby. v2 rebuilt 2026-11-28 after the owner said v1 (gold title, gold level chip, name, orange streak chip on plates, 2026-11-27) "looks so bad". Goal: the RIVALS feel, our own art. **Status: owner approved the look 2026-11-28; Studio-tested solo.**
 
 ## What it shows
 Top to bottom, one tight block of floating type (no plates, no chips, no outlines):
