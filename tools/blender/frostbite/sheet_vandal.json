@@ -1,0 +1,10 @@
+[
+  ["finish_core_left.png", "Cryo-core chamber & inspect spires"],
+  ["finish_fore_left.png", "Fore-end glacial shroud & crystals"],
+  ["finish_stock.png", "Glacial skeleton stock"],
+  ["finish_muzzle.png", "Glacial fang muzzle crown"],
+  ["finish_mag.png", "Cryo-sheathed magazine"],
+  ["culled_stock_join.png", "Stock to receiver join (culled)"],
+  ["culled_trigger_join_left.png", "Trigger guard & lower join (culled)"],
+  ["culled_fore_receiver.png", "Fore-end to receiver join (culled)"]
+]
