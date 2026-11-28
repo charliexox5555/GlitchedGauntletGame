@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Frame deck: pixel screen, three buttons, joystick"],
+  ["finish_joystick.png", "Deck joystick and buttons (fixed frame)"],
+  ["finish_coin_door.png", "Coin door (right grip panel)"],
+  ["finish_slide_art.png", "Slide side-art field (left)"],
+  ["finish_muzzle.png", "Stepped muzzle collar and light ring"],
+  ["finish_charm_zone.png", "Charm zone kept clear (moved charm point)"],
+  ["culled_guard_grip_left.png", "Trigger guard to grip, no gap (culled)"],
+  ["culled_base_join.png", "Baseplate to grip seam (culled)"]
+]
