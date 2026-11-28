@@ -2,7 +2,7 @@
 
 Owner: the third-person animations (what other players see) "look boring and blocky", and the upper body / gun hold "sometimes resets to its start randomly and looks glitchy". The slide is good and stays. Pipeline and history: [Third Person Overhaul](../01%20Design/Third%20Person%20Overhaul.md) (clips keyed in `tools/anim/tp_clips.py`, played by `shared/Simulation/Poses`). Taste: animation-oomph (coil, snap, brake, overshoot, settle), third-person-body-taste.
 
-**State:** built, measured and committed on `main` (not pushed). Waiting on the owner's OK of the captures.
+**State:** built, measured and committed on `main` (not pushed). **Owner approved (2026-11-28):** the armed idle / walk / crouch / jump and the lobby (unarmed) walk after the §6 fixes.
 
 ## 1. The random restart (bug, fixed)
 
