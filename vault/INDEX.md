@@ -98,6 +98,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 
 - [Draft Duels Launch Art](02%20Art/Draft%20Duels%20Launch%20Art.md) (37) covers the 11 references, 12 paired thumbnail concepts, five launch picks, icon tests and editable scenes.
 - `02 Art/Art Direction.md` (17): style rules, palette, model standard, Blender → Open Cloud → WeaponBuilder import pipeline
+- `02 Art/UI Name Tags.md` (4): **lobby name tags v2** (2026-11-28): layout, sizes, distance scaling, the RIVALS name tag study
 - `02 Art/UI Design.md` (13): UI look, tokens, type, Figma screens (v1 approved)
 - `02 Art/UI Art Brief (ChatGPT).md` (17.11 KB): UI art made with ChatGPT images, including the Smoke and Electric Shock battle pass art and asset IDs
 - `02 Art/Win Cutscene.md` (29): **end-of-match winner cutscene** (2026-11-20, 1-5 winners by performance, clip checker/fixer): song accents measured, sound-accent cues (F4 CUTSCENE), shot list A-E on the hits, low hero final pose, how it's built (Config/WinCutscene, Util/WinCutscene, tools/anim/win_clips.py), per-map `WinnerStage` spot, 2-5 player slots, captures, Studio preview, what to test

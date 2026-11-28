@@ -11,6 +11,7 @@ Paths below are in the RIVALS file. `UI.` = `StarterPlayer.StarterPlayerScripts.
 - **Match HUD** is cloned per fighter: `FighterInterface` (bottom-left/right/centre, damage indicators, full-screen vignettes for damage, heal, frozen, low-ammo, speed lines), `DuelInterface` (top bar timer/scores/match point/round result, scoreboard, kill feed, voting, final results), `ItemInterface` (mouse + aiming vignette), `Crosshair` (foreground/background/hitmarker).
 - **~150 `…Slot` / `…Card` templates** at the top of `UI.`, each with a matching `Modules.<Name>Slot` that clones and fills it (NotificationSlot, EliminationFeedSlot, ScoreboardPlayerSlot, ShopSlot, BattlePassRewardSlot, CosmeticSlot, WeaponSlot, MatchmakingQueueSlot…).
 - **World-space UI:** 14 BillboardGuis (nametag, damage, teammate label, scope glare) and 9 SurfaceGuis (duels board, leaderboard, likes board, eliminations board, starter-bundle board, shooting-range board, video ads).
+- **Name tag** (studied 2026-11-28, [UI Name Tags](../../02%20Art/UI%20Name%20Tags.md)): BillboardGui sized in studs + px (`{25,100} x {5,20}`), AlwaysOnTop, MaxDistance 32, on the HumanoidRootPart +4; [level badge] · big Bold name with small @username tucked under · [device icon]; streak = flame swapped into the badge slot.
 
 **For us:** the same split we already use (Studio-built templates + a module per screen). Worth copying as a *pattern*: one Slot module per repeated card, pages that live outside the gui until opened, one router (below).
 
