@@ -233,6 +233,7 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 		return
 	end
 	send(player, paid, tier == nil, false)
+	Telemetry.season(player, Telemetry.SEASON.CLAIMED)
 end
 
 function SeasonService.init() end

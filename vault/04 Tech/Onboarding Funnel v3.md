@@ -74,3 +74,12 @@ Workspace `TelemetryLog = true` + `FreshOnboarding = true`, two runs:
   - Steps 16-19 (rounds 6-7).
   - The real reserved-server arrival.
   - Phones.
+
+## Other funnels and events (release 1, 2026-11-28)
+- **`SeasonPass_S1`** (funnel, one session per player): 1 Tier 1 reached → 2 Reward claimed → 3 Premium prompted → 4 Premium bought. Each step once per server (`Telemetry.season`).
+- **"Season tier"** (custom event, value = the tier reached after a match): how far players get through the pass.
+- **"Robux prompt"** (custom event, value = Robux, field 1 = product kind: starter, season, seasonSkip, case, coins, bundle, skin): every purchase prompt the server opens. Roblox's own Monetization page has the purchases, so this gives prompt → purchase per kind.
+- **"Group reward claimed"** (custom event): the Free Rewards gift.
+- Also still live: Match (12 steps), Matchmaking, Case opening, map events, MatchLeft.
+
+**Studio check before release 1:** `FreshOnboarding` and `TelemetryLog`, an idle new player. Steps 1-13 and 20-22 printed in order; match 1 was live at +12.3 s and done at about +2 min; back in the lobby with 506 coins and the Locker UNLOCK callout.

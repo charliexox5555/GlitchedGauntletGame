@@ -112,6 +112,11 @@ end
 
 local function prompt(player: Player, product: Products.Product)
 	MarketplaceService:PromptProductPurchase(player, product.id)
+	-- prompt -> purchase per kind (Roblox logs the purchases themselves); the season pass funnel's step 3
+	Telemetry.event(player, "Robux prompt", product.robux, product.kind)
+	if product.kind == "season" then
+		Telemetry.season(player, Telemetry.SEASON.PROMPTED)
+	end
 end
 
 local function cancelSkinPrompt(player: Player, current: SkinPrompt)
@@ -594,6 +599,9 @@ local function processReceipt(info: { [string]: any }): Enum.ProductPurchaseDeci
 			tonumber(info.CurrencySpent) or 0,
 			product.kind
 		)
+		if product.kind == "season" and text == "PREMIUM PASS UNLOCKED" then
+			Telemetry.season(player, Telemetry.SEASON.BOUGHT)
+		end
 		if
 			promptAtReceipt
 			and promptAtReceipt.productId == product.id

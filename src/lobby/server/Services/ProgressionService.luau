@@ -108,6 +108,7 @@ function ProgressionService.report(
 		local paid = 0
 		local taskPay: TaskPath.Payout? = nil
 		local seasonTiers = 0
+		local seasonTierNow = 0 -- the tier after this match (telemetry)
 		local firstWin = 0
 		local gunGains: { GunLevels.Gain } = {}
 		local ok, why = false, nil :: string?
@@ -139,13 +140,14 @@ function ProgressionService.report(
 				-- a save that still holds an unopened Starter Case keeps it
 				local today = Economy.day(now)
 				if seasonCounts(now) then
-					seasonTiers = SeasonPass.applyMatch(data.season, {
-						liveSeconds = result.liveSeconds or 0,
-						roundsWon = result.roundsWon,
-						won = result.won,
-						left = result.left,
-						botsOnly = not result.counts,
-					}, today)
+					seasonTiers, seasonTierNow =
+						SeasonPass.applyMatch(data.season, {
+							liveSeconds = result.liveSeconds or 0,
+							roundsWon = result.roundsWon,
+							won = result.won,
+							left = result.left,
+							botsOnly = not result.counts,
+						}, today), data.season.tier
 				end
 				if data.earn.day ~= today then
 					data.earn = { day = today, coins = 0 }
@@ -184,6 +186,9 @@ function ProgressionService.report(
 				and g.levelTo >= Onboarding.BEGINNER_MAX_LEVEL
 			then
 				Telemetry.event(player, "Beginner graduated", 1)
+			end
+			if seasonTiers > 0 then
+				Telemetry.seasonTier(player, seasonTierNow)
 			end
 			if not result.left then
 				Telemetry.funnel(player, "Match", matchKey, 12, "Match saved", label)

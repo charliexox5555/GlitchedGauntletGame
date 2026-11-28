@@ -413,7 +413,43 @@ function Telemetry.mapFunnel(
 	end)
 end
 
+-- The Season 1 pass funnel (release 1, 2026-11-28): one funnel session per player per season, each step once
+-- per server. Steps: 1 tier 1 reached, 2 first reward claimed, 3 premium prompted, 4 premium bought.
+local SEASON_FUNNEL = "SeasonPass_S1"
+local SEASON_STEPS = { "Tier 1 reached", "Reward claimed", "Premium prompted", "Premium bought" }
+Telemetry.SEASON = table.freeze({ TIER1 = 1, CLAIMED = 2, PROMPTED = 3, BOUGHT = 4 })
+local seasonSent: { [Player]: { [number]: boolean } } = {}
+
+function Telemetry.season(player: Player, step: number)
+	local title = SEASON_STEPS[step]
+	local sent = seasonSent[player]
+	if not sent then
+		sent = {}
+		seasonSent[player] = sent
+	end
+	if not title or sent[step] then
+		return
+	end
+	sent[step] = true
+	if studioLog() then
+		print(`[Telemetry] {SEASON_FUNNEL} {step}. {title}`)
+	end
+	local id = tostring(player.UserId)
+	emit(function()
+		Analytics:LogFunnelStepEvent(player, SEASON_FUNNEL, id, step, title)
+	end)
+end
+
+-- A tier reached in a match (how far players get through the pass): the tier as the value.
+function Telemetry.seasonTier(player: Player, tier: number)
+	Telemetry.event(player, "Season tier", tier)
+	if tier >= 1 then
+		Telemetry.season(player, Telemetry.SEASON.TIER1)
+	end
+end
+
 Players.PlayerRemoving:Connect(function(player)
+	seasonSent[player] = nil
 	cohort[player] = nil
 	cohortV2[player] = nil
 	cohortV3[player] = nil
