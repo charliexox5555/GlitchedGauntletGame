@@ -782,6 +782,9 @@ Owner: "the animations when no gun is selected (in the lobby) looks bad, it is l
 - **Seen in Studio (lobby, own avatar):** a relaxed idle, pumping sprint arms, low crouch arms. Sprint → slide played SprintUnarmed → SlideInUnarmed → SlideUnarmed → SlideOutUnarmed and no rifle clip.
 - **Open:** armed walk / run has no upper-body bob (the holds only breathe); jump and fall use the Movement clips' arms.
 
+## 27. Livelier pass and the restart bug (2026-11-28)
+The upper body snapping back to the start mid-stride (leg clips followed whichever clip was heaviest, often one that had just started at 0) is fixed with a stride clock per Animator; a stream of hits no longer restarts the flinch. Idle weight shift, a breathing crouch, more bounce in the walk and crouch walk, a squash-and-spring jump, bigger breathing holds and new holds on the move (`AimMove`, `PistolAimMove`, `KnifeMove`). Slide unchanged. [Third Person Animation Pass](../02%20Art/Third%20Person%20Animation%20Pass.md)
+
 ## Progress log
 - 2026-11-12 03:05: §0 fixed. Plan written. Stopped at 03:10 (usage limit).
 - 2026-11-12 05:50 to 06:45: resumed. Body, accessory filter, rig tool, 40 clips, upload, wiring, engine review. Studio left in Edit with `TestMode = false`, `DevThirdPerson` cleared, preview folders removed. Nothing committed.
