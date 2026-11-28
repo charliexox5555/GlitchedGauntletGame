@@ -82,7 +82,7 @@ end
 local gui: BillboardGui = new("BillboardGui", {
 	Name = "NameTag",
 	Size = UDim2.fromOffset(520, 140),
-	StudsOffsetWorldSpace = Vector3.new(0, 2.9, 0), -- from the HumanoidRootPart: just over the head
+	StudsOffsetWorldSpace = Vector3.new(0, 2.9, 0), -- only for a body with no Head (from the HumanoidRootPart)
 	SizeOffset = Vector2.new(0, 0.5), -- the bottom edge sits on that point at any distance
 	MaxDistance = 50,
 	LightInfluence = 0,
@@ -95,6 +95,7 @@ gui:SetAttribute("RefDistance", 14) -- studs where the tag is drawn at 1:1
 gui:SetAttribute("MinScale", 0.55)
 gui:SetAttribute("MaxScale", 1.6)
 gui:SetAttribute("Falloff", 0.7) -- < 1: shrinks slower than the world, so far tags stay readable
+gui:SetAttribute("HeadGap", 0.5) -- the controller pins the tag this far over the top of the Head
 gui:SetAttribute("DetailScale", 0.8) -- the @username hides below this size
 
 local root: Frame = new("Frame", {

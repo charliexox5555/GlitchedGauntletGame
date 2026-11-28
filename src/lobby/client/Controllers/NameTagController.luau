@@ -3,8 +3,10 @@
 -- badge, the display name, the win streak (flame + number, only when > 0) and the @username under it.
 -- The template is Studio UI (PlayerScripts.UI.Templates.Lobby.NameTag, a BillboardGui; built by
 -- tools/studio/BuildNameTag.luau). Each player gets ONE client-side copy for as long as they're in the server,
--- kept in a local folder in Workspace and pointed (Adornee) at their current HumanoidRootPart, so respawns only
--- move it and nothing replicates. Shown only while both you and they are in the lobby (Shared/PlayZone: not in
+-- kept in a local folder in Workspace and pointed (Adornee) at their current Head, HeadGap studs over its top, so
+-- respawns only move it and nothing replicates. On the Head, not the HumanoidRootPart: a slide drops the head ~2
+-- studs while the root stays at standing height, so a root-pinned tag floated far over a sliding player (owner
+-- 2026-11-28: "doesn't really move well with you when you slide"). Shown only while both you and they are in the lobby (Shared/PlayZone: not in
 -- the Range or a match), never over your own head in first person. While a tag shows, that player's Roblox name
 -- is hidden on this client and put back when it goes. Size follows distance through the template's UIScale
 -- (RefDistance / MinScale / MaxScale attributes), so the art stays crisp pixel UI.
@@ -23,14 +25,15 @@ local NameTagController = {}
 
 local player = Players.LocalPlayer
 local FIRST_PERSON = 1.5 -- studs from camera to head: you're in first person
-local HEAD_HEIGHT = 1.5 -- head centre above the root part
+local HEAD_HEIGHT = 1.5 -- head centre above the root part (no Head: first-person check only)
 local WATCHED: { [string]: boolean } = { Level = true, WinStreak = true, Title = true }
 
 type Tag = {
 	gui: BillboardGui,
 	scale: UIScale,
 	username: GuiObject?, -- the @name line: close up only
-	root: BasePart?, -- the current character's HumanoidRootPart
+	root: BasePart?, -- the current character's HumanoidRootPart (distance)
+	head: BasePart?, -- what the tag sits on
 	humanoid: Humanoid?,
 	shownName: Enum.HumanoidDisplayDistanceType?, -- the Roblox name setting we replaced
 	conns: { RBXScriptConnection },
@@ -44,6 +47,8 @@ local folder: Folder? = nil
 -- MinScale..MaxScale (Falloff < 1 shrinks slower than the world, so far tags stay readable); the @username
 -- shows only at DetailScale or bigger
 local refDistance, minScale, maxScale, falloff, detailScale = 14, 0.55, 1.6, 0.7, 0.8
+local headGap = 0.5 -- HeadGap attribute: studs between the top of the head and the tag's bottom edge
+local rootOffset = Vector3.new(0, 2.9, 0) -- the template's StudsOffsetWorldSpace: used only with no Head
 
 local function numberOf(p: Player, name: string, default: number): number
 	local v = StateValues.get(p, name)
@@ -105,6 +110,7 @@ local function clearCharacter(tag: Tag)
 	end
 	table.clear(tag.charConns)
 	tag.root = nil
+	tag.head = nil
 	tag.humanoid = nil
 	tag.gui.Enabled = false
 	tag.gui.Adornee = nil
@@ -118,8 +124,22 @@ local function bindCharacter(p: Player, tag: Tag, character: Model)
 		if tags[p] ~= tag or p.Character ~= character then
 			return
 		end
-		if root and root:IsA("BasePart") then
-			tag.root = root
+		if not (root and root:IsA("BasePart")) then
+			return
+		end
+		tag.root = root
+		local head = character:FindFirstChild("Head")
+		if head and head:IsA("BasePart") then
+			-- world-space offset, so the tag stays level whatever the head's tilt; follows the head's size
+			local function place()
+				tag.gui.StudsOffsetWorldSpace = Vector3.new(0, head.Size.Y / 2 + headGap, 0)
+			end
+			place()
+			table.insert(tag.charConns, head:GetPropertyChangedSignal("Size"):Connect(place))
+			tag.head = head
+			tag.gui.Adornee = head
+		else
+			tag.gui.StudsOffsetWorldSpace = rootOffset
 			tag.gui.Adornee = root
 		end
 		if humanoid and humanoid:IsA("Humanoid") then
@@ -207,10 +227,17 @@ local function step()
 	for p, tag in tags do
 		local root = tag.root
 		local gui = tag.gui
-		local show = meInLobby and root ~= nil and root.Parent ~= nil and PlayZone.get(p) == "Lobby"
+		local show = meInLobby
+			and root ~= nil
+			and root.Parent ~= nil
+			and (tag.head == nil or tag.head.Parent ~= nil)
+			and PlayZone.get(p) == "Lobby"
 		local dist = if root then (root.Position - camPos).Magnitude else math.huge
 		if show and p == player and root then
-			local headPos = root.Position + Vector3.new(0, HEAD_HEIGHT, 0)
+			local head = tag.head
+			local headPos = if head
+				then head.Position
+				else root.Position + Vector3.new(0, HEAD_HEIGHT, 0)
 			if (headPos - camPos).Magnitude < FIRST_PERSON then
 				show = false
 			end
@@ -249,6 +276,8 @@ function NameTagController.start()
 	refDistance, minScale, maxScale =
 		attr("RefDistance", refDistance), attr("MinScale", minScale), attr("MaxScale", maxScale)
 	falloff, detailScale = attr("Falloff", falloff), attr("DetailScale", detailScale)
+	headGap = attr("HeadGap", headGap)
+	rootOffset = found.StudsOffsetWorldSpace
 
 	-- made on this client, so it never replicates; the tags live here between respawns
 	local f = Instance.new("Folder")
