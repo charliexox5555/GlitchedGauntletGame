@@ -328,6 +328,10 @@ return table.freeze({
 	-- the blended stride), so this only guards the ends (was 0.6 to 1.5 for the
 	-- run alone, which slid the feet under 10 studs/s).
 	RUN_RATE = table.freeze({ min = 0.25, max = 1.8 }),
+	-- The stride clock every leg clip and arm swing follows (Simulation/Poses): a clip lighter than setBelowWeight
+	-- is set straight onto the clock's phase (unseen); one at weight is pulled in by `pull` (speed change per cycle
+	-- of drift) and snapped only past `snap` cycles; maxStep caps one step's time (a set that was off resumes).
+	STRIDE_CLOCK = table.freeze({ setBelowWeight = 0.1, pull = 3, snap = 0.3, maxStep = 0.1 }),
 	RUN_FROM = 1, -- studs/s where the legs start to move...
 	RUN_FULL = 4, -- ...and where they fully do
 	-- The landing squash: full weight landing at or under fullBelow studs/s,

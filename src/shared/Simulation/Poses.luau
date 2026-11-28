@@ -490,37 +490,91 @@ local function setDirections(
 	end
 end
 
--- Keeps a set of looping leg clips on one cycle: each plays at `cycles` a
--- second and follows the phase of the heaviest one.
-local function inStep(animator: Animator, set: { string }, cycles: number)
-	local lead: AnimationTrack? = nil
-	local leadWeight = -1
-	for _, name in set do
-		local t = playing(animator, name)
-		if t and t.Length > 0 and t.WeightTarget > leadWeight then
-			lead, leadWeight = t, t.WeightTarget
+-- One stride clock per Animator and leg set (the standing gaits, the crouch
+-- walk): its phase (0..1, the right foot lands at 0) and cycles a second. Every
+-- clip of the set, and the arms that swing with it, is driven to this clock.
+-- (2026-11-28, the "upper body restarts" bug: the clips used to follow the
+-- heaviest playing clip's phase, and a clip that had just started (at time 0)
+-- often became the heaviest one, so every other leg clip and the run's
+-- gun-holding upper body snapped back to the start of the cycle mid-stride,
+-- measured up to 0.6 of a cycle on the server and on every watcher.)
+type Clock = { phase: number, cycles: number, at: number }
+local clocks: { [Animator]: { [string]: Clock } } = setmetatable({}, { __mode = "k" }) :: any
+
+local function clockFor(animator: Animator, key: string, seedFrom: { string }): Clock
+	local byKey = clocks[animator]
+	if not byKey then
+		byKey = {}
+		clocks[animator] = byKey
+	end
+	local clock = byKey[key]
+	if not clock then
+		-- A fresh clock takes the phase of a clip already playing (after a
+		-- respawn of this module's state), so nothing jumps.
+		local phase, heaviest = 0, 0
+		for _, name in seedFrom do
+			local t = playing(animator, name)
+			if t and t.Length > 0 and t.WeightCurrent > heaviest then
+				phase, heaviest = t.TimePosition / t.Length, t.WeightCurrent
+			end
 		end
+		clock = { phase = phase, cycles = 0, at = os.clock() }
+		byKey[key] = clock
 	end
-	if not lead then
-		return
-	end
-	local rate = Animations.RUN_RATE
-	local phase = lead.TimePosition / lead.Length
-	for _, name in set do
+	return clock
+end
+
+-- Moves a clock on at `cycles` a second (time since it last moved, capped, so
+-- a set that was off resumes where it stopped).
+local function advance(clock: Clock, cycles: number)
+	local now = os.clock()
+	local dt = math.clamp(now - clock.at, 0, Animations.STRIDE_CLOCK.maxStep)
+	clock.at = now
+	clock.cycles = cycles
+	clock.phase = (clock.phase + cycles * dt) % 1
+end
+
+-- Drives each playing clip of `names` to the clock: a clip still fading in
+-- (too light to see) is set straight onto the phase; one at weight is pulled
+-- in by running it a little faster or slower, so it never pops. Only a big
+-- drift at weight is snapped. `rate` clamps the base speed (the leg clips).
+local function lockTo(
+	animator: Animator,
+	names: { string },
+	clock: Clock,
+	rate: { min: number, max: number }?
+)
+	local tuning = Animations.STRIDE_CLOCK
+	for _, name in names do
 		local t = playing(animator, name)
 		if t and t.Length > 0 then
-			local want = math.clamp(cycles * t.Length, rate.min, rate.max)
+			local base = clock.cycles * t.Length
+			if rate then
+				base = math.clamp(base, rate.min, rate.max)
+			end
+			local drift = (t.TimePosition / t.Length - clock.phase + 0.5) % 1 - 0.5 -- -0.5..0.5 cycles
+			if
+				(t.WeightCurrent < tuning.setBelowWeight and math.abs(drift) > 0.01)
+				or math.abs(drift) > tuning.snap
+			then
+				t.TimePosition = clock.phase * t.Length
+				drift = 0
+			end
+			local want = base * (1 - math.clamp(drift * tuning.pull, -0.5, 0.5))
 			if math.abs(t.Speed - want) > 0.01 then
 				t:AdjustSpeed(want)
 			end
-			if t ~= lead then
-				local drift = (t.TimePosition / t.Length - phase) % 1
-				if drift > 0.04 and drift < 0.96 then
-					t.TimePosition = phase * t.Length
-				end
-			end
 		end
 	end
+end
+
+-- Keeps a set of looping leg clips on one cycle: the set's clock runs at
+-- `cycles` a second and every clip follows it.
+local function inStep(animator: Animator, key: string, set: { string }, cycles: number): Clock
+	local clock = clockFor(animator, key, set)
+	advance(clock, cycles)
+	lockTo(animator, set, clock, Animations.RUN_RATE)
+	return clock
 end
 
 -- Studs one cycle of each leg clip covers (its made-for speed x its length),
@@ -597,75 +651,33 @@ local function stepLegs(
 		end
 	end
 	if total > 0 and stride > 0 then
-		inStep(animator, GAIT_SET, speed / (stride / total))
-	end
-	-- The run's upper body swings with the stride: same rate, same time
-	-- (the clips are one length).
-	local sprintTrack = playing(animator, if unarmed then "SprintRunUnarmed" else "SprintRun")
-	if sprintTrack and sprintTrack.Length > 0 then
-		for _, name in SPRINT_SET do
-			local arms = playing(animator, name)
-			if arms and arms.Length > 0 then
-				if math.abs(arms.Speed - sprintTrack.Speed) > 0.05 then
-					arms:AdjustSpeed(sprintTrack.Speed)
-				end
-				local drift = (arms.TimePosition - sprintTrack.TimePosition) % sprintTrack.Length
-				if drift > 0.04 and drift < sprintTrack.Length - 0.04 then
-					arms.TimePosition = sprintTrack.TimePosition
-				end
-			end
-		end
+		local clock = inStep(animator, "gait", GAIT_SET, speed / (stride / total))
+		-- The run's upper body swings with the stride, on the same clock (its
+		-- right-foot beat is phase 0 like the legs').
+		lockTo(animator, SPRINT_SET, clock, nil)
 	end
 end
 
--- followStride: beyond this share of a cycle the arms jump to the legs' phase;
--- under it they are pulled in at STRIDE_PULL (speed change per cycle of drift).
-local STRIDE_SNAP = 0.3
-local STRIDE_PULL = 3
-
--- Keeps arm swings on the heaviest leg cycle: the same share of a cycle, at
--- the same cycle rate (the right foot lands at phase 0 in every one).
+-- Keeps arm swings on the legs' stride clock (the right foot lands at phase 0
+-- in every one).
 local function followStride(animator: Animator, names: { string })
-	local lead: AnimationTrack? = nil
-	local leadWeight = -1
-	for _, name in GAIT_SET do
-		local t = playing(animator, name)
-		if t and t.Length > 0 and t.WeightTarget > leadWeight then
-			lead, leadWeight = t, t.WeightTarget
-		end
-	end
-	if not lead then
-		return
-	end
-	local phase = lead.TimePosition / lead.Length
-	local cycles = lead.Speed / lead.Length
-	for _, name in names do
-		local t = playing(animator, name)
-		if t and t.Length > 0 then
-			-- Phase-locked, not snapped: a small drift (the lead switching
-			-- between directions or walk and run) is pulled in by running the
-			-- arms a little faster or slower, so the swing never pops. Only a
-			-- big jump (a fresh start) is snapped.
-			local drift = (t.TimePosition / t.Length - phase + 0.5) % 1 - 0.5 -- -0.5..0.5 cycles
-			if math.abs(drift) > STRIDE_SNAP then
-				t.TimePosition = phase * t.Length
-				drift = 0
-			end
-			local want = cycles * t.Length * (1 - math.clamp(drift * STRIDE_PULL, -0.5, 0.5))
-			if math.abs(t.Speed - want) > 0.01 then
-				t:AdjustSpeed(want)
-			end
-		end
+	local byKey = clocks[animator]
+	local clock = byKey and byKey.gait
+	if clock and clock.cycles > 0 then
+		lockTo(animator, names, clock, nil)
 	end
 end
 
--- Lines every leg clip up so its right footfall (phase 0) comes `inSeconds`
--- from now (SlideOut ends in that footfall).
+-- Sets the stride clock so the right footfall (phase 0) comes `inSeconds`
+-- from now (SlideOut ends in that footfall), and every leg clip onto it.
 local function footfallIn(animator: Animator, inSeconds: number)
+	local clock = clockFor(animator, "gait", GAIT_SET)
+	clock.phase = (-inSeconds * clock.cycles) % 1
+	clock.at = os.clock()
 	for _, name in GAIT_SET do
 		local t = playing(animator, name)
 		if t and t.Length > 0 then
-			t.TimePosition = (-inSeconds * t.Speed) % t.Length
+			t.TimePosition = clock.phase * t.Length
 		end
 	end
 end
@@ -949,7 +961,7 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	-- Crouch-walk stride speed follows the ground speed, all eight in step
 	-- (one length, so one cycle rate).
 	local crouchLength = Animations.CROUCH_WALK_LENGTH
-	inStep(animator, CROUCH_SET, speed / (Animations.CROUCH_WALK_SPEED * crouchLength))
+	inStep(animator, "crouch", CROUCH_SET, speed / (Animations.CROUCH_WALK_SPEED * crouchLength))
 end
 
 local function step(dt: number)
