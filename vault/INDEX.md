@@ -132,6 +132,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Lobby V4 Plan.md` (17): **[SUPERSEDED by Lobby V5]** Lobby V4 plan (2026-11-16, history only)
 - `02 Art/Lobby V4 Theme.md` (5): **[SUPERSEDED by Lobby V5]** Lobby V4 theme "Gauntlet Bunker" (history only)
 - `02 Art/Lobby Holograms.md` (6): RIVALS-style hologram stands in the hub (Starter, Tempest-Strike, Battle Pass, Free Rewards): look, placement, budgets, Free Rewards group gift, test results
+- `02 Art/Lobby Lighting Pass.md` (4): **hub lighting overhaul (2026-11-28)**: why players blew out, before/after values, builder `HubLightingPass.luau`, how the Range and matches restore it
 - `02 Art/Lobby V5 Plan.md` (99): **Active Lobby V5 plan** (2026-11-20..23): Parts + MaterialVariants, Blender shells and kit props, Market displays and lighting, Locker armory, Signs v3, Range — **search by section**
 - `02 Art/Lobby V4 Build.md` (39): **[SUPERSEDED by Lobby V5]** Lobby V4 build results in `Workspace.LobbyV4Staging` (history only)
 - `02 Art/Sunwell Works Build.md` (24): **[SUPERSEDED by Lobby V5]** Sunwell Works build log (style rules now live in `gauntlet-build-style`; history only)
