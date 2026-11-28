@@ -73,9 +73,9 @@ ShopCatalog.PACK_BACKDROP = "rbxassetid://111801042683623"
 ShopCatalog.ART = table.freeze({
 	coin = "rbxassetid://126250416946442",
 	coinStack = "rbxassetid://77893326046955",
-	starterContents = "rbxassetid://97381557374007",
+	starterContents = "rbxassetid://131318858440135", -- v2 2026-11-28 (Lancer, Payload, case, Strike Box, coins; art-source/marketing/release1/starter-bundle-shop.png; was 97381557374007)
 	ticket = "rbxassetid://118693853905400", -- the Ticket currency icon (new/ticket.png)
-	starterBanner = "rbxassetid://96454339687407", -- also on HOME's special offer card
+	starterBanner = "rbxassetid://113319281455779", -- v2 2026-11-28 (art-source/marketing/release1/starter-bundle-banner.png); also on HOME's special offer card
 	seasonPass = "rbxassetid://129516715347397",
 })
 
@@ -241,7 +241,7 @@ ShopCatalog.BUNDLES = {
 		slot = "Starter",
 		tag = "NEW PLAYERS",
 		sub = "LANCER + PAYLOAD SKIN + CASE + STRIKE BOX + 1,500 COINS", -- Config/Products.STARTER grants it
-		banner = "rbxassetid://96454339687407", -- art-source/ui/shop/new/banner_starter.png (ART.starterBanner)
+		banner = "rbxassetid://113319281455779", -- v2: art-source/marketing/release1/starter-bundle-banner.png (ART.starterBanner)
 		items = {},
 	},
 } :: { Bundle }
