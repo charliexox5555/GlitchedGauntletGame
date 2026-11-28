@@ -16,43 +16,57 @@ type TargetCfg = {
 local TARGETS: { [string]: TargetCfg } = {
 	Classic = {
 		bone = "Root",
-		pos = Vector3.new(-0.084, 0.205, -0.740),
-		skinX = {},
+		pos = Vector3.new(-0.078, 0.205, -0.740),
+		skinX = {
+			Arcade = -0.100,
+			Giltfold = -0.120,
+			Payload = -0.120,
+			Playback = -0.120,
+			Slipframe = -0.120,
+		},
 	},
 	Shorty = {
 		bone = "Barrels",
-		pos = Vector3.new(-0.116, 0.215, -0.740),
+		pos = Vector3.new(-0.110, 0.215, -0.740),
 		skinX = {
-			Sealwork = -0.123,
-			Inkshift = -0.127,
-			Breakwater = -0.120,
-			Riftforge = -0.120,
+			Arcade = -0.114,
+			Sealwork = -0.117,
+			Inkshift = -0.121,
+			Breakwater = -0.114,
+			Riftforge = -0.114,
 		},
 	},
 	Odin = {
 		bone = "Root",
-		pos = Vector3.new(-0.126, 0.435, -1.180),
+		pos = Vector3.new(-0.116, 0.435, -1.180),
 		skinX = {
-			Breakwater = -0.129,
+			Arcade = -0.148,
+			Breakwater = -0.119,
 		},
 	},
 	Judge = {
 		bone = "Root",
-		pos = Vector3.new(-0.124, 0.445, -1.270),
+		pos = Vector3.new(-0.112, 0.445, -1.270),
 		skinX = {
-			Moltframe = -0.139,
-			Breakwater = -0.128,
+			Moltframe = -0.130,
+			Breakwater = -0.116,
 		},
 	},
 }
 
 local function findBone(model: Model, handle: BasePart, boneName: string): BasePart?
-	if boneName == "Root" then
-		return handle
+	local rig = model:FindFirstChild("Rig")
+	local motors = rig and rig:FindFirstChild("Motors")
+	local motor = motors and motors:FindFirstChild(boneName)
+	if motor and motor:IsA("Motor6D") and motor.Part1 and motor.Part1:IsA("BasePart") then
+		return motor.Part1
 	end
 	local b = model:FindFirstChild(boneName, true)
 	if b and b:IsA("BasePart") then
 		return b
+	end
+	if boneName == "Root" then
+		return handle
 	end
 	return nil
 end
@@ -110,7 +124,10 @@ local function fixModel(model: Model, skinName: string?, cfg: TargetCfg): (boole
 				j.Part0 = targetBone
 				j.C0 = targetBone.CFrame:ToObjectSpace(p1.CFrame)
 				j.C1 = CFrame.new()
-				if oldPart0 and j.Parent == oldPart0 then
+				if j:IsA("Motor6D") then
+					j.Transform = CFrame.identity
+				end
+				if j:IsA("Weld") and oldPart0 and j.Parent == oldPart0 then
 					j.Parent = targetBone
 				end
 			end

@@ -353,7 +353,12 @@ function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnim
 	if folder then
 		for _, m in folder:GetChildren() do
 			if m:IsA("Motor6D") then
-				motors[m.Name] = m
+				if m.Name == "Charm" then
+					-- CharmRig owns live charm physics; baked Charm tracks must not rotate CharmPoint.
+					m.Transform = CFrame.identity
+				else
+					motors[m.Name] = m
+				end
 			end
 		end
 	end

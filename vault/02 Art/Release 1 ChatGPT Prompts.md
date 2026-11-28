@@ -35,9 +35,18 @@ IMAGE 4 - Starter Bundle icon, 512x512 square: the gun from image 2 large and ce
 
 Put the finished files in `art-source/marketing/release1/` (or tell Claude where they are).
 
+### Finished files
+
+- **Starter Bundle shop art** (2026-11-28). [Transparent PNG, 1600 × 1000](../../art-source/marketing/release1/starter-bundle-shop.png). Composited from the supplied Payload Lancer, Standard Case and Strike Box renders and the matching five-coin stack. The Strike Box retains its printed label. Claude can upload this export and swap `ShopCatalog.ART.starterContents`.
+- **Arcade Havoc thumbnail.** [1920 × 1080 PNG](../../art-source/marketing/release1/season-1-arcade-havoc.png). Cyan lens glint and pink-violet neon for the Creator Dashboard and ads.
+- **Frostbite Havoc thumbnail.** [1920 × 1080 PNG](../../art-source/marketing/release1/season-1-frostbite-havoc.png). Icy blue-white crystal bloom for the A/B test against Arcade.
+- **Starter Bundle product icon.** [512 × 512 PNG](../../art-source/marketing/release1/starter-bundle-icon.png). Original item renders on a violet-navy background. Claude can include this file in the same Open Cloud call as the product description.
+
+**Thumbnail revision after owner review (2026-11-28).** Both exports use the original Havoc meshes and materials and the classic faceless gold head. The block arms were re-posed with the support hand seated under the handguard and the trigger hand at the grip. The shared camera uses a tighter crop and shallow depth of field in a simplified Arena set. The final pair replaces the red laser with bloom from the emissive surfaces on each skin and a single muzzle glint. Reviewed in color at 320 × 180 and 160 × 90 and in grayscale at 160 × 90. Both text-free RGB PNGs are under 3 MB. References for framing and contrast: [v10 Inner Circle prompts](../../art-source/marketing/draft-duels/thumbnail-v10/PROMPTS_V10.md) and [v12 play-ad readout and polish prompts](../../art-source/marketing/draft-duels/thumbnail-v12-laser-lock/external-ai-kit/PROMPTS_V12.md).
+
 ---
 
-The single prompts below are the same jobs one at a time, kept for reference. For those: one chat per prompt, attach the files listed, in order, then paste.
+The single prompts below record the original briefs. Use the finished text-free thumbnails above for the current handoff.
 
 ---
 

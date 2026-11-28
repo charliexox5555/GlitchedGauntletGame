@@ -174,10 +174,10 @@
   "uploaded": "2026-10-26 01:15:31"
  },
  "art-source/animations/GG_AdsDown.rbxm": {
-  "assetId": 86597667703377,
-  "name": "GG AdsDown r2",
+  "assetId": 75086082523942,
+  "name": "GG AdsDown t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 10:08:09"
+  "uploaded": "2026-11-28 00:31:03"
  },
  "art-source/animations/GG_AdsKickDown.rbxm": {
   "assetId": 131076841934336,
@@ -198,34 +198,40 @@
   "uploaded": "2026-11-21 21:29:31"
  },
  "art-source/animations/GG_AdsLevel.rbxm": {
-  "assetId": 86480588512249,
-  "name": "GG AdsLevel o2",
+  "assetId": 106861057125993,
+  "name": "GG AdsLevel t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:05"
+  "uploaded": "2026-11-28 00:31:07"
  },
  "art-source/animations/GG_AdsUp.rbxm": {
-  "assetId": 125005732940313,
-  "name": "GG AdsUp",
+  "assetId": 85252471021854,
+  "name": "GG AdsUp t1",
   "type": "Animation",
-  "uploaded": "2026-11-21 21:29:18"
+  "uploaded": "2026-11-28 00:31:09"
  },
  "art-source/animations/GG_AimDown.rbxm": {
-  "assetId": 118568564589362,
-  "name": "GG AimDown r2",
+  "assetId": 73289322681926,
+  "name": "GG AimDown t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 10:08:06"
+  "uploaded": "2026-11-28 00:31:12"
  },
  "art-source/animations/GG_AimLevel.rbxm": {
-  "assetId": 105637585256231,
-  "name": "GG AimLevel o2",
+  "assetId": 101244063490407,
+  "name": "GG AimLevel t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:20:57"
+  "uploaded": "2026-11-28 00:31:15"
+ },
+ "art-source/animations/GG_AimMove.rbxm": {
+  "assetId": 91841115806734,
+  "name": "GG AimMove t1",
+  "type": "Animation",
+  "uploaded": "2026-11-28 00:32:39"
  },
  "art-source/animations/GG_AimUp.rbxm": {
-  "assetId": 76675781741304,
-  "name": "GG AimUp",
+  "assetId": 88917670861049,
+  "name": "GG AimUp t1",
   "type": "Animation",
-  "uploaded": "2026-11-21 21:29:15"
+  "uploaded": "2026-11-28 00:31:18"
  },
  "art-source/animations/GG_Cast.rbxm": {
   "assetId": 78257120931478,
@@ -234,58 +240,58 @@
   "uploaded": "2026-11-20 13:47:19"
  },
  "art-source/animations/GG_Crouch.rbxm": {
-  "assetId": 79991946157030,
-  "name": "GG Crouch v6",
+  "assetId": 99770770213324,
+  "name": "GG Crouch t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:05:58"
+  "uploaded": "2026-11-28 00:31:20"
  },
  "art-source/animations/GG_CrouchWalk.rbxm": {
-  "assetId": 117039700985521,
-  "name": "GG CrouchWalk v9",
+  "assetId": 120234404110157,
+  "name": "GG CrouchWalk t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:50"
+  "uploaded": "2026-11-28 00:31:23"
  },
  "art-source/animations/GG_CrouchWalkB.rbxm": {
-  "assetId": 82235519011694,
-  "name": "GG CrouchWalkB v9",
+  "assetId": 107558426542905,
+  "name": "GG CrouchWalkB t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:46:00"
+  "uploaded": "2026-11-28 00:31:26"
  },
  "art-source/animations/GG_CrouchWalkBL.rbxm": {
-  "assetId": 131407720415435,
-  "name": "GG CrouchWalkBL r3",
+  "assetId": 118404542205797,
+  "name": "GG CrouchWalkBL t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 13:47:05"
+  "uploaded": "2026-11-28 00:31:28"
  },
  "art-source/animations/GG_CrouchWalkBR.rbxm": {
-  "assetId": 77348337720648,
-  "name": "GG CrouchWalkBR r3",
+  "assetId": 98112499729674,
+  "name": "GG CrouchWalkBR t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 13:47:02"
+  "uploaded": "2026-11-28 00:31:34"
  },
  "art-source/animations/GG_CrouchWalkFL.rbxm": {
-  "assetId": 100723533854221,
-  "name": "GG CrouchWalkFL r3",
+  "assetId": 97358987051244,
+  "name": "GG CrouchWalkFL t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 13:47:10"
+  "uploaded": "2026-11-28 00:31:37"
  },
  "art-source/animations/GG_CrouchWalkFR.rbxm": {
-  "assetId": 137679623333500,
-  "name": "GG CrouchWalkFR r3",
+  "assetId": 76105394470854,
+  "name": "GG CrouchWalkFR t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 13:46:54"
+  "uploaded": "2026-11-28 00:31:40"
  },
  "art-source/animations/GG_CrouchWalkL.rbxm": {
-  "assetId": 135096973393141,
-  "name": "GG CrouchWalkL r3",
+  "assetId": 130624088030119,
+  "name": "GG CrouchWalkL t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 13:47:08"
+  "uploaded": "2026-11-28 00:31:43"
  },
  "art-source/animations/GG_CrouchWalkR.rbxm": {
-  "assetId": 72907308049134,
-  "name": "GG CrouchWalkR r3",
+  "assetId": 75749538598700,
+  "name": "GG CrouchWalkR t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 13:47:00"
+  "uploaded": "2026-11-28 00:31:46"
  },
  "art-source/animations/GG_DashBack.rbxm": {
   "assetId": 120793622302960,
@@ -342,16 +348,16 @@
   "uploaded": "2026-11-20 14:03:57"
  },
  "art-source/animations/GG_Idle.rbxm": {
-  "assetId": 114709237157503,
-  "name": "GG Idle v10",
+  "assetId": 140109770524654,
+  "name": "GG Idle t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 02:21:08"
+  "uploaded": "2026-11-28 00:31:48"
  },
  "art-source/animations/GG_Jump.rbxm": {
-  "assetId": 117724474892981,
-  "name": "GG Jump v9",
+  "assetId": 133442046555419,
+  "name": "GG Jump t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:46:13"
+  "uploaded": "2026-11-28 00:31:51"
  },
  "art-source/animations/GG_KickDown.rbxm": {
   "assetId": 109221910357149,
@@ -377,11 +383,17 @@
   "type": "Animation",
   "uploaded": "2026-11-20 02:53:22"
  },
- "art-source/animations/GG_KnifeReady.rbxm": {
-  "assetId": 84124615647002,
-  "name": "GG KnifeReady o2",
+ "art-source/animations/GG_KnifeMove.rbxm": {
+  "assetId": 107253347777500,
+  "name": "GG KnifeMove t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:29"
+  "uploaded": "2026-11-28 00:32:44"
+ },
+ "art-source/animations/GG_KnifeReady.rbxm": {
+  "assetId": 119423737473104,
+  "name": "GG KnifeReady t1",
+  "type": "Animation",
+  "uploaded": "2026-11-28 00:31:54"
  },
  "art-source/animations/GG_KnifeSlash.rbxm": {
   "assetId": 77623478703999,
@@ -408,10 +420,10 @@
   "uploaded": "2026-11-13 15:56:05"
  },
  "art-source/animations/GG_Land.rbxm": {
-  "assetId": 97529375997799,
-  "name": "GG Land v11",
+  "assetId": 90187185226461,
+  "name": "GG Land t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 02:22:35"
+  "uploaded": "2026-11-28 00:31:57"
  },
  "art-source/animations/GG_Lob.rbxm": {
   "assetId": 123753817056953,
@@ -462,10 +474,10 @@
   "uploaded": "2026-11-04 01:49:32"
  },
  "art-source/animations/GG_PistolAdsDown.rbxm": {
-  "assetId": 100517179779054,
-  "name": "GG PistolAdsDown r2",
+  "assetId": 79007424956396,
+  "name": "GG PistolAdsDown t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 10:08:14"
+  "uploaded": "2026-11-28 00:31:59"
  },
  "art-source/animations/GG_PistolAdsKickDown.rbxm": {
   "assetId": 97409435633700,
@@ -486,34 +498,40 @@
   "uploaded": "2026-11-21 21:29:37"
  },
  "art-source/animations/GG_PistolAdsLevel.rbxm": {
-  "assetId": 93700559415008,
-  "name": "GG PistolAdsLevel o2",
+  "assetId": 118413058305626,
+  "name": "GG PistolAdsLevel t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:23"
+  "uploaded": "2026-11-28 00:32:02"
  },
  "art-source/animations/GG_PistolAdsUp.rbxm": {
-  "assetId": 72465943608438,
-  "name": "GG PistolAdsUp",
+  "assetId": 123680785429363,
+  "name": "GG PistolAdsUp t1",
   "type": "Animation",
-  "uploaded": "2026-11-21 21:29:25"
+  "uploaded": "2026-11-28 00:32:05"
  },
  "art-source/animations/GG_PistolAimDown.rbxm": {
-  "assetId": 88754165814506,
-  "name": "GG PistolAimDown r2",
+  "assetId": 76165283791894,
+  "name": "GG PistolAimDown t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 10:08:11"
+  "uploaded": "2026-11-28 00:32:08"
  },
  "art-source/animations/GG_PistolAimLevel.rbxm": {
-  "assetId": 134408200055475,
-  "name": "GG PistolAimLevel o2",
+  "assetId": 111471703068233,
+  "name": "GG PistolAimLevel t1",
   "type": "Animation",
-  "uploaded": "2026-11-20 03:21:14"
+  "uploaded": "2026-11-28 00:32:11"
+ },
+ "art-source/animations/GG_PistolAimMove.rbxm": {
+  "assetId": 109774139005697,
+  "name": "GG PistolAimMove t1",
+  "type": "Animation",
+  "uploaded": "2026-11-28 00:32:41"
  },
  "art-source/animations/GG_PistolAimUp.rbxm": {
-  "assetId": 138228207228666,
-  "name": "GG PistolAimUp",
+  "assetId": 109832822853570,
+  "name": "GG PistolAimUp t1",
   "type": "Animation",
-  "uploaded": "2026-11-21 21:29:21"
+  "uploaded": "2026-11-28 00:32:14"
  },
  "art-source/animations/GG_PistolKickDown.rbxm": {
   "assetId": 128468054309219,
@@ -702,10 +720,10 @@
   "uploaded": "2026-11-21 22:53:29"
  },
  "art-source/animations/GG_SprintUnarmed.rbxm": {
-  "assetId": 106420213826097,
-  "name": "GG SprintUnarmed",
+  "assetId": 111864275395628,
+  "name": "GG SprintUnarmed t1",
   "type": "Animation",
-  "uploaded": "2026-11-21 22:53:32"
+  "uploaded": "2026-11-28 01:12:58"
  },
  "art-source/animations/GG_Throw.rbxm": {
   "assetId": 119484404341094,
@@ -726,16 +744,16 @@
   "uploaded": "2026-11-21 21:44:39"
  },
  "art-source/animations/GG_UnarmedRun.rbxm": {
-  "assetId": 133551232423687,
-  "name": "GG UnarmedRun v2",
+  "assetId": 96202813627922,
+  "name": "GG UnarmedRun t1",
   "type": "Animation",
-  "uploaded": "2026-11-21 22:16:40"
+  "uploaded": "2026-11-28 01:12:56"
  },
  "art-source/animations/GG_UnarmedWalk.rbxm": {
-  "assetId": 118695003666442,
-  "name": "GG UnarmedWalk",
+  "assetId": 140516107027903,
+  "name": "GG UnarmedWalk t1",
   "type": "Animation",
-  "uploaded": "2026-11-21 22:53:35"
+  "uploaded": "2026-11-28 01:12:53"
  },
  "art-source/animations/GG_Updraft.rbxm": {
   "assetId": 134947951901387,
@@ -762,52 +780,52 @@
   "uploaded": "2026-11-12 23:54:57"
  },
  "art-source/animations/GG_WalkB.rbxm": {
-  "assetId": 86945287609346,
-  "name": "GG WalkB v9",
+  "assetId": 120622386865437,
+  "name": "GG WalkB t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:39"
+  "uploaded": "2026-11-28 00:32:16"
  },
  "art-source/animations/GG_WalkBL.rbxm": {
-  "assetId": 100608079004581,
-  "name": "GG WalkBL v9",
+  "assetId": 114450768692420,
+  "name": "GG WalkBL t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:42"
+  "uploaded": "2026-11-28 00:32:19"
  },
  "art-source/animations/GG_WalkBR.rbxm": {
-  "assetId": 91920468560649,
-  "name": "GG WalkBR v9",
+  "assetId": 79417743906284,
+  "name": "GG WalkBR t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:36"
+  "uploaded": "2026-11-28 00:32:22"
  },
  "art-source/animations/GG_WalkF.rbxm": {
-  "assetId": 107342133831860,
-  "name": "GG WalkF v9",
+  "assetId": 109388123905950,
+  "name": "GG WalkF t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:29"
+  "uploaded": "2026-11-28 00:32:25"
  },
  "art-source/animations/GG_WalkFL.rbxm": {
-  "assetId": 93351123775758,
-  "name": "GG WalkFL v9",
+  "assetId": 71420939781325,
+  "name": "GG WalkFL t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:47"
+  "uploaded": "2026-11-28 00:32:28"
  },
  "art-source/animations/GG_WalkFR.rbxm": {
-  "assetId": 108041601441541,
-  "name": "GG WalkFR v9",
+  "assetId": 121622287057088,
+  "name": "GG WalkFR t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:31"
+  "uploaded": "2026-11-28 00:32:30"
  },
  "art-source/animations/GG_WalkL.rbxm": {
-  "assetId": 75856907068096,
-  "name": "GG WalkL v9",
+  "assetId": 131973548428864,
+  "name": "GG WalkL t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:44"
+  "uploaded": "2026-11-28 00:32:33"
  },
  "art-source/animations/GG_WalkR.rbxm": {
-  "assetId": 107142626991120,
-  "name": "GG WalkR v9",
+  "assetId": 105786023690774,
+  "name": "GG WalkR t1",
   "type": "Animation",
-  "uploaded": "2026-11-13 01:45:34"
+  "uploaded": "2026-11-28 00:32:36"
  },
  "art-source/animations/GG_Win1_1.rbxm": {
   "assetId": 125566128219870,
@@ -916,6 +934,30 @@
   "name": "GG Arcade win",
   "type": "Audio",
   "uploaded": "2026-11-27 15:41:58"
+ },
+ "art-source/audio/frostbite/inspect_grow.wav": {
+  "assetId": 85469900133060,
+  "name": "GG Frostbite Inspect Grow",
+  "type": "Audio",
+  "uploaded": "2026-11-27 21:01:53"
+ },
+ "art-source/audio/frostbite/inspect_settle.wav": {
+  "assetId": 125723564872150,
+  "name": "GG Frostbite Inspect Settle",
+  "type": "Audio",
+  "uploaded": "2026-11-27 21:01:56"
+ },
+ "art-source/audio/frostbite/kill_shatter.wav": {
+  "assetId": 134870399149985,
+  "name": "GG Frostbite Kill Shatter",
+  "type": "Audio",
+  "uploaded": "2026-11-27 21:02:00"
+ },
+ "art-source/audio/frostbite/vandal_fire.wav": {
+  "assetId": 132065486262242,
+  "name": "GG Frostbite Vandal Fire",
+  "type": "Audio",
+  "uploaded": "2026-11-27 21:01:50"
  },
  "art-source/audio/moltframe/ares_shot.wav": {
   "assetId": 128834383592794,
@@ -3016,6 +3058,42 @@
   "name": "GG Charm Blind Box",
   "type": "Model",
   "uploaded": "2026-11-27 17:12:17"
+ },
+ "art-source/lobby/HoloProjector/HoloProjector_v02.fbx": {
+  "assetId": 106433727165434,
+  "name": "GG Lobby Holo Projector v02",
+  "type": "Model",
+  "uploaded": "2026-11-28 01:35:12"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_cone.png": {
+  "assetId": 90498122249065,
+  "name": "GG Holo Cone Falloff",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:35:17"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_glow.png": {
+  "assetId": 113153565884236,
+  "name": "GG Holo glow",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:40:00"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_rays.png": {
+  "assetId": 135781545064670,
+  "name": "GG Holo rays",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:39:57"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_scanlines.png": {
+  "assetId": 90754740342951,
+  "name": "GG Holo Scanlines",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:35:14"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_star.png": {
+  "assetId": 133400187158110,
+  "name": "GG Holo star",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:40:02"
  },
  "art-source/lobby/V5_LoadoutTerminal.fbx": {
   "assetId": 103199802564419,
@@ -9695,6 +9773,12 @@
   "type": "Model",
   "uploaded": "2026-11-27 18:45:44"
  },
+ "art-source/weapons/Skins/Frostbite/Vandal/v10x/Vandal_Frostbite_RobloxFlat.fbx": {
+  "assetId": 83152238474766,
+  "name": "GG Frostbite Vandal v10x",
+  "type": "Model",
+  "uploaded": "2026-11-27 21:02:16"
+ },
  "art-source/weapons/Skins/Giltfold/Classic/v02/Classic_Giltfold_RobloxFlat.fbx": {
   "assetId": 90119117859435,
   "name": "GG Skin Giltfold Classic flat r4",
@@ -11146,41 +11230,5 @@
   "name": "GG Ruin-Blighted Spectre shot 00 tail only 01",
   "type": "Audio",
   "uploaded": "2026-11-20 01:10:15"
- },
- "art-source/lobby/HoloProjector/HoloProjector_v02.fbx": {
-  "assetId": 106433727165434,
-  "name": "GG Lobby Holo Projector v02",
-  "type": "Model",
-  "uploaded": "2026-11-28 01:35:12"
- },
- "art-source/lobby/HoloProjector/textures/holo_cone.png": {
-  "assetId": 90498122249065,
-  "name": "GG Holo Cone Falloff",
-  "type": "Decal",
-  "uploaded": "2026-11-28 01:35:17"
- },
- "art-source/lobby/HoloProjector/textures/holo_glow.png": {
-  "assetId": 113153565884236,
-  "name": "GG Holo glow",
-  "type": "Decal",
-  "uploaded": "2026-11-28 01:40:00"
- },
- "art-source/lobby/HoloProjector/textures/holo_rays.png": {
-  "assetId": 135781545064670,
-  "name": "GG Holo rays",
-  "type": "Decal",
-  "uploaded": "2026-11-28 01:39:57"
- },
- "art-source/lobby/HoloProjector/textures/holo_scanlines.png": {
-  "assetId": 90754740342951,
-  "name": "GG Holo Scanlines",
-  "type": "Decal",
-  "uploaded": "2026-11-28 01:35:14"
- },
- "art-source/lobby/HoloProjector/textures/holo_star.png": {
-  "assetId": 133400187158110,
-  "name": "GG Holo star",
-  "type": "Decal",
-  "uploaded": "2026-11-28 01:40:02"
  }
 }

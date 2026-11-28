@@ -532,9 +532,9 @@ function CharmRig.onFire(st: State?, kickScale: number?)
 		return
 	end
 	local k = math.clamp(kickScale or 1, 0.25, 2.5) / math.sqrt(st.def.weight)
-	st.pitchVel += (6.5 + math.random() * 2.0) * k
-	st.rollVel += (5.0 + math.random() * 2.5) * k
-	st.twistVel += (math.random() - 0.5) * 14.0 * k
+	st.pitchVel += (4.2 + math.random() * 1.4) * k
+	st.rollVel += (3.2 + math.random() * 1.6) * k
+	st.twistVel += (math.random() - 0.5) * 7.5 * k
 	st.pulse = math.max(st.pulse, 0.72)
 	st.pulseKind = "fire"
 	st.spinBoost += 10.0 * k
@@ -634,8 +634,8 @@ function CharmRig.step(
 		local vel = (pos - st.lastPos) / cdt
 		local rawAccel = (vel - st.lastVel) / cdt
 		local mag = rawAccel.Magnitude
-		if mag > 90 then
-			rawAccel = rawAccel * (90 / mag)
+		if mag > 65 then
+			rawAccel = rawAccel * (65 / mag)
 		end
 		accel = rawAccel
 		st.lastVel = st.lastVel:Lerp(vel, math.min(1, cdt * 18))
@@ -649,30 +649,30 @@ function CharmRig.step(
 		rVec = rVec.Unit
 		if st.lastRight then
 			local crossY = st.lastRight:Cross(rVec).Y
-			st.twistVel += math.clamp(crossY / cdt, -18, 18) * 0.45
+			st.twistVel += math.clamp(crossY / cdt, -14, 14) * 0.30
 		end
 		st.lastRight = rVec
 	end
 
-	local pull = Vector3.new(0, -1, 0) - accel * 0.018
+	local pull = Vector3.new(0, -1, 0) - accel * 0.012
 	local localDown = restCf:VectorToObjectSpace(pull)
 	local targetPitch =
-		math.clamp(math.atan2(localDown.X, math.max(0.25, -localDown.Y)), -0.75, 0.75)
+		math.clamp(math.atan2(localDown.X, math.max(0.25, -localDown.Y)), -0.55, 0.55)
 	local targetRoll =
-		math.clamp(math.atan2(-localDown.Z, math.max(0.25, -localDown.Y)), -0.07, 0.78)
+		math.clamp(math.atan2(-localDown.Z, math.max(0.25, -localDown.Y)), -0.04, 0.55)
 
-	local omega = 13.8 / math.sqrt(st.def.weight)
+	local omega = 16.5 / math.sqrt(st.def.weight)
 	local k = omega * omega
-	local damp = 2 * 0.24 * omega
+	local damp = 2 * 0.38 * omega
 
 	st.pitchVel += ((targetPitch - st.pitch) * k - st.pitchVel * damp) * cdt
 	st.rollVel += ((targetRoll - st.roll) * k - st.rollVel * damp) * cdt
 	st.twistVel += (-st.twist * (k * 0.65) - st.twistVel * (damp * 1.15)) * cdt
 
-	st.pitch = math.clamp(st.pitch + st.pitchVel * cdt, -0.82, 0.82)
-	st.roll = math.clamp(st.roll + st.rollVel * cdt, -0.08, 0.85)
-	st.twist = math.clamp(st.twist + st.twistVel * cdt, -0.70, 0.70)
-	if st.roll <= -0.075 and st.rollVel < 0 then
+	st.pitch = math.clamp(st.pitch + st.pitchVel * cdt, -0.62, 0.62)
+	st.roll = math.clamp(st.roll + st.rollVel * cdt, -0.04, 0.62)
+	st.twist = math.clamp(st.twist + st.twistVel * cdt, -0.42, 0.42)
+	if st.roll <= -0.035 and st.rollVel < 0 then
 		st.rollVel = -st.rollVel * 0.2
 	end
 

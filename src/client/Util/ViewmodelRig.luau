@@ -36,25 +36,59 @@ local function addEdge(edges: { [BasePart]: { Edge } }, a: BasePart, b: BasePart
 	table.insert(list, { other = b, motor = motor })
 end
 
+local function isCharmAttachmentPart(p: BasePart): boolean
+	return p.Name == "Charm" or string.sub(p.Name, 1, 9) == "CharmLoop"
+end
+
 -- Builds the pose list from the model's joints (at rest), then anchors every
 -- part and switches the joints off. Call before the first `solve`.
 function ViewmodelRig.new(model: Model, handle: BasePart): ViewmodelRig
+	local rigFolder = model:FindFirstChild("Rig")
+	local motorsFolder = rigFolder and rigFolder:FindFirstChild("Motors")
+	local root = motorsFolder and motorsFolder:FindFirstChild("Root")
+	local rootMotor = if root and root:IsA("Motor6D") then root else nil
+	local rootPart = if rootMotor and rootMotor.Part1 then rootMotor.Part1 else nil
+
 	local edges: { [BasePart]: { Edge } } = {}
 	local joints: { Instance } = {}
 	for _, d in model:GetDescendants() do
 		if d:IsA("Motor6D") then
 			local p0, p1 = d.Part0, d.Part1
 			if p0 and p1 then
-				-- Animated only from Part0 to Part1.
-				addEdge(edges, p0, p1, d)
-				addEdge(edges, p1, p0, nil)
+				if d.Name == "Charm" or p1.Name == "Charm" then
+					-- Keep Charm locked rigidly to Root (self-healing Handle -> Root misbindings).
+					d.Transform = CFrame.identity
+					local effectiveP0 = if p0 == handle
+							and rootPart
+							and rootPart ~= handle
+						then rootPart
+						else p0
+					addEdge(edges, effectiveP0, p1, nil)
+					addEdge(edges, p1, effectiveP0, nil)
+				else
+					-- Animated only from Part0 to Part1.
+					addEdge(edges, p0, p1, d)
+					addEdge(edges, p1, p0, nil)
+				end
 			end
 			table.insert(joints, d)
 		elseif d:IsA("JointInstance") or d:IsA("WeldConstraint") then
 			local p0, p1 = (d :: any).Part0 :: BasePart?, (d :: any).Part1 :: BasePart?
 			if p0 and p1 then
-				addEdge(edges, p0, p1, nil)
-				addEdge(edges, p1, p0, nil)
+				local effectiveP0 = if p0 == handle
+						and rootPart
+						and rootPart ~= handle
+						and isCharmAttachmentPart(p1)
+					then rootPart
+					else p0
+				local effectiveP1 = if p1 == handle
+						and rootPart
+						and rootPart ~= handle
+						and isCharmAttachmentPart(p0)
+					then rootPart
+					else p1
+				addEdge(edges, effectiveP0, effectiveP1, nil)
+				addEdge(edges, effectiveP1, effectiveP0, nil)
 			end
 			table.insert(joints, d)
 		end
@@ -111,12 +145,9 @@ function ViewmodelRig.new(model: Model, handle: BasePart): ViewmodelRig
 		p.Anchored = true
 		world[p] = p.CFrame
 	end
-	local motors = model:FindFirstChild("Rig")
-	motors = motors and motors:FindFirstChild("Motors")
-	local root = motors and motors:FindFirstChild("Root")
 	return {
 		handle = handle,
-		rootMotor = if root and root:IsA("Motor6D") then root else nil,
+		rootMotor = rootMotor,
 		links = links,
 		parts = parts,
 		cframes = table.create(#parts, CFrame.identity),
