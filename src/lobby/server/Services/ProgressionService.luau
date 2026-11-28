@@ -18,6 +18,8 @@
 -- And gun levels (Shared/GunLevels, vault/01 Design/Gun Levels.md): XP for each gun the player carried, from the
 -- match server's kill and round records per gun (StatsService.gunStats, checked again here), in the same write;
 -- the "gain" event carries each gun's before/after for the end screen's level-up moment.
+-- And level-up rewards (Shared/LevelRewards, vault/01 Design/Level Rewards.md): every player level and gun milestone
+-- this write crossed pays in the same write; the "gain" event carries `levelReward` and `gunRewards` for the screen.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -27,6 +29,7 @@ local Progress = require(ReplicatedStorage.Shared.Progress)
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
+local LevelRewards = require(ReplicatedStorage.Shared.LevelRewards)
 local Onboarding = require(ReplicatedStorage.Shared.Config.Onboarding)
 local PlayerDataService = require(script.Parent.PlayerDataService)
 local TaskPath = require(ReplicatedStorage.Shared.TaskPath)
@@ -111,6 +114,8 @@ function ProgressionService.report(
 		local seasonTierNow = 0 -- the tier after this match (telemetry)
 		local firstWin = 0
 		local gunGains: { GunLevels.Gain } = {}
+		local levelPaid = LevelRewards.empty()
+		local gunPaid: { [string]: LevelRewards.Paid } = {}
 		local ok, why = false, nil :: string?
 		for attempt = 0, #RETRY_AFTER do
 			if attempt > 0 then
@@ -124,13 +129,16 @@ function ProgressionService.report(
 				taskPay = nil
 				seasonTiers = 0
 				gunGains = {}
+				levelPaid = LevelRewards.empty()
+				gunPaid = {}
 				if gunMatch then
 					gunGains =
 						GunLevels.applyMatch(data.gunxp, gunMatch, result.won, not result.counts)
 				end
 				local now = os.time()
 				local matchesBefore = data.prog.matches
-				gain = Progress.apply(data.prog, result, now)
+				local levelGain = Progress.apply(data.prog, result, now)
+				gain = levelGain
 				if stats and TaskPath.open(matchesBefore) then
 					local pay = TaskPath.applyMatch(data.tasks, stats, data.prog.level)
 					TaskService.pay(data, pay)
@@ -166,6 +174,23 @@ function ProgressionService.report(
 					data.earn.win = true
 					data.coins += firstWin
 				end
+				-- level-up rewards: levels only go up, so each one pays once (and the txId stops a repeat)
+				LevelRewards.grant(
+					data,
+					levelPaid,
+					"player",
+					levelGain.levelFrom,
+					levelGain.levelTo
+				)
+				for _, g in gunGains do
+					if g.to > g.from then
+						local p = LevelRewards.empty()
+						LevelRewards.grant(data, p, "gun", g.from, g.to)
+						if #p.levels > 0 then
+							gunPaid[g.id] = p
+						end
+					end
+				end
 				return true
 			end)
 			if ok or (why ~= "saving" and why ~= "busy") then
@@ -186,6 +211,10 @@ function ProgressionService.report(
 				and g.levelTo >= Onboarding.BEGINNER_MAX_LEVEL
 			then
 				Telemetry.event(player, "Beginner graduated", 1)
+			end
+			Telemetry.levelReward(player, "Player", levelPaid)
+			for _, p in gunPaid do
+				Telemetry.levelReward(player, "Gun", p)
 			end
 			if seasonTiers > 0 then
 				Telemetry.seasonTier(player, seasonTierNow)
@@ -214,6 +243,9 @@ function ProgressionService.report(
 				firstWin = if firstWin > 0 then firstWin else nil, -- the day's first-win bonus, part of `coins`
 				seasonTiers = seasonTiers, -- season pass tiers this match gave (the pass screen, phase 4)
 				guns = gunGains, -- gun levels: { id, xp, from, to, total } per gun that gained
+				-- level-up rewards paid in this write (on top of `coins`): { coins, tickets, items, levels }
+				levelReward = if #levelPaid.levels > 0 then levelPaid else nil,
+				gunRewards = gunPaid, -- [gun id] = the same shape, per gun that crossed a milestone
 			})
 			TaskService.notify(player, taskPay)
 		end

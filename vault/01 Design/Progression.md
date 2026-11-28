@@ -29,7 +29,7 @@ Status: **built and tested in Studio (2026-11-22).** The owner took every sugges
 3. **Pad duels in the lobby**: **count like queued matches** (or: no XP).
 4. **Curve**: **ours, gentle and RIVALS-like: XP to next level = 100 + 20 × (L−1), flat at 1,000 from level 46, no max level.** Level 2 after about 2 matches, level 10 after about 25 matches (about 3 hours), level 50 after about 450 matches. Other options: exactly the RIVALS formula with smaller XP numbers; a steeper curve (100 × L^1.5) where high levels mean a lot more.
 5. **Where it shows**: **lobby player list, profile, match top bar and Tab scoreboard (already wired to `Level`), an XP bar plus "+XP" lines on the match end screen, and a level-up pop.** Optional: level on the name billboard over players in the lobby.
-6. **Rewards**: not now. **A `LEVEL_REWARDS` table in Config, empty**, so coins or skins per level slot in later.
+6. **Rewards**: not now. **A `LEVEL_REWARDS` table in Config, empty**, so coins or skins per level slot in later. **Built 2026-11-28:** [Level Rewards](Level%20Rewards.md).
 
 ### B. Win streak
 7. **What counts**: **one streak across all modes (1v1, 2v2, 3v3 queue and pad duels), like RIVALS.** Or one streak per mode.

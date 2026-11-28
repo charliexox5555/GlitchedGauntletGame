@@ -7,6 +7,9 @@
 -- Gun levels (vault/01 Design/Gun Levels.md): the gain's `guns` ({ id, xp, from, to, total } per gun) fill the
 -- Studio-built Right.GunProgress row under it: the gun that levelled (else the one with the most XP), its +XP and
 -- bar, and on a level up a gold "+0.7% RELOAD" pop with the step the new level gave.
+-- Level rewards (vault/01 Design/Level Rewards.md): the gain's `levelReward` / `gunRewards[id]` (paid in the match write)
+-- show in a gold Reward line (Studio-built, hidden until used) that pops in after the LEVEL UP; the card grows
+-- by the line's height only while it shows.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,6 +21,7 @@ local GunLevelsConfig = require(ReplicatedStorage.Shared.Config.GunLevels)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local LevelRewards = require(ReplicatedStorage.Shared.LevelRewards)
 
 local ProgressController = {}
 
@@ -48,9 +52,58 @@ local function label(panel: Frame, name: string): TextLabel?
 	return if l and l:IsA("TextLabel") then l else nil
 end
 
--- The gun gain to show: one that levelled (the most XP among them), else the most XP.
+-- "LV 10 REWARD  +70 COINS · STRIKE BOX" from a paid reward (LevelRewards.Paid off the wire), nil when empty.
+local function rewardText(r: unknown): string?
+	if typeof(r) ~= "table" then
+		return nil
+	end
+	local t = r :: any
+	local items: { [string]: number } = {}
+	if typeof(t.items) == "table" then
+		for id, n in t.items do
+			if typeof(id) == "string" and typeof(n) == "number" and n >= 1 then
+				items[id] = math.floor(n)
+			end
+		end
+	end
+	local body =
+		LevelRewards.label(math.floor(num(t.coins, 0)), math.floor(num(t.tickets, 0)), items)
+	if body == "" then
+		return nil
+	end
+	local levels = if typeof(t.levels) == "table" then t.levels else {}
+	local one = if #levels == 1 and typeof(levels[1]) == "table" then num(levels[1].level, 0) else 0
+	return (if one > 0 then `LV {one} REWARD` else "LEVEL REWARDS") .. "  +" .. body
+end
+
+-- Shows the Reward line (with its pop) and grows `frame` by its height; `hide` puts both back.
+local function showReward(frame: Frame, base: number, text: string?)
+	local line = label(frame, "Reward")
+	if not line then
+		return
+	end
+	line.Visible = text ~= nil
+	frame.Size =
+		UDim2.new(frame.Size.X, UDim.new(0, base + (if text then line.Size.Y.Offset + 4 else 0)))
+	if not text then
+		return
+	end
+	line.Text = text
+	local pop = line:FindFirstChild("Pop")
+	if pop and pop:IsA("UIScale") then
+		pop.Scale = 0.4
+		TweenService:Create(pop, POP, { Scale = 1 }):Play()
+	end
+end
+
+local PANEL_HEIGHT = 100 -- the Studio templates' heights without the Reward line
+local GUN_HEIGHT = 58
+
+-- The gun gain to show: one that paid a milestone reward, else one that levelled (the most XP among them), else
+-- the most XP.
 local function pickGun(
-	list: unknown
+	list: unknown,
+	rewards: unknown
 ): { id: string, xp: number, from: number, to: number, total: number }?
 	if typeof(list) ~= "table" then
 		return nil
@@ -63,7 +116,8 @@ local function pickGun(
 		end
 		if typeof(e) == "table" and typeof(e.id) == "string" and Weapons.get(e.id) then
 			local xp, from, to, total = num(e.xp, 0), num(e.from, 1), num(e.to, 1), num(e.total, 0)
-			local score = xp + (if to > from then 1e6 else 0)
+			local paid = typeof(rewards) == "table" and (rewards :: any)[e.id] ~= nil
+			local score = xp + (if to > from then 1e6 else 0) + (if paid then 2e6 else 0)
 			if score > bestScore then
 				bestScore = score
 				best = { id = e.id :: string, xp = xp, from = from, to = to, total = total }
@@ -79,11 +133,14 @@ local function playGun(screen: ScreenGui, panel: Frame, g: { [string]: any }, my
 	if not (row and row:IsA("Frame")) then
 		return
 	end
-	local gun = pickGun(g.guns)
+	local gun = pickGun(g.guns, g.gunRewards)
 	row.Visible = gun ~= nil
+	showReward(row, GUN_HEIGHT, nil)
 	if not gun then
 		return
 	end
+	local gunReward =
+		rewardText(if typeof(g.gunRewards) == "table" then g.gunRewards[gun.id] else nil)
 	local track = row:FindFirstChild("Track")
 	local fill = track and track:FindFirstChild("Fill")
 	local nameLabel, gainLabel, step = label(row, "Name"), label(row, "Gain"), label(row, "Step")
@@ -153,6 +210,7 @@ local function playGun(screen: ScreenGui, panel: Frame, g: { [string]: any }, my
 					TweenService:Create(pop, POP, { Scale = 1 }):Play()
 				end
 			end
+			showReward(row, GUN_HEIGHT, gunReward)
 			fill.Size = UDim2.fromScale(0, 1)
 		end
 		TweenService:Create(fill, QUINT_OUT, { Size = UDim2.fromScale(share(into, need), 1) })
@@ -214,6 +272,8 @@ local function play(g: { [string]: any })
 	if up then
 		up.Visible = false
 	end
+	showReward(panel, PANEL_HEIGHT, nil)
+	local levelReward = rewardText(g.levelReward)
 	panel.Visible = true
 	playGun(screen, panel, g, my)
 
@@ -247,6 +307,7 @@ local function play(g: { [string]: any })
 					TweenService:Create(pop, POP, { Scale = 1 }):Play()
 				end
 			end
+			showReward(panel, PANEL_HEIGHT, levelReward)
 			fill.Size = UDim2.fromScale(0, 1)
 		else
 			fill.Size = UDim2.fromScale(math.clamp(startShare, 0, 1), 1)

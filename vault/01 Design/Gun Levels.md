@@ -9,7 +9,7 @@ Numbers live in `src/shared/Config/GunLevels.luau`; the rules (level from XP, th
 ### Levels
 - **Cap: level 50.** Every gun in the active set (10 primaries, 4 secondaries) starts at level 1. The knife has no level.
 - **XP to the next level: 50 + 20 per level** (50 at level 1, 230 at level 10, 1,010 at level 49). 25,970 XP from level 1 to 50.
-- **Milestones at 5, 10, ... 50** (10 milestones). The card says "Reward at LV 5"; nothing is paid yet (`Config/GunLevels.REWARDS` is empty).
+- **Milestones at 5, 10, ... 50** (10 milestones). The card says "Reward at LV 5"; the rewards are built since 2026-11-28: [Level Rewards](Level%20Rewards.md).
 
 ### XP per match, for each gun you carried
 | Source | XP | Cap per match |

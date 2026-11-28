@@ -448,6 +448,24 @@ function Telemetry.seasonTier(player: Player, tier: number)
 	end
 end
 
+-- Level-up rewards paid in one write (Shared/LevelRewards): one custom event per reward kind, the amount as the
+-- value, `source` "Player" (a player level) or "Gun" (a gun milestone) as the label.
+function Telemetry.levelReward(
+	player: Player,
+	source: string,
+	paid: { coins: number, tickets: number, items: { [string]: number } }
+)
+	if paid.coins > 0 then
+		Telemetry.event(player, "Level reward coins", paid.coins, source)
+	end
+	if paid.tickets > 0 then
+		Telemetry.event(player, "Level reward tickets", paid.tickets, source)
+	end
+	for id, n in paid.items do
+		Telemetry.event(player, "Level reward item", n, `{source} {id}`)
+	end
+end
+
 Players.PlayerRemoving:Connect(function(player)
 	seasonSent[player] = nil
 	cohort[player] = nil

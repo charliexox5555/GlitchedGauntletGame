@@ -44,8 +44,21 @@ local function savePrice(savesInRow: number): number
 	return math.min(SAVE.basePrice * 2 ^ math.max(savesInRow, 0), SAVE.maxPrice)
 end
 
--- Rewards per level, not built yet (owner: room for later). [level] = { coins = n } etc.
-local LEVEL_REWARDS: { [number]: { [string]: any } } = {}
+-- A reward on every level-up (vault/01 Design/Level Rewards.md, owner 2026-11-28: "just give coins, rarely
+-- tickets and maybe charm case"). Shared/LevelRewards reads it; ProgressionService pays it in the match write.
+-- Coins: min(coinsBase + coinsPerLevel x level, coinsMax). On top, one extra (the first that fits): every
+-- bigBoxEvery levels the bigBox, else every boxEvery levels the box, else every ticketEvery levels one Ticket.
+local LEVEL_REWARDS = table.freeze({
+	coinsBase = 20,
+	coinsPerLevel = 5, -- level 2: 30, level 10: 70, level 20: 120
+	coinsMax = 150, -- from level 26
+	ticketEvery = 5, -- 5, 15, 25 ... (the tens give a box instead)
+	boxEvery = 10,
+	box = "CaseStrikeBox",
+	bigBoxEvery = 50,
+	bigBox = "CaseOverdriveBox",
+	maxPerWrite = 50, -- level-ups paid in one write (an admin jump can't loop for ever)
+})
 
 return table.freeze({
 	XP = XP,
@@ -55,5 +68,5 @@ return table.freeze({
 	STREAK = STREAK,
 	SAVE = SAVE,
 	savePrice = savePrice,
-	LEVEL_REWARDS = table.freeze(LEVEL_REWARDS),
+	LEVEL_REWARDS = LEVEL_REWARDS,
 })

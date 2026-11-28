@@ -51,9 +51,21 @@ local COIN = table.freeze({
 	rate = 1.0, -- seconds between coin level-ups per player (also the LockerGunRequest limit)
 })
 
--- Milestone rewards, every MILESTONE_EVERY levels. Not built yet (owner 2026-11-27: levelling and the stat
--- steps ship first; the card only says "Reward at LV N"). [level] = { coins = n } etc. later.
-local REWARDS: { [number]: { [string]: any } } = {}
+-- Milestone rewards, every MILESTONE_EVERY levels, per gun (vault/01 Design/Level Rewards.md, owner 2026-11-28).
+-- Shared/LevelRewards reads it. A milestone reached by a coin level pays its coins only: Tickets and charm boxes
+-- come from play (Tickets are never inside anything coins, and so Robux, can buy: Config/Economy).
+local REWARDS: { [number]: { coins: number?, tickets: number?, item: string? } } = {
+	[5] = { coins = 50 },
+	[10] = { coins = 100 },
+	[15] = { coins = 150, tickets = 1 },
+	[20] = { coins = 200 },
+	[25] = { coins = 250, item = "CaseStrikeBox" },
+	[30] = { coins = 300 },
+	[35] = { coins = 350, tickets = 1 },
+	[40] = { coins = 400 },
+	[45] = { coins = 450, tickets = 1 },
+	[50] = { coins = 500, item = "CaseOverdriveBox" },
+}
 
 return table.freeze({
 	XP = XP,

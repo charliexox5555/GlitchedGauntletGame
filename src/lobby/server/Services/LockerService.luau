@@ -28,6 +28,7 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local ModLoadout = require(ReplicatedStorage.Shared.ModLoadout)
 local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
+local LevelRewards = require(ReplicatedStorage.Shared.LevelRewards)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
@@ -404,7 +405,7 @@ local function gunChoice(
 	actionArg: unknown,
 	idArg: unknown,
 	priceArg: unknown
-): (boolean, string?)
+): (boolean, string?, LevelRewards.Paid?)
 	local action = Validate.enum(actionArg, GUN_ACTIONS)
 	local id = Validate.string(idArg, GunLoadout.MAX_ID_LENGTH)
 	local queueStatus = StateValues.get(player, "QueueStatus")
@@ -455,6 +456,7 @@ local function gunChoice(
 		return false, "same" -- already in its slot: no write
 	end
 	savingGuns[player] = true
+	local milestone: LevelRewards.Paid? = nil
 	local ok, reason = PlayerDataService.transact(
 		player,
 		PlayerDataService.newTxId(),
@@ -473,7 +475,19 @@ local function gunChoice(
 					return false, "coins"
 				end
 				latest.coins -= now
-				latest.gunxp[id] = GunLevels.boughtTotal(total)
+				local after = GunLevels.boughtTotal(total)
+				latest.gunxp[id] = after
+				-- a milestone reached with coins pays its coins only (Tickets and boxes come from play)
+				local paid = LevelRewards.empty()
+				LevelRewards.grant(
+					latest,
+					paid,
+					"gun",
+					(GunLevels.level(total)),
+					(GunLevels.level(after)),
+					true
+				)
+				milestone = if #paid.levels > 0 then paid else nil
 				return true
 			end
 			if action == "unlock" then
@@ -499,12 +513,15 @@ local function gunChoice(
 	savingGuns[player] = nil
 	if ok and action == "level" then
 		Telemetry.event(player, "GunLevelBought", price or 0, id)
+		if milestone then
+			Telemetry.levelReward(player, "Gun", milestone)
+		end
 	end
 	if ok and action == "unlock" then
 		Telemetry.event(player, "GunUnlocked", price or 0, id)
 		Telemetry.onboardingV3(player, Telemetry.V3.FIRST_GUN, id)
 	end
-	return ok, if ok then nil else (reason or "failed")
+	return ok, if ok then nil else (reason or "failed"), if ok then milestone else nil
 end
 
 function LockerService.reset(player: Player)
@@ -546,9 +563,9 @@ function LockerService.start()
 	end)
 	local gunRequest = LobbyNet.event("LockerGunRequest")
 	gunRequest.OnServerEvent:Connect(function(player, action, id, price)
-		local ok, reason = false, "slow"
+		local ok, reason, reward = false, "slow", nil
 		if limiter:allow(player, "LockerGunRequest") then
-			ok, reason = gunChoice(player, action, id, price)
+			ok, reason, reward = gunChoice(player, action, id, price)
 		end
 		if player.Parent == Players then
 			gunRequest:FireClient(
@@ -556,7 +573,8 @@ function LockerService.start()
 				if typeof(action) == "string" then string.sub(action, 1, 8) else "",
 				if typeof(id) == "string" then string.sub(id, 1, GunLoadout.MAX_ID_LENGTH) else "",
 				ok,
-				reason
+				reason,
+				reward -- a gun milestone this coin level paid (Shared/LevelRewards.Paid), else nil
 			)
 		end
 	end)

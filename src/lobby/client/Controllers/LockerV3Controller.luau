@@ -31,6 +31,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local GunLevels = require(ReplicatedStorage.Shared.GunLevels)
+local LevelRewards = require(ReplicatedStorage.Shared.LevelRewards)
 local GunLevelsConfig = require(ReplicatedStorage.Shared.Config.GunLevels)
 local InputMode = require(ReplicatedStorage.Shared.InputMode)
 local LoadoutConfig = require(ReplicatedStorage.Shared.Config.Loadout)
@@ -570,6 +571,16 @@ local refreshSkins: () -> ()
 local refreshCharms: () -> ()
 
 -- The Level card (an owned gun): level, the bar, the next stat step, the next milestone and LEVEL UP for coins.
+-- "LV 25: 250 COINS · STRIKE BOX" (the next gun milestone, Config/GunLevels.REWARDS via Shared/LevelRewards)
+local function rewardAt(at: number): string
+	local r = LevelRewards.gun(at)
+	if not r then
+		return `Reward at LV {at}`
+	end
+	local text = LevelRewards.label(r.coins, r.tickets, if r.item then { [r.item] = 1 } else nil)
+	return if text ~= "" then `LV {at}: {text}` else `Reward at LV {at}`
+end
+
 local function refreshLevelCard(id: string)
 	local levelCard = ownedPanel:FindFirstChild("Level")
 	if not (levelCard and levelCard:IsA("Frame")) then
@@ -603,12 +614,7 @@ local function refreshLevelCard(id: string)
 			else "EVERY STAT STEP EARNED"
 	end
 	local at = GunLevels.nextMilestone(level)
-	set(
-		levelCard,
-		"Reward.Text",
-		"Text",
-		if at then `Reward at LV {at}` else "Every reward reached"
-	)
+	set(levelCard, "Reward.Text", "Text", if at then rewardAt(at) else "Every reward reached")
 	set(levelCard, "Reward.Chip", "Visible", false) -- the rewards themselves come later (owner 2026-11-27)
 	local row = levelCard:FindFirstChild("LevelUp")
 	if not row then
@@ -1689,7 +1695,13 @@ local REASONS: { [string]: string } = {
 	maxed = `Coins level a gun up to LV {GunLevelsConfig.COIN.maxLevel}`,
 }
 
-local function onGunReply(action: unknown, id: unknown, ok: unknown, reason: unknown)
+local function onGunReply(
+	action: unknown,
+	id: unknown,
+	ok: unknown,
+	reason: unknown,
+	reward: unknown
+)
 	gunBusy = false
 	if not isOpen then
 		return
@@ -1701,7 +1713,15 @@ local function onGunReply(action: unknown, id: unknown, ok: unknown, reason: unk
 			say(`{string.upper(gunName(if typeof(id) == "string" then id else ""))} UNLOCKED`)
 		elseif action == "level" and typeof(id) == "string" then
 			UiSfx.cue("Purchase")
-			say(`{string.upper(gunName(id))} · LV {GunLevels.levelOf(player, id)}`)
+			-- a milestone this coin level reached pays its coins (Shared/LevelRewards; the server sends what it paid)
+			local paidCoins = if typeof(reward) == "table"
+					and typeof((reward :: any).coins) == "number"
+				then math.floor((reward :: any).coins)
+				else 0
+			say(
+				`{string.upper(gunName(id))} · LV {GunLevels.levelOf(player, id)}`
+					.. (if paidCoins > 0 then `  ·  +{commas(paidCoins)} COINS` else "")
+			)
 			local levelCard = ownedPanel:FindFirstChild("Level")
 			local number = levelCard and levelCard:FindFirstChild("Number")
 			if number and number:IsA("GuiObject") then
