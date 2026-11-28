@@ -152,6 +152,42 @@ The owner's "no gaps" sweep on v07: culled magenta close-ups of every join from 
   - Inspect shows the chase on screen.
 - **Lint and build:** stylua, selene and the Rojo build are clean.
 
+## Roster (2026-11-27): all 14 guns built in Blender, waiting to install
+Every gun passed the [Gun Brief](Gun%20Brief.md) gates:
+- 0 faults in new geometry and 0 coplanar pairs;
+- no new floating parts;
+- the gap sweep (culled magenta close-ups of every join, buried 0.02 or more);
+- 0 animated intersections and the stock contract equal;
+- a clear sight line;
+- a clean flat export;
+- at most 1.5× the stock triangles;
+- a self-grade of 9/10.
+
+Four guns were built in parallel in separate Blender instances (MCP 9876 and socket bridges 9881–9883). Guns built after the parallel switch keep their details in `ledger/<Gun>.md`. The Havoc v07x is the only gun in Studio so far; every other gun waits for the owner's "Studio is free".
+
+| Gun (in game) | Final | Tris (stock) | Sheet | Notes |
+|---|---|---|---|---|
+| Vandal (Havoc) | v08 | 6,977 (5,171) | [sheet](out/Vandal_v08_review.png) | gap sweep fixed v07; **reinstall** over v07x |
+| Phantom (Spirit) | v05 | 6,732 (4,724) | [sheet](out/Phantom_v05_review.png) | stepped suppressor can |
+| Spectre (Prowler) | v07 | 5,003 (3,389) | [sheet](out/Spectre_v07_review.png) | deck behind the handle slot |
+| Guardian (Marksman) | v03 | 5,950 (4,374) | [sheet](out/Guardian_v03_review.png) | rail riser fills the front-block slot |
+| Bulldog (Lancer) | v03 | 5,422 (3,640) | [sheet](out/Bulldog_v03_review.png) | owner's trigger-front gap fixed; bullpup deck in the stock recess |
+| Odin (Mauler) | v03 | 6,326 (4,528) | [sheet](out/Odin_v03_review.png) | **moved charm ring kept** (CharmLoop untouched) |
+| Operator (Deadeye) | v03 | 6,938 (4,950) | [sheet](out/Operator_v03_review.png), [ledger](ledger/Operator.md) | scope untouched |
+| Marshal (Scout) | v04 | 6,263 (4,407) | [sheet](out/Marshal_v04_review.png), [ledger](ledger/Marshal.md) | purple stock; low deck stays out of ADS |
+| Bucky (Pump) | v02 | 4,316 (3,030) | [sheet](out/Bucky_v02_review.png), [ledger](ledger/Bucky.md) | new forend on the Pump bone |
+| Stinger (Hornet) | v04 | 4,660 (3,134) | [sheet](out/Stinger_v04_review.png), [ledger](ledger/Stinger.md) | 11 stock joins buried |
+| Classic | v03 | 3,476 (2,334) | [sheet](out/Classic_v03_review.png), [ledger](ledger/Classic.md) | **moved charm ring kept**; deck on the frame |
+| Sheriff | v03 | 4,432 (3,066) | [sheet](out/Sheriff_v03_review.png), [ledger](ledger/Sheriff.md) | deck on the barrel and lug (the speedloader sweeps the frame) |
+| Shorty | v03 | 3,802 (2,734) | [sheet](out/Shorty_v03_review.png), [ledger](ledger/Shorty.md) | **moved charm ring kept**; twin-bore muzzle block |
+| Ghost (Hush) | v03 | see [ledger](ledger/Ghost.md) (2,964) | [sheet](out/Ghost_v03_review.png) | pixel ghost swapped for the line's star and trail |
+
+**When Studio is free:**
+1. **Upload and install.** Upload each `vNNx/<Gun>_Arcade_RobloxFlat.fbx`. Run `make_flat_install_jobs.py --version vNNx` per gun (versions differ, so one job file per version) and run `InstallFlatSkin`.
+2. **Move and tag.** Move each model to `ServerStorage.WeaponSkins.Arcade`, add a `LobbySkins` AssetData row, and tag it.
+3. **Effects.** Add a `Config/Arcade` profile per gun. The flat_group names are the same, so the profile entry is copied from the Vandal (check `pixel` and `bone`).
+4. **Test** in the Locker and the Range.
+
 ## Sounds (2026-11-27)
 The owner asked for "an extra little sound on the inspect with the lights and the reload". The shot sound is unchanged.
 
