@@ -2,22 +2,22 @@
 
 2026-11-27. Season 1 battle pass Legendary chase line (premium tiers 15, 24, 29, plus the **Frostbite Knife** + `FROSTBITTEN` title at tier 30; covers all 14 active guns + Knife; excluded from cases).
 
-- **Blender instance used:** `127.0.0.1:9881`, PID `48580`, Blender `5.2.2` (dedicated window via `tools/blender/start_bridge.py`; port `9876` held `ThunderOrb.blend` and was untouched).
+- **Blender instance used:** `127.0.0.1:9100`, PID `18288`, Blender `5.2.2` (owner's live Blender window, used with explicit owner permission after `v06` moved from the temporary `9881` window; `Vandal_Frostbite_v10.blend` left open).
 - **Pipeline scripts:** [tools/blender/frostbite/](../../../../tools/blender/frostbite/frost_lib.py) (`frost_lib.py`, `10_vandal.py`, `49_audit.py`, `20_review.py`, `21_review_vandal.py`, `53_export.py`, `30_sheet.py`, `sheet_vandal.json`).
 
 ## Palette (flat-shaded, zero Glass)
 
 | Role | Blender Name | Hex | Roughness | Metallic | Emission | Roblox Material |
 |---|---|---|---|---|---|---|
-| Obsidian | `FB Obsidian` | `121720` | 0.50 | 0.30 | — | `SmoothPlastic` |
-| Armor | `FB Armor` | `1E2634` | 0.42 | 0.58 | — | `Metal` |
-| FrostSteel | `FB FrostSteel` | `586F8C` | 0.32 | 0.72 | — | `Metal` |
+| Obsidian | `FB Obsidian` | `0F1520` | 0.52 | 0.28 | — | `SmoothPlastic` |
+| Armor | `FB Armor` | `1C2536` | 0.40 | 0.60 | — | `Metal` |
+| FrostSteel | `FB FrostSteel` | `7A95B5` | 0.28 | 0.78 | — | `Metal` |
 | Grip | `FB Grip` | `171C26` | 0.76 | 0.00 | — | `SmoothPlastic` |
-| IceDeep | `FB IceDeep` | `1D588A` | 0.24 | 0.08 | — | `SmoothPlastic` (refl `0.05`) |
-| IceMid | `FB IceMid` | `52B6E8` | 0.20 | 0.04 | — | `SmoothPlastic` (refl `0.05`) |
-| IceBright | `FB IceBright` | `BBEBFF` | 0.16 | 0.00 | — | `SmoothPlastic` (refl `0.12`) |
-| CryoGlow | `FB CryoGlow` | `9EEFFF` | 0.25 | 0.00 | 1.25 | `Neon` |
-| GlowWhite | `FB GlowWhite` | `E4FAFF` | 0.25 | 0.00 | 1.45 | `Neon` |
+| IceDeep | `FB IceDeep` | `16538A` | 0.24 | 0.08 | — | `SmoothPlastic` (refl `0.05`) |
+| IceMid | `FB IceMid` | `3FB8F0` | 0.18 | 0.04 | — | `SmoothPlastic` (refl `0.05`) |
+| IceBright | `FB IceBright` | `D2F3FF` | 0.15 | 0.00 | — | `SmoothPlastic` (refl `0.12`) |
+| CryoGlow | `FB CryoGlow` | `A6F2FF` | 0.24 | 0.00 | 1.30 | `Neon` |
+| GlowWhite | `FB GlowWhite` | `ECFDFF` | 0.24 | 0.00 | 1.50 | `Neon` |
 
 ## `flat_group` Inventory (Animated & Emissive Parts)
 
@@ -33,63 +33,70 @@
 | `SK_Root_FBForeSeam` | `Root` | `CryoGlow` | Recessed fore-end glacier bay frost vein |
 | `SK_Root_FBMuzzleGlow` | `Root` | `CryoGlow` | Recessed inner muzzle crown cryo glow ring |
 | `SK_Root_FBStockGlow` | `Root` | `CryoGlow` | Recessed diagonal skeleton stock frost vein |
-| `SK_Mag_FBMagGlow` | `Mag` | `CryoGlow` | Recessed vertical magazine frost gauge (rides `Mag` bone) |
+| `SK_Mag_FBMagGlow` | `Mag` | `CryoGlow` | Recessed diagonal curved magazine frost gauge (rides `Mag` bone) |
 
 ---
 
-### Vandal (Havoc) — **PENDING OWNER APPROVAL**
+### Vandal (Havoc) — **INSTALLED & RANGE-VERIFIED, PENDING OWNER APPROVAL**
 
-- **Master:** [Vandal_Frostbite_v06.blend](../../../../art-source/weapons/Skins/Frostbite/Vandal/v06/Vandal_Frostbite_v06.blend)
-- **Export:** [Vandal_Frostbite_RobloxFlat.fbx](../../../../art-source/weapons/Skins/Frostbite/Vandal/v06x/Vandal_Frostbite_RobloxFlat.fbx) + [manifest_flat.json](../../../../art-source/weapons/Skins/Frostbite/Vandal/v06x/manifest_flat.json)
-- **Review Sheet:** [Vandal_v06_review.png](out/Vandal_v06_review.png)
-- **Triangles:** `6,850` vs `5,171` stock (`1.32×`, cap `7,756` = `1.5×`).
+- **Master:** [Vandal_Frostbite_v10.blend](../../../../art-source/weapons/Skins/Frostbite/Vandal/v10/Vandal_Frostbite_v10.blend)
+- **Export:** [Vandal_Frostbite_RobloxFlat.fbx](../../../../art-source/weapons/Skins/Frostbite/Vandal/v10x/Vandal_Frostbite_RobloxFlat.fbx) + [manifest_flat.json](../../../../art-source/weapons/Skins/Frostbite/Vandal/v10x/manifest_flat.json)
+- **Review Sheet:** [Vandal_v10_review.png](out/Vandal_v10_review.png)
+- **Range Captures:** [Hip](out/Vandal_v10_Range_Hip.jpg) · [ADS](out/Vandal_v10_Range_ADS.jpg) · [Inspect](out/Vandal_v10_Range_Inspect.jpg)
+- **Triangles:** `7,518` vs `5,171` stock (`1.45×`, under `7,756` = `1.5×` cap).
+- **Open Cloud Model Asset:** `83152238474766` (group `11116787`).
+- **Studio Install:** `ServerStorage.WeaponSkins.Frostbite.Vandal` · AssetData row `GGAsset_LobbySkins_279` + tag `GauntletAuthoredData` (`Length = 3.98`, `SourceAsset = 123991644913328`). Raw attributes stripped to match `Arcade.Vandal`.
 
-#### Versions & Changes
-- **v01 (`7,006` tris):** Initial Slipframe-inspired build replacing `Handguard`, `Stock`, `Barrel`, `Neon`. `0` new faults/floaters/coplanar/ADS hits/animated intersections, but visual inspection showed thin pencil-like crystal spikes, receiver-top clipping at `x = 0.85..1.10`, and a corner gap at the stock crystal butt join.
-- **v02 (`6,976` tris):** Replaced pencil spikes in the cryo-core and fore-end bays with sculpted `crystal_blade` glacier slabs; raised `FB_ReceiverMantle` (`z_top = 0.434`) to clear `Vandal_Receiver` cleanly; extended `FB_StockCrystal` `0.04` into `FB_StockButt` (closing the culled butt join gap); sculpted `FB_MuzzleIce`, `FB_MagCrystal`, `FB_GripIce`. (`8` coplanar pairs flagged.)
-- **v03 (`6,850` tris):** Replaced remaining dorsal dart needles (`FBGrow*`) with sculpted `crest_fin` glacier crest ridges; tucked fore-end glacier slabs (`y <= 0.120`) for a razor-clean ADS edge; offset `FB_BridgeCheek` below the mantle shoulder. (`5` coplanar pairs.)
-- **v04 (`6,850` tris):** Terminated `FB_BridgeCheek` at `x = 1.125` (clearing `FB_ReceiverMantle` front cap) and offset `FB_CoreFissure` (`0.081..0.090`) off `Vandal_Pins`. (`2` coplanar pairs left on `FBGrowRear` vs `FB_MantlePlate`.)
-- **v05 (`6,850` tris):** Shifted `FBGrowRear` to `y = 0.082..0.115`, `z - 0.003` (`coplanar: 0`!) and brought `FB_CoreHeart_Left` slightly proud inside the left cryo-core bay. Export assertion caught multi-material `flat_group`s (`FBGrow*`, `FBShard*`, `FBCoreHeart`).
-- **v06 (`6,850` tris, final):** Made every `flat_group` single-material (`FBCoreHeart` -> `GlowWhite`, `FBGrow*` -> `IceMid`, `FBShard*` -> `IceBright`), keeping multi-tone `IceDeep`/`IceMid`/`IceBright` on all static crystal beds.
+#### Versions & Redesign Log
+- **v01–v06 (`6,850` tris):** First pass (`9881`), replaced pencil spikes with `crystal_blade` slabs, fixed `FB_ReceiverMantle` clearance, closed stock butt join, enforced single-material `flat_group`s (`v06`). Rejected by owner for reading too close to classic Vandal silhouette, overly geometric shapes, and awkward magazine ice shapes.
+- **v07–v08 (on owner's `9100`):** Full sculptural redesign inspired by Slipframe's continuous armor transformation: `v07` (`9,464` tris) hit the cap from beveled pipe ribs and clipped `Vandal_FireSelector`; `v08` replaced pipe ribs with sculpted swept `armor_plate` wings framing the receiver, bridge, and split-jaw fore-end, chiseled `glacier_cluster` shards, curved-arc banana magazine with curved `CryoGlow` chasm + curved `FrostSteel` spine/cowl + swept floorplate, swept glacial-wing skeleton stock, and 4-fin cryo muzzle crown.
+- **v09–v10 (`7,518` tris, final):** Fixed `FB_BridgeWing` start (`x = 0.798`) so `Vandal_ChargingHandle` reciprocates cleanly, removed `FB_CoreHeart_Left` vs `FB_CoreCrystals_Left` coplanarity, and seated `FB_StockWingCheek` into `FB_StockButt`. Clean across all audit & export gates.
 
-#### Audit & Gate Summary (`v06` + `v06x`)
-- **Gap sweep (carried + verified on culled magenta renders from left, right, below):** trigger guard post (`+0.031` fwd/up), trigger guard rear (`-0.024`), rail spine (`-0.025`), gas tube (`+0.020`), barrel end (`+0.012`), front/rear sight towers (`-0.018`), stock frame buried `0.073` inside receiver, stock crystal buried `0.04` inside butt pad. Zero magenta leaks in any join close-up.
-- **Audit (`Vandal_v06_views/audit.json`):** `new_faults = 0`, `new_floating = 0`, `coplanar = 0`, `ads_eye_segment_hits = [[], [], [], [], []]`, `contract_equal = {locators: true, bones: true, actions: true}`, `animated_intersections = {}`.
-- **Flat export (`Vandal_v06x_flat_check/reimport.json`):** `39` MeshParts (`SK_Root_Sight_*` separated), `flipped_islands = {}`, `coplanar_lifted = []`, `crossed_faces_fixed = {}`, `crossed_faces_left = {}`, `inside_out = []`.
+#### Audit & Gate Summary (`v10` + `v10x`)
+- **Audit (`Vandal_v10_views/audit.json`):** `7,518` tris (`1.45×`), `new_faults = 0`, `new_floating = 0`, `coplanar = 0`, `ads_eye_segment_hits = [[], [], [], [], []]`, `contract_equal = {locators: true, bones: true, actions: true}`, `animated_intersections = {}`.
+- **Flat export (`Vandal_v10x_flat_check/reimport.json`):** `39` MeshParts (`SK_Root_Sight_02/03/05/11` separated), `flipped_islands = {}`, `coplanar_lifted = []`, `crossed_faces_fixed = {}`, `crossed_faces_left = {}`, `inside_out = []`.
+- **Edit ADS Raycast:** `0` non-`*Sight*` occluder hits (`clone:ScaleTo(0.8)`, `distance = 0.36`, 5-ray spread), `0` `Glass` materials.
 
-#### Self-Grade (`v06`) — **9/10** (lowest area: 9)
+#### Self-Grade (`v10`) — **9/10** (lowest area: 9)
 | Area | Score | Notes |
 |---|---|---|
-| Silhouette | 9/10 | Swept Slipframe-style upper mantle, angled fore-end shroud, skeleton crystal stock, fang muzzle crown, sculpted mag sleeve. |
-| Crispness | 9/10 | 100% flat-shaded planar facets, 1-segment bevels, zero smooth blobs, zero Glass. |
-| Layering | 9/10 | Recessed `Obsidian` bays, `FrostSteel` armor jaws, layered `IceDeep`/`IceMid`/`IceBright` slabs, distinct `FBShard`/`FBGrow` planes. |
+| Silhouette | 9/10 | Continuous swept carapace, wing plates on receiver/bridge/fore-end, swept glacial-wing skeleton stock, 4-fin cryo crown, curved banana magazine. |
+| Crispness | 9/10 | 100% flat-shaded planar facets, chiseled glacier shards, zero smooth blobs, zero Glass. |
+| Layering | 9/10 | Recessed `Obsidian` bays, `Armor`/`FrostSteel` wing armor, 3-tier glacial crystal facets, separated animated `FBGrow*`/`FBShard1..4` blades. |
 | Connections | 9/10 | All joins buried `0.02+`, zero gaps across culled magenta left/right/underside close-ups, zero coplanar faces. |
-| ADS | 10/10 | Stock `RearSight`/`FrontSight` preserved, `0` ray hits, crisp unobstructed sight window. |
-| Palette | 9/10 | Dark cold-forged slate + icy titanium + 3-tier glacial blue-white crystal + small restrained cold `Neon` veins. |
-| Budget | 9/10 | `6,850` tris (`1.32×` stock `5,171`, under `7,756` cap). |
+| ADS | 10/10 | Stock `RearSight`/`FrontSight` preserved, `0` ray hits, light & frost motes disabled at ADS (`adsAlpha >= 0.25`). |
+| Palette | 9/10 | Deep abyssal slate (`0F1520` / `1C2536`) + frost steel (`7A95B5`) + 3-tier ice crystal + restrained cold glow (`A6F2FF` / `ECFDFF`). |
+| Budget | 9/10 | `7,518` tris (`1.45×` stock `5,171`, under `7,756` cap). |
 | Contract | 10/10 | Every bone, locator (`CharmPoint`, `AimPoint`, `Muzzle`, grips, sockets), action, and `CharmLoop` 100% unchanged. |
 
 ---
 
-## Post-Approval Plan: Effects & Sounds (DO NOT BUILD UNTIL APPROVED)
+## Implemented Effects & Sounds (Vandal)
 
 ### Visual Effects (`src/client/Util/FrostbiteEffects.luau` + `src/shared/Config/Frostbite.luau`)
-Patterned directly after `Util/ArcadeEffects.luau` + `Config/Arcade.luau` (client-only on camera viewmodel clone, Motor6D `Transform` + `LocalHide`-safe opacity/material tweaks, auto-cleaned on unequip):
-1. **Rest Cold Shimmer (continuous):**
-   - Smooth `2.6 s` sine pulse gently modulates `FBCoreHeart`, `FBCoreFissure`, `FBUpperSeam`, `FBForeSeam`, `FBMuzzleGlow`, `FBStockGlow`, `FBMagGlow` (`Color3` brightness breath between cool cyan `#7CDFFF` and ice-white `#E4FAFF`, low `PointLight` range `1.6 * scale` on `FBCoreHeart` off during ADS).
-   - Subtle cold frost-mote `ParticleEmitter` attached to `FBCoreHeart` (tiny soft falling ice motes, low rate `4/s`, auto-disabled when ADS alpha > `0.25` so sight picture stays 100% clean).
-2. **Inspect Ice Growth (`Vandal_Inspect` = `2.75 s` / `67` frames at `24 fps`):**
-   - `FBGrowRear` (`0.18..0.42`), `FBGrowMid` (`0.36..0.60`), `FBGrowFront` (`0.54..0.78`) Motor6Ds translate smoothly outward `+0.030..+0.036` studs along their flank-up normal (`outBack`-style overshoot then lock), while `FBUpperSeam`/`FBForeSeam` sweep bright ice-white behind the wave. Hold locked until inspect ends, then smoothly retract back to rest (`0.84..0.98`).
-3. **Kill Crack & Shed (`onKill` trigger from `ViewmodelController`):**
-   - `0.00–0.06 s`: `FBCoreHeart` + seams flash crisp ice-white (`#E4FAFF`); `FBShard1..4` jolt outward `+0.012` studs.
-   - `0.06–0.44 s`: `FBShard1..4` detach via their Motor6D `Transform` (spinning + drifting outward/downward as `Transparency` fades `0 -> 1`) alongside a short burst (`12` particles) of flat cyan-white ice chip particles from `FBCoreHeart` & `FBForeSeam`.
-   - `0.44–1.34 s`: Shards snap back to buried root (`-0.024` inside bed) and smoothly grow/refreeze back to rest (`0.90 s` ease-out).
-4. **Fire & Mag-Seat Micro-Feedback:**
-   - Each shot gives `FBCoreHeart` + `FBMuzzleGlow` a crisp `0.09 s` cryo pulse; magazine seat flares `FBMagGlow` + `FBCoreFissure` (`0.22 s`).
+Client-only on camera viewmodel clone; Motor6D swaps (`FrostbiteMotion`) + `LocalHide` + `PointLight` + `ParticleEmitter` (`FrostbiteMotes`, `FrostbiteChips`), auto-cleaned on unequip:
+1. **Rest Cold Shimmer:** `2.6 s` sine breath across `SK_Root_FBCoreHeart`, seams (`FBCoreFissure`, `FBUpperSeam`, `FBForeSeam`, `FBMuzzleGlow`, `FBStockGlow`), and `SK_Mag_FBMagGlow`, plus `FrostbiteCoreLight` (`PointLight`) and gentle `FrostbiteMotes` (`Rate = 5`), both disabled when `adsAlpha >= 0.25`.
+2. **Inspect Ice Growth (`Vandal_Inspect`):** `SK_Root_FBGrowRear` (`0.14..0.36`), `FBGrowMid` (`0.34..0.56`), `FBGrowFront` (`0.52..0.74`) stagger upward along flank cleavage with `easeOutBack` + chip emission, holding bloom until `0.84..0.98` retract.
+3. **Kill Crack & Shed (`ViewmodelController.onKill`):** `0.06 s` ice-white flash -> `0.38 s` outward break/tumble + `14` `FrostbiteChips` burst + `LocalHide` fade (`FBShard1..4`) -> `0.90 s` refreeze back to rest.
+4. **Fire & Mag-Seat Pulses:** `0.10 s` cryo pulse on `Fire` and `0.24 s` pulse on `MagIn`.
 
-### Sounds (`tools/audio/design_frostbite.py` + `src/shared/Config/FrostbiteAudio.luau` + `AudioController` `frostbite` bank)
-Patterned after `tools/audio/design_arcade.py` + `Config/ArcadeAudio.luau` (private 48 kHz WAVs built from licensed ProPack + clean synthesis, quiet tactile layers sitting on top of stock gun foley):
-- **`vandal_fire` (`0.13 s`, layered over stock Vandal shot at `0.18` vol):** sharp ProPack transient snap + high-passed glassy crystal harmonic ping (`2.1 kHz` + `3.4 kHz` inharmonic FM decay `55 ms`) + short cold pressurized ice-air tail (`80 ms`).
-- **`inspect_grow` (`0.24 s`, triggered per stage Rear → Mid → Front at climbing pitches `0.94`, `1.04`, `1.16`):** crisp dry ice-creak / crystalline crackle (ProPack `wood_block` / `switch` micro-transients high-passed + resonant chime ping) as each crystal ridge locks out.
-- **`inspect_settle` (`0.28 s`, triggered at wave apex):** cold resonant crystalline triad shimmer (`E6 + B6 + F#7` soft sine/bell decay) as all ridges lock.
-- **`kill_shatter` (`0.38 s`, triggered on kill):** punchy cryo crack transient (ProPack impact + `metal_small_movement` snap) into a cascading 4-note glassy ice-shard scatter chime (`2.4–4.8 kHz`) and faint cold sub-air exhale.
+### Sounds (`tools/audio/design_frostbite.py` + `src/shared/Config/FrostbiteAudio.luau`)
+48 kHz PCM_16 WAVs (`art-source/audio/frostbite/`, licensed ProPack transients + crystalline FM/cold air synthesis), wired via `AudioController` (`frostbite` bank), `GunAudio`, `ViewmodelController`, and `WeaponController`:
+
+| Cue | Asset ID | Length | Trigger & Details |
+|---|---|---|---|
+| `vandal_fire` | `132065486262242` | `0.13 s` | Layered over stock Vandal shot (`Shots`, vol `0.20`, pitch `0.97..1.03`) |
+| `inspect_grow` | `85469900133060` | `0.185 s` | Per inspect growth stage Rear -> Mid -> Front (`Foley`, vol `0.26`, pitch `0.94 / 1.04 / 1.16`) |
+| `inspect_settle` | `125723564872150` | `0.28 s` | Inspect apex when all 3 crystal stages lock (`Foley`, vol `0.28`) |
+| `kill_shatter` | `134870399149985` | `0.37 s` | Client kill confirm (`Feedback`, vol `0.34`, pitch `0.97..1.03`) |
+
+## Verification Summary
+- **Lint & Build:** `stylua --check` clean on all Frostbite-touched Luau files; `selene src` passed (`0 errors, 0 warnings`); `rojo build default.project.json` clean.
+- **Studio Play Range (`Locker -> TRY IN THE RANGE`, `PlaceId 71551303511506`):**
+  - `SkinStore.has("Frostbite", "Vandal") == true`, `[SkinStore] 240 skins in the manifest`, `Locker.valid("Vandal", "Frostbite") == true`, `Frostbite` absent from `SkinCases.all()`.
+  - Camera viewmodel loaded all `14` `_FB*` MeshParts, `7` `FrostbiteMotion` Motor6Ds, `4` `Sight` parts, `FrostbiteCoreLight`, `FrostbiteMotes`, and `FrostbiteChips`.
+  - ADS (`DevAim`) suppressed `FrostbiteCoreLight` and `FrostbiteMotes` cleanly (`Enabled = false`), restoring on hip (`Enabled = true`).
+  - Fire pulse raised core brightness (`0.29 -> 0.63`); Inspect moved `FBGrowRear/Mid/Front` along the 3 staggered stages (`Transform` peak `~0.027..0.033`, `dPos = +0.0256` studs on `Root.Y`).
+  - Live kill of a `RangeBot` (`HitConfirm` `killed = true`) triggered shard crack/shed (`pos = 0.0148 -> 0.0911 -> 0.1235`, `LTM = 0 -> 0.70 -> 1.00`) and refreeze (`pos = 0.0000`, `LTM = 0.00`).
+  - **0 console errors** from Frostbite code, geometry, or audio.
+- **Owner Action:** Save the Studio place (`71551303511506`) to persist `ServerStorage.WeaponSkins.Frostbite.Vandal`.
