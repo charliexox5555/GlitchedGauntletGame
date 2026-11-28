@@ -18,6 +18,9 @@ return table.freeze({
 	-- The merged lobby and range are below the arenas. Leave enough horizontal
 	-- room for two neighboring copies of the 6144-stud map backdrops.
 	ARENA_Y = 800,
+	-- Back to the lobby from a pad duel: the lobby around its spawn is streamed in for that player first, up to this
+	-- many seconds (owner 2026-11-28: the return showed Roblox's "waiting for your device" pause; MatchHost.sendHome).
+	HOME_STREAM_WAIT = 5,
 	ARENA_SPACING = 6600,
 	-- The map pool (vault/01 Design/Maps/00 Maps.md → Roster): before each match one
 	-- installed map is picked at random among those that fit the bigger team

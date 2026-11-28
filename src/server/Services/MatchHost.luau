@@ -211,7 +211,20 @@ local function sendHome(entry: Running, player: Player)
 	PlayZone.set(player, "Lobby")
 	-- the load yields: it must not die with the runner when the match is torn down meanwhile
 	onHostThread(function()
-		CharacterService.spawn(player)
+		-- stream the lobby around its spawn in first (the duel arena is far above it), so the client doesn't
+		-- freeze on Roblox's "waiting for your device" pause when the new character lands there
+		local spawnPart = workspace:FindFirstChild("LobbyV5Spawn")
+		if spawnPart and spawnPart:IsA("BasePart") and player.Parent == Players then
+			pcall(
+				player.RequestStreamAroundAsync,
+				player,
+				spawnPart.Position,
+				MatchConfig.HOME_STREAM_WAIT
+			)
+		end
+		if player.Parent == Players then
+			CharacterService.spawn(player)
+		end
 	end)
 end
 
