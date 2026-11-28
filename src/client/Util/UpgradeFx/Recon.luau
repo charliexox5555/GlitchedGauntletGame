@@ -25,6 +25,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -59,6 +60,7 @@ local TEAR_HZ = 12 -- how often outlines, tags and slabs re-roll their glitch
 local PASS_TEAR = 0.25 -- screen tear (seconds) as the wave passes you
 local REVEALED_TEAR = 0.45 -- the revealed player's screen tear
 local TEAR_BARS = 9
+local CLEAR_FADE = 0.25 -- round over: outlines and tags fade this long
 
 local player = Players.LocalPlayer
 local rng = Random.new()
@@ -701,6 +703,43 @@ handler.step = function(_dt: number)
 	stepWaves(now)
 	stepMarks(now)
 	stepTear(now)
+end
+
+-- Round over: waves jump to their break-up (step fades and pools them), the
+-- arming crackle and the screen tear end, outlines and tags fade out.
+handler.clearAll = function()
+	local now = os.clock()
+	for _, a in arms do
+		a.born = now - a.life
+	end
+	for _, w in waves do
+		w.born = math.min(w.born, now - WAVE_TIME)
+		w.passed = true -- no tear from a wave that is going
+		w.nextStep = 0
+	end
+	tearUntil = now
+	local fade = TweenInfo.new(CLEAR_FADE, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+	for model, mark in marks do
+		marks[model] = nil
+		LimbHold.release(model)
+		local h = mark.highlight
+		local tween =
+			TweenService:Create(h, fade, { FillTransparency = 1, OutlineTransparency = 1 })
+		tween.Completed:Once(function()
+			h:Destroy()
+		end)
+		tween:Play()
+		local tag, label = mark.tag, mark.label
+		if tag and label then
+			TweenService:Create(label, fade, { TextTransparency = 1, TextStrokeTransparency = 1 })
+				:Play()
+			task.delay(CLEAR_FADE, function()
+				tag:Destroy()
+			end)
+		elseif tag then
+			tag:Destroy()
+		end
+	end
 end
 
 return handler

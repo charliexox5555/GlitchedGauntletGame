@@ -12,6 +12,9 @@ export type Handler = {
 	onFx: ((kind: string, data: { [string]: any }) -> boolean)?,
 	-- Every frame (RenderStepped).
 	step: ((dt: number) -> ())?,
+	-- The round is over (or we left the match): everything this handler still
+	-- draws or plays goes, with a short fade (no pop).
+	clearAll: (() -> ())?,
 }
 
 return nil

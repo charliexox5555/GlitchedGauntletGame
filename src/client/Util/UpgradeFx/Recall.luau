@@ -229,4 +229,12 @@ handler.step = function(_dt: number)
 	stepJitter(now)
 end
 
+-- Round over: the crash's world and screen effects go (RecallCrash) and the
+-- "RECOVERED" chip ends; the armed glow, ring tint and READY chip follow the
+-- server's Mod state, not a timer.
+handler.clearAll = function()
+	recoveredUntil = 0
+	RecallCrash.clearAll()
+end
+
 return handler

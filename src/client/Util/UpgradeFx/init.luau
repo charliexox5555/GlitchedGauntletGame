@@ -46,6 +46,20 @@ function UpgradeFx.onFx(kind: string, data: { [string]: any }): boolean
 	return false
 end
 
+-- The round is over (ModFxController.clearRound): every handler fades what it
+-- still draws. One failing doesn't stop the rest.
+function UpgradeFx.clearAll()
+	for _, h in handlers do
+		local fn = h.clearAll
+		if fn then
+			local ok, err = pcall(fn)
+			if not ok then
+				warn("[UpgradeFx] clearAll failed:", err)
+			end
+		end
+	end
+end
+
 -- One handler failing mustn't stop ModFxController's frame (reveal
 -- highlights would never be cleared): each runs on its own, warned once.
 function UpgradeFx.step(dt: number)

@@ -355,6 +355,36 @@ function ModVfx.burst(at: Vector3, color: Color3, count: number, kind: BurstKind
 	e:Emit(count)
 end
 
+-- Round over: every live shape fades from how it looks now to clear over
+-- FADE_TAIL (frozen at its current size), then step releases it to its pool.
+-- Bursts are short particle pops: left to finish.
+function ModVfx.clearAll()
+	local now = ReworkVfx.now()
+	for _, l in live do
+		local age = now - l.born
+		if l.life - age <= FADE_TAIL then
+			l.stopped = true
+			continue
+		end
+		local k = math.clamp(age / l.life, 0, 1)
+		local fade = k
+		if l.hold then
+			local fadeFrom = math.max(1 - FADE_TAIL / l.life, 0)
+			fade = if k < fadeFrom then 0 else (k - fadeFrom) / (1 - fadeFrom)
+		end
+		local size = l.from:Lerp(l.to, 1 - (1 - k) * (1 - k))
+		l.cframe = if l.spin ~= 0 then l.cframe * CFrame.Angles(0, l.spin * age, 0) else l.cframe
+		l.alpha0 = l.alpha0 + (l.alpha1 - l.alpha0) * fade
+		l.alpha1 = 1
+		l.from = size
+		l.to = size
+		l.born = now
+		l.life = FADE_TAIL
+		l.hold = false
+		l.stopped = true
+	end
+end
+
 -- Per frame ----------------------------------------------------------------------
 
 function ModVfx.step()

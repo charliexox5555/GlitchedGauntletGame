@@ -38,6 +38,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Health = require(ReplicatedStorage.Shared.Health)
 local Net = require(Shared.Net)
+local PlayZone = require(Shared.PlayZone)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 local Tex = require(Shared.Config.VfxTextures)
 local ModSounds = require(Shared.Config.ModSounds)
@@ -1067,11 +1068,53 @@ local function onRollerBoom(data: { [string]: any })
 	blastShake(at, radius, 0.8, 4)
 end
 
+-- Round over ------------------------------------------------------------------------
+
+-- Every timed Mod effect this client still draws or plays goes (a short fade,
+-- no pop): the server's "RoundClear" (MatchService.closeRound, at a round's
+-- and a match's end) and leaving the match zone. One module failing mustn't
+-- keep the rest on screen.
+local CLEARERS: { [string]: () -> () } = {
+	SmokeFx = SmokeFx.clearAll,
+	StimFx = StimFx.clearAll,
+	HealFx = HealFx.clearAll,
+	MollyFx = MollyFx.clearAll,
+	WallFx = WallFx.clearAll,
+	FrostFx = FrostFx.clearAll,
+	RecallFx = RecallFx.clearAll,
+	ShockStrikeFx = ShockStrikeFx.clearAll,
+	RollerFx = RollerFx.clearAll,
+	FlashFx = FlashFx.clearAll,
+	BlastFx = BlastFx.clearAll,
+	ModVfx = ModVfx.clearAll,
+	UpgradeFx = UpgradeFx.clearAll,
+}
+
+function ModFxController.clearRound()
+	-- canisters still in the air land (back to the pool) on the next frame
+	for _, f in flights do
+		f.fuse = -math.huge
+	end
+	for target, record in activeHeals do
+		endHeal(target, record)
+	end
+	for name, clear in CLEARERS do
+		local ok, err = pcall(clear)
+		if not ok then
+			warn(`[ModFxController] {name}.clearAll failed:`, err)
+		end
+	end
+end
+
 local function onFx(kind: unknown, data: unknown)
 	if typeof(kind) ~= "string" or typeof(data) ~= "table" then
 		return
 	end
 	local d = data :: { [string]: any }
+	if kind == "RoundClear" then
+		ModFxController.clearRound()
+		return
+	end
 	-- The upgrade levels' own effects first (a glitched look may replace ours).
 	if UpgradeFx.onFx(kind, d) then
 		return
@@ -1369,6 +1412,12 @@ function ModFxController.start()
 	WallFx.start()
 	UpgradeFx.start()
 	RunService.RenderStepped:Connect(update)
+	-- Out of the match (lobby, Range): nothing from it stays drawn.
+	PlayZone.onLocalChanged(function(zone)
+		if zone ~= "Match" then
+			ModFxController.clearRound()
+		end
+	end)
 	-- Mod objects: coloured for this viewer as they stream in.
 	task.spawn(function()
 		local objects = Workspace:WaitForChild("ModObjects")

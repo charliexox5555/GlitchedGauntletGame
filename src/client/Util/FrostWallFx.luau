@@ -98,11 +98,13 @@ type Piece = {
 	nextGlitch: number,
 	glitchUntil: number,
 	glitched: boolean,
+	clearEnd: number?, -- clearAll: it sinks by this (os.clock())
 }
 
 local pieces: { [BasePart]: Piece } = {}
 -- Floor frost outliving its piece: stopped at `at` (server time).
 local floors: { { stop: () -> (), at: number } } = {}
+local CLEAR_FADE = 0.3 -- clearAll: the ice sinks over this
 
 local function curve(points: { number }): NumberSequence
 	local keys = {}
@@ -650,7 +652,9 @@ end
 function FrostWallFx.step(now: number, serverNow: number, at: Vector3?): boolean
 	local inside = false
 	for part, p in pieces do
-		if not part.Parent then
+		local clearEnd = p.clearEnd
+		-- A cleared piece finishes sinking after the server removed it.
+		if not part.Parent and not (clearEnd and now < clearEnd) then
 			forget(part, p, serverNow)
 			continue
 		end
@@ -672,6 +676,9 @@ function FrostWallFx.step(now: number, serverNow: number, at: Vector3?): boolean
 		local k = 1
 		if typeof(expires) == "number" then
 			k = math.clamp((expires - serverNow) / FADE, 0, 1)
+		end
+		if clearEnd then
+			k = math.min(k, math.clamp((clearEnd - now) / CLEAR_FADE, 0, 1))
 		end
 		if k < 1 then
 			unglitch(p)
@@ -704,7 +711,7 @@ function FrostWallFx.step(now: number, serverNow: number, at: Vector3?): boolean
 				glitch(p, now)
 			end
 		end
-		if at and k > 0 and Firewall.inside(part, at, 0.8) then
+		if at and k > 0 and part.Parent and Firewall.inside(part, at, 0.8) then
 			inside = true
 		end
 	end
@@ -715,6 +722,24 @@ function FrostWallFx.step(now: number, serverNow: number, at: Vector3?): boolean
 		end
 	end
 	return inside
+end
+
+-- Round over (WallFx.clearAll): the ice sinks over CLEAR_FADE without the
+-- shatter (the server removes the pieces now), and every floor frost fades.
+-- step() gives the slabs and rigs back as usual.
+function FrostWallFx.clearAll()
+	local now = os.clock()
+	for _, p in pieces do
+		p.clearEnd = math.min(p.clearEnd or math.huge, now + CLEAR_FADE)
+		unglitch(p)
+		p.shattered = true
+		p.rig.mist.Rate = 0
+		p.rig.glints.Rate = 0
+	end
+	for _, floor in floors do
+		floor.stop()
+	end
+	table.clear(floors)
 end
 
 return FrostWallFx

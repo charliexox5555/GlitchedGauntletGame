@@ -880,4 +880,19 @@ handler.step = function(_dt: number)
 	end
 end
 
+-- Round over: delayed effects are dropped and every dive column / closing
+-- ring is stopped (ModVfx / GlitchVfx fade them). `seen` keeps each body's
+-- last start and landing, so step doesn't replay the slam it was drawing.
+handler.clearAll = function()
+	table.clear(queued)
+	for _, s in seen do
+		local dive = s.dive
+		if dive then
+			s.dive = nil
+			endDive(dive)
+		end
+	end
+	lightPower = 0
+end
+
 return handler

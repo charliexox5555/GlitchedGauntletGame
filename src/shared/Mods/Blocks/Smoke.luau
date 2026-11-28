@@ -124,7 +124,12 @@ function Smoke.inside(point: Vector3, now: number?): Instance?
 	return nil
 end
 
--- Server: puts a dome on the floor at `at`, gone `life` + 0.5 s later.
+-- Server: which caster (a Player, or a bot's character model) put each live dome up, so a round's end can take
+-- that caster's domes down (Smoke.clear).
+local owners: { [BasePart]: Instance } = {}
+
+-- Server: puts a dome on the floor at `at`, gone `life` + 0.5 s later. `owner` (the caster) lets Smoke.clear
+-- find it.
 function Smoke.spawn(
 	at: Vector3,
 	radius: number,
@@ -132,7 +137,8 @@ function Smoke.spawn(
 	grow: number,
 	fade: number,
 	teamId: number?,
-	ownerId: number
+	ownerId: number,
+	owner: Instance?
 ): BasePart
 	local folder = Smoke.folder()
 	if not folder then
@@ -159,10 +165,25 @@ function Smoke.spawn(
 	StateValues.set(part, "TeamId", teamId or 0)
 	StateValues.set(part, "OwnerId", ownerId)
 	part.Parent = folder
+	if owner then
+		owners[part] = owner
+	end
 	task.delay(life + 0.5, function()
+		owners[part] = nil
 		part:Destroy()
 	end)
 	return part
+end
+
+-- Server: the round is over: every dome `owner` put up goes now (sight is clear again; clients fade their
+-- clouds on the ModFx "RoundClear" event).
+function Smoke.clear(owner: Instance)
+	for part, who in owners do
+		if who == owner then
+			owners[part] = nil
+			part:Destroy()
+		end
+	end
 end
 
 return Smoke

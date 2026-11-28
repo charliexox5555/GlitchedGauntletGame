@@ -101,20 +101,37 @@ local function point(at: Vector3, life: number): Part
 	return p
 end
 
--- Runs `fn(k)` every frame for `life` s (k 0..1), then `done`.
-local function animate(life: number, fn: (k: number) -> (), done: (() -> ())?)
-	local t0 = os.clock()
+-- clearAll cuts every running effect short: it races to its end over
+-- CLEAR_FADE, and delayed parts of older effects skip (clearGen changed).
+local CLEAR_FADE = 0.25
+local clearGen = 0
+type Run = { t0: number, life: number, cutK: number?, cutAt: number }
+local runs: { [Run]: true } = {}
+
+-- Runs `fn(k, fade)` every frame for `life` s (k 0..1), then `done`. `fade`
+-- stays 0 unless clearAll cut it short (then 0..1 as k races to 1).
+local function animate(life: number, fn: (k: number, fade: number) -> (), done: (() -> ())?)
+	local run: Run = { t0 = os.clock(), life = life, cutK = nil, cutAt = 0 }
+	runs[run] = true
 	local conn: RBXScriptConnection
 	conn = RunService.RenderStepped:Connect(function()
-		local k = (os.clock() - t0) / life
+		local now = os.clock()
+		local k = (now - run.t0) / life
+		local fade = 0
+		local cutK = run.cutK
+		if cutK then
+			fade = math.clamp((now - run.cutAt) / CLEAR_FADE, 0, 1)
+			k = cutK + (1 - cutK) * fade
+		end
 		if k >= 1 then
 			conn:Disconnect()
+			runs[run] = nil
 			if done then
 				done()
 			end
 			return
 		end
-		fn(k)
+		fn(k, fade)
 	end)
 end
 
@@ -397,11 +414,17 @@ local function grade(at: Vector3, charge: number)
 	local cc = Instance.new("ColorCorrectionEffect")
 	cc.Name = "SmiteGrade"
 	cc.Parent = Lighting
-	animate(charge, function(k)
-		cc.Brightness = -0.12 * k
-		cc.Saturation = -0.25 * k
-		cc.TintColor = WHITE:Lerp(Color3.fromHex("C9DBFF"), k)
+	local gen = clearGen
+	animate(charge, function(k, fade)
+		local dim = k * (1 - fade)
+		cc.Brightness = -0.12 * dim
+		cc.Saturation = -0.25 * dim
+		cc.TintColor = WHITE:Lerp(Color3.fromHex("C9DBFF"), dim)
 	end, function()
+		if gen ~= clearGen then
+			cc:Destroy() -- cleared: no strike pop
+			return
+		end
 		-- the strike: a blinding pop, then back to normal
 		animate(0.55, function(k)
 			local pop = (1 - k) ^ 2
@@ -479,7 +502,7 @@ local function gather(target: Model, floor: Vector3, life: number, color: Color3
 	end
 	storms[target] = storm
 	local t0 = os.clock()
-	animate(life + 1.2, function(_k)
+	animate(life + 1.2, function(_k, fade)
 		local t = os.clock() - t0
 		local build = math.clamp(t / life, 0, 1)
 		local gone = if storm.alive then 0 else math.clamp((t - life) / 1.2, 0, 1)
@@ -490,7 +513,7 @@ local function gather(target: Model, floor: Vector3, life: number, color: Color3
 			p.Size = h.base * h.s * (0.4 + 0.6 * build) * (1 - 0.5 * gone)
 			p.CFrame = CFrame.new(centre + Vector3.new(math.cos(a) * r, h.y, math.sin(a) * r))
 				* CFrame.Angles(0, a, 0)
-			p.Transparency = math.max(1 - build * 1.6, 0) + gone
+			p.Transparency = math.min(math.max(1 - build * 1.6, 0) + gone + fade, 1)
 		end
 		-- lightning flickering inside the cloud, more often as it builds
 		local flicker = rng:NextNumber() < 0.08 + 0.3 * build
@@ -569,13 +592,16 @@ local function electrocute(target: Model, color: Color3, life: number)
 	end
 	local nextArc = 0
 	local t0 = os.clock()
-	animate(life, function(k)
+	animate(life, function(k, fade)
 		local t = os.clock() - t0
 		local on = math.sin(t * 70) > 0
+		if spark and fade > 0 then
+			spark.Rate = 0
+		end
 		highlight.FillColor = if on then WHITE else color
 		highlight.FillTransparency = 0.15 + 0.7 * k + (if on then 0 else 0.15)
 		highlight.OutlineTransparency = k
-		if t >= nextArc and #limbs > 1 then
+		if t >= nextArc and #limbs > 1 and fade == 0 then
 			nextArc = t + 0.05
 			for _ = 1, 2 do
 				local a = limbs[rng:NextInteger(1, #limbs)].Position
@@ -642,7 +668,8 @@ function ShockStrikeFx.latch(target: Model, at: Vector3, warning: number, color:
 	highlight.DepthMode = Enum.HighlightDepthMode.Occluded
 	highlight.Adornee = target
 	highlight.Parent = fxFolder()
-	animate(math.max(warning, 0.05), function(k)
+	local gen = clearGen
+	animate(math.max(warning, 0.05), function(k, fade)
 		local c = chest(target)
 		if not c then
 			return
@@ -661,11 +688,23 @@ function ShockStrikeFx.latch(target: Model, at: Vector3, warning: number, color:
 		beam.Transparency = NumberSequence.new(0.75 - 0.55 * k)
 		highlight.FillTransparency = if blink then 0.45 else 0.85
 		highlight.OutlineTransparency = if blink then 0 else 0.6
+		if fade > 0 then
+			-- Cleared: the mark fades instead of charging.
+			if ring then
+				ring.Transparency = 0.5 + 0.5 * fade
+			end
+			beam.Transparency = NumberSequence.new(0.2 + 0.8 * fade)
+			highlight.FillTransparency = 0.85 + 0.15 * fade
+			highlight.OutlineTransparency = 0.6 + 0.4 * fade
+		end
 	end, function()
 		if ring then
 			ring:Destroy()
 		end
 		highlight:Destroy()
+		if gen ~= clearGen then
+			beam.Enabled = false -- its ends go a moment later
+		end
 	end)
 end
 
@@ -680,6 +719,7 @@ function ShockStrikeFx.strike(
 )
 	local floor, ground = floorUnder(at)
 	local tint = if stormy then STORM else color:Lerp(CORE, 0.5)
+	local gen = clearGen
 	local storm = if target then storms[target] else nil
 	if storm then
 		storm.alive = false -- it breaks up after the strike
@@ -687,6 +727,9 @@ function ShockStrikeFx.strike(
 	local top = floor + Vector3.new(rng:NextNumber(-3, 3), CLOUD_UP, rng:NextNumber(-3, 3))
 	lightning(top, floor, tint, 0.9, 2.8, 4, 0.6)
 	task.delay(0.07, function()
+		if gen ~= clearGen then
+			return
+		end
 		lightning(top + Vector3.new(2, 0, -2), floor, tint, 0.45, 1.6, 2, 0.35)
 	end)
 	-- the light pillar
@@ -716,6 +759,9 @@ function ShockStrikeFx.strike(
 	-- the ground: shockwaves, cracks, debris, sparks, dust and a scorch
 	shockwave(floor, tint, 1, 16, 0.5, 0.9)
 	task.delay(0.08, function()
+		if gen ~= clearGen then
+			return
+		end
 		shockwave(floor, WHITE_BLUE, 1, 9, 0.4, 0.4)
 	end)
 	burst(floor + Vector3.new(0, 0.5, 0), tint, 80, true)
@@ -776,6 +822,9 @@ function ShockStrikeFx.strike(
 	local from = at
 	for i, p in chain do
 		task.delay(0.12 * i, function()
+			if gen ~= clearGen then
+				return
+			end
 			lightning(from, p, tint, 0.35, 1.1, 1, 0.3)
 			burst(p, tint, 30, false)
 			ModAudio.play(S.zap, p)
@@ -828,9 +877,27 @@ function ShockStrikeFx.beacon(
 	local hum =
 		ModAudio.hum(S.beacon, orb.PrimaryPart or orb:FindFirstChildWhichIsA("BasePart", true))
 	local t0 = os.clock()
-	animate(life + 0.2, function(_k)
+	local faded: { { part: BasePart, alpha: number } }? = nil
+	animate(life + 0.2, function(_k, fade)
 		if not orb.Parent then
 			return
+		end
+		if fade > 0 then
+			-- Cleared: the orb and its ring fade out.
+			local list = faded
+			if not list then
+				local made = {}
+				for _, d in orb:GetDescendants() do
+					if d:IsA("BasePart") then
+						table.insert(made, { part = d, alpha = d.Transparency })
+					end
+				end
+				faded = made
+				list = made
+			end
+			for _, f in list :: { { part: BasePart, alpha: number } } do
+				f.part.Transparency = f.alpha + (1 - f.alpha) * fade
+			end
 		end
 		local t = os.clock() - t0
 		orb:PivotTo(
@@ -840,9 +907,9 @@ function ShockStrikeFx.beacon(
 		if ring then
 			ring.Size = Vector3.new(base.X * radius, 0.15, base.Z * radius)
 			ring.CFrame = CFrame.new(at + Vector3.new(0, 0.08, 0))
-			ring.Transparency = 0.55 + 0.35 * math.abs(math.sin(t * 5))
+			ring.Transparency = math.min(0.55 + 0.35 * math.abs(math.sin(t * 5)) + fade, 1)
 		end
-		if rng:NextNumber() < 0.2 then
+		if fade == 0 and rng:NextNumber() < 0.2 then
 			local r =
 				Vector3.new(rng:NextNumber(-1, 1), rng:NextNumber(0, 1.2), rng:NextNumber(-1, 1))
 			zap(at + Vector3.new(0, 0.45, 0), at + r, color, 0.3, 0.1)
@@ -874,6 +941,23 @@ end
 function ShockStrikeFx.fizzle(at: Vector3, color: Color3)
 	burst(at, color, 12, false)
 	ModAudio.play(S.fizzle, at)
+end
+
+-- Round over: every running piece (latch marks, storms, bolts, beacons, the
+-- grade, the electrocution and our veil) races to its own fade-out over
+-- CLEAR_FADE and cleans up as usual; delayed bolts and the strike pop skip.
+function ShockStrikeFx.clearAll()
+	clearGen += 1
+	local now = os.clock()
+	for run in runs do
+		if not run.cutK then
+			run.cutK = math.clamp((now - run.t0) / math.max(run.life, 1e-3), 0, 1)
+			run.cutAt = now
+		end
+	end
+	for _, storm in storms do
+		storm.alive = false
+	end
 end
 
 return ShockStrikeFx

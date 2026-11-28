@@ -610,4 +610,26 @@ function RecallCrash.step()
 	stepScreen()
 end
 
+-- Round over (UpgradeFx/Recall): a ghost still frozen in place drops out
+-- (no shatter, no pixels flying home, no break sound), streaks jump to their
+-- last 0.2 s, our crash screen skips its freeze to the settle (it fades from
+-- there). Pixels already flying home are a one-shot and land.
+function RecallCrash.clearAll()
+	local now = os.clock()
+	for _, g in ghosts do
+		for _, gp in g.parts do
+			gp.main:Destroy()
+			gp.split:Destroy()
+		end
+	end
+	table.clear(ghosts)
+	for _, st in streaks do
+		st.born = math.min(st.born, now - STREAK_LIFE + 0.2)
+	end
+	local sc = screen
+	if sc and sc.gui.Enabled then
+		crashAt = math.min(crashAt, now - (TEAR_TIME + 0.2))
+	end
+end
+
 return RecallCrash

@@ -876,6 +876,9 @@ type Burn = { emitter: ParticleEmitter, root: BasePart }
 local burns: { [Model]: Burn } = setmetatable({}, { __mode = "k" }) :: any
 local burnSoundAt = -math.huge
 local BURN_SOUND_GAP = 0.3
+-- clearAll: the BurningUntil each body had then, ignored until the server
+-- sets a new one (a round's burn doesn't outlive the round on screen).
+local quenched: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
 local function burnOf(model: Model, root: BasePart): Burn
 	local b = burns[model]
@@ -906,6 +909,9 @@ local function stepBurning(serverNow: number)
 		end
 		local untilT = StateValues.get(model, "BurningUntil")
 		local burning = typeof(untilT) == "number" and serverNow < untilT
+		if burning and quenched[model] == untilT then
+			burning = false
+		end
 		local b = burns[model]
 		if not burning and not b and not FireFx.tracked(model, model == player.Character) then
 			return
@@ -1063,6 +1069,53 @@ function MollyFx.step()
 	stepSparks(now)
 	FireKit.flush()
 	stepBurning(Workspace:GetServerTimeNow())
+end
+
+-- Round over: every fire dies down over CLEAR_FADE (quietly, no sizzle), the
+-- hums fade, the scorches fade, sparks finish their flight and the burning
+-- flames (and our corners) go out. step() pools everything as usual.
+local CLEAR_FADE = 0.3
+function MollyFx.clearAll()
+	local now = ReworkVfx.now()
+	for _, f in fires do
+		f.sizzled = true
+		ModAudio.stopHum(f.hum)
+		f.hum = nil
+		f.endAt = math.min(f.endAt, now + CLEAR_FADE)
+		if f.scorch then
+			ModVfx.stop(f.scorch)
+		end
+	end
+	for _, r in reworkFires do
+		r.sizzled = true
+		ModAudio.stopHum(r.hum)
+		r.hum = nil
+		r.endAt = math.min(r.endAt, now + CLEAR_FADE)
+		FireFx.stop(r.patch)
+	end
+	local serverNow = Workspace:GetServerTimeNow()
+	local function quench(model: Instance)
+		if not model:IsA("Model") then
+			return
+		end
+		local untilT = StateValues.get(model, "BurningUntil")
+		if typeof(untilT) == "number" and serverNow < untilT then
+			quenched[model] = untilT
+		end
+	end
+	for _, other in Players:GetPlayers() do
+		local character = other.Character
+		if character then
+			quench(character)
+		end
+	end
+	local dummies = Workspace:FindFirstChild("Dummies")
+	if dummies then
+		for _, d in dummies:GetChildren() do
+			quench(d)
+		end
+	end
+	stepBurning(serverNow)
 end
 
 return MollyFx

@@ -20,6 +20,7 @@ local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local ModAudio = require(script.Parent.ModAudio)
 local ModVfx = require(script.Parent.ModVfx)
+local RecallRing = require(script.Parent.RecallRing)
 
 local RecallFx = {}
 
@@ -104,6 +105,8 @@ type Anchor = {
 }
 local anchors: { [BasePart]: Anchor } = {}
 local armed = false -- our Crash Recovery (setArmed)
+-- Anchors clearAll took down: not set up again while their removal replicates.
+local cleared: { [BasePart]: true } = setmetatable({}, { __mode = "k" }) :: any
 
 local function halo(part: BasePart, color: Color3): ModVfx.Handle
 	local floor = part.Position - Vector3.new(0, part.Size.Y / 2 - 0.06, 0)
@@ -223,6 +226,7 @@ local function stepAnchors()
 			child:IsA("BasePart")
 			and StateValues.get(child, "Kind") == "Recall"
 			and not anchors[child]
+			and not cleared[child]
 		then
 			setUp(child)
 		end
@@ -265,6 +269,8 @@ end
 local warp: ImageLabel? = nil
 local warping = false
 local windupLength = 0.6 -- ours, from the RecallWindup event
+-- clearAll: the RecallWindupUntil each body had then, ignored until a new one.
+local quenched: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
 local function warpLabel(): ImageLabel
 	local w = warp
@@ -309,7 +315,9 @@ local function stepShimmers(serverNow: number)
 			continue
 		end
 		local untilT = StateValues.get(character, "RecallWindupUntil")
-		local on = typeof(untilT) == "number" and serverNow < untilT
+		local on = typeof(untilT) == "number"
+			and serverNow < untilT
+			and quenched[character] ~= untilT
 		if on or shimmers[root] then
 			shimmerOn(root).Rate = if on then 45 else 0
 		end
@@ -405,6 +413,34 @@ end
 function RecallFx.step()
 	stepAnchors()
 	stepShimmers(Workspace:GetServerTimeNow())
+end
+
+-- Round over: every anchor's halo and hum fade (light and static go with
+-- it), Crash Recovery is disarmed, the wind-up shimmers and our warp fade and
+-- the range ring hides.
+function RecallFx.clearAll()
+	armed = false
+	for part in anchors do
+		cleared[part] = true
+		tearDown(part)
+	end
+	local serverNow = Workspace:GetServerTimeNow()
+	for _, other in Players:GetPlayers() do
+		local character = other.Character
+		local untilT = character and StateValues.get(character, "RecallWindupUntil")
+		if character and typeof(untilT) == "number" and serverNow < untilT then
+			quenched[character] = untilT
+		end
+	end
+	for _, e in shimmers do
+		e.Rate = 0
+	end
+	local w = warp
+	if warping and w then
+		warping = false
+		TweenService:Create(w, WARP_OUT, { ImageTransparency = 1 }):Play()
+	end
+	RecallRing.hide()
 end
 
 return RecallFx

@@ -319,4 +319,15 @@ handler.step = function(_dt: number)
 	end
 end
 
+-- Round over: every bomblet and canister trail ends as if it had landed
+-- (hidden, static stops, its last particles fade, then it goes back to the
+-- pool). Their fires are Util/MollyFx's.
+handler.clearAll = function()
+	for i = #movers, 1, -1 do
+		local m = movers[i]
+		table.remove(movers, i)
+		release(m)
+	end
+end
+
 return handler

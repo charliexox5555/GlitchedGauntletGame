@@ -637,4 +637,12 @@ function DashDecoy.step(dt: number)
 	stepStatics()
 end
 
+-- Round over (UpgradeFx/Dash): every decoy takes its usual 0.2 s glitch-out
+-- now (no more shots); the static slices are one-shots (<= 0.22 s) and finish.
+function DashDecoy.clearAll()
+	for _, d in decoys do
+		glitchOut(d)
+	end
+end
+
 return DashDecoy

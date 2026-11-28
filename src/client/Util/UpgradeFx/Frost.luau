@@ -71,6 +71,19 @@ local GROUND_TIME = 3.5
 
 -- Effects that run over time: `step` returns false when done (and cleans up).
 local running: { (now: number) -> boolean } = {}
+-- os.clock() of the last round clear: effects born before it skip ahead to
+-- their own fade-out (see `clipped`).
+local clearedAt = -math.huge
+
+-- An effect's age `t`, jumped to its fade phase (`fadeAt` s in) when the
+-- round was cleared after it started, so it fades from there instead of
+-- running its full timeline.
+local function clipped(born: number, t: number, fadeAt: number): number
+	if born <= clearedAt then
+		return math.max(t, fadeAt + os.clock() - clearedAt)
+	end
+	return t
+end
 
 local folder: Folder? = nil
 local slicePool: VfxPool.Pool<Part>? = nil -- the Freeze Frame slices (in this folder)
@@ -322,7 +335,7 @@ local function spikeRing(at: Vector3, radius: number)
 	end
 	local born = os.clock()
 	table.insert(running, function(now: number): boolean
-		local t = os.clock() - born
+		local t = clipped(born, os.clock() - born, SPIKE_RISE + SPIKE_HOLD)
 		if t >= SPIKE_RISE + SPIKE_HOLD + SPIKE_SINK then
 			for _, s in spikes do
 				s.p:Destroy()
@@ -360,7 +373,7 @@ local function snapFreeze(at: Vector3, radius: number, team: number?)
 	local nextTick = 0
 	local magentaAt, cyanAt = floor, floor
 	table.insert(running, function(now: number): boolean
-		local t = os.clock() - born
+		local t = clipped(born, os.clock() - born, RING_OUT + RING_HOLD)
 		if t >= RING_OUT + RING_HOLD + RING_POP then
 			light:Destroy()
 			glyph:Destroy()
@@ -766,7 +779,7 @@ local function shatter(block: Block, loud: boolean)
 		end
 		local born = os.clock()
 		table.insert(running, function(_now: number): boolean
-			local t = os.clock() - born
+			local t = clipped(born, os.clock() - born, 0.35)
 			if t >= 0.8 then
 				for _, c in chunks do
 					c:Destroy()
@@ -998,7 +1011,7 @@ end
 local screenOn = false
 local frostFade: Tween? = nil
 
-local function setScreen(on: boolean)
+local function setScreen(on: boolean, quiet: boolean?)
 	if on == screenOn then
 		return
 	end
@@ -1033,8 +1046,10 @@ local function setScreen(on: boolean)
 		end
 		s.count.Visible = false
 		s.vhs.Visible = false
-		ModAudio.play(S.shatter)
-		ModAudio.play(S.recover)
+		if not quiet then
+			ModAudio.play(S.shatter)
+			ModAudio.play(S.recover)
+		end
 	end
 end
 
@@ -1073,6 +1088,23 @@ local function frozenLeft(model: Model, now: number): number
 	return math.max(Status.until_(model, "Frozen") - now, 0)
 end
 
+-- Freezes still running at the last round clear (body → its FrozenUntil
+-- then): not drawn again, so a status the server hasn't cleared yet can't
+-- bring a block or the screen back. A new freeze (a new until) shows.
+local held: { [Model]: number } = {}
+
+local function shownLeft(model: Model, now: number): number
+	local left = frozenLeft(model, now)
+	local h = held[model]
+	if h then
+		if left > 0 and Status.until_(model, "Frozen") == h then
+			return 0
+		end
+		held[model] = nil
+	end
+	return left
+end
+
 local handler: Types.Handler = {}
 
 handler.start = function()
@@ -1099,7 +1131,7 @@ handler.step = function(_dt: number)
 	local mine = player.Character
 	local seen: { [Model]: boolean } = {}
 	for _, body in Frozen.bodies() do
-		local left = frozenLeft(body, serverNow)
+		local left = shownLeft(body, serverNow)
 		-- Our own block would sit around the camera: we get the screen instead.
 		if left <= 0 or body == mine then
 			continue
@@ -1125,7 +1157,7 @@ handler.step = function(_dt: number)
 			shatter(block, body.Parent ~= nil)
 		end
 	end
-	local myLeft = if mine then frozenLeft(mine, serverNow) else 0
+	local myLeft = if mine then shownLeft(mine, serverNow) else 0
 	setScreen(myLeft > 0)
 	stepScreen(now, myLeft)
 	for i = #running, 1, -1 do
@@ -1133,6 +1165,30 @@ handler.step = function(_dt: number)
 			table.remove(running, i)
 		end
 	end
+end
+
+-- Round over: bursts and spikes skip to their fade (above), every ice block
+-- shatters quietly, our frozen screen falls away without its sounds, and the
+-- freezes still running aren't drawn again (`held`).
+handler.clearAll = function()
+	clearedAt = os.clock()
+	local serverNow = Workspace:GetServerTimeNow()
+	table.clear(held)
+	local bodies = Frozen.bodies()
+	local mine = player.Character
+	if mine then
+		table.insert(bodies, mine)
+	end
+	for _, body in bodies do
+		if frozenLeft(body, serverNow) > 0 then
+			held[body] = Status.until_(body, "Frozen")
+		end
+	end
+	for body, block in blocks do
+		blocks[body] = nil
+		shatter(block, false)
+	end
+	setScreen(false, true)
 end
 
 return handler

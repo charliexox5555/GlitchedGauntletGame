@@ -326,6 +326,27 @@ local function remove(cloud: Cloud)
 	cloud.shell:Destroy()
 end
 
+-- Round over: every cloud thins out over CLEAR_FADE from how it looks now
+-- (step's own fade, then remove), hums cut, no thinning-out sound.
+local CLEAR_FADE = 0.3
+function SmokeFx.clearAll()
+	local now = Workspace:GetServerTimeNow()
+	for _, c in clouds do
+		ModAudio.stopHum(c.hum)
+		c.hum = nil
+		c.faded = true
+		local age = math.max(now - c.start, 0)
+		local left = c.duration - age
+		if left > CLEAR_FADE then
+			local thin = if c.fade > 0 then math.clamp(1 - left / c.fade, 0, 1) else 0
+			-- the same thinness now, fully thin CLEAR_FADE later
+			c.fade = CLEAR_FADE
+			c.duration = age + CLEAR_FADE * (1 - thin)
+			c.start = now - age
+		end
+	end
+end
+
 function SmokeFx.step()
 	local now = Workspace:GetServerTimeNow()
 	local cam = Workspace.CurrentCamera

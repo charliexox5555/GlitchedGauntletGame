@@ -434,6 +434,27 @@ local function remove(b: Beacon)
 	b.edge:Destroy()
 end
 
+-- The zone dies out: arcs and sparks stop, the hum ends (and the finish
+-- crackle plays unless `sound` is false: a round clear).
+local function beginFade(b: Beacon, sound: boolean)
+	b.fading = true
+	for _, e in b.arcs do
+		e.Rate = 0
+	end
+	for _, e in b.sparks do
+		e.Rate = 0
+	end
+	ModAudio.stopHum(b.hum)
+	b.hum = nil
+	if sound then
+		ModAudio.play(b.look.finish, b.spot.Position)
+	end
+	local hook = b.look.onFade
+	if hook then
+		hook(b)
+	end
+end
+
 local function stepBeacon(b: Beacon, now: number): boolean
 	-- Still in the hand: nothing in the world yet.
 	if now < b.releaseAt then
@@ -488,20 +509,7 @@ local function stepBeacon(b: Beacon, now: number): boolean
 		bolt(b)
 	end
 	if now >= b.endsAt and not b.fading then
-		b.fading = true
-		for _, e in b.arcs do
-			e.Rate = 0
-		end
-		for _, e in b.sparks do
-			e.Rate = 0
-		end
-		ModAudio.stopHum(b.hum)
-		b.hum = nil
-		ModAudio.play(b.look.finish, b.spot.Position)
-		local hook = b.look.onFade
-		if hook then
-			hook(b)
-		end
+		beginFade(b, true)
 	end
 	local onStep = b.look.onStep
 	if onStep and b.deployed then
@@ -614,7 +622,19 @@ local function setStimmed(level: number, was: number)
 	end
 end
 
+-- Stims cut by a round clear: the model's latest stim end time then. A later
+-- (new) stim shows again.
+local muted: { [Instance]: number } = {}
+
+local function stimUntil(model: Instance?): number
+	return math.max(Status.until_(model, "Stimmed"), Status.until_(model, "StimStrong"))
+end
+
 local function levelOf(model: Instance?, serverNow: number): number
+	local quiet = model and muted[model]
+	if quiet and stimUntil(model) <= quiet then
+		return 0
+	end
 	if Status.active(model, "StimStrong", serverNow) then
 		return 2
 	end
@@ -669,6 +689,11 @@ function StimFx.step()
 			bodies[model] = nil
 		end
 	end
+	for model, quiet in muted do
+		if quiet <= serverNow or not model.Parent then
+			muted[model] = nil
+		end
+	end
 	local mine = levelOf(player.Character, serverNow)
 	if mine ~= stimLevel then
 		local was = stimLevel
@@ -683,6 +708,61 @@ function StimFx.step()
 			e.ImageTransparency = 0.2 + 0.35 * (0.5 + 0.5 * math.sin(now * 8))
 		else
 			e.ImageTransparency = 0.45 + 0.25 * (0.5 + 0.5 * math.sin(now * 5))
+		end
+	end
+end
+
+-- Round over: zones die out (step's FADE, no finish crackle; ones still in the
+-- hand just go), crackle on bodies stops, our screen edge fades, and stims
+-- running now stay hidden until a new one lands.
+function StimFx.clearAll()
+	local now = os.clock()
+	for i = #beacons, 1, -1 do
+		local b = beacons[i]
+		if now < b.releaseAt then
+			remove(b) -- never put in the world
+			table.remove(beacons, i)
+			continue
+		end
+		if not b.deployed then
+			b.deployAt = math.huge -- never snaps open
+		end
+		b.endsAt = math.min(b.endsAt, now)
+		if not b.fading then
+			beginFade(b, false)
+		end
+		local ring = b.ring
+		if ring then
+			ModVfx.stop(ring)
+		end
+		for _, h in b.handles do
+			ModVfx.stop(h)
+		end
+	end
+	local serverNow = Workspace:GetServerTimeNow()
+	for model, body in bodies do
+		body.arcs.Rate = 0
+		local sparks = body.sparks
+		if sparks then
+			sparks.Rate = 0
+		end
+		local quiet = stimUntil(model)
+		if quiet > serverNow then
+			muted[model] = quiet
+		end
+	end
+	local character = player.Character
+	if character then
+		local quiet = stimUntil(character)
+		if quiet > serverNow then
+			muted[character] = quiet
+		end
+	end
+	if stimLevel > 0 then
+		stimLevel = 0
+		local e = edgeGlow
+		if e then
+			TweenService:Create(e, TweenInfo.new(0.25), { ImageTransparency = 1 }):Play()
 		end
 	end
 end

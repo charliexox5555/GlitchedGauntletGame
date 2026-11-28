@@ -98,6 +98,7 @@ type Piece = {
 	mesh: MeshWall?,
 	born: number, -- os.clock()
 	scorched: boolean,
+	clearEnd: number?, -- clearAll: the mesh sinks by this (os.clock())
 }
 
 local pieces: { [BasePart]: Piece } = {}
@@ -110,6 +111,9 @@ type WallSound = {
 	at: Vector3,
 }
 local wallSounds: { [number]: WallSound } = {}
+-- The scorch marks still drawing (weak: ModVfx drops them when they end).
+local scorches: { [ModVfx.Handle]: true } = setmetatable({}, { __mode = "k" }) :: any
+local CLEAR_FADE = 0.3 -- clearAll: the flames sink over this
 
 local function kindOf(part: BasePart): string
 	return if StateValues.get(part, "WallKind") == "Frost" then "Frost" else "Fire"
@@ -522,7 +526,10 @@ function WallFx.step()
 	local camera = Workspace.CurrentCamera
 	local eye = if camera then camera.CFrame.Position else nil
 	for part, p in pieces do
-		if not part.Parent then
+		local clearEnd = p.clearEnd
+		-- A cleared mesh piece finishes sinking after the server removed it.
+		local sinking = clearEnd ~= nil and p.mesh ~= nil and now < clearEnd
+		if not part.Parent and not sinking then
 			forget(part)
 			continue
 		end
@@ -536,7 +543,7 @@ function WallFx.step()
 			k = math.clamp((expires - serverNow) / FADE, 0, 1)
 			if not p.scorched then
 				p.scorched = true
-				ModVfx.quad({
+				local scorch = ModVfx.quad({
 					texture = VFX.MOLLY_SCORCH,
 					cframe = part.CFrame * CFrame.new(0, -part.Size.Y / 2 + 0.05, 0),
 					from = math.max(part.Size.Z, part.Size.X) * 1.6,
@@ -545,7 +552,11 @@ function WallFx.step()
 					alpha0 = 0.15,
 					hold = true,
 				})
+				scorches[scorch] = true
 			end
+		end
+		if clearEnd then
+			k = math.min(k, math.clamp((clearEnd - now) / CLEAR_FADE, 0, 1))
 		end
 		local m = p.mesh
 		if m then
@@ -577,7 +588,7 @@ function WallFx.step()
 		if light then
 			light.Brightness = (2.2 + 0.5 * math.noise(now * 6, part.Position.X)) * k
 		end
-		if at and k > 0 and Firewall.inside(part, at, 0.8) then
+		if at and k > 0 and part.Parent and Firewall.inside(part, at, 0.8) then
 			inside = "Fire"
 		end
 	end
@@ -615,6 +626,36 @@ function WallFx.step()
 	end
 	stepHands()
 	FireKit.flush()
+end
+
+-- Round over: the fire walls' flames sink over CLEAR_FADE (the server removes
+-- the pieces now; their particles go with them), the loops fade without the
+-- end sound, the scorches fade, the hand flames stop and the ice walls clear
+-- (FrostWallFx.clearAll). step() pools the meshes as usual.
+function WallFx.clearAll()
+	local now = os.clock()
+	for _, p in pieces do
+		p.clearEnd = math.min(p.clearEnd or math.huge, now + CLEAR_FADE)
+		p.embers.Rate = 0
+		local low, tall, smoke = p.flames, p.tall, p.smoke
+		if low and tall and smoke then
+			low.Rate = 0
+			tall.Rate = 0
+			smoke.Rate = 0
+		end
+	end
+	for _, ws in wallSounds do
+		ws.ended = true
+		stopHums(ws)
+	end
+	for scorch in scorches do
+		ModVfx.stop(scorch)
+	end
+	table.clear(scorches)
+	for _, h in hands do
+		h.emitter.Rate = 0
+	end
+	FrostWallFx.clearAll()
 end
 
 function WallFx.start()

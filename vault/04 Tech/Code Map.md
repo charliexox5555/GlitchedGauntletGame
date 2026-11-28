@@ -14,7 +14,7 @@ Layout (one merged place `71551303511506` via `default.project.json`, port `3487
 | `ShotFx` (unreliable) | server → other clients | `WeaponService` → `EffectsController`, `GripController` |
 | `GlassShatter` (unreliable) | server → clients | `MapGlass` → `EffectsController` and `Util/GlassFx`. The server replicates pane collision and visibility through the part. |
 | `ModHold`, `ModUse`, `ModSteer`, `ModRecall`, `ModTrigger` (a second press on a Mod already out: Roller's Remote) | client → server | `ModService` |
-| `ModFx` | server → all clients | `ModService` → `ModFxController`, `ModFeelController` |
+| `ModFx` | server → all clients | `ModService` → `ModFxController`, `ModFeelController`; `"RoundClear"` from `MatchService.closeRound` → `ModFxController.clearRound` (every FX module's `clearAll`) |
 | `ModReveal` | server → caster's team | `ModService` (Recon) |
 | `ModSim` | client → server: a predicted Mod's event (`Cast`, `Slam`, `Land`, with slot and data); the report path while Server Authority is off | `ModSim` |
 | `ModSimFx` | server → every other client: the same events, relayed | `ModSim` |

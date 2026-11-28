@@ -55,7 +55,9 @@ local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = Context.net
 local RateLimit = require(Shared.Util.RateLimit)
+local HealOrb = require(Shared.Mods.HealOrb)
 local SelfBuff = require(Shared.Mods.Blocks.SelfBuff)
+local SmokeBlock = require(Shared.Mods.Blocks.Smoke)
 local Status = require(Shared.Mods.Status)
 local StatusEffects = require(Shared.Config.StatusEffects)
 local Target = require(Shared.Mods.Blocks.Target)
@@ -414,6 +416,15 @@ function ModService.clearRound(player: Player)
 	ModWalls.clear(player)
 	ModRecall.cancel(player)
 	ModEntities.clear(player, true)
+	SmokeBlock.clear(player)
+	HealOrb.clearBarriersFrom(player)
+	-- heals over time this player started (a Heal Zone's ticks) end with the round
+	for i = #heals, 1, -1 do
+		if heals[i].from == player then
+			StatusService.healingEnded(heals[i].target, heals[i].id)
+			table.remove(heals, i)
+		end
+	end
 end
 
 -- Test mode: casting spends nothing (charges stay where they are).

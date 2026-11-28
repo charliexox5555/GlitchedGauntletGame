@@ -20,6 +20,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BotsConfig = require(Shared.Config.Bots)
 local Combat = require(Shared.Config.Combat)
 local Health = require(Shared.Health)
+local HealOrb = require(ReplicatedStorage.Shared.Mods.HealOrb)
 local Locker = require(Shared.Locker)
 local MatchBody = require(Shared.MatchBody)
 local MatchState = require(script.Parent.Parent.MatchState)
@@ -1328,6 +1329,18 @@ function BotService.setFighting(on: boolean, postRound: boolean?)
 			bot.zone = nil
 			bot.idleUntil = 0
 			Nav.clear(bot.nav)
+		end
+	end
+end
+
+-- The round is over (MatchService.closeRound): what every bot threw goes,
+-- like ModService.clearRound for players, and its pending fuses stop.
+function BotService.clearRound()
+	for _, bot in bots do
+		local model = bot.model
+		BotMods.clear(bot, model)
+		if model then
+			HealOrb.clearBarriersFrom(model)
 		end
 	end
 end

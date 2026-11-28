@@ -48,13 +48,19 @@ local eq: EqualizerSoundEffect? = nil
 -- The current blind (os.clock() times): nil when the screen is clear. `spot`
 -- is where the burst sits on the screen, fixed when the blind starts (the
 -- owner: it shouldn't move as you move around).
-type Shown = { start: number, untilAt: number, strength: number, spot: Vector2 }
+-- `cutAt`: a round clear cut it short (it clears over CLEAR_FADE from then).
+type Shown = { start: number, untilAt: number, strength: number, spot: Vector2, cutAt: number? }
 local shown: Shown? = nil
 local lastStart = -math.huge
+local CLEAR_FADE = 0.25
 
 -- Head bursts on other flashed characters.
 type Head = { gui: BillboardGui, image: ImageLabel, glow: ImageLabel }
 local heads: { [Model]: Head } = {}
+-- Head bursts cut by a round clear: the blind's start then and when it was cut
+-- (a new blind on them shows again).
+type Cut = { startedAt: number, at: number }
+local cutHeads: { [Model]: Cut } = {}
 
 local function image(
 	parent: Instance,
@@ -181,7 +187,7 @@ local function poll()
 	local s = if typeof(strength) == "number" then math.clamp(strength, 0, 1) else 1
 	local clock = os.clock()
 	local current = shown
-	if current and clock < current.untilAt then
+	if current and clock < current.untilAt and not current.cutAt then
 		-- Already blind: extend it (never shorter, never weaker); the burst
 		-- stays where it is.
 		current.untilAt = math.max(current.untilAt, clock + left)
@@ -230,6 +236,10 @@ local function stepScreen(clock: number)
 	local fadeAt = current.untilAt - fade
 	local into = quint(t / FEEL.rampIn)
 	local clearing = math.clamp((clock - fadeAt) / fade, 0, 1) -- 0 held, 1 clear
+	local cutAt = current.cutAt
+	if cutAt then
+		clearing = math.max(clearing, math.clamp((clock - cutAt) / CLEAR_FADE, 0, 1))
+	end
 	local s = current.strength
 	local amount = into * (1 - quint(clearing)) * (0.35 + 0.65 * s)
 	local f = fill
@@ -326,12 +336,21 @@ local function considerHead(model: Model, serverNow: number, clock: number)
 		dropHead(model)
 		return
 	end
+	local cut = cutHeads[model]
+	local cutOut = 1
+	if cut and cut.startedAt == startedAt then
+		cutOut = 1 - (clock - cut.at) / CLEAR_FADE
+		if cutOut <= 0 then
+			dropHead(model)
+			return
+		end
+	end
 	local h = headFor(model, headPart)
 	local total = math.max(untilAt - startedAt, 0.1)
 	local left = untilAt - serverNow
 	local fadeOut = math.clamp(left / math.min(total * 0.4, 0.35), 0, 1)
 	local fadeIn = math.clamp((serverNow - startedAt) / 0.06, 0, 1)
-	local a = fadeIn * fadeOut
+	local a = fadeIn * fadeOut * cutOut
 	local pulse = 0.94 + 0.06 * math.sin(clock * 2 * math.pi * FEEL.pulse.rate)
 	h.gui.Size = UDim2.fromScale(FEEL.headSize * pulse, FEEL.headSize * pulse)
 	h.image.Rotation = clock * 30
@@ -361,6 +380,36 @@ local function stepHeads(clock: number)
 	end
 	for model in heads do
 		if not seen[model] then
+			dropHead(model)
+		end
+	end
+	for model, cut in cutHeads do
+		if not seen[model] or StateValues.get(model, CFG.startAttribute) ~= cut.startedAt then
+			cutHeads[model] = nil
+		end
+	end
+end
+
+-- Round over: our blind clears over CLEAR_FADE (the screen burst shrinks
+-- away and the muffle lifts through stepScreen's own clearing) and the bursts
+-- on flashed heads fade out; the blinds running now don't come back.
+function FlashFx.clearAll()
+	local clock = os.clock()
+	local character = Players.LocalPlayer.Character
+	local started = character and StateValues.get(character, CFG.startAttribute)
+	if typeof(started) == "number" then
+		lastStart = started -- poll won't restart the blind we're cutting
+	end
+	local current = shown
+	if current and not current.cutAt then
+		current.cutAt = clock
+		current.untilAt = math.min(current.untilAt, clock + CLEAR_FADE)
+	end
+	for model in heads do
+		local startedAt = StateValues.get(model, CFG.startAttribute)
+		if typeof(startedAt) == "number" then
+			cutHeads[model] = { startedAt = startedAt, at = clock }
+		else
 			dropHead(model)
 		end
 	end

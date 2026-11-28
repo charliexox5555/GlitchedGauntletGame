@@ -143,6 +143,18 @@ local function rig(): Burst
 	return made
 end
 
+-- The bursts' timed kit pieces and floor frost still drawing (weak: their
+-- owners drop them when they end), for clearAll.
+local kitPieces: { [IceKit.Handle]: true } = setmetatable({}, { __mode = "k" }) :: any
+local grounds: { [ModVfx.Handle]: true } = setmetatable({}, { __mode = "k" }) :: any
+
+local function spawnIce(spec: IceKit.Spec)
+	local h = IceKit.spawn(spec)
+	if h then
+		kitPieces[h] = true
+	end
+end
+
 -- The stylized burst from the ice kit; false when it isn't installed.
 local function kitBurst(at: Vector3, radius: number): boolean
 	if not IceKit.ready() then
@@ -151,7 +163,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 	local floor = CFrame.new(at + Vector3.new(0, 0.02, 0)) * IceKit.yaw(rng)
 	local flat = Vector3.new(radius, 1.5, radius)
 	-- The frost patch and its cracks snap out under the ring.
-	IceKit.spawn({
+	spawnIce({
 		name = "Floor",
 		at = floor,
 		scale = flat,
@@ -162,7 +174,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 		grow = 0.15,
 		fade = 0.6,
 	})
-	IceKit.spawn({
+	spawnIce({
 		name = "Cracks_Energy",
 		at = floor,
 		scale = flat,
@@ -174,7 +186,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 		grow = 0.15,
 		fade = 0.6,
 	})
-	IceKit.spawn({
+	spawnIce({
 		name = "Ring_Energy",
 		at = floor * IceKit.yaw(rng),
 		scale = flat,
@@ -187,7 +199,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 	})
 	-- A crystal cluster bursts up at the centre, spikes around it.
 	local big = math.sqrt(radius / 10)
-	IceKit.spawn({
+	spawnIce({
 		name = "Cluster",
 		at = floor,
 		scale = Vector3.one * 4.6 * big, -- 2.6 was a small sprig among the bigger spikes
@@ -204,7 +216,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 	for k = 1, 2 do
 		local a = rng:NextNumber(0, math.pi * 2)
 		local off = Vector3.new(math.cos(a), 0, math.sin(a)) * radius * 0.22
-		IceKit.spawn({
+		spawnIce({
 			name = "Cluster",
 			at = CFrame.new(at + off + Vector3.new(0, 0.02, 0))
 				* IceKit.yaw(rng)
@@ -223,7 +235,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 	local function shatter(base: Vector3, out: Vector3, n: number, delay: number)
 		for k = 1, n do
 			local dir = (out + Vector3.new(rng:NextNumber(-0.6, 0.6), 0, rng:NextNumber(-0.6, 0.6))).Unit
-			IceKit.spawn({
+			spawnIce({
 				name = IceKit.FRAGMENTS[(k - 1) % #IceKit.FRAGMENTS + 1],
 				at = CFrame.new(base + Vector3.new(0, rng:NextNumber(0.4, 1.4), 0))
 					* IceKit.yaw(rng),
@@ -250,7 +262,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 		local dist = radius * rng:NextNumber(0.35, 0.7)
 		local len = rng:NextNumber(2.4, 3.6) * big -- 1.6-2.6 read as pebbles
 		local base = at + out * dist
-		IceKit.spawn({
+		spawnIce({
 			name = IceKit.pick(rng, IceKit.SHARDS),
 			at = CFrame.lookAt(base, base + out)
 				* CFrame.Angles(-math.rad(rng:NextNumber(20, 35)), rng:NextNumber(0, math.pi), 0),
@@ -289,7 +301,7 @@ function FrostFx.burst(at: Vector3, radius: number)
 	r.flash:Emit(1)
 	r.shards:Emit(24)
 	-- Frost spreading on the floor, then fading.
-	ModVfx.quad({
+	local ground = ModVfx.quad({
 		texture = VFX.FROST_GROUND,
 		cframe = CFrame.new(at + Vector3.new(0, 0.05, 0)),
 		from = radius * 0.6,
@@ -299,6 +311,7 @@ function FrostFx.burst(at: Vector3, radius: number)
 		alpha0 = 0.05,
 		hold = true,
 	})
+	grounds[ground] = true
 end
 
 -- Still flying at the end of its path: a little puff, nothing else.
@@ -462,6 +475,17 @@ end
 local vignette: ImageLabel? = nil
 local hinderedNow = false
 local coldHum: ModAudio.Hum? = nil
+-- clearAll: the Hinder end time each body had then, ignored until the server
+-- sets a new one.
+local quenched: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+-- Hindered, unless clearAll ended this Hinder on screen.
+local function hindered(model: Instance?, serverNow: number): boolean
+	if not model or not Status.active(model, "Hinder", serverNow) then
+		return false
+	end
+	return quenched[model :: Model] ~= Status.until_(model, "Hinder")
+end
 
 -- While hindered: stylised ice plates in the two top corners (T_FrostCorner,
 -- the texture grows from its top-left; the right one is turned 90°), snapping
@@ -534,7 +558,7 @@ function FrostFx.step()
 		if not model:IsA("Model") then
 			return
 		end
-		local on = Status.active(model, "Hinder", serverNow)
+		local on = hindered(model, serverNow)
 		local b = bodies[model]
 		if not on and not b then
 			return
@@ -571,7 +595,7 @@ function FrostFx.step()
 			bodies[model] = nil
 		end
 	end
-	local mine = Status.active(player.Character, "Hinder", serverNow)
+	local mine = hindered(player.Character, serverNow)
 	if mine ~= hinderedNow then
 		hinderedNow = mine
 		setHindered(mine)
@@ -581,6 +605,46 @@ end
 -- Seconds of Hinder we have left (0 = none), for the HUD.
 function FrostFx.hinderedLeft(): number
 	return math.max(Status.until_(player.Character, "Hinder") - Workspace:GetServerTimeNow(), 0)
+end
+
+-- Round over: the bursts' crystals and floor frost fade, every Hinder on
+-- screen ends (the next step frees the body ice and mist as usual) and our
+-- corners and cold loop fade out (no recover sound).
+function FrostFx.clearAll()
+	for h in kitPieces do
+		IceKit.stop(h)
+	end
+	table.clear(kitPieces)
+	for h in grounds do
+		ModVfx.stop(h)
+	end
+	table.clear(grounds)
+	local serverNow = Workspace:GetServerTimeNow()
+	local function quench(model: Instance)
+		if model:IsA("Model") and Status.active(model, "Hinder", serverNow) then
+			quenched[model] = Status.until_(model, "Hinder")
+		end
+	end
+	for _, other in Players:GetPlayers() do
+		local character = other.Character
+		if character then
+			quench(character)
+		end
+	end
+	local dummies = Workspace:FindFirstChild("Dummies")
+	if dummies then
+		for _, d in dummies:GetChildren() do
+			quench(d)
+		end
+	end
+	if hinderedNow then
+		hinderedNow = false
+		for _, img in screen() do
+			TweenService:Create(img, VIGNETTE_OUT, { ImageTransparency = 1 }):Play()
+		end
+		ModAudio.stopHum(coldHum)
+		coldHum = nil
+	end
 end
 
 return FrostFx

@@ -734,4 +734,21 @@ handler.step = function(dt: number)
 	stepFloats(now)
 end
 
+-- Round over: the Heal Zones themselves are StimFx's (its clearAll fades them
+-- and calls healFade / healRemove). Here the healed glows stop emitting (their
+-- motes fade on their own, the record goes 1.5 s later as usual, the screen
+-- edge eases out meanwhile) and the "+N" numbers jump to their last moment.
+handler.clearAll = function()
+	local now = os.clock()
+	for _, rec in healed do
+		rec.glowUntil = math.min(rec.glowUntil, now)
+		rec.pending = 0
+		rec.motes.Rate = 0
+		rec.crosses.Rate = 0
+	end
+	for _, f in floats do
+		f.born = math.min(f.born, now - FLOAT_TIME * 0.7)
+	end
+end
+
 return handler

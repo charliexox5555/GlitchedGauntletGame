@@ -78,4 +78,10 @@ handler.step = function(dt: number)
 	DashGhost.step()
 end
 
+-- Round over: the decoys glitch out. DashGhost has nothing to clear: the
+-- cloak follows the server's dash windows and the afterimages last 0.3 s.
+handler.clearAll = function()
+	DashDecoy.clearAll()
+end
+
 return handler

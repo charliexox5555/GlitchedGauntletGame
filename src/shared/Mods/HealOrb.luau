@@ -94,6 +94,16 @@ local function clearBarrier(model: Model)
 	end
 end
 
+-- Server: the round is over: every Barrier `caster` (a Player, or a bot's
+-- character model) put up goes (clients fade the bubble, Util/BarrierFx).
+function HealOrb.clearBarriersFrom(caster: Instance)
+	for model, from in barrierFrom do
+		if from == caster then
+			clearBarrier(model)
+		end
+	end
+end
+
 local function giveBarrier(target: Model, hits: number, caster: Player)
 	StateValues.set(target, HealOrb.BARRIER_ATTRIBUTE, hits) -- replaces, never adds
 	barrierFrom[target] = caster

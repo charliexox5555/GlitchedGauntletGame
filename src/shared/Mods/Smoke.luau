@@ -54,7 +54,8 @@ local function pop(ctx: Types.ServerCtx, at: Vector3)
 		stats.grow,
 		stats.fade,
 		team,
-		if ctx.player:IsA("Player") then ctx.player.UserId else 0 -- a bot's character owns its things
+		if ctx.player:IsA("Player") then ctx.player.UserId else 0, -- a bot's character owns its things
+		ctx.player
 	)
 	ctx.fx("SmokePop", {
 		at = at,

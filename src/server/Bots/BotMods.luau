@@ -30,6 +30,7 @@ local ModsConfig = require(Shared.Config.Mods)
 local Net = Context.net
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 local Recon = require(Shared.Mods.Recon)
+local SmokeBlock = require(Shared.Mods.Blocks.Smoke)
 local Teams = require(Shared.Mods.Teams)
 -- The throwables' own flight (throw / options), for aiming.
 local THROWS: { [string]: any } = {
@@ -149,6 +150,10 @@ function BotMods.clear(bot: Bot, model: Model?)
 	if model then
 		ModWalls.clear(model)
 		ModEntities.clear(model :: any, true)
+		SmokeBlock.clear(model)
+		-- a cancelled Stim's fire-rate boost can't reset itself any more
+		StateValues.set(model, "FireRateMult", nil)
+		StateValues.set(model, "FireRateUntil", nil)
 	end
 end
 

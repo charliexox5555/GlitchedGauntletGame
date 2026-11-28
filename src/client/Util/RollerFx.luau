@@ -14,6 +14,7 @@
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local ModAudio = require(script.Parent.ModAudio)
@@ -47,6 +48,9 @@ type Tracked = {
 }
 
 local tracked: { [BasePart]: Tracked } = {}
+-- Parts clearAll took down: not tracked again while their removal replicates.
+local cleared: { [BasePart]: true } = setmetatable({}, { __mode = "k" }) :: any
+local CLEAR_FADE = TweenInfo.new(0.25)
 local folder: Folder? = nil
 
 local function fxFolder(): Folder
@@ -141,7 +145,7 @@ local function floorPivot(part: BasePart): CFrame
 end
 
 function RollerFx.track(part: BasePart, color: Color3)
-	if tracked[part] then
+	if tracked[part] or cleared[part] then
 		return
 	end
 	local model = modelFor(color)
@@ -296,6 +300,32 @@ function RollerFx.step(dt: number)
 		if l then
 			l.Brightness = bright
 		end
+	end
+end
+
+-- Round over: every Roller stops following, fades out (parts, light, hum)
+-- over CLEAR_FADE and is destroyed.
+function RollerFx.clearAll()
+	for part, t in tracked do
+		tracked[part] = nil
+		cleared[part] = true
+		local model = t.model
+		for _, d in model:GetDescendants() do
+			if d:IsA("BasePart") or d:IsA("Decal") then -- Decal covers Texture
+				TweenService:Create(d, CLEAR_FADE, { Transparency = 1 }):Play()
+			end
+		end
+		local l = t.light
+		if l then
+			TweenService:Create(l, CLEAR_FADE, { Brightness = 0 }):Play()
+		end
+		local hum = t.hum
+		if hum then
+			TweenService:Create(hum, CLEAR_FADE, { Volume = 0 }):Play()
+		end
+		task.delay(CLEAR_FADE.Time, function()
+			model:Destroy()
+		end)
 	end
 end
 

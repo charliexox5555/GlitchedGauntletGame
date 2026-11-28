@@ -572,6 +572,36 @@ local function ease(u: number): number
 	return 1 - (1 - u) ^ 3
 end
 
+-- Round over: each glow, light, piece and arc with more than CLEAR_FADE left
+-- runs the rest of its own animation in CLEAR_FADE (same look now, sped up to
+-- the end), then step frees it as usual.
+local CLEAR_FADE = 0.25
+
+local function hurried(born: number, life: number, now: number): (number, number)
+	local u = math.clamp((now - born) / life, 0, 1)
+	if life * (1 - u) <= CLEAR_FADE then
+		return born, life
+	end
+	local quick = CLEAR_FADE / (1 - u)
+	return now - u * quick, quick
+end
+
+function BlastFx.clearAll()
+	local now = ReworkVfx.now()
+	for _, b in billboards do
+		b.born, b.life = hurried(b.born, b.life, now)
+	end
+	for _, l in lights do
+		l.born, l.life = hurried(l.born, l.life, now)
+	end
+	for _, p in pieces do
+		p.born, p.life = hurried(p.born, p.life, now)
+	end
+	for _, a in arcs do
+		a.born, a.life = hurried(a.born, a.life, now)
+	end
+end
+
 function BlastFx.step()
 	local now = ReworkVfx.now()
 	for i = #billboards, 1, -1 do

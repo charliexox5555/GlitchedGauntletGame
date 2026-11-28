@@ -1267,7 +1267,7 @@ local function noteFighters()
 end
 
 -- The round is over for good: combat locks and every Mod's leftovers (walls,
--- fire, Recall anchors) go. Runs after RoundEnd, or straight away when the
+-- fire, smoke, Recall anchors, timers; players' and bots') go. Runs after RoundEnd, or straight away when the
 -- match ends (a replay or the end screen comes next).
 local function closeRound()
 	setAllLocked(true)
@@ -1275,6 +1275,10 @@ local function closeRound()
 	for _, player in Players:GetPlayers() do
 		ModService.clearRound(player)
 	end
+	BotService.clearRound()
+	-- clients fade every Mod effect they still draw (ModFxController); this
+	-- match's players only (Context.net), nothing read back from them
+	Net.event("ModFx"):FireAllClients("RoundClear", {})
 end
 
 -- After a round stopped on an error: no fight, no circle, no open select;

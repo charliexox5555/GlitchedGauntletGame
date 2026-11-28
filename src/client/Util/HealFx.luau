@@ -227,6 +227,15 @@ function HealFx.ribbon(caster: Model?, target: Model, color: Color3)
 	end
 end
 
+-- Round over: every glow stops emitting (its motes die out) and our screen
+-- edge fades, through step's own end-of-heal path.
+function HealFx.clearAll()
+	for _, g in glows do
+		g.untilT = 0
+	end
+	edgeUntil = 0
+end
+
 -- Per frame (ModFxController.update).
 function HealFx.step()
 	local now = os.clock()
