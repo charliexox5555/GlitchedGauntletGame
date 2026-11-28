@@ -6,7 +6,11 @@
 --   kind "coins"   a coin pack: `coins`, plus `case` (a Config/Inventory item) where paid
 --                  random items are allowed, else `caseCoins` more coins
 --   kind "bundle"  a ShopCatalog bundle by `bundle` id: all its skins
---   kind "starter" the Starter Bundle, once per player: `coins`, plus `caseCount` x `case` and
+--   kind "starter" the Starter Bundle, once per player (owner 2026-11-27: a gun now): `coins`,
+--                  the gun `gun` (its unlock price in coins if already owned), the skin
+--                  `starterSkin` (`skinCoins` if already owned), plus `caseCount` x `case` and
+--                  `boxCount` x `box` where paid random items are allowed, else `fallbackCoins`.
+--                  (Old fields, kept for the type:) `caseCount` x `case` and
 --                  `tickets` where paid random items are allowed, else `fallbackCoins` more
 --                  (Tickets bought with Robux would make Ticket cases paid random too)
 --   kind "case"    `count` x `case` (a Config/Inventory item) for shop case `caseId`; only
@@ -33,6 +37,11 @@ export type Product = {
 	caseId: string?,
 	bundle: string?,
 	skin: { gun: string, line: string }?,
+	gun: string?,
+	starterSkin: { gun: string, line: string }?,
+	skinCoins: number?,
+	box: string?,
+	boxCount: number?,
 }
 
 local Season = require(script.Parent.Season)
@@ -125,11 +134,17 @@ Products.LIST = table.freeze({
 		kind = "starter",
 		robux = 67,
 		name = "STARTER BUNDLE",
-		coins = 1500, -- owner 2026-11-22: 2 cases + 1,500 coins + 3 Tickets
+		-- owner 2026-11-27: the Lancer, a skin for it, a Standard Case, a Strike Box (charms) and
+		-- 1,500 coins (was 2 cases + 1,500 coins + 3 Tickets)
+		coins = 1500,
+		gun = "Bulldog", -- the Lancer (2,500 coins to unlock)
+		starterSkin = table.freeze({ gun = "Bulldog", line = "Payload" }), -- Rare, in the game
+		skinCoins = 1000, -- instead of the skin when it's already owned
 		case = "CaseStandard",
-		caseCount = 2,
-		tickets = 3,
-		fallbackCoins = 1100, -- instead of the cases and Tickets where they can't be sold
+		caseCount = 1,
+		box = "CaseStrikeBox",
+		boxCount = 1,
+		fallbackCoins = 800, -- instead of the case and the box where paid random items can't be sold
 	}),
 	-- cases (Robux first; Tickets in the case popup), one or three at a time
 	table.freeze({

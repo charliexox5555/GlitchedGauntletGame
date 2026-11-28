@@ -240,7 +240,7 @@ ShopCatalog.BUNDLES = {
 		color = Color3.fromHex("2E7D5B"),
 		slot = "Starter",
 		tag = "NEW PLAYERS",
-		sub = "2 CASES + 1,500 COINS + 3 TICKETS", -- Config/Products.STARTER grants it
+		sub = "LANCER + PAYLOAD SKIN + CASE + STRIKE BOX + 1,500 COINS", -- Config/Products.STARTER grants it
 		banner = "rbxassetid://96454339687407", -- art-source/ui/shop/new/banner_starter.png (ART.starterBanner)
 		items = {},
 	},

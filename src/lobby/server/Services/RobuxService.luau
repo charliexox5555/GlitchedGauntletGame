@@ -41,6 +41,7 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Inventory = require(ReplicatedStorage.Shared.Config.Inventory)
 local Products = require(ReplicatedStorage.Shared.Config.Products)
 local DailyRoll = require(ReplicatedStorage.Shared.DailyRoll)
+local GunLoadout = require(ReplicatedStorage.Shared.GunLoadout)
 local PlayerData = require(ReplicatedStorage.Shared.PlayerData)
 local Season = require(ReplicatedStorage.Shared.Config.Season)
 local SeasonPass = require(ReplicatedStorage.Shared.SeasonPass)
@@ -437,15 +438,33 @@ local function grant(
 			return `Starter Bundle already bought: +{compensation(product)} coins`
 		end
 		data.buys.starter = true
-		addCoins(product.coins or 0)
-		if allowCase then
-			local n = product.caseCount or 0
-			local got = addCases(product.case, n, product.fallbackCoins or 0)
-			data.tickets = math.min(data.tickets + (product.tickets or 0), Economy.MAX_TICKETS)
-			return `Starter Bundle: {got} cases, {product.coins} coins and {product.tickets} Tickets`
+		local coins = product.coins or 0
+		-- the gun (its unlock price in coins when it's already owned)
+		local gun = product.gun
+		if gun and GunLoadout.slotOf(gun) then
+			if data.guns.owned[gun] then
+				coins += GunLoadout.price(gun) or 0
+			else
+				data.guns.owned[gun] = true
+			end
 		end
-		addCoins(product.fallbackCoins or 0)
-		return `Starter Bundle: {(product.coins or 0) + (product.fallbackCoins or 0)} coins`
+		-- its skin
+		local skin = product.starterSkin
+		if skin and not PlayerData.grantSkin(data, skin.gun, skin.line) then
+			coins += product.skinCoins or 0
+		end
+		-- a case and a charm box where paid random items are allowed, else coins for both
+		if allowCase then
+			local cases = addCases(product.case, product.caseCount or 0, 0)
+			local boxes = addCases(product.box, product.boxCount or 0, 0)
+			if cases + boxes == 0 then
+				coins += product.fallbackCoins or 0
+			end
+		else
+			coins += product.fallbackCoins or 0
+		end
+		addCoins(coins)
+		return `Starter Bundle: {coins} coins`
 	elseif product.kind == "case" then
 		local n = math.max(product.count or 1, 1)
 		local got = addCases(product.case, n, compensation(product))

@@ -1737,6 +1737,27 @@ local function celebrateLogin(p: LobbyNet.LoginEventPayload)
 	end
 end
 
+-- "LANCER + PAYLOAD SKIN + CASE + STRIKE BOX + 1,500 COINS" (Config/Products.STARTER)
+local function starterContents(product: Products.Product): string
+	local parts = {}
+	if product.gun then
+		table.insert(parts, string.upper(Weapons.nameOf(product.gun)))
+	end
+	local skin = product.starterSkin
+	if skin then
+		table.insert(parts, string.upper(skin.line) .. " SKIN")
+	end
+	if (product.caseCount or 0) > 0 then
+		table.insert(parts, if product.caseCount == 1 then "CASE" else `{product.caseCount} CASES`)
+	end
+	local box = product.box and Inventory.ITEMS[product.box]
+	if box and (product.boxCount or 0) > 0 then
+		table.insert(parts, box.name)
+	end
+	table.insert(parts, `{commas(product.coins or 0)} COINS`)
+	return table.concat(parts, " + ")
+end
+
 local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 	local product = if typeof(p.product) == "number" then Products.BY_ID[p.product] else nil
 	local message = p.text or "Purchase complete"
@@ -1793,6 +1814,28 @@ local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 			image = case and case.art,
 			tier = "Rare",
 			color = case and case.color or ShopTheme.GOLD,
+		})
+	elseif product and product.kind == "starter" and product.gun then
+		-- the new bundle (2026-11-27): the gun and its skin up front, then the rest
+		local items: { ShopRewardFx.Item } = {}
+		local skin = product.starterSkin
+		if skin then
+			addRewardItem(items, SkinArt.portrait(skin.gun, skin.line))
+		end
+		for _, id in { product.case, product.box } do
+			local def = if id then Inventory.ITEMS[id] else nil
+			if def then
+				addRewardItem(items, def.icon)
+			end
+		end
+		addRewardItem(items, ShopCatalog.PACK_ART[3], true)
+		celebrate({
+			name = starterContents(product),
+			image = if skin then SkinArt.portrait(skin.gun, skin.line) else nil,
+			tier = "Epic",
+			color = ShopTheme.GOLD,
+			coins = tonumber(string.match(message, "(%d+) coins")),
+			items = items,
 		})
 	elseif product and product.kind == "starter" then
 		local caseCount, base, ticketCount =
@@ -2038,7 +2081,7 @@ local function buyStarter()
 	end
 	openConfirm({
 		title = "STARTER BUNDLE",
-		name = `{starter.caseCount or 0} CASES + {commas(starter.coins or 0)} COINS + {starter.tickets or 0} TICKETS`,
+		name = starterContents(starter),
 		art = ShopCatalog.ART.starterContents,
 		price = starter.robux,
 		currency = "robux",
