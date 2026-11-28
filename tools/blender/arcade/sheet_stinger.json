@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Cabinet deck ahead of the charging handle"],
+  ["finish_joystick.png", "Joystick (low, under the rail's ADS shadow) and buttons"],
+  ["finish_coin_door.png", "Coin door (right, rear receiver)"],
+  ["finish_butt.png", "Cabinet butt: marquee and side art"],
+  ["finish_brake.png", "Stepped brake and light ring"],
+  ["finish_foreend.png", "Fore-end field and lit edge trim"],
+  ["finish_stock_block.png", "Stock adapter block field"],
+  ["culled_receiver_rear_right.png", "Receiver sleeved over the stock block (culled)"]
+]
