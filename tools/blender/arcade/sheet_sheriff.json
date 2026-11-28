@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Control deck on the barrel and lug (left)"],
+  ["finish_deck_controls.png", "Joystick and three buttons, low under the screen"],
+  ["finish_coin_door.png", "Coin door (right frame, under the hammer)"],
+  ["finish_barrel_art.png", "Barrel side art and lit trim (right)"],
+  ["finish_collar.png", "Muzzle collar and light ring"],
+  ["culled_muzzle_front.png", "Collar mouth over the bore (culled)"],
+  ["culled_trigger_left.png", "Trigger guard posts into the frame (culled)"],
+  ["culled_deck_under.png", "Deck from below over the lug (culled)"]
+]
