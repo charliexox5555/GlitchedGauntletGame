@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Cabinet deck in the receiver's recess panel"],
+  ["finish_joystick.png", "Deck joystick and buttons"],
+  ["finish_coin_door.png", "Coin door (right, lower receiver)"],
+  ["finish_forend_left.png", "Pump forend: grooves, field, lit trim (Pump bone)"],
+  ["finish_collar.png", "Muzzle collar and light ring"],
+  ["finish_butt.png", "Cabinet butt: marquee and side art"],
+  ["culled_forend_rear.png", "Forend rear over the action bars and tube (culled)"],
+  ["culled_trigger_left.png", "Trigger guard to receiver, no gap (culled)"]
+]
