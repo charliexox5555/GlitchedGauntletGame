@@ -1,0 +1,10 @@
+[
+  ["finish_deck.png", "Cabinet deck in the receiver's left face"],
+  ["finish_joystick.png", "Joystick and buttons over the charging slot"],
+  ["finish_screen.png", "Pixel screen: ship, shot, invader, stars"],
+  ["finish_coin_door.png", "Coin door (right, feed section)"],
+  ["finish_box_left.png", "Ammo box art and flange (bone AmmoBox)"],
+  ["finish_handguard_left.png", "Handguard field, lit trim, stock charm loop"],
+  ["finish_brake.png", "Stepped brake, light ring, through ports"],
+  ["culled_trigger_join.png", "Trigger guard seated 0.023 (culled)"]
+]

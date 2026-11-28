@@ -466,3 +466,74 @@ Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP, P
 - Four stock pins were removed: the two at the lower rear of the stock (under the new art and the coin door) and the two on the handguard. The Bolt's flush face was lifted 0.004 in the master.
 - The butt is plain apart from the marquee: the speaker grille was cut to stay inside the triangle budget.
 - Not installed: the Studio upload and install wait for your go.
+
+## Odin (Mauler)
+Built 2026-11-27 from the [Gun Brief](Gun%20Brief.md), Blender only (live MCP on 9876, PID 40136 checked). Scripts: `15_odin.py` (build; `DRY=True` builds without saving), `21_review_odin.py` (stations; the stock file has no `Cam_Hip`, so it passes `HIP`), `sheet_odin.json`. No shared script was changed.
+
+**Stock measured** (ray-cast depth maps, both sides, and every clip swept relative to Root):
+- Main receiver (closed) x -.168/.788, left face y .100 (z .166-.546), a panel-line groove at z .414-.424 and a top groove at .492-.518. Charging slot (left) x -.116/.35, z .306-.364; the knob (y to .158) runs back to x -.07 in Draw. Ejection port (right) x .34-.59.
+- Feed section (closed) x .788-1.452, z .133-.49, with the belt window on the left (x .79-1.06). Stock side plates (x 1.102-1.855, y .114) with Neon chevrons. Handguard (closed) x 1.44-2.272, face .100, a 45 degree lower chamfer (.175-.196), a dark pocket x 1.856-2.10. CharmLoop (stock position) x 2.119-2.151, z .178-.22.
+- Barrel r .08 at z .371 to x 3.03; front sight block x 2.349-2.496; muzzle device x 3.027-3.364 (Muzzle 3.3635). Stock body face .072, its top bar falling from z .45 (x -.38) to .395 (x -.89) over a through-window; butt pad x -1.2425/-.9625.
+- Ammo box (bone `AmmoBox`) x .577-1.312, y .156 with recessed X panels (.148), lid to z .122, handle (left) y to .173. In the reloads it drops straight down (pitch up to 4 degrees) and overshoots +.007 on the way back; the belt reaches y .104. The feed cover opens 77 degrees.
+- ADS: adsDistance .39, adsFov 70 (`Config/Weapons`); eye x -.4665, z .6503 (= `Odin_FP_ADS`). The hip camera is the Havoc's Cam_Hip at the same offset from the AimPoint, raised 0.034/0.8 for the Odin's lower `viewmodelOffset` (RIFLE_VM).
+- Stock 4,528 tris, so the budget is 6,792.
+
+| Version | What changed |
+|---|---|
+| v01 | First build, 6,350 tris. The main receiver was copied out as `AR_Receiver` for the deck-seat cut, so the audit counted the stock bolt, trigger, handle and feed cover touching it on every clip (stock behaviour). The screen invader had cells meeting at a corner (4 non-manifold edges), and the stock's flush pairs (belt links, feed cover) remained. |
+| v02 | The main receiver keeps its stock name (the seat is cut into `Odin_Receiver`; its open stock islands come through unchanged). Invader redrawn; the belt and feed cover flush faces lifted 0.004 in the build; the rear cap's front set to -.147 so it clears the deck seat. Audit clean, 6,326 tris. Review: the stock-frame band and line ran 0.015 over the stock's falling top edge. |
+| **v03** | Stock-frame art moved inside the bar (0.018+ from its top and the window). **Candidate.** |
+
+**What the Arcade Mauler has**
+- **Control deck** (left, Root): an L-shaped plate in a seat cut 0.012 into the receiver's left face, 0.008 inside the seat walls so a dark reveal runs round it. A strip over the charging slot carries the joystick and three buttons rising toward the muzzle (cyan, yellow, magenta; Havoc size, r .022 in r .028 collars), where the held camera sees them large. Ahead of it, a screen block whose rear edge rakes down clear of the slot holds a big pixel screen (ship and shot low left, a cyan invader as the blip, three yellow stars) with a cyan light pipe over it.
+- **Coin door** (right) on the feed section: two lilac coin entries with yellow lit slots and a magenta stripe.
+- **Handguard** (`AR_Handguard`, the stock handguard copied out for the cuts): a recessed violet field on both sides (pixel-stepped rear corner, a raked front corner that keeps clear of the stock charm loop; magenta band, cyan line, starburst, pixel trail). The field swallows the stock dark pocket. A magenta T-molding trim is half-buried along each 45 degree lower chamfer.
+- **Ammo box** (bone `AmmoBox`): a violet field plate over each recessed side panel (pixel-stepped corner; the stock handle stands through it) with the band (the "mag stripe"), line, starburst and pixel trail below the handle. A dark flange stands on the lid 0.008 outside the receiver's sides (plus a rear wall), so the stock box-to-gun running clearance no longer shows from the side.
+- **Stock frame art**: raked band and line with a pixel trail on the top bar, both sides.
+- **Cabinet butt** replacing the pad: a raked marquee top with a cyan light in a seat on both sides, a stepped rear, swallowing the stock body's rear end by 0.047.
+- **Brake**: eight-sided and stepped (rear collar 0.025 over the barrel, light-ring groove with the cyan ring, a ported main section with two faceted through-ports per side, a stepped nose, a bore with the Muzzle locator).
+- All 12 `flat_group` names are on Root parts: `ARButton1-3`, `ARStickBall`, `ARScreen*`, `ARDeckLight`, `ARTrim`, `ARBrakeLight`. The screen pixel is 0.0085, as on the other guns.
+
+**Moved charm point (owner, 2026-11-27).** The stock `CharmLoop` is **not dressed or hidden**: it keeps its stock materials, so the export lists it under `untouched_stock` (the only entry) and the Studio install keeps the owner's moved ring. Blender's `CharmPoint` locator stays at its v05 position (contract equal). Every new Root part is at least **0.23** from the moved point (1.18, 0.126, 0.435), measured to a 0.09 sphere plus the column below it: the deck ends at x .76 and the handguard fields start at x 1.48, so the left feed section under the point is plain stock body. The fields also stop short of the stock loop's Blender position.
+
+**Gap sweep (2026-11-27).** Culled magenta close-ups of every join from both sides and below (the `culled_*` stations in `out/Odin_v03_views/`), plus measured joins (island near-misses and overlap depths) and a see-through check. Stock joins fixed in `15_odin.py`, each now 0.02+ deep:
+- the trigger guard sat **0.003** into the receiver's underside (now 0.023); the grip top 0.007 (0.027);
+- the feed section only touched the main receiver (0.000; now 0.02 in), and the handguard ran 0.012 over the feed section (0.032);
+- the rail sat 0.001 on the receiver top and its teeth 0.001 on the rail (now 0.021 / 0.02); the rear sight ring's feet 0.007 (0.027);
+- the rear cap 0.011 over the receiver (0.021); the stock adapter 0.007 in the stock body and in the rear cap (0.027 / 0.030); the cap's Neon squares 0.0005 off their pocket floor (backs 0.0075 in);
+- the barrel 0.012 in the handguard (0.032); the barrel ring only touched the front sight block (0.02 in); the front sight base 0.002 on the block, its hood 0.002 and post 0.003 in the base (0.02 deeper, hidden; what the ADS eye sees is unchanged); the post's Neon dot 0.001 on the post (0.007);
+- the lug under the handguard 0.004 (0.024); all retained pins 0.003 in their faces (0.023).
+- **Checked, no gap:** the deck, coin door and art seats (measured: every plate's back is buried 0.002-0.014 and nothing overhangs), the butt join, the brake mount, the box field and handle, the feed cover and charging handle (moving, as stock), the ejection-port trim on the right.
+- **Moving-part clearance kept:** the ammo box hangs 0.011 under the feed section and 0.035 under the main receiver, and rises 0.007 in the reload, so it cannot be buried. The box-borne flange hides that slot from both sides; seen straight from ahead or behind under the gun it is a dark shadow line.
+
+**v03 results**
+- **Master:** `art-source/weapons/Skins/Arcade/Odin/v03/Odin_Arcade_v03.blend`. **Export:** `v03x/` (`Odin_Arcade_RobloxFlat.fbx`, `manifest_flat.json`, 41 parts, all 12 AR groups as their own parts, the sights as `SK_Root_Sight_*`, `untouched_stock: ["CharmLoop"]`).
+- **Triangles:** 6,326 against 4,528 for the stock gun (1.40x, inside the 1.5x budget).
+- **Audit** (`out/Odin_v03_views/audit.json`, ADS distance 0.39):
+  - 0 faults in new geometry. The 18 faults are the stock's own open islands with the same open-edge counts (Neon squares, lug, rear cap, trigger guard, ejection trim, rail, barrel tube, front sight parts, grip, adapter, pins); some moved for the gap fixes but keep their topology.
+  - 0 coplanar pairs (the stock's three are gone: two lifted, the butt pad's removed).
+  - Floating: only the stock ammo box group (it floats in the stock audit too, on its running clearance) and the new box parts riding on it, buried 0.002-0.010 in its faces, as the Prowler's mag stripes ride its floating magazine.
+  - Bones, locators and actions are identical to the stock.
+  - 0 animated intersections across Draw, Fire, Inspect, Reload and ReloadEmpty.
+  - All 5 ADS rays are clear. The post ray hits only `Odin_Sights`. Nothing new shows in the ADS render at 68 degrees or in a check at the game's 70 degrees: the rear cap hides the joystick.
+- **Flat export:** 0 coplanar lifts, 0 flipped islands, 0 crossed faces. The one-sided magenta re-import shows no holes (`out/Odin_v03x_flat_check/`); the magenta seen through the brake is its through-ports.
+- **Review sheet:** [Odin_v03_review.png](out/Odin_v03_review.png)
+- **Self-grade:** 9/10 (the gun's grade is its lowest area).
+
+| Area | Grade |
+|---|---|
+| Silhouette | 9 |
+| Crispness | 9 |
+| Layering | 9 |
+| Connections | 9 |
+| ADS | 9 |
+| Palette | 9 |
+| Budget | 9 |
+| Contract | 10 |
+
+**For the owner**
+- Three buttons fit (Havoc size); nothing sits on a moving bone. The deck is L-shaped: the buttons and joystick ride a strip over the charging slot (the big near surface in first person) and the screen sits ahead of it, rather than one rectangular plate.
+- The ammo box carries side art and a flange on its own bone. It never touches the gun (stock running clearance), so the audit lists it as floating, as the stock does.
+- `CharmLoop` is unskinned and every Arcade part keeps clear of the moved charm point; the plain left feed section under it is stock body in Arcade purple.
+- Stock geometry changed to close gaps (listed above). Removed: the two side plates with their Neon chevrons, the left pin under the deck, the muzzle device and the butt pad. The belt's and feed cover's flush faces were lifted 0.004.
+- Not installed: the Studio upload and install wait for your go.
