@@ -2,7 +2,7 @@
 
 Owner 2026-11-28: "We should honestly add level rewards if we can, and also gun level rewards. Just give coins, rarely tickets and maybe charm case, etc. Just simple things."
 
-Fills the two empty slots left for later: `Config/Progression.LEVEL_REWARDS` ([Progression](Progression.md) A.6) and `Config/GunLevels.REWARDS` ([Gun Levels](Gun%20Levels.md), "Reward at LV N"). Claude's proposal, 2026-11-28; **the owner approves the table**, numbers are config only.
+Fills the two empty slots left for later: `Config/Progression.LEVEL_REWARDS` ([Progression](Progression.md) A.6) and `Config/GunLevels.REWARDS` ([Gun Levels](Gun%20Levels.md), "Reward at LV N"). Claude's proposal, **approved by the owner 2026-11-28** as it stands; numbers are config only.
 
 ## The table
 
