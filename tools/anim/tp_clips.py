@@ -1649,32 +1649,45 @@ def unarmed_idle_ctrl(t):
 	)
 
 
-def _swing_clip(name, length, swing, back, bend_fwd, bend_back, twist, lean, out=7.0, lag=0.0):
+def _swing_clip(name, length, swing, back, bend_fwd, bend_back, twist, lean, out=7.0, lag=0.0, cross=0.0, dip=0.0, roll=0.0, elbow_lag=0.0):
 	"""An arm swing in step with the legs: at phase 0 the left arm is fully
 	forward (`swing` degrees) and the right fully back (`back`), elbows bent
 	`bend_fwd` on the forward swing and `bend_back` behind; the chest
-	counter-turns `twist` degrees against the hips and leans `lean`."""
+	counter-turns `twist` degrees against the hips and leans `lean`.
+
+	v3 (2026-11-28, owner: the lobby run "looks blocky"): the forward arm
+	pumps `cross` degrees in toward the centre line (a straight fore-aft
+	swing reads as a block on a hinge); the elbow folds `elbow_lag` of a
+	cycle after the shoulder swings (overlap); the chest dips `dip` degrees
+	a beat after each footfall and rolls `roll` degrees against the hips;
+	the head counters the chest so it rides level."""
 
 	def at(t):
 		# The arms trail the legs by `lag` of a cycle (they follow the hips'
 		# turn, they don't lead it): a step-locked swing reads mechanical.
 		ph = t / length - lag
 		c = math.cos(TAU * ph)  # 1: left arm forward, -1: right arm forward
+		ce = math.cos(TAU * (ph - elbow_lag))
+		s = math.sin(TAU * ph)
+		d = math.cos(2 * TAU * (ph - 0.12))  # 1 a beat after each footfall
+
 		# A swing spends more time at its ends than in the middle (pendulum),
 		# and the elbow folds as the arm comes forward.
-		def arm(fwd):
+		def arm(fwd, fwd_elbow):
 			w = (fwd + 1) / 2  # 0 back .. 1 forward
+			we = (fwd_elbow + 1) / 2
 			pitch = -back + (swing + back) * w
-			bend = bend_back + (bend_fwd - bend_back) * w
+			bend = bend_back + (bend_fwd - bend_back) * we
 			# The wrist trails the forearm a touch (follow-through).
-			return _arm(pitch, bend, out, 4 + 6 * w - 5 * math.sin(TAU * ph) * (1 if fwd == c else -1))
+			wrist = 4 + 6 * w - 5 * s * (1 if fwd == c else -1)
+			return {"fk": ((pitch, cross * w * w, out + 3 * (1 - w)), (bend, 0, 0), (wrist, 0, 0))}
 
 		return solve(
 			_arms_ctrl(
-				(lean, twist * c, 0),
-				(-lean * 0.6, -twist * c * 0.7, 0),
-				arm(-c),
-				arm(c),
+				(lean - dip * d, twist * c, -roll * s),
+				(-lean * 0.6 + 0.8 * dip * d, -twist * c * 0.7, 0.7 * roll * s),
+				arm(-c, -ce),
+				arm(c, ce),
 			)
 		)
 
@@ -1685,9 +1698,10 @@ add(Clip("UnarmedIdle", "Action", lambda t: solve(unarmed_idle_ctrl(t)), UPPER, 
 # Walk: an easy swing; run: elbows bent, a full swing; sprint: pumping.
 # (v2, owner 2026-11-21 "the walking ... looks a little too clunky": a smaller,
 # looser walk swing with soft elbows, the arms trailing the legs.)
-_swing_clip("UnarmedWalk", WALK_LENGTH, swing=22, back=17, bend_fwd=26, bend_back=12, twist=4, lean=0, out=6.0, lag=0.07)
-_swing_clip("UnarmedRun", RUN_LENGTH, swing=46, back=36, bend_fwd=78, bend_back=48, twist=6, lean=-4, lag=0.05)
-_swing_clip("SprintUnarmed", SPRINT_EASY_LENGTH, swing=44, back=34, bend_fwd=84, bend_back=55, twist=6, lean=-2, out=6.5, lag=0.04)
+# (v3 2026-11-28: arms pump across the body, elbows overlap, the chest dips and rolls.)
+_swing_clip("UnarmedWalk", WALK_LENGTH, swing=24, back=18, bend_fwd=30, bend_back=12, twist=6, lean=-1, out=6.0, lag=0.07, cross=8, dip=1.5, roll=2, elbow_lag=0.06)
+_swing_clip("UnarmedRun", RUN_LENGTH, swing=48, back=38, bend_fwd=82, bend_back=46, twist=9, lean=-5, lag=0.05, cross=14, dip=2.5, roll=2.5, elbow_lag=0.05)
+_swing_clip("SprintUnarmed", SPRINT_EASY_LENGTH, swing=50, back=40, bend_fwd=88, bend_back=52, twist=10, lean=-6, out=6.5, lag=0.04, cross=16, dip=3, roll=3, elbow_lag=0.05)
 # The sprint arms are an Action2 layer like the other sprint uppers (Poses SPRINT_SET).
 CLIPS["SprintUnarmed"].priority = "Action2"
 

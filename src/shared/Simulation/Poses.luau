@@ -230,6 +230,10 @@ end
 local retryAt: { [string]: number } = {}
 local retryGap: { [string]: number } = {}
 local FIRST_GRACE = 3 -- seconds a fresh track may take to load before it counts as failed
+-- When each pose track was last told to play, and how long a track that is
+-- still loading waits before it is told again.
+local playedAt: { [AnimationTrack]: number } = setmetatable({}, { __mode = "k" }) :: any
+local REPLAY_WAIT = 1
 local firstSeen: { [string]: number } = {}
 
 function retryDue(id: string): boolean
@@ -267,8 +271,17 @@ local function trackFor(animator: Animator, name: string): AnimationTrack
 			track:Destroy()
 			byName[name] = nil
 		else
-			if not track.IsPlaying then
+			-- (A track still downloading reports IsPlaying false; playing it again
+			-- every step restarted it each frame until it loaded: the first steps
+			-- of a run glitched, measured 2026-11-28. Its first Play starts it once
+			-- it has loaded.)
+			local since = playedAt[track]
+			if
+				not track.IsPlaying
+				and (track.Length > 0 or not since or os.clock() - since > REPLAY_WAIT)
+			then
 				track:Play(0, OFF, 1)
+				playedAt[track] = os.clock()
 			end
 			return track
 		end
@@ -286,6 +299,7 @@ local function trackFor(animator: Animator, name: string): AnimationTrack
 	t.Looped = true
 	if not t.IsPlaying then
 		t:Play(0, OFF, 1)
+		playedAt[t] = os.clock()
 	end
 	byName[name] = t
 	return t
@@ -436,6 +450,11 @@ end
 local posedPitch: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 -- How far each character is between the hip hold (0) and the sights (1).
 local posedAds: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+-- The ground speed each character is posed with, eased toward the real one
+-- (2026-11-28, owner: in the lobby the walk "goes in and out": bumps and seams
+-- dipped the speed for a frame or two, and the walk set faded in and out over
+-- the run each time).
+local posedSpeed: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 -- The last reload (ReloadAt) and hit (HitAt) posed per character.
 local reloadSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local hitSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
@@ -759,7 +778,11 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	-- watchers' TpIkController pitches the waist and neck and places the gun
 	-- from the aim, so the holds stay level here.
 	local holdPitch = if tpIkOn() then 0 else pitch
-	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
+	local rawSpeed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
+	local speedWas = posedSpeed[character] or rawSpeed
+	local speed = speedWas
+		+ (rawSpeed - speedWas) * (1 - math.exp(-Animations.SPEED_SMOOTHING * dt))
+	posedSpeed[character] = speed
 	-- Crouch blends into crouch-walk over a small speed range instead of a
 	-- hard switch at MOVING_SPEED.
 	local moving =
@@ -1120,10 +1143,23 @@ function PoseSim.initialize()
 	connection = if Authority.server()
 		then RunService:BindToSimulation(step, Enum.StepFrequency.Hz60, 4000)
 		else RunService.PreAnimation:Connect(step)
-	-- Visible locomotion warms naturally as its Animator starts the tracks.
-	-- Prime only the first local one-shots before the player needs them.
+	-- Clients load every pose clip up front (the server can't preload).
+	if not RunService:IsClient() then
+		return
+	end
 	task.spawn(function()
+		-- (2026-11-28: every pose and leg clip, not only a few one-shots: the
+		-- first steps of a run waited on each direction's download.)
 		local list: { Instance } = {}
+		local seen: { [string]: boolean } = {}
+		local function add(animId: string?)
+			if typeof(animId) == "string" and animId ~= "" and not seen[animId] then
+				seen[animId] = true
+				local a = Instance.new("Animation")
+				a.AnimationId = animId
+				table.insert(list, a)
+			end
+		end
 		for _, kind in
 			{
 				"Land",
@@ -1135,12 +1171,10 @@ function PoseSim.initialize()
 				"Updraft",
 			}
 		do
-			local id = USE_IDS[kind]
-			if id then
-				local a = Instance.new("Animation")
-				a.AnimationId = id
-				table.insert(list, a)
-			end
+			add(USE_IDS[kind])
+		end
+		for _, animId in IDS do
+			add(animId)
 		end
 		pcall(ContentProvider.PreloadAsync, ContentProvider, list)
 		for _, animation in list do

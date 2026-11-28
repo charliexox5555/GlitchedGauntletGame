@@ -43,10 +43,10 @@ return table.freeze({
 		SprintKnife = id(123727434361000),
 		-- With nothing in hand (the lobby; tools/anim/tp_clips.py "Unarmed", 2026-11-21): the upper body
 		-- only, over the Core idle and the leg cycles. Walk / run follow the leg cycle's phase (Poses).
-		SprintUnarmed = id(106420213826097),
+		SprintUnarmed = id(111864275395628), -- t1 2026-11-28: arms pump across the body, elbows overlap, chest dips and rolls (was 106420213826097)
 		UnarmedIdle = id(87081146273969),
-		UnarmedWalk = id(118695003666442),
-		UnarmedRun = id(133551232423687),
+		UnarmedWalk = id(140516107027903), -- t1 2026-11-28: arms pump across the body, elbows overlap, chest dips and rolls (was 118695003666442)
+		UnarmedRun = id(96202813627922), -- t1 2026-11-28: arms pump across the body, elbows overlap, chest dips and rolls (was 133551232423687)
 		UnarmedCrouch = id(78467506175539), -- v2: arms loose and low (v1 107085367174883 read as a guard)
 		SlideUnarmed = id(134814931400718),
 		Crouch = id(99770770213324), -- t1 2026-11-28 livelier pass (was 79991946157030)
@@ -418,6 +418,8 @@ return table.freeze({
 	-- How fast the posed pitch follows the camera pitch (1/s, exponential), so
 	-- other players' aim glides instead of stepping with each input update.
 	AIM_SMOOTHING = 14,
+	-- 1/s: how fast the speed the leg blends use follows the real one (Simulation/Poses; bumps don't flick the walk on).
+	SPEED_SMOOTHING = 10,
 	-- The end-of-match winner cutscene (Config/WinCutscene, Util/WinCutscene):
 	-- Win<team size>_<slot> is keyed to the ending song and ends on the final
 	-- pose, its Hold loops that pose with a breath (tools/anim/win_clips.py).
