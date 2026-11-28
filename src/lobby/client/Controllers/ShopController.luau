@@ -1737,27 +1737,6 @@ local function celebrateLogin(p: LobbyNet.LoginEventPayload)
 	end
 end
 
--- "LANCER + PAYLOAD SKIN + CASE + STRIKE BOX + 1,500 COINS" (Config/Products.STARTER)
-local function starterContents(product: Products.Product): string
-	local parts = {}
-	if product.gun then
-		table.insert(parts, string.upper(Weapons.nameOf(product.gun)))
-	end
-	local skin = product.starterSkin
-	if skin then
-		table.insert(parts, string.upper(skin.line) .. " SKIN")
-	end
-	if (product.caseCount or 0) > 0 then
-		table.insert(parts, if product.caseCount == 1 then "CASE" else `{product.caseCount} CASES`)
-	end
-	local box = product.box and Inventory.ITEMS[product.box]
-	if box and (product.boxCount or 0) > 0 then
-		table.insert(parts, box.name)
-	end
-	table.insert(parts, `{commas(product.coins or 0)} COINS`)
-	return table.concat(parts, " + ")
-end
-
 local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 	local product = if typeof(p.product) == "number" then Products.BY_ID[p.product] else nil
 	local message = p.text or "Purchase complete"
@@ -1830,7 +1809,7 @@ local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 		end
 		addRewardItem(items, ShopCatalog.PACK_ART[3], true)
 		celebrate({
-			name = starterContents(product),
+			name = ShopCatalog.starterContents(product),
 			image = if skin then SkinArt.portrait(skin.gun, skin.line) else nil,
 			tier = "Epic",
 			color = ShopTheme.GOLD,
@@ -2081,7 +2060,7 @@ local function buyStarter()
 	end
 	openConfirm({
 		title = "STARTER BUNDLE",
-		name = starterContents(starter),
+		name = ShopCatalog.starterContents(starter),
 		art = ShopCatalog.ART.starterContents,
 		price = starter.robux,
 		currency = "robux",

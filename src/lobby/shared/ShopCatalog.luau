@@ -337,4 +337,30 @@ function ShopCatalog.featuredBundles(includeStarter: boolean, fullLayout: boolea
 	return featured
 end
 
+-- "LANCER + PAYLOAD SKIN + CASE + STRIKE BOX + 1,500 COINS": what a Starter Bundle product holds
+-- (Config/Products.STARTER). Here, not in ShopController: that module is at Luau's 200-local limit.
+function ShopCatalog.starterContents(product: Products.Product): string
+	local Inventory = require(game:GetService("ReplicatedStorage").Shared.Config.Inventory)
+	local parts = {}
+	if product.gun then
+		table.insert(parts, string.upper(Weapons.nameOf(product.gun)))
+	end
+	local gunSkin = product.starterSkin
+	if gunSkin then
+		table.insert(parts, string.upper(gunSkin.line) .. " SKIN")
+	end
+	local cases = product.caseCount or 0
+	if cases > 0 then
+		table.insert(parts, if cases == 1 then "CASE" else `{cases} CASES`)
+	end
+	local box = product.box and Inventory.ITEMS[product.box]
+	if box and (product.boxCount or 0) > 0 then
+		table.insert(parts, box.name)
+	end
+	local coins =
+		tostring(math.floor(product.coins or 0)):reverse():gsub("(%d%d%d)", "%1,"):reverse()
+	table.insert(parts, (coins:gsub("^,", "")) .. " COINS")
+	return table.concat(parts, " + ")
+end
+
 return ShopCatalog
