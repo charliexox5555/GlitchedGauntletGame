@@ -64,6 +64,7 @@ local rejects: { [string]: number } = {}
 
 local REASON_TEXT: { [string]: string } = {
 	owned = "You already own that",
+	gunLocked = "Unlock that gun in the Locker first",
 	ownAll = "You already own everything in that bundle",
 	starter = "You already have the Starter Bundle",
 	expired = "The daily shop just changed, take another look",
@@ -195,6 +196,10 @@ local function promptSkin(
 	local ok, why = PlayerDataService.transact(player, txId, function(data)
 		if PlayerData.owns(data.skins, gun, line) then
 			return false, "owned"
+		end
+		-- a daily slot: the gun must be theirs when the intent is saved (Shared/DailyRoll.usable)
+		if slot and not DailyRoll.usable({ gun = gun, line = line }, data.guns) then
+			return false, "gunLocked"
 		end
 		if data.buys.intents[productKey] then
 			return false, "busy"
@@ -337,6 +342,10 @@ local function onRequest(player: Player, what: unknown, a: unknown, b: unknown)
 			or PlayerData.owns(known.skins, pick.gun, pick.line)
 		then
 			fail(player, "owned")
+			return
+		end
+		if not DailyRoll.usable(pick, known.guns) then
+			fail(player, "gunLocked")
 			return
 		end
 		promptSkin(player, product, pick.gun, pick.line, slot)

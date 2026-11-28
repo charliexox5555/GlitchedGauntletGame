@@ -80,14 +80,21 @@ function DailyShop.valid(d: Daily): boolean
 end
 
 -- The slot that shows FREE for a player who hasn't used their one free daily skin: the
--- first coin-priced pick they don't own and haven't bought (`coinPriced` decides).
+-- first coin-priced pick they don't own, haven't bought and can buy (`usable`: the gun is
+-- theirs, Shared/DailyRoll.usable; `coinPriced` decides the price).
 function DailyShop.freeSlot(
 	d: Daily,
 	owns: (gun: string, line: string) -> boolean,
-	coinPriced: (p: Pick) -> boolean
+	coinPriced: (p: Pick) -> boolean,
+	usable: (p: Pick) -> boolean
 ): number?
 	for i, p in d.picks do
-		if coinPriced(p) and not table.find(d.bought, i) and not owns(p.gun, p.line) then
+		if
+			coinPriced(p)
+			and usable(p)
+			and not table.find(d.bought, i)
+			and not owns(p.gun, p.line)
+		then
 			return i
 		end
 	end

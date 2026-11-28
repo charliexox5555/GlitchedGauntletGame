@@ -478,7 +478,7 @@ local function buildMutation(
 			string.format("Cleared ALL Backpack cases <- %s", targetName)
 	elseif action == "rerollDaily" then
 		return function(data: Data)
-			data.daily = DailyRoll.roll(data.skins, Economy.day(os.time()), Random.new())
+			data.daily = DailyRoll.roll(data.skins, data.guns, Economy.day(os.time()), Random.new())
 			return true
 		end,
 			string.format("Rerolled Daily Shop -> %s", targetName)
@@ -544,7 +544,8 @@ local function buildMutation(
 			data.guns = fresh.guns
 			data.prog = fresh.prog
 			data.login = fresh.login
-			data.daily = DailyRoll.roll(fresh.skins, Economy.day(os.time()), Random.new())
+			data.daily =
+				DailyRoll.roll(fresh.skins, fresh.guns, Economy.day(os.time()), Random.new())
 			data.earn = fresh.earn
 			data.onb = fresh.onb
 			data.tasks = fresh.tasks

@@ -69,6 +69,7 @@ local REASON_TEXT: { [string]: string } = {
 	expired = "The daily shop just changed, take another look",
 	bought = "You already bought that one",
 	owned = "You already own that skin",
+	gunLocked = "Unlock that gun in the Locker first",
 	robux = "Buy that one with Robux",
 	freeUsed = "You already claimed your free skin",
 	full = "Your Backpack can't hold more of those",
@@ -560,7 +561,7 @@ local function ensureDaily(player: Player)
 		if data.daily.day >= day then
 			return false, "same"
 		end
-		data.daily = DailyRoll.roll(data.skins, day, Random.new(seed))
+		data.daily = DailyRoll.roll(data.skins, data.guns, day, Random.new(seed))
 		return true
 	end, true)
 	rolling[player] = nil
@@ -578,6 +579,14 @@ local function buyDaily(player: Player, slot: number)
 	if known.daily.day ~= today or not pick then
 		send(player, { kind = "failed", text = REASON_TEXT.expired })
 		task.spawn(ensureDaily, player)
+		return
+	end
+	if not DailyRoll.usable(pick, known.guns) then
+		local gun = Weapons.get(pick.gun)
+		send(player, {
+			kind = "failed",
+			text = `Unlock the {if gun then gun.displayName else pick.gun} in the Locker first`,
+		})
 		return
 	end
 	local coins = DailyRoll.price(pick)
@@ -606,6 +615,10 @@ local function buyDaily(player: Player, slot: number)
 		end
 		if PlayerData.owns(data.skins, p.gun, p.line) then
 			return false, "owned"
+		end
+		-- the gun must be theirs at the moment of the write, not just when they asked
+		if not DailyRoll.usable(p, data.guns) then
+			return false, "gunLocked"
 		end
 		local price = DailyRoll.price(p)
 		if not price then
@@ -655,6 +668,8 @@ local function claimFree(player: Player, slot: number)
 			return PlayerData.owns(data.skins, gun, line)
 		end, function(p)
 			return (DailyRoll.price(p)) ~= nil
+		end, function(p)
+			return DailyRoll.usable(p, data.guns)
 		end)
 		if free ~= slot then
 			return false, "expired"

@@ -72,16 +72,24 @@ Economy.MATCH_BONUS = table.freeze({
 -- UTC day and saved (PlayerData `daily`), so nothing off their list can be bought.
 -- One slot per entry: a tier, or "EpicOrLegendary" (a coin flip when both are free).
 -- Skins the player doesn't own come first; a slot with none left shows an owned one.
+-- Owner 2026-11-28 ("show more epic and legendary skins ... not too much"): 3 Common,
+-- 2 Rare, 2 Epic, 1 Epic-or-Legendary (was 4 / 2 / 1 / 1). Keep 8 entries: the DAILY tab
+-- has Item1..Item8.
 Economy.DAILY_SLOTS = table.freeze({
-	"Common",
 	"Common",
 	"Common",
 	"Common",
 	"Rare",
 	"Rare",
 	"Epic",
+	"Epic",
 	"EpicOrLegendary",
 }) :: { string }
+-- Owner 2026-11-28: most daily skins are for guns the player OWNS (the knife counts);
+-- up to this many slots, at random, may show a gun they haven't unlocked yet as a tease
+-- (shown GUN LOCKED, not buyable until the gun is unlocked). A slot falls back to the
+-- other kind when its own has nothing left for that tier.
+Economy.DAILY_TEASES = 2
 -- Daily skins by tier: a coin price (Common, Rare) or Robux only (the rest).
 Economy.DAILY_COINS = table.freeze({ Common = 1000, Rare = 2500 }) :: { [string]: number }
 -- What a skin costs in Robux by tier (daily shop Epic and up; bundle items sold alone).

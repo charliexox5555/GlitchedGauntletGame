@@ -16,4 +16,17 @@ ShopTheme.ON_GOLD = Color3.fromHex("3A2A00") -- words on gold
 ShopTheme.MUTED = Color3.fromHex("CFC8F0") -- words on panels that are off
 ShopTheme.ROBUX = Color3.fromHex("3FD45C") -- anything priced in Robux
 
+-- The DAILY cards (owner 2026-11-28, "make it look better"; Util/DailyCard). `wash` = how far
+-- a card's back leans toward its tier colour (top of the card; the bottom keeps a third of
+-- it), so Epic and Legendary read from across the page without an outline or a glow.
+ShopTheme.DAILY = table.freeze({
+	wash = table.freeze({ Common = 0, Rare = 0.1, Epic = 0.26, Legendary = 0.34 }) :: { [string]: number },
+	washBottom = 0.35,
+	ownedPic = Color3.fromHex("B8B4CC"), -- an owned skin's picture, a little dimmed
+	lockedPic = Color3.fromHex("5A566E"), -- a locked gun's skin: the shape still shows (a tease)
+	badge = Color3.fromHex("1A1530"), -- the GUN LOCKED plate (DEEP)
+	badgeText = Color3.fromHex("CFC8F0"), -- MUTED
+	quietPlate = Color3.fromHex("1A1530"), -- the price plate when it isn't a price (OWNED, UNLOCK)
+})
+
 return table.freeze(ShopTheme)

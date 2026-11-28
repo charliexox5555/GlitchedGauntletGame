@@ -1894,8 +1894,9 @@ local function celebrateProduct(p: LobbyNet.ShopEventPayload)
 end
 
 -- The daily shop cards (DAILY tab, Item1..Item8): the player's own saved list, priced by
--- tier (coins for Common / Rare, Robux above), OWNED once theirs. The picture big and
--- spilling over the card's top like RIVALS' cells, on one flat colour of the tier.
+-- tier (coins for Common / Rare, Robux above), OWNED once theirs, GUN LOCKED (not for sale)
+-- while the skin's gun isn't unlocked. The picture big and spilling over the card's top
+-- like RIVALS' cells; Util/DailyCard colours the card for its tier and state.
 local dailyItems: Instance? = nil
 
 -- The one free daily skin (once per player, ever; Services/ShopService.claimFree).
@@ -1903,10 +1904,13 @@ local function freeSlot(daily: DailyShop.Daily, owned: PlayerData.Skins): number
 	if StateValues.get(player, "FreeDailyUsed") ~= false then
 		return nil
 	end
+	local guns = PlayerData.guns(player)
 	return DailyShop.freeSlot(daily, function(gun, line)
 		return PlayerData.owns(owned, gun, line)
 	end, function(p)
 		return (DailyRoll.price(p)) ~= nil
+	end, function(p)
+		return DailyRoll.usable(p, guns)
 	end)
 end
 
@@ -1915,8 +1919,10 @@ local function drawDaily()
 	if not items then
 		return
 	end
+	local DailyCard = require(script.Parent.Parent.Util.DailyCard) -- here: the top level is at 200 locals
 	local daily = PlayerData.daily(player)
 	local owned = PlayerData.skins(player)
+	local guns = PlayerData.guns(player)
 	local free = freeSlot(daily, owned)
 	for i = 1, DailyShop.SIZE do
 		local holder = items:FindFirstChild("Item" .. i)
@@ -1930,10 +1936,6 @@ local function drawDaily()
 		end
 		local tier = DailyRoll.tier(pick)
 		local def = (Skins.TIERS :: any)[tier] or Skins.TIERS.Common
-		local art = card:FindFirstChild("Art")
-		if art and art:IsA("GuiObject") then
-			art.BackgroundColor3 = ShopTheme.INNER -- the tier shows on the tag only (scheme A)
-		end
 		local name = card:FindFirstChild("Name")
 		if name and name:IsA("TextLabel") then
 			name.Text = SkinCases.name(pick.gun, pick.line)
@@ -1945,12 +1947,23 @@ local function drawDaily()
 			tagLabel.TextColor3 = def.color -- the tier shows here only (scheme A)
 		end
 		local coinPrice, robux = DailyRoll.price(pick)
+		local state: DailyCard.State = "price"
 		if table.find(daily.bought, i) or PlayerData.owns(owned, pick.gun, pick.line) then
 			plateAmount(card, "OWNED")
 			priceIcon(card, "none")
+			state = "owned"
+		elseif not DailyRoll.usable(pick, guns) then
+			local cfg = Weapons.get(pick.gun)
+			plateAmount(
+				card,
+				"UNLOCK " .. string.upper(if cfg then cfg.displayName else pick.gun) .. " FIRST"
+			)
+			priceIcon(card, "none")
+			state = "locked"
 		elseif i == free then
 			plateAmount(card, "FREE")
 			priceIcon(card, "none")
+			state = "free"
 		elseif coinPrice then
 			plateAmount(card, commas(coinPrice))
 			priceIcon(card, "coins")
@@ -1972,6 +1985,7 @@ local function drawDaily()
 			pic.ZIndex = 4 -- over the colour, under the words and the price
 			pic.Parent = card
 		end
+		DailyCard.style(card, tier, def.color, state)
 	end
 end
 
@@ -1987,6 +2001,14 @@ local function buyDaily(slot: number, button: GuiObject)
 		or PlayerData.owns(PlayerData.skins(player), pick.gun, pick.line)
 	then
 		LobbyHud.toast("You already own that skin", "info")
+		return
+	end
+	if not DailyRoll.usable(pick, PlayerData.guns(player)) then
+		local cfg = Weapons.get(pick.gun)
+		LobbyHud.toast(
+			`You don't own the {if cfg then cfg.displayName else pick.gun}: unlock it in the Locker first`,
+			"info"
+		)
 		return
 	end
 	local coinPrice, robux = DailyRoll.price(pick)
@@ -2939,7 +2961,7 @@ function ShopController.start()
 	end)
 	-- the daily shop redraws when the server publishes a new list or a purchase
 	task.spawn(function()
-		for _, name in { PlayerData.DAILY, PlayerData.SKINS } do
+		for _, name in { PlayerData.DAILY, PlayerData.SKINS, PlayerData.GUNS } do
 			local v = player:WaitForChild(name, 60)
 			if v and v:IsA("StringValue") then
 				v.Changed:Connect(drawDaily)
