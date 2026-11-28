@@ -826,6 +826,10 @@ local function build(): boolean
 	premiumBadge.Activated:Connect(function()
 		press(pop(premiumBadge))
 		pickReward("pass")
+		-- not bought yet: PREMIUM TRACK asks to unlock it (owner 2026-11-28), like UNLOCK PREMIUM
+		if not state.premium and robuxRequest then
+			robuxRequest:FireServer("season")
+		end
 	end)
 	local freeBadge = child(tracks, "FreeBadge") :: GuiButton
 	freeBadge.Activated:Connect(function()

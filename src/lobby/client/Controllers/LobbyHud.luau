@@ -41,9 +41,9 @@ end
 -- login state or match count changes and once a minute for the UTC day rollover.
 local DAILY_CHECK_SECONDS = 60
 
--- Season pass rewards reached and not claimed yet (release 1 friction pass, 2026-11-28: the pass's only way
--- in is the Shop's card, and a tier gained in a match was never mentioned). They add to the Shop's dot, and
--- one toast per lobby visit says they're waiting.
+-- Season pass rewards reached and not claimed yet (release 1 friction pass, 2026-11-28: a tier gained in a
+-- match was never mentioned). They show as the red dot on the bar's PASS (it unlocks with the Shop), and one
+-- toast per lobby visit says they're waiting.
 local function passWaiting(): number
 	if not SeasonCatalog.screenOn() then
 		return 0
@@ -72,11 +72,12 @@ local function drawDailyDot()
 	local ready = shopOpen and StateValues.get(player, "DataReady") == true
 	local waiting = ready and LoginRewards.nextStep(login, today) ~= nil
 	local pass = if ready then passWaiting() else 0
-	LobbyHudView.setBadge("Shop", (if waiting then 1 else 0) + pass)
+	LobbyHudView.setBadge("Shop", if waiting then 1 else 0)
+	LobbyHudView.setBadge("BattlePass", pass)
 	if pass > 0 and not passToastShown then
 		passToastShown = true
 		LobbyHudView.toast(
-			`{pass} SEASON PASS REWARD{if pass == 1 then "" else "S"} WAITING: OPEN THE SHOP TO CLAIM`,
+			`{pass} SEASON PASS REWARD{if pass == 1 then "" else "S"} WAITING: OPEN PASS TO CLAIM`,
 			"info"
 		)
 	end

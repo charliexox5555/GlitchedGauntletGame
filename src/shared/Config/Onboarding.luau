@@ -39,7 +39,7 @@ return table.freeze({
 	-- The Range goes first (2026-11-27, First Ten Minutes §13): the Task Path's first part is there, and its coins
 	-- pay for the first gun unlock (Config/Economy, economy pass 2026-11-27).
 	UNLOCKS = table.freeze({
-		{ id = "Range", at = 2, bit = 16 },
+		{ id = "BattlePass", at = 2, bit = 16 }, -- the bar's PASS, with the Shop (2026-11-28: was the Range button)
 		{ id = "Backpack", at = 2, bit = 4 },
 		{ id = "Shop", at = 2, bit = 2 },
 		{ id = "Party", at = 2, bit = 1 },

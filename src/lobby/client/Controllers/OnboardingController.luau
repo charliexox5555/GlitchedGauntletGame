@@ -33,9 +33,10 @@ local OnboardingController = {}
 local player = Players.LocalPlayer
 
 -- The menu that counts as "opened" for each unlock's NEW callout.
-local MENU_OF: { [string]: string } = { Party = "Party", Shop = "Shop", Backpack = "Backpack" }
+local MENU_OF: { [string]: string } =
+	{ Party = "Party", Shop = "Shop", Backpack = "Backpack", BattlePass = "BattlePass" }
 -- ...and the zone that counts for one with no menu (the Range bar button travels straight there)
-local ZONE_OF: { [string]: string } = { Range = "Range" }
+local ZONE_OF: { [string]: string } = {}
 
 local autoQueued = false -- once per session
 local favAskedFor: number? = nil -- the o.fav count already prompted this session

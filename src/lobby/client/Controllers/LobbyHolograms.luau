@@ -8,8 +8,8 @@
 --     within range and while no menu is open). No flicker: the owner found flashing off-putting.
 --   * adds a ProximityPrompt that opens the offer: the Starter Bundle confirm, the Tempest-Strike bundle page,
 --     the Battle Pass, or the Free Rewards popup.
---   * respects onboarding (no prompts before the Shop unlocks) and the owned state (the Starter stand swaps to the
---     Standard Case and opens the Shop's cases once the bundle is bought).
+--   * prompts work from the first visit (owner 2026-11-28: on before the Shop unlocks too) and follow the owned
+--     state (the Starter stand swaps to the Standard Case and opens the Shop's cases once the bundle is bought).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -17,7 +17,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
-local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local PlayZone = require(ReplicatedStorage.Shared.PlayZone)
 local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
@@ -128,11 +127,6 @@ local function owned(stand: Stand): boolean
 	return key ~= nil and StateValues.get(player, key) == true
 end
 
-local function unlocked(): boolean
-	local matches = StateValues.get(player, "Matches")
-	return typeof(matches) == "number" and Onboarding.unlocked("Shop", matches)
-end
-
 -- the prompt and the owned swap follow the player's state
 local function refresh(stand: Stand)
 	local offer = stand.offer
@@ -144,7 +138,7 @@ local function refresh(stand: Stand)
 	end
 	local prompt = stand.prompt
 	if prompt then
-		prompt.Enabled = unlocked() and (offer.available == nil or offer.available())
+		prompt.Enabled = offer.available == nil or offer.available()
 		prompt.ActionText = if isOwned then offer.ownedAction or offer.action else offer.action
 		prompt.ObjectText = if isOwned then offer.ownedObject or offer.object else offer.object
 	end

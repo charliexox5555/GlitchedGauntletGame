@@ -36,14 +36,13 @@ local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
 local OnbHighlight = require(script.Parent.OnbHighlight)
 local Pivot = require(script.Parent.Pivot)
 local Plates = require(script.Parent.Plates)
 local QueueState = require(script.Parent.QueueState)
-local RangeTransition = require(script.Parent.RangeTransition)
 local Router = require(script.Parent.Router)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
-local Release = require(ReplicatedStorage.Shared.Config.Release)
 local ServerRole = require(ReplicatedStorage.Shared.ServerRole)
 local KM = UiMotion.M
 
@@ -67,7 +66,9 @@ local MENUS: { [string]: string } = {
 	Locker = "Locker",
 	Shop = "Shop",
 	Backpack = "Backpack", -- replaced the Battle Pass for the first release (owner 2026-11-20)
-	Range = "Range",
+	-- the Battle Pass took the Range's place on the bar (owner 2026-11-28: the Range is reached through its
+	-- hologram gate; the pass needed a way in that isn't the Shop's card)
+	BattlePass = "BattlePass",
 	Settings = "Settings",
 	-- stands in for Settings while a lost streak can be saved (Controllers/StreakSaveController)
 	SaveStreak = "StreakSave",
@@ -639,19 +640,14 @@ local function hookItem(s: State, b: TextButton)
 		if pop and pop:IsA("UIScale") then
 			press(pop, 0.82)
 		end
-		if b.Name == "Range" then
-			-- straight to the range behind the loading card (LobbyServer RangeService checks the zone and cooldown)
-			RangeTransition.travel()
-			return
-		end
 		if menu then
 			Router.toggle(menu, itemArgs[b.Name])
 		end
 	end
 	b.Activated:Connect(activate)
 	padTargets[b.Name] = { button = b, run = activate }
-	if b.Name == "Range" and not Release.RANGE_OPEN then
-		b.Visible = false -- closed for this update (shared/Config/Release)
+	if b.Name == "BattlePass" and not SeasonCatalog.screenOn() then
+		b.Visible = false -- the pass is closed (shared/Config/Release)
 	end
 	s.items[b.Name] = b
 end
@@ -660,7 +656,7 @@ end
 -- was, the bar as long as its icons). Items keep their order and spacing, centred on the
 -- bar's middle (under PLAY); the bar and its shadow grow or shrink to match. Re-runs when
 -- any item shows or hides (Range closed, SAVE WINSTREAK standing in for Settings).
-local BAR_ORDER = { "Locker", "Shop", "Backpack", "Range", "Settings", "SaveStreak" }
+local BAR_ORDER = { "Locker", "Shop", "Backpack", "BattlePass", "Settings", "SaveStreak" }
 local BAR_STEP = 140 -- px between item centres
 local BAR_PAD = 90 -- px from the bar's end to the first / last item centre
 local SHADOW_PAD = 30 -- the shadow reaches this far past each end
@@ -1270,7 +1266,7 @@ function LobbyHudView.intro()
 			tween(s.bottom, 0.5, { Position = home }, QUINT, OUT)
 		end
 	end)
-	local order = { "Locker", "Shop", "Backpack", "Range", "Settings", "SaveStreak" }
+	local order = { "Locker", "Shop", "Backpack", "BattlePass", "Settings", "SaveStreak" }
 	for i, name in order do
 		local b = s.items[name]
 		local pop = b and b:FindFirstChild("Icon") and (b :: any).Icon:FindFirstChild("Pop")
@@ -1325,7 +1321,7 @@ function LobbyHudView.toast(text: string, kind: string?)
 	end)
 end
 
--- Red count badges on the bar (0 hides). ids: Locker, Shop, Backpack, Range, Settings.
+-- Red count badges on the bar (0 hides). ids: Locker, Shop, Backpack, BattlePass, Settings.
 function LobbyHudView.setBadge(id: string, count: number)
 	local s = state
 	local b = s and s.items[id]
@@ -1346,7 +1342,10 @@ local calloutText: string? = nil
 local CALLOUT_GAP = 14 -- px between the tag's pointer and the party circle
 local CALLOUT_MIN_W, CALLOUT_PER_CHAR = 56, 13 -- tag width: base + per letter
 
-local BADGE_DX, BADGE_DY = 24, 38 -- from the item's top middle to the badge's bottom middle
+-- from the item's top middle to the badge's bottom middle; the tag is centred on the icon and kept short so it
+-- clears PLAY (owner 2026-11-28: the UNLOCK tag sat off-centre and jammed under PLAY; was 24, 38 at full height)
+local BADGE_DX, BADGE_DY = 0, 46
+local BADGE_H = 30
 
 placeCallout = function(s: State, animate: boolean)
 	local id = calloutAt
@@ -1384,7 +1383,11 @@ placeCallout = function(s: State, animate: boolean)
 		local full = StateValues.get(s.callout, "HomeSize")
 		local h = if typeof(full) == "UDim2" then full.Y.Offset else s.callout.Size.Y.Offset
 		local w = if typeof(full) == "UDim2" then full.X.Offset else s.callout.Size.X.Offset
-		s.callout.Size = UDim2.fromOffset(math.min(w, CALLOUT_MIN_W + #text * CALLOUT_PER_CHAR), h)
+		local onBar = id ~= "Party"
+		s.callout.Size = UDim2.fromOffset(
+			math.min(w, CALLOUT_MIN_W + #text * CALLOUT_PER_CHAR),
+			if onBar then math.min(h, BADGE_H) else h
+		)
 		s.callout.Position = UDim2.fromOffset(x, y)
 		local pop = s.callout:FindFirstChildOfClass("UIScale")
 		if pop and animate then
@@ -1443,8 +1446,8 @@ function LobbyHudView.setUnlocked(id: string, on: boolean)
 	end
 	local target: GuiObject? = if id == "Party" then s.party else s.items[id]
 	if target then
-		if id == "Range" and not Release.RANGE_OPEN then
-			return -- closed for this update either way
+		if id == "BattlePass" and not SeasonCatalog.screenOn() then
+			return -- the pass is closed either way
 		end
 		target.Visible = on
 	end

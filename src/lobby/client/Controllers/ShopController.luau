@@ -1530,8 +1530,12 @@ local goToPack: (short: number) -> () -- set in init (needs the tabs)
 
 local function openConfirm(c: Confirm)
 	confirmOpen = c;
-	(child(confirmPanel, "Title") :: TextLabel).Text = c.title;
-	(child(confirmPanel, "ItemName") :: TextLabel).Text = c.name
+	(child(confirmPanel, "Title") :: TextLabel).Text = c.title
+	-- the name sizes to its text: a long one (the Starter Bundle's contents) shrinks to stay inside the
+	-- 820 px panel (about 38 characters fit at the template's 44 px)
+	local itemName = child(confirmPanel, "ItemName") :: TextLabel
+	itemName.Text = c.name
+	itemName.TextSize = math.clamp(math.floor(44 * 38 / math.max(#c.name, 1)), 24, 44)
 	local art = child(confirmPanel, "Art") :: ImageLabel
 	art.Image = c.art or ""
 	local buy = child(confirmPanel, "Buy")
