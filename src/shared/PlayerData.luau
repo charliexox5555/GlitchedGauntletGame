@@ -24,7 +24,9 @@
 --              skin used), intents = { [productId] = { product, gun, line, slot?, at } }
 --              (the skin each shared "skin" product pays for, saved before its prompt;
 --              slot = its daily shop slot), receipts = { PurchaseId } (the last 100
---              Robux receipts granted, apart from `tx`; 2026-11-22) } }
+--              Robux receipts granted, apart from `tx`; 2026-11-22), group = bool (the
+--              one-time Free Rewards gift for joining the group, Services/GroupRewardService;
+--              2026-11-28, inside VERSION 2: release 1 was not live yet) } }
 -- Older saves have no `prog`: it starts at level 1 with no streak (no version bump:
 -- every write keeps the fields it doesn't know, so older servers never drop it).
 -- Written only by the Lobby's PlayerDataService, one UpdateAsync per change.
@@ -40,7 +42,7 @@
 --               live lost-streak offer (0 / nil when there is none)
 --   StateValues "Tickets" the Ticket balance; "LoginLast", "LoginStep" the login board
 --   StringValue "DailyShop"  JSON of `daily` (the player's own daily shop)
---   StateValues "FreeDailyUsed", "StarterBought" (buys.free, buys.starter)
+--   StateValues "FreeDailyUsed", "StarterBought", "GroupRewardClaimed" (buys.free, buys.starter, buys.group)
 --   StateValues "OnbFav", "OnbFavDone", "OnbSeen" (onb: favorite asks, NEW pops seen)
 --   StringValue "Tasks"  JSON of `tasks` (the task Path panel)
 --   StringValue "LockerGuns"  JSON of `guns` (the Locker, the match draft)
@@ -109,6 +111,7 @@ export type Intent = {
 export type Buys = {
 	starter: boolean,
 	free: boolean,
+	group: boolean,
 	intents: { [string]: Intent },
 	receipts: { string },
 }
@@ -345,13 +348,14 @@ function PlayerData.setTitle(data: Data, name: string?): boolean
 end
 
 function PlayerData.cleanBuys(raw: unknown): Buys
-	local out: Buys = { starter = false, free = false, intents = {}, receipts = {} }
+	local out: Buys = { starter = false, free = false, group = false, intents = {}, receipts = {} }
 	if typeof(raw) ~= "table" then
 		return out
 	end
 	local t = raw :: { [string]: any }
 	out.starter = t.starter == true
 	out.free = t.free == true
+	out.group = t.group == true
 	if typeof(t.intents) == "table" then
 		local n = 0
 		for key, i in t.intents do
@@ -409,7 +413,7 @@ function PlayerData.clean(raw: unknown, keepUnknown: boolean?): Data
 		login = LoginRewards.new(),
 		daily = DailyShop.new(),
 		earn = { day = 0, coins = 0 },
-		buys = { starter = false, free = false, intents = {}, receipts = {} },
+		buys = { starter = false, free = false, group = false, intents = {}, receipts = {} },
 		onb = Onboarding.new(),
 		tasks = TaskPath.new(),
 		season = SeasonPass.new(),
@@ -609,6 +613,7 @@ function PlayerData.publish(player: Player, data: Data?)
 	StateValues.set(player, "LoginStep", if data then data.login.step else 0)
 	StateValues.set(player, "FreeDailyUsed", if data then data.buys.free else true)
 	StateValues.set(player, "StarterBought", if data then data.buys.starter else true)
+	StateValues.set(player, "GroupRewardClaimed", if data then data.buys.group else true)
 	-- before data loads: as if every ask and pop is done (nothing pops on a missing save)
 	StateValues.set(player, "OnbFav", if data then data.onb.fav else 0)
 	StateValues.set(player, "OnbFavDone", if data then data.onb.favDone else true)

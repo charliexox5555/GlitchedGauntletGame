@@ -119,6 +119,7 @@ return table.freeze({
 		SettingsRequest = { 1, 4 }, -- the client sends 1.5 s after the last change, and on close
 		StreakSave = { 0.5, 2 }, -- the popup's BUY (one purchase, maybe a retry)
 		LoginClaim = { 0.5, 2 }, -- the login board's CLAIM (once a day, maybe a retry)
+		GroupRewardClaim = { 0.25, 2 }, -- Free Rewards CLAIM (each one asks Roblox about the group)
 		RobuxRequest = { 0.5, 3 }, -- Robux BUY buttons (each opens Roblox's purchase prompt)
 		SeasonRequest = { 1, 5 }, -- pass CLAIM clicks (each one is a save write)
 	},
@@ -137,5 +138,18 @@ return table.freeze({
 	PARTY = {
 		max = 3,
 		inviteTtl = 30,
+	},
+
+	-- Lobby hologram stands (Controllers/LobbyHolograms, vault/02 Art/Lobby Holograms.md; built by
+	-- tools/studio/lobby_v5/BuildLobbyHolograms.luau): how the floating items move and how close the prompt works.
+	HOLOGRAM = {
+		range = 90, -- studs from the camera: closer stands move, farther ones hold still
+		hz = 30, -- motion updates a second
+		bob = 0.22, -- studs up and down
+		bobPeriod = 3.4, -- seconds
+		sway = 24, -- degrees either side (bundles and emblems face the hub, so they sway instead of spinning)
+		swayPeriod = 8, -- seconds
+		spin = 22, -- degrees a second (offers with Motion = "spin")
+		promptReach = 12, -- studs: the ProximityPrompt's MaxActivationDistance
 	},
 })

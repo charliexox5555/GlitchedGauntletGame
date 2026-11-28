@@ -496,6 +496,13 @@ local function buildMutation(
 			return true
 		end,
 			string.format("Starter Bought = %s -> %s", tostring(flag), targetName)
+	elseif action == "resetGroupReward" then
+		-- the Free Rewards gift can be claimed again (Services/GroupRewardService); coins and the case stay
+		return function(data: Data)
+			data.buys.group = false
+			return true
+		end,
+			string.format("Reset Free Rewards Gift -> %s", targetName)
 	elseif action == "resetLogin" then
 		return function(data: Data)
 			data.login.last = 0

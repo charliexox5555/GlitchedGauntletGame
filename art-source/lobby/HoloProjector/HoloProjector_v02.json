@@ -1,0 +1,39 @@
+{
+  "version": "v02",
+  "parts": {
+    "Base_Body": {
+      "tris": 252,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Base_Trim": {
+      "tris": 1372,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    },
+    "Base_Light": {
+      "tris": 188,
+      "non_manifold": 0,
+      "islands": 9,
+      "smooth": 0
+    },
+    "Holo_Cone": {
+      "tris": 32,
+      "non_manifold": 32,
+      "islands": 2,
+      "smooth": 0
+    },
+    "Holo_Ring": {
+      "tris": 64,
+      "non_manifold": 0,
+      "islands": 1,
+      "smooth": 0
+    }
+  },
+  "tris": 1908,
+  "coplanar_pairs": 0,
+  "coplanar_sample": [],
+  "subdiv_modifiers": 0
+}

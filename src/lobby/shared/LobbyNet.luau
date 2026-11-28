@@ -132,6 +132,16 @@ export type TaskEventPayload = {
 	title: string?,
 }
 
+-- GroupRewardClaim (client -> server): no arguments (Services/GroupRewardService: the one-time
+--   Free Rewards gift for joining the group)
+-- GroupRewardEvent (server -> one client): GroupRewardEventPayload
+export type GroupRewardEventPayload = {
+	kind: "claimed" | "failed" | "notMember",
+	coins: number?, -- "claimed"
+	item: string?, -- "claimed": a Config/Inventory item id
+	text: string?, -- "failed"
+}
+
 export type LoginEventPayload = {
 	kind: "claimed" | "failed",
 	step: number?, -- "claimed": the step (1..7) just claimed
@@ -184,6 +194,8 @@ local EVENTS = {
 	"TaskEvent", -- server -> one client: tasks they just finished (LobbyServer Services/TaskService)
 	"SeasonRequest", -- client -> server: season pass claims (LobbyServer Services/SeasonService)
 	"SeasonEvent", -- server -> one client: what a claim paid, or why it failed
+	"GroupRewardClaim", -- client -> server: claim the Free Rewards gift (LobbyServer Services/GroupRewardService)
+	"GroupRewardEvent", -- server -> one client: what the gift paid, or why not
 }
 
 local folder: Instance

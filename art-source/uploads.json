@@ -11146,5 +11146,41 @@
   "name": "GG Ruin-Blighted Spectre shot 00 tail only 01",
   "type": "Audio",
   "uploaded": "2026-11-20 01:10:15"
+ },
+ "art-source/lobby/HoloProjector/HoloProjector_v02.fbx": {
+  "assetId": 106433727165434,
+  "name": "GG Lobby Holo Projector v02",
+  "type": "Model",
+  "uploaded": "2026-11-28 01:35:12"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_cone.png": {
+  "assetId": 90498122249065,
+  "name": "GG Holo Cone Falloff",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:35:17"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_glow.png": {
+  "assetId": 113153565884236,
+  "name": "GG Holo glow",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:40:00"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_rays.png": {
+  "assetId": 135781545064670,
+  "name": "GG Holo rays",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:39:57"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_scanlines.png": {
+  "assetId": 90754740342951,
+  "name": "GG Holo Scanlines",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:35:14"
+ },
+ "art-source/lobby/HoloProjector/textures/holo_star.png": {
+  "assetId": 133400187158110,
+  "name": "GG Holo star",
+  "type": "Decal",
+  "uploaded": "2026-11-28 01:40:02"
  }
 }

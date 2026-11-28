@@ -1526,7 +1526,7 @@ function AdminPanelController.start()
 	local flagsCard = makeSectionCard(utilPage, "LOGIN & BUNDLE FLAGS", C.gold, 2)
 	label({
 		parent = flagsCard,
-		text = "Unlock today's 7-day login claim or toggle Starter Bundle ownership.",
+		text = "Unlock today's 7-day login claim, toggle Starter Bundle ownership or reset the Free Rewards gift.",
 		size = 11,
 		color = C.sub,
 		pos = UDim2.fromOffset(0, 24),
@@ -1545,7 +1545,7 @@ function AdminPanelController.start()
 		text = "UNLOCK LOGIN",
 		bg = C.gold,
 		fg = C.darkText,
-		size = UDim2.new(0.36, -5, 1, 0),
+		size = UDim2.new(0.25, -6, 1, 0),
 		textSize = 11,
 		font = FONT_HEAVY,
 		onClick = function()
@@ -1558,7 +1558,7 @@ function AdminPanelController.start()
 		bg = C.surface,
 		fg = C.mint,
 		border = C.strokeBright,
-		size = UDim2.new(0.32, -5, 1, 0),
+		size = UDim2.new(0.25, -6, 1, 0),
 		textSize = 11,
 		font = FONT_HEAVY,
 		onClick = function()
@@ -1571,11 +1571,24 @@ function AdminPanelController.start()
 		bg = C.surface,
 		fg = C.sub,
 		border = C.strokeBright,
-		size = UDim2.new(0.32, -5, 1, 0),
+		size = UDim2.new(0.25, -6, 1, 0),
 		textSize = 11,
 		font = FONT_HEAVY,
 		onClick = function()
 			send("toggleStarter", { flag = false })
+		end,
+	})
+	button({
+		parent = flagsRow,
+		text = "FREE GIFT: RESET",
+		bg = C.surface,
+		fg = C.mint,
+		border = C.strokeBright,
+		size = UDim2.new(0.25, -6, 1, 0),
+		textSize = 11,
+		font = FONT_HEAVY,
+		onClick = function()
+			send("resetGroupReward")
 		end,
 	})
 

@@ -28,6 +28,12 @@ Economy.LOGIN = table.freeze({
 	table.freeze({ coins = 1000, item = "CaseStandard" }),
 }) :: { Reward }
 
+-- Free Rewards (the lobby's green hologram, owner 2026-11-28): a one-time gift for joining the game's Roblox
+-- group, checked on the server (Services/GroupRewardService, PlayerData buys.group). "Like the game" is only
+-- asked, never a condition: platforms prohibit rewarding ratings (LihFolk: Community Building).
+-- `item` = a Config/Inventory item id (one of it).
+Economy.GROUP_REWARD = table.freeze({ group = 11116787, coins = 500, item = "CaseStandard" })
+
 -- What each skin case costs in Tickets (wired with the Shop purchases, step 2 of the plan).
 Economy.CASE_TICKETS =
 	table.freeze({ Standard = 1, Elite = 3, Apex = 6, Knife = 8 }) :: { [string]: number }

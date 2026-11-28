@@ -145,7 +145,7 @@ Read from the RIVALS file (`Workspace.Lobby.Hub`, read-only: property reads and 
 
 ### 6. Life
 19. **Counts:** hub 57 particle emitters (mostly the 6 hologram stands), 12 beams, 6 SurfaceGuis (4 TVs), 11 lights; Duels 88 movers (the ring holograms), 23 beams, 20 SurfaceGuis; Market 23 SurfaceGuis, 8 beams; Weapons 1 mover. Life sits where players stop (spawn ring, pads, shop bays), never in corridors.
-   *For us:* mesh holograms are rejected. Our life is SurfaceGui boards with real content (live queue counts, leaderboard, featured skins), a few `LobbySpin` movers (a slow fan, turntables), soft dust in light shafts and the range seen through glass.
+   *For us:* ~~mesh holograms are rejected~~ (changed 2026-11-28: the owner wants RIVALS-style hologram stands as shop entry points, see [Lobby Holograms](../../02%20Art/Lobby%20Holograms.md); hologram stands read 2026-11-28: base 3.8 wide, Neon floor ring 8, Neon cone 12.5 x 9 at transparency 0.25-0.5, item = Neon core 0.05 + shell 0.5, bundles = solid real-colour items + a gold flare burst (12 emitters), a Custom ProximityPrompt with `PageName`). Our life is SurfaceGui boards with real content (live queue counts, leaderboard, featured skins), a few `LobbySpin` movers (a slow fan, turntables), soft dust in light shafts and the range seen through glass.
 
 ### 7. Lighting
 20. Lighting service: Ambient `#797979`, OutdoorAmbient `#C6C6C1`, Brightness 3, noon, exposure -0.15. **Interiors run on few lights:** hub 11, Duels 19 (12 SurfaceLight bar lamps of range 60 + 4 red spots on the end feature), Weapons 10, Market 8, Displays 9. White to warm white (`#FFF3E6`, `#FFE4AE`); colour only on the end feature (red) and in the range (purple and amber spots).
