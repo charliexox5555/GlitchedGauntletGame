@@ -8626,6 +8626,13 @@
   "type": "Decal",
   "uploaded": "2026-11-16 18:37:11"
  },
+ "art-source/ui/nametag/level_badge.png": {
+  "assetId": 110319463703413,
+  "imageId": 134852137458210,
+  "name": "GG UI NameTag Level Badge",
+  "type": "Decal",
+  "uploaded": "2026-11-27 23:58:11"
+ },
  "art-source/ui/pack/pack_power.png": {
   "assetId": 74423269339773,
   "name": "GG pack_power",

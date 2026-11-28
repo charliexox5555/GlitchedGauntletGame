@@ -1,11 +1,13 @@
 --!strict
--- Name tags over every player in the lobby (vault/05 Production/Handoff - Battle Pass Build 2026-11-27.md, A):
--- level, the equipped title in gold and the win streak, like the lobby player list (Util/LobbyHudView).
--- The template is Studio UI (PlayerScripts.UI.Templates.Lobby.NameTag, a BillboardGui); each character gets its
--- own client-side copy parented to its head (made on this client, so nothing replicates; it goes with the
--- character, and PlayerGui clean-ups on respawn can't take it). Shown only while both you and they
--- are in the lobby (Shared/PlayZone: not in the Range or a match), never over your own head in first person.
--- While a tag shows, that player's Roblox name is hidden on this client and put back when it goes.
+-- Name tags over every player in the lobby (vault/02 Art/UI Name Tags.md): the equipped title in gold, a level
+-- badge, the display name, the win streak (flame + number, only when > 0) and the @username under it.
+-- The template is Studio UI (PlayerScripts.UI.Templates.Lobby.NameTag, a BillboardGui; built by
+-- tools/studio/BuildNameTag.luau). Each player gets ONE client-side copy for as long as they're in the server,
+-- kept in a local folder in Workspace and pointed (Adornee) at their current HumanoidRootPart, so respawns only
+-- move it and nothing replicates. Shown only while both you and they are in the lobby (Shared/PlayZone: not in
+-- the Range or a match), never over your own head in first person. While a tag shows, that player's Roblox name
+-- is hidden on this client and put back when it goes. Size follows distance through the template's UIScale
+-- (RefDistance / MinScale / MaxScale attributes), so the art stays crisp pixel UI.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -21,12 +23,14 @@ local NameTagController = {}
 
 local player = Players.LocalPlayer
 local FIRST_PERSON = 1.5 -- studs from camera to head: you're in first person
+local HEAD_HEIGHT = 1.5 -- head centre above the root part
 local WATCHED: { [string]: boolean } = { Level = true, WinStreak = true, Title = true }
 
 type Tag = {
-	gui: BillboardGui?, -- the current character's copy
-	scale: UIScale?,
-	head: BasePart?,
+	gui: BillboardGui,
+	scale: UIScale,
+	username: GuiObject?, -- the @name line: close up only
+	root: BasePart?, -- the current character's HumanoidRootPart
 	humanoid: Humanoid?,
 	shownName: Enum.HumanoidDisplayDistanceType?, -- the Roblox name setting we replaced
 	conns: { RBXScriptConnection },
@@ -35,7 +39,11 @@ type Tag = {
 
 local tags: { [Player]: Tag } = {}
 local template: BillboardGui? = nil
-local refDistance, minScale, maxScale = 18, 0.6, 1
+local folder: Folder? = nil
+-- template attributes: drawn 1:1 at RefDistance studs; size = (RefDistance / distance) ^ Falloff, clamped to
+-- MinScale..MaxScale (Falloff < 1 shrinks slower than the world, so far tags stay readable); the @username
+-- shows only at DetailScale or bigger
+local refDistance, minScale, maxScale, falloff, detailScale = 14, 0.55, 1.6, 0.7, 0.8
 
 local function numberOf(p: Player, name: string, default: number): number
 	local v = StateValues.get(p, name)
@@ -50,32 +58,36 @@ local function find(parent: Instance, path: { string }): Instance?
 	return at
 end
 
+-- a label and its drop shadow (a darker copy behind it, named Shadow) carry the same text
 local function setText(gui: Instance, path: { string }, text: string)
 	local label = find(gui, path)
 	if label and label:IsA("TextLabel") then
 		label.Text = text
+		local shadow = label:FindFirstChild("Shadow")
+		if shadow and shadow:IsA("TextLabel") then
+			shadow.Text = text
+		end
+	end
+end
+
+local function setVisible(gui: Instance, path: { string }, visible: boolean)
+	local item = find(gui, path)
+	if item and item:IsA("GuiObject") then
+		item.Visible = visible
 	end
 end
 
 local function fill(p: Player, tag: Tag)
 	local gui = tag.gui
-	if not gui then
-		return
-	end
-	setText(gui, { "Root", "Row", "PlayerName" }, string.upper(p.DisplayName))
+	setText(gui, { "Root", "Row", "PlayerName" }, p.DisplayName)
+	setText(gui, { "Root", "Username" }, "@" .. p.Name)
 	setText(gui, { "Root", "Row", "Level", "Value" }, tostring(math.floor(numberOf(p, "Level", 1))))
 	local streak = math.floor(numberOf(p, "WinStreak", 0))
 	setText(gui, { "Root", "Row", "Streak", "Value" }, tostring(streak))
-	local streakChip = find(gui, { "Root", "Row", "Streak" })
-	if streakChip and streakChip:IsA("GuiObject") then
-		streakChip.Visible = streak > 0
-	end
+	setVisible(gui, { "Root", "Row", "Streak" }, streak > 0)
 	local title = PlayerData.title(p)
-	local titleLabel = find(gui, { "Root", "Title" })
-	if titleLabel and titleLabel:IsA("TextLabel") then
-		titleLabel.Visible = title ~= nil
-		titleLabel.Text = title or ""
-	end
+	setText(gui, { "Root", "Title" }, title or "")
+	setVisible(gui, { "Root", "Title" }, title ~= nil)
 end
 
 -- puts the Roblox name back (when the tag hides or goes)
@@ -92,36 +104,23 @@ local function clearCharacter(tag: Tag)
 		c:Disconnect()
 	end
 	table.clear(tag.charConns)
-	tag.head = nil
+	tag.root = nil
 	tag.humanoid = nil
-	if tag.gui then
-		tag.gui:Destroy()
-	end
-	tag.gui = nil
-	tag.scale = nil
+	tag.gui.Enabled = false
+	tag.gui.Adornee = nil
 end
 
 local function bindCharacter(p: Player, tag: Tag, character: Model)
 	clearCharacter(tag)
 	task.spawn(function()
-		local head = character:WaitForChild("Head", 10)
+		local root = character:WaitForChild("HumanoidRootPart", 10)
 		local humanoid = character:WaitForChild("Humanoid", 10)
 		if tags[p] ~= tag or p.Character ~= character then
 			return
 		end
-		if head and head:IsA("BasePart") and template then
-			local gui = template:Clone()
-			gui.Name = "NameTag"
-			gui.Enabled = false
-			gui.Adornee = head
-			gui.Archivable = false -- never copied with the body (win cutscene, replays, body clones)
-			local scale = gui:FindFirstChildOfClass("UIScale") or Instance.new("UIScale")
-			scale.Parent = gui
-			gui.Parent = head
-			tag.gui = gui
-			tag.scale = scale
-			tag.head = head
-			fill(p, tag)
+		if root and root:IsA("BasePart") then
+			tag.root = root
+			tag.gui.Adornee = root
 		end
 		if humanoid and humanoid:IsA("Humanoid") then
 			tag.humanoid = humanoid
@@ -139,14 +138,33 @@ local function remove(p: Player)
 	for _, c in tag.conns do
 		c:Disconnect()
 	end
+	tag.gui:Destroy()
 end
 
 local function add(p: Player)
-	if tags[p] or not template then
+	if tags[p] or not (template and folder) then
 		return
 	end
-	local tag: Tag = { conns = {}, charConns = {} }
+	local gui = template:Clone()
+	gui.Name = p.Name
+	gui.Enabled = false
+	gui.Adornee = nil
+	gui.Archivable = false -- never copied (win cutscene, replays, body clones)
+	-- on Root (anchored bottom-centre), so the tag grows up from over the head, never down into it
+	local root = gui:FindFirstChild("Root")
+	local scale = gui:FindFirstChildWhichIsA("UIScale", true) or Instance.new("UIScale")
+	scale.Parent = root or gui
+	gui.Parent = folder
+	local username = gui:FindFirstChild("Username", true)
+	local tag: Tag = {
+		gui = gui,
+		scale = scale,
+		username = if username and username:IsA("GuiObject") then username else nil,
+		conns = {},
+		charConns = {},
+	}
 	tags[p] = tag
+	fill(p, tag)
 	table.insert(
 		tag.conns,
 		StateValues.anyChanged(p):Connect(function(name: string)
@@ -178,7 +196,7 @@ local function add(p: Player)
 	end
 end
 
--- every frame: who shows a tag, and how big (a distance-scaled UIScale keeps the plate art crisp)
+-- every frame: who shows a tag, and how big
 local function step()
 	local camera = Workspace.CurrentCamera
 	if not camera then
@@ -187,18 +205,22 @@ local function step()
 	local camPos = camera.CFrame.Position
 	local meInLobby = PlayZone.get(player) == "Lobby"
 	for p, tag in tags do
-		local head = tag.head
-		local gui, scale = tag.gui, tag.scale
-		if not (gui and scale) then
-			continue
-		end
-		local show = meInLobby and head ~= nil and head.Parent ~= nil and PlayZone.get(p) == "Lobby"
-		local dist = if head then (head.Position - camPos).Magnitude else math.huge
-		if show and p == player and dist < FIRST_PERSON then
-			show = false
+		local root = tag.root
+		local gui = tag.gui
+		local show = meInLobby and root ~= nil and root.Parent ~= nil and PlayZone.get(p) == "Lobby"
+		local dist = if root then (root.Position - camPos).Magnitude else math.huge
+		if show and p == player and root then
+			local headPos = root.Position + Vector3.new(0, HEAD_HEIGHT, 0)
+			if (headPos - camPos).Magnitude < FIRST_PERSON then
+				show = false
+			end
 		end
 		if show then
-			scale.Scale = math.clamp(refDistance / math.max(dist, 1), minScale, maxScale)
+			local size = math.clamp((refDistance / math.max(dist, 1)) ^ falloff, minScale, maxScale)
+			tag.scale.Scale = size
+			if tag.username then
+				tag.username.Visible = size >= detailScale
+			end
 			if tag.humanoid and tag.shownName == nil then
 				tag.shownName = tag.humanoid.DisplayDistanceType
 				tag.humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
@@ -226,6 +248,14 @@ function NameTagController.start()
 	end
 	refDistance, minScale, maxScale =
 		attr("RefDistance", refDistance), attr("MinScale", minScale), attr("MaxScale", maxScale)
+	falloff, detailScale = attr("Falloff", falloff), attr("DetailScale", detailScale)
+
+	-- made on this client, so it never replicates; the tags live here between respawns
+	local f = Instance.new("Folder")
+	f.Name = "NameTags"
+	f.Archivable = false
+	f.Parent = Workspace
+	folder = f
 
 	Players.PlayerAdded:Connect(add)
 	Players.PlayerRemoving:Connect(remove)
