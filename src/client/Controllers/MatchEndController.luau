@@ -437,6 +437,7 @@ local PREVIEW_FIELD = "PreviewWinCutscene"
 local PREVIEW_AT = "PreviewWinCutsceneAt"
 local PREVIEW_COUNT = "PreviewWinCutsceneCount"
 local PREVIEW_SCREEN = "PreviewWinCutsceneScreen"
+local PREVIEW_GUN = "PreviewWinCutsceneGun"
 local previewing = false
 
 local function stopPreview()
@@ -556,8 +557,12 @@ local function preview()
 	local pool =
 		{ "Vandal", "Phantom", "Operator", "Spectre", "Bulldog", "Judge", "Odin", "Sheriff" }
 	local guns: { [number]: string } = {}
+	-- ("PreviewWinCutsceneGun" = one weapon id for every copy, to check a gun's hold)
+	local forced = StateValues.get(Workspace, PREVIEW_GUN)
 	for i = 1, n do
-		guns[i] = table.remove(pool, math.random(1, #pool)) :: string
+		guns[i] = if typeof(forced) == "string" and forced ~= ""
+			then forced
+			else table.remove(pool, math.random(1, #pool)) :: string
 	end
 	WinCutscene.play(winners, {
 		guns = guns,

@@ -203,12 +203,27 @@ end
 -- Puts gun `id` in the copy's hand (the winner's top-kills gun, owner
 -- 2026-11-20), the way the server's Weapon/WorldModel holds it. The gun the
 -- copy already holds is kept when it's the same one (it keeps its skin).
+--
+-- Every gun sits on the long-gun grip here, sidearms too (owner 2026-11-28:
+-- winners held pistols "to the side"): the win clips are keyed on the rifle
+-- grip (tools/anim/win_clips.py on tp_rig GRIP_LONG), so the arm is posed for
+-- a gun at that angle. The sidearm grip (barrel along the forearm, for the
+-- in-round pistol holds) is turned about 90 degrees from it and pointed the
+-- pistol off to the side of every pose.
+local GRIP = Animations.GUN_WORLD_GRIP
 local function arm(copy: Model, id: string?)
 	if not id then
 		return
 	end
 	local held = copy:FindFirstChild("WorldWeapon")
 	if held and StateValues.get(held, "WeaponId") == id then
+		for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
+			local model = copy:FindFirstChild(name)
+			local motor = model and model:FindFirstChild("WeaponGrip", true)
+			if motor and motor:IsA("Motor6D") then
+				motor.C0 = GRIP
+			end
+		end
 		return
 	end
 	local config = Weapons.get(id)
@@ -257,12 +272,9 @@ local function arm(copy: Model, id: string?)
 		end
 	end
 	local models = (config :: any).models -- akimbo: { right, left } (Weapon/WorldModel)
-	local grip = if config.class == "Sidearm"
-		then Animations.GUN_WORLD_GRIP_SIDEARM
-		else Animations.GUN_WORLD_GRIP
-	hold(if models then models.right else id, "RightHand", "WorldWeapon", grip)
+	hold(if models then models.right else id, "RightHand", "WorldWeapon", GRIP)
 	if models and models.left then
-		hold(models.left, "LeftHand", "WorldWeaponLeft", grip)
+		hold(models.left, "LeftHand", "WorldWeaponLeft", GRIP)
 	end
 end
 
