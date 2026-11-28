@@ -13,6 +13,9 @@ First full list of what's in the Season 1 pass, for the owner to go through item
 - **Arcade and Frostbite are being made** (owner, 2026-11-27): [Arcade and Frostbite Handoff](../02%20Art/Skins/Arcade%20and%20Frostbite%20Handoff.md).
 - **Charms go one per gun:** the player puts each charm on one gun, and it saves. Built by Antigravity: [Handoff - Charms](../05%20Production/Handoff%20-%20Charms%202026-11-27.md). A charm pack (like SURGE) comes later.
 
+## Tier pace (owner 2026-11-28)
+A tier every **20 minutes** of live rounds (was 30) or 25 rounds won (unchanged). `Config/Season.TIER_SECONDS`.
+
 ## Free track filled out (owner 2026-11-28: "the free tier looks a little sad")
 - **21 free rewards** (was 13). Added:
   - 2: 100 coins

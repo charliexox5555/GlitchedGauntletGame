@@ -16,7 +16,7 @@ Season.STARTS_AT = 1795824000 -- 2026-11-28 00:00 UTC (owner: open at launch); e
 
 -- One tier every TIER_SECONDS in live rounds OR every TIER_ROUNDS rounds won, whichever
 -- fills first. The meter that fills keeps its overflow; the other starts again at 0.
-Season.TIER_SECONDS = 30 * 60
+Season.TIER_SECONDS = 20 * 60 -- owner 2026-11-28: 30 → 20 minutes of live rounds
 Season.TIER_ROUNDS = 25
 Season.FIRST_WIN_ROUNDS = 5 -- the first win of each UTC day adds this many rounds
 Season.BOT_SCALE = 0.5 -- no real player on the other side: time and rounds count half
