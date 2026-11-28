@@ -45,7 +45,7 @@ The owner wants this update to be the polished first release. Checked against th
 - **Owner decisions:**
   - No odds needed on coin packs or the Starter Bundle: the cases inside show their own.
   - **Starter Bundle v2:** the Lancer, the Payload Lancer, a Standard Case, a Strike Box and 1,500 coins. Coins replace anything already owned, and replace the case and box where paid random items aren't allowed. Built; the Studio test and new Shop art (prompt in [Release 1 ChatGPT Prompts](../02%20Art/Release%201%20ChatGPT%20Prompts.md)) are still to do. The Roblox product description is updated with the new art (Open Cloud needs an icon in the same call).
-- **Security review:** no critical or high findings. Fixed: an Electric Shock orb outliving its thrower or the round; pass powers ignoring the deck size; a goodie-bag item prize on a full stack. **Owner call:** the owner admin panel works on live servers (allowlist only).
+- **Security review:** no critical or high findings. Fixed: an Electric Shock orb outliving its thrower or the round; pass powers ignoring the deck size; a goodie-bag item prize on a full stack. **Owner decision (2026-11-28): the admin panel stays live** (UserId allowlist), so the owner can fix player saves in the live game. Keep the owner account secured (2-step verification).
 - **Data safety review:** no duplication or load-overwrite paths. Fixed:
   - `PlayerData.VERSION` 2: older servers can't strip new nested fields. **On publish: shut down all servers.**
   - Unknown charm ids are kept.
