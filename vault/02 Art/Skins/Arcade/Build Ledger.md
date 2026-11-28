@@ -180,7 +180,7 @@ Four guns were built in parallel in separate Blender instances (MCP 9876 and soc
 | Classic | v03 | 3,476 (2,334) | [sheet](out/Classic_v03_review.png), [ledger](ledger/Classic.md) | **moved charm ring kept**; deck on the frame |
 | Sheriff | v03 | 4,432 (3,066) | [sheet](out/Sheriff_v03_review.png), [ledger](ledger/Sheriff.md) | deck on the barrel and lug (the speedloader sweeps the frame) |
 | Shorty | v03 | 3,802 (2,734) | [sheet](out/Shorty_v03_review.png), [ledger](ledger/Shorty.md) | **moved charm ring kept**; twin-bore muzzle block |
-| Ghost (Hush) | v03 | see [ledger](ledger/Ghost.md) (2,964) | [sheet](out/Ghost_v03_review.png) | pixel ghost swapped for the line's star and trail |
+| Ghost (Hush) | v03 | 3,830 (2,964) | [sheet](out/Ghost_v03_review.png), [ledger](ledger/Ghost.md) | pixel ghost swapped for the line's star and trail |
 
 **When Studio is free:**
 1. **Upload and install.** Upload each `vNNx/<Gun>_Arcade_RobloxFlat.fbx`. Run `make_flat_install_jobs.py --version vNNx` per gun (versions differ, so one job file per version) and run `InstallFlatSkin`.
