@@ -1,15 +1,30 @@
 --!strict
--- Renders a stationary upright 3/4 3D thumbnail of a charm Model inside a
--- ViewportFrame parented to a UI slot (reused by LockerV3 and BattlePass).
+-- A charm's picture in a UI slot: its rendered icon (Shared/CharmIcons) as an ImageLabel,
+-- else (no icon yet) a stationary upright 3/4 3D view in a ViewportFrame. Used by the
+-- Locker, Backpack, Shop odds and the battle pass. Both are named CharmViewport for clear().
 
 local CharmsConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Charms)
+local CharmIcons = require(game:GetService("ReplicatedStorage").Shared.CharmIcons)
 
 local CharmThumbnail = {}
 
-function CharmThumbnail.mount(parent: GuiObject, charmId: string, dimmed: boolean?): ViewportFrame?
+function CharmThumbnail.mount(parent: GuiObject, charmId: string, dimmed: boolean?): GuiObject?
 	local old = parent:FindFirstChild("CharmViewport")
 	if old then
 		old:Destroy()
+	end
+	local icon = CharmIcons.get(charmId)
+	if icon then
+		local img = Instance.new("ImageLabel")
+		img.Name = "CharmViewport"
+		img.Size = UDim2.fromScale(1, 1)
+		img.BackgroundTransparency = 1
+		img.ScaleType = Enum.ScaleType.Fit
+		img.Image = icon
+		img.ImageTransparency = if dimmed then 0.48 else 0
+		img.ZIndex = parent.ZIndex + 1
+		img.Parent = parent
+		return img
 	end
 	local src = CharmsConfig.model(charmId)
 	if not src then

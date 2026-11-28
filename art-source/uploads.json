@@ -4313,6 +4313,198 @@
   "type": "Decal",
   "uploaded": "2026-11-20 19:26:29"
  },
+ "art-source/ui/charm-icons/AceSkull.png": {
+  "assetId": 74605261038483,
+  "name": "GG Charm Icon AceSkull",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:14"
+ },
+ "art-source/ui/charm-icons/ArcadeToken.png": {
+  "assetId": 131596415183590,
+  "name": "GG Charm Icon ArcadeToken",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:17"
+ },
+ "art-source/ui/charm-icons/BatteryCell.png": {
+  "assetId": 109284251623725,
+  "name": "GG Charm Icon BatteryCell",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:20"
+ },
+ "art-source/ui/charm-icons/BrassBullet.png": {
+  "assetId": 133790763458850,
+  "name": "GG Charm Icon BrassBullet",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:23"
+ },
+ "art-source/ui/charm-icons/ClockworkGear.png": {
+  "assetId": 107003445976440,
+  "name": "GG Charm Icon ClockworkGear",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:26"
+ },
+ "art-source/ui/charm-icons/CompassRose.png": {
+  "assetId": 112942730931866,
+  "name": "GG Charm Icon CompassRose",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:28"
+ },
+ "art-source/ui/charm-icons/CrownTrophy.png": {
+  "assetId": 72894953528028,
+  "name": "GG Charm Icon CrownTrophy",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:31"
+ },
+ "art-source/ui/charm-icons/DashWing.png": {
+  "assetId": 121668383257562,
+  "name": "GG Charm Icon DashWing",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:34"
+ },
+ "art-source/ui/charm-icons/DogTags.png": {
+  "assetId": 130091181276557,
+  "name": "GG Charm Icon DogTags",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:37"
+ },
+ "art-source/ui/charm-icons/DraftTicket.png": {
+  "assetId": 78310976659773,
+  "name": "GG Charm Icon DraftTicket",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:40"
+ },
+ "art-source/ui/charm-icons/FragGrenade.png": {
+  "assetId": 135267405739478,
+  "name": "GG Charm Icon FragGrenade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:43"
+ },
+ "art-source/ui/charm-icons/FragPin.png": {
+  "assetId": 97284805805926,
+  "name": "GG Charm Icon FragPin",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:46"
+ },
+ "art-source/ui/charm-icons/FrostCrystal.png": {
+  "assetId": 75028930217549,
+  "name": "GG Charm Icon FrostCrystal",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:49"
+ },
+ "art-source/ui/charm-icons/GameCartridge.png": {
+  "assetId": 136694481127622,
+  "name": "GG Charm Icon GameCartridge",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:52"
+ },
+ "art-source/ui/charm-icons/GlitchDie.png": {
+  "assetId": 116933129921484,
+  "name": "GG Charm Icon GlitchDie",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:55"
+ },
+ "art-source/ui/charm-icons/HazardSign.png": {
+  "assetId": 132682466634385,
+  "name": "GG Charm Icon HazardSign",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:25:57"
+ },
+ "art-source/ui/charm-icons/HighScore.png": {
+  "assetId": 132072862724667,
+  "name": "GG Charm Icon HighScore",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:00"
+ },
+ "art-source/ui/charm-icons/IceCube.png": {
+  "assetId": 135571745793096,
+  "name": "GG Charm Icon IceCube",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:03"
+ },
+ "art-source/ui/charm-icons/Joystick.png": {
+  "assetId": 108954240721400,
+  "name": "GG Charm Icon Joystick",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:06"
+ },
+ "art-source/ui/charm-icons/Keycard.png": {
+  "assetId": 119331389703251,
+  "name": "GG Charm Icon Keycard",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:09"
+ },
+ "art-source/ui/charm-icons/KillRadar.png": {
+  "assetId": 73346938042941,
+  "name": "GG Charm Icon KillRadar",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:12"
+ },
+ "art-source/ui/charm-icons/MicroBlade.png": {
+  "assetId": 107236886926532,
+  "name": "GG Charm Icon MicroBlade",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:15"
+ },
+ "art-source/ui/charm-icons/MiniHelmet.png": {
+  "assetId": 95120761613690,
+  "name": "GG Charm Icon MiniHelmet",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:18"
+ },
+ "art-source/ui/charm-icons/MiniTsuba.png": {
+  "assetId": 105259685166064,
+  "name": "GG Charm Icon MiniTsuba",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:21"
+ },
+ "art-source/ui/charm-icons/MoltenCore.png": {
+  "assetId": 116605269839782,
+  "name": "GG Charm Icon MoltenCore",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:23"
+ },
+ "art-source/ui/charm-icons/PhantomLantern.png": {
+  "assetId": 111020219150626,
+  "name": "GG Charm Icon PhantomLantern",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:26"
+ },
+ "art-source/ui/charm-icons/PixelHeart.png": {
+  "assetId": 82614321148799,
+  "name": "GG Charm Icon PixelHeart",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:29"
+ },
+ "art-source/ui/charm-icons/PlasmaPrism.png": {
+  "assetId": 99428439489524,
+  "name": "GG Charm Icon PlasmaPrism",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:32"
+ },
+ "art-source/ui/charm-icons/ReactorCore.png": {
+  "assetId": 129461918139866,
+  "name": "GG Charm Icon ReactorCore",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:35"
+ },
+ "art-source/ui/charm-icons/SnowflakeShard.png": {
+  "assetId": 132124901210142,
+  "name": "GG Charm Icon SnowflakeShard",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:38"
+ },
+ "art-source/ui/charm-icons/TargetPlate.png": {
+  "assetId": 92612767208147,
+  "name": "GG Charm Icon TargetPlate",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:41"
+ },
+ "art-source/ui/charm-icons/ThunderOrb.png": {
+  "assetId": 74539682748308,
+  "name": "GG Charm Icon ThunderOrb",
+  "type": "Decal",
+  "uploaded": "2026-11-27 19:26:44"
+ },
  "art-source/ui/chatgpt/out/cards/Dash.png": {
   "assetId": 140564736965668,
   "name": "ModCard_v2_Dash",

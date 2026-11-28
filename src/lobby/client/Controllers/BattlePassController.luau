@@ -30,6 +30,7 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local UiRoot = require(ReplicatedStorage.Shared.UiRoot)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Loadout = require(ReplicatedStorage.Shared.Config.Loadout)
+local Mods = require(ReplicatedStorage.Shared.Config.Mods)
 local SkinArt = require(ReplicatedStorage.Shared.SkinArt)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
@@ -110,12 +111,6 @@ end
 local function commas(n: number): string
 	local s = string.reverse(tostring(math.floor(n))):gsub("(%d%d%d)", "%1,")
 	return (string.gsub(string.reverse(s), "^,", ""))
-end
-
--- "12:40" from seconds
-local function clock(secs: number): string
-	local s = math.max(math.ceil(secs), 0)
-	return string.format("%d:%02d", s // 60, s % 60)
 end
 
 --------------------------------------------------------------------------------
@@ -223,6 +218,10 @@ local function paintCell(cell: GuiButton, r: SeasonCatalog.Reward?, tier: number
 	name.Text = if r.kind == "Coins" then "x" .. commas(r.amount or 0) else r.name
 	if r.kind == "Coins" then
 		art.Image = ShopCatalog.ART.coinStack
+	elseif r.kind == "Ticket" then
+		art.Image = ShopCatalog.ART.ticket
+	elseif r.kind == "Mod" and r.mod and Mods.defs[r.mod] then
+		art.Image = Mods.defs[r.mod].icon or ""
 	elseif r.kind == "Case" then
 		local c = r.case and ShopCatalog.case(r.case)
 		art.Image = if c then c.art or "" else ""
@@ -350,17 +349,34 @@ local function renderSub()
 	sub.Text = string.format("%s  ·  ENDS IN %dD %dH", Season.NAME, days, hours)
 end
 
+-- The pass's buy buttons sit top-right at all times (owner 2026-11-27): PREMIUM until it's
+-- owned, +5 LEVELS until the last tier.
+local function renderStore()
+	local store = canvas:FindFirstChild("Store")
+	if not store then
+		return
+	end
+	local unlock = store:FindFirstChild("Unlock")
+	local skip = store:FindFirstChild("Skip")
+	if unlock and unlock:IsA("GuiObject") then
+		unlock.Visible = not state.premium
+	end
+	if skip and skip:IsA("GuiObject") then
+		skip.Visible = state.tier < Season.TIERS
+	end
+end
+
 local function renderLevel()
 	local top = state.tier >= Season.TIERS;
-	(child(child(levelRow, "Box"), "Value") :: TextLabel).Text = tostring(state.tier)
-	local secsLeft, roundsLeft = SeasonPass.left(state);
+	(child(child(levelRow, "Box"), "Value") :: TextLabel).Text = tostring(state.tier);
 	(child(child(levelRow, "Tip"), "Text") :: TextLabel).Text = if top
 		then "MAX LEVEL: EVERY REWARD IS UNLOCKED"
 		else string.format(
-			"%s LEFT OR %d ROUND%s TO LEVEL UP  ·  PLAY OR WIN ROUNDS",
-			clock(secsLeft),
-			roundsLeft,
-			if roundsLeft == 1 then "" else "S"
+			"%d / %d MIN  OR  %d / %d ROUNDS TO LEVEL UP",
+			state.secs // 60,
+			Season.TIER_SECONDS // 60,
+			state.rounds,
+			Season.TIER_ROUNDS
 		)
 	local bar = child(levelRow, "Bar") :: Frame
 	local share = if top
@@ -370,6 +386,7 @@ local function renderLevel()
 	(child(bar, "Next") :: TextLabel).Text = if top then "MAX" else "LEVEL " .. (state.tier + 1)
 	local badge = child(tracks, "PremiumBadge") :: GuiObject;
 	(child(badge, "Lock") :: GuiObject).Visible = not state.premium
+	renderStore()
 end
 
 --------------------------------------------------------------------------------
@@ -429,12 +446,10 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 	end
 end
 
-local function setActions(contents: boolean, claim: boolean, unlock: boolean, skip: boolean)
+local function setActions(contents: boolean, claim: boolean)
 	local actions = child(detail, "Actions") :: Frame;
 	(child(actions, "Contents") :: GuiObject).Visible = contents;
-	(child(actions, "Claim") :: GuiObject).Visible = claim;
-	(child(actions, "Unlock") :: GuiObject).Visible = unlock;
-	(child(actions, "Skip") :: GuiObject).Visible = skip
+	(child(actions, "Claim") :: GuiObject).Visible = claim
 end
 
 local function pickReward(p: Pick)
@@ -447,7 +462,7 @@ local function pickReward(p: Pick)
 		name.Text = "PREMIUM PASS"
 		desc.Text = table.concat(SeasonCatalog.PREMIUM_PERKS, "  ·  ")
 		showPicture(nil, ShopCatalog.ART.seasonPass)
-		setActions(false, false, not state.premium, false)
+		setActions(false, false)
 	else
 		local r = reward(p.tier, p.track)
 		tierLabel.Text = string.format("TIER %d  ·  %s", p.tier, string.upper(p.track))
@@ -456,6 +471,8 @@ local function pickReward(p: Pick)
 			desc.Text = rewardDesc(r)
 			local image = if r.kind == "Coins"
 				then ShopCatalog.ART.coinStack
+				elseif r.kind == "Ticket" then ShopCatalog.ART.ticket
+				elseif r.kind == "Mod" and r.mod and Mods.defs[r.mod] then Mods.defs[r.mod].icon
 				elseif r.kind == "Case" then (function()
 					local c = r.case and ShopCatalog.case(r.case)
 					return if c then c.art else nil
@@ -467,13 +484,7 @@ local function pickReward(p: Pick)
 			desc.Text = "THIS TIER'S REWARD IS ON THE OTHER TRACK"
 			showPicture(nil, nil)
 		end
-		local locked = p.track == "premium" and not state.premium
-		setActions(
-			r ~= nil and r.kind == "Case",
-			claimable(p.tier, p.track),
-			locked,
-			state.tier < p.tier
-		)
+		setActions(r ~= nil and r.kind == "Case", claimable(p.tier, p.track))
 	end
 	renderPage()
 end
@@ -631,12 +642,23 @@ local function setPage(n: number, animate: boolean)
 	renderPage()
 	if animate then
 		for col = 1, SeasonCatalog.PER_PAGE do
-			for _, prefix in { "Free", "Premium" } do
-				local sc = pop(child(tracks, prefix .. col))
+			for row, prefix in { "Free", "Premium" } do
+				local cell = child(tracks, prefix .. col) :: GuiObject
+				local art = cell:FindFirstChild("Art")
+				local sc = pop(cell)
+				local delay = math.min((col - 1) * 0.04 + (row - 1) * 0.02, 0.3)
 				if sc then
-					sc.Scale = 0.9
-					task.delay(col * 0.025, function()
+					sc.Scale = 0.94
+					task.delay(delay, function()
 						tween(sc, 0.24, { Scale = 1 })
+					end)
+				end
+				if art and art:IsA("ImageLabel") and art.Image ~= "" then
+					local home = UDim2.new(0.5, 0, 0.44, 0)
+					art.Position = home + UDim2.fromOffset(0, 12)
+					art.ImageTransparency = 1
+					task.delay(delay, function()
+						tween(art, 0.24, { Position = home, ImageTransparency = 0 })
 					end)
 				end
 			end
@@ -767,8 +789,9 @@ local function build(): boolean
 		end)
 	end
 	local actions = child(detail, "Actions") :: Frame
-	local function hookButton(name: string, fn: () -> ())
-		local b = child(actions, name) :: GuiButton
+	local store = canvas:FindFirstChild("Store") or actions
+	local function hookButton(name: string, fn: () -> (), parent: Instance?)
+		local b = child(parent or actions, name) :: GuiButton
 		local sc = pop(b)
 		b.MouseEnter:Connect(function()
 			rest(sc, KM.hover)
@@ -786,10 +809,10 @@ local function build(): boolean
 	-- Robux: the server checks again and answers on ShopEvent (ShopController's popup)
 	hookButton("Unlock", function()
 		robuxRequest:FireServer("season")
-	end)
+	end, store)
 	hookButton("Skip", function()
 		robuxRequest:FireServer("seasonSkip")
-	end)
+	end, store)
 	CloseButton.hook(child(oddsPanel, "Close") :: GuiButton, function()
 		showOdds(false)
 	end)
