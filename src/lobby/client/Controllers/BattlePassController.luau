@@ -454,10 +454,32 @@ local function showPicture(r: SeasonCatalog.Reward?, image: string?)
 	end
 end
 
+-- Every reward reached and not taken (CLAIM ALL shows from 2).
+local function claimableCount(): number
+	local n = 0
+	for tier = 1, #SeasonCatalog.TIERS do
+		for _, track in { "free", "premium" } :: { Track } do
+			if claimable(tier, track) then
+				n += 1
+			end
+		end
+	end
+	return n
+end
+
 local function setActions(contents: boolean, claim: boolean)
 	local actions = child(detail, "Actions") :: Frame;
 	(child(actions, "Contents") :: GuiObject).Visible = contents;
 	(child(actions, "Claim") :: GuiObject).Visible = claim
+	local all = actions:FindFirstChild("ClaimAll")
+	if all and all:IsA("GuiObject") then
+		local n = claimableCount()
+		all.Visible = n >= 2
+		local label = all:FindFirstChild("Label")
+		if label and label:IsA("TextLabel") then
+			label.Text = `CLAIM ALL ({n})`
+		end
+	end
 end
 
 local function pickReward(p: Pick)
@@ -524,6 +546,18 @@ local function claim()
 	end)
 end
 
+-- CLAIM ALL: one write on the server (SeasonRequest "claimAll").
+local function claimAll()
+	if claiming or claimableCount() == 0 then
+		return
+	end
+	claiming = true
+	seasonRequest:FireServer("claimAll")
+	task.delay(5, function()
+		claiming = false
+	end)
+end
+
 local function onSeasonEvent(payload: unknown)
 	if typeof(payload) ~= "table" then
 		return
@@ -578,15 +612,26 @@ local function onSeasonEvent(payload: unknown)
 					end)
 				end
 			end
+			if not e.all then
+				LobbyHud.toast(
+					"You've earned "
+						.. (
+							if r.kind == "Coins"
+								then string.format("%s COINS", commas(r.amount or 0))
+								elseif (r.amount or 1) > 1 then `x{r.amount} {r.name}`
+								else "x1 " .. r.name
+						),
+					"info"
+				)
+			end
+		end
+		if e.all then
+			local n = #e.rewards
 			LobbyHud.toast(
-				"You've earned "
-					.. (
-						if r.kind == "Coins"
-							then string.format("%s COINS", commas(r.amount or 0))
-							elseif (r.amount or 1) > 1 then `x{r.amount} {r.name}`
-							else "x1 " .. r.name
-					),
-				"info"
+				if e.ended
+					then `The season ended: {n} reward{if n == 1 then "" else "s"} you reached were added`
+					else `Claimed {n} reward{if n == 1 then "" else "s"}`,
+				"success"
 			)
 		end
 	elseif e.kind == "failed" then
@@ -814,6 +859,9 @@ local function build(): boolean
 	end
 	hookButton("Contents", openContents)
 	hookButton("Claim", claim)
+	if actions:FindFirstChild("ClaimAll") then
+		hookButton("ClaimAll", claimAll)
+	end
 	-- Robux: the server checks again and answers on ShopEvent (ShopController's popup)
 	hookButton("Unlock", function()
 		robuxRequest:FireServer("season")

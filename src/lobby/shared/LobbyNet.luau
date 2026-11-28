@@ -120,6 +120,8 @@ export type SeasonEventPayload = {
 		}
 	}?,
 	text: string?, -- "failed": why
+	all: boolean?, -- "claimed" by CLAIM ALL or the season-end payout: one summary toast
+	ended: boolean?, -- "claimed" by the season-end payout (Services/SeasonService)
 }
 export type TaskEventPayload = {
 	done: { { id: string, text: string, coins: number } }, -- tasks finished, in order

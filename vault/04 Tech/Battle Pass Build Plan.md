@@ -98,5 +98,14 @@
 
   The rest is briefed for another AI in [Handoff - Battle Pass Build](../05%20Production/Handoff%20-%20Battle%20Pass%20Build%202026-11-27.md).
 
+- **Phase 9, part 1 (2026-11-27): CLAIM ALL and the season end.**
+  - CLAIM ALL is in the detail actions (`Detail.Actions.ClaimAll`, Studio). It shows from 2 claimable rewards, makes one `SeasonRequest ("claimAll")` write and gives one toast.
+  - **Season end (`SeasonService`):** after `Season.endsAt()`, claims are refused and leftovers are paid in one write when the save loads and once a minute; the claim marks make it pay once. Studio forces the end with Workspace `SeasonEndNow = true`.
+  - **Studio hook:** `ServerStorage.SeasonTest:Invoke(userId, "tier" n | "premium" bool | "reset")`.
+
+  Tested: 18 rewards in one claim-all, then "nothing to claim"; a forced end paid tiers 13-20 on both tracks without a click and refused a later claim. The save was restored.
+
+  **Left for launch:** set `Season.STARTS_AT`, `BATTLE_PASS_OPEN`, the phone layout (F). Pay leftovers before a Season 2 id change: anyone who doesn't join between the end and Season 2 loses them, so leave a gap.
+
 ## Rules for every phase
 `--!strict`. Every number lives in `SeasonCatalog`/Config. The server is the only source for progress, claims and grants. Every remote validates types, rejects non-finite numbers and is rate-limited. One save per match, and a txId on every grant so nothing pays twice.

@@ -20,8 +20,70 @@ Everything between today and a public Draft Duels launch, in order. It builds on
 - `SHOP_FULL_LAYOUT = false`
 - `Season.STARTS_AT = 0`: no season dates set yet.
 
+## Status check: what's left for release #1 (late 2026-11-27)
+The owner wants this update to be the polished first release. Checked against the code and Studio.
+
+**Done since this plan was written:**
+- Smoke and Electric Shock, with all paths, ChatGPT icons and card art.
+- Name tags; titles on the scoreboard and end screen.
+- Goodie bags; the Shop's pass card.
+- 32 charms with blind boxes.
+- Arcade on all 14 guns.
+- Frostbite: in progress in its own sessions.
+- The RIVALS and staging containers are gone from the place.
+- **Today:** pass **CLAIM ALL** (one write, one summary toast), the **season-end payout** (H: leftovers paid on join and every minute after `Season.endsAt()`, claims then refused; Studio switch Workspace `SeasonEndNow`), and the Studio hook `ServerStorage.SeasonTest`. Studio-tested: 18 rewards in one claim-all; a forced end paid tiers 13-20 once and refused a later claim.
+
+**Power upgrades** (code audit, all 14 powers × 7 levels): every level has code. Small gaps:
+- Dash B3/G3: the cloak doesn't hide you from bots or aim assist.
+- Heal Orb G2/G3: the held orb doesn't get a Barrier look (`Heal Orb.md:116`).
+- Smoke G2 Toxic Cloud: no sound of its own.
+- Most power sounds are unauditioned library takes. Ready/Denied/Cancel are stand-ins and ModRaise has no sound.
+- The Hindered and Stimmed HUD readouts are temporary.
+- `Upgrade Paths.md` says Shock Dart G3 is 7 studs; the code is 11.
+
+**Must do before publishing:**
+1. **Finish Frostbite** (its sessions).
+2. **Compliance [C]:**
+   - Odds on coin packs 4-6 and the Starter Bundle.
+   - Shop Robux prices from `GetProductInfo` (none today).
+   - Every paid random item shows its odds (cases, charm blind boxes, bags).
+   - The `roblox-monetization-compliance` audit.
+3. **Data safety [C]:** review, plus a kill-the-server test mid-purchase and mid-claim.
+4. **Security [C]:** review the remotes added since the last audit: Season (claim, claimAll), the Locker title and charm actions, blind boxes, bags, `ModTrigger`, admin.
+5. **Error logging [C]:** nothing reports server or client errors today (no `ScriptContext.Error` / `LogService` hook).
+6. **Phones [C+O]:** the pass screen phone layout (F). A real-phone and controller match covering every new screen: name tags, the Locker charm slot, bag opening, the pass.
+7. **Place cleanup [C+O]:**
+   - Delete `ServerStorage.PlateMigrationBackup` (3.2k), `UiBackups` (1.6k), `BotAvatarBackups` (1k) and the empty `WeaponSyncBackup` after you OK it.
+   - The RIVALS-kit meshes in Greenhouse4, Foundry4 and CanyonOutpost, and the RIVALS map textures, stay by your earlier call; that's still an IP risk.
+8. **Owner decisions [O]:**
+   - the Operator against the one-shot rule;
+   - the Ruined Reaver in the bundle;
+   - ship all 14 guns;
+   - server sizes;
+   - **whether the pass opens at launch, or a soft launch with it closed (the earlier locked plan)**.
+9. **Save the place, push, publish [O].**
+
+**Polish that makes it feel finished:**
+- an audio audition pass for the powers;
+- the Barrier orb look;
+- the Toxic Cloud sound;
+- the final Hindered and Stimmed HUD;
+- pass claim stamp and shine;
+- title-reward art;
+- a mobile MicroProfiler pass (30 fps target);
+- phone text at least 12 px.
+
+**Store and launch [O + C]:**
+- icon and 3 thumbnails (an Arcade skins one, a power moment);
+- the description with sound credits;
+- the questionnaire;
+- a 30 s trailer;
+- a group or Discord;
+- pass analytics (view → buy);
+- set `Season.STARTS_AT` and `BATTLE_PASS_OPEN`.
+
 ## Phase 1: finish Season 1 content (the battle pass has to be complete before it opens)
-1. **The two pass powers [C+O]** (built 2026-11-27; left: ChatGPT icons and card art, the owner's sound audition). Smoke (free tier 10) and Electric Shock (premium tier 20) aren't in `Config/Mods`. Each power needs:
+1. **The two pass powers [C+O]** (built 2026-11-27, icons and card art in; left: the owner's sound audition). Smoke (free tier 10) and Electric Shock (premium tier 20). Each power needs:
    - design numbers in `01 Design/Abilities/`;
    - server logic in the Mods system, with the validation rules;
    - the effect, built mesh-first (`lihfolk-vfx`);
